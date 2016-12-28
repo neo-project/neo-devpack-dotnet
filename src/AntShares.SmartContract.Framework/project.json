@@ -1,8 +1,8 @@
-﻿{
+{
   "authors": [ "The Antshares team" ],
   "copyright": "2016 The Antshares team",
   "title": "AntShares.SmartContract.Framework",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packOptions": {
     "owners": [ "The Antshares team" ],
     "projectUrl": "https://github.com/AntShares/AntShares.SmartContract.Framework",
@@ -19,7 +19,6 @@
         "NETStandard.Library": "1.6.0"
       }
     },
-    "net20": {},
     "net40": {}
   }
 }
