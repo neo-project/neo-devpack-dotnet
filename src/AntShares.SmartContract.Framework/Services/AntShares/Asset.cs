@@ -1,7 +1,13 @@
 ﻿namespace AntShares.SmartContract.Framework.Services.AntShares
 {
-    public class Asset : Transaction
+    public class Asset
     {
+        public extern byte[] AssetId
+        {
+            [Syscall("AntShares.Asset.GetAssetId")]
+            get;
+        }
+
         public extern byte AssetType
         {
             [Syscall("AntShares.Asset.GetAssetType")]
@@ -14,15 +20,33 @@
             get;
         }
 
-        public extern byte[] Issuer
+        public extern long Available
         {
-            [Syscall("AntShares.Asset.GetIssuer")]
+            [Syscall("AntShares.Asset.GetAvailable")]
+            get;
+        }
+
+        public extern byte Precision
+        {
+            [Syscall("AntShares.Asset.GetPrecision")]
+            get;
+        }
+
+        public extern byte[] Owner
+        {
+            [Syscall("AntShares.Asset.GetOwner")]
             get;
         }
 
         public extern byte[] Admin
         {
             [Syscall("AntShares.Asset.GetAdmin")]
+            get;
+        }
+
+        public extern byte[] Issuer
+        {
+            [Syscall("AntShares.Asset.GetIssuer")]
             get;
         }
     }

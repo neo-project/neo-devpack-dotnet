@@ -19,5 +19,11 @@
 
         [Syscall("AntShares.Blockchain.GetTransaction")]
         public static extern Transaction GetTransaction(byte[] hash);
+
+        [Syscall("AntShares.Blockchain.GetAccount")]
+        public static extern Account GetAccount(byte[] script_hash);
+
+        [Syscall("AntShares.Blockchain.GetAsset")]
+        public static extern Asset GetAsset(byte[] asset_id);
     }
 }
