@@ -12,6 +12,8 @@
         {
             [Syscall("AntShares.Account.GetVotes")]
             get;
+            [Syscall("AntShares.Account.SetVotes")]
+            set;
         }
 
         [Syscall("AntShares.Account.GetBalance")]
