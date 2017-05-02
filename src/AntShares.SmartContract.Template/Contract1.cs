@@ -6,6 +6,6 @@ using System.Numerics;
 namespace $safeprojectname$
 {
 	public class Contract1 : FunctionCode
-{
-}
+    {
+    }
 }
