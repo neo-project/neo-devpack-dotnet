@@ -1,28 +1,28 @@
 ﻿namespace AntShares.SmartContract.Framework.Services.System
 {
-    public class ScriptEngine
+    public class ExecutionEngine
     {
         public extern IScriptContainer ScriptContainer
         {
-            [Syscall("System.ScriptEngine.GetScriptContainer")]
+            [Syscall("System.ExecutionEngine.GetScriptContainer")]
             get;
         }
 
         public extern byte[] ExecutingScriptHash
         {
-            [Syscall("System.ScriptEngine.GetExecutingScriptHash")]
+            [Syscall("System.ExecutionEngine.GetExecutingScriptHash")]
             get;
         }
 
         public extern byte[] CallingScriptHash
         {
-            [Syscall("System.ScriptEngine.GetCallingScriptHash")]
+            [Syscall("System.ExecutionEngine.GetCallingScriptHash")]
             get;
         }
 
         public extern byte[] EntryScriptHash
         {
-            [Syscall("System.ScriptEngine.GetEntryScriptHash")]
+            [Syscall("System.ExecutionEngine.GetEntryScriptHash")]
             get;
         }
     }
