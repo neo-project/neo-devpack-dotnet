@@ -1,22 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+﻿<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
   <TemplateData>
     <Name>AntShares.SmartContract.Template</Name>
-    <Description>AntShares.SmartContract.Template</Description>
-    <Icon>AntShares.SmartContract.Template.ico</Icon>
+    <Description>&lt;AntShares.SmartContract.Template&gt;</Description>
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
+    <ProjectSubType>
+    </ProjectSubType>
     <SortOrder>1000</SortOrder>
-    <TemplateID>3c16aceb-2b6e-4392-ac4b-715e0110c392</TemplateID>
     <CreateNewFolder>true</CreateNewFolder>
     <DefaultName>SmartContract</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
+    <LocationField>Enabled</LocationField>
+    <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    <Icon>AntShares.SmartContract.Template.ico</Icon>
   </TemplateData>
   <TemplateContent>
-    <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
-      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
-      <ProjectItem ReplaceParameters="true" OpenInEditor="true">Contract1.cs</ProjectItem>
-      <ProjectItem ReplaceParameters="true">packages.config</ProjectItem>
+    <Project TargetFileName="ProjectTemplate.csproj" File="ProjectTemplate.csproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="false" TargetFileName="AntShares.ILConvertPlugin.dll">AntShares.ILConvertPlugin.dll</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="build.tasks">build.tasks</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Contract1.cs">Contract1.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="packages.config">packages.config</ProjectItem>
+      <Folder Name="Properties" TargetFolderName="Properties">
+        <ProjectItem ReplaceParameters="true" TargetFileName="AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+      </Folder>
     </Project>
   </TemplateContent>
 </VSTemplate>
