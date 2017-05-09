@@ -5,7 +5,7 @@ namespace AntShares.SmartContract.Framework
 {
     public class Contract
     {
-        protected static ScriptEngine ScriptEngine { get; } = new ScriptEngine();
+        protected static ExecutionEngine ExecutionEngine { get; } = new ExecutionEngine();
 
         [OpCode(OpCode.SHA1)]
         protected extern static byte[] Sha1(byte[] data);
