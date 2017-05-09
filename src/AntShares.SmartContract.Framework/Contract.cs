@@ -16,6 +16,6 @@ namespace AntShares.SmartContract.Framework
         [OpCode(OpCode.HASH256)]
         protected extern static byte[] Hash256(byte[] data);
         [OpCode(OpCode.CHECKSIG)]
-        protected extern static bool VerifySignature(byte[] signature, byte[] pubkey);
+        protected extern static bool VerifySignature(byte[] pubkey, byte[] signature);
     }
 }
