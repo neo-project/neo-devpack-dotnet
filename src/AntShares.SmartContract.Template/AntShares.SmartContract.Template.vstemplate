@@ -5,18 +5,21 @@
     <Description>AntShares.SmartContract.Template</Description>
     <Icon>AntShares.SmartContract.Template.ico</Icon>
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
     <SortOrder>1000</SortOrder>
     <TemplateID>3c16aceb-2b6e-4392-ac4b-715e0110c392</TemplateID>
     <CreateNewFolder>true</CreateNewFolder>
     <DefaultName>SmartContract</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
+    <LocationField>Enabled</LocationField>
+    <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
   </TemplateData>
   <TemplateContent>
     <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
       <ProjectItem ReplaceParameters="true" OpenInEditor="true">Contract1.cs</ProjectItem>
       <ProjectItem ReplaceParameters="true">packages.config</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="AntShares.ILConvertPlugin.dll">AntShares.ILConvertPlugin.dll</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="build.tasks">build.tasks</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>
