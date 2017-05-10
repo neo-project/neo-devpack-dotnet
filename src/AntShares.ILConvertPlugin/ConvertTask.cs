@@ -1,11 +1,9 @@
-﻿namespace AntShares
+﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
+using System.Diagnostics;
+
+namespace AntShares
 {
-
-    using Microsoft.Build.Framework;
-    using Microsoft.Build.Utilities;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
     /// <summary>
     /// this class generate config / xml file by template
     /// </summary>
@@ -21,12 +19,6 @@
         public override bool Execute()
         {
             var srcdll = this.DataSource.ToString();
-
-            //this.Log.LogMessage("LogMessage AntShares IL Convert 0.01.");//can't show
-            this.Log.LogMessageFromText("LogMessageFromText AntShares IL Convert 0.01.", MessageImportance.High);
-
-
-
             string dllname = System.IO.Path.GetFileName(srcdll);
             ProcessStartInfo pinfo = new ProcessStartInfo();
             pinfo.FileName = "cmd.exe";
