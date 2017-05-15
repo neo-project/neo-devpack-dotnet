@@ -32,15 +32,15 @@
             get;
         }
 
-        public extern ulong Nonce
+        public extern ulong ConsensusData
         {
-            [Syscall("AntShares.Header.GetNonce")]
+            [Syscall("AntShares.Header.GetConsensusData")]
             get;
         }
 
-        public extern byte[] NextMiner
+        public extern byte[] NextConsensus
         {
-            [Syscall("AntShares.Header.GetNextMiner")]
+            [Syscall("AntShares.Header.GetNextConsensus")]
             get;
         }
     }
