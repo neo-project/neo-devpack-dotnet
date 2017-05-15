@@ -2,7 +2,7 @@
   "authors": [ "The Antshares team" ],
   "copyright": "2016 The Antshares team",
   "title": "AntShares.SmartContract.Framework",
-  "version": "1.6.0-preview4",
+  "version": "1.6.0-preview8",
   "packOptions": {
     "owners": [ "The Antshares team" ],
     "projectUrl": "https://github.com/AntShares/AntShares.SmartContract.Framework",

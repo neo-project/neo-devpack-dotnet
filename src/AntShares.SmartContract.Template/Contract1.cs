@@ -7,5 +7,9 @@ namespace $safeprojectname$
 {
 	public class Contract1 : FunctionCode
 {
+    public static void Main()
+    {
+        Storage.Put(StorageContext.Current, "Hello", "World");
+    }
 }
 }
