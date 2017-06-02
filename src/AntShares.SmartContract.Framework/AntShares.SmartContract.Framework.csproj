@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Copyright>2016 The Antshares team</Copyright>
     <AssemblyTitle>AntShares.SmartContract.Framework</AssemblyTitle>
-    <Version>1.6.1</Version>
+    <Version>2.0.0</Version>
     <Authors>The Antshares team</Authors>
     <TargetFrameworks>netstandard1.6;net40</TargetFrameworks>
     <AssemblyName>AntShares.SmartContract.Framework</AssemblyName>

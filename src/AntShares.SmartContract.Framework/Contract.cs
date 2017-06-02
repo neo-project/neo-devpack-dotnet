@@ -1,12 +1,9 @@
-﻿using AntShares.SmartContract.Framework.Services.System;
-using AntShares.VM;
+﻿using AntShares.VM;
 
 namespace AntShares.SmartContract.Framework
 {
     public class Contract
     {
-        protected static ExecutionEngine ExecutionEngine { get; } = new ExecutionEngine();
-
         [OpCode(OpCode.SHA1)]
         protected extern static byte[] Sha1(byte[] data);
 

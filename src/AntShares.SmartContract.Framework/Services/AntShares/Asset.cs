@@ -49,5 +49,8 @@
             [Syscall("AntShares.Asset.GetIssuer")]
             get;
         }
+
+        [Syscall("AntShares.Asset.Renew")]
+        public extern uint Renew(byte years);
     }
 }
