@@ -17,7 +17,7 @@
     <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
       <ProjectItem ReplaceParameters="true" OpenInEditor="true">Contract1.cs</ProjectItem>
-      <ProjectItem ReplaceParameters="true">packages.config</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="packages.config">packages_t.config</ProjectItem>
       <ProjectItem ReplaceParameters="false" TargetFileName="AntShares.ILConvertPlugin.dll">AntShares.ILConvertPlugin.dll</ProjectItem>
       <ProjectItem ReplaceParameters="false" TargetFileName="build.tasks">build.tasks</ProjectItem>
     </Project>

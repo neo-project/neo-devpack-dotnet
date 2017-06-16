@@ -12,5 +12,11 @@ namespace AntShares.SmartContract.Framework
 
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
+
+        [Nonemit]
+        public extern static byte[] ToByteArray(this string source);
+
+        [Nonemit]
+        public extern static string ToString(this byte[] source);
     }
 }
