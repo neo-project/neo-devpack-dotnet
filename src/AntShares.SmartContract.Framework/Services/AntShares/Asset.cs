@@ -50,6 +50,9 @@
             get;
         }
 
+        [Syscall("AntShares.Asset.Create")]
+        public static extern Asset Create(byte asset_type, string name, long amount, byte precision, byte[] owner, byte[] admin, byte[] issuer);
+
         [Syscall("AntShares.Asset.Renew")]
         public extern uint Renew(byte years);
     }
