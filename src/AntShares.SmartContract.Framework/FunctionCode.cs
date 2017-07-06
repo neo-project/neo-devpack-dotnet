@@ -1,6 +1,6 @@
 ﻿namespace AntShares.SmartContract.Framework
 {
-    public class FunctionCode : Contract
+    public class FunctionCode : SmartContract
     {
     }
 }

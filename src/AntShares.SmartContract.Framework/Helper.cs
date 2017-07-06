@@ -4,6 +4,12 @@ namespace AntShares.SmartContract.Framework
 {
     public static class Helper
     {
+        [Nonemit]
+        public extern static byte[] AsByteArray(this string source);
+
+        [Nonemit]
+        public extern static string AsString(this byte[] source);
+
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, byte[] second);
 
@@ -12,11 +18,5 @@ namespace AntShares.SmartContract.Framework
 
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
-
-        [Nonemit]
-        public extern static byte[] ToByteArray(this string source);
-
-        [Nonemit]
-        public extern static string ToString(this byte[] source);
     }
 }
