@@ -2,7 +2,7 @@
 
 namespace AntShares.SmartContract.Framework
 {
-    public class Contract
+    public class SmartContract
     {
         [OpCode(OpCode.SHA1)]
         protected extern static byte[] Sha1(byte[] data);
