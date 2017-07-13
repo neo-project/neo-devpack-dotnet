@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Copyright>2016-2017 The Neo Project</Copyright>
+    <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
+    <Version>2.0.0.6</Version>
+    <Authors>The Neo Project</Authors>
+    <TargetFrameworks>netstandard1.6;net40</TargetFrameworks>
+    <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
+    <PackageId>Neo.SmartContract.Framework</PackageId>
+    <PackageTags>NEO;AntShares;Blockchain;Smart Contract;VM</PackageTags>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
+    <Company>The Neo Project</Company>
+    <Description>Neo.SmartContract.Framework</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.6|AnyCPU'">
+    <DefineConstants>RELEASE;NETSTANDARD1_6</DefineConstants>
+    <DebugType>none</DebugType>
+    <DebugSymbols>False</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
