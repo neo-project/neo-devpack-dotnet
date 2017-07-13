@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>NeoContract</Name>
+    <Description>Allow users to create a CSharp project for NeoContract.</Description>
+    <Icon>Template.CSharp.ico</Icon>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>1000</SortOrder>
+    <TemplateID>3c16aceb-2b6e-4392-ac4b-715e0110c392</TemplateID>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>NeoContract</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+    <LocationField>Enabled</LocationField>
+    <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true">Contract1.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="packages.config">packages_t.config</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="Neo.ConvertTask.dll">Neo.ConvertTask.dll</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="build.tasks">build.tasks</ProjectItem>
+    </Project>
+  </TemplateContent>
+</VSTemplate>
