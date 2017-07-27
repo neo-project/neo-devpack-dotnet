@@ -2,13 +2,13 @@
 {
     public class Block : Header
     {
-        [Syscall("Neo.Header.GetTransactionCount")]
+        [Syscall("Neo.Block.GetTransactionCount")]
         public extern int GetTransactionCount();
 
-        [Syscall("Neo.Header.GetTransactions")]
+        [Syscall("Neo.Block.GetTransactions")]
         public extern Transaction[] GetTransactions();
 
-        [Syscall("Neo.Header.GetTransaction")]
+        [Syscall("Neo.Block.GetTransaction")]
         public extern Transaction GetTransaction(int index);
     }
 }
