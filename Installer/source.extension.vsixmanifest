@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="NeoContractPlugin.neoproject.73db6e85-ea96-427d-9425-399625b66e69" Version="2.0.0.6" Language="en-US" Publisher="The Neo Project" />
+    <Identity Id="NeoContractPlugin.neoproject.73db6e85-ea96-427d-9425-399625b66e69" Version="2.0.1" Language="en-US" Publisher="The Neo Project" />
     <DisplayName>NeoContractPlugin</DisplayName>
     <Description xml:space="preserve">Allow users to create smart contract in Visual Studio.</Description>
     <MoreInfo>https://github.com/neo-project/neo-devpack-dotnet</MoreInfo>
