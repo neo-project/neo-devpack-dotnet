@@ -2,6 +2,12 @@
 {
     public static class Runtime
     {
+        public static extern TriggerType Trigger
+        {
+            [Syscall("Neo.Runtime.GetTrigger")]
+            get;
+        }
+
         [Syscall("Neo.Runtime.CheckWitness")]
         public static extern bool CheckWitness(byte[] hashOrPubkey);
 
