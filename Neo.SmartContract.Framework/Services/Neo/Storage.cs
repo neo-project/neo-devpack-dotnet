@@ -1,4 +1,6 @@
-﻿namespace Neo.SmartContract.Framework.Services.Neo
+﻿using System.Numerics;
+
+namespace Neo.SmartContract.Framework.Services.Neo
 {
     public static class Storage
     {
@@ -18,10 +20,16 @@
         public static extern void Put(StorageContext context, byte[] key, byte[] value);
 
         [Syscall("Neo.Storage.Put")]
+        public static extern void Put(StorageContext context, byte[] key, BigInteger value);
+
+        [Syscall("Neo.Storage.Put")]
         public static extern void Put(StorageContext context, byte[] key, string value);
 
         [Syscall("Neo.Storage.Put")]
         public static extern void Put(StorageContext context, string key, byte[] value);
+
+        [Syscall("Neo.Storage.Put")]
+        public static extern void Put(StorageContext context, string key, BigInteger value);
 
         [Syscall("Neo.Storage.Put")]
         public static extern void Put(StorageContext context, string key, string value);

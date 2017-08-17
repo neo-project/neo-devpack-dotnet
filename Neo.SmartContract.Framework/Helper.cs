@@ -1,9 +1,16 @@
 ﻿using Neo.VM;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
+        [Nonemit]
+        public extern static BigInteger AsBigInteger(this byte[] source);
+
+        [Nonemit]
+        public extern static byte[] AsByteArray(this BigInteger source);
+
         [Nonemit]
         public extern static byte[] AsByteArray(this string source);
 
