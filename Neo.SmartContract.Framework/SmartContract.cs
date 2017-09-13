@@ -17,6 +17,9 @@ namespace Neo.SmartContract.Framework
         protected extern static byte[] Hash256(byte[] data);
 
         [OpCode(OpCode.CHECKSIG)]
-        protected extern static bool VerifySignature(byte[] pubkey, byte[] signature);
+        protected extern static bool VerifySignature(byte[] signature, byte[] pubkey);
+
+        [OpCode(OpCode.CHECKMULTISIG)]
+        protected extern static bool VerifySignatures(byte[][] signature, byte[][] pubkey);
     }
 }
