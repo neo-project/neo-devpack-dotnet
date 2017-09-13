@@ -33,8 +33,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Neo.SmartContract.Framework, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Neo.SmartContract.Framework.2.1.0\lib\net40\Neo.SmartContract.Framework.dll</HintPath>
+    <Reference Include="Neo.SmartContract.Framework, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Neo.SmartContract.Framework.2.3.0\lib\net40\Neo.SmartContract.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
