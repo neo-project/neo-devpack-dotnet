@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace $safeprojectname$
 {
-	public class Contract1 : Framework.SmartContract
+	public class Contract1 : SmartContract
 {
     public static void Main()
     {
