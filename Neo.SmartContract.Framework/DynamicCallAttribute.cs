@@ -2,12 +2,9 @@
 
 namespace Neo.SmartContract.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class DynamicCallAttribute : Attribute
     {
-        public DynamicCallAttribute()
-        {
 
-        }
     }
 }
