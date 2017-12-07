@@ -6,11 +6,11 @@ namespace Neo.SmartContract.Framework
     [AttributeUsage(AttributeTargets.Method )]
     public class EntryPointAttribute : Attribute
     {
-        public TriggerType type { get; }
+        public TriggerType Type { get; }
 
         public EntryPointAttribute(TriggerType type)
         {
-            this.type = type;
+            this.Type = type;
         }
     }
 }
