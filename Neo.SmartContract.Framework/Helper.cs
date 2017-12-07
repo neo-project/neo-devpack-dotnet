@@ -25,5 +25,11 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
+
+        [NonemitWithConvert(ConvertMethod.HexString2Bytes)]
+        public extern static byte[] HexString2Bytes(string hex);
+
+        [NonemitWithConvert(ConvertMethod.AddressString2ScriptHashBytes)]
+        public extern static byte[] AddressString2ScriptHashBytes(string address);
     }
 }
