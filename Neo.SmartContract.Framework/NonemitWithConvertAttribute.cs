@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Globalization;
 
 namespace Neo.SmartContract.Framework
 {
     public enum ConvertMethod
     {
-        HexString2Bytes,
-        AddressString2ScriptHashBytes,
+        HexToBytes,
+        ToScriptHash,
     }
+
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
     public class NonemitWithConvertAttribute : Attribute
     {
