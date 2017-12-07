@@ -2,33 +2,21 @@
 {
     public class StorageContext
     {
-        public byte[] this[byte[] key]
+        public extern byte[] this[byte[] key]
         {
             [Syscall("Neo.Storage.Get")]
-            get
-            {
-                return Storage.Get(this, key);
-            }
+            get;
             [Syscall("Neo.Storage.Put")]
-            set
-            {
-                Storage.Put(this, key, value);
-            }
+            set;
         }
 
 
-        public byte[] this[string key]
+        public extern byte[] this[string key]
         {
             [Syscall("Neo.Storage.Get")]
-            get
-            {
-                return Storage.Get(this, key);
-            }
+            get;
             [Syscall("Neo.Storage.Put")]
-            set
-            {
-                Storage.Put(this, key, value);
-            }
+            set;
         }
     }
 }
