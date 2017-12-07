@@ -11,11 +11,11 @@ namespace Neo.SmartContract.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
     public class NonemitWithConvertAttribute : Attribute
     {
-        public ConvertMethod method { get; }
+        public ConvertMethod Method { get; }
 
         public NonemitWithConvertAttribute(ConvertMethod method)
         {
-            this.method = method;
+            this.Method = method;
         }
     }
 }
