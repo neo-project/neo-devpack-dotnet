@@ -20,10 +20,16 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, byte[] second);
 
+        [NonemitWithConvert(ConvertMethod.HexToBytes)]
+        public extern static byte[] HexToBytes(this string hex);
+
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
+
+        [NonemitWithConvert(ConvertMethod.ToScriptHash)]
+        public extern static byte[] ToScriptHash(this string address);
     }
 }
