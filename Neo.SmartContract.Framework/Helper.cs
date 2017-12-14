@@ -1,4 +1,5 @@
 ﻿using Neo.VM;
+using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework
@@ -28,6 +29,9 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
+
+        [Nonemit]
+        public extern static Delegate ToDelegate(this byte[] source);
 
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static byte[] ToScriptHash(this string address);

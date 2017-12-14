@@ -32,6 +32,12 @@
             get;
         }
 
+        public extern uint Index
+        {
+            [Syscall("Neo.Header.GetIndex")]
+            get;
+        }
+
         public extern ulong ConsensusData
         {
             [Syscall("Neo.Header.GetConsensusData")]

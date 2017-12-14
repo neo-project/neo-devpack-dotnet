@@ -25,5 +25,8 @@
 
         [Syscall("Neo.Transaction.GetReferences")]
         public extern TransactionOutput[] GetReferences();
+
+        [Syscall("Neo.Transaction.GetUnspentCoins")]
+        public extern TransactionOutput[] GetUnspentCoins();
     }
 }
