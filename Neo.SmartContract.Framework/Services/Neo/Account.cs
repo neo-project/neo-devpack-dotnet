@@ -12,8 +12,6 @@
         {
             [Syscall("Neo.Account.GetVotes")]
             get;
-            [Syscall("Neo.Account.SetVotes")]
-            set;
         }
 
         [Syscall("Neo.Account.GetBalance")]
