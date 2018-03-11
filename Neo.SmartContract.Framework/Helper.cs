@@ -40,7 +40,7 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Serialize(this object objectOrArray);
 
         [Syscall("Neo.Runtime.Deserialize")]
-        public extern static byte[] DeSerialize(this byte[] source);
+        public extern static object[] Deserialize(this byte[] source);
 
         
     }
