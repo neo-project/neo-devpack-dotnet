@@ -3,7 +3,7 @@
     public class Iterator
     {
         [Syscall("Neo.Iterator.Next")]
-        public extern Iterator Next();
+        public extern bool Next();
 
         public extern byte[] Key
         {
