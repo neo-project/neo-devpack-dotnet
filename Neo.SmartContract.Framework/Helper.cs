@@ -41,34 +41,5 @@ namespace Neo.SmartContract.Framework
 
         [Syscall("Neo.Runtime.Deserialize")]
         public extern static object Deserialize(this byte[] source);
-
-        
     }
-    public interface IDictionary
-    {
-    }
-    public static class DictionaryHelper
-    {
-        [OpCode(OpCode.NEWMAP)]
-        public extern static IDictionary New();
-
-        [OpCode(OpCode.SETITEM)]
-        public extern static void Put(this IDictionary dict, string key, byte[] value);
-
-        [OpCode(OpCode.PICKITEM)]
-        public extern static byte[] Get(this IDictionary dict, string key);
-
-        [OpCode(OpCode.REMOVE)]
-        public extern static byte[] Remove(this IDictionary dict, string key);
-
-        [OpCode(OpCode.HASKEY)]
-        public extern static byte[] HasKey(this IDictionary dict, string key);
-
-        [OpCode(OpCode.KEYS)]
-        public extern static System.Collections.ICollection Keys(this IDictionary dict);
-
-        [OpCode(OpCode.VALUES)]
-        public extern static System.Collections.ICollection Values(this IDictionary dict);
-    }
-
 }
