@@ -2,7 +2,7 @@
 
 namespace Neo.SmartContract.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor)]
     public class SyscallAttribute : Attribute
     {
         public string Method { get; }

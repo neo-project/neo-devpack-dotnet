@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Framework
         ToScriptHash,
     }
 
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor)]
     public class NonemitWithConvertAttribute : Attribute
     {
         public ConvertMethod Method { get; }

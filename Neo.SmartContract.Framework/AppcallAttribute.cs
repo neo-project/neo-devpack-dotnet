@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Neo.SmartContract.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor)]
     public class AppcallAttribute : Attribute
     {
         public byte[] ScriptHash { get; }
