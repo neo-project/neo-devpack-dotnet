@@ -22,11 +22,5 @@
 
         [Syscall("Neo.Runtime.Log")]
         public static extern void Log(string message);
-
-        [Syscall("Neo.Runtime.Serialize")]
-        public static extern byte[] Serialize(object item);
-
-        [Syscall("Neo.Runtime.Deserialize")]
-        public static extern object Deserialize(byte[] bytes);
     }
 }
