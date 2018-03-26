@@ -41,9 +41,9 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern void Delete(StorageContext context, string key);
 
         [Syscall("Neo.Storage.Find")]
-        public static extern StorageIterator Find(StorageContext context, byte[] prefix);
+        public static extern Iterator<byte[], byte[]> Find(StorageContext context, byte[] prefix);
 
         [Syscall("Neo.Storage.Find")]
-        public static extern StorageIterator Find(StorageContext context, string prefix);
+        public static extern Iterator<string, byte[]> Find(StorageContext context, string prefix);
     }
 }
