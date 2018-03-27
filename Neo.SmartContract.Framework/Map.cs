@@ -6,26 +6,31 @@ namespace Neo.SmartContract.Framework
     {
         [OpCode(OpCode.NEWMAP)]
         public extern Map();
-    }
 
-    public static class MapHelper
-    {
-        [OpCode(OpCode.SETITEM)]
-        public extern static void Put<TKey, TValue>(this Map<TKey, TValue> map, TKey key, TValue value);
+        public extern TValue this[TKey key]
+        {
+            [OpCode(OpCode.PICKITEM)]
+            get;
+            [OpCode(OpCode.SETITEM)]
+            set;
+        }
 
-        [OpCode(OpCode.PICKITEM)]
-        public extern static TValue Get<TKey, TValue>(this Map<TKey, TValue> map, TKey key);
+        public extern TKey[] Keys
+        {
+            [OpCode(OpCode.KEYS)]
+            get;
+        }
 
-        [OpCode(OpCode.REMOVE)]
-        public extern static void Remove<TKey, TValue>(this Map<TKey, TValue> map, TKey key);
+        public extern TValue[] Values
+        {
+            [OpCode(OpCode.VALUES)]
+            get;
+        }
 
         [OpCode(OpCode.HASKEY)]
-        public extern static bool HasKey<TKey, TValue>(this Map<TKey, TValue> map, TKey key);
+        public extern bool HasKey(TKey key);
 
-        [OpCode(OpCode.KEYS)]
-        public extern static TKey[] Keys<TKey, TValue>(this Map<TKey, TValue> map);
-
-        [OpCode(OpCode.VALUES)]
-        public extern static TValue[] Values<TKey, TValue>(this Map<TKey, TValue> map);
+        [OpCode(OpCode.REMOVE)]
+        public extern void Remove(TKey key);
     }
 }
