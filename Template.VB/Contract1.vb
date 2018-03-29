@@ -1,5 +1,6 @@
 ﻿Public Class $itemname$ : Inherits SmartContract
-    Public Shared Sub Main()
+    Public Shared Function Main(ByVal operation As String, ByVal args() As Object) As Boolean
         Storage.Put(Storage.CurrentContext, "Hello", "World")
-    End Sub
+        Return True
+    End Function
 End Class

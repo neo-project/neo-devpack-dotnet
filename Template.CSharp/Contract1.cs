@@ -7,9 +7,10 @@ namespace $safeprojectname$
 {
 	public class Contract1 : SmartContract
 {
-    public static void Main()
+    public static bool Main(string operation, object[] args)
     {
         Storage.Put(Storage.CurrentContext, "Hello", "World");
+        return true;
     }
 }
 }
