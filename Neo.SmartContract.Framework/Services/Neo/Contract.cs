@@ -7,6 +7,12 @@
             [Syscall("Neo.Contract.GetScript")]
             get;
         }
+       
+        public extern bool IsPayable
+        {
+            [Syscall("Neo.Contract.IsPayable")]
+            get;
+        }
 
         public extern StorageContext StorageContext
         {
