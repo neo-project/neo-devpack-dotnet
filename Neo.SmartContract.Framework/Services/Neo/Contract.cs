@@ -21,10 +21,10 @@
         }
 
         [Syscall("Neo.Contract.Create")]
-        public static extern Contract Create(byte[] script, byte[] parameter_list, byte return_type, bool need_storage, string name, string version, string author, string email, string description);
+        public static extern Contract Create(byte[] script, byte[] parameter_list, byte return_type, ContractPropertyState contract_property_state, string name, string version, string author, string email, string description);
 
         [Syscall("Neo.Contract.Migrate")]
-        public static extern Contract Migrate(byte[] script, byte[] parameter_list, byte return_type, bool need_storage, string name, string version, string author, string email, string description);
+        public static extern Contract Migrate(byte[] script, byte[] parameter_list, byte return_type, ContractPropertyState contract_property_state, string name, string version, string author, string email, string description);
 
         [Syscall("Neo.Contract.Destroy")]
         public static extern void Destroy();
