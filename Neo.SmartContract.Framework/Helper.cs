@@ -36,6 +36,9 @@ namespace Neo.SmartContract.Framework
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static byte[] ToScriptHash(this string address);
 
+        [NonemitWithConvert(ConvertMethod.ToBigInteger)]
+        public extern static BigInteger ToBigInteger(this string text);
+
         [Syscall("Neo.Runtime.Serialize")]
         public extern static byte[] Serialize(this object source);
 
