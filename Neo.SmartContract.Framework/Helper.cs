@@ -33,6 +33,10 @@ namespace Neo.SmartContract.Framework
         [Nonemit]
         public extern static Delegate ToDelegate(this byte[] source);
 
+        /// <summary>
+        /// ToScriptHash converts a base-58 Address to ScriptHash in little-endian byte array.
+        /// Example: "AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y".ToScriptHash() generates 23ba2703c53263e8d6e522dc32203339dcd8eee9
+        /// </summary>
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static byte[] ToScriptHash(this string address);
 
