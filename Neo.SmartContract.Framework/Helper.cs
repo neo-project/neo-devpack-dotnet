@@ -14,6 +14,19 @@ namespace Neo.SmartContract.Framework
 
         [Nonemit]
         public extern static byte[] AsByteArray(this string source);
+        
+        public static byte AsByte(this BigInteger source)
+        {
+            byte[] b = source.AsByteArray();
+            return b[0];
+        }
+        
+        public static byte AsByte(this int source)
+        {
+            BigInteger bigSource = source;
+            byte[] b = bigSource.AsByteArray();
+            return b[0];
+        }
 
         [Nonemit]
         public extern static string AsString(this byte[] source);
