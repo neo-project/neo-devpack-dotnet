@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework
         
         public static byte AsByte(this BigInteger source)
         {
-            if((source > 255) | (source < 0))
+            if((source > 255) || (source < 0))
                 throw new Exception();
             return source == 0 ? (byte)0x00 : source.AsByteArray()[0];
         }
