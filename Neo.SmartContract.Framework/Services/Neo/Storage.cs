@@ -45,5 +45,55 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("Neo.Storage.Find")]
         public static extern Iterator<string, byte[]> Find(StorageContext context, string prefix);
+        
+        public static byte[] Get(byte[] key)
+        {
+            return Get(CurrentContext, key);
+        }
+
+        public static byte[] Get(string key)
+        {
+            return Get(CurrentContext, key);
+        }
+        
+        public static void Put(byte[] key, byte[] value)
+        {
+            Put(CurrentContext, key, value);
+        }
+
+        public static void Put(byte[] key, BigInteger value)
+        {
+            Put(CurrentContext, key, value);
+        }
+
+        public static void Put(byte[] key, string value)
+        {
+            Put(CurrentContext, key, value);
+        }
+
+        public static void Put(string key, byte[] value)
+        {
+            Put(CurrentContext, key, value);
+        }
+
+        public static void Put(string key, BigInteger value)
+        {
+            Put(CurrentContext, key, value);
+        }
+
+        public static void Put(string key, string value)
+        {
+            Put(CurrentContext, key, value);
+        }
+
+        public static void Delete(byte[] key)
+        {
+            Delete(CurrentContext, key);
+        }
+
+        public static void Delete(string key)
+        {
+            Delete(CurrentContext, key);
+        }
     }
 }
