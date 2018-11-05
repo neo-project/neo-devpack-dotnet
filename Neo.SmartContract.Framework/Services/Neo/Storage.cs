@@ -95,5 +95,15 @@ namespace Neo.SmartContract.Framework.Services.Neo
         {
             Delete(CurrentContext, key);
         }
+        
+        public static Iterator<byte[], byte[]> Find(byte[] prefix)
+        {
+            return Find(CurrentContext, prefix);
+        }
+
+        public static Iterator<string, byte[]> Find(string prefix)
+        {
+            return Find(CurrentContext, prefix);
+        }
     }
 }
