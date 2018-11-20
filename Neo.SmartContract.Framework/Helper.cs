@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Framework
         {
             if((source > 255) || (source < 0))
                 throw new Exception();
-            return source == 0 ? (byte)0x00 : source.AsByteArray()[0];
+            return source > 127 ? (byte)(source - 256) : (byte)source;
         }
         
         public static byte AsByte(this int source)
