@@ -17,15 +17,26 @@ namespace Neo.SmartContract.Framework
         
         public static byte AsByte(this BigInteger source)
         {
-            if((source > 255) || (source < 0))
+            return (byte) source.AsSbyte();
+        }
+        
+        public static sbyte AsSbyte(this BigInteger source)
+        {
+            if((source > 127) || (source < -128))
                 throw new Exception();
-            return source > 127 ? (byte)(source - 256) : (byte)source;
+            return (sbyte) source;
         }
         
         public static byte AsByte(this int source)
         {
             BigInteger bigSource = source;
             return bigSource.AsByte();
+        }
+        
+        public static sbyte AsSbyte(this int source)
+        {
+            BigInteger bigSource = source;
+            return bigSource.AsSbyte();
         }
 
         [Nonemit]
