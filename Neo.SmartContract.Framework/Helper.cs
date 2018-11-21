@@ -39,9 +39,28 @@ namespace Neo.SmartContract.Framework
             return bigSource.AsSbyte();
         }
         
+        public static sbyte ToSbyte(this BigInteger source)
+        {
+            if(source > 127)
+                source = source - 256;
+            return source.AsSbyte();
+        }
+        
         public static sbyte ToSbyte(this int source)
         {
-            return (source>127): (sbyte) (source - 256): (sbyte) source;
+            BigInteger bigSource = source;
+            return bigSource.ToSbyte();
+        }
+        
+        public static byte ToByte(this BigInteger source)
+        {
+            return (byte)source.ToSbyte();
+        }
+        
+        public static byte ToByte(this int source)
+        {
+            BigInteger bigSource = source;
+            return bigSource.ToByte();
         }
 
         [Nonemit]
