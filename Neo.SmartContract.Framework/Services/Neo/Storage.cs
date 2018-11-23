@@ -84,7 +84,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// </summary>
         [Syscall("Neo.Storage.Find")]
         public static extern Iterator<string, byte[]> Find(StorageContext context, string prefix);
-        
+
         /// <summary>
         /// Returns the byte[] value corresponding to given byte[] key for current Storage context
         /// </summary>
@@ -100,7 +100,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         {
             return Get(CurrentContext, key);
         }
-        
+
         /// <summary>
         /// Writes byte[] value on byte[] key for current Storage context
         /// </summary>
@@ -164,7 +164,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         {
             Delete(CurrentContext, key);
         }
-        
+
         /// <summary>
         /// Returns a byte[] to byte[] iterator for a byte[] prefix on current Storage context
         /// </summary>
