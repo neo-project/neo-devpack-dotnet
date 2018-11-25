@@ -7,7 +7,8 @@ namespace Neo.SmartContract.Framework
     public static class Helper
     {
         /// <summary>
-        /// Converts byte[] to BigInteger. Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
+        /// Converts byte[] to BigInteger. No guarantees are assumed regarding BigInteger working range.
+        /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
         [Nonemit]
         public extern static BigInteger AsBigInteger(this byte[] source);
@@ -23,6 +24,7 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Converts BigInteger to byte[]. No guarantees are assumed regarding BigInteger working range.
+        /// Examples: 10 -> [0x0a]; 10 -> [0x0a00]; -128 -> [0x80]; -128 -> [0x80ff]; 0 -> []; 0 -> [0x00]; 255 -> [0xff00]
         /// </summary>
         [Nonemit]
         public extern static byte[] AsByteArray(this BigInteger source);
