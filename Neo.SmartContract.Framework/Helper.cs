@@ -65,8 +65,8 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static sbyte AsSbyte(this BigInteger source)
         {
-            Assert(source.Within(-128, 128));
-            return (sbyte) (source + 0);
+            Assert(source.AsByteArray().Length == 1);
+            return (sbyte) source;
         }
         
         /// <summary>
@@ -75,8 +75,8 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static sbyte AsSbyte(this int source)
         {
-            Assert(source.Within(-128, 128));
-            return (sbyte) (source + 0);
+            Assert(source.AsByteArray().Length == 1);
+            return (sbyte) source;
         }
         
         /// <summary>
@@ -85,8 +85,8 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte AsByte(this BigInteger source)
         {
-            Assert(source.Within(-128, 128));
-            return (byte) (source + 0);
+            Assert(source.AsByteArray().Length == 1);
+            return (byte) source;
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte AsByte(this int source)
         {
-            Assert(source.Within(-128, 128));
-            return (byte) (source + 0);
+            Assert(source.AsByteArray().Length == 1);
+            return (byte) source;
         }
         
         /// <summary>
