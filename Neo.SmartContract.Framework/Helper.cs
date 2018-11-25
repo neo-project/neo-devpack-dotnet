@@ -17,19 +17,11 @@ namespace Neo.SmartContract.Framework
         
         // a <= x && x < b
         [OpCode(OpCode.WITHIN)]
-        public extern static bool Within(this int x, int a, int b);
-
-        // a <= x && x < b
-        [OpCode(OpCode.WITHIN)]
         public extern static bool Within(this BigInteger x, int a, int b);
         
         // a <= x && x < b
         [OpCode(OpCode.WITHIN)]
-        public extern static bool Within(this byte x, int a, int b);
-
-        // a <= x && x < b
-        [OpCode(OpCode.WITHIN)]
-        public extern static bool Within(this sbyte x, int a, int b);
+        public extern static bool Within(this int x, int a, int b);
         
         // faults if b is false
         [OpCode(OpCode.THROWIFNOT)]
