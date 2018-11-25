@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static sbyte AsSbyte(this int source)
         {
-            Assert(source.AsByteArray().Length == 1);
+            Assert(((BigInteger)source).AsByteArray().Length == 1);
             return (sbyte) source;
         }
         
@@ -95,7 +95,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte AsByte(this int source)
         {
-            Assert(source.AsByteArray().Length == 1);
+            Assert(((BigInteger)source).AsByteArray().Length == 1);
             return (byte) source;
         }
         
