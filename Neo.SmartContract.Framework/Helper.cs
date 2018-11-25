@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Framework
         
         // faults if b is false
         [OpCode(OpCode.THROWIFNOT)]
-        public extern static bool Assert(this bool b);
+        public extern static void Assert(this bool b);
         
         public static sbyte AsSbyte(this BigInteger source)
         {
