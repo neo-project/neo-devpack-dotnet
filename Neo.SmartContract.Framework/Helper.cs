@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework
         /// Converts byte[] to BigInteger and ensures output is within BigInteger range (32-bytes) in standard format; faults otherwise.
         /// Examples: -128 [0x80ff] -> -128 [0x80]; 0 [0x000000] -> 0 [0x00]; 0 [] -> 0 [0x00]; 255 [0xff00000000000000] -> 255 [0xff00]
         /// </summary>
-        public extern static BigInteger ToBigInteger(this byte[] source)
+        public static BigInteger ToBigInteger(this byte[] source)
         {
             return source.AsBigInteger() + 0;
         }
