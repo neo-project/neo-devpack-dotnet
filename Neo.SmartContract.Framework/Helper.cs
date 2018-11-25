@@ -34,13 +34,13 @@ namespace Neo.SmartContract.Framework
         /// Returns true iff a <= x && x < b. Examples: x=5 a=5 b=15 is true; x=15 a=5 b=15 is false
         /// </summary>
         [OpCode(OpCode.WITHIN)]
-        public extern static bool Within(this BigInteger x, int a, int b);
+        public extern static bool Within(this BigInteger x, BigInteger a, BigInteger b);
         
         /// <summary>
         /// Returns true iff a <= x && x < b. Examples: x=5 a=5 b=15 is true; x=15 a=5 b=15 is false
         /// </summary>
         [OpCode(OpCode.WITHIN)]
-        public extern static bool Within(this int x, int a, int b);
+        public extern static bool Within(this int x, BigInteger a, BigInteger b);
         
         /// <summary>
         /// Faults iff b is false
