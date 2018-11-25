@@ -90,25 +90,25 @@ namespace Neo.SmartContract.Framework
         
         /// <summary>
         /// Converts parameter to sbyte from (big)integer range 0-255; faults if out-of-range. 
-        /// Examples: 256 -> fault; -1 -> fault; 255 -> -1 [0xff]; 0 -> 0 []; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
+        /// Examples: 256 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 []; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
         public static sbyte ToSbyte(this BigInteger source)
         {
-            Assert(source.Within(0, 256));
             if(source > 127)
                 source = source - 256;
+            Assert(source.Within(-128, 128));
             return (sbyte) source;
         }
         
         /// <summary>
         /// Converts parameter to sbyte from (big)integer range 0-255; faults if out-of-range. 
-        /// Examples: 256 -> fault; -1 -> fault; 255 -> -1 [0xff]; 0 -> 0 []; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
+        /// Examples: 256 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 []; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
         public static sbyte ToSbyte(this int source)
         {
-            Assert(source.Within(0, 256));
             if(source > 127)
                 source = source - 256;
+            Assert(source.Within(-128, 128));
             return (sbyte) source;
         }
         
