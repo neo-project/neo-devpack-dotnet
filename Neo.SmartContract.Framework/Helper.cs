@@ -15,52 +15,80 @@ namespace Neo.SmartContract.Framework
         [Nonemit]
         public extern static byte[] AsByteArray(this string source);
         
-        public static byte AsByte(this BigInteger source)
-        {
-            return (byte) source.AsSbyte();
-        }
+        // a <= x && x < b
+        [OpCode(OpCode.WITHIN)]
+        public extern static bool Within(this int x, int a, int b);
+
+        // a <= x && x < b
+        [OpCode(OpCode.WITHIN)]
+        public extern static bool Within(this BigInteger x, int a, int b);
+        
+        // a <= x && x < b
+        [OpCode(OpCode.WITHIN)]
+        public extern static bool Within(this byte x, int a, int b);
+
+        // a <= x && x < b
+        [OpCode(OpCode.WITHIN)]
+        public extern static bool Within(this sbyte x, int a, int b);
+        
+        // faults if b is false
+        [OpCode(OpCode.THROWIFNOT)]
+        public extern static bool Assert(this bool b);
         
         public static sbyte AsSbyte(this BigInteger source)
         {
-            if((source > 127) || (source < -128))
-                throw new Exception();
+            Assert(source.Within(-128, 128));
             return (sbyte) source;
-        }
-        
-        public static byte AsByte(this int source)
-        {
-            BigInteger bigSource = source;
-            return bigSource.AsByte();
         }
         
         public static sbyte AsSbyte(this int source)
         {
-            BigInteger bigSource = source;
-            return bigSource.AsSbyte();
+            Assert(source.Within(-128, 128));
+            return (sbyte) source;
+        }
+        
+        public static byte AsByte(this BigInteger source)
+        {
+            Assert(source.Within(-128, 128));
+            return (byte) source;
+        }
+        
+        public static byte AsByte(this int source)
+        {
+            Assert(source.Within(-128, 128));
+            return (byte) source;
         }
         
         public static sbyte ToSbyte(this BigInteger source)
         {
             if(source > 127)
                 source = source - 256;
-            return source.AsSbyte();
+            Assert(source.Within(-128, 128));
+            return (sbyte) source;
         }
         
         public static sbyte ToSbyte(this int source)
         {
-            BigInteger bigSource = source;
-            return bigSource.ToSbyte();
+            if(source > 127)
+                source = source - 256;
+            Assert(source.Within(-128, 128));
+            return (sbyte) source;
         }
         
         public static byte ToByte(this BigInteger source)
         {
-            return (byte)source.ToSbyte();
+             if(source > 127)
+                source = source - 256;
+            Assert(source.Within(-128, 128));
+            return (byte) source;
         }
         
         public static byte ToByte(this int source)
         {
-            BigInteger bigSource = source;
-            return bigSource.ToByte();
+            if(source > 127)
+                source = source - 256;
+            Assert(source.Within(-128, 128));
+            return (byte) source;
         }
 
         [Nonemit]
