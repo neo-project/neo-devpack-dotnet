@@ -7,6 +7,18 @@ namespace Neo.SmartContract.Framework
     public static class Helper
     {
         /// <summary>
+        /// Converts sbyte[] to byte[].
+        /// </summary>
+        [Nonemit]
+        public extern static byte[] AsByteArray(this sbyte[] source);
+        
+        /// <summary>
+        /// Converts byte[] to sbyte[].
+        /// </summary>
+        [Nonemit]
+        public extern static sbyte[] AsSbyteArray(this byte[] source);
+        
+        /// <summary>
         /// Converts byte[] to BigInteger. No guarantees are assumed regarding BigInteger working range.
         /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
