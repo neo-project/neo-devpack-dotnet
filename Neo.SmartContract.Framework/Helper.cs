@@ -7,6 +7,18 @@ namespace Neo.SmartContract.Framework
     public static class Helper
     {
         /// <summary>
+        /// Converts byte to byte[].
+        /// </summary>
+        [Nonemit]
+        public extern static byte[] AsByteArray(this byte source);
+
+        /// <summary>
+        /// Converts sbyte to byte[].
+        /// </summary>
+        [Nonemit]
+        public extern static byte[] AsByteArray(this sbyte source);
+       
+        /// <summary>
         /// Converts sbyte[] to byte[].
         /// </summary>
         [Nonemit]
@@ -158,6 +170,14 @@ namespace Neo.SmartContract.Framework
                 source = source - 256;
             return (byte) (source + 0);
         }
+        
+        /// <summary>
+        /// Safely performs attribution v[x] = b. Faults if x < 0 or x >= v.Length
+        /// </summary>
+        public static byte[] Set(this byte[] v, int x, sbyte b)
+        {
+            return v.Take(x).Concat(b.AsByteArray()).Concat(v.Last(v.Length - x - 1));
+        }
 
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, byte[] second);
@@ -168,8 +188,17 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
+        /// <summary>
+        /// Returns byte[] with first 'count' elements from 'source'. Faults if count < 0
+        /// </summary>
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
+        
+        /// <summary>
+        /// Returns byte[] with last 'count' elements from 'source'. Faults if count < 0
+        /// </summary>
+        [OpCode(OpCode.RIGHT)]
+        public extern static byte[] Last(this byte[] source, int count);
 
         [Nonemit]
         public extern static Delegate ToDelegate(this byte[] source);
