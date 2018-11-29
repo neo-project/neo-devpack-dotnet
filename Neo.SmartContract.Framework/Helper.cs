@@ -9,15 +9,15 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts byte to byte[].
         /// </summary>
-        [Nonemit]
+        [OpCode]
         public extern static byte[] AsByteArray(this byte source);
 
         /// <summary>
         /// Converts sbyte to byte[].
         /// </summary>
-        [Nonemit]
+        [OpCode]
         public extern static byte[] AsByteArray(this sbyte source);
-       
+
         /// <summary>
         /// Converts sbyte[] to byte[].
         /// </summary>
@@ -114,7 +114,7 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise. 
+        /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
         public static byte AsByte(this int source)
@@ -124,7 +124,7 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range. 
+        /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.
         /// Examples: 256 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
         public static sbyte ToSbyte(this BigInteger source)
@@ -136,7 +136,7 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range. 
+        /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.
         /// Examples: 256 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
         public static sbyte ToSbyte(this int source)
@@ -148,7 +148,7 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Converts parameter to byte from (big)integer range 0-255; faults if out-of-range. 
+        /// Converts parameter to byte from (big)integer range 0-255; faults if out-of-range.
         /// Examples: 256 -> fault; -1 -> fault; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
         public static byte ToByte(this BigInteger source)
@@ -160,7 +160,7 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Converts parameter to byte from (big)integer range 0-255; faults if out-of-range. 
+        /// Converts parameter to byte from (big)integer range 0-255; faults if out-of-range.
         /// Examples: 256 -> fault; -1 -> fault; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
         public static byte ToByte(this int source)
@@ -170,7 +170,7 @@ namespace Neo.SmartContract.Framework
                 source = source - 256;
             return (byte) (source + 0);
         }
-        
+
         /// <summary>
         /// Safely performs attribution v[x] = b. Faults if x < 0 or x >= v.Length
         /// </summary>
@@ -193,7 +193,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
-        
+
         /// <summary>
         /// Returns byte[] with last 'count' elements from 'source'. Faults if count < 0
         /// </summary>
