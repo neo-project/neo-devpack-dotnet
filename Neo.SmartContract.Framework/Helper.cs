@@ -179,7 +179,7 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Safely performs attribution v[x] = b. Faults if x < 0 or x >= v.Length
         /// </summary>
-        [OpCode(OpCode.PUSH2, OpCode.PICK, OpCode.PUSH2, OpCode.PICK, OpCode.LEFT, OpCode.SWAP, OpCode.CAT, OpCode.ROT, OpCode.ROT, OpCode.OVER, OpCode.ARRAYSIZE, OpCode.PUSHM1, OpCode.ADD, OpCode.SWAP, OpCode.SUB, OpCode.RIGHT, OpCode.CAT)]
+        [OpCode(OpCode.PUSH2, OpCode.PICK, OpCode.PUSH2, OpCode.PICK, OpCode.LEFT, OpCode.SWAP, OpCode.CAT, OpCode.ROT, OpCode.ROT, OpCode.OVER, OpCode.ARRAYSIZE, OpCode.DEC, OpCode.SWAP, OpCode.SUB, OpCode.RIGHT, OpCode.CAT)]
         public extern static byte[] Set(this byte[] v, int x, sbyte b);
         //{
         //    return v.Take(x).Concat(b.AsByteArray()).Concat(v.Last(v.Length - x - 1));
