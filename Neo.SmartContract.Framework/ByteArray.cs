@@ -4,9 +4,9 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
-    public abstract class ByteArray
+    public struct ByteArray
     {
-        public abstract byte this[int index]
+        public extern byte this[int index]
         {
             get;
             set;
