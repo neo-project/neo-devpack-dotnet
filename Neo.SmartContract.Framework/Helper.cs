@@ -177,12 +177,12 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Safely performs attribution v[index] = value. Faults if index < 0 or index >= v.Length
+        /// Safely performs attribution source[index] = value. Faults if index < 0 or index >= v.Length
         /// </summary>
-        [OpCode(OpCode.PUSH2, OpCode.PICK, OpCode.PUSH2, OpCode.PICK, OpCode.LEFT, OpCode.SWAP, OpCode.CAT, OpCode.ROT, OpCode.ROT, OpCode.OVER, OpCode.ARRAYSIZE, OpCode.DEC, OpCode.SWAP, OpCode.SUB, OpCode.RIGHT, OpCode.CAT)]
-        public extern static byte[] Set(this byte[] v, int index, sbyte value);
+         [OpCode(OpCode.PUSH2, OpCode.PICK, OpCode.PUSH2, OpCode.PICK, OpCode.LEFT, OpCode.SWAP, OpCode.CAT, OpCode.ROT, OpCode.ROT, OpCode.OVER, OpCode.ARRAYSIZE, OpCode.DEC, OpCode.SWAP, OpCode.SUB, OpCode.RIGHT, OpCode.CAT)]
+        public extern static byte[] Set(this byte[] source, int index, sbyte value);
         //{
-        //    return v.Take(index).Concat(value.AsByteArray()).Concat(v.Last(v.Length - index - 1));
+        //    return source.Take(index).Concat(value.AsByteArray()).Concat(source.Last(source.Length - index - 1));
         //}
 
         [OpCode(OpCode.CAT)]
