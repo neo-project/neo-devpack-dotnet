@@ -6,21 +6,6 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
-        public abstract class ByteArray
-        {
-            public abstract byte this[int index]
-            {
-                get;
-                set;
-            }
-
-            [OpCode]
-            public extern static implicit operator ByteArray(byte[] source);
-
-            [OpCode]
-            public extern static implicit operator byte[](ByteArray source);
-        }
-
         /// <summary>
         /// Converts byte to byte[].
         /// </summary>
