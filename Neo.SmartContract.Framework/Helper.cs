@@ -6,6 +6,21 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
+        public abstract class ByteArray
+        {
+            public abstract byte this[int index]
+            {
+                get;
+                set;
+            }
+
+            [OpCode]
+            public extern static implicit operator ByteArray(byte[] source);
+
+            [OpCode]
+            public extern static implicit operator byte[](ByteArray source);
+        }
+
         /// <summary>
         /// Converts byte to byte[].
         /// </summary>
@@ -179,8 +194,8 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Safely performs attribution source[index] = value. Faults if index < 0 or index >= v.Length
         /// </summary>
-         [OpCode(OpCode.PUSH2, OpCode.PICK, OpCode.PUSH2, OpCode.PICK, OpCode.LEFT, OpCode.SWAP, OpCode.CAT, OpCode.ROT, OpCode.ROT, OpCode.OVER, OpCode.ARRAYSIZE, OpCode.DEC, OpCode.SWAP, OpCode.SUB, OpCode.RIGHT, OpCode.CAT)]
-        public extern static byte[] Set(this byte[] source, int index, sbyte value);
+        //[OpCode(OpCode.PUSH2, OpCode.PICK, OpCode.PUSH2, OpCode.PICK, OpCode.LEFT, OpCode.SWAP, OpCode.CAT, OpCode.ROT, OpCode.ROT, OpCode.OVER, OpCode.ARRAYSIZE, OpCode.DEC, OpCode.SWAP, OpCode.SUB, OpCode.RIGHT, OpCode.CAT)]
+        //public extern static byte[] Set(this byte[] source, int index, sbyte value);
         //{
         //    return source.Take(index).Concat(value.AsByteArray()).Concat(source.Last(source.Length - index - 1));
         //}
