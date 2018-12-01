@@ -197,6 +197,22 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.RIGHT)]
         public extern static byte[] Last(this byte[] source, int count);
 
+        /// <summary>
+        /// Returns a reversed copy of byte[] parameter 'source'. Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
+        /// </summary>
+        public static byte[] Reverse(this byte[] source)
+        {
+            for(int k = 0; k< source.Length/2; k++)
+            {
+                int m = source.Length - k - 1;
+                byte bg = source[k];
+                byte ed = source[m];
+                source[k] = ed;
+                source[m] = bg;
+            }
+            return source;
+        }
+
         [OpCode]
         public extern static Delegate ToDelegate(this byte[] source);
 
