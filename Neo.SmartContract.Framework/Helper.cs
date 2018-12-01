@@ -198,7 +198,7 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Last(this byte[] source, int count);
 
         /// <summary>
-        /// Returns a reversed copy of byte[] parameter 'source' (original parameter is not affected because byte[] is copy-based on NeoVM).
+        /// Returns a reversed copy of byte[] parameter 'source' (parameter is not affected because byte[] is copy-based on NeoVM).
         /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
         /// </summary>
         public static byte[] Reverse(this byte[] source)
@@ -206,8 +206,8 @@ namespace Neo.SmartContract.Framework
             for(int k = 0; k< source.Length/2; k++)
             {
                 int m = source.Length - k - 1;
-                byte bg = source[k];
-                byte ed = source[m];
+                byte bg = source[k]; // must store on variable before next assignment
+                byte ed = source[m]; // must store on variable before next assignment
                 source[k] = ed;
                 source[m] = bg;
             }
