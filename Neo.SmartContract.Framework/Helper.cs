@@ -41,10 +41,11 @@ namespace Neo.SmartContract.Framework
         /// Converts byte[] to BigInteger and ensures output is within BigInteger range (32-bytes) in standard format; faults otherwise.
         /// Examples: -128 [0x80ff] -> -128 [0x80]; 0 [0x000000] -> 0 [0x00]; 0 [] -> 0 [0x00]; 255 [0xff00000000000000] -> 255 [0xff00]
         /// </summary>
-        public static BigInteger ToBigInteger(this byte[] source)
-        {
-            return source.AsBigInteger() + 0;
-        }
+        [OpCode(OpCode.PUSH0, OpCode.ADD)]
+        public extern static BigInteger ToBigInteger(this byte[] source);
+        //{
+        //    return source.AsBigInteger() + 0;
+        //}
 
         /// <summary>
         /// Converts BigInteger to byte[]. No guarantees are assumed regarding BigInteger working range.
@@ -87,41 +88,45 @@ namespace Neo.SmartContract.Framework
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        public static sbyte AsSbyte(this BigInteger source)
-        {
-            Assert(source.AsByteArray().Length == 1);
-            return (sbyte) source;
-        }
+        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        public extern static sbyte AsSbyte(this BigInteger source);
+        //{
+        //    Assert(source.AsByteArray().Length == 1);
+        //    return (sbyte) source;
+        //}
 
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        public static sbyte AsSbyte(this int source)
-        {
-            Assert(((BigInteger)source).AsByteArray().Length == 1);
-            return (sbyte) source;
-        }
+        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        public extern static sbyte AsSbyte(this int source);
+        //{
+        //    Assert(((BigInteger)source).AsByteArray().Length == 1);
+        //    return (sbyte) source;
+        //}
 
         /// <summary>
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        public static byte AsByte(this BigInteger source)
-        {
-            Assert(source.AsByteArray().Length == 1);
-            return (byte) source;
-        }
+        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        public extern static byte AsByte(this BigInteger source);
+        //{
+        //    Assert(source.AsByteArray().Length == 1);
+        //    return (byte) source;
+        //}
 
         /// <summary>
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        public static byte AsByte(this int source)
-        {
-            Assert(((BigInteger)source).AsByteArray().Length == 1);
-            return (byte) source;
-        }
+        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        public extern static byte AsByte(this int source);
+        //{
+        //    Assert(((BigInteger)source).AsByteArray().Length == 1);
+        //    return (byte) source;
+        //}
 
         /// <summary>
         /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.
@@ -169,14 +174,6 @@ namespace Neo.SmartContract.Framework
             if(source > 127)
                 source = source - 256;
             return (byte) (source + 0);
-        }
-
-        /// <summary>
-        /// Safely performs attribution v[x] = b. Faults if x < 0 or x >= v.Length
-        /// </summary>
-        public static byte[] Set(this byte[] v, int x, sbyte b)
-        {
-            return v.Take(x).Concat(b.AsByteArray()).Concat(v.Last(v.Length - x - 1));
         }
 
         [OpCode(OpCode.CAT)]
