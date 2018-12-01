@@ -5,11 +5,11 @@ namespace Neo.SmartContract.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor)]
     public class SyscallAttribute : Attribute
     {
-        public string Method { get; }
+        public string[] Methods { get; }
 
-        public SyscallAttribute(string method)
+        public SyscallAttribute(params string[] methods)
         {
-            this.Method = method;
+            this.Methods = methods;
         }
     }
 }
