@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Neo.VM;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
