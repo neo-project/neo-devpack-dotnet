@@ -8,16 +8,16 @@ namespace Neo.SmartContract.Framework
     public sealed class InlineAttribute : Attribute
     {
         // opcode id
-        public OpCode op { get; }
-        // extension of opcode
-        public string ext { get; }
-        // if extension is Hex or Char
+        public OpCode opCode { get; }
+        // opcode data (can be hex "ab01ab" or ascii "Runtime.Notify")
+        public string opData { get; }
+        // if extension is Hex or ascii
         public bool isHex { get; }
 
-        public InlineAttribute(OpCode op, string extension = "", bool isHex = false)
+        public InlineAttribute(OpCode opCode, string opData = "", bool isHex = false)
         {
-            this.op = op;
-            this.ext = extension;
+            this.opCode = opCode;
+            this.opData = opData;
             this.isHex = isHex;
         }
     }
