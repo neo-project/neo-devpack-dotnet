@@ -9,32 +9,32 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts byte to byte[].
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static byte[] AsByteArray(this byte source);
 
         /// <summary>
         /// Converts sbyte to byte[].
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static byte[] AsByteArray(this sbyte source);
 
         /// <summary>
         /// Converts sbyte[] to byte[].
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static byte[] AsByteArray(this sbyte[] source);
 
         /// <summary>
         /// Converts byte[] to sbyte[].
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static sbyte[] AsSbyteArray(this byte[] source);
 
         /// <summary>
         /// Converts byte[] to BigInteger. No guarantees are assumed regarding BigInteger working range.
         /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static BigInteger AsBigInteger(this byte[] source);
 
         /// <summary>
@@ -51,19 +51,19 @@ namespace Neo.SmartContract.Framework
         /// Converts BigInteger to byte[]. No guarantees are assumed regarding BigInteger working range.
         /// Examples: 10 -> [0x0a]; 10 -> [0x0a00]; -128 -> [0x80]; -128 -> [0x80ff]; 0 -> []; 0 -> [0x00]; 255 -> [0xff00]
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static byte[] AsByteArray(this BigInteger source);
 
         /// <summary>
         /// Converts string to byte[]. Examples: "hello" -> [0x68656c6c6f]; "" -> []; "Neo" -> [0x4e656f]
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static byte[] AsByteArray(this string source);
 
         /// <summary>
         /// Converts byte[] to string. Examples: [0x68656c6c6f] -> "hello"; [] -> ""; [0x4e656f] -> "Neo"
         /// </summary>
-        [OpCode]
+        [Nonemit]
         public extern static string AsString(this byte[] source);
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Neo.SmartContract.Framework
             return source;
         }
 
-        [OpCode]
+        [Nonemit]
         public extern static Delegate ToDelegate(this byte[] source);
 
         /// <summary>
