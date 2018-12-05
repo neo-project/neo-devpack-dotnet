@@ -88,7 +88,11 @@ namespace Neo.SmartContract.Framework
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ARRAYSIZE)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.NUMEQUAL)]
+        [OpCode(OpCode.THROWIFNOT)]
         public extern static sbyte AsSbyte(this BigInteger source);
         //{
         //    Assert(source.AsByteArray().Length == 1);
@@ -99,7 +103,11 @@ namespace Neo.SmartContract.Framework
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ARRAYSIZE)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.NUMEQUAL)]
+        [OpCode(OpCode.THROWIFNOT)]
         public extern static sbyte AsSbyte(this int source);
         //{
         //    Assert(((BigInteger)source).AsByteArray().Length == 1);
@@ -110,7 +118,11 @@ namespace Neo.SmartContract.Framework
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ARRAYSIZE)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.NUMEQUAL)]
+        [OpCode(OpCode.THROWIFNOT)]
         public extern static byte AsByte(this BigInteger source);
         //{
         //    Assert(source.AsByteArray().Length == 1);
@@ -121,7 +133,11 @@ namespace Neo.SmartContract.Framework
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// </summary>
-        [OpCode(OpCode.DUP, OpCode.ARRAYSIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.THROWIFNOT)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ARRAYSIZE)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.NUMEQUAL)]
+        [OpCode(OpCode.THROWIFNOT)]
         public extern static byte AsByte(this int source);
         //{
         //    Assert(((BigInteger)source).AsByteArray().Length == 1);
