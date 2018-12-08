@@ -16,16 +16,10 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public string OpData { get; }
 
-        /// <summary>
-        /// if opcode data is Hex (default) or ascii
-        /// </summary>
-        public bool IsHex { get; }
-
-        public OpCodeAttribute(OpCode opCode, string opData = "", bool isHex = true)
+        public OpCodeAttribute(OpCode opCode, string opData = "")
         {
             OpCode = opCode;
             OpData = opData;
-            IsHex = isHex;
         }
     }
 }
