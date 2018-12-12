@@ -9,7 +9,7 @@ namespace $safeprojectname$
 {
     public static bool Main(string operation, object[] args)
     {
-        Storage.Put(Storage.CurrentContext, "Hello", "World");
+        Storage.Put("Hello", "World");
         return true;
     }
 }
