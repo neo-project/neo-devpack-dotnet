@@ -31,7 +31,7 @@ namespace Neo
 
             Process p = Process.Start(pinfo);
             p.StandardInput.AutoFlush = true;
-            p.StandardInput.WriteLine("neon " + dllname);
+            p.StandardInput.WriteLine($"neon {dllname} --compatible");
             p.StandardInput.WriteLine("exit");
 
             //前四行后一行不要
