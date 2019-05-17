@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.452
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework", "Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj", "{C30B5859-D4B9-46E8-A797-6B0A1B49B590}"
 EndProject
@@ -15,6 +15,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.ConvertTask", "Neo.ConvertTask\Neo.ConvertTask.csproj", "{A8F6D13B-6D12-46BB-A336-1F54FA64F4A1}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Template.VB", "Template.VB\Template.VB.vbproj", "{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL", "Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj", "{42C0FF0F-0A7C-4166-A773-1F944642C209}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestContract", "TestContract\TestContract.csproj", "{BA05B84B-2543-4594-B7DD-81848A242EF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL.UnitTests", "Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj", "{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,8 +48,23 @@ Global
 		{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C0FF0F-0A7C-4166-A773-1F944642C209}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C0FF0F-0A7C-4166-A773-1F944642C209}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C0FF0F-0A7C-4166-A773-1F944642C209}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C0FF0F-0A7C-4166-A773-1F944642C209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA05B84B-2543-4594-B7DD-81848A242EF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA05B84B-2543-4594-B7DD-81848A242EF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA05B84B-2543-4594-B7DD-81848A242EF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA05B84B-2543-4594-B7DD-81848A242EF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6DA935E1-C674-4364-B087-F1B511B79215}
 	EndGlobalSection
 EndGlobal
