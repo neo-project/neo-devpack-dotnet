@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Copyright>2015-2019 The Neo Project</Copyright>
+    <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
+    <Version>2.4.1</Version>
+    <Authors>The Neo Project</Authors>
+    <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <PackageId>Neo.Compiler.MSIL</PackageId>
+    <RootNamespace>Neo.Compiler</RootNamespace>
+    <Company>The Neo Project</Company>
+    <Product>Neo.Compiler.MSIL</Product>
+    <Description>Neo.Compiler.MSIL</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>neon</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.10.3" />
+    <PackageReference Include="Neo.VM" Version="2.4.1" />
+  </ItemGroup>
+
+</Project>
