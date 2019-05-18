@@ -22,36 +22,14 @@ namespace Neo.Compiler
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            bool bCompatible = false;
-            string filename = null;
-            for (var i = 0; i < args.Length; i++)
-            {
-                if (args[i][0] == '-')
-                {
-                    if (args[i] == "--compatible")
-                    {
-                        bCompatible = true;
-                    }
-
-                    //other option
-                }
-                else
-                {
-                    filename = args[i];
-                }
-            }
-
-            if (filename == null)
+            if (args.Length == 0)
             {
                 log.Log("need one param for DLL filename.");
-                log.Log("[--compatible] disable nep8 function and disable SyscallInteropHash");
-                log.Log("Example:neon abc.dll --compatible");
+                log.Log("Example:neon abc.dll");
                 return;
             }
-            if (bCompatible)
-            {
-                log.Log("use --compatible no nep8 and no SyscallInteropHash");
-            }
+
+            string filename = args[0];
             string onlyname = System.IO.Path.GetFileNameWithoutExtension(filename);
             string filepdb = onlyname + ".pdb";
             var path = Path.GetDirectoryName(filename);
@@ -105,11 +83,7 @@ namespace Neo.Compiler
             try
             {
                 var conv = new ModuleConverter(log);
-                ConvOption option = new ConvOption
-                {
-                    useNep8 = !bCompatible,
-                    useSysCallInteropHash = !bCompatible
-                };
+                ConvOption option = new ConvOption();
                 NeoModule am = conv.Convert(mod, option);
                 bytes = am.Build();
                 log.Log("convert succ");
