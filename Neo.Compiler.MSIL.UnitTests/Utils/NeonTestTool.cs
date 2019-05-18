@@ -1,4 +1,6 @@
-﻿using Neo.VM;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +13,30 @@ namespace Neo.Compiler.MSIL.Utils
         private readonly ModuleConverter converterIL;
         private readonly byte[] finalAVM;
 
+        void GenDLLBySingleCSharpFile(string filename)
+        {
+            var srccode = System.IO.File.ReadAllText(filename);
+            var tree = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(srccode);
+
+
+            var op = new CSharpCompilationOptions(Microsoft.CodeAnalysis.OutputKind.DynamicallyLinkedLibrary);
+            var ref1 = MetadataReference.CreateFromFile("needlib" + System.IO.Path.DirectorySeparatorChar + "mscorlib.dll");
+            var ref2 = MetadataReference.CreateFromFile("needlib" + System.IO.Path.DirectorySeparatorChar + "System.dll");
+            var ref3 = MetadataReference.CreateFromFile("needlib" + System.IO.Path.DirectorySeparatorChar + "System.Numerics.dll");
+            var ref4 = MetadataReference.CreateFromFile("Neo.SmartContract.Framework.dll");
+            var comp = Microsoft.CodeAnalysis.CSharp.CSharpCompilation.Create("aaa.dll", new[] { tree },
+               new[] { ref1, ref2, ref3, ref4 }, op);
+
+            var timestart = DateTime.Now;
+
+            using (var fs = new System.IO.MemoryStream())
+            using (var fspdb = new System.IO.MemoryStream())
+            {
+                var result = comp.Emit(fs, fspdb);
+            }
+
+            var timeend = DateTime.Now;
+        }
         public NeonTestTool(string filename)
         {
             string onlyname = Path.GetFileNameWithoutExtension(filename);

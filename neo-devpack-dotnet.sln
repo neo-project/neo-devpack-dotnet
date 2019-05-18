@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.452
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework", "Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj", "{C30B5859-D4B9-46E8-A797-6B0A1B49B590}"
 EndProject
@@ -21,6 +21,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestContract", "TestContract\TestContract.csproj", "{BA05B84B-2543-4594-B7DD-81848A242EF8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL.UnitTests", "Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj", "{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA05B84B-2543-4594-B7DD-81848A242EF8} = {BA05B84B-2543-4594-B7DD-81848A242EF8}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

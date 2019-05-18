@@ -50,7 +50,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)Neo.Compiler.MSIL.UnitTests\$(OutDir)netcoreapp2.1"
-copy "$(TargetDir)Neo.SmartContract.Framework.dll" "$(SolutionDir)Neo.Compiler.MSIL.UnitTests\$(OutDir)netcoreapp2.1"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)Neo.Compiler.MSIL.UnitTests\$(OutDir)netcoreapp2.1\"
+copy /Y "$(TargetDir)Neo.SmartContract.Framework.dll" "$(SolutionDir)Neo.Compiler.MSIL.UnitTests\$(OutDir)netcoreapp2.1\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
