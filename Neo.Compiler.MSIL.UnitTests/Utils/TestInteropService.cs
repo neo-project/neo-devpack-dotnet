@@ -6,6 +6,36 @@ using System.Text;
 
 namespace Neo.Compiler.MSIL.Utils
 {
+    partial class TestAppEngine : ExecutionEngine
+    {
+        private static readonly Dictionary<uint, Func<TestAppEngine, bool>> methods;
+
+        private static uint Register(string method, Func<TestAppEngine, bool> handler, int price = 0)
+        {
+            uint hash = method.ToInteropMethodHash();
+            methods.Add(hash, handler);
+            return hash;
+        }
+        private static void InitInteropService()
+        {
+            Register("System.Contract.Call", Contract_Call, 10);
+        }
+
+        private static bool Contract_Call(TestAppEngine engine)
+        {
+            StackItem item0 = engine.CurrentContext.EvaluationStack.Pop();
+
+            var keyname = bytes2hexstr(item0.GetByteArray());
+            var contractscript = scripts[keyname];
+            StackItem item1 = engine.CurrentContext.EvaluationStack.Pop();
+            StackItem item2 = engine.CurrentContext.EvaluationStack.Pop();
+            ExecutionContext context_new = engine.LoadScript(contractscript, 1);
+            context_new.EvaluationStack.Push(item2);
+            context_new.EvaluationStack.Push(item1);
+            return true;
+        }
+
+    }
     //internal class TestInteropService : IInteropService
     //{
     //    private readonly Dictionary<uint, Func<ExecutionEngine, bool>> methods = new Dictionary<uint, Func<ExecutionEngine, bool>>();
