@@ -163,7 +163,8 @@ namespace Neo.Compiler.MSIL.Utils
 
         private ExecutionEngine RunAVM(byte[] data, int addr = 0, StackItem[] _params = null)
         {
-            var engine = new ExecutionEngine(new TestTransaction(), new TestCrypto(), new TestTable(), new TestInteropService());
+            var engine = new ExecutionEngine();
+            //new TestTransaction(), new TestCrypto(), new TestTable(), new TestInteropService());
             engine.LoadScript(data);
             //從指定地址開始執行
             engine.InvocationStack.Peek().InstructionPointer = addr;

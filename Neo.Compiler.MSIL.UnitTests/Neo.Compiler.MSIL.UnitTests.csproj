@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
+    <PackageReference Include="Neo.VM" Version="3.0.0-CI00013" />
   </ItemGroup>
 
 </Project>

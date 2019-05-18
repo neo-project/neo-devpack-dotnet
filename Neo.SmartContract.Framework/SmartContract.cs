@@ -10,19 +10,19 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.SHA256)]
         protected extern static byte[] Sha256(byte[] data);
 
-        [OpCode(OpCode.HASH160)]
+        [Syscall("Neo.Crypto.Hash160")]
         protected extern static byte[] Hash160(byte[] data);
 
-        [OpCode(OpCode.HASH256)]
+        [Syscall("Neo.Crypto.Hash256")]
         protected extern static byte[] Hash256(byte[] data);
 
-        [OpCode(OpCode.CHECKSIG)]
+        [Syscall("Neo.Crypto.CheckSig")]
         protected extern static bool VerifySignature(byte[] signature, byte[] pubkey);
 
-        [OpCode(OpCode.VERIFY)]
+        [Syscall("System.Crypto.Verify")]
         protected extern static bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey);
 
-        [OpCode(OpCode.CHECKMULTISIG)]
+        [Syscall("Neo.Crypto.CheckMultiSig")]
         protected extern static bool VerifySignatures(byte[][] signature, byte[][] pubkey);
     }
 }

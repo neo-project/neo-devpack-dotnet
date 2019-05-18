@@ -18,7 +18,10 @@
 
   <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.10.3" />
-    <PackageReference Include="Neo.VM" Version="2.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
   </ItemGroup>
 
 </Project>
