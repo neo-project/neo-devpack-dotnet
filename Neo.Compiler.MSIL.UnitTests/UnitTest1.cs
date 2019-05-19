@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest1
     {
-        private static readonly NeonTestTool testtool = new NeonTestTool("net4smartcontract.test.dll");
+        private static readonly NeonTestTool testtool = new NeonTestTool("TestContract.dll");
 
         private static void DumpAVM(NeoMethod avmMethod)
         {

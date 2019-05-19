@@ -22,37 +22,15 @@ namespace Neo.Compiler
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            bool bCompatible = false;
-            string filename = null;
-            for (var i = 0; i < args.Length; i++)
-            {
-                if (args[i][0] == '-')
-                {
-                    if (args[i] == "--compatible")
-                    {
-                        bCompatible = true;
-                    }
-
-                    //other option
-                }
-                else
-                {
-                    filename = args[i];
-                }
-            }
-
-            if (filename == null)
+            if (args.Length == 0)
             {
                 log.Log("need one param for DLL filename.");
-                log.Log("[--compatible] disable nep8 function and disable SyscallInteropHash");
-                log.Log("Example:neon abc.dll --compatible");
+                log.Log("Example:neon abc.dll");
                 return;
             }
-            if (bCompatible)
-            {
-                log.Log("use --compatible no nep8 and no SyscallInteropHash");
-            }
-            string onlyname = System.IO.Path.GetFileNameWithoutExtension(filename);
+
+            string filename = args[0];
+            string onlyname = Path.GetFileNameWithoutExtension(filename);
             string filepdb = onlyname + ".pdb";
             var path = Path.GetDirectoryName(filename);
             if (!string.IsNullOrEmpty(path))
@@ -65,6 +43,7 @@ namespace Neo.Compiler
                 {
                     log.Log("Could not find path: " + path);
                     Environment.Exit(-1);
+                    return;
                 }
             }
 
@@ -75,11 +54,11 @@ namespace Neo.Compiler
             //open file
             try
             {
-                fs = System.IO.File.OpenRead(filename);
+                fs = File.OpenRead(filename);
 
-                if (System.IO.File.Exists(filepdb))
+                if (File.Exists(filepdb))
                 {
-                    fspdb = System.IO.File.OpenRead(filepdb);
+                    fspdb = File.OpenRead(filepdb);
                 }
 
             }
@@ -105,15 +84,10 @@ namespace Neo.Compiler
             try
             {
                 var conv = new ModuleConverter(log);
-                ConvOption option = new ConvOption
-                {
-                    useNep8 = !bCompatible,
-                    useSysCallInteropHash = !bCompatible
-                };
+                ConvOption option = new ConvOption();
                 NeoModule am = conv.Convert(mod, option);
                 bytes = am.Build();
                 log.Log("convert succ");
-
 
                 try
                 {
@@ -140,8 +114,8 @@ namespace Neo.Compiler
 
                 string bytesname = onlyname + ".avm";
 
-                System.IO.File.Delete(bytesname);
-                System.IO.File.WriteAllBytes(bytesname, bytes);
+                File.Delete(bytesname);
+                File.WriteAllBytes(bytesname, bytes);
                 log.Log("write:" + bytesname);
                 bSucc = true;
             }
@@ -155,8 +129,8 @@ namespace Neo.Compiler
 
                 string abiname = onlyname + ".abi.json";
 
-                System.IO.File.Delete(abiname);
-                System.IO.File.WriteAllText(abiname, jsonstr);
+                File.Delete(abiname);
+                File.WriteAllText(abiname, jsonstr);
                 log.Log("write:" + abiname);
                 bSucc = true;
             }

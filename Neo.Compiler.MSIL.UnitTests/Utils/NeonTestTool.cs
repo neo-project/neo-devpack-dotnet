@@ -61,11 +61,7 @@ namespace Neo.Compiler.MSIL.Utils
             }
 
             converterIL = new ModuleConverter(log);
-            ConvOption option = new ConvOption()
-            {
-                useNep8 = true,
-                useSysCallInteropHash = true
-            };
+            ConvOption option = new ConvOption();
             try
             {
                 converterIL.Convert(modIL, option);
@@ -163,7 +159,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private ExecutionEngine RunAVM(byte[] data, int addr = 0, StackItem[] _params = null)
         {
-            var engine = new ExecutionEngine(new TestTransaction(), new TestCrypto(), new TestTable(), new TestInteropService());
+            var engine = new ExecutionEngine();
             engine.LoadScript(data);
             //從指定地址開始執行
             engine.InvocationStack.Peek().InstructionPointer = addr;
