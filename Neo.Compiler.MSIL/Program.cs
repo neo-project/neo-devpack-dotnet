@@ -30,7 +30,7 @@ namespace Neo.Compiler
             }
 
             string filename = args[0];
-            string onlyname = System.IO.Path.GetFileNameWithoutExtension(filename);
+            string onlyname = Path.GetFileNameWithoutExtension(filename);
             string filepdb = onlyname + ".pdb";
             var path = Path.GetDirectoryName(filename);
             if (!string.IsNullOrEmpty(path))
@@ -53,11 +53,11 @@ namespace Neo.Compiler
             //open file
             try
             {
-                fs = System.IO.File.OpenRead(filename);
+                fs = File.OpenRead(filename);
 
-                if (System.IO.File.Exists(filepdb))
+                if (File.Exists(filepdb))
                 {
-                    fspdb = System.IO.File.OpenRead(filepdb);
+                    fspdb = File.OpenRead(filepdb);
                 }
 
             }
@@ -114,8 +114,8 @@ namespace Neo.Compiler
 
                 string bytesname = onlyname + ".avm";
 
-                System.IO.File.Delete(bytesname);
-                System.IO.File.WriteAllBytes(bytesname, bytes);
+                File.Delete(bytesname);
+                File.WriteAllBytes(bytesname, bytes);
                 log.Log("write:" + bytesname);
                 bSucc = true;
             }
@@ -129,8 +129,8 @@ namespace Neo.Compiler
 
                 string abiname = onlyname + ".abi.json";
 
-                System.IO.File.Delete(abiname);
-                System.IO.File.WriteAllText(abiname, jsonstr);
+                File.Delete(abiname);
+                File.WriteAllText(abiname, jsonstr);
                 log.Log("write:" + abiname);
                 bSucc = true;
             }
