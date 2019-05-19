@@ -43,6 +43,7 @@ namespace Neo.Compiler
                 {
                     log.Log("Could not find path: " + path);
                     Environment.Exit(-1);
+                    return;
                 }
             }
 
@@ -87,7 +88,6 @@ namespace Neo.Compiler
                 NeoModule am = conv.Convert(mod, option);
                 bytes = am.Build();
                 log.Log("convert succ");
-
 
                 try
                 {
