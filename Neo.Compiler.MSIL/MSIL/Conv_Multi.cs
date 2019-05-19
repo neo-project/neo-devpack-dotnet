@@ -930,12 +930,12 @@ namespace Neo.Compiler.MSIL
 
                 //a syscall
                 {
-                    var bytes = Encoding.UTF8.GetBytes("Neo.Runtime.Notify");
-                    byte[] outbytes = new byte[bytes.Length + 1];
-                    outbytes[0] = (byte)bytes.Length;
-                    Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
+                    var bytes = BitConverter.GetBytes(InteropService.System_Runtime_Notify);
+                    //byte[] outbytes = new byte[bytes.Length + 1];
+                    //outbytes[0] = (byte)bytes.Length;
+                    //Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
                     //bytes.Prepend 函数在 dotnet framework 4.6 编译不过
-                    _Convert1by1(VM.OpCode.SYSCALL, null, to, outbytes);
+                    _Convert1by1(VM.OpCode.SYSCALL, null, to, bytes);
                 }
             }
             else if (calltype == 6)
