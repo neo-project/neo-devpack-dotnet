@@ -20,15 +20,6 @@
         [Syscall("Neo.Blockchain.GetTransaction")]
         public static extern Transaction GetTransaction(byte[] hash);
 
-        [Syscall("Neo.Blockchain.GetAccount")]
-        public static extern Account GetAccount(byte[] script_hash);
-
-        [Syscall("Neo.Blockchain.GetValidators")]
-        public static extern byte[][] GetValidators();
-
-        [Syscall("Neo.Blockchain.GetAsset")]
-        public static extern Asset GetAsset(byte[] asset_id);
-
         [Syscall("Neo.Blockchain.GetContract")]
         public static extern Contract GetContract(byte[] script_hash);
     }

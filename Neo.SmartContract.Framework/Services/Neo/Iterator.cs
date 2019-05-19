@@ -2,7 +2,7 @@
 {
     public class Iterator<TKey, TValue>
     {
-        [Syscall("Neo.Iterator.Next")]
+        [Syscall("Neo.Enumerator.Next")]
         public extern bool Next();
 
         public extern TKey Key
@@ -13,7 +13,7 @@
 
         public extern TValue Value
         {
-            [Syscall("Neo.Iterator.Value")]
+            [Syscall("Neo.Enumerator.Value")]
             get;
         }
     }
