@@ -69,14 +69,7 @@
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AssemblyInfo.vb" />
-    <None Include="build.tasks">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Contract1.vb" />
-    <None Include="MyApplication.Designer.vb" />
-    <None Include="MyApplication.myapp" />
-    <None Include="packages_t.config" />
     <None Include="Template.VB.ico" />
     <None Include="ProjectTemplate.vbproj" />
   </ItemGroup>
