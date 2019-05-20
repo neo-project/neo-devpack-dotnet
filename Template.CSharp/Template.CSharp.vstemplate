@@ -12,14 +12,12 @@
     <ProvideDefaultName>true</ProvideDefaultName>
     <LocationField>Enabled</LocationField>
     <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    <CreateInPlace>true</CreateInPlace>
   </TemplateData>
   <TemplateContent>
-    <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
-      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+    <Project File="ProjectTemplate.csproj" ReplaceParameters="false">
       <ProjectItem ReplaceParameters="true" OpenInEditor="true">Contract1.cs</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="packages.config">packages_t.config</ProjectItem>
       <ProjectItem ReplaceParameters="false" TargetFileName="Neo.ConvertTask.dll">Neo.ConvertTask.dll</ProjectItem>
-      <ProjectItem ReplaceParameters="false" TargetFileName="build.tasks">build.tasks</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>

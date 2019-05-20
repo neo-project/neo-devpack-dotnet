@@ -74,12 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AssemblyInfo.cs" />
-    <None Include="build.tasks">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Contract1.cs" />
-    <None Include="packages_t.config" />
     <None Include="ProjectTemplate.csproj">
       <SubType>Designer</SubType>
     </None>
