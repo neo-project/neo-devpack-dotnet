@@ -10,17 +10,12 @@
     <CreateNewFolder>true</CreateNewFolder>
     <DefaultName>NeoContract</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
-    <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
+    <CreateInPlace>true</CreateInPlace>
   </TemplateData>
   <TemplateContent>
     <Project File="ProjectTemplate.vbproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" OpenInEditor="true" OpenOrder="10">Contract1.vb</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="packages.config">packages_t.config</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="My Project\AssemblyInfo.vb">AssemblyInfo.vb</ProjectItem>
-      <ProjectItem ReplaceParameters="false" TargetFileName="My Project\Application.myapp">MyApplication.myapp</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="My Project\Application.Designer.vb">MyApplication.Designer.vb</ProjectItem>
       <ProjectItem ReplaceParameters="false" TargetFileName="Neo.ConvertTask.dll">Neo.ConvertTask.dll</ProjectItem>
-      <ProjectItem ReplaceParameters="false" TargetFileName="build.tasks">build.tasks</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>
