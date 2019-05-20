@@ -4,29 +4,17 @@
     {
         public extern byte[] Hash
         {
-            [Syscall("Neo.Transaction.GetHash")]
+            [Syscall("System.Transaction.GetHash")]
             get;
         }
 
-        public extern byte Type
+        public extern byte[] Script
         {
-            [Syscall("Neo.Transaction.GetType")]
+            [Syscall("Neo.Transaction.GetScript")]
             get;
         }
 
         [Syscall("Neo.Transaction.GetAttributes")]
         public extern TransactionAttribute[] GetAttributes();
-
-        [Syscall("Neo.Transaction.GetInputs")]
-        public extern TransactionInput[] GetInputs();
-
-        [Syscall("Neo.Transaction.GetOutputs")]
-        public extern TransactionOutput[] GetOutputs();
-
-        [Syscall("Neo.Transaction.GetReferences")]
-        public extern TransactionOutput[] GetReferences();
-
-        [Syscall("Neo.Transaction.GetUnspentCoins")]
-        public extern TransactionOutput[] GetUnspentCoins();
     }
 }

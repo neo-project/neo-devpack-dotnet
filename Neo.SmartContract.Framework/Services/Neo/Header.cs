@@ -4,7 +4,7 @@
     {
         public extern byte[] Hash
         {
-            [Syscall("Neo.Header.GetHash")]
+            [Syscall("System.Header.GetHash")]
             get;
         }
 
@@ -16,7 +16,7 @@
 
         public extern byte[] PrevHash
         {
-            [Syscall("Neo.Header.GetPrevHash")]
+            [Syscall("System.Header.GetPrevHash")]
             get;
         }
 
@@ -28,19 +28,13 @@
 
         public extern uint Timestamp
         {
-            [Syscall("Neo.Header.GetTimestamp")]
+            [Syscall("System.Header.GetTimestamp")]
             get;
         }
 
         public extern uint Index
         {
-            [Syscall("Neo.Header.GetIndex")]
-            get;
-        }
-
-        public extern ulong ConsensusData
-        {
-            [Syscall("Neo.Header.GetConsensusData")]
+            [Syscall("System.Header.GetIndex")]
             get;
         }
 
