@@ -19,8 +19,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL", "Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj", "{42C0FF0F-0A7C-4166-A773-1F944642C209}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestContract", "TestContract\TestContract.csproj", "{BA05B84B-2543-4594-B7DD-81848A242EF8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{671C8DBF-8119-4C6A-8516-870D85F2C9DB} = {671C8DBF-8119-4C6A-8516-870D85F2C9DB}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL.UnitTests", "Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj", "{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BA05B84B-2543-4594-B7DD-81848A242EF8} = {BA05B84B-2543-4594-B7DD-81848A242EF8}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testcontract.builder", "testcontract.builder\testcontract.builder.csproj", "{671C8DBF-8119-4C6A-8516-870D85F2C9DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +68,10 @@ Global
 		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{671C8DBF-8119-4C6A-8516-870D85F2C9DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{671C8DBF-8119-4C6A-8516-870D85F2C9DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{671C8DBF-8119-4C6A-8516-870D85F2C9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{671C8DBF-8119-4C6A-8516-870D85F2C9DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

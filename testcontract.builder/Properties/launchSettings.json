@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "testcontract.builder": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../../TestContract ../../../../testdll"
+    }
+  }
+}

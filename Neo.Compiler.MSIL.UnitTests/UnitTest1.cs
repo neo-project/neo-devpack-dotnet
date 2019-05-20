@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest1
     {
-        private static readonly NeonTestTool testtool = new NeonTestTool("TestContract.dll");
+        //private static readonly NeonTestTool testtool = new NeonTestTool("TestContract.dll");
 
         private static void DumpAVM(NeoMethod avmMethod)
         {
@@ -31,7 +31,10 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void GetAllILFunction()
         {
-            var names = testtool.GetAllILFunction();
+            var curpath = System.IO.Directory.GetCurrentDirectory();
+            var srcfile = System.IO.Path.GetFullPath("../../../../testdll/TestClass1.dll");
+            var nt = new NeonTestTool(srcfile);
+            var names = nt.GetAllILFunction();
             foreach (var n in names)
             {
                 Console.WriteLine("got name:" + n);
@@ -41,6 +44,10 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void TestDumpAFunc()
         {
+            var srcfile = System.IO.Path.GetFullPath("../../../../testdll/TestClass1.dll");
+
+            var testtool = new NeonTestTool(srcfile);
+
             var ilmethod = testtool.FindMethod("TestClass1", "UnitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpAVM(neomethod);
@@ -51,6 +58,9 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void TestRunAFunc()
         {
+            var srcfile = System.IO.Path.GetFullPath("../../../../testdll/TestClass1.dll");
+
+            var testtool = new NeonTestTool(srcfile);
             //run this below
 
             //public static byte UnitTest_001()
@@ -58,9 +68,7 @@ namespace Neo.Compiler.MSIL
             //    var nb = new byte[] { 1, 2, 3, 4 };
             //    return nb[2];
             //}
-            var ilmethod = testtool.FindMethod("TestClass1", "UnitTest_001");
-            var neomethod = testtool.GetNEOVMMethod(ilmethod);
-            var result = testtool.RunScript(neomethod.funcaddr, null);
+            var result = testtool.RunScript(0, null);
             var resultnum = result.ResultStack.Peek().GetBigInteger();
             // and check if the result is 3
 
