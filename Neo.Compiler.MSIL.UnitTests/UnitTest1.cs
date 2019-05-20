@@ -5,6 +5,7 @@ using System;
 namespace Neo.Compiler.MSIL
 {
     [TestClass]
+    //UnitTestAbout "testclass1.cs"
     public class UnitTest1
     {
         //private static readonly NeonTestTool testtool = new NeonTestTool("TestContract.dll");
@@ -31,9 +32,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void GetAllILFunction()
         {
-            var curpath = System.IO.Directory.GetCurrentDirectory();
-            var srcfile = System.IO.Path.GetFullPath("../../../../testdll/TestClass1.dll");
-            var nt = new NeonTestTool(srcfile);
+            var nt = NeonTestTool.Build("../../../../TestContract", "TestClass1.cs");
             var names = nt.GetAllILFunction();
             foreach (var n in names)
             {
@@ -44,10 +43,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void TestDumpAFunc()
         {
-            var srcfile = System.IO.Path.GetFullPath("../../../../testdll/TestClass1.dll");
-
-            var testtool = new NeonTestTool(srcfile);
-
+            var testtool = NeonTestTool.Build("../../../../TestContract", "TestClass1.cs");
             var ilmethod = testtool.FindMethod("TestClass1", "UnitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpAVM(neomethod);
@@ -58,9 +54,8 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void TestRunAFunc()
         {
-            var srcfile = System.IO.Path.GetFullPath("../../../../testdll/TestClass1.dll");
 
-            var testtool = new NeonTestTool(srcfile);
+            var testtool = NeonTestTool.Build("../../../../TestContract", "TestClass2.cs");
             //run this below
 
             //public static byte UnitTest_001()
@@ -68,7 +63,12 @@ namespace Neo.Compiler.MSIL
             //    var nb = new byte[] { 1, 2, 3, 4 };
             //    return nb[2];
             //}
-            var result = testtool.RunScript(0, null);
+            VM.StackItem[] items = new VM.StackItem[]
+            {
+                "hello",
+                new VM.StackItem[]{}
+            };
+            var result = testtool.RunScript(0, items);
             var resultnum = result.ResultStack.Peek().GetBigInteger();
             // and check if the result is 3
 

@@ -11,44 +11,65 @@ namespace Neo.Compiler.MSIL.Utils
         private readonly ModuleConverter converterIL;
         private readonly byte[] finalAVM;
 
-        public NeonTestTool(string filename)
+        public static NeonTestTool Build(string projectpath, string cscodefile)
         {
-            string onlyname = Path.GetFileNameWithoutExtension(filename);
-            string filepdb = onlyname + ".pdb";
-            var path = Path.GetDirectoryName(filename);
-            if (!string.IsNullOrEmpty(path))
+            var srcdll = System.IO.Directory.GetFiles(System.IO.Path.GetFullPath(projectpath), "Neo.SmartContract.Framework.dll", System.IO.SearchOption.AllDirectories);
+            if (srcdll.Length == 0)
             {
-                try
-                {
-                    Directory.SetCurrentDirectory(path);
-                }
-                catch (Exception err)
-                {
-                    Console.WriteLine("Could not find path: " + path);
-                    throw (err);
-                }
+                Console.WriteLine("can not find framework.");
+                return null;
             }
+
+
+            var filename = System.IO.Path.Combine(projectpath, cscodefile);
+            using (var fs = new System.IO.MemoryStream())
+            using (var fsPdb = new System.IO.MemoryStream())
+            {
+                CSharpBuilder.BuildDllBySignleFile(filename, srcdll[0], fs, fsPdb);
+                fs.Position = 0;
+                fsPdb.Position = 0;
+                return new NeonTestTool(fs, fsPdb);
+
+            }
+        }
+        public NeonTestTool(System.IO.Stream fs, System.IO.Stream fspdb)
+        {
+            //string onlyname = Path.GetFileNameWithoutExtension(filename);
+            //string filepdb = onlyname + ".pdb";
+            //var path = Path.GetDirectoryName(filename);
+            //if (!string.IsNullOrEmpty(path))
+            //{
+            //    try
+            //    {
+            //        Directory.SetCurrentDirectory(path);
+            //    }
+            //    catch (Exception err)
+            //    {
+            //        Console.WriteLine("Could not find path: " + path);
+            //        throw (err);
+            //    }
+            //}
             var log = new DefLogger();
             this.modIL = new ILModule(log);
-            Stream fs;
-            Stream fspdb = null;
+            //Stream fs;
+            //Stream fspdb = null;
 
             //open file
-            try
-            {
-                fs = File.OpenRead(filename);
+            //try
+            //{
+            //    fs = File.OpenRead(filename);
 
-                if (File.Exists(filepdb))
-                {
-                    fspdb = File.OpenRead(filepdb);
-                }
+            //    if (File.Exists(filepdb))
+            //    {
+            //        fspdb = File.OpenRead(filepdb);
+            //    }
 
-            }
-            catch (Exception err)
-            {
-                log.Log("Open File Error:" + err.ToString());
-                throw err;
-            }
+            //}
+            //catch (Exception err)
+            //{
+            //    log.Log("Open File Error:" + err.ToString());
+            //    throw err;
+            //}
             //load module
             try
             {
