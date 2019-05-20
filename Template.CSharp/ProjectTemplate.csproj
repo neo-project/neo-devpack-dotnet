@@ -32,8 +32,8 @@
 	</PropertyGroup>
 	<ItemGroup>
     <Reference Include="Neo.SmartContract.Framework, Version=2.9.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Neo.SmartContract.Framework.2.9.3\lib\net40\Neo.SmartContract.Framework.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Neo.SmartContract.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System"/>
 		$if$ ($targetframeworkversion$ >= 3.5)
@@ -53,11 +53,13 @@
 		<Compile Include="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="build.tasks" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Neo.ConvertTask.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Neo.SmartContract.Framework.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Build.tasks" />
