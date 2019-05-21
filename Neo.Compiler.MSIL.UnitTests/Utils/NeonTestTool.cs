@@ -13,26 +13,19 @@ namespace Neo.Compiler.MSIL.Utils
 
         public static NeonTestTool Build(string projectpath, string cscodefile)
         {
-            var srcdll = System.IO.Directory.GetFiles(System.IO.Path.GetFullPath(projectpath), "Neo.SmartContract.Framework.dll", System.IO.SearchOption.AllDirectories);
-            if (srcdll.Length == 0)
+            var filename = Path.Combine(projectpath, cscodefile);
+            using (var fs = new MemoryStream())
+            using (var fsPdb = new MemoryStream())
             {
-                Console.WriteLine("can not find framework.");
-                return null;
-            }
-
-
-            var filename = System.IO.Path.Combine(projectpath, cscodefile);
-            using (var fs = new System.IO.MemoryStream())
-            using (var fsPdb = new System.IO.MemoryStream())
-            {
-                CSharpBuilder.BuildDllBySignleFile(filename, srcdll[0], fs, fsPdb);
+                CSharpBuilder.BuildDllBySignleFile(filename, fs, fsPdb);
                 fs.Position = 0;
                 fsPdb.Position = 0;
                 return new NeonTestTool(fs, fsPdb);
 
             }
         }
-        public NeonTestTool(System.IO.Stream fs, System.IO.Stream fspdb)
+
+        public NeonTestTool(Stream fs, Stream fspdb)
         {
             //string onlyname = Path.GetFileNameWithoutExtension(filename);
             //string filepdb = onlyname + ".pdb";

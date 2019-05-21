@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+using Neo.SmartContract.Framework;
 using System.IO;
 using System.Reflection;
 
@@ -8,7 +9,7 @@ namespace Neo.Compiler.MSIL.Utils
 {
     class CSharpBuilder
     {
-        public static EmitResult BuildDllBySignleFile(string filename, string frameworkfile, Stream streamDll, Stream streamPdb)
+        public static EmitResult BuildDllBySignleFile(string filename, Stream streamDll, Stream streamPdb)
         {
             //set curpath
             var pepath = typeof(CSharpBuilder).Assembly.Location;
@@ -24,8 +25,9 @@ namespace Neo.Compiler.MSIL.Utils
             var comp = CSharpCompilation.Create("aaa.dll", new[] { tree }, new[]
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(frameworkfile)
+                MetadataReference.CreateFromFile(typeof(OpCodeAttribute).Assembly.Location)
             }, op);
 
             var result = comp.Emit(streamDll, streamPdb);
