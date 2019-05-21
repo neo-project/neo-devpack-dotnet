@@ -1,4 +1,8 @@
-﻿using Neo.VM;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Framework;
+using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,45 +15,10 @@ namespace Neo.Compiler.MSIL.Utils
         private readonly ModuleConverter converterIL;
         private readonly byte[] finalAVM;
 
-        public NeonTestTool(string filename)
+        public NeonTestTool(Stream fs, Stream fspdb)
         {
-            string onlyname = Path.GetFileNameWithoutExtension(filename);
-            string filepdb = onlyname + ".pdb";
-            var path = Path.GetDirectoryName(filename);
-            if (!string.IsNullOrEmpty(path))
-            {
-                try
-                {
-                    Directory.SetCurrentDirectory(path);
-                }
-                catch (Exception err)
-                {
-                    Console.WriteLine("Could not find path: " + path);
-                    throw (err);
-                }
-            }
             var log = new DefLogger();
             this.modIL = new ILModule(log);
-            Stream fs;
-            Stream fspdb = null;
-
-            //open file
-            try
-            {
-                fs = File.OpenRead(filename);
-
-                if (File.Exists(filepdb))
-                {
-                    fspdb = File.OpenRead(filepdb);
-                }
-
-            }
-            catch (Exception err)
-            {
-                log.Log("Open File Error:" + err.ToString());
-                throw err;
-            }
-            //load module
             try
             {
                 modIL.LoadModule(fs, fspdb);
@@ -71,6 +40,30 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 log.Log("Convert IL->ASM Error:" + err.ToString());
                 throw err;
+            }
+        }
+
+        public static NeonTestTool Build(string filename)
+        {
+            var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
+            var srccode = File.ReadAllText(filename);
+            var tree = CSharpSyntaxTree.ParseText(srccode);
+            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+            var comp = CSharpCompilation.Create("aaa.dll", new[] { tree }, new[]
+            {
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(OpCodeAttribute).Assembly.Location)
+            }, op);
+            using (var streamDll = new MemoryStream())
+            using (var streamPdb = new MemoryStream())
+            {
+                var result = comp.Emit(streamDll, streamPdb);
+                Assert.IsTrue(result.Success);
+                streamDll.Position = 0;
+                streamPdb.Position = 0;
+                return new NeonTestTool(streamDll, streamPdb);
             }
         }
 

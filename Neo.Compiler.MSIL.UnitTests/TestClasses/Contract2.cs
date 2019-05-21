@@ -1,20 +1,13 @@
-﻿using Neo.SmartContract.Framework;
-
-namespace TestContract
+﻿namespace Neo.Compiler.MSIL.TestClasses
 {
-    public class TestClass1 : SmartContract
+    public class Contract2 : SmartContract.Framework.SmartContract
     {
         //default smartcontract entry point.
         //but the unittest can be init from anywhere
         //no need to add code in Main.
         public static object Main(string method, object[] args)
         {
-            return null;
-        }
-        public static byte UnitTest_001()
-        {
-            var nb = new byte[] { 1, 2, 3, 4 };
-            return nb[2];
+            return UnitTest_002();
         }
         public static byte UnitTest_002()
         {
