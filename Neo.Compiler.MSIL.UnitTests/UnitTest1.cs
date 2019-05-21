@@ -5,11 +5,8 @@ using System;
 namespace Neo.Compiler.MSIL
 {
     [TestClass]
-    //UnitTestAbout "testclass1.cs"
     public class UnitTest1
     {
-        //private static readonly NeonTestTool testtool = new NeonTestTool("TestContract.dll");
-
         private static void DumpAVM(NeoMethod avmMethod)
         {
             Console.WriteLine("dump:" + avmMethod.displayName + " addr in avm:" + avmMethod.funcaddr);
@@ -32,7 +29,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void GetAllILFunction()
         {
-            var nt = NeonTestTool.Build("../../../../TestContract", "TestClass1.cs");
+            var nt = NeonTestTool.Build("./TestClasses/Contract1.cs");
             var names = nt.GetAllILFunction();
             foreach (var n in names)
             {
@@ -43,8 +40,8 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void TestDumpAFunc()
         {
-            var testtool = NeonTestTool.Build("../../../../TestContract", "TestClass1.cs");
-            var ilmethod = testtool.FindMethod("TestClass1", "UnitTest_001");
+            var testtool = NeonTestTool.Build("./TestClasses/Contract1.cs");
+            var ilmethod = testtool.FindMethod("Contract1", "UnitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpAVM(neomethod);
             var bytes = testtool.NeoMethodToBytes(neomethod);
@@ -55,7 +52,7 @@ namespace Neo.Compiler.MSIL
         public void TestRunAFunc()
         {
 
-            var testtool = NeonTestTool.Build("../../../../TestContract", "TestClass2.cs");
+            var testtool = NeonTestTool.Build("./TestClasses/Contract2.cs");
             //run this below
 
             //public static byte UnitTest_001()

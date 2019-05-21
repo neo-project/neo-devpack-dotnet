@@ -1,8 +1,6 @@
-﻿using Neo.SmartContract.Framework;
-
-namespace TestContract
+﻿namespace Neo.Compiler.MSIL.TestClasses
 {
-    public class TestClass2: SmartContract
+    public class Contract2 : SmartContract.Framework.SmartContract
     {
         //default smartcontract entry point.
         //but the unittest can be init from anywhere

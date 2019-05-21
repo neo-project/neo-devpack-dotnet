@@ -11,13 +11,12 @@ namespace Neo.Compiler.MSIL.Utils
         private readonly ModuleConverter converterIL;
         private readonly byte[] finalAVM;
 
-        public static NeonTestTool Build(string projectpath, string cscodefile)
+        public static NeonTestTool Build(string filepath)
         {
-            var filename = Path.Combine(projectpath, cscodefile);
             using (var fs = new MemoryStream())
             using (var fsPdb = new MemoryStream())
             {
-                CSharpBuilder.BuildDllBySignleFile(filename, fs, fsPdb);
+                CSharpBuilder.BuildDllBySignleFile(filepath, fs, fsPdb);
                 fs.Position = 0;
                 fsPdb.Position = 0;
                 return new NeonTestTool(fs, fsPdb);
