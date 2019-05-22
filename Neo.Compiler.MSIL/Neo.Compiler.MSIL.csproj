@@ -7,13 +7,18 @@
     <Authors>The Neo Project</Authors>
     <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
+    <AssemblyName>neon</AssemblyName>
     <PackageId>Neo.Compiler.MSIL</PackageId>
+    <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
     <RootNamespace>Neo.Compiler</RootNamespace>
     <Company>The Neo Project</Company>
     <Product>Neo.Compiler.MSIL</Product>
     <Description>Neo.Compiler.MSIL</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyName>neon</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
