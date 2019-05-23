@@ -1,4 +1,3 @@
-using Neo.VM;
 using System;
 
 namespace Neo.SmartContract.Framework
