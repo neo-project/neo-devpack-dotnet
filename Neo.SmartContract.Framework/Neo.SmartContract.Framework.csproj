@@ -5,7 +5,7 @@
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
     <Version>2.9.3</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFrameworks>netstandard1.6;</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net461</TargetFrameworks>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
     <PackageId>Neo.SmartContract.Framework</PackageId>
     <PackageTags>NEO;AntShares;Blockchain;Smart Contract;VM</PackageTags>
@@ -24,10 +24,13 @@
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-    <PackageReference Include="Neo.VM">
-      <Version>2.4.3.1</Version>
-    </PackageReference>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo.VM" Version="2.4.3.1" />
   </ItemGroup>
 
 </Project>
