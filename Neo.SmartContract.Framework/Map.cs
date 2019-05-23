@@ -1,6 +1,4 @@
-﻿using Neo.VM;
-
-namespace Neo.SmartContract.Framework
+﻿namespace Neo.SmartContract.Framework
 {
     public class Map<TKey, TValue>
     {
