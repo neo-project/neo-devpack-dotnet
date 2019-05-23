@@ -1,6 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
+using FrameworkOpCode = Neo.SmartContract.Framework.OpCode;
+using VMOpCode = Neo.VM.OpCode;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -14,16 +16,16 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             CollectionAssert.AreEqual
                 (
-                Enum.GetNames(typeof(Neo.VM.OpCode)),
-                Enum.GetNames(typeof(Neo.SmartContract.Framework.OpCode))
+                Enum.GetNames(typeof(VMOpCode)),
+                Enum.GetNames(typeof(FrameworkOpCode))
                 );
 
             // Values
 
             CollectionAssert.AreEqual
                 (
-                Enum.GetValues(typeof(Neo.VM.OpCode)).Cast<Neo.VM.OpCode>().Select(u => (byte)u).ToArray(),
-                Enum.GetValues(typeof(Neo.SmartContract.Framework.OpCode)).Cast<Neo.SmartContract.Framework.OpCode>().Select(u => (byte)u).ToArray()
+                Enum.GetValues(typeof(VMOpCode)).Cast<VMOpCode>().Select(u => (byte)u).ToArray(),
+                Enum.GetValues(typeof(FrameworkOpCode)).Cast<FrameworkOpCode>().Select(u => (byte)u).ToArray()
                 );
         }
     }
