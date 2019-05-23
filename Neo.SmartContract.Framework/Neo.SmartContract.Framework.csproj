@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo.VM" Version="2.4.3.1" />
+    <PackageReference Include="Neo.VM" Version="3.0.0-CI00013" />
   </ItemGroup>
 
 </Project>
