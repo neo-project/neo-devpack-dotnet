@@ -975,7 +975,7 @@ namespace Neo.Compiler.MSIL
                             ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0)
                             )
                         {
-                            var fname = d.DeclaringType.FullName + "::" + d.Name;
+                            var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;
                             var _src = outModule.staticfields[fname];
                             if (_src is byte[])
                             {

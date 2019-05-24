@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     class Contract_staticvar : SmartContract.Framework.SmartContract
     {
-        static int a1 = 0;
+        static int a1 = 1;
 
         public static object Main(string method, object[] args)
         {

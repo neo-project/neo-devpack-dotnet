@@ -205,7 +205,8 @@ namespace Neo.Compiler.MSIL
                     case CodeEx.Stsfld:
                         {
                             var field = src.tokenUnknown as Mono.Cecil.FieldReference;
-                            var fname = field.DeclaringType.FullName + "::" + field.Name;
+                            var fname = field.FullName;
+                            // field.DeclaringType.FullName + "::" + field.Name;
                             to.staticfields[fname] = calcStack.Pop();
                         }
                         break;

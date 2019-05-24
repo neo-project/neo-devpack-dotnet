@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Text;
 
 namespace Neo.Compiler.MSIL
 {
@@ -228,11 +229,61 @@ namespace Neo.Compiler.MSIL
             }
 
         }
-        private void _insertSharedStaticVarCode( NeoMethod to)
+        private void _insertSharedStaticVarCode(NeoMethod to)
         {
             _InsertPush(this.outModule.mapFields.Count, "static var", to);
             _Insert1(VM.OpCode.NEWARRAY, "", to);
             _Insert1(VM.OpCode.TOALTSTACK, "", to);
+
+            foreach (var defvar in this.outModule.staticfields)
+            {
+                if (this.outModule.mapFields.TryGetValue(defvar.Key, out NeoField field))
+                {
+                    //array
+                    _Insert1(VM.OpCode.DUPFROMALTSTACKBOTTOM, "", to);
+
+                    //index
+                    _ConvertPush(field.index, null, to);
+
+                    //value
+                    #region insertValue
+                    //this static var had a default value.
+                    var _src = defvar.Value;
+                    if (_src is byte[])
+                    {
+                        var bytesrc = (byte[])_src;
+                        _ConvertPush(bytesrc, null, to);
+                    }
+                    else if (_src is int intsrc)
+                    {
+                        _ConvertPush(intsrc, null, to);
+                    }
+                    else if (_src is long longsrc)
+                    {
+                        _ConvertPush(longsrc, null, to);
+                    }
+                    else if (_src is bool bsrc)
+                    {
+                        _ConvertPush(bsrc ? 1 : 0, null, to);
+                    }
+                    else if (_src is string strsrc)
+                    {
+                        var bytesrc = Encoding.UTF8.GetBytes(strsrc);
+                        _ConvertPush(bytesrc, null, to);
+                    }
+                    else if (_src is BigInteger bisrc)
+                    {
+                        byte[] bytes = bisrc.ToByteArray();
+                        _ConvertPush(bytes, null, to);
+                    }
+                    else
+                    {
+                        throw new Exception("not support type _insertSharedStaticVarCode\r\n   in: " + to.name + "\r\n");
+                    }
+                    #endregion
+                    _Insert1(VM.OpCode.SETITEM, "", to);
+                }
+            }
 
         }
 
