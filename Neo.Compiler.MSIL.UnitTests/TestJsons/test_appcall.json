@@ -1,0 +1,22 @@
+{
+  "tests": {
+    "appcall": {
+      "build": [
+        {
+          "contractid": "0102030405060708090A0102030405060708090A",
+          "filename": "./TestClasses/Contract1.cs"
+        }, //build contract1 with a fix contractID
+        "./TestClasses/Contract_appcall.cs"
+      ],
+
+      "testmethod": "execute",
+      "entryscript": "./TestClasses/Contract_appcall.cs",
+      //entryscript use fix contractID to do a appcall
+      "testparams": [
+        "(str)test",
+        []
+      ],
+      "testresult": "(bytes)01020304"
+    }
+  }
+}

@@ -68,25 +68,38 @@ namespace Neo.Compiler.MSIL.Utils
 
         static void TestJsonCase(JObject json)
         {
-            List<BuildScript> thiscasebuilds = new List<BuildScript>();
+            Dictionary<string, BuildScript> thiscasebuilds = new Dictionary<string, BuildScript>();
+
 
             //step 1.build
             var contracs = (JArray)json["build"];
-            List<string> needtobuild = new List<string>();
-            foreach (string file in contracs)
+            Dictionary<string, byte[]> needtobuild = new Dictionary<string, byte[]>();
+            foreach (JToken _json in contracs)
             {
-                needtobuild.Add(file);
+                if (_json is JObject)
+                {
+                    var jsonitem = (JObject)_json;
+                    var hex = JsonTestTool.HexString2Bytes((string)jsonitem["contractid"]);
+                    if (hex.Length != 20)
+                        throw new Exception("error contract id");
+                    needtobuild.Add((string)jsonitem["filename"], hex);
+                }
+                else
+                {//simple way
+                    needtobuild.Add((string)_json, null);
+                }
             }
             if (json.ContainsKey("entryscript"))
             {
                 string entryscript = (string)json["entryscript"];
-                if (!needtobuild.Contains(entryscript))
-                    needtobuild.Add(entryscript);
+                if (!needtobuild.ContainsKey(entryscript))
+                    needtobuild.Add(entryscript, null);
             }
 
 
-            foreach (string file in needtobuild)
+            foreach (var item in needtobuild)
             {
+                var file = item.Key;
                 if (builds.ContainsKey(file) == false)
                 {
                     var script = NeonTestTool.BuildScript(file);
@@ -98,7 +111,11 @@ namespace Neo.Compiler.MSIL.Utils
                 {
                     Assert.Fail("a contract is not build succ:" + file + " err=" + _script.Error.Message);
                 }
-                thiscasebuilds.Add(_script);
+
+                if (item.Value != null)
+                {
+                    thiscasebuilds.Add(JsonTestTool.Bytes2HexString(item.Value), _script);
+                }
             }
             //step 2.do test
             var testmethod = (string)json["testmethod"];
