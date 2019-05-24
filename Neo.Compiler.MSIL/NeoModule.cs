@@ -31,6 +31,7 @@ namespace Neo.Compiler
         public ConvOption option;
         public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
         public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
+        public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
         //public Dictionary<string, byte[]> codes = new Dictionary<string, byte[]>();
         //public byte[] GetScript(byte[] script_hash)
         //{
@@ -85,6 +86,7 @@ namespace Neo.Compiler
 
     public class NeoMethod
     {
+        public bool isEntry = false;
         public string _namespace;
         public string name;
         public string displayName;
@@ -225,6 +227,18 @@ namespace Neo.Compiler
 
         public void FromJson(MyJson.JsonNode_Object json)
         {
+        }
+    }
+    public class NeoField : NeoParam
+    {
+        public NeoField(string name, string type, int index) : base(name, type)
+        {
+            this.index = index;
+        }
+        public int index
+        {
+            get;
+            private set;
         }
     }
 
