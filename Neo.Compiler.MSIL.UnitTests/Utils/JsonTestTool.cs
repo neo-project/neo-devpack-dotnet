@@ -72,21 +72,24 @@ namespace Neo.Compiler.MSIL.Utils
 
 
             //step 1.build
-            var contracs = (JArray)json["build"];
+            var contracts = (JArray)json["build"];
             Dictionary<string, byte[]> needtobuild = new Dictionary<string, byte[]>();
-            foreach (JToken _json in contracs)
+            if (contracts != null)
             {
-                if (_json is JObject)
+                foreach (JToken _json in contracts)
                 {
-                    var jsonitem = (JObject)_json;
-                    var hex = JsonTestTool.HexString2Bytes((string)jsonitem["contractid"]);
-                    if (hex.Length != 20)
-                        throw new Exception("error contract id");
-                    needtobuild.Add((string)jsonitem["filename"], hex);
-                }
-                else
-                {//simple way
-                    needtobuild.Add((string)_json, null);
+                    if (_json is JObject)
+                    {
+                        var jsonitem = (JObject)_json;
+                        var hex = JsonTestTool.HexString2Bytes((string)jsonitem["contractid"]);
+                        if (hex.Length != 20)
+                            throw new Exception("error contract id");
+                        needtobuild.Add((string)jsonitem["filename"], hex);
+                    }
+                    else
+                    {//simple way
+                        needtobuild.Add((string)_json, null);
+                    }
                 }
             }
             if (json.ContainsKey("entryscript"))

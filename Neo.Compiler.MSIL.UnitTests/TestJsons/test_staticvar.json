@@ -1,0 +1,14 @@
+{
+  "tests": {
+    "staticvar": {
+      "testmethod": "execute",
+      "entryscript": "./TestClasses/Contract_staticvar.cs",
+      //entryscript use fix contractID to do a appcall
+      "testparams": [
+        "(str)test",
+        []
+      ],
+      "testresult": 35
+    }
+  }
+}
