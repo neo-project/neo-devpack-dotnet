@@ -124,6 +124,13 @@ namespace Neo.Compiler.MSIL
                         };
                         outModule.mapEvents[ae.name] = ae;
                     }
+                    else if (e.Value.field.IsStatic)
+                    {
+                        var _fieldindex = outModule.mapFields.Count;
+                        var field = new NeoField(e.Key, e.Value.type, _fieldindex);
+                        outModule.mapFields[e.Value.field.FullName] = field;
+                    }
+
                 }
             }
 
@@ -181,6 +188,14 @@ namespace Neo.Compiler.MSIL
                         if (IsMixAttribute(m.Value.method, out VM.OpCode[] opcodes, out string[] opdata))
                             continue;
 
+                        if (m.Key.Contains("::Main("))
+                        {
+                            NeoMethod _m = outModule.mapMethods[m.Key];
+                            if (_m.inSmartContract)
+                            {
+                                nm.isEntry = true;
+                            }
+                        }
                         this.ConvertMethod(m.Value, nm);
                     }
                     //catch (Exception err)
@@ -320,6 +335,10 @@ namespace Neo.Compiler.MSIL
             this.addr = 0;
             this.addrconv.Clear();
 
+            if (to.isEntry)
+            {
+                _insertSharedStaticVarCode(to);
+            }
             //插入一个记录深度的代码，再往前的是参数
             _insertBeginCode(from, to);
 
@@ -337,14 +356,14 @@ namespace Neo.Compiler.MSIL
                     {
                         _insertEndCode(from, to, src);
                     }
-                    try
+                    //try
                     {
                         skipcount = ConvertCode(from, src, to);
                     }
-                    catch (Exception err)
-                    {
-                        throw new Exception("error:" + from.method.FullName + "::" + src, err);
-                    }
+                    //catch (Exception err)
+                    //{
+                    //    throw new Exception("error:" + from.method.FullName + "::" + src, err);
+                    //}
                 }
             }
 
@@ -1016,8 +1035,33 @@ namespace Neo.Compiler.MSIL
                         }
                         else
                         {//如果走到这里，是一个静态成员，但是没有添加readonly 表示
-                            throw new Exception("Just allow defined a static variable with readonly." + d.FullName);
+                            //lights add,need static var load function
+                            var field = this.outModule.mapFields[d.FullName];
+                            _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
+                            _ConvertPush(field.index, null, to);
+
+                            _Insert1(VM.OpCode.PICKITEM,"",to);
+
+                            //throw new Exception("Just allow defined a static variable with readonly." + d.FullName);
                         }
+                    }
+                    break;
+                case CodeEx.Stsfld:
+                    {
+                        _Convert1by1(VM.OpCode.NOP, src, to);
+                        var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
+                        var field = this.outModule.mapFields[d.FullName];
+                        _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
+                        _ConvertPush(field.index, null, to);
+
+
+                        //got v to top
+                        _ConvertPush(2, null, to);
+                        _Convert1by1(VM.OpCode.ROLL, null, to);
+
+
+                        _Insert1(VM.OpCode.SETITEM, "", to);
+
                     }
                     break;
                 case CodeEx.Throw:
@@ -1027,6 +1071,7 @@ namespace Neo.Compiler.MSIL
                         //_Insert1(VM.OpCode.RET, "", to);
                     }
                     break;
+               
                 default:
 #if WITHPDB
                     logger.Log("unsupported instruction " + src.code + "\r\n   in: " + to.name + "\r\n");

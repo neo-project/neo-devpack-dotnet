@@ -228,6 +228,14 @@ namespace Neo.Compiler.MSIL
             }
 
         }
+        private void _insertSharedStaticVarCode( NeoMethod to)
+        {
+            _InsertPush(this.outModule.mapFields.Count, "static var", to);
+            _Insert1(VM.OpCode.NEWARRAY, "", to);
+            _Insert1(VM.OpCode.TOALTSTACK, "", to);
+
+        }
+
         private void _insertBeginCode(ILMethod from, NeoMethod to)
         {
             ////压入深度临时栈

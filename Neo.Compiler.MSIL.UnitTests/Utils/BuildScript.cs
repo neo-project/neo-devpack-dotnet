@@ -56,18 +56,18 @@ namespace Neo.Compiler.MSIL.Utils
 
             converterIL = new ModuleConverter(log);
             ConvOption option = new ConvOption();
-            try
+            //try
             {
                 converterIL.Convert(modIL, option);
                 finalAVM = converterIL.outModule.Build();
                 IsBuild = true;
             }
-            catch (Exception err)
-            {
-                this.Error = err;
-                log.Log("Convert IL->ASM Error:" + err.ToString());
-                return;
-            }
+            //catch (Exception err)
+            //{
+            //    this.Error = err;
+            //    log.Log("Convert IL->ASM Error:" + err.ToString());
+            //    return;
+            //}
         }
     }
 }
