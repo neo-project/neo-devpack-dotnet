@@ -1,0 +1,15 @@
+{
+  "tests": {
+    "newarray": {
+      "build": [ "./TestClasses/Contract1.cs" ],
+
+      "testmethod": "execute",
+      "entryscript": "./TestClasses/Contract1.cs",
+      "testparams": [
+        "(str)test",
+        []
+      ],
+      "testresult": "(bytes)01020304"
+    }
+  }
+}

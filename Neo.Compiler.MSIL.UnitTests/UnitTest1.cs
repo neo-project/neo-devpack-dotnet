@@ -49,27 +49,6 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
-        public void TestRunAFunc()
-        {
-
-            var testtool = NeonTestTool.Build("./TestClasses/Contract2.cs");
-            //run this below
-
-            //public static byte UnitTest_001()
-            //{
-            //    var nb = new byte[] { 1, 2, 3, 4 };
-            //    return nb[2];
-            //}
-            VM.StackItem[] items = new VM.StackItem[]
-            {
-                "hello",
-                new VM.StackItem[]{}
-            };
-            var result = testtool.RunScript(0, items);
-            var resultnum = result.ResultStack.Peek().GetBigInteger();
-            // and check if the result is 3
-
-            Assert.AreEqual(resultnum, 3);
-        }
+        public void TestRunAFunc() => JsonTestTool.TestAllCaseInJson("./TestJsons/test_newarray.json");
     }
 }
