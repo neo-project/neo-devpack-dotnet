@@ -10,6 +10,17 @@
         []
       ],
       "testresult": "(bytes)01020304"
+    },
+    "pickarray": {
+      "build": [ "./TestClasses/Contract2.cs" ],
+
+      "testmethod": "execute",
+      "entryscript": "./TestClasses/Contract2.cs",
+      "testparams": [
+        "(str)test",
+        []
+      ],
+      "testresult": 3
     }
   }
 }

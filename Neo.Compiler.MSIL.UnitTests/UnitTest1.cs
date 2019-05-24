@@ -49,6 +49,8 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
-        public void TestRunAFunc() => JsonTestTool.TestAllCaseInJson("./TestJsons/test_newarray.json");
+        public void Test_ByteArray_New() => JsonTestTool.TestOneCaseInJson("./TestJsons/test_newarray.json","newarray");
+        [TestMethod]
+        public void Test_ByteArrayPick() => JsonTestTool.TestOneCaseInJson("./TestJsons/test_newarray.json", "pickarray");
     }
 }
