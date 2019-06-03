@@ -112,7 +112,7 @@ namespace Neo.Compiler
             try
             {
 
-                string bytesname = onlyname + ".avm";
+                string bytesname = onlyname + ".nvm";
 
                 File.Delete(bytesname);
                 File.WriteAllBytes(bytesname, bytes);

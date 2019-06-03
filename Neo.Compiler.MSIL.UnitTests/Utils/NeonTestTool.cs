@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL.Utils
     {
         private readonly ILModule modIL;
         private readonly ModuleConverter converterIL;
-        private readonly byte[] finalAVM;
+        private readonly byte[] finalNVM;
 
         public NeonTestTool(Stream fs, Stream fspdb)
         {
@@ -34,7 +34,7 @@ namespace Neo.Compiler.MSIL.Utils
             try
             {
                 converterIL.Convert(modIL, option);
-                finalAVM = converterIL.outModule.Build();
+                finalNVM = converterIL.outModule.Build();
             }
             catch (Exception err)
             {
@@ -150,7 +150,7 @@ namespace Neo.Compiler.MSIL.Utils
             return bytes.ToArray();
         }
 
-        private ExecutionEngine RunAVM(byte[] data, int addr = 0, StackItem[] _params = null)
+        private ExecutionEngine RunNVM(byte[] data, int addr = 0, StackItem[] _params = null)
         {
             var engine = new ExecutionEngine();
             engine.LoadScript(data);
@@ -173,13 +173,13 @@ namespace Neo.Compiler.MSIL.Utils
 
         public ExecutionEngine RunScript(int addr, StackItem[] _params = null)
         {
-            return RunAVM(finalAVM, addr, _params);
+            return RunNVM(finalNVM, addr, _params);
         }
 
-        public ExecutionEngine RunMethodAsAStandaloneAVM(NeoMethod method, StackItem[] _params = null)
+        public ExecutionEngine RunMethodAsAStandaloneNVM(NeoMethod method, StackItem[] _params = null)
         {
             var bytes = NeoMethodToBytes(method);
-            return RunAVM(bytes, 0, _params);
+            return RunNVM(bytes, 0, _params);
         }
     }
 }
