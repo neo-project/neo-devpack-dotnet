@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework", "src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj", "{C30B5859-D4B9-46E8-A797-6B0A1B49B590}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.CSharp", "templates\Template.CSharp\Template.CSharp.csproj", "{6F0591A9-B218-49BB-B666-CE6D1FA8F990}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A8F6D13B-6D12-46BB-A336-1F54FA64F4A1} = {A8F6D13B-6D12-46BB-A336-1F54FA64F4A1}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "src\Installer\Installer.csproj", "{EDE374C3-2600-460C-B852-8AA3956988BB}"
 EndProject
