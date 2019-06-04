@@ -11,12 +11,11 @@ mono: none
 dotnet: 2.1.300
 
 before_install:
-  - cd tests/
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ulimit -n 2048; fi
 
 script:
   - dotnet restore
-  - find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+  - find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
   - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 after_success:
