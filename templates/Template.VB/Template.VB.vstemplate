@@ -15,7 +15,6 @@
   <TemplateContent>
     <Project File="ProjectTemplate.vbproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" OpenInEditor="true" OpenOrder="10">Contract1.vb</ProjectItem>
-      <ProjectItem ReplaceParameters="false" TargetFileName="Neo.ConvertTask.dll">Neo.ConvertTask.dll</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>
