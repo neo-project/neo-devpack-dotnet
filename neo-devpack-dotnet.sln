@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.CSharp", "template
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "src\Installer\Installer.csproj", "{EDE374C3-2600-460C-B852-8AA3956988BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.ConvertTask", "src\Neo.ConvertTask\Neo.ConvertTask.csproj", "{A8F6D13B-6D12-46BB-A336-1F54FA64F4A1}"
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Template.VB", "templates\Template.VB\Template.VB.vbproj", "{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL", "src\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj", "{42C0FF0F-0A7C-4166-A773-1F944642C209}"
