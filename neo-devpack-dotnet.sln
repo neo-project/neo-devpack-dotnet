@@ -3,24 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.452
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework", "Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj", "{C30B5859-D4B9-46E8-A797-6B0A1B49B590}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework", "src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj", "{C30B5859-D4B9-46E8-A797-6B0A1B49B590}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.CSharp", "Template.CSharp\Template.CSharp.csproj", "{6F0591A9-B218-49BB-B666-CE6D1FA8F990}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.CSharp", "templates\Template.CSharp\Template.CSharp.csproj", "{6F0591A9-B218-49BB-B666-CE6D1FA8F990}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A8F6D13B-6D12-46BB-A336-1F54FA64F4A1} = {A8F6D13B-6D12-46BB-A336-1F54FA64F4A1}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "Installer\Installer.csproj", "{EDE374C3-2600-460C-B852-8AA3956988BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "src\Installer\Installer.csproj", "{EDE374C3-2600-460C-B852-8AA3956988BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.ConvertTask", "Neo.ConvertTask\Neo.ConvertTask.csproj", "{A8F6D13B-6D12-46BB-A336-1F54FA64F4A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.ConvertTask", "src\Neo.ConvertTask\Neo.ConvertTask.csproj", "{A8F6D13B-6D12-46BB-A336-1F54FA64F4A1}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Template.VB", "Template.VB\Template.VB.vbproj", "{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Template.VB", "templates\Template.VB\Template.VB.vbproj", "{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL", "Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj", "{42C0FF0F-0A7C-4166-A773-1F944642C209}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL", "src\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj", "{42C0FF0F-0A7C-4166-A773-1F944642C209}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL.UnitTests", "Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj", "{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL.UnitTests", "tests\Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj", "{DE7C57CD-E4F8-4745-AB71-BABE13A0AE14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.Framework.UnitTests", "Neo.SmartContract.Framework.UnitTests\Neo.SmartContract.Framework.UnitTests.csproj", "{93BEC5CC-BAFF-4389-89E7-84AAFF5D495D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.Framework.UnitTests", "tests\Neo.SmartContract.Framework.UnitTests\Neo.SmartContract.Framework.UnitTests.csproj", "{93BEC5CC-BAFF-4389-89E7-84AAFF5D495D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
