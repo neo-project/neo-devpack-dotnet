@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>$safeprojectname$</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
@@ -9,12 +8,10 @@
     <PackageReference Include="Neo.SmartContract.Framework" Version="2.9.3" />
   </ItemGroup>
 
-  <UsingTask AssemblyFile="Neo.ConvertTask.dll" TaskName="Neo.ConvertTask" />
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: $(TargetPath)" Importance="high">
     </Message>
-    <ConvertTask DataSource="$(TargetPath)" />
+    <Exec Command="neon &quot;$(TargetPath)&quot;" />
   </Target>
 
 </Project>

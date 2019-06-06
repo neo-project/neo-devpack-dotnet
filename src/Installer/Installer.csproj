@@ -3,6 +3,7 @@
   <PropertyGroup>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -50,14 +51,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Template.CSharp\Template.CSharp.csproj">
+    <ProjectReference Include="..\..\templates\Template.CSharp\Template.CSharp.csproj">
       <Project>{6F0591A9-B218-49BB-B666-CE6D1FA8F990}</Project>
       <Name>Template.CSharp</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
-    <ProjectReference Include="..\Template.VB\Template.VB.vbproj">
+    <ProjectReference Include="..\..\templates\Template.VB\Template.VB.vbproj">
       <Project>{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}</Project>
       <Name>Template.VB</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
