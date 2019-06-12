@@ -1,0 +1,25 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Utils;
+using Neo.VM;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Neo.Compiler.MSIL
+{
+    [TestClass]
+    public class UnitTest_Shift
+    {
+        [TestMethod]
+        public void Test_Shift()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_shift.cs");
+
+            testengine.scriptEntry.DumpAVM();
+
+            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
+            var result = testengine.ExecuteTestCase(_params);
+        }
+    }
+}

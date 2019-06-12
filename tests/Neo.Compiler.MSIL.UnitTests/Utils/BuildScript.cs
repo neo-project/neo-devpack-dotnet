@@ -138,7 +138,23 @@ namespace Neo.Compiler.MSIL.Utils
             var neomethod = this.converterIL.methodLink[method];
             return neomethod;
         }
+        public NeoMethod[] GetAllNEOVMMethod()
+        {
+            return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray() ;
+        }
 
+        public void DumpAVM()
+        {
+            foreach(var method in GetAllNEOVMMethod())
+            {
+                Console.WriteLine("dump:" + method.displayName + " addr in avm:" + method.funcaddr);
+                foreach (var c in method.body_Codes)
+                {
+                    Console.WriteLine(c.Key.ToString("X04") + "=>" + c.Value.ToString());
+                }
+
+            }
+        }
         public byte[] NeoMethodToBytes(NeoMethod method)
         {
             List<byte> bytes = new List<byte>();

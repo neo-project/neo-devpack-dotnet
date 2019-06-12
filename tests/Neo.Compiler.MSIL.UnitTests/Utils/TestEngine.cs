@@ -8,26 +8,30 @@ namespace Neo.Compiler.MSIL.Utils
 {
     class TestEngine : ExecutionEngine
     {
-        static IDictionary<string, BuildScript> scriptsAll= new Dictionary<string, BuildScript>();
+        static IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
         IDictionary<string, BuildScript> scripts = new Dictionary<string, BuildScript>();
-        BuildScript scriptEntry =null;
+        public BuildScript scriptEntry
+        {
+            get;
+            private set;
+        }
 
 
-        public void AddAppcallScript(string filename,string specScriptID)
+        public void AddAppcallScript(string filename, string specScriptID)
         {
             byte[] hex = NeonTestTool.HexString2Bytes(specScriptID);
             if (hex.Length != 20)
                 throw new Exception("fail Script ID");
 
-            if(scriptsAll.ContainsKey(filename)==false)
+            if (scriptsAll.ContainsKey(filename) == false)
             {
-                scriptsAll[filename]= NeonTestTool.BuildScript(filename);
+                scriptsAll[filename] = NeonTestTool.BuildScript(filename);
             }
 
             scripts[specScriptID.ToLower()] = scriptsAll[filename];
         }
-        
+
         public void AddEntryScript(string filename)
         {
             if (scriptsAll.ContainsKey(filename) == false)
@@ -70,6 +74,10 @@ namespace Neo.Compiler.MSIL.Utils
                 //a appcall
                 return Contract_Call();
             }
+            if (method == Neo.SmartContract.InteropService.System_Runtime_Log)
+            {
+                return Contract_Log();
+            }
             return base.OnSysCall(method);
         }
 
@@ -86,6 +94,15 @@ namespace Neo.Compiler.MSIL.Utils
             ExecutionContext context_new = this.LoadScript(contract.finalAVM, 1);
             context_new.EvaluationStack.Push(item2);
             context_new.EvaluationStack.Push(item1);
+            return true;
+        }
+        private bool Contract_Log()
+        {
+            StackItem item0 = this.CurrentContext.EvaluationStack.Pop();
+            Console.WriteLine("got LOG:" + item0.GetType().ToString());
+            Console.WriteLine("--as num:" + item0.GetBigInteger());
+            Console.WriteLine("--as str:" + item0.GetString());
+            Console.WriteLine("--as bin:" + NeonTestTool.Bytes2HexString(item0.GetByteArray()));
             return true;
         }
     }
