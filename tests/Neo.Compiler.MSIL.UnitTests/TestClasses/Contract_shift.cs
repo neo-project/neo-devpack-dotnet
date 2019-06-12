@@ -8,10 +8,11 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static object Main(string method, object[] args)
         {
-            var v1 = 8 << 1;
-            var v2 = 8 << -1;
-            var v3 = 8 >> 1;
-            var v4 = 8 >> -1;
+            int v = 8;
+            var v1 = v << 1;
+            var v2 = v << -1;
+            var v3 = v >> 1;
+            var v4 = v >> -1;
             Neo.SmartContract.Framework.Services.Neo.Runtime.Log((string)(object)v1);
             Neo.SmartContract.Framework.Services.Neo.Runtime.Log((string)(object)v2);
             Neo.SmartContract.Framework.Services.Neo.Runtime.Log((string)(object)v3);

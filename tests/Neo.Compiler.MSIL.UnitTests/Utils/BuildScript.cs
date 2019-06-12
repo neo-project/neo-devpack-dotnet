@@ -150,7 +150,16 @@ namespace Neo.Compiler.MSIL.Utils
                 Console.WriteLine("dump:" + method.displayName + " addr in avm:" + method.funcaddr);
                 foreach (var c in method.body_Codes)
                 {
-                    Console.WriteLine(c.Key.ToString("X04") + "=>" + c.Value.ToString());
+                    var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
+                    if(c.Value.bytes!=null&&c.Value.bytes.Length>0)
+                    {
+                        line += " HEX:";
+                        foreach(var b in c.Value.bytes)
+                        {
+                            line += b.ToString("X02");
+                        }
+                    }
+                    Console.WriteLine(line);
                 }
 
             }
