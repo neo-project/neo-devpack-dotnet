@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.VM;
 using System;
 
 namespace Neo.Compiler.MSIL
@@ -29,7 +30,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void GetAllILFunction()
         {
-            var nt = NeonTestTool.Build("./TestClasses/Contract1.cs");
+            var nt = NeonTestTool.BuildScript("./TestClasses/Contract1.cs");
             var names = nt.GetAllILFunction();
             foreach (var n in names)
             {
@@ -40,7 +41,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void TestDumpAFunc()
         {
-            var testtool = NeonTestTool.Build("./TestClasses/Contract1.cs");
+            var testtool = NeonTestTool.BuildScript("./TestClasses/Contract1.cs");
             var ilmethod = testtool.FindMethod("Contract1", "UnitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpAVM(neomethod);
@@ -49,27 +50,32 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
-        public void TestRunAFunc()
+        public void Test_ByteArray_New()
         {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
 
-            var testtool = NeonTestTool.Build("./TestClasses/Contract2.cs");
-            //run this below
 
-            //public static byte UnitTest_001()
-            //{
-            //    var nb = new byte[] { 1, 2, 3, 4 };
-            //    return nb[2];
-            //}
-            VM.StackItem[] items = new VM.StackItem[]
-            {
-                "hello",
-                new VM.StackItem[]{}
-            };
-            var result = testtool.RunScript(0, items);
-            var resultnum = result.ResultStack.Peek().GetBigInteger();
-            // and check if the result is 3
+            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
+            var result = testengine.ExecuteTestCase(_params);
+            StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
-            Assert.AreEqual(resultnum, 3);
+            var bequal = wantresult.Equals(result.Pop());
+            Assert.IsTrue(bequal);
+        }
+        [TestMethod]
+        public void Test_ByteArrayPick()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract2.cs");
+
+
+            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
+            var result = testengine.ExecuteTestCase(_params);
+            StackItem wantresult = 3;
+
+            var bequal = wantresult.Equals(result.Pop());
+            Assert.IsTrue(bequal);
         }
     }
 }
