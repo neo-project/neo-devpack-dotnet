@@ -7,17 +7,13 @@
         //no need to add code in Main.
         public static object Main(string method, object[] args)
         {
-            return null;
+            return UnitTest_001();
         }
-        public static byte UnitTest_001()
+        public static byte[] UnitTest_001()
         {
             var nb = new byte[] { 1, 2, 3, 4 };
-            return nb[2];
+            return nb;
         }
-        public static byte UnitTest_002()
-        {
-            var nb = new byte[] { 1, 2, 3, 4 };
-            return nb[2];
-        }
+
     }
 }
