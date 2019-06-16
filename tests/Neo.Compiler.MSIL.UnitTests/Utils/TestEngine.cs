@@ -114,7 +114,6 @@ namespace Neo.Compiler.MSIL.Utils
                 char c = s.ToLower().ToCharArray()[i];
                 if ((!((c >= 97 && c <= 123) || (c >= 48 && c <= 57) || c == 45 || c == 46 || c == 64 || c == 95)))
                     return false;
-                break;
             }
             return true;
         }
