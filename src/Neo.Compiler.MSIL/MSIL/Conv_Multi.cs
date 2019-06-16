@@ -773,6 +773,16 @@ namespace Neo.Compiler.MSIL
                     //_Convert1by1(VM.OpCode.CSHARPSTRHASH32, src, to);
                     //return 0;
                 }
+                else if(src.tokenMethod.Contains("::op_LeftShift("))
+                {
+                    _Convert1by1(VM.OpCode.SHL, src, to);
+                    return 0;
+                }
+                else if (src.tokenMethod.Contains("::op_RightShift("))
+                {
+                    _Convert1by1(VM.OpCode.SHR, src, to);
+                    return 0;
+                }
                 else
                 {
 

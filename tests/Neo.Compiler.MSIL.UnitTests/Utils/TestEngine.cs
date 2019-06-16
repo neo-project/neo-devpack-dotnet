@@ -75,7 +75,11 @@ namespace Neo.Compiler.MSIL.Utils
                 //a appcall
                 return Contract_Call();
             }
-            if (method == Neo.SmartContract.InteropService.System_Runtime_Log)
+            else if (method == Neo.SmartContract.InteropService.System_Runtime_Log)
+            {
+                return Contract_Log();
+            }
+            else if (method == Neo.SmartContract.InteropService.System_Runtime_Notify)
             {
                 return Contract_Log();
             }
@@ -100,11 +104,79 @@ namespace Neo.Compiler.MSIL.Utils
         private bool Contract_Log()
         {
             StackItem item0 = this.CurrentContext.EvaluationStack.Pop();
-            Console.WriteLine("got LOG:" + item0.GetType().ToString());
-            Console.WriteLine("--as num:" + item0.GetBigInteger());
-            Console.WriteLine("--as str:" + item0.GetString());
-            Console.WriteLine("--as bin:" + NeonTestTool.Bytes2HexString(item0.GetByteArray()));
+            DumpItem(item0);
             return true;
+        }
+        public bool CheckAsciiChar(string s)
+        {
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s.ToLower().ToCharArray()[i];
+                if ((!((c >= 97 && c <= 123) || (c >= 48 && c <= 57) || c == 45 || c == 46 || c == 64 || c == 95)))
+                    return false;
+                break;
+            }
+            return true;
+        }
+        private void DumpItemShort(StackItem item, int space = 0)
+        {
+            var spacestr = "";
+            for (var i = 0; i < space; i++) spacestr += "    ";
+            var line = NeonTestTool.Bytes2HexString(item.GetByteArray());
+
+            if (item is Neo.VM.Types.ByteArray)
+            {
+                var str = item.GetString();
+                if (CheckAsciiChar(str))
+                {
+                    line += "|" + str;
+                }
+            }
+            Console.WriteLine(spacestr + line);
+        }
+        private void DumpItem(StackItem item, int space = 0)
+        {
+            var spacestr = "";
+            for (var i = 0; i < space; i++) spacestr += "    ";
+            Console.WriteLine(spacestr + "got Param:" + item.GetType().ToString());
+
+            if (item is Neo.VM.Types.Array || item is Neo.VM.Types.Struct)
+            {
+                var array = item as Neo.VM.Types.Array;
+                for (var i = 0; i < array.Count; i++)
+                {
+                    var subitem = array[i];
+                    DumpItem(subitem, space + 1);
+                }
+            }
+            else if (item is Neo.VM.Types.Map)
+            {
+                var map = item as Neo.VM.Types.Map;
+                foreach (var subitem in map)
+                {
+                    Console.WriteLine("---Key---");
+                    DumpItemShort(subitem.Key, space + 1);
+                    Console.WriteLine("---Value---");
+                    DumpItem(subitem.Value, space + 1);
+                }
+
+            }
+            else
+            {
+
+                Console.WriteLine(spacestr + "--as num:" + item.GetBigInteger());
+
+                Console.WriteLine(spacestr + "--as bin:" + NeonTestTool.Bytes2HexString(item.GetByteArray()));
+                if (item is Neo.VM.Types.ByteArray)
+                {
+                    var str = item.GetString();
+                    if (CheckAsciiChar(str))
+                    {
+                        Console.WriteLine(spacestr + "--as str:" + item.GetString());
+                    }
+
+                }
+            }
         }
     }
 }
