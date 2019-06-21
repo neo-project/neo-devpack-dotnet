@@ -18,11 +18,10 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "call01", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("call01").Run();
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
-            var bequal = wantresult.Equals(result.Pop());
+            var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
         }
         [TestMethod]
@@ -33,10 +32,9 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "call02", new StackItem[] { "hello", 33 } };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("call02").Run("hello", 33);
             StackItem wantresult = new byte[0];
-            var bequal = wantresult.Equals(result.Pop());
+            var bequal = wantresult.Equals(result);
 
             //if your function return is void,when auto generate a entry point,it always return new byte[0];
             // object Main(string,object[]) must be return sth.

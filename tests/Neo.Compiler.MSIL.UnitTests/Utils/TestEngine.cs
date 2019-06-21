@@ -41,18 +41,30 @@ namespace Neo.Compiler.MSIL.Utils
 
             scriptEntry = scriptsAll[filename];
         }
-        public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
+        public class ContractMethod
         {
-            //var engine = new ExecutionEngine();
+            TestEngine engine;
+            string methodname;
+            public ContractMethod(TestEngine engine, string methodname)
+            {
+                this.engine = engine;
+                this.methodname = methodname;
+            }
+            public StackItem Run(params StackItem[] _params)
+            {
+                return this.engine.ExecuteContract(methodname, _params);
+            }
+        }
+        public ContractMethod GetMethod(string methodname)
+        {
+            return new ContractMethod(this, methodname);
+        }
+        private StackItem ExecuteContract(string methodname, params StackItem[] _params)
+        {
             this.LoadScript(scriptEntry.finalAVM);
             this.InvocationStack.Peek().InstructionPointer = 0;
-            if (_params != null)
-            {
-                for (var i = _params.Length - 1; i >= 0; i--)
-                {
-                    this.CurrentContext.EvaluationStack.Push(_params[i]);
-                }
-            }
+            this.CurrentContext.EvaluationStack.Push(_params);
+            this.CurrentContext.EvaluationStack.Push(methodname);
             while (true)
             {
                 var bfault = (this.State & VMState.FAULT) > 0;
@@ -66,8 +78,38 @@ namespace Neo.Compiler.MSIL.Utils
                 this.ExecuteNext();
             }
             var stack = this.ResultStack;
-            return stack;
+            if (stack.Count != 1)
+                throw new Exception("should have 1 result in stack.");
+
+            return stack.Pop();
         }
+        //public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
+        //{
+        //    //var engine = new ExecutionEngine();
+        //    this.LoadScript(scriptEntry.finalAVM);
+        //    this.InvocationStack.Peek().InstructionPointer = 0;
+        //    if (_params != null)
+        //    {
+        //        for (var i = _params.Length - 1; i >= 0; i--)
+        //        {
+        //            this.CurrentContext.EvaluationStack.Push(_params[i]);
+        //        }
+        //    }
+        //    while (true)
+        //    {
+        //        var bfault = (this.State & VMState.FAULT) > 0;
+        //        var bhalt = (this.State & VMState.HALT) > 0;
+        //        if (bfault || bhalt) break;
+
+        //        Console.WriteLine("op:[" +
+        //            this.CurrentContext.InstructionPointer.ToString("X04") +
+        //            "]" +
+        //        this.CurrentContext.CurrentInstruction.OpCode);
+        //        this.ExecuteNext();
+        //    }
+        //    var stack = this.ResultStack;
+        //    return stack;
+        //}
         protected override bool OnSysCall(uint method)
         {
             if (method == Neo.SmartContract.InteropService.System_Contract_Call)

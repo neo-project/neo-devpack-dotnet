@@ -18,8 +18,7 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("testfunc").Run();
         }
         [TestMethod]
         public void Test_Shift_BigInteger()
@@ -29,8 +28,7 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("testfunc").Run();
         }
     }
 

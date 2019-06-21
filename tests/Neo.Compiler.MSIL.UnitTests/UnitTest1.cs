@@ -56,11 +56,10 @@ namespace Neo.Compiler.MSIL
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
 
 
-            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("testfunc").Run();
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
-            var bequal = wantresult.Equals(result.Pop());
+            var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
         }
         [TestMethod]
@@ -70,11 +69,10 @@ namespace Neo.Compiler.MSIL
             testengine.AddEntryScript("./TestClasses/Contract2.cs");
 
 
-            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("testfunc").Run();
             StackItem wantresult = 3;
 
-            var bequal = wantresult.Equals(result.Pop());
+            var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
         }
     }
