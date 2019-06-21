@@ -277,12 +277,14 @@ namespace Neo.Compiler.MSIL
             _insertBeginCodeEntry(to);
 
             List<int> calladdr = new List<int>();
+            List<int> calladdrbegin = new List<int>();
             //add callfunc
             foreach (var m in this.outModule.mapMethods)
             {
                 if (m.Value.inSmartContract && m.Value.isPublic)
                 {//add a call;
                     //get name
+                    calladdrbegin.Add(this.addr);
                     _Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
                     _InsertPush(0, "", to);
                     _Insert1(VM.OpCode.PICKITEM, "", to);
@@ -292,6 +294,15 @@ namespace Neo.Compiler.MSIL
                     _Insert1(VM.OpCode.JMPIFNOT, "tonextcallpos", to, new byte[] { 0, 0 });
                     if (m.Value.paramtypes.Count > 0)
                     {
+                        for (var i = m.Value.paramtypes.Count - 1; i >= 0; i--)
+                        {
+                            _Insert1(VM.OpCode.DUPFROMALTSTACK, "get params", to);
+                            _InsertPush(1, "", to);
+                            _Insert1(VM.OpCode.PICKITEM, "", to);
+
+                            _InsertPush(i, "get one param:" + i, to);
+                            _Insert1(VM.OpCode.PICKITEM, "", to);
+                        }
                         //add params;
                     }
                     //call and return it
@@ -308,15 +319,15 @@ namespace Neo.Compiler.MSIL
             }
 
             //add returen
-            calladdr.Add(this.addr);//record add fix jumppos later
+            calladdrbegin.Add(this.addr);//record add fix jumppos later
             _insertEndCode(to, null);
             _Insert1(VM.OpCode.RET, "", to);
 
             //convert all Jmp
-            for (var i = 0; i < calladdr.Count - 1; i++)
+            for (var i = 0; i < calladdr.Count; i++)
             {
                 var addr = calladdr[i];
-                var nextaddr = calladdr[i + 1];
+                var nextaddr = calladdrbegin[i + 1];
                 var op = to.body_Codes[addr];
                 Int16 addroff = (Int16)(nextaddr - addr);
                 op.bytes = BitConverter.GetBytes(addroff);
