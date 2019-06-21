@@ -230,7 +230,8 @@ namespace Neo.Compiler.MSIL
             }
             if (mainmethod == "")
             {
-                throw new Exception("Can't find EntryPoint,Check it.");
+                mainmethod = InsertAutoEntry();
+                logger.Log("Auto Insert entrypoint.");
             }
             else
             {
@@ -247,6 +248,28 @@ namespace Neo.Compiler.MSIL
             //this.outModule.Build();
             return outModule;
         }
+        private string InsertAutoEntry()
+        {
+
+            string name = "::autoentrypoint";
+            NeoMethod autoEntry = new NeoMethod();
+            autoEntry._namespace = "";
+            autoEntry.name = "Main";
+            autoEntry.displayName = "Main";
+            autoEntry.paramtypes.Add(new NeoParam(name, "string"));
+            autoEntry.paramtypes.Add(new NeoParam(name, "array"));
+            autoEntry.returntype = "object";
+            autoEntry.body_Codes[0] = new NeoCode();
+            autoEntry.body_Codes[0].addr = 0;
+            autoEntry.body_Codes[0].code = VM.OpCode.NOP;
+            autoEntry.funcaddr = 0;
+
+            outModule.mapMethods[name] = autoEntry;
+
+            return name;
+
+        }
+
         private void LinkCode(string main)
         {
             if (this.outModule.mapMethods.ContainsKey(main) == false)
@@ -1040,7 +1063,7 @@ namespace Neo.Compiler.MSIL
                             _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
                             _ConvertPush(field.index, null, to);
 
-                            _Insert1(VM.OpCode.PICKITEM,"",to);
+                            _Insert1(VM.OpCode.PICKITEM, "", to);
 
                             //throw new Exception("Just allow defined a static variable with readonly." + d.FullName);
                         }
@@ -1071,7 +1094,7 @@ namespace Neo.Compiler.MSIL
                         //_Insert1(VM.OpCode.RET, "", to);
                     }
                     break;
-               
+
                 default:
 #if WITHPDB
                     logger.Log("unsupported instruction " + src.code + "\r\n   in: " + to.name + "\r\n");
