@@ -259,17 +259,72 @@ namespace Neo.Compiler.MSIL
             autoEntry.paramtypes.Add(new NeoParam(name, "string"));
             autoEntry.paramtypes.Add(new NeoParam(name, "array"));
             autoEntry.returntype = "object";
-            autoEntry.body_Codes[0] = new NeoCode();
-            autoEntry.body_Codes[0].addr = 0;
-            autoEntry.body_Codes[0].code = VM.OpCode.NOP;
             autoEntry.funcaddr = 0;
-
+            FillEntryMethod(autoEntry);
             outModule.mapMethods[name] = autoEntry;
 
             return name;
 
         }
+        private void FillEntryMethod(NeoMethod to)
+        {
+            this.addr = 0;
+            this.addrconv.Clear();
 
+            _Insert1(VM.OpCode.NOP, "this is a debug code.", to);
+            _insertSharedStaticVarCode(to);
+
+            _insertBeginCodeEntry(to);
+
+            List<int> calladdr = new List<int>();
+            //add callfunc
+            foreach (var m in this.outModule.mapMethods)
+            {
+                if (m.Value.inSmartContract && m.Value.isPublic)
+                {//add a call;
+                    //get name
+                    _Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
+                    _InsertPush(0, "", to);
+                    _Insert1(VM.OpCode.PICKITEM, "", to);
+                    _InsertPush(System.Text.Encoding.UTF8.GetBytes(m.Value.displayName), "", to);
+                    _Insert1(VM.OpCode.NUMEQUAL, "", to);
+                    calladdr.Add(this.addr);//record add fix jumppos later
+                    _Insert1(VM.OpCode.JMPIFNOT, "tonextcallpos", to, new byte[] { 0, 0 });
+                    if (m.Value.paramtypes.Count > 0)
+                    {
+                        //add params;
+                    }
+                    //call and return it
+                    var c = _Insert1(VM.OpCode.CALL, "", to, new byte[] { 0, 0 });
+                    c.needfixfunc = true;
+                    c.srcfunc = m.Key;
+                    if (m.Value.returntype == "System.Void")
+                    {
+                        _Insert1(VM.OpCode.PUSH0, "", to);
+                    }
+                    _insertEndCode(to, null);
+                    _Insert1(VM.OpCode.RET, "", to);
+                }
+            }
+
+            //add returen
+            calladdr.Add(this.addr);//record add fix jumppos later
+            _insertEndCode(to, null);
+            _Insert1(VM.OpCode.RET, "", to);
+
+            //convert all Jmp
+            for (var i = 0; i < calladdr.Count - 1; i++)
+            {
+                var addr = calladdr[i];
+                var nextaddr = calladdr[i + 1];
+                var op = to.body_Codes[addr];
+                Int16 addroff = (Int16)(nextaddr - addr);
+                op.bytes = BitConverter.GetBytes(addroff);
+            }
+
+            _Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
+            ConvertAddrInMethod(to);
+        }
         private void LinkCode(string main)
         {
             if (this.outModule.mapMethods.ContainsKey(main) == false)
@@ -377,7 +432,7 @@ namespace Neo.Compiler.MSIL
                     //在return之前加入清理参数代码
                     if (src.code == CodeEx.Ret)//before return
                     {
-                        _insertEndCode(from, to, src);
+                        _insertEndCode(to, src);
                     }
                     try
                     {

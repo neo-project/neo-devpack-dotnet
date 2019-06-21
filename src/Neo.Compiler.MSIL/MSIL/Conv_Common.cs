@@ -320,8 +320,29 @@ namespace Neo.Compiler.MSIL
                 _Insert1(VM.OpCode.SETITEM, null, to);
             }
         }
+        private void _insertBeginCodeEntry(NeoMethod to)
+        {
+            _InsertPush(2, "begincode", to);
+            _Insert1(VM.OpCode.NEWARRAY, "", to);
+            _Insert1(VM.OpCode.TOALTSTACK, "", to);
+            //移动参数槽位
+            for (var i = 0; i < 2; i++)
+            {
+                //getarray
+                _Insert1(VM.OpCode.FROMALTSTACK, "set param:" + i, to);
+                _Insert1(VM.OpCode.DUP, null, to);
+                _Insert1(VM.OpCode.TOALTSTACK, null, to);
 
-        private void _insertEndCode(ILMethod from, NeoMethod to, OpCode src)
+                _InsertPush(i, "", to); //Array pos
+
+                _InsertPush(2, "", to); //Array item
+                _Insert1(VM.OpCode.ROLL, null, to);
+
+                _Insert1(VM.OpCode.SETITEM, null, to);
+            }
+        }
+
+        private void _insertEndCode(NeoMethod to, OpCode src)
         {
             ////占位不谢
             _Convert1by1(VM.OpCode.NOP, src, to);
