@@ -20,12 +20,18 @@ namespace Neo.Compiler.MSIL.TestClasses
         //        return null;
         //    }
         //}
+
+        private static bool privateMethod()
+        {
+            return true;
+        }
+
         public static byte[] call01()
         {
             var nb = new byte[] { 1, 2, 3, 4 };
             return nb;
         }
-        public static void call02(string a,int b)
+        public static void call02(string a, int b)
         {
             Neo.SmartContract.Framework.Services.Neo.Runtime.Log(a);
         }
