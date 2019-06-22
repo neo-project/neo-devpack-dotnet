@@ -1,9 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Neo.Compiler.MSIL
 {
@@ -24,6 +21,21 @@ namespace Neo.Compiler.MSIL
             var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
         }
+
+        [TestMethod]
+        public void Test_AutoEntry_private()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
+
+            testengine.scriptEntry.DumpAVM();
+
+            StackItem[] _params = new StackItem[] { "privateMethod", new StackItem[0] };
+            var result = testengine.ExecuteTestCase(_params);
+
+            Assert.AreEqual(0, result.Count);
+        }
+
         [TestMethod]
         public void Test_AutoEntry_call02()
         {
@@ -40,7 +52,5 @@ namespace Neo.Compiler.MSIL
             // object Main(string,object[]) must be return sth.
             Assert.IsTrue(bequal);
         }
-
     }
-
 }

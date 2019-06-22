@@ -81,7 +81,6 @@ namespace Neo.Compiler.MSIL
                 _code.debugILCode = src.code.ToString();
             }
 
-
             addr++;
 
             _code.code = code;
@@ -170,7 +169,8 @@ namespace Neo.Compiler.MSIL
             {
                 var call = from.body_Codes[next];
                 if (call.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::op_Implicit(System.UInt64)")
-                {//如果是ulong转型到biginteger，需要注意
+                {
+                    //如果是ulong转型到biginteger，需要注意
                     ulong v = (ulong)i;
                     outv = v;
                     _ConvertPush(outv.ToByteArray(), src, to);
@@ -178,13 +178,10 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
-
-            {
-                _ConvertPush(i, src, to);
-                return 0;
-            }
-
+            _ConvertPush(i, src, to);
+            return 0;
         }
+
         private int _ConvertPushI4WithConv(ILMethod from, int i, OpCode src, NeoMethod to)
         {
             var next = from.GetNextCodeAddr(src.addr);
@@ -227,8 +224,8 @@ namespace Neo.Compiler.MSIL
                 _ConvertPush(i, src, to);
                 return 0;
             }
-
         }
+
         private void _insertSharedStaticVarCode(NeoMethod to)
         {
             _InsertPush(this.outModule.mapFields.Count, "static var", to);
@@ -284,7 +281,6 @@ namespace Neo.Compiler.MSIL
                     _Insert1(VM.OpCode.SETITEM, "", to);
                 }
             }
-
         }
 
         private void _insertBeginCode(ILMethod from, NeoMethod to)
