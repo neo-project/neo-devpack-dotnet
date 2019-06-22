@@ -269,7 +269,9 @@ namespace Neo.Compiler.MSIL
             this.addr = 0;
             this.addrconv.Clear();
 
+#if DEBUG
             _Insert1(VM.OpCode.NOP, "this is a debug code.", to);
+#endif
             _insertSharedStaticVarCode(to);
 
             _insertBeginCodeEntry(to);
@@ -330,8 +332,9 @@ namespace Neo.Compiler.MSIL
                 Int16 addroff = (Int16)(nextaddr - addr);
                 op.bytes = BitConverter.GetBytes(addroff);
             }
-
+#if DEBUG
             _Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
+#endif
             ConvertAddrInMethod(to);
         }
 
