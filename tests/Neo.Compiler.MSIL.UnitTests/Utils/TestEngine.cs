@@ -52,14 +52,14 @@ namespace Neo.Compiler.MSIL.Utils
             }
             public StackItem Run(params StackItem[] _params)
             {
-                return this.engine.ExecuteContract(methodname, _params);
+                return this.engine.ExecuteContract(methodname, _params).Pop();
             }
         }
         public ContractMethod GetMethod(string methodname)
         {
             return new ContractMethod(this, methodname);
         }
-        private StackItem ExecuteContract(string methodname, params StackItem[] _params)
+        public RandomAccessStack<StackItem> ExecuteContract(string methodname, params StackItem[] _params)
         {
             this.LoadScript(scriptEntry.finalAVM);
             this.InvocationStack.Peek().InstructionPointer = 0;
@@ -81,7 +81,7 @@ namespace Neo.Compiler.MSIL.Utils
             if (stack.Count != 1)
                 throw new Exception("should have 1 result in stack.");
 
-            return stack.Pop();
+            return stack;
         }
         //public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
         //{

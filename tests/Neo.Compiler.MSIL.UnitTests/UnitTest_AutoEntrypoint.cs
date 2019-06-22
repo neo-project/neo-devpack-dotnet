@@ -30,8 +30,7 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "privateMethod", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.ExecuteContract("privateMethod", new StackItem[0]);
 
             Assert.AreEqual(0, result.Count);
         }
