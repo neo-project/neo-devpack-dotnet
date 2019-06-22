@@ -108,8 +108,8 @@ namespace Neo.Compiler.MSIL
                     nm.isPublic = m.Value.method.IsPublic;
                     this.methodLink[m.Value] = nm;
                     outModule.mapMethods[nm.name] = nm;
-
                 }
+
                 foreach (var e in t.Value.fields)
                 {
                     if (e.Value.isEvent)
@@ -130,7 +130,6 @@ namespace Neo.Compiler.MSIL
                         var field = new NeoField(e.Key, e.Value.type, _fieldindex);
                         outModule.mapFields[e.Value.field.FullName] = field;
                     }
-
                 }
             }
 
@@ -156,7 +155,6 @@ namespace Neo.Compiler.MSIL
                         continue;//event 自动生成的代码，不要
 
                     var nm = this.methodLink[m.Value];
-
 
                     //try
                     {
@@ -248,9 +246,9 @@ namespace Neo.Compiler.MSIL
             //this.outModule.Build();
             return outModule;
         }
+
         private string InsertAutoEntry()
         {
-
             string name = "::autoentrypoint";
             NeoMethod autoEntry = new NeoMethod();
             autoEntry._namespace = "";
@@ -264,8 +262,8 @@ namespace Neo.Compiler.MSIL
             outModule.mapMethods[name] = autoEntry;
 
             return name;
-
         }
+
         private void FillEntryMethod(NeoMethod to)
         {
             this.addr = 0;
@@ -336,6 +334,7 @@ namespace Neo.Compiler.MSIL
             _Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
             ConvertAddrInMethod(to);
         }
+
         private void LinkCode(string main)
         {
             if (this.outModule.mapMethods.ContainsKey(main) == false)
@@ -419,8 +418,6 @@ namespace Neo.Compiler.MSIL
 
         private void ConvertMethod(ILMethod from, NeoMethod to)
         {
-
-
             this.addr = 0;
             this.addrconv.Clear();
 
@@ -513,6 +510,7 @@ namespace Neo.Compiler.MSIL
             var n = BitConverter.ToInt32(target, 0);
             return n;
         }
+
         private void ConvertAddrInMethod(NeoMethod to)
         {
             foreach (var c in to.body_Codes.Values)
@@ -531,12 +529,10 @@ namespace Neo.Compiler.MSIL
                     {
                         throw new Exception("cannot convert addr in: " + to.name + "\r\n");
                     }
-
-
-
                 }
             }
         }
+
         private int ConvertCode(ILMethod method, OpCode src, NeoMethod to)
         {
             int skipcount = 0;
@@ -1054,7 +1050,6 @@ namespace Neo.Compiler.MSIL
                     break;
 
                 case CodeEx.Ldsfld:
-
                     {
                         _Convert1by1(VM.OpCode.NOP, src, to);
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
@@ -1100,7 +1095,6 @@ namespace Neo.Compiler.MSIL
                             break;
                         }
 
-
                         //如果是调用event导致的这个代码，只找出他的名字
                         if (d.DeclaringType.HasEvents)
                         {
@@ -1123,7 +1117,8 @@ namespace Neo.Compiler.MSIL
                             }
                         }
                         else
-                        {//如果走到这里，是一个静态成员，但是没有添加readonly 表示
+                        {
+                            //如果走到这里，是一个静态成员，但是没有添加readonly 表示
                             //lights add,need static var load function
                             var field = this.outModule.mapFields[d.FullName];
                             _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
@@ -1143,14 +1138,11 @@ namespace Neo.Compiler.MSIL
                         _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
                         _ConvertPush(field.index, null, to);
 
-
                         //got v to top
                         _ConvertPush(2, null, to);
                         _Convert1by1(VM.OpCode.ROLL, null, to);
 
-
                         _Insert1(VM.OpCode.SETITEM, "", to);
-
                     }
                     break;
                 case CodeEx.Throw:
@@ -1172,6 +1164,5 @@ namespace Neo.Compiler.MSIL
 
             return skipcount;
         }
-
     }
 }
