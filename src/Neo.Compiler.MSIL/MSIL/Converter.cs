@@ -321,9 +321,10 @@ namespace Neo.Compiler.MSIL
             //add returen
             calladdrbegin.Add(this.addr);//record add fix jumppos later
 
+            _insertEndCode(to, null);
             //if go here,mean methodname is wrong
+            //use throw to instead ret,make vm  fault.
             _Insert1(VM.OpCode.THROW,"",to);
-            //_insertEndCode(to, null);
             //_Insert1(VM.OpCode.RET, "", to);
 
             //convert all Jmp
