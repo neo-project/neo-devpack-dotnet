@@ -15,11 +15,10 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "call01", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.GetMethod("call01").Run();//new test method01
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
-            var bequal = wantresult.Equals(result.Pop());
+            var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
         }
 
@@ -30,11 +29,12 @@ namespace Neo.Compiler.MSIL
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
 
             testengine.scriptEntry.DumpAVM();
-
             StackItem[] _params = new StackItem[] { "privateMethod", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.ExecuteTestCase(_params);//new test method02
 
-            Assert.AreEqual(0, result.Count);
+            bool hadFault = (testengine.State & VMState.FAULT) > 0;
+            Assert.AreEqual(0, result.Count);//because no methodname had found, it do not return anything.
+            Assert.IsTrue(hadFault);///because no methodname had found,vm state=fault.
         }
 
         [TestMethod]
@@ -45,8 +45,7 @@ namespace Neo.Compiler.MSIL
 
             testengine.scriptEntry.DumpAVM();
 
-            StackItem[] _params = new StackItem[] { "call02", new StackItem[] { "hello", 33 } };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.ExecuteTestCaseStandard("call02", "hello", 33);//old test method
             StackItem wantresult = new byte[0];
             var bequal = wantresult.Equals(result.Pop());
 
