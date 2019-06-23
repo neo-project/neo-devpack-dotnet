@@ -145,10 +145,9 @@ namespace Neo.Compiler.MSIL.Utils
 
         public void DumpAVM()
         {
-            foreach(var method in GetAllNEOVMMethod())
             {
-                Console.WriteLine("dump:" + method.displayName + " addr in avm:" + method.funcaddr);
-                foreach (var c in method.body_Codes)
+                Console.WriteLine("dump:");
+                foreach (var c in this.converterIL.outModule.total_Codes)
                 {
                     var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
                     if(c.Value.bytes!=null&&c.Value.bytes.Length>0)
