@@ -81,7 +81,6 @@ namespace Neo.Compiler.MSIL
                 _code.debugILCode = src.code.ToString();
             }
 
-
             addr++;
 
             _code.code = code;
@@ -170,7 +169,8 @@ namespace Neo.Compiler.MSIL
             {
                 var call = from.body_Codes[next];
                 if (call.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::op_Implicit(System.UInt64)")
-                {//如果是ulong转型到biginteger，需要注意
+                {
+                    //如果是ulong转型到biginteger，需要注意
                     ulong v = (ulong)i;
                     outv = v;
                     _ConvertPush(outv.ToByteArray(), src, to);
@@ -178,13 +178,10 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
-
-            {
-                _ConvertPush(i, src, to);
-                return 0;
-            }
-
+            _ConvertPush(i, src, to);
+            return 0;
         }
+
         private int _ConvertPushI4WithConv(ILMethod from, int i, OpCode src, NeoMethod to)
         {
             var next = from.GetNextCodeAddr(src.addr);
@@ -227,8 +224,8 @@ namespace Neo.Compiler.MSIL
                 _ConvertPush(i, src, to);
                 return 0;
             }
-
         }
+
         private void _insertSharedStaticVarCode(NeoMethod to)
         {
             _InsertPush(this.outModule.mapFields.Count, "static var", to);
@@ -284,7 +281,6 @@ namespace Neo.Compiler.MSIL
                     _Insert1(VM.OpCode.SETITEM, "", to);
                 }
             }
-
         }
 
         private void _insertBeginCode(ILMethod from, NeoMethod to)
@@ -320,8 +316,29 @@ namespace Neo.Compiler.MSIL
                 _Insert1(VM.OpCode.SETITEM, null, to);
             }
         }
+        private void _insertBeginCodeEntry(NeoMethod to)
+        {
+            _InsertPush(2, "begincode", to);
+            _Insert1(VM.OpCode.NEWARRAY, "", to);
+            _Insert1(VM.OpCode.TOALTSTACK, "", to);
+            //移动参数槽位
+            for (var i = 0; i < 2; i++)
+            {
+                //getarray
+                _Insert1(VM.OpCode.FROMALTSTACK, "set param:" + i, to);
+                _Insert1(VM.OpCode.DUP, null, to);
+                _Insert1(VM.OpCode.TOALTSTACK, null, to);
 
-        private void _insertEndCode(ILMethod from, NeoMethod to, OpCode src)
+                _InsertPush(i, "", to); //Array pos
+
+                _InsertPush(2, "", to); //Array item
+                _Insert1(VM.OpCode.ROLL, null, to);
+
+                _Insert1(VM.OpCode.SETITEM, null, to);
+            }
+        }
+
+        private void _insertEndCode(NeoMethod to, OpCode src)
         {
             ////占位不谢
             _Convert1by1(VM.OpCode.NOP, src, to);

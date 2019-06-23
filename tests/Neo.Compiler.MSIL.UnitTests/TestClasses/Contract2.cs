@@ -7,6 +7,8 @@
         //no need to add code in Main.
         public static object Main(string method, object[] args)
         {
+            Neo.SmartContract.Framework.Services.Neo.Runtime.Notify(args[0]);
+            Neo.SmartContract.Framework.Services.Neo.Runtime.Notify(args[2]);
             return UnitTest_002();
         }
         public static byte UnitTest_002()

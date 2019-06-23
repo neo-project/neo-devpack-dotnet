@@ -41,6 +41,46 @@ namespace Neo.Compiler.MSIL.Utils
 
             scriptEntry = scriptsAll[filename];
         }
+        public class ContractMethod
+        {
+            TestEngine engine;
+            string methodname;
+            public ContractMethod(TestEngine engine, string methodname)
+            {
+                this.engine = engine;
+                this.methodname = methodname;
+            }
+            public StackItem Run(params StackItem[] _params)
+            {
+                return this.engine.ExecuteTestCaseStandard(methodname, _params).Pop();
+            }
+        }
+        public ContractMethod GetMethod(string methodname)
+        {
+            return new ContractMethod(this, methodname);
+        }
+        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname,params StackItem[] _params)
+        {
+            //var engine = new ExecutionEngine();
+            this.LoadScript(scriptEntry.finalAVM);
+            this.InvocationStack.Peek().InstructionPointer = 0;
+            this.CurrentContext.EvaluationStack.Push(_params);
+            this.CurrentContext.EvaluationStack.Push(methodname);
+            while (true)
+            {
+                var bfault = (this.State & VMState.FAULT) > 0;
+                var bhalt = (this.State & VMState.HALT) > 0;
+                if (bfault || bhalt) break;
+
+                Console.WriteLine("op:[" +
+                    this.CurrentContext.InstructionPointer.ToString("X04") +
+                    "]" +
+                this.CurrentContext.CurrentInstruction.OpCode);
+                this.ExecuteNext();
+            }
+            var stack = this.ResultStack;
+            return stack;
+        }
         public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
         {
             //var engine = new ExecutionEngine();

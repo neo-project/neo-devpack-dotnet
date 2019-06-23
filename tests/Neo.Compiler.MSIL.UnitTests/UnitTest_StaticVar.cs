@@ -12,8 +12,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
-            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.ExecuteTestCaseStandard("testfunc");
 
             //test (1+5)*7 == 42
             StackItem wantresult = 42;
