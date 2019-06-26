@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>neo_smart_contract_template</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>BeforeBuild</type>
+          <command>dotnet publish -c Release -f netcoreapp2.2 -r osx-x64
+--output ${TargetDir}</command>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>dotnet ${TargetDir}/neon.dll ${TargetPath}</command>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp ${TargetDir}/${ProjectName}.avm ${ProjectDir}</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RuntimeIdentifiers>osx-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Neo.SmartContract.Framework" Version="2.9.3.1" />
+    <PackageReference Include="Neo.Compiler.MSIL" Version="2.4.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="neon.runtimeconfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
