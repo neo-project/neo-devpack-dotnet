@@ -11,7 +11,6 @@
   <a href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg">
   </a>
-
 </p>
 
 # NEO Devpack Dotnet
