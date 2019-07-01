@@ -51,7 +51,7 @@ namespace Neo.Compiler.SourceMap
             this.sourceRoot = sourceRoot;
         }
 
-        public void addMapping(string source, int? originalLine, int? originalColumn, int generatedLine, int generatedColumn, string name) {
+        public void AddMapping(string source, int? originalLine, int? originalColumn, int generatedLine, int generatedColumn, string name) {
             if (source != null) {
                 if (!sources.Contains(source)) {
                     sources.Add(source);
@@ -81,7 +81,7 @@ namespace Neo.Compiler.SourceMap
         public void SetSourceContent(string aSourceFile, string aSourceContent) {
             var source = aSourceFile;
             if (sourceRoot != null) {
-                source = relative(sourceRoot, source);
+                source = Relative(sourceRoot, source);
             }
 
             if (aSourceContent != null) {
@@ -105,7 +105,7 @@ namespace Neo.Compiler.SourceMap
          * reference:
          * https://github.com/mozilla/source-map/blob/ddaac7f00a67aefbf184bae16cb90b30ddc84a67/lib/source-map-generator.js
          */
-        public string serializeMappings() {
+        public string SerializeMappings() {
             var previousGeneratedColumn = 0;
             var previousGeneratedLine = 1;
             var previousOriginalColumn = 0;
@@ -226,7 +226,7 @@ namespace Neo.Compiler.SourceMap
                 : (aValue << 1) + 0;
         }
         
-        private string relative(string aRoot, string aPath) {
+        private string Relative(string aRoot, string aPath) {
             if (aRoot == "") {
                 aRoot = ".";
             }

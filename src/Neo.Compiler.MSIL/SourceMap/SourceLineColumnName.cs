@@ -2,10 +2,10 @@ namespace Neo.Compiler.SourceMap
 {
     public class SourceLineColumnName
     {
-        public string source { get; set; }
-        public int line { get; set; }
-        public int column { get; set; }
-        public string name { get; set; }
+        public string Source { get; set; }
+        public int Line { get; set; }
+        public int Column { get; set; }
+        public string Name { get; set; }
 
         public SourceLineColumnName()
         {
@@ -13,18 +13,18 @@ namespace Neo.Compiler.SourceMap
 
         public SourceLineColumnName(string source, int line, int column, string name)
         {
-            this.source = source;
-            this.line = line;
-            this.column = column;
-            this.name = name;
+            this.Source = source;
+            this.Line = line;
+            this.Column = column;
+            this.Name = name;
         }
 
         public SourceLineColumnName(SourceLineColumnName other)
         {
-            source = other.source;
-            line = other.line;
-            column = other.column;
-            name = other.name;
+            Source = other.Source;
+            Line = other.Line;
+            Column = other.Column;
+            Name = other.Name;
         }
     }
 }

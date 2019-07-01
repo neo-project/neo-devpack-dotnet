@@ -28,40 +28,40 @@ namespace Neo.Compiler.SourceMap
             children = new List<SourceNodeOrSource>();
         }
 
-        public static void test()
+        public static void Test()
         {
             var node = new SourceNode(new SourceLineColumnName
                 {
-                    line = 1,
-                    column = 2,
-                    source = "a.js"
+                    Line = 1,
+                    Column = 2,
+                    Source = "a.js"
                 },
                 new List<SourceNodeOrSource>
                 {
                     new SourceNodeOrSource(new SourceNode(new SourceLineColumnName
                     {
-                        line = 3,
-                        column = 4,
-                        source = "b.js",
-                        name = "uno"
+                        Line = 3,
+                        Column = 4,
+                        Source = "b.js",
+                        Name = "uno"
                     })),
                     new SourceNodeOrSource("dos"),
                     new SourceNodeOrSource("tres"),
                     new SourceNodeOrSource(new SourceNode(new SourceLineColumnName
                     {
-                        line = 5,
-                        column = 6,
-                        source = "c.js",
-                        name = "quatro"
+                        Line = 5,
+                        Column = 6,
+                        Source = "c.js",
+                        Name = "quatro"
                     }))
                 }
             );
 
-            var map = node.toStringWithSourceMap("my-output-file.js", null);
-            var seri = map.serializeMappings();
+            var map = node.ToStringWithSourceMap("my-output-file.js", null);
+            var seri = map.SerializeMappings();
         }
 
-        public SourceMapGenerator toStringWithSourceMap(string file, string sourceRoot)
+        public SourceMapGenerator ToStringWithSourceMap(string file, string sourceRoot)
         {
             var generatedCode = "";
             var generatedLine = 1;
@@ -74,34 +74,34 @@ namespace Neo.Compiler.SourceMap
             int? lastOriginalColumn = null;
             string lastOriginalName = null;
 
-          walk((chunk, original) => {
+          Walk((chunk, original) => {
             generatedCode += chunk;
             
-            if (original.source != null
-                && original.line != null
-                && original.column != null) {
+            if (original.Source != null
+                && original.Line != null
+                && original.Column != null) {
               
-              if (lastOriginalSource != original.source
-                || lastOriginalLine != original.line
-                || lastOriginalColumn != original.column
-                || lastOriginalName != original.name) {
-                map.addMapping(
-                  original.source,
-                  original.line,
-                  original.column,
+              if (lastOriginalSource != original.Source
+                || lastOriginalLine != original.Line
+                || lastOriginalColumn != original.Column
+                || lastOriginalName != original.Name) {
+                map.AddMapping(
+                  original.Source,
+                  original.Line,
+                  original.Column,
                   generatedLine,
                   generatedColumn,
-                  original.name);
+                  original.Name);
               }
               
-              lastOriginalSource = original.source;
-              lastOriginalLine = original.line;
-              lastOriginalColumn = original.column;
-              lastOriginalName = original.name;
+              lastOriginalSource = original.Source;
+              lastOriginalLine = original.Line;
+              lastOriginalColumn = original.Column;
+              lastOriginalName = original.Name;
               sourceMappingActive = true;
               
             } else if (sourceMappingActive) {
-              map.addMapping(
+              map.AddMapping(
                   null,
                   null,
                   null,
@@ -122,13 +122,13 @@ namespace Neo.Compiler.SourceMap
                   lastOriginalSource = null;
                   sourceMappingActive = false;
                 } else if (sourceMappingActive) {
-                  map.addMapping(
-                      original.source,
-                      original.line,
-                      original.column,
+                  map.AddMapping(
+                      original.Source,
+                      original.Line,
+                      original.Column,
                       generatedLine,
                       generatedColumn,
-                      original.name);
+                      original.Name);
                 }
               } else {
                 generatedColumn++;
@@ -150,12 +150,12 @@ namespace Neo.Compiler.SourceMap
          *
          * @param aFn The traversal function.
          */
-        private void walk(Action<string, SourceLineColumnName> aFn)
+        private void Walk(Action<string, SourceLineColumnName> aFn)
         {
             foreach (SourceNodeOrSource chunk in children)
             {
                 if (chunk.SourceNode != null) {
-                    chunk.SourceNode.walk(aFn);
+                    chunk.SourceNode.Walk(aFn);
                 } else if (chunk.Source.Length > 0) {
                     aFn(chunk.Source, new SourceLineColumnName(sourceLineColumnName));
                 }
