@@ -144,10 +144,10 @@ namespace Neo.Compiler
             //write sourcemap
             try
             {
-                string sourcemap = SourceMapTool.GenMapFile(neomodule);
+                string sourcemap = SourceMapTool.GenMapFile(onlyname,neomodule);
                 string sourcemapfile = onlyname + ".map";
                 File.Delete(sourcemapfile);
-                File.WriteAllText(sourcemapfile, jsonstr);
+                File.WriteAllText(sourcemapfile, sourcemap);
                 log.Log("write:" + sourcemapfile);
             }
             catch (Exception err)

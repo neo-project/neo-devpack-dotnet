@@ -159,6 +159,7 @@ namespace Neo.Compiler
         public byte[] bytes;
         public string debugcode;
         public int debugline = -1;
+        public int debugcol = -1;
         public int debugILAddr = -1;
         public string debugILCode;
         public bool needfix = false;//lateparse tag

@@ -17,6 +17,7 @@ namespace Neo.Compiler.MSIL
             {
                 _code.debugcode = comment;
                 _code.debugline = 0;
+                _code.debugcol = 0;
             }
 
             addr++;
@@ -77,6 +78,7 @@ namespace Neo.Compiler.MSIL
                 addrconv[src.addr] = addr;
                 _code.debugcode = src.debugcode;
                 _code.debugline = src.debugline;
+                _code.debugcol = src.debugcol;
                 _code.debugILAddr = src.addr;
                 _code.debugILCode = src.code.ToString();
             }

@@ -251,6 +251,7 @@ namespace Neo.Compiler.MSIL
                         {
                             c.debugcode = sp.Document.Url;
                             c.debugline = sp.StartLine;
+                            c.debugcol = sp.StartColumn;
                         }
                         c.InitToken(code.Operand);
                         this.body_Codes.Add(c.addr, c);
@@ -542,6 +543,7 @@ namespace Neo.Compiler.MSIL
         public int addr;
         public CodeEx code;
         public int debugline = -1;
+        public int debugcol = -1;
         public string debugcode;
         public object tokenUnknown;
         public int tokenAddr_Index;

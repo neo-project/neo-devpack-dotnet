@@ -7,10 +7,17 @@ namespace Neo.Compiler
 {
     class SourceMapTool
     {
-        public static string GenMapFile(NeoModule module)
+        public static string GenMapFile(string name, NeoModule module)
         {
             SourceMap map = new SourceMap();
+            map.Version = 3;
+            map.File = name + ".avm";
+            map.Sources = new List<string>();
+            map.Names = new List<string>();
 
+
+
+            map.ParsedMappings = new List<MappingEntry>();
             foreach (var m in module.mapMethods)
             {
                 //item.SetDictValue("name", m.Value.displayName);
@@ -30,11 +37,24 @@ namespace Neo.Compiler
                         {
                             var e = new MappingEntry();
                             map.ParsedMappings.Add(e);
+
                             e.OriginalName = m.Value.displayName;
-                            e.OriginalSourcePosition = new SourcePosition();
                             e.OriginalFileName = debugcode;
+                            if (map.Names.Contains(e.OriginalName) == false)
+                                map.Names.Add(e.OriginalName);
+                            if (map.Sources.Contains(e.OriginalFileName) == false)
+                                map.Sources.Add(e.OriginalFileName);
+
+                            //pos in c#
+                            e.OriginalSourcePosition = new SourcePosition();
                             e.OriginalSourcePosition.ZeroBasedLineNumber = c.Value.debugline;
-                            e.OriginalSourcePosition.ZeroBasedColumnNumber = 0;
+                            e.OriginalSourcePosition.ZeroBasedColumnNumber = c.Value.debugcol;
+
+                            //pos in avm
+                            e.GeneratedSourcePosition = new SourcePosition();
+                            //use avm addr as line
+                            e.GeneratedSourcePosition.ZeroBasedLineNumber = c.Value.addr;
+                            e.GeneratedSourcePosition.ZeroBasedColumnNumber = 0;
                         }
                     }
                 }
