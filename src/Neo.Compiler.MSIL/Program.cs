@@ -81,17 +81,18 @@ namespace Neo.Compiler
             bool bSucc;
             string jsonstr = null;
             //convert and build
+            NeoModule neomodule = null;
             try
             {
                 var conv = new ModuleConverter(log);
                 ConvOption option = new ConvOption();
-                NeoModule am = conv.Convert(mod, option);
-                bytes = am.Build();
+                neomodule = conv.Convert(mod, option);
+                bytes = neomodule.Build();
                 log.Log("convert succ");
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(am, bytes);
+                    var outjson = vmtool.FuncExport.Export(neomodule, bytes);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();
@@ -124,6 +125,7 @@ namespace Neo.Compiler
                 log.Log("Write Bytes Error:" + err.ToString());
                 return;
             }
+            //write abi
             try
             {
 
@@ -139,15 +141,30 @@ namespace Neo.Compiler
                 log.Log("Write abi Error:" + err.ToString());
                 return;
             }
+            //write sourcemap
+            try
+            {
+                string sourcemap = SourceMapTool.GenMapFile(neomodule);
+                string sourcemapfile = onlyname + ".map";
+                File.Delete(sourcemapfile);
+                File.WriteAllText(sourcemapfile, jsonstr);
+                log.Log("write:" + sourcemapfile);
+            }
+            catch (Exception err)
+            {
+                log.Log("Write SourceMap Error:" + err.ToString());
+                return;
+            }
+            //clean
             try
             {
                 fs.Dispose();
                 if (fspdb != null)
                     fspdb.Dispose();
             }
-            catch
+            catch (Exception err)
             {
-
+                log.Log("Clean Error:" + err.ToString());
             }
 
             if (bSucc)
