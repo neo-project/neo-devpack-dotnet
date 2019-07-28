@@ -1,11 +1,9 @@
 ﻿using SourcemapToolkit.SourcemapParser;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Neo.Compiler
 {
-    class SourceMapTool
+    internal class SourceMapTool
     {
         public static string GenMapFile(string name, NeoModule module)
         {
