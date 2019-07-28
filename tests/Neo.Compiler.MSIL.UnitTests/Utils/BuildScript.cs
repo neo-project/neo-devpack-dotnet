@@ -27,7 +27,7 @@ namespace Neo.Compiler.MSIL.Utils
             get;
             private set;
         }
-        public byte[] finalAVM
+        public byte[] finalNEF
         {
             get;
             private set;
@@ -59,7 +59,7 @@ namespace Neo.Compiler.MSIL.Utils
             try
             {
                 converterIL.Convert(modIL, option);
-                finalAVM = converterIL.outModule.Build();
+                finalNEF = converterIL.outModule.Build();
                 IsBuild = true;
             }
             catch (Exception err)
@@ -143,7 +143,7 @@ namespace Neo.Compiler.MSIL.Utils
             return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray() ;
         }
 
-        public void DumpAVM()
+        public void DumpNEF()
         {
             {
                 Console.WriteLine("dump:");
