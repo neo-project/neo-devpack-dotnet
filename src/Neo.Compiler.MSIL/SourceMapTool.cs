@@ -15,8 +15,6 @@ namespace Neo.Compiler
             map.Sources = new List<string>();
             map.Names = new List<string>();
 
-
-
             map.ParsedMappings = new List<MappingEntry>();
             foreach (var m in module.mapMethods)
             {
@@ -26,12 +24,8 @@ namespace Neo.Compiler
                 //item.SetDictValue("map", infos);
                 foreach (var c in m.Value.body_Codes)
                 {
-
-
                     if (c.Value.debugcode != null)
                     {
-
-
                         var debugcode = c.Value.debugcode.ToLower();
                         if (debugcode.Contains(".cs"))
                         {
@@ -58,7 +52,6 @@ namespace Neo.Compiler
                         }
                     }
                 }
-
             }
             var gener = new SourceMapGenerator();
             return gener.SerializeMapping(map);
