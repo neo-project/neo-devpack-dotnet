@@ -2,11 +2,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
 using System;
+using System.Linq;
+using System.Text;
 
 namespace Neo.Compiler.MSIL
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTest_SmartContract
     {
         private static void DumpAVM(NeoMethod avmMethod)
         {
@@ -17,25 +19,31 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        private static void DumpBytes(byte[] data)
-        {
-            Console.WriteLine("AVM=");
-            foreach (var b in data)
-            {
-                Console.Write(b.ToString("X02"));
-            }
-            Console.WriteLine("");
-        }
-
         [TestMethod]
         public void GetAllILFunction()
         {
             var nt = NeonTestTool.BuildScript("./TestClasses/Contract1.cs");
             var names = nt.GetAllILFunction();
-            foreach (var n in names)
-            {
-                Console.WriteLine("got name:" + n);
-            }
+
+            CollectionAssert.AreEqual(new string[] {
+                "System.Object Neo.Compiler.MSIL.TestClasses.Contract1::Main(System.String,System.Object[])",
+                "System.Byte[] Neo.Compiler.MSIL.TestClasses.Contract1::UnitTest_001()",
+                "System.Void Neo.Compiler.MSIL.TestClasses.Contract1::.ctor()"
+                }, names.ToArray());
+        }
+
+        [TestMethod]
+        public void TestSourceMap()
+        {
+            var testtool = NeonTestTool.BuildScript("./TestClasses/Contract1.cs");
+
+            var conv = new ModuleConverter(null);
+            ConvOption option = new ConvOption();
+            var neomodule = conv.Convert(testtool.modIL, option);
+
+            // Check
+            var sourceMap = SourceMapTool.GenMapFile("test", neomodule);
+            Assert.AreEqual(@"{""version"":3,""file"":""test.avm"",""sources"":[],""names"":[]}", sourceMap);
         }
 
         [TestMethod]
@@ -45,8 +53,12 @@ namespace Neo.Compiler.MSIL
             var ilmethod = testtool.FindMethod("Contract1", "UnitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpAVM(neomethod);
+
+            Assert.AreEqual("UnitTest_001", neomethod.displayName);
+            Assert.AreEqual(40, neomethod.funcaddr);
+
             var bytes = testtool.NeoMethodToBytes(neomethod);
-            DumpBytes(bytes);
+            Assert.AreEqual("52c56b6104010203046a00527ac46a00c36a51527ac46203006a51c3616c7566", bytes.ToHexString());
         }
 
         [TestMethod]
@@ -54,7 +66,6 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
-
 
             var result = testengine.GetMethod("testfunc").Run();
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
