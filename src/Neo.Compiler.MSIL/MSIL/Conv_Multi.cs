@@ -475,13 +475,14 @@ namespace Neo.Compiler.MSIL
             string[] calldata = null;
 
             Mono.Cecil.MethodDefinition defs = null;
+            Exception defError = null;
             try
             {
                 defs = refs.Resolve();
             }
-            catch
+            catch (Exception err)
             {
-
+                defError = err;
             }
 
             if (IsNonCall(defs))
@@ -791,6 +792,16 @@ namespace Neo.Compiler.MSIL
 
             if (calltype == 0)
             {
+                if (defs == null)
+                {
+                    Mono.Cecil.AssemblyResolutionException dllError = defError as Mono.Cecil.AssemblyResolutionException;
+                    if (dllError != null)
+                    {
+                        logger.Log("<Error>Miss a Symbol in :" + dllError.AssemblyReference.FullName);
+                        logger.Log("<Error>Check DLLs for contract.");
+                    }
+                    throw defError;
+                }
                 //之前的所有尝试都无效，那也不一定是个不存在的函数，有可能在别的模块里
                 if (TryInsertMethod(outModule, defs))
                 {
