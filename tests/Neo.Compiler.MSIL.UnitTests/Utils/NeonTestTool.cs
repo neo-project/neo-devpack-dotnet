@@ -44,9 +44,11 @@ namespace Neo.Compiler.MSIL.Utils
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
+                MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
+
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(OpCodeAttribute).Assembly.Location)
-            }, op);
+           }, op);
             using (var streamDll = new MemoryStream())
             using (var streamPdb = new MemoryStream())
             {
