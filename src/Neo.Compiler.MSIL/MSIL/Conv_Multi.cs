@@ -794,8 +794,7 @@ namespace Neo.Compiler.MSIL
             {
                 if (defs == null)
                 {
-                    Mono.Cecil.AssemblyResolutionException dllError = defError as Mono.Cecil.AssemblyResolutionException;
-                    if (dllError != null)
+                    if (defError is Mono.Cecil.AssemblyResolutionException dllError)
                     {
                         logger.Log("<Error>Miss a Symbol in :" + dllError.AssemblyReference.FullName);
                         logger.Log("<Error>Check DLLs for contract.");
