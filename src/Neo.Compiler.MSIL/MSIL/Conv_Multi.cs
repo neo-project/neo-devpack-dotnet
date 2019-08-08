@@ -792,7 +792,7 @@ namespace Neo.Compiler.MSIL
 
             if (calltype == 0)
             {
-                if (defs == null)
+                if (defs == null && defError != null)
                 {
                     if (defError is Mono.Cecil.AssemblyResolutionException dllError)
                     {
