@@ -5,6 +5,28 @@
     <RootNamespace>neo_smart_contract_template</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CustomCommands>
+      <CustomCommands>
+        <Command Condition=" Exists($(TargetDir)) ">
+          <type>BeforeBuild</type>
+          <command>dotnet publish -c Release -f netcoreapp2.2 -r osx-x64
+--output ${TargetDir}</command>
+        </Command>
+        <Command Condition=" Exists($(TargetDir)) ">
+          <type>AfterBuild</type>
+          <command>dotnet ${TargetDir}/neon.dll ${TargetPath}</command>
+        </Command>
+        <Command Condition=" Exists($(TargetDir)) ">
+          <type>AfterBuild</type>
+          <command>cp ${TargetDir}/${ProjectName}.avm ${ProjectDir}</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RuntimeIdentifiers>osx-x64</RuntimeIdentifiers>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <CustomCommands>
       <CustomCommands>
@@ -24,8 +46,24 @@
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
-  <PropertyGroup>
-    <RuntimeIdentifiers>osx-x64</RuntimeIdentifiers>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>BeforeBuild</type>
+          <command>dotnet publish -c Release -f netcoreapp2.2 -r osx-x64
+--output ${TargetDir}</command>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>dotnet ${TargetDir}/neon.dll ${TargetPath}</command>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp ${TargetDir}/${ProjectName}.avm ${ProjectDir}</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Neo.SmartContract.Framework" Version="2.9.3.1" />
