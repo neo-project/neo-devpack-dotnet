@@ -6,14 +6,9 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Event : SmartContract.Framework.SmartContract
     {
-
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
 
-        public static void Main(string method, object[] args)
-        {
-        }
-
-
+        public static void Main(string method, object[] args) { }
     }
 }
