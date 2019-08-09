@@ -126,7 +126,7 @@ namespace Neo.Compiler.MSIL
                             throw new Exception("can't parese event type from:" + field.FieldType.FullName + ".maybe it is System.Action<xxx> which is defined in mscorlib.dll，copy this dll in.");
                         }
                     }
-                    else
+                    if (eventtype != null)
                     {
                         foreach (var m in eventtype.Methods)
                         {
