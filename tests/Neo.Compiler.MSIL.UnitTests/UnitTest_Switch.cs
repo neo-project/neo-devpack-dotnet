@@ -32,6 +32,5 @@ namespace Neo.Compiler.MSIL
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
-
     }
 }

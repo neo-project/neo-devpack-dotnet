@@ -1,6 +1,5 @@
 namespace Neo.Compiler.MSIL.TestClasses
 {
-
     class Contract_Switch : SmartContract.Framework.SmartContract
     {
         public static object Main(string method, object[] args)
