@@ -3,6 +3,6 @@
     public class StorageMap
     {
         internal StorageContext Context;
-        internal string Prefix;
+        internal byte[] Prefix;
     }
 }
