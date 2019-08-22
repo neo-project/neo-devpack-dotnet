@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL
 
             // Test cases
 
-            for (int x = 0; x <= 20; x++)
+            for (int x = 0; x <= 5; x++)
             {
                 testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_Switch.cs");
