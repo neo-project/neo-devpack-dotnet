@@ -11,8 +11,15 @@ namespace Neo.Compiler
         {
         }
 
+        public string mainMethod;
+        public ConvOption option;
+        public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
+        public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
+        public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
+        public Dictionary<string, object> staticfields = new Dictionary<string, object>();
         //小蚁没类型，只有方法
         public SortedDictionary<int, NeoCode> total_Codes = new SortedDictionary<int, NeoCode>();
+
         public byte[] Build()
         {
             List<byte> bytes = new List<byte>();
@@ -28,13 +35,7 @@ namespace Neo.Compiler
             return bytes.ToArray();
             //将body链接，生成this.code       byte[]
             //并计算 this.codehash            byte[]
-        }
-        public string mainMethod;
-        public ConvOption option;
-        public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
-        public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
-        public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
-        //public Dictionary<string, byte[]> codes = new Dictionary<string, byte[]>();
+        } //public Dictionary<string, byte[]> codes = new Dictionary<string, byte[]>();
         //public byte[] GetScript(byte[] script_hash)
         //{
         //    string strhash = "";
@@ -73,21 +74,19 @@ namespace Neo.Compiler
                 methodinfo[m.Key] = m.Value.GenJson();
             }
 
-
             StringBuilder sb = new StringBuilder();
             json.ConvertToStringWithFormat(sb, 4);
             return sb.ToString();
         }
-        public void FromJson(string json)
-        {
-
-        }
-
-        public Dictionary<string, object> staticfields = new Dictionary<string, object>();
     }
 
     public class NeoMethod
     {
+        public string lastsfieldname = null;//最后一个加载的静态成员的名字，仅event使用
+
+        public int lastparam = -1;//最后一个加载的参数对应
+        public int lastCast = -1;
+
         public bool isEntry = false;
         public string _namespace;
         public string name;
@@ -121,10 +120,6 @@ namespace Neo.Compiler
             return json;
         }
 
-        public void FromJson(MyJson.JsonNode_Object json)
-        {
-        }
-
         //public byte[] Build()
         //{
         //    List<byte> bytes = new List<byte>();
@@ -141,10 +136,6 @@ namespace Neo.Compiler
         //    //将body链接，生成this.code       byte[]
         //    //并计算 this.codehash            byte[]
         //}
-        public string lastsfieldname = null;//最后一个加载的静态成员的名字，仅event使用
-
-        public int lastparam = -1;//最后一个加载的参数对应
-        public int lastCast = -1;
 
         /// <summary>
         /// Constructor
@@ -275,10 +266,6 @@ namespace Neo.Compiler
                 info += "//" + debugcode + "(" + debugline + ")";
             }
             return new MyJson.JsonNode_ValueString(info);
-        }
-
-        public void FromJson(MyJson.JsonNode_Object json)
-        {
         }
     }
     public class NeoField : NeoParam
