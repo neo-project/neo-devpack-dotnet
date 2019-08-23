@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using Mono.Cecil;
 
 namespace Neo.Compiler
 {
@@ -143,6 +145,23 @@ namespace Neo.Compiler
 
         public int lastparam = -1;//最后一个加载的参数对应
         public int lastCast = -1;
+
+        internal void ProcessAttribute(CustomAttribute attr)
+        {
+            switch (attr.AttributeType.Name)
+            {
+                case "DisplayNameAttribute":
+                    {
+                        displayName = (string)attr.ConstructorArguments[0].Value;
+                        break;
+                    }
+                case "ReadOnlyAttribute":
+                    {
+                        isReadOnly = (bool)attr.ConstructorArguments[0].Value;
+                        break;
+                    }
+            }
+        }
     }
     public class NeoEvent
     {
