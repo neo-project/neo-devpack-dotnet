@@ -1,15 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
-using Neo.VM;
-using System;
 
 namespace Neo.Compiler.MSIL
 {
     [TestClass]
-    public class UnitTest_ABI_Event
+    public class UnitTest_ABI
     {
         [TestMethod]
-        public void Test_ABI_Event()
+        public void Test_ABI()
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
