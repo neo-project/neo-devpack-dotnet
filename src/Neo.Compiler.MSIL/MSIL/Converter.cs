@@ -96,22 +96,9 @@ namespace Neo.Compiler.MSIL
                     nm.name = m.Value.method.FullName;
                     nm.displayName = m.Value.method.Name;
 
-                    Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = m.Value.method.CustomAttributes;
-                    foreach (var attr in ca)
+                    foreach (var attr in m.Value.method.CustomAttributes)
                     {
-                        switch (attr.AttributeType.Name)
-                        {
-                            case "DisplayNameAttribute":
-                                {
-                                    nm.displayName = (string)attr.ConstructorArguments[0].Value;
-                                    break;
-                                }
-                            case "ReadOnlyAttribute":
-                                {
-                                    nm.isReadOnly = (bool)attr.ConstructorArguments[0].Value;
-                                    break;
-                                }
-                        }
+                        nm.ProcessAttribute(attr);
                     }
                     nm.inSmartContract = m.Value.method.DeclaringType.BaseType.Name == "SmartContract";
                     nm.isPublic = m.Value.method.IsPublic;
