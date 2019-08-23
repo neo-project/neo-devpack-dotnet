@@ -1002,9 +1002,18 @@ namespace Neo.Compiler.MSIL
                 Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = method.CustomAttributes;
                 foreach (var attr in ca)
                 {
-                    if (attr.AttributeType.Name == "DisplayNameAttribute")
+                    switch (attr.AttributeType.Name)
                     {
-                        nm.displayName = (string)attr.ConstructorArguments[0].Value;
+                        case "DisplayNameAttribute":
+                            {
+                                nm.displayName = (string)attr.ConstructorArguments[0].Value;
+                                break;
+                            }
+                        case "ReadOnlyAttribute":
+                            {
+                                nm.isReadOnly = (bool)attr.ConstructorArguments[0].Value;
+                                break;
+                            }
                     }
                 }
                 nm.inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
