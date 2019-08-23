@@ -32,7 +32,11 @@ namespace Neo.Compiler.MSIL.Utils
             get;
             private set;
         }
-
+        public MyJson.JsonNode_Object finialABI
+        {
+            get;
+            private set;
+        }
         public BuildScript()
         {
         }
@@ -68,9 +72,15 @@ namespace Neo.Compiler.MSIL.Utils
                 log.Log("Convert IL->ASM Error:" + err.ToString());
                 return;
             }
+            try
+            {
+                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalAVM);
+            }
+            catch (Exception err)
+            {
+            }
+
         }
-
-
         public string[] GetAllILFunction()
         {
             List<string> lists = new List<string>();
