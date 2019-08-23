@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
-    public class Contract_Event : SmartContract.Framework.SmartContract
+    public class Contract_Abi : SmartContract.Framework.SmartContract
     {
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
