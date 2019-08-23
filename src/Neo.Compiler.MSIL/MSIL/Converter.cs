@@ -85,23 +85,14 @@ namespace Neo.Compiler.MSIL
                     if (m.Value.method == null) continue;
                     if (m.Value.method.IsAddOn || m.Value.method.IsRemoveOn)
                         continue;//event 自动生成的代码，不要
-                    NeoMethod nm = new NeoMethod();
                     if (m.Key.Contains(".cctor"))
                     {
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
                     if (m.Value.method.IsConstructor) continue;
-                    nm._namespace = m.Value.method.DeclaringType.FullName;
-                    nm.name = m.Value.method.FullName;
-                    nm.displayName = m.Value.method.Name;
 
-                    foreach (var attr in m.Value.method.CustomAttributes)
-                    {
-                        nm.ProcessAttribute(attr);
-                    }
-                    nm.inSmartContract = m.Value.method.DeclaringType.BaseType.Name == "SmartContract";
-                    nm.isPublic = m.Value.method.IsPublic;
+                    NeoMethod nm = new NeoMethod(m.Value.method);
                     this.methodLink[m.Value] = nm;
                     outModule.mapMethods[nm.name] = nm;
                 }

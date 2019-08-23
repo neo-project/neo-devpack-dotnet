@@ -984,7 +984,6 @@ namespace Neo.Compiler.MSIL
             var _method = type.methods[method.FullName];
             try
             {
-                NeoMethod nm = new NeoMethod();
                 if (method.FullName.Contains(".cctor"))
                 {
                     CctorSubVM.Parse(_method, this.outModule);
@@ -996,18 +995,10 @@ namespace Neo.Compiler.MSIL
                     return false;
                     //continue;
                 }
-                nm._namespace = method.DeclaringType.FullName;
-                nm.name = method.FullName;
-                nm.displayName = method.Name;
-                foreach (var attr in method.CustomAttributes)
-                {
-                    nm.ProcessAttribute(attr);
-                }
-                nm.inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
-                nm.isPublic = method.IsPublic;
+
+                NeoMethod nm = new NeoMethod(method);
                 this.methodLink[_method] = nm;
                 outModule.mapMethods[nm.name] = nm;
-
                 ConvertMethod(_method, nm);
                 return true;
             }
