@@ -93,6 +93,7 @@ namespace Neo.Compiler
         public List<NeoParam> paramtypes = new List<NeoParam>();
         public string returntype;
         public bool isPublic = true;
+        public bool isReadOnly = false;
         public bool inSmartContract;
         //临时变量
         public List<NeoParam> body_Variables = new List<NeoParam>();
