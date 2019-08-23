@@ -146,7 +146,30 @@ namespace Neo.Compiler
         public int lastparam = -1;//最后一个加载的参数对应
         public int lastCast = -1;
 
-        internal void ProcessAttribute(CustomAttribute attr)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public NeoMethod() { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="method">Method</param>
+        public NeoMethod(MethodDefinition method)
+        {
+            _namespace = method.DeclaringType.FullName;
+            name = method.FullName;
+            displayName = method.Name;
+            inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
+            isPublic = method.IsPublic;
+
+            foreach (var attr in method.CustomAttributes)
+            {
+                ProcessAttribute(attr);
+            }
+        }
+
+        private void ProcessAttribute(CustomAttribute attr)
         {
             switch (attr.AttributeType.Name)
             {
