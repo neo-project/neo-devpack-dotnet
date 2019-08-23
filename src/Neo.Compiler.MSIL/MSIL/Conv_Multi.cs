@@ -999,22 +999,9 @@ namespace Neo.Compiler.MSIL
                 nm._namespace = method.DeclaringType.FullName;
                 nm.name = method.FullName;
                 nm.displayName = method.Name;
-                Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = method.CustomAttributes;
-                foreach (var attr in ca)
+                foreach (var attr in method.CustomAttributes)
                 {
-                    switch (attr.AttributeType.Name)
-                    {
-                        case "DisplayNameAttribute":
-                            {
-                                nm.displayName = (string)attr.ConstructorArguments[0].Value;
-                                break;
-                            }
-                        case "ReadOnlyAttribute":
-                            {
-                                nm.isReadOnly = (bool)attr.ConstructorArguments[0].Value;
-                                break;
-                            }
-                    }
+                    nm.ProcessAttribute(attr);
                 }
                 nm.inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
                 nm.isPublic = method.IsPublic;
