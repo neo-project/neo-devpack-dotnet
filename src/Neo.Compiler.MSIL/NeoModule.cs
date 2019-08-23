@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Mono.Cecil;
+using Neo.Compiler.MSIL;
 using System.Collections.Generic;
 using System.Text;
-using Mono.Cecil;
 
 namespace Neo.Compiler
 {
@@ -193,6 +193,15 @@ namespace Neo.Compiler
         public string displayName;
         public List<NeoParam> paramtypes = new List<NeoParam>();
         public string returntype;
+
+        public NeoEvent(ILField value)
+        {
+            _namespace = value.field.DeclaringType.FullName;
+            name = value.field.DeclaringType.FullName + "::" + value.field.Name;
+            displayName = value.displayName;
+            returntype = value.returntype;
+            paramtypes = value.paramtypes;
+        }
     }
 
     public class NeoCode
