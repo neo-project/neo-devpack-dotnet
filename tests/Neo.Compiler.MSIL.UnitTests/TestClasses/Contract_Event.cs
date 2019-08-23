@@ -10,5 +10,13 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static event Action<byte[], byte[], BigInteger> Transferred;
 
         public static void Main(string method, object[] args) { }
+
+        [ReadOnly(true)]
+        public static void readOnlyTrue() { }
+
+        [ReadOnly(false)]
+        public static void readOnlyFalse1() { }
+
+        public static void readOnlyFalse2() { }
     }
 }

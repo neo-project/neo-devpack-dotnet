@@ -81,16 +81,18 @@ namespace vmtool
             outjson.SetDictValue("hash", sb.ToString());
 
             //entrypoint
-            outjson.SetDictValue("entrypoint", "Main");
+            outjson.SetDictValue("entryPoint", "Main");
             var mainmethod = module.mapMethods[module.mainMethod];
             if (mainmethod != null)
             {
                 var name = mainmethod.displayName;
-                outjson.SetDictValue("entrypoint", name);
+                outjson.SetDictValue("entryPoint", name);
             }
             //functions
-            var funcsigns = new MyJson.JsonNode_Array();
-            outjson["functions"] = funcsigns;
+            var methods = new MyJson.JsonNode_Array();
+            outjson["methods"] = methods;
+            var readOnlyMethods = new MyJson.JsonNode_Array();
+            outjson["readOnlyMethods"] = readOnlyMethods;
 
             List<string> names = new List<string>();
 
@@ -104,7 +106,7 @@ namespace vmtool
                 var ps = mm.name.Split(new char[] { ' ', '(' }, StringSplitOptions.RemoveEmptyEntries);
                 var funcsign = new MyJson.JsonNode_Object();
 
-                funcsigns.Add(funcsign);
+                methods.Add(funcsign);
                 var funcname = ps[1];
                 if (funcname.IndexOf("::") > 0)
                 {
@@ -133,7 +135,11 @@ namespace vmtool
                 }
 
                 var rtype = ConvType(mm.returntype);
-                funcsign.SetDictValue("returntype", rtype);
+                funcsign.SetDictValue("returnType", rtype);
+                if (function.Value.isReadOnly)
+                {
+                    readOnlyMethods.Add(new MyJson.JsonNode_ValueString(function.Value.displayName));
+                }
             }
 
             //events

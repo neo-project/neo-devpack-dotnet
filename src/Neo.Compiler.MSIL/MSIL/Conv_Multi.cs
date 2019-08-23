@@ -774,7 +774,7 @@ namespace Neo.Compiler.MSIL
                     //_Convert1by1(VM.OpCode.CSHARPSTRHASH32, src, to);
                     //return 0;
                 }
-                else if(src.tokenMethod.Contains("::op_LeftShift("))
+                else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
                     _Convert1by1(VM.OpCode.SHL, src, to);
                     return 0;
@@ -1002,9 +1002,18 @@ namespace Neo.Compiler.MSIL
                 Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = method.CustomAttributes;
                 foreach (var attr in ca)
                 {
-                    if (attr.AttributeType.Name == "DisplayNameAttribute")
+                    switch (attr.AttributeType.Name)
                     {
-                        nm.displayName = (string)attr.ConstructorArguments[0].Value;
+                        case "DisplayNameAttribute":
+                            {
+                                nm.displayName = (string)attr.ConstructorArguments[0].Value;
+                                break;
+                            }
+                        case "ReadOnlyAttribute":
+                            {
+                                nm.isReadOnly = (bool)attr.ConstructorArguments[0].Value;
+                                break;
+                            }
                     }
                 }
                 nm.inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
