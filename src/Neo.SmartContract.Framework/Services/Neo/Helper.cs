@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
             return new StorageMap
             {
                 Context = context,
-                Prefix = prefix.AsByteArray().Concat(new byte[] { 0x00 })
+                Prefix = prefix.AsByteArray()
             };
         }
 
@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
             return new StorageMap
             {
                 Context = context,
-                Prefix = prefix.Concat(new byte[] { 0x00 })
+                Prefix = prefix
             };
         }
 
@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
             return new StorageMap
             {
                 Context = context,
-                Prefix = new byte[] { prefix, 0x00 }
+                Prefix = new byte[] { prefix }
             };
         }
 
