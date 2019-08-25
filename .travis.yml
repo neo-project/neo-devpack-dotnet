@@ -26,6 +26,6 @@ script:
  - cd test/Neo.Compiler.MSIL.UnitTests
  - dotnet restore
  - dotnet test
- - cd ../test/Neo.SmartContract.Framework.UnitTests
+ - cd ../Neo.SmartContract.Framework.UnitTests
  - dotnet restore
  - dotnet test
