@@ -12,7 +12,21 @@ dotnet: 2.2.300
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ulimit -n 2048; fi
-
+install:
+  - dotnet tool install -g dotnet-format
+  - export PATH="$PATH:$HOME/.dotnet/tools"
+before_script:
+ - echo "Checking format..." 
+ - dotnet format --check --dry-run -w src\Installer
+ - dotnet format --check --dry-run -w src\Neo.Compiler.MSIL
+ - dotnet format --check --dry-run -w src\Neo.SmartContract.Framework
+ - dotnet format --check --dry-run -w test\Neo.Compiler.MSIL.UnitTests
+ - dotnet format --check --dry-run -w test\Neo.SmartContract.Framework.UnitTests
 script:
-  - dotnet restore
-  - dotnet test
+ - cd test\Neo.Compiler.MSIL.UnitTests
+ - dotnet restore
+ - dotnet test
+ - cd ..
+ - cd test\Neo.SmartContract.Framework.UnitTests
+ - dotnet restore
+ - dotnet test
