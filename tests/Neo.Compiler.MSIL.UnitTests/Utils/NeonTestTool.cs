@@ -11,6 +11,11 @@ namespace Neo.Compiler.MSIL.Utils
 {
     internal static class NeonTestTool
     {
+        /// <summary>
+        /// Is not the official script hash, just a unique hash related to the script used for unit test purpose
+        /// </summary>
+        /// <param name="context">Context</param>
+        /// <returns>UInt160</returns>
         public static UInt160 ScriptHash(this ExecutionContext context)
         {
             using (var sha = SHA1.Create())
