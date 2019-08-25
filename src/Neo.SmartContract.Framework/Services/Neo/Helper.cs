@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
             return new StorageMap
             {
                 Context = context,
-                Prefix = new byte[] { prefix }
+                Prefix = (byte[])(object)prefix
             };
         }
 

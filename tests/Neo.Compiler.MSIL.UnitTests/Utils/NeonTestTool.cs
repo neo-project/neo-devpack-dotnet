@@ -3,15 +3,22 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Framework;
 using Neo.VM;
-using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Neo.Compiler.MSIL.Utils
 {
     internal static class NeonTestTool
     {
+        public static UInt160 ScriptHash(this ExecutionContext context)
+        {
+            using (var sha = SHA1.Create())
+            {
+                return new UInt160(sha.ComputeHash(((byte[])context.Script)));
+            }
+        }
+
         public static string Bytes2HexString(byte[] data)
         {
             StringBuilder sb = new StringBuilder();
@@ -21,6 +28,7 @@ namespace Neo.Compiler.MSIL.Utils
             }
             return sb.ToString();
         }
+
         public static byte[] HexString2Bytes(string str)
         {
             if (str.IndexOf("0x") == 0)
@@ -63,8 +71,5 @@ namespace Neo.Compiler.MSIL.Utils
                 return bs;
             }
         }
-
-
-
     }
 }
