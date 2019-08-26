@@ -1,4 +1,4 @@
-﻿using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         static extern object unittest001(string method, object[] arr);
         public static object Main(string method, object[] args)
         {
-            return unittest001(method,args);
+            return unittest001(method, args);
         }
     }
 }
