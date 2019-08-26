@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework
     public static class Helper
     {
         /// <summary>
-        /// Converts byte to byte[] consider the byte as a BigInteger (0x00 at the end)
+        /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
         /// </summary>
         public extern static byte[] AsByteArray(this byte source);
 
