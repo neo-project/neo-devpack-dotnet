@@ -21,8 +21,8 @@ before_script:
  - dotnet format --check --dry-run -w src/Installer
  - dotnet format --check --dry-run -w src/Neo.Compiler.MSIL
  - dotnet format --check --dry-run -w src/Neo.SmartContract.Framework
- - dotnet format --check --dry-run -w test/Neo.Compiler.MSIL.UnitTests
- - dotnet format --check --dry-run -w test/Neo.SmartContract.Framework.UnitTests
+ - dotnet format --check --dry-run -w tests/Neo.Compiler.MSIL.UnitTests
+ - dotnet format --check --dry-run -w tests/Neo.SmartContract.Framework.UnitTests
 script:
  - cd test/Neo.Compiler.MSIL.UnitTests
  - dotnet restore
