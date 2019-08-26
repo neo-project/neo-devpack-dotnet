@@ -8,7 +8,8 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts byte to byte[].
         /// </summary>
-        [Script]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.LEFT)]
         public extern static byte[] AsByteArray(this byte source);
 
         /// <summary>
