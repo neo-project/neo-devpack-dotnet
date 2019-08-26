@@ -1,4 +1,4 @@
-﻿namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Contract
     {
@@ -7,7 +7,7 @@
             [Syscall("Neo.Contract.GetScript")]
             get;
         }
-       
+
         public extern bool IsPayable
         {
             [Syscall("Neo.Contract.IsPayable")]

@@ -1,4 +1,4 @@
-﻿using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;

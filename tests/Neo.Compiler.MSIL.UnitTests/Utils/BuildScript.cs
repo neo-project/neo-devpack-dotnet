@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -150,7 +150,7 @@ namespace Neo.Compiler.MSIL.Utils
         }
         public NeoMethod[] GetAllNEOVMMethod()
         {
-            return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray() ;
+            return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray();
         }
 
         public void DumpAVM()
@@ -160,10 +160,10 @@ namespace Neo.Compiler.MSIL.Utils
                 foreach (var c in this.converterIL.outModule.total_Codes)
                 {
                     var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
-                    if(c.Value.bytes!=null&&c.Value.bytes.Length>0)
+                    if (c.Value.bytes != null && c.Value.bytes.Length > 0)
                     {
                         line += " HEX:";
-                        foreach(var b in c.Value.bytes)
+                        foreach (var b in c.Value.bytes)
                         {
                             line += b.ToString("X02");
                         }

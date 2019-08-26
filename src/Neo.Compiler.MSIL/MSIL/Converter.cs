@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -324,7 +324,7 @@ namespace Neo.Compiler.MSIL
             _insertEndCode(to, null);
             //if go here,mean methodname is wrong
             //use throw to instead ret,make vm  fault.
-            _Insert1(VM.OpCode.THROW,"",to);
+            _Insert1(VM.OpCode.THROW, "", to);
             //_Insert1(VM.OpCode.RET, "", to);
 
             //convert all Jmp
