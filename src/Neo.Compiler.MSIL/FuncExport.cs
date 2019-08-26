@@ -1,4 +1,4 @@
-﻿using Neo.Compiler;
+using Neo.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;

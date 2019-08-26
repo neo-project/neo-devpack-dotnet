@@ -1,4 +1,4 @@
-﻿namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Services.Neo
 {
     public enum ContractPropertyState : byte
     {
