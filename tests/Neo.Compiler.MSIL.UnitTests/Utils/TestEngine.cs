@@ -59,7 +59,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             return new ContractMethod(this, methodname);
         }
-        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname,params StackItem[] _params)
+        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] _params)
         {
             //var engine = new ExecutionEngine();
             this.LoadScript(scriptEntry.finalAVM);
