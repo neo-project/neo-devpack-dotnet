@@ -14,7 +14,6 @@ namespace Neo.Compiler.MSIL
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(Integer));
             Assert.AreEqual(1, rItem.GetBigInteger());
-
             Assert.AreEqual(1,
                 testengine.Storages
                 .Count(a =>
@@ -30,9 +29,7 @@ namespace Neo.Compiler.MSIL
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
-
             Assert.AreEqual(1, testengine.Storages.Count(a => a.Key.Key.SequenceEqual(prefix.Concat(key))));
-
             return rItem.GetByteArray();
         }
 
@@ -42,9 +39,7 @@ namespace Neo.Compiler.MSIL
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(Boolean));
-
             Assert.AreEqual(0, testengine.Storages.Count(a => a.Key.Key.SequenceEqual(prefix.Concat(key))));
-
             return rItem.GetBoolean();
         }
 
@@ -65,7 +60,6 @@ namespace Neo.Compiler.MSIL
             // Get
 
             var getVal = Get(testengine, "TestGetByte", prefix, key);
-
             CollectionAssert.AreEqual(value, getVal);
 
             // Delete
@@ -93,7 +87,6 @@ namespace Neo.Compiler.MSIL
             // Get
 
             var getVal = Get(testengine, "TestGetByteArray", prefix, key);
-
             CollectionAssert.AreEqual(value, getVal);
 
             // Delete
@@ -121,7 +114,6 @@ namespace Neo.Compiler.MSIL
             // Get
 
             var getVal = Get(testengine, "TestGetString", prefix, key);
-
             CollectionAssert.AreEqual(value, getVal);
 
             // Delete
