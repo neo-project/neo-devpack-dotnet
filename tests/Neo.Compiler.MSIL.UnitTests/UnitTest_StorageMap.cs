@@ -10,7 +10,7 @@ namespace Neo.Compiler.MSIL
     {
         private void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(prefix), new ByteArray(key), new ByteArray(value));
+            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key), new ByteArray(value));
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(Integer));
             Assert.AreEqual(1, rItem.GetBigInteger());
@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL
 
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(prefix), new ByteArray(key));
+            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
@@ -38,7 +38,7 @@ namespace Neo.Compiler.MSIL
 
         private bool Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(prefix), new ByteArray(key));
+            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(Boolean));
@@ -54,7 +54,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_StorageMap.cs");
 
-            var prefix = new byte[] { 0xFF };
+            var prefix = new byte[] { 0xAA, 0x00 };  // The byte is consider as a number, so 0x00 is append at the end
             var key = new byte[] { 0x01, 0x02, 0x03 };
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
@@ -110,7 +110,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_StorageMap.cs");
 
-            var prefix = new byte[] { 0x00, 0xFF };
+            var prefix = new byte[] { 0x61, 0x61 };
             var key = new byte[] { 0x01, 0x02, 0x03 };
             var value = new byte[] { 0x04, 0x05, 0x06 };
 

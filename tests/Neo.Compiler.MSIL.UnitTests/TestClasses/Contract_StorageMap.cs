@@ -8,25 +8,25 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         #region Byte
 
-        public static bool TestPutByte(byte prefix, byte[] key, byte[] value)
+        public static bool TestPutByte(byte[] key, byte[] value)
         {
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = Storage.CurrentContext.CreateMap(0xAA);
             storage.Put(key, value);
             return true;
         }
 
-        public static bool TestDeleteByte(byte prefix, byte[] key)
+        public static bool TestDeleteByte(byte[] key)
         {
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = Storage.CurrentContext.CreateMap(0xAA);
             var value = storage.Get(key);
             var exists = value.Length > 0;
             storage.Delete(key);
             return exists;
         }
 
-        public static byte[] TestGetByte(byte prefix, byte[] key)
+        public static byte[] TestGetByte(byte[] key)
         {
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = Storage.CurrentContext.CreateMap(0xAA);
             var value = storage.Get(key);
             return value;
         }
@@ -35,15 +35,17 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         #region String
 
-        public static bool TestPutString(string prefix, byte[] key, byte[] value)
+        public static bool TestPutString(byte[] key, byte[] value)
         {
+            var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
             storage.Put(key, value);
             return true;
         }
 
-        public static bool TestDeleteString(string prefix, byte[] key)
+        public static bool TestDeleteString(byte[] key)
         {
+            var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
             var value = storage.Get(key);
             var exists = value.Length > 0;
@@ -51,8 +53,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             return exists;
         }
 
-        public static byte[] TestGetString(string prefix, byte[] key)
+        public static byte[] TestGetString(byte[] key)
         {
+            var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
             var value = storage.Get(key);
             return value;
@@ -62,15 +65,17 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         #region ByteArray
 
-        public static bool TestPutByteArray(byte[] prefix, byte[] key, byte[] value)
+        public static bool TestPutByteArray(byte[] key, byte[] value)
         {
+            var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
             storage.Put(key, value);
             return true;
         }
 
-        public static bool TestDeleteByteArray(byte[] prefix, byte[] key)
+        public static bool TestDeleteByteArray(byte[] key)
         {
+            var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
             var value = storage.Get(key);
             var exists = value.Length > 0;
@@ -78,8 +83,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             return exists;
         }
 
-        public static byte[] TestGetByteArray(byte[] prefix, byte[] key)
+        public static byte[] TestGetByteArray(byte[] key)
         {
+            var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
             var value = storage.Get(key);
             return value;
