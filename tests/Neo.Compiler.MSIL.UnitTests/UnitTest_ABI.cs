@@ -50,9 +50,10 @@ namespace Neo.Compiler.MSIL
             Assert.AreEqual(0, abi.Methods[2].Parameters.Length);
             Assert.AreEqual(SmartContract.ContractParameterType.Void, abi.Methods[2].ReturnType);
 
-            // Read only methods #TODO Require the last PR
+            // Read only methods
 
-            //Assert.AreEqual("readOnlyTrue", abi.re);
+            //#TODO Require the last PR
+            //CollectionAssert.AreEqual(new string[] { "readOnlyTrue" }, abi.ReadOnlyMethods);
 
             // Events
 
