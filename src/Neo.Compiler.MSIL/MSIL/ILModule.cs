@@ -55,7 +55,6 @@ namespace Neo.Compiler.MSIL
 
                         }
                     }
-
                 }
             }
         }
@@ -91,7 +90,6 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
-
     }
 
     public class ILField
