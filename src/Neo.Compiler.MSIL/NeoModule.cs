@@ -1,4 +1,4 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using Neo.Compiler.MSIL;
 using System.Collections.Generic;
 using System.Text;
@@ -7,9 +7,7 @@ namespace Neo.Compiler
 {
     public class NeoModule
     {
-        public NeoModule(ILogger logger)
-        {
-        }
+        public NeoModule(ILogger logger) { }
 
         public string mainMethod;
         public ConvOption option;
@@ -270,33 +268,21 @@ namespace Neo.Compiler
     }
     public class NeoField : NeoParam
     {
+        public int index { get; private set; }
         public NeoField(string name, string type, int index) : base(name, type)
         {
             this.index = index;
-        }
-        public int index
-        {
-            get;
-            private set;
         }
     }
 
     public class NeoParam
     {
+        public string name { get; private set; }
+        public string type { get; private set; }
         public NeoParam(string name, string type)
         {
             this.name = name;
             this.type = type;
-        }
-        public string name
-        {
-            get;
-            private set;
-        }
-        public string type
-        {
-            get;
-            private set;
         }
         public override string ToString()
         {
