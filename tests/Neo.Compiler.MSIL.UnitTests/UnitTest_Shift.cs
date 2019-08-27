@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift.cs");
 
-            testengine.scriptEntry.DumpAVM();
+            testengine.ScriptEntry.DumpAVM();
 
             var result = testengine.ExecuteTestCaseStandard("testfunc");
         }
@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift_bigint.cs");
 
-            testengine.scriptEntry.DumpAVM();
+            testengine.ScriptEntry.DumpAVM();
 
             StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
             var result = testengine.ExecuteTestCase(_params);
