@@ -13,6 +13,12 @@ namespace Neo.SmartContract.Framework.Services.Neo
             [Syscall("System.Runtime.GetTime")]
             get;
         }
+        
+        public static extern uint InvocationCounter
+        {
+            [Syscall("System.Runtime.GetInvocationCounter")]
+            get;
+        }
 
         [Syscall("System.Runtime.CheckWitness")]
         public static extern bool CheckWitness(byte[] hashOrPubkey);
