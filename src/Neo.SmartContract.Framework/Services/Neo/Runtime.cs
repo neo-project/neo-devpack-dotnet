@@ -20,6 +20,9 @@ namespace Neo.SmartContract.Framework.Services.Neo
             get;
         }
 
+        [Syscall("System.Runtime.GetNotifications")]
+        public static extern Notification[] GetNotifications(byte[] hash);
+
         [Syscall("System.Runtime.CheckWitness")]
         public static extern bool CheckWitness(byte[] hashOrPubkey);
 
