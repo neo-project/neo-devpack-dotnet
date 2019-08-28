@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Abi.cs");
             string expectABI = @"{""hash"":""0x77811b3127dea2df1a18230f91396fbcf8c648f4"",""methods"":[{""name"":""readOnlyTrue"",""parameters"":[],""returnType"":""Void""},{""name"":""readOnlyFalse1"",""parameters"":[],""returnType"":""Void""},{""name"":""readOnlyFalse2"",""parameters"":[],""returnType"":""Void""}],""readOnlyMethods"":[""readOnlyTrue""],""entryPoint"":{""name"":""Main"",""parameters"":[{""name"":""method"",""type"":""String""},{""name"":""args"",""type"":""Array""}],""returnType"":""Void""},""events"":[{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}]}";
-            Assert.AreEqual(testengine.scriptEntry.finialABI.ToString(), expectABI);
+            Assert.AreEqual(testengine.ScriptEntry.finialABI.ToString(), expectABI);
 
             // Check with the real class
 
