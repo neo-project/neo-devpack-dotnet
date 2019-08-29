@@ -1,19 +1,9 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Notification
+    public class Notification : IApiInterface
     {
-        public byte[] ScriptHash
-        {
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
-            get;
-        }
+        public byte[] ScriptHash;
 
-        public object State
-        {
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            get;
-        }
+        public object State;
     }
 }
