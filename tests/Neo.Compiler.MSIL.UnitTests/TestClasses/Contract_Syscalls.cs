@@ -21,6 +21,18 @@ namespace Neo.Compiler.MSIL.TestClasses
             for (int x = 0; x < notifications.Length; x++)
             {
                 var notify = notifications[x];
+
+                if (hash.Length != 0)
+                {
+                    // Check that the hash is working well
+
+                    var hashNot = notify.ScriptHash;
+                    for (int y = 0; y < hashNot.Length; y++)
+                    {
+                        if (hashNot[y] != hash[y]) return int.MinValue;
+                    }
+                }
+
                 sum += (int)notify.State;
             }
 
