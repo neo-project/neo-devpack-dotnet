@@ -1,4 +1,4 @@
-namespace Neo.VM
+namespace Neo.VM.SmartContract.Framework
 {
     public enum OpCode : byte
     {
