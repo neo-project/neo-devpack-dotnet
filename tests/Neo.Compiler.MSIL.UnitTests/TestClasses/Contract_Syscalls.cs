@@ -26,10 +26,9 @@ namespace Neo.Compiler.MSIL.TestClasses
                 {
                     // Check that the hash is working well
 
-                    var hashNot = notify.ScriptHash;
-                    for (int y = 0; y < hashNot.Length; y++)
+                    for (int y = 0; y < notify.ScriptHash.Length; y++)
                     {
-                        if (hashNot[y] != hash[y]) return int.MinValue;
+                        if (notify.ScriptHash[y] != hash[y]) return int.MinValue;
                     }
                 }
 
