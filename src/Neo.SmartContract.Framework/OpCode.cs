@@ -1,10 +1,12 @@
-namespace Neo.SmartContract.Framework
+namespace Neo.VM
 {
     public enum OpCode : byte
     {
         // Constants
         /// <summary>
-        /// An empty array of bytes is pushed onto the stack.
+        /// An empty array of bytes is pushed onto the stack. 
+        /// This is equivalent to pushing Integer zero to the stack.
+        /// This is equivalent to pushing Boolean false to the stack.
         /// </summary>
         PUSH0 = 0x00,
         PUSHF = PUSH0,
@@ -396,19 +398,19 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         NOP = 0x61,
         /// <summary>
-        /// Reads a 2-byte value n and a jump is performed to relative position n-3.
+        /// Reads a 2-byte value n and a jump is performed to relative position n (counting from opcode JMP address).
         /// </summary>
         JMP = 0x62,
         /// <summary>
-        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is True then a jump is performed to relative position n-3.
+        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is True then a jump is performed to relative position n (counting from opcode JMPIF address).
         /// </summary>
         JMPIF = 0x63,
         /// <summary>
-        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is False then a jump is performed to relative position n-3.
+        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is False then a jump is performed to relative position n (counting from opcode JMPIFNOT address).
         /// </summary>
         JMPIFNOT = 0x64,
         /// <summary>
-        /// Current context is copied to the invocation stack. Reads a 2-byte value n and a jump is performed to relative position n-3.
+        /// Current context is copied to the invocation stack. Reads a 2-byte value n and a jump is performed to relative position n.
         /// </summary>
         CALL = 0x65,
         /// <summary>
@@ -640,18 +642,8 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         WITHIN = 0xA5,
 
-
-        // Crypto
-        //RIPEMD160 = 0xA6, // The input is hashed using RIPEMD-160.
-        /// <summary>
-        /// The input is hashed using SHA-1.
-        /// </summary>
-        SHA1 = 0xA7,
-        /// <summary>
-        /// The input is hashed using SHA-256.
-        /// </summary>
-        SHA256 = 0xA8,
-
+        //Reserved = 0xAC,
+        //Reserved = 0xAE,
 
         // Array
         /// <summary>
