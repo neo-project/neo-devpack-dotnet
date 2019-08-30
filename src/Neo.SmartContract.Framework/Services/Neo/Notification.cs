@@ -5,11 +5,11 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// <summary>
         /// Sender script hash
         /// </summary>
-        public byte[] ScriptHash;
+        public readonly byte[] ScriptHash;
 
         /// <summary>
         /// Notification's state
         /// </summary>
-        public object State;
+        public readonly object State;
     }
 }
