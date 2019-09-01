@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern Block GetBlock(byte[] hash);
 
         [Syscall("Neo.Blockchain.GetTransaction")]
-        public static extern Transaction GetTransaction(byte[] hash);
+        public static extern Transaction GetTransaction(byte[] hash = null);
 
         [Syscall("Neo.Blockchain.GetContract")]
         public static extern Contract GetContract(byte[] script_hash);
