@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
 using System;
@@ -15,9 +15,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift.cs");
-
             testengine.scriptEntry.DumpNEF();
-
             var result = testengine.ExecuteTestCaseStandard("testfunc");
         }
         [TestMethod]
@@ -25,12 +23,9 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift_bigint.cs");
-
             testengine.scriptEntry.DumpNEF();
-
             StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
             var result = testengine.ExecuteTestCase(_params);
         }
     }
-
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework
@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework
     public static class Helper
     {
         /// <summary>
-        /// Converts byte to byte[].
+        /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
         /// </summary>
         [Script]
         public extern static byte[] AsByteArray(this byte source);
@@ -131,6 +131,13 @@ namespace Neo.SmartContract.Framework
         //    Assert(((BigInteger)source).AsByteArray().Length == 1);
         //    return (byte) source;
         //}
+
+        /// <summary>
+        /// Converts byte to byte[].
+        /// </summary>
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.LEFT)]
+        public extern static byte[] ToByteArray(this byte source);
 
         /// <summary>
         /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.

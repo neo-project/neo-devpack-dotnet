@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -32,7 +32,11 @@ namespace Neo.Compiler.MSIL.Utils
             get;
             private set;
         }
-
+        public MyJson.JsonNode_Object finialABI
+        {
+            get;
+            private set;
+        }
         public BuildScript()
         {
         }
@@ -68,9 +72,15 @@ namespace Neo.Compiler.MSIL.Utils
                 log.Log("Convert IL->ASM Error:" + err.ToString());
                 return;
             }
+            try
+            {
+                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalAVM);
+            }
+            catch (Exception err)
+            {
+            }
+
         }
-
-
         public string[] GetAllILFunction()
         {
             List<string> lists = new List<string>();
@@ -140,7 +150,7 @@ namespace Neo.Compiler.MSIL.Utils
         }
         public NeoMethod[] GetAllNEOVMMethod()
         {
-            return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray() ;
+            return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray();
         }
 
         public void DumpNEF()
@@ -150,10 +160,10 @@ namespace Neo.Compiler.MSIL.Utils
                 foreach (var c in this.converterIL.outModule.total_Codes)
                 {
                     var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
-                    if(c.Value.bytes!=null&&c.Value.bytes.Length>0)
+                    if (c.Value.bytes != null && c.Value.bytes.Length > 0)
                     {
                         line += " HEX:";
-                        foreach(var b in c.Value.bytes)
+                        foreach (var b in c.Value.bytes)
                         {
                             line += b.ToString("X02");
                         }
