@@ -79,7 +79,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             //var engine = new ExecutionEngine();
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
-            this.LoadScript(scriptEntry.finalNEF);
+            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
             this.CurrentContext.EvaluationStack.Push(_params);
             this.CurrentContext.EvaluationStack.Push(methodname);
@@ -101,7 +101,7 @@ namespace Neo.Compiler.MSIL.Utils
         public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
         {
             //var engine = new ExecutionEngine();
-            this.LoadScript(scriptEntry.finalNEF);
+            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
             if (_params != null)
             {

@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
-            testengine.scriptEntry.DumpNEF();
+            testengine.ScriptEntry.DumpNEF();
 
             var result = testengine.GetMethod("call01").Run();//new test method01
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
-            testengine.scriptEntry.DumpNEF();
+            testengine.ScriptEntry.DumpNEF();
             StackItem[] _params = new StackItem[] { "privateMethod", new StackItem[0] };
             var result = testengine.ExecuteTestCase(_params);//new test method02
 
@@ -41,7 +41,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
 
-            testengine.scriptEntry.DumpNEF();
+            testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("call02", "hello", 33);//old test method
             StackItem wantresult = new byte[0];
             var bequal = wantresult.Equals(result.Pop());
