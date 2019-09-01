@@ -116,8 +116,8 @@ namespace Neo.Compiler
                 var nef = new NefFile
                 {
                     Compiler = "neon",
-                    Version = Version.Parse(((AssemblyVersionAttribute)Assembly.GetExecutingAssembly()
-                        .GetCustomAttribute(typeof(AssemblyVersionAttribute))).Version),
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
                     Script = bytes,
                     ScriptHash = bytes.ToScriptHash()
                 };
