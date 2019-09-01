@@ -14,6 +14,18 @@ namespace Neo.SmartContract.Framework.Services.Neo
             get;
         }
 
+        public extern byte[] Sender
+        {
+            [Syscall("Neo.Transaction.GetSender")]
+            get;
+        }
+
+        public extern uint Nonce
+        {
+            [Syscall("Neo.Transaction.GetNonce")]
+            get;
+        }
+
         [Syscall("Neo.Transaction.GetAttributes")]
         public extern TransactionAttribute[] GetAttributes();
     }
