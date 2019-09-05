@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Neo.Compiler.MSIL
+namespace Neo2.Compiler.MSIL
 {
     class CctorSubVM
     {
@@ -182,7 +182,7 @@ namespace Neo.Compiler.MSIL
                                         }
                                         if (attrname == "ToScriptHash")//AddressString2ScriptHashBytes to bytes
                                         {
-                                            var bytes = NEO.AllianceOfThinWallet.Cryptography.Base58.Decode(text);
+                                            var bytes = Base58.Decode(text);
                                             var hash = bytes.Skip(1).Take(20).ToArray();
                                             calcStack.Push(hash);
                                         }

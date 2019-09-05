@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-namespace Neo.Compiler.MSIL
+namespace Neo2.Compiler.MSIL
 {
 
     //public class Converter

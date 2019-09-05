@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Neo.Compiler
+namespace Neo2.Compiler
 {
     public class NeoModule
     {

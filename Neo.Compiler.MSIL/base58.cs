@@ -3,7 +3,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace NEO.AllianceOfThinWallet.Cryptography
+namespace Neo2.Compiler
+// Originally Neo.AllianceOfThinWallet.Cryptography
 {
     public static class Base58
     {

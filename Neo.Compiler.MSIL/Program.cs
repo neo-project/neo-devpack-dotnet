@@ -1,10 +1,10 @@
-using Neo.Compiler.MSIL;
+using Neo2.Compiler.MSIL;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace Neo.Compiler
+namespace Neo2.Compiler
 {
     public class Program
     {
@@ -117,7 +117,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(am, bytes);
+                    var outjson = FuncExport.Export(am, bytes);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();

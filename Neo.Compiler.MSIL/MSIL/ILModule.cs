@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// 这个文件负责 IL dll的解析，核心解析是使用mono.cecil,这里进行了一些预先整理
 /// 使用时更便捷
 /// </summary>
-namespace Neo.Compiler.MSIL
+namespace Neo2.Compiler.MSIL
 {
     public class ILModule
     {

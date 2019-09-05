@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Neo.Compiler.MSIL
+namespace Neo2.Compiler.MSIL
 {
     /// <summary>
     /// 从ILCode 向小蚁 VM 转换的转换器

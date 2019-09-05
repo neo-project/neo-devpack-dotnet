@@ -1,10 +1,10 @@
-﻿using Neo.Compiler;
+﻿using Neo2.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace vmtool
+namespace Neo2.Compiler
 {
     public class FuncExport
     {
@@ -66,7 +66,7 @@ namespace vmtool
         {
             var sha256 = System.Security.Cryptography.SHA256.Create();
             byte[] hash256 = sha256.ComputeHash(script);
-            var ripemd160 = new Neo.Cryptography.RIPEMD160Managed();
+            var ripemd160 = new RIPEMD160Managed();
             var hash = ripemd160.ComputeHash(hash256);
 
             var outjson = new MyJson.JsonNode_Object();

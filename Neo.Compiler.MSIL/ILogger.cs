@@ -1,4 +1,4 @@
-﻿namespace Neo.Compiler
+﻿namespace Neo2.Compiler
 {
     public interface ILogger
     {

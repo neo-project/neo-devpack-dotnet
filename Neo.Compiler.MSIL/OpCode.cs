@@ -1,4 +1,4 @@
-﻿namespace Neo.Compiler.VM
+﻿namespace Neo2.Compiler.VM
 {
     public enum OpCode : byte
     {

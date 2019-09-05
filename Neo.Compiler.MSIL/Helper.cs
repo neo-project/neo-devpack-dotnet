@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Neo.Compiler
+namespace Neo2.Compiler
 {
     public static class Helper
     {
