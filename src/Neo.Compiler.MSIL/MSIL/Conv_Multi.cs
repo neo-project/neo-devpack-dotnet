@@ -1,7 +1,7 @@
-using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Neo.Compiler.MSIL
@@ -11,6 +11,15 @@ namespace Neo.Compiler.MSIL
     /// </summary>
     public partial class ModuleConverter
     {
+        static Lazy<SHA256> sha265 = new Lazy<SHA256>();
+
+        private static byte[] GenerateInteropMethodHash(string method)
+        {
+            var bytes = Encoding.ASCII.GetBytes(method);
+            var hash = sha265.Value.ComputeHash(bytes);
+            return BitConverter.GetBytes(BitConverter.ToUInt32(hash, 0));
+        }
+
         private void _ConvertStLoc(ILMethod method, OpCode src, NeoMethod to, int pos)
         {
 
@@ -935,7 +944,7 @@ namespace Neo.Compiler.MSIL
             else if (calltype == 4)
             {
                 _ConvertPush(callhash, src, to);
-                _Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(InteropService.System_Contract_Call));
+                _Insert1(VM.OpCode.SYSCALL, "", to, GenerateInteropMethodHash("System.Contract.Call"));
             }
             else if (calltype == 5)
             {
@@ -950,7 +959,7 @@ namespace Neo.Compiler.MSIL
 
                 //a syscall
                 {
-                    var bytes = BitConverter.GetBytes(InteropService.System_Runtime_Notify);
+                    var bytes = GenerateInteropMethodHash("System.Runtime.Notify");
                     //byte[] outbytes = new byte[bytes.Length + 1];
                     //outbytes[0] = (byte)bytes.Length;
                     //Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
@@ -962,7 +971,7 @@ namespace Neo.Compiler.MSIL
             {
                 _ConvertPush(callpcount, src, to);
                 _Convert1by1(VM.OpCode.ROLL, null, to);
-                _Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.System_Contract_Call));
+                _Convert1by1(VM.OpCode.SYSCALL, null, to, GenerateInteropMethodHash("System.Contract.Call"));
             }
             return 0;
         }
