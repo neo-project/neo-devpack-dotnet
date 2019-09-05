@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo2.Compiler.MSIL.Utils
 {
     internal class DefLogger : ILogger
     {

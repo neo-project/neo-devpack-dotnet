@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo2.Compiler.MSIL.Utils
 {
     internal class NeonTestTool
     {

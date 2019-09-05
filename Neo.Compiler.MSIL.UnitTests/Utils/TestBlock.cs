@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo2.Compiler.MSIL.Utils
 {
     internal class TestBlock : IScriptContainer
     {

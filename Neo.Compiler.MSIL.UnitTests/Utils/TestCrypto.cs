@@ -1,7 +1,7 @@
 ﻿using Neo.VM;
 using System;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo2.Compiler.MSIL.Utils
 {
     internal class TestCrypto : ICrypto
     {

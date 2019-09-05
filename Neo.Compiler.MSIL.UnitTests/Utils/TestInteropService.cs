@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo2.Compiler.MSIL.Utils
 {
     internal class TestInteropService : IInteropService
     {
@@ -186,7 +186,7 @@ namespace Neo.Compiler.MSIL.Utils
         //easy add for test
         protected virtual bool Runtime_Notify(ExecutionEngine engine)
         {
-            var array = engine.CurrentContext.EvaluationStack.Pop() as VM.Types.Array;
+            var array = engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.Array;
             _ = Encoding.UTF8.GetString(array[0].GetByteArray());
             //var s2 = System.Text.Encoding.UTF8.GetString(array[1].GetByteArray());
             return true;
@@ -224,7 +224,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Transaction_GetInputs(ExecutionEngine engine)
         {
-            TestTransaction tx = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestTransaction>();
+            TestTransaction tx = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestTransaction>();
             if (tx == null) return false;
 
             List<StackItem> array = new List<StackItem>();
@@ -243,7 +243,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Input_GetHash(ExecutionEngine engine)
         {
-            var input = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestTxInput>();
+            var input = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestTxInput>();
             if (input == null) return false;
             engine.CurrentContext.EvaluationStack.Push(input.PrevHash);
             return true;
@@ -251,7 +251,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Output_GetHash(ExecutionEngine engine)
         {
-            var v = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestTxOutput>();
+            var v = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestTxOutput>();
             if (v == null) return false;
             engine.CurrentContext.EvaluationStack.Push(v.PrevHash);
             return true;
@@ -259,7 +259,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Input_GetIndex(ExecutionEngine engine)
         {
-            var input = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestTxInput>();
+            var input = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestTxInput>();
             if (input == null) return false;
             engine.CurrentContext.EvaluationStack.Push((int)input.PrevIndex);
             return true;
@@ -267,7 +267,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Output_GetIndex(ExecutionEngine engine)
         {
-            var v = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestTxOutput>();
+            var v = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestTxOutput>();
             if (v == null) return false;
             engine.CurrentContext.EvaluationStack.Push((int)v.PrevIndex);
             return true;
@@ -318,7 +318,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Header_GetHash(ExecutionEngine engine)
         {
-            var header = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestHeader>();
+            var header = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestHeader>();
             //string text = System.Text.Encoding.UTF8.GetString(b);
             //var v = engine.EvaluationStack.Pop().GetBigInteger();
 
@@ -328,7 +328,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Transaction_GetHash(ExecutionEngine engine)
         {
-            var header = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestTransaction>();
+            var header = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestTransaction>();
             //string text = System.Text.Encoding.UTF8.GetString(b);
             //var v = engine.EvaluationStack.Pop().GetBigInteger();
 
@@ -338,7 +338,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Block_GetTransaction(ExecutionEngine engine)
         {
-            _ = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestBlock>();
+            _ = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestBlock>();
             _ = (int)engine.CurrentContext.EvaluationStack.Pop().GetBigInteger();
             engine.CurrentContext.EvaluationStack.Push(StackItem.FromInterface(new TestTransaction()));
             return true;
@@ -346,14 +346,14 @@ namespace Neo.Compiler.MSIL.Utils
 
         private static bool Block_GetTransactionCount(ExecutionEngine engine)
         {
-            var block = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestBlock>();
+            var block = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestBlock>();
             engine.CurrentContext.EvaluationStack.Push(block.TxCount);
             return true;
         }
 
         private static bool Header_GetTimestamp(ExecutionEngine engine)
         {
-            _ = (engine.CurrentContext.EvaluationStack.Pop() as VM.Types.InteropInterface).GetInterface<TestBlock>();
+            _ = (engine.CurrentContext.EvaluationStack.Pop() as Neo.VM.Types.InteropInterface).GetInterface<TestBlock>();
 
             engine.CurrentContext.EvaluationStack.Push((uint)3655);
             return true;
