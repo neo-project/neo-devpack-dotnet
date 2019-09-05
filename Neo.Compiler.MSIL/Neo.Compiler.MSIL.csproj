@@ -7,7 +7,7 @@
     <Authors>The Neo Project</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <AssemblyName>neon</AssemblyName>
+    <AssemblyName>neon2</AssemblyName>
     <PackageId>Neo.Compiler.MSIL</PackageId>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
