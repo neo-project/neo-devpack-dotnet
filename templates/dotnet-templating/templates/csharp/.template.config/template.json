@@ -1,14 +1,26 @@
 {
-    "$schema": "http://json.schemastore.org/template",
-    "author": "NGD Seattle",
-    "classifications": [ "NEO", "Blockchain", "Smart Contract" ],
-    "groupIdentity": "Neo.Contract.Template",
-    "identity": "Neo.Contract.Template.CSharp",
-    "name": "NEO Smart Contract",
-    "shortName": "neo-contract",
-    "tags": {
-      "language": "C#",
-      "type": "project"
-    },
-    "sourceName": "SmartContract1"
+  "$schema": "http://json.schemastore.org/template",
+  "author": "NGD Seattle",
+  "classifications": [
+    "NEO",
+    "Blockchain",
+    "Smart Contract"
+  ],
+  "name": "NEO Smart Contract",
+  "identity": "Neo.Contract.Template.CSharp",
+  "groupIdentity": "Neo.Contract.Template",
+  "shortName": "neo-contract",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "SmartContract1",
+  "preferNameDirectory": true,
+  "symbols": {
+    "EnableDebugEnhancements": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false"
+    }
   }
+}

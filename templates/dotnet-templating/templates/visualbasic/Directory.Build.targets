@@ -1,13 +1,15 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- 
-  Note, because of a bug in the NEON compiler, neon-de can only run during the publish target
+  Note, because of a bug in the NEON compiler, neon can only run during the
+  publish target when using dotnet standard
   https://github.com/neo-project/neo-devpack-dotnet/issues/78  
-  <Target Name="NEONBuld" AfterTargets="Build" Inputs="$(TargetPath)" 
-          Outputs="$(TargetDir)$(TargetName).avm;$(TargetDir)$(TargetName).abi.json;$(TargetDir)$(TargetName).md.json">
-    <Exec WorkingDirectory="$(TargetDir)" Command="neon-de $(TargetFileName)"/>
-  </Target> -->
+  -->
   <Target Name="NEONPublish" AfterTargets="Publish" Inputs="$(PublishDir)" 
           Outputs="$(PublishDir)$(TargetName).avm;$(TargetDir)$(TargetName).abi.json;$(TargetDir)$(TargetName).md.json">
+<!--#if (EnableDebugEnhancements) -->
     <Exec WorkingDirectory="$(PublishDir)" Command="neon-de $(TargetFileName)"/>
+<!--#else -->
+    <Exec WorkingDirectory="$(PublishDir)" Command="neon $(TargetFileName)"/>
+<!--#endif -->
   </Target>
 </Project>
