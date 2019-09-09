@@ -91,8 +91,6 @@ namespace vmtool
             //functions
             var methods = new MyJson.JsonNode_Array();
             outjson["methods"] = methods;
-            var readOnlyMethods = new MyJson.JsonNode_Array();
-            outjson["readOnlyMethods"] = readOnlyMethods;
 
             List<string> names = new List<string>();
             foreach (var function in module.mapMethods)
@@ -136,10 +134,7 @@ namespace vmtool
 
                 var rtype = ConvType(mm.returntype);
                 funcsign.SetDictValue("returnType", rtype);
-                if (function.Value.isReadOnly)
-                {
-                    readOnlyMethods.Add(new MyJson.JsonNode_ValueString(function.Value.displayName));
-                }
+                funcsign.SetDictValue("readOnly", function.Value.isReadOnly);
             }
 
             //events

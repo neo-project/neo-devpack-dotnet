@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.IO.Json;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL
 {
@@ -13,7 +12,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Abi.cs");
-            string expectABI = @"{""hash"":""0x77811b3127dea2df1a18230f91396fbcf8c648f4"",""methods"":[{""name"":""readOnlyTrue"",""parameters"":[],""returnType"":""Void""},{""name"":""readOnlyFalse1"",""parameters"":[],""returnType"":""Void""},{""name"":""readOnlyFalse2"",""parameters"":[],""returnType"":""Void""}],""readOnlyMethods"":[""readOnlyTrue""],""entryPoint"":{""name"":""Main"",""parameters"":[{""name"":""method"",""type"":""String""},{""name"":""args"",""type"":""Array""}],""returnType"":""Void""},""events"":[{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}]}";
+            string expectABI = @"{""hash"":""0x77811b3127dea2df1a18230f91396fbcf8c648f4"",""methods"":[{""name"":""readOnlyTrue"",""parameters"":[],""returnType"":""Void"",""readOnly"":true},{""name"":""readOnlyFalse1"",""parameters"":[],""returnType"":""Void"",""readOnly"":false},{""name"":""readOnlyFalse2"",""parameters"":[],""returnType"":""Void"",""readOnly"":false}],""entryPoint"":{""name"":""Main"",""parameters"":[{""name"":""method"",""type"":""String""},{""name"":""args"",""type"":""Array""}],""returnType"":""Void"",""readOnly"":false},""events"":[{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}]}";
             Assert.AreEqual(testengine.ScriptEntry.finialABI.ToString(), expectABI);
 
             // Check with the real class
@@ -33,6 +32,7 @@ namespace Neo.Compiler.MSIL
             Assert.AreEqual("args", abi.EntryPoint.Parameters[1].Name);
             Assert.AreEqual(SmartContract.ContractParameterType.Array, abi.EntryPoint.Parameters[1].Type);
             Assert.AreEqual(SmartContract.ContractParameterType.Void, abi.EntryPoint.ReturnType);
+            Assert.IsFalse(abi.EntryPoint.ReadOnly);
 
             // Methods
 
@@ -41,19 +41,17 @@ namespace Neo.Compiler.MSIL
             Assert.AreEqual("readOnlyTrue", abi.Methods[0].Name);
             Assert.AreEqual(0, abi.Methods[0].Parameters.Length);
             Assert.AreEqual(SmartContract.ContractParameterType.Void, abi.Methods[0].ReturnType);
+            Assert.IsTrue(abi.Methods[0].ReadOnly);
 
             Assert.AreEqual("readOnlyFalse1", abi.Methods[1].Name);
             Assert.AreEqual(0, abi.Methods[1].Parameters.Length);
             Assert.AreEqual(SmartContract.ContractParameterType.Void, abi.Methods[1].ReturnType);
+            Assert.IsFalse(abi.Methods[0].ReadOnly);
 
             Assert.AreEqual("readOnlyFalse2", abi.Methods[2].Name);
             Assert.AreEqual(0, abi.Methods[2].Parameters.Length);
             Assert.AreEqual(SmartContract.ContractParameterType.Void, abi.Methods[2].ReturnType);
-
-            // Read only methods
-
-            //#TODO Require the last PR
-            //CollectionAssert.AreEqual(new string[] { "readOnlyTrue" }, abi.ReadOnlyMethods);
+            Assert.IsFalse(abi.Methods[0].ReadOnly);
 
             // Events
 
