@@ -1,4 +1,5 @@
 using Neo.Ledger;
+using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -29,7 +30,6 @@ namespace Neo.Compiler.MSIL.Utils
             Scripts = new Dictionary<string, BuildScript>();
             Storages = new Dictionary<StorageKey, StorageItem>();
         }
-
 
         public void AddAppcallScript(string filename, string specScriptID)
         {
@@ -79,7 +79,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             //var engine = new ExecutionEngine();
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
-            this.LoadScript(ScriptEntry.finalAVM);
+            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
             this.CurrentContext.EvaluationStack.Push(_params);
             this.CurrentContext.EvaluationStack.Push(methodname);
@@ -101,7 +101,7 @@ namespace Neo.Compiler.MSIL.Utils
         public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
         {
             //var engine = new ExecutionEngine();
-            this.LoadScript(ScriptEntry.finalAVM);
+            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
             if (_params != null)
             {
@@ -128,42 +128,77 @@ namespace Neo.Compiler.MSIL.Utils
 
         protected override bool OnSysCall(uint method)
         {
-            if (method == SmartContract.InteropService.System_Contract_Call)
+            if (method == InteropService.System_Contract_Call)
             {
                 //a appcall
                 return Contract_Call();
             }
-            else if (method == SmartContract.InteropService.System_Runtime_Log)
+            else if (method == InteropService.System_Runtime_Log)
             {
                 return Contract_Log();
             }
-            else if (method == SmartContract.InteropService.System_Runtime_Notify)
+            else if (method == InteropService.System_Runtime_Notify)
             {
                 return Contract_Log();
             }
             // Storages
-            else if (method == SmartContract.InteropService.System_Storage_GetContext)
+            else if (method == InteropService.System_Storage_GetContext)
             {
                 return Contract_Storage_GetContext();
             }
-            else if (method == SmartContract.InteropService.System_Storage_GetReadOnlyContext)
+            else if (method == InteropService.System_Storage_GetReadOnlyContext)
             {
                 return Contract_Storage_GetReadOnlyContext();
             }
-            else if (method == SmartContract.InteropService.System_Storage_Get)
+            else if (method == InteropService.System_Storage_Get)
             {
                 return Contract_Storage_Get();
             }
-            else if (method == SmartContract.InteropService.System_Storage_Delete)
+            else if (method == InteropService.System_Storage_Delete)
             {
                 return Contract_Storage_Delete();
             }
-            else if (method == SmartContract.InteropService.System_Storage_Put)
+            else if (method == InteropService.System_Storage_Put)
             {
                 return Contract_Storage_Put();
             }
+            else if (method == InteropService.System_Runtime_GetInvocationCounter)
+            {
+                return Runtime_GetInvocationCounter();
+            }
+            else if (method == InteropService.System_Runtime_GetNotifications)
+            {
+                return Runtime_GetNotifications();
+            }
 
             return base.OnSysCall(method);
+        }
+
+        private bool Runtime_GetNotifications()
+        {
+            byte[] data = CurrentContext.EvaluationStack.Pop().GetByteArray();
+            if ((data.Length != 0) && (data.Length != UInt160.Length)) return false;
+
+            IEnumerable<NotifyEventArgs> notifications = new NotifyEventArgs[]
+            {
+                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+            };
+
+            if (data.Length == UInt160.Length) // must filter by scriptHash
+            {
+                var hash = new UInt160(data);
+                notifications = notifications.Where(p => p.ScriptHash == hash);
+            }
+
+            CurrentContext.EvaluationStack.Push(notifications.Select(u => new VM.Types.Array(new StackItem[] { u.ScriptHash.ToArray(), u.State })).ToArray());
+            return true;
+        }
+
+        private bool Runtime_GetInvocationCounter()
+        {
+            CurrentContext.EvaluationStack.Push(0x01);
+            return true;
         }
 
         #region Storage
@@ -281,7 +316,7 @@ namespace Neo.Compiler.MSIL.Utils
             if (contract is null) return false;
             StackItem item1 = this.CurrentContext.EvaluationStack.Pop();
             StackItem item2 = this.CurrentContext.EvaluationStack.Pop();
-            ExecutionContext context_new = this.LoadScript(contract.finalAVM, 1);
+            ExecutionContext context_new = this.LoadScript(contract.finalNEF, 1);
             context_new.EvaluationStack.Push(item2);
             context_new.EvaluationStack.Push(item1);
             return true;
