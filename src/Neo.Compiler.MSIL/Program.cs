@@ -1,4 +1,5 @@
 using Neo.Compiler.MSIL;
+using Neo.SmartContract;
 using System;
 using System.IO;
 using System.Reflection;
@@ -111,11 +112,23 @@ namespace Neo.Compiler
             //write bytes
             try
             {
-
-                string bytesname = onlyname + ".avm";
+                string bytesname = onlyname + ".nef";
+                var nef = new NefFile
+                {
+                    Compiler = "neon",
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
+                    Script = bytes,
+                    ScriptHash = bytes.ToScriptHash()
+                };
+                nef.CheckSum = NefFile.ComputeChecksum(nef);
 
                 File.Delete(bytesname);
-                File.WriteAllBytes(bytesname, bytes);
+                using (var stream = File.OpenWrite(bytesname))
+                using (var writer = new BinaryWriter(stream))
+                {
+                    nef.Serialize(writer);
+                }
                 log.Log("write:" + bytesname);
                 bSucc = true;
             }
