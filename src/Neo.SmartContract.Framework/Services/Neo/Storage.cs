@@ -14,6 +14,15 @@ namespace Neo.SmartContract.Framework.Services.Neo
         }
 
         /// <summary>
+        /// Returns current read only StorageContext
+        /// </summary>
+        public static extern StorageContext CurrentReadOnlyContext
+        {
+            [Syscall("System.Storage.GetReadOnlyContext")]
+            get;
+        }
+
+        /// <summary>
         /// Returns the byte[] value corresponding to given byte[] key for Storage context (faster: generates opcode directly)
         /// </summary>
         [Syscall("System.Storage.Get")]

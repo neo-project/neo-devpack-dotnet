@@ -1,20 +1,9 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Transaction : IScriptContainer
+    public class Transaction
     {
-        public extern byte[] Hash
-        {
-            [Syscall("System.Transaction.GetHash")]
-            get;
-        }
+        public readonly byte[] Hash;
 
-        public extern byte[] Script
-        {
-            [Syscall("Neo.Transaction.GetScript")]
-            get;
-        }
-
-        [Syscall("Neo.Transaction.GetAttributes")]
-        public extern TransactionAttribute[] GetAttributes();
+        // TODO: Wait for merge https://github.com/neo-project/neo/pull/1081
     }
 }

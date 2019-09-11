@@ -14,8 +14,14 @@ namespace Neo.SmartContract.Framework.Services.Neo
             get;
         }
 
+        [Syscall("Neo.Contract.Call")]
+        public static extern Contract Call(byte[] scriptHash, string method, object[] arguments);
+
         [Syscall("Neo.Contract.Create")]
-        public static extern Contract Create(byte[] script, ContractPropertyState contract_property_state);
+        public static extern Contract Create(byte[] script, string manifest);
+
+        [Syscall("Neo.Contract.Update")]
+        public static extern Contract Update(byte[] script, string manifest);
 
         [Syscall("Neo.Contract.Migrate")]
         public static extern Contract Migrate(byte[] script, ContractPropertyState contract_property_state);
