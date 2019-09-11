@@ -22,8 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="0.10.3" />
-    <PackageReference Include="Neo" Version="3.0.0-CI00042" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.0" />
+    <PackageReference Include="Neo" Version="3.0.0-CI00172" />
   </ItemGroup>
 
 </Project>
