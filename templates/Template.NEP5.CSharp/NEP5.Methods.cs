@@ -1,4 +1,4 @@
-﻿using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System;
 using System.Numerics;
@@ -47,7 +47,7 @@ namespace Template.NEP5.CSharp
             BigInteger toAmount = balances.Get(to).AsBigInteger();
             balances.Put(to, toAmount + amount);
 
-            // TODO: Transferred(from, to, amount);
+            OnTransfer(from, to, amount);
             return true;
         }
     }

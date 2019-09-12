@@ -1,4 +1,4 @@
-﻿using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System;
 
@@ -18,11 +18,32 @@ namespace Template.NEP5.CSharp
                 throw new Exception ("Contract already deployed");
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            balances.Put(Owner(), MaxSupply());
-            contract.Put("totalSupply", MaxSupply());
+            balances.Put(Owner(), InitialSupply());
+            contract.Put("totalSupply", InitialSupply());
 
-            // TODO event Transfer
+            OnTransfer(null, Owner(), InitialSupply());
+            return true;
+        }
 
+        public static bool Migrate(byte[] script, ContractPropertyState manifest)
+        {
+            if (!Runtime.CheckWitness(Owner()))
+            {
+                return false;
+            }
+            // TODO Fix Contract.Migrate
+            Contract.Migrate(script, manifest);
+            return true;
+        }
+
+        public static bool Destroy()
+        {
+            if (!Runtime.CheckWitness(Owner()))
+            {
+                return false;
+            }
+
+            Contract.Destroy();
             return true;
         }
     }

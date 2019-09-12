@@ -1,0 +1,63 @@
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services.System;
+using System;
+using System.Numerics;
+
+namespace Template.NEP5.CSharp
+{
+    public partial class NEP5 : SmartContract
+    {
+        private static BigInteger GetTransactionAmount(object state)
+        {
+            var notification = (object[])state;
+            // Ensure the notification expected format
+            if (notification.Length != 4) return 0;
+            // Only allow Transfer notifications
+            if ((string)notification[0] != "Transfer") return 0;
+            // Check dest
+            if ((byte[])notification[2] != ExecutionEngine.ExecutingScriptHash) return 0;
+            // Amount
+            return (BigInteger)notification[3];
+        }
+
+        private static bool Mint()
+        {
+            BigInteger neo = 0;
+            BigInteger gas = 0;
+            var notifications = Runtime.GetNotifications();
+
+            for (int i = 0; i < notifications.Length; i++)
+            {
+                var notification = notifications[i];
+
+                if (notification.ScriptHash == NeoToken())
+                {
+                    neo += GetTransactionAmount(notification.State);
+                }
+                else if (notification.ScriptHash == GasToken())
+                {
+                    gas += GetTransactionAmount(notification.State);
+                }
+            }
+
+            StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
+
+            var current_supply = contract.Get("totalSupply").AsBigInteger();
+            var avaliable_supply = MaxSupply() - current_supply;
+
+            var contribution = (neo * TokensPerNEO()) + (gas * TokensPerGAS());
+            if (contribution > avaliable_supply)
+                throw new Exception();
+
+            StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
+            Transaction tx = Blockchain.GetTransaction();
+            var balance = balances.Get(tx.Sender).AsBigInteger();
+            balances.Put(tx.Sender, balance + contribution);
+            contract.Put("totalSupply", current_supply + contribution);
+
+            OnTransfer(null, tx.Sender, balance + contribution);
+            return true;
+        }
+    }
+}
