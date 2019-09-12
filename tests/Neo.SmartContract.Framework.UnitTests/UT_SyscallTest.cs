@@ -1,10 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using FrameworkOpCode = Neo.SmartContract.Framework.OpCode;
-using VMOpCode = Neo.VM.OpCode;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -22,23 +18,16 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 var module = Mono.Cecil.ModuleDefinition.ReadModule(stream);
 
-                if (module.HasTypes)
-                {
-                    foreach (var type in module.Types)
-                    {
-                        foreach (var method in type.Methods)
+                foreach (var type in module.Types)
+                    foreach (var method in type.Methods)
+                        foreach (var attr in method.CustomAttributes)
                         {
-                            foreach (var attr in method.CustomAttributes)
+                            if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
                             {
-                                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
-                                {
-                                    var syscall = attr.ConstructorArguments[0].Value.ToString();
-                                    if (!list.Contains(syscall)) list.Add(syscall);
-                                }
+                                var syscall = attr.ConstructorArguments[0].Value.ToString();
+                                if (!list.Contains(syscall)) list.Add(syscall);
                             }
                         }
-                    }
-                }
             }
 
             // Neo syscalls
