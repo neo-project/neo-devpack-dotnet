@@ -1,19 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Authors>NEO Global Development Seattle</Authors>
+    <Company>The Neo Project</Company>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <Copyright>2015-2019 The Neo Project</Copyright>
+    <Description>Templates to use when creating a smart contract for the NEO Blockchain.</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <PackageIconUrl>https://neo-cdn.azureedge.net/images/neo-logo/72.png</PackageIconUrl>
+    <PackageId>Neo.Contract.Templates</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageTags>dotnet-new;templates;neo;smart-contract</PackageTags>
     <PackageType>Template</PackageType>
     <PackageVersion>1.0.0</PackageVersion>
-    <PackageId>Neo.Contract.Templates</PackageId>
-    <Title>NEO Smart Contract Templates</Title>
-    <Authors>NEO Global Development Seattle</Authors>
-    <Description>Templates to use when creating a smart contract for the NEO Blockchain.</Description>
-    <PackageTags>dotnet-new;templates;neo;smart-contract</PackageTags>
-
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
     <TargetFramework>netstandard2.0</TargetFramework>
-
-    <IncludeContentInPack>true</IncludeContentInPack>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <ContentTargetFolders>content</ContentTargetFolders>
+    <Title>NEO Smart Contract Templates</Title>
   </PropertyGroup>
 
   <ItemGroup>
