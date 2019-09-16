@@ -23,9 +23,15 @@ namespace Template.NEP5.CSharp
 
         private static bool Mint()
         {
+            if (Runtime.InvocationCounter != 1)
+                throw new Exception();
+
+            var notifications = Runtime.GetNotifications();
+            if (notifications.Length == 0)
+                throw new Exception();
+
             BigInteger neo = 0;
             BigInteger gas = 0;
-            var notifications = Runtime.GetNotifications();
 
             for (int i = 0; i < notifications.Length; i++)
             {
@@ -42,11 +48,12 @@ namespace Template.NEP5.CSharp
             }
 
             StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
-
             var current_supply = contract.Get("totalSupply").AsBigInteger();
             var avaliable_supply = MaxSupply() - current_supply;
 
             var contribution = (neo * TokensPerNEO()) + (gas * TokensPerGAS());
+            if (contribution <= 0)
+                throw new Exception();
             if (contribution > avaliable_supply)
                 throw new Exception();
 
