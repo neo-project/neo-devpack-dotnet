@@ -55,12 +55,11 @@ namespace Neo.Compiler.MSIL
 
                         }
                     }
-
                 }
             }
         }
-
     }
+
     public class ILType
     {
         public Dictionary<string, ILField> fields = new Dictionary<string, ILField>();
@@ -91,11 +90,18 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
-
     }
 
     public class ILField
     {
+        public bool isEvent = false;
+        public string type;
+        public string name;
+        public string displayName;
+        public string returntype;
+        public List<NeoParam> paramtypes = new List<NeoParam>();
+        public Mono.Cecil.FieldDefinition field;
+
         public ILField(ILType type, Mono.Cecil.FieldDefinition field)
         {
             this.type = field.FieldType.FullName;
@@ -173,7 +179,6 @@ namespace Neo.Compiler.MSIL
                                         }
                                     }
                                     this.paramtypes.Add(new NeoParam(src.Name, paramtype));
-
                                 }
                             }
                         }
@@ -182,21 +187,23 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
-        public bool isEvent = false;
-        public string type;
-        public string name;
-        public string displayName;
-        public string returntype;
-        public List<NeoParam> paramtypes = new List<NeoParam>();
+
         public override string ToString()
         {
             return type;
         }
-        public Mono.Cecil.FieldDefinition field;
     }
 
     public class ILMethod
     {
+        public string returntype;
+        public List<NeoParam> paramtypes = new List<NeoParam>();
+        public bool hasParam = false;
+        public Mono.Cecil.MethodDefinition method;
+        public List<NeoParam> body_Variables = new List<NeoParam>();
+        public SortedDictionary<int, OpCode> body_Codes = new SortedDictionary<int, OpCode>();
+        public string fail = null;
+
         public ILMethod(ILType type, Mono.Cecil.MethodDefinition method, ILogger logger = null)
         {
             this.method = method;
@@ -259,13 +266,6 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        public string returntype;
-        public List<NeoParam> paramtypes = new List<NeoParam>();
-        public bool hasParam = false;
-        public Mono.Cecil.MethodDefinition method;
-        public List<NeoParam> body_Variables = new List<NeoParam>();
-        public SortedDictionary<int, OpCode> body_Codes = new SortedDictionary<int, OpCode>();
-        public string fail = null;
         public int GetNextCodeAddr(int srcaddr)
         {
             bool bskip = false;
@@ -511,33 +511,6 @@ namespace Neo.Compiler.MSIL
 
     public class OpCode
     {
-        public override string ToString()
-        {
-            var info = "IL_" + addr.ToString("X04") + " " + code + " ";
-            if (this.tokenValueType == TokenValueType.Method)
-                info += tokenMethod;
-            if (this.tokenValueType == TokenValueType.String)
-                info += tokenStr;
-
-            if (debugline >= 0)
-            {
-                info += "(" + debugline + ")";
-            }
-            return info;
-        }
-        public enum TokenValueType
-        {
-            Nothing,
-            Addr,//地址
-            AddrArray,
-            String,
-            Type,
-            Field,
-            Method,
-            I32,
-            I64,
-            OTher,
-        }
         public TokenValueType tokenValueType = TokenValueType.Nothing;
         public int addr;
         public CodeEx code;
@@ -555,6 +528,36 @@ namespace Neo.Compiler.MSIL
         public float tokenR32;
         public double tokenR64;
         public string tokenStr;
+
+        public override string ToString()
+        {
+            var info = "IL_" + addr.ToString("X04") + " " + code + " ";
+            if (this.tokenValueType == TokenValueType.Method)
+                info += tokenMethod;
+            if (this.tokenValueType == TokenValueType.String)
+                info += tokenStr;
+
+            if (debugline >= 0)
+            {
+                info += "(" + debugline + ")";
+            }
+            return info;
+        }
+
+        public enum TokenValueType
+        {
+            Nothing,
+            Addr,//地址
+            AddrArray,
+            String,
+            Type,
+            Field,
+            Method,
+            I32,
+            I64,
+            OTher,
+        }
+
         public void InitToken(object _p)
         {
             this.tokenUnknown = _p;
