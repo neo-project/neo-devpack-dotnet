@@ -86,12 +86,11 @@ namespace Neo.Compiler.MSIL
                     if (m.Value.method.IsAddOn || m.Value.method.IsRemoveOn)
                         continue;//event 自动生成的代码，不要
                     NeoMethod nm = new NeoMethod();
-                    if (m.Key.Contains(".cctor"))
+                    if (m.Value.method.IsConstructor)
                     {
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
-                    if (m.Value.method.IsConstructor) continue;
                     nm._namespace = m.Value.method.DeclaringType.FullName;
                     nm.name = m.Value.method.FullName;
                     nm.displayName = m.Value.method.Name;
@@ -139,9 +138,8 @@ namespace Neo.Compiler.MSIL
 
                 foreach (var m in value.methods)
                 {
-
                     if (m.Value.method == null) continue;
-                    if (m.Key.Contains(".cctor"))
+                    if (m.Value.method.IsConstructor)
                     {
                         continue;
                     }
@@ -149,7 +147,6 @@ namespace Neo.Compiler.MSIL
                         continue;//event 自动生成的代码，不要
 
                     var nm = this.methodLink[m.Value];
-
 
                     //try
                     {

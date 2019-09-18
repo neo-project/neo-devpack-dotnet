@@ -6,7 +6,9 @@ namespace Neo.Compiler.MSIL
 {
     class CctorSubVM
     {
-        static Stack<object> calcStack;
+        private const ushort MaxArraySize = ushort.MaxValue;
+        private static Stack<object> calcStack;
+
         public static object Dup(object src)
         {
             if (src.GetType() == typeof(byte[]))
@@ -35,6 +37,7 @@ namespace Neo.Compiler.MSIL
                 return null;
             }
         }
+
         public static byte[] HexString2Bytes(string str)
         {
             byte[] outd = new byte[str.Length / 2];
@@ -44,6 +47,7 @@ namespace Neo.Compiler.MSIL
             }
             return outd;
         }
+
         public static void Parse(ILMethod from, NeoModule to)
         {
             calcStack = new Stack<object>();
@@ -100,6 +104,7 @@ namespace Neo.Compiler.MSIL
                             if ((src.tokenType == "System.Byte") || (src.tokenType == "System.SByte"))
                             {
                                 var count = (int)calcStack.Pop();
+                                if (count > MaxArraySize) throw new ArgumentException("MaxArraySize found");
                                 byte[] data = new byte[count];
                                 calcStack.Push(data);
                             }
