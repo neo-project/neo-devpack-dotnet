@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Framework;
 using Neo.VM;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -46,19 +47,23 @@ namespace Neo.Compiler.MSIL.Utils
             return outd;
         }
 
-        public static BuildScript BuildScript(string filename)
+        public static BuildScript BuildScript(params string[] filenames)
         {
             var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
-            var srccode = File.ReadAllText(filename);
-            var tree = CSharpSyntaxTree.ParseText(srccode);
+            var tree = new List<SyntaxTree>();
+
+            foreach (var file in filenames)
+            {
+                tree.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(file)));
+            }
+
             var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-            var comp = CSharpCompilation.Create("aaa.dll", new[] { tree }, new[]
+            var comp = CSharpCompilation.Create("aaa.dll", tree, new[]
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
                 MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
-
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(OpCodeAttribute).Assembly.Location)
            }, op);

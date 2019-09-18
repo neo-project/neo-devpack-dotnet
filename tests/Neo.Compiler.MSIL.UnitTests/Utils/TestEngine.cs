@@ -19,11 +19,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         public readonly IDictionary<StorageKey, StorageItem> Storages;
 
-        public BuildScript ScriptEntry
-        {
-            get;
-            private set;
-        }
+        public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine()
         {
@@ -31,28 +27,31 @@ namespace Neo.Compiler.MSIL.Utils
             Storages = new Dictionary<StorageKey, StorageItem>();
         }
 
-        public void AddAppcallScript(string filename, string specScriptID)
+        public void AddAppcallScript(string specScriptID, params string[] filenames)
         {
             byte[] hex = NeonTestTool.HexString2Bytes(specScriptID);
             if (hex.Length != 20)
                 throw new Exception("fail Script ID");
 
-            if (scriptsAll.ContainsKey(filename) == false)
+            var key = string.Join(",", filenames);
+            if (scriptsAll.ContainsKey(key) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename);
+                scriptsAll[key] = NeonTestTool.BuildScript(filenames);
             }
 
-            Scripts[specScriptID.ToLower()] = scriptsAll[filename];
+            Scripts[specScriptID.ToLower()] = scriptsAll[key];
         }
 
-        public void AddEntryScript(string filename)
+        public void AddEntryScript(params string[] filenames)
         {
-            if (scriptsAll.ContainsKey(filename) == false)
+            var key = string.Join(",", filenames);
+
+            if (scriptsAll.ContainsKey(key) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename);
+                scriptsAll[key] = NeonTestTool.BuildScript(filenames);
             }
 
-            ScriptEntry = scriptsAll[filename];
+            ScriptEntry = scriptsAll[key];
         }
 
         public class ContractMethod

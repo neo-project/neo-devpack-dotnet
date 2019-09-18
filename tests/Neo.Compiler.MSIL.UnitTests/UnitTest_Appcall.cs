@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
-using System;
 
 namespace Neo.Compiler.MSIL
 {
@@ -12,7 +11,7 @@ namespace Neo.Compiler.MSIL
         public void Test_Appcall()
         {
             var testengine = new TestEngine();
-            testengine.AddAppcallScript("./TestClasses/Contract1.cs", "0102030405060708090A0102030405060708090A");
+            testengine.AddAppcallScript("0102030405060708090A0102030405060708090A", "./TestClasses/Contract1.cs");
             //will appcall 0102030405060708090A0102030405060708090A
             testengine.AddEntryScript("./TestClasses/Contract_appcall.cs");
 
