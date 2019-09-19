@@ -1,11 +1,21 @@
-﻿using System;
+﻿using Mono.Cecil;
+using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler
 {
     public static class Helper
     {
+        // TODO: Doing the regex right now
+        static Regex _regexCctor = new Regex("");
+
+        public static bool Is_cctor(this MethodDefinition method)
+        {
+            return method.IsConstructor && _regexCctor.IsMatch(method.FullName);
+        }
+
         public static uint ToInteropMethodHash(this string method)
         {
             return ToInteropMethodHash(Encoding.ASCII.GetBytes(method));

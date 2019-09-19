@@ -1028,11 +1028,16 @@ namespace Neo.Compiler.MSIL
             try
             {
                 NeoMethod nm = new NeoMethod();
-                if (method.IsConstructor)
+                if (method.Is_cctor())
                 {
                     CctorSubVM.Parse(_method, this.outModule);
                     //continue;
                     return false;
+                }
+                if (method.IsConstructor)
+                {
+                    return false;
+                    //continue;
                 }
                 nm._namespace = method.DeclaringType.FullName;
                 nm.name = method.FullName;
