@@ -1,11 +1,26 @@
+using Mono.Cecil;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler
 {
     public static class Helper
     {
+        private readonly static Regex _regex_cctor = new Regex(@".*\:\:\.cctor\(\)");
+        private readonly static Regex _regex_ctor = new Regex(@".*\:\:\.ctor\(\)");
+
+        public static bool Is_cctor(this MethodDefinition method)
+        {
+            return method.IsConstructor && _regex_cctor.IsMatch(method.FullName);
+        }
+
+        public static bool Is_ctor(this MethodDefinition method)
+        {
+            return method.IsConstructor && _regex_ctor.IsMatch(method.FullName);
+        }
+
         public static uint ToInteropMethodHash(this string method)
         {
             return ToInteropMethodHash(Encoding.ASCII.GetBytes(method));
