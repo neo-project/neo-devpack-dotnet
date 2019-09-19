@@ -8,8 +8,10 @@ namespace Neo.Compiler
 {
     public static class Helper
     {
+        // System.Void Neo.Compiler.MSIL.TestClasses.Contract_syscall::.cctor()
         private readonly static Regex _regex_cctor = new Regex(@".*\:\:\.cctor\(\)");
-        private readonly static Regex _regex_ctor = new Regex(@".*\:\:\.ctor\(\)");
+        // System.Void Neo.Compiler.MSIL.TestClasses.Contract_syscall::.ctor(System.Int32)
+        private readonly static Regex _regex_ctor = new Regex(@".*\:\:\.ctor\(.*\)");
 
         public static bool Is_cctor(this MethodDefinition method)
         {
