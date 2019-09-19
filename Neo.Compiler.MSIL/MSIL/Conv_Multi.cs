@@ -1034,7 +1034,7 @@ namespace Neo.Compiler.MSIL
                     //continue;
                     return false;
                 }
-                if (method.IsConstructor)
+                if (method.Is_ctor())
                 {
                     return false;
                     //continue;

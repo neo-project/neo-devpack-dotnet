@@ -91,7 +91,7 @@ namespace Neo.Compiler.MSIL
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
-                    if (m.Value.method.IsConstructor) continue;
+                    if (m.Value.method.Is_ctor()) continue;
                     nm._namespace = m.Value.method.DeclaringType.FullName;
                     nm.name = m.Value.method.FullName;
                     nm.displayName = m.Value.method.Name;

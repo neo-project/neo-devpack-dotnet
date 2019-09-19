@@ -8,12 +8,19 @@ namespace Neo.Compiler
 {
     public static class Helper
     {
-        // TODO: Doing the regex right now
-        static Regex _regexCctor = new Regex("");
+        // System.Void Neo.Compiler.MSIL.TestClasses.Contract_syscall::.cctor()
+        private readonly static Regex _regex_cctor = new Regex(@".*\:\:\.cctor\(\)");
+        // System.Void Neo.Compiler.MSIL.TestClasses.Contract_syscall::.ctor(System.Int32)
+        private readonly static Regex _regex_ctor = new Regex(@".*\:\:\.ctor\(.*\)");
 
         public static bool Is_cctor(this MethodDefinition method)
         {
-            return method.IsConstructor && _regexCctor.IsMatch(method.FullName);
+            return method.IsConstructor && _regex_cctor.IsMatch(method.FullName);
+        }
+
+        public static bool Is_ctor(this MethodDefinition method)
+        {
+            return method.IsConstructor && _regex_ctor.IsMatch(method.FullName);
         }
 
         public static uint ToInteropMethodHash(this string method)
