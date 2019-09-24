@@ -985,13 +985,13 @@ namespace Neo.Compiler.MSIL
             try
             {
                 NeoMethod nm = new NeoMethod();
-                if (method.FullName.Contains(".cctor"))
+                if (method.Is_cctor())
                 {
                     CctorSubVM.Parse(_method, this.outModule);
                     //continue;
                     return false;
                 }
-                if (method.IsConstructor)
+                if (method.Is_ctor())
                 {
                     return false;
                     //continue;
