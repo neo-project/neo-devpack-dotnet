@@ -85,13 +85,12 @@ namespace Neo.Compiler.MSIL
                     if (m.Value.method == null) continue;
                     if (m.Value.method.IsAddOn || m.Value.method.IsRemoveOn)
                         continue;//event 自动生成的代码，不要
-                    if (m.Key.Contains(".cctor"))
+                    if (m.Value.method.Is_cctor())
                     {
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
-                    if (m.Value.method.IsConstructor) continue;
-
+                    if (m.Value.method.Is_ctor()) continue;
                     NeoMethod nm = new NeoMethod(m.Value.method);
                     this.methodLink[m.Value] = nm;
                     outModule.mapMethods[nm.name] = nm;
@@ -125,9 +124,8 @@ namespace Neo.Compiler.MSIL
 
                 foreach (var m in value.methods)
                 {
-
                     if (m.Value.method == null) continue;
-                    if (m.Key.Contains(".cctor"))
+                    if (m.Value.method.Is_cctor())
                     {
                         continue;
                     }
