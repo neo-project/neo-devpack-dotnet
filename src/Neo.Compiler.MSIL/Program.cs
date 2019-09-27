@@ -79,7 +79,7 @@ namespace Neo.Compiler
                 return;
             }
             byte[] bytes;
-            bool bSucc;
+            int bSucc = 0;
             string jsonstr = null;
             //convert and build
             try
@@ -130,7 +130,7 @@ namespace Neo.Compiler
                     nef.Serialize(writer);
                 }
                 log.Log("write:" + bytesname);
-                bSucc = true;
+                bSucc++;
             }
             catch (Exception err)
             {
@@ -139,17 +139,34 @@ namespace Neo.Compiler
             }
             try
             {
-
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);
                 File.WriteAllText(abiname, jsonstr);
                 log.Log("write:" + abiname);
-                bSucc = true;
+                bSucc++;
             }
             catch (Exception err)
             {
                 log.Log("Write abi Error:" + err.ToString());
+                return;
+            }
+            try
+            {
+                string manifest = onlyname + ".manifest.json";
+                string defManifest =
+                    @"{""groups"":[],""features"":{""storage"":false,""payable"":false},""abi"":" +
+                    jsonstr +
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
+
+                File.Delete(manifest);
+                File.WriteAllText(manifest, defManifest);
+                log.Log("write:" + manifest);
+                bSucc++;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write manifest Error:" + err.ToString());
                 return;
             }
             try
@@ -163,7 +180,7 @@ namespace Neo.Compiler
 
             }
 
-            if (bSucc)
+            if (bSucc == 3)
             {
                 log.Log("SUCC");
             }
