@@ -1,6 +1,6 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Block 
+    public class Block
     {
         public readonly byte[] Hash;
         public readonly uint Version;
@@ -10,7 +10,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly uint Index;
         public readonly byte[] NextConsensus;
         public readonly int TransactionsCount;
-
-        // TODO: Wait for merge https://github.com/neo-project/neo/pull/1081
     }
 }

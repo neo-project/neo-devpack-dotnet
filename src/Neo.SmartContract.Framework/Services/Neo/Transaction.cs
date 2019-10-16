@@ -10,7 +10,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly long NetworkFee;
         public readonly uint ValidUntilBlock;
         public readonly byte[] Script;
-
-        // TODO: Wait for merge https://github.com/neo-project/neo/pull/1081
     }
 }

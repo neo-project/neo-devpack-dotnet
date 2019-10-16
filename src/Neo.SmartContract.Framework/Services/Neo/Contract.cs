@@ -2,17 +2,20 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Contract
     {
-        public extern byte[] Script
-        {
-            [Syscall("Neo.Contract.GetScript")]
-            get;
-        }
+        /// <summary>
+        /// Script
+        /// </summary>
+        public readonly byte[] Script;
 
-        public extern bool IsPayable
-        {
-            [Syscall("Neo.Contract.IsPayable")]
-            get;
-        }
+        /// <summary>
+        /// Has storage
+        /// </summary>
+        public readonly bool HasStorage;
+
+        /// <summary>
+        /// Is payable
+        /// </summary>
+        public readonly bool IsPayable;
 
         [Syscall("Neo.Contract.Call")]
         public static extern Contract Call(byte[] scriptHash, string method, object[] arguments);

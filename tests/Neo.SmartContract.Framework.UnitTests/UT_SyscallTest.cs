@@ -16,18 +16,23 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
             {
+                var expectedType = typeof(SyscallAttribute).FullName;
                 var module = Mono.Cecil.ModuleDefinition.ReadModule(stream);
 
                 foreach (var type in module.Types)
+                {
                     foreach (var method in type.Methods)
+                    {
                         foreach (var attr in method.CustomAttributes)
                         {
-                            if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
+                            if (attr.AttributeType.FullName == expectedType)
                             {
                                 var syscall = attr.ConstructorArguments[0].Value.ToString();
                                 if (!list.Contains(syscall)) list.Add(syscall);
                             }
                         }
+                    }
+                }
             }
 
             // Neo syscalls
