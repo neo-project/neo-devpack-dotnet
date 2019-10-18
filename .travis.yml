@@ -24,12 +24,16 @@ before_script:
  - dotnet format --check --dry-run -w tests/Neo.Compiler.MSIL.UnitTests
  - dotnet format --check --dry-run -w tests/Neo.SmartContract.Framework.UnitTests
 script:
- - cd tests/Neo.Compiler.MSIL.UnitTests
+ - cd src/Neo.Compiler.MSIL
  - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+ - cd ../../
+ - cd src/Neo.SmartContract.Framework
+ - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+ - cd ../../
+ - cd tests/Neo.Compiler.MSIL.UnitTests
  - dotnet restore
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverageA.xml'
  - cd ../Neo.SmartContract.Framework.UnitTests
- - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - dotnet restore
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverage.xml' /p:MergeWith='../coverageA.xml' 
 after_success:
