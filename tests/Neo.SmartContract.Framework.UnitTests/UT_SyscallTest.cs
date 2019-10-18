@@ -49,12 +49,12 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             if (list.Count > 0)
             {
-                Assert.Fail($"Unknown syscalls:{string.Join("\n-", list)}");
+                Assert.Fail($"Unknown syscalls: {string.Join("\n-", list)}");
             }
 
             if (notFound.Count > 0)
             {
-                Assert.Fail($"Not implemented syscalls:{string.Join("\n-", notFound)}");
+                Assert.Fail($"Not implemented syscalls: {string.Join("\n-", notFound)}");
             }
         }
     }
