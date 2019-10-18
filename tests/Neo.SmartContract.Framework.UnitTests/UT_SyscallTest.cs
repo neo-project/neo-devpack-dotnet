@@ -37,16 +37,24 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Neo syscalls
 
+            var notFound = new List<string>();
+
             foreach (var syscall in InteropService.SupportedMethods().Values)
             {
+                if (syscall == "Neo.Native.Deploy") continue;
                 if (list.Remove(syscall)) continue;
 
-                Assert.Fail($"Not implemented the '{syscall}'");
+                notFound.Add(syscall);
             }
 
             if (list.Count > 0)
             {
-                Assert.Fail($"Unknown syscalls: {string.Join(",", list)}");
+                Assert.Fail($"Unknown syscalls:{string.Join("\n-", list)}");
+            }
+
+            if (notFound.Count > 0)
+            {
+                Assert.Fail($"Not implemented syscalls:{string.Join("\n-", notFound)}");
             }
         }
     }

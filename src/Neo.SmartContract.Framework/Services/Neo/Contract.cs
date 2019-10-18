@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// </summary>
         public readonly bool IsPayable;
 
-        [Syscall("Neo.Contract.Call")]
+        [Syscall("System.Contract.Call")]
         public static extern Contract Call(byte[] scriptHash, string method, object[] arguments);
 
         [Syscall("Neo.Contract.Create")]
@@ -25,9 +25,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("Neo.Contract.Update")]
         public static extern Contract Update(byte[] script, string manifest);
-
-        [Syscall("Neo.Contract.Migrate")]
-        public static extern Contract Migrate(byte[] script, ContractPropertyState contract_property_state);
 
         [Syscall("System.Contract.Destroy")]
         public static extern void Destroy();
