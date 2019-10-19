@@ -1,5 +1,6 @@
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
@@ -144,6 +145,10 @@ namespace Neo.Compiler.MSIL.Utils
                // Json
                method == InteropService.Neo_Json_Deserialize ||
                method == InteropService.Neo_Json_Serialize ||
+               // Native
+               method == NativeContract.NEO.ServiceName.ToInteropMethodHash() ||
+               method == NativeContract.GAS.ServiceName.ToInteropMethodHash() ||
+               method == NativeContract.Policy.ServiceName.ToInteropMethodHash() ||
                // Contract
                method == InteropService.System_Contract_Call
                )
