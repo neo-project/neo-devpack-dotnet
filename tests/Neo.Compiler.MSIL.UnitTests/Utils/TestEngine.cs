@@ -1,3 +1,4 @@
+using Neo.IO.Json;
 using Neo.Ledger;
 using Neo.SmartContract;
 using Neo.VM;
@@ -174,6 +175,14 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 return Account_IsStandard();
             }
+            else if (method == InteropService.Neo_Json_Deserialize)
+            {
+                return Json_Deserialize();
+            }
+            else if (method == InteropService.Neo_Json_Serialize)
+            {
+                return Json_Serialize();
+            }
 
             Console.WriteLine($"Syscall not found: {method.ToString("X2")}");
             throw new NotImplementedException(method.ToString("X2"));
@@ -183,6 +192,25 @@ namespace Neo.Compiler.MSIL.Utils
         {
             UInt160 hash = new UInt160(CurrentContext.EvaluationStack.Pop().GetByteArray());
             CurrentContext.EvaluationStack.Push(hash.Equals(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")));
+            return true;
+        }
+
+        private bool Json_Deserialize()
+        {
+            var json = CurrentContext.EvaluationStack.Pop().GetString();
+            var obj = JObject.Parse(json, 10);
+            var item = JsonSerializer.Deserialize(obj);
+
+            CurrentContext.EvaluationStack.Push(item);
+            return true;
+        }
+
+        private bool Json_Serialize()
+        {
+            var item = CurrentContext.EvaluationStack.Pop();
+            var json = JsonSerializer.Serialize(item);
+
+            CurrentContext.EvaluationStack.Push(json.ToString());
             return true;
         }
 
