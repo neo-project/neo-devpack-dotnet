@@ -1,5 +1,4 @@
-using Neo.IO.Json;
-using Neo.Ledger;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
@@ -9,7 +8,7 @@ using System.Linq;
 
 namespace Neo.Compiler.MSIL.Utils
 {
-    class TestEngine : ExecutionEngine
+    class TestEngine : ApplicationEngine
     {
         public const int MaxStorageKeySize = 64;
         public const int MaxStorageValueSize = ushort.MaxValue;
@@ -18,18 +17,12 @@ namespace Neo.Compiler.MSIL.Utils
 
         public readonly IDictionary<string, BuildScript> Scripts;
 
-        public readonly IDictionary<StorageKey, StorageItem> Storages;
+        public BuildScript ScriptEntry { get; private set; }
 
-        public BuildScript ScriptEntry
-        {
-            get;
-            private set;
-        }
-
-        public TestEngine()
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null)
+            : base(trigger, verificable, new TestSnapshot(), 0, true)
         {
             Scripts = new Dictionary<string, BuildScript>();
-            Storages = new Dictionary<StorageKey, StorageItem>();
         }
 
         public void AddAppcallScript(string filename, string specScriptID)
@@ -54,17 +47,27 @@ namespace Neo.Compiler.MSIL.Utils
             }
 
             ScriptEntry = scriptsAll[filename];
+            Reset();
+        }
+
+        public void Reset()
+        {
+            this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
+            this.InvocationStack.Clear();
+            this.LoadScript(ScriptEntry.finalNEF);
         }
 
         public class ContractMethod
         {
-            TestEngine engine;
-            string methodname;
+            readonly TestEngine engine;
+            readonly string methodname;
+
             public ContractMethod(TestEngine engine, string methodname)
             {
                 this.engine = engine;
                 this.methodname = methodname;
             }
+
             public StackItem Run(params StackItem[] _params)
             {
                 return this.engine.ExecuteTestCaseStandard(methodname, _params).Pop();
@@ -76,13 +79,11 @@ namespace Neo.Compiler.MSIL.Utils
             return new ContractMethod(this, methodname);
         }
 
-        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] _params)
+        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
             //var engine = new ExecutionEngine();
-            this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
-            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
-            this.CurrentContext.EvaluationStack.Push(_params);
+            this.CurrentContext.EvaluationStack.Push(args);
             this.CurrentContext.EvaluationStack.Push(methodname);
             while (true)
             {
@@ -99,16 +100,15 @@ namespace Neo.Compiler.MSIL.Utils
             return this.ResultStack;
         }
 
-        public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
+        public RandomAccessStack<StackItem> ExecuteTestCase(params StackItem[] args)
         {
             //var engine = new ExecutionEngine();
-            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
-            if (_params != null)
+            if (args != null)
             {
-                for (var i = _params.Length - 1; i >= 0; i--)
+                for (var i = args.Length - 1; i >= 0; i--)
                 {
-                    this.CurrentContext.EvaluationStack.Push(_params[i]);
+                    this.CurrentContext.EvaluationStack.Push(args[i]);
                 }
             }
             while (true)
@@ -143,25 +143,14 @@ namespace Neo.Compiler.MSIL.Utils
                 return Contract_Log();
             }
             // Storages
-            else if (method == InteropService.System_Storage_GetContext)
+            else if (
+                method == InteropService.System_Storage_GetContext ||
+                method == InteropService.System_Storage_GetReadOnlyContext ||
+                method == InteropService.System_Storage_Get ||
+                method == InteropService.System_Storage_Delete ||
+                method == InteropService.System_Storage_Put)
             {
-                return Contract_Storage_GetContext();
-            }
-            else if (method == InteropService.System_Storage_GetReadOnlyContext)
-            {
-                return Contract_Storage_GetReadOnlyContext();
-            }
-            else if (method == InteropService.System_Storage_Get)
-            {
-                return Contract_Storage_Get();
-            }
-            else if (method == InteropService.System_Storage_Delete)
-            {
-                return Contract_Storage_Delete();
-            }
-            else if (method == InteropService.System_Storage_Put)
-            {
-                return Contract_Storage_Put();
+                return base.OnSysCall(method);
             }
             else if (method == InteropService.System_Runtime_GetInvocationCounter)
             {
@@ -175,42 +164,21 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 return Account_IsStandard();
             }
-            else if (method == InteropService.Neo_Json_Deserialize)
+            else if (
+                method == InteropService.Neo_Json_Deserialize ||
+                method == InteropService.Neo_Json_Serialize)
             {
-                return Json_Deserialize();
-            }
-            else if (method == InteropService.Neo_Json_Serialize)
-            {
-                return Json_Serialize();
+                return base.OnSysCall(method);
             }
 
-            Console.WriteLine($"Syscall not found: {method.ToString("X2")}");
-            throw new NotImplementedException(method.ToString("X2"));
+            Console.WriteLine($"Syscall not found: {method.ToString("X2")} (using base call)");
+            return base.OnSysCall(method);
         }
 
         private bool Account_IsStandard()
         {
             UInt160 hash = new UInt160(CurrentContext.EvaluationStack.Pop().GetByteArray());
             CurrentContext.EvaluationStack.Push(hash.Equals(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")));
-            return true;
-        }
-
-        private bool Json_Deserialize()
-        {
-            var json = CurrentContext.EvaluationStack.Pop().GetString();
-            var obj = JObject.Parse(json, 10);
-            var item = JsonSerializer.Deserialize(obj);
-
-            CurrentContext.EvaluationStack.Push(item);
-            return true;
-        }
-
-        private bool Json_Serialize()
-        {
-            var item = CurrentContext.EvaluationStack.Pop();
-            var json = JsonSerializer.Serialize(item);
-
-            CurrentContext.EvaluationStack.Push(json.ToString());
             return true;
         }
 
@@ -240,111 +208,6 @@ namespace Neo.Compiler.MSIL.Utils
             CurrentContext.EvaluationStack.Push(0x01);
             return true;
         }
-
-        #region Storage
-
-        private bool Contract_Storage_GetContext()
-        {
-            CurrentContext.EvaluationStack.Push(StackItem.FromInterface(new TestStorageContext
-            {
-                ScriptHash = CurrentContext.ScriptHash(),
-                IsReadOnly = false
-            }));
-            return true;
-        }
-
-        private bool Contract_Storage_GetReadOnlyContext()
-        {
-            CurrentContext.EvaluationStack.Push(StackItem.FromInterface(new TestStorageContext
-            {
-                ScriptHash = CurrentContext.ScriptHash(),
-                IsReadOnly = true
-            }));
-            return true;
-        }
-
-        private bool Contract_Storage_Delete()
-        {
-            if (CurrentContext.EvaluationStack.Pop() is InteropInterface _interface)
-            {
-                TestStorageContext context = _interface.GetInterface<TestStorageContext>();
-                if (context.IsReadOnly) return false;
-
-                StorageKey key = new StorageKey
-                {
-                    ScriptHash = context.ScriptHash,
-                    Key = CurrentContext.EvaluationStack.Pop().GetByteArray()
-                };
-                if (Storages.TryGetValue(key, out var item) && item.IsConstant == true) return false;
-                Storages.Remove(key);
-                return true;
-            }
-            return false;
-        }
-
-        private bool Contract_Storage_Get()
-        {
-            if (CurrentContext.EvaluationStack.Pop() is InteropInterface _interface)
-            {
-                TestStorageContext context = _interface.GetInterface<TestStorageContext>();
-                byte[] key = CurrentContext.EvaluationStack.Pop().GetByteArray();
-
-                if (Storages.TryGetValue(new StorageKey
-                {
-                    ScriptHash = context.ScriptHash,
-                    Key = key
-                }, out var item))
-                {
-                    CurrentContext.EvaluationStack.Push(item.Value);
-                }
-                else
-                {
-                    CurrentContext.EvaluationStack.Push(new byte[0]);
-                }
-                return true;
-            }
-            return false;
-        }
-
-        private bool Contract_Storage_Put()
-        {
-            if (!(CurrentContext.EvaluationStack.Pop() is InteropInterface _interface))
-                return false;
-            TestStorageContext context = _interface.GetInterface<TestStorageContext>();
-            byte[] key = CurrentContext.EvaluationStack.Pop().GetByteArray();
-            byte[] value = CurrentContext.EvaluationStack.Pop().GetByteArray();
-            return PutEx(context, key, value, StorageFlags.None);
-        }
-
-        private bool PutEx(TestStorageContext context, byte[] key, byte[] value, StorageFlags flags)
-        {
-            if (key.Length > MaxStorageKeySize) return false;
-            if (value.Length > MaxStorageValueSize) return false;
-            if (context.IsReadOnly) return false;
-
-            StorageKey skey = new StorageKey
-            {
-                ScriptHash = context.ScriptHash,
-                Key = key
-            };
-
-            if (Storages.TryGetValue(skey, out var item) && item.IsConstant == true) return false;
-
-            if (value.Length == 0 && !flags.HasFlag(StorageFlags.Constant))
-            {
-                // If put 'value' is empty (and non-const), we remove it (implicit `Storage.Delete`)
-                Storages.Remove(skey);
-            }
-            else
-            {
-                item = Storages[skey] = new StorageItem();
-                item.Value = value;
-                item.IsConstant = flags.HasFlag(StorageFlags.Constant);
-            }
-            return true;
-        }
-
-        #endregion
 
         private bool Contract_Call()
         {

@@ -1,8 +1,8 @@
-﻿using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services.Neo;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
-    class Contract_StorageMap : SmartContract.Framework.SmartContract
+    class Contract_Storage : SmartContract.Framework.SmartContract
     {
         // There is no main here, it can be auto generation.
 
@@ -19,9 +19,9 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var storage = Storage.CurrentContext.CreateMap(0xAA);
             var value = storage.Get(key);
-            var exists = value.Length > 0;
+            if (value == null) return false;
             storage.Delete(key);
-            return exists;
+            return true;
         }
 
         public static byte[] TestGetByte(byte[] key)
@@ -48,9 +48,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
             var value = storage.Get(key);
-            var exists = value.Length > 0;
+            if (value == null) return false;
             storage.Delete(key);
-            return exists;
+            return true;
         }
 
         public static byte[] TestGetString(byte[] key)
@@ -78,9 +78,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
             var value = storage.Get(key);
-            var exists = value.Length > 0;
+            if (value == null) return false;
             storage.Delete(key);
-            return exists;
+            return true;
         }
 
         public static byte[] TestGetByteArray(byte[] key)

@@ -26,17 +26,17 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             var result = _engine.ExecuteTestCaseStandard("Serialize");
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
-            _engine.InvocationStack.Clear();
 
             // Empty Serialize
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("Deserialize");
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
-            _engine.InvocationStack.Clear();
 
             // Serialize
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("Serialize", new Array(new StackItem[]{
                  StackItem.Null, new Boolean(true), new ByteArray(Encoding.ASCII.GetBytes("asd"))
             }));
@@ -46,10 +46,10 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
             Assert.AreEqual("[null,true,\"asd\"]", item.GetString());
-            _engine.InvocationStack.Clear();
 
             // Deserialize
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("Deserialize", new ByteArray(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -65,7 +65,6 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             entry = ((Array)item)[2];
             Assert.IsInstanceOfType(entry, typeof(ByteArray));
             Assert.AreEqual("asd", entry.GetString());
-            _engine.InvocationStack.Clear();
         }
     }
 }

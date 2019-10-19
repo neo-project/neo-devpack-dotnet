@@ -24,10 +24,10 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             var result = _engine.ExecuteTestCaseStandard("AccountIsStandard", new ByteArray(new byte[0]));
             Assert.AreEqual(VM.VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
-            _engine.InvocationStack.Clear();
 
             // No standard
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("AccountIsStandard", new ByteArray(new byte[20]));
             Assert.AreEqual(VM.VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -35,10 +35,10 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.AreEqual(false, item.GetBoolean());
-            _engine.InvocationStack.Clear();
 
             // Standard
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("AccountIsStandard", new ByteArray(new byte[20]
                 {
                     0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
