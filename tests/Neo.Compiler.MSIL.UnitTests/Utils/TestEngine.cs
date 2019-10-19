@@ -170,8 +170,20 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 return Runtime_GetNotifications();
             }
+            else if (method == InteropService.Neo_Account_IsStandard)
+            {
+                return Account_IsStandard();
+            }
 
-            return base.OnSysCall(method);
+            Console.WriteLine($"Syscall not found: {method.ToString("X2")}");
+            throw new NotImplementedException(method.ToString("X2"));
+        }
+
+        private bool Account_IsStandard()
+        {
+            UInt160 hash = new UInt160(CurrentContext.EvaluationStack.Pop().GetByteArray());
+            CurrentContext.EvaluationStack.Push(hash.Equals(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")));
+            return true;
         }
 
         private bool Runtime_GetNotifications()
