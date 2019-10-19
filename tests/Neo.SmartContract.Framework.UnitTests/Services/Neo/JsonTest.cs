@@ -4,7 +4,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Text;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
     [TestClass]
     public class JsonTest

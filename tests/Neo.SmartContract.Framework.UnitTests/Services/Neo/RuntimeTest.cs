@@ -2,15 +2,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NEOSmartContract = Neo.SmartContract;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
     [TestClass]
     public class RuntimeTest
@@ -58,7 +58,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             _engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
             {
                 Script = _engine.InvocationStack.Peek(0).Script,
-                Manifest = new SmartContract.Manifest.ContractManifest()
+                Manifest = new NEOSmartContract.Manifest.ContractManifest()
                 {
                 }
             });
@@ -148,7 +148,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         {
             // True
 
-            var result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF".HexToBytes()));
+            var result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray(
+                new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
+                ));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -158,7 +160,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             // False
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray("AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF".HexToBytes()));
+            result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray(
+                new byte[] { 0xFA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
+                ));
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();

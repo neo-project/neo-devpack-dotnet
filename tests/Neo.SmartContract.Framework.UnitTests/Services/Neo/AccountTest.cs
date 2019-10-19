@@ -3,7 +3,7 @@ using Neo.Compiler.MSIL.Utils;
 using Neo.Ledger;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
     [TestClass]
     public class AccountTest

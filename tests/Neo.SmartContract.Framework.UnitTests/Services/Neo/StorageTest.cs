@@ -1,9 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM.Types;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using NEOSmartContract = Neo.SmartContract;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
     [TestClass]
     public class StorageTest
@@ -18,7 +21,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             Assert.AreEqual(1,
                 testengine.Snapshot.Storages.GetChangeSet()
                 .Count(a =>
-                    a.Key.Key.SequenceEqual(prefix.Concat(key)) &&
+                    a.Key.Key.SequenceEqual(Concat(prefix, key)) &&
                     a.Item.Value.SequenceEqual(value) &&
                     !a.Item.IsConstant
                     ));
@@ -30,7 +33,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
-            Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(prefix.Concat(key))));
+            Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
             return rItem.GetByteArray();
         }
 
@@ -40,7 +43,15 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
-            Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(prefix.Concat(key))));
+            Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
+        }
+
+        private byte[] Concat(byte[] prefix, params byte[] key)
+        {
+            var l = new List<byte>(prefix);
+            l.AddRange(key);
+
+            return l.ToArray();
         }
 
         [TestMethod]
@@ -51,9 +62,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
             {
                 Script = testengine.EntryContext.Script,
-                Manifest = new SmartContract.Manifest.ContractManifest()
+                Manifest = new NEOSmartContract.Manifest.ContractManifest()
                 {
-                    Features = SmartContract.Manifest.ContractFeatures.HasStorage
+                    Features = NEOSmartContract.Manifest.ContractFeatures.HasStorage
                 }
             });
 
@@ -85,9 +96,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
             {
                 Script = testengine.EntryContext.Script,
-                Manifest = new SmartContract.Manifest.ContractManifest()
+                Manifest = new NEOSmartContract.Manifest.ContractManifest()
                 {
-                    Features = SmartContract.Manifest.ContractFeatures.HasStorage
+                    Features = NEOSmartContract.Manifest.ContractFeatures.HasStorage
                 }
             });
 
@@ -119,9 +130,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
             {
                 Script = testengine.EntryContext.Script,
-                Manifest = new SmartContract.Manifest.ContractManifest()
+                Manifest = new NEOSmartContract.Manifest.ContractManifest()
                 {
-                    Features = SmartContract.Manifest.ContractFeatures.HasStorage
+                    Features = NEOSmartContract.Manifest.ContractFeatures.HasStorage
                 }
             });
 

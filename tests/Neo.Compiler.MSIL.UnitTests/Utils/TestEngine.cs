@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Neo.Compiler.MSIL.Utils
 {
-    class TestEngine : ApplicationEngine
+    public class TestEngine : ApplicationEngine
     {
         public const int MaxStorageKeySize = 64;
         public const int MaxStorageValueSize = ushort.MaxValue;
