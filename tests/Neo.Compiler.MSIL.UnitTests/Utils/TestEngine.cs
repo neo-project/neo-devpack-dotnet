@@ -133,6 +133,11 @@ namespace Neo.Compiler.MSIL.Utils
                 method == InteropService.System_Storage_Get ||
                 method == InteropService.System_Storage_Delete ||
                 method == InteropService.System_Storage_Put ||
+                // ExecutionEngine
+                method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
+                method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
+                method == InteropService.System_ExecutionEngine_GetExecutingScriptHash ||
+                method == InteropService.System_ExecutionEngine_GetScriptContainer ||
                 // Runtime
                 method == InteropService.System_Runtime_GetInvocationCounter ||
                 method == InteropService.System_Runtime_GetTrigger ||
@@ -150,8 +155,7 @@ namespace Neo.Compiler.MSIL.Utils
                 return base.OnSysCall(method);
             }
 
-            Console.WriteLine($"Syscall not found: {method.ToString("X2")} (using base call)");
-            return base.OnSysCall(method);
+            throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
         }
 
         private bool Runtime_GetNotifications()
