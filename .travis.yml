@@ -26,10 +26,10 @@ before_script:
 script:
  - cd tests/Neo.Compiler.MSIL.UnitTests
  - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
- - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverageA.xml' /p:Exclude="[Neo.SmartContract.*]*"
+ - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=json /p:CoverletOutput='../coverageA.json' /p:Exclude="[Neo.SmartContract.*]*"
  - cd ../Neo.SmartContract.Framework.UnitTests
  - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
- - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../../coverage.xml' /p:MergeWith='../coverageA.xml' 
+ - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../../coverage.xml' /p:MergeWith='../coverageA.json' 
 after_success:
  # Send coverage
  - cd ../../
