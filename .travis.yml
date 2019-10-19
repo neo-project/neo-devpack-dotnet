@@ -29,7 +29,7 @@ script:
  - cd tests/Neo.Compiler.MSIL.UnitTests
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverageA.xml'
  - cd ../Neo.SmartContract.Framework.UnitTests
- - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverage.xml' /p:MergeWith='../coverageA.xml' 
+ - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../../coverage.xml' /p:MergeWith='../coverageA.xml' 
 after_success:
  # Send coverage
  - cd ../../
