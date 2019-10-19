@@ -27,10 +27,8 @@ script:
  - find src/Neo.Compiler.MSIL/* -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - find src/Neo.SmartContract.Framework/* -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - cd tests/Neo.Compiler.MSIL.UnitTests
- - dotnet restore
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverageA.xml'
  - cd ../Neo.SmartContract.Framework.UnitTests
- - dotnet restore
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverage.xml' /p:MergeWith='../coverageA.xml' 
 after_success:
  # Send coverage
