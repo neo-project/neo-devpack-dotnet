@@ -24,20 +24,16 @@ before_script:
  - dotnet format --check --dry-run -w tests/Neo.Compiler.MSIL.UnitTests
  - dotnet format --check --dry-run -w tests/Neo.SmartContract.Framework.UnitTests
 script:
- - find src/Neo.Compiler.MSIL/* -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
- - find src/Neo.SmartContract.Framework/* -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - cd tests/Neo.Compiler.MSIL.UnitTests
+ - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../coverageA.xml'
- - ls -la
  - cd ../Neo.SmartContract.Framework.UnitTests
+ - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='../../coverage.xml' /p:MergeWith='../coverageA.xml' 
- - ls -la
 after_success:
  # Send coverage
- - ls -la
  - cd ../../
  - ls -la
- - ls tests/ -la
  - echo "Test Success - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
  - bash <(curl -s https://codecov.io/bash) -v -f 'coverage.xml'
 
