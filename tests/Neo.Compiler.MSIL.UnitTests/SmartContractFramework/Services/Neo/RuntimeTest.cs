@@ -1,11 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
@@ -13,12 +15,35 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
     [TestClass]
     public class RuntimeTest
     {
+        class DummyVerificable : IVerifiable
+        {
+            public Witness[] Witnesses { get; set; }
+
+            public int Size => 0;
+
+            public void Deserialize(BinaryReader reader) { }
+
+            public void DeserializeUnsigned(BinaryReader reader) { }
+
+            public UInt160[] GetScriptHashesForVerifying(Snapshot snapshot)
+            {
+                return new UInt160[]
+                {
+                    UInt160.Parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+                };
+            }
+
+            public void Serialize(BinaryWriter writer) { }
+
+            public void SerializeUnsigned(BinaryWriter writer) { }
+        }
+
         private TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(TriggerType.Application);
+            _engine = new TestEngine(TriggerType.Application, new DummyVerificable());
             _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
         }
 
@@ -119,6 +144,29 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         }
 
         [TestMethod]
+        public void Test_CheckWitness()
+        {
+            // True
+
+            var result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF".HexToBytes()));
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
+            Assert.IsTrue(item.GetBoolean());
+
+            // False
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray("AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF".HexToBytes()));
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
+            Assert.IsFalse(item.GetBoolean());
+        }
+
+        [TestMethod]
         public void Test_Notify()
         {
             var list = new List<NotifyEventArgs>();
@@ -139,6 +187,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         [TestMethod]
         public void Test_GetNotificationsCount()
         {
+            var notifications = ((List<NotifyEventArgs>)_engine.Notifications);
+            notifications.Clear();
+            notifications.AddRange(new NotifyEventArgs[]
+            {
+                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+            });
+
             var result = _engine.ExecuteTestCaseStandard("GetNotificationsCount", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
@@ -147,7 +203,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             Assert.AreEqual(0x01, item.GetBigInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetNotificationsCount", new ByteArray(new byte[0]));
+            result = _engine.ExecuteTestCaseStandard("GetNotificationsCount", StackItem.Null);
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
@@ -158,6 +214,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         [TestMethod]
         public void Test_GetNotifications()
         {
+            var notifications = ((List<NotifyEventArgs>)_engine.Notifications);
+            notifications.Clear();
+            notifications.AddRange(new NotifyEventArgs[]
+            {
+                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+            });
+
             var result = _engine.ExecuteTestCaseStandard("GetNotifications", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
@@ -166,7 +230,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             Assert.AreEqual(0x02, item.GetBigInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetNotifications", new ByteArray(new byte[0]));
+            result = _engine.ExecuteTestCaseStandard("GetAllNotifications");
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();

@@ -1,10 +1,8 @@
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.VM;
-using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL.Utils
 {
@@ -120,63 +118,40 @@ namespace Neo.Compiler.MSIL.Utils
 
         protected override bool OnSysCall(uint method)
         {
-            if (method == InteropService.System_Runtime_GetNotifications)
-            {
-                return Runtime_GetNotifications();
-            }
-            else if (
-                // Account
-                method == InteropService.Neo_Account_IsStandard ||
-                // Storages
-                method == InteropService.System_Storage_GetContext ||
-                method == InteropService.System_Storage_GetReadOnlyContext ||
-                method == InteropService.System_Storage_Get ||
-                method == InteropService.System_Storage_Delete ||
-                method == InteropService.System_Storage_Put ||
-                // ExecutionEngine
-                method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
-                method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
-                method == InteropService.System_ExecutionEngine_GetExecutingScriptHash ||
-                method == InteropService.System_ExecutionEngine_GetScriptContainer ||
-                // Runtime
-                method == InteropService.System_Runtime_GetInvocationCounter ||
-                method == InteropService.System_Runtime_GetTrigger ||
-                method == InteropService.System_Runtime_GetTime ||
-                method == InteropService.System_Runtime_Platform ||
-                method == InteropService.System_Runtime_Log ||
-                method == InteropService.System_Runtime_Notify ||
-                // Json
-                method == InteropService.Neo_Json_Deserialize ||
-                method == InteropService.Neo_Json_Serialize ||
-                // Contract
-                method == InteropService.System_Contract_Call
-                )
+            if (
+               // Account
+               method == InteropService.Neo_Account_IsStandard ||
+               // Storages
+               method == InteropService.System_Storage_GetContext ||
+               method == InteropService.System_Storage_GetReadOnlyContext ||
+               method == InteropService.System_Storage_Get ||
+               method == InteropService.System_Storage_Delete ||
+               method == InteropService.System_Storage_Put ||
+               // ExecutionEngine
+               method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
+               method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
+               method == InteropService.System_ExecutionEngine_GetExecutingScriptHash ||
+               method == InteropService.System_ExecutionEngine_GetScriptContainer ||
+               // Runtime
+               method == InteropService.System_Runtime_CheckWitness ||
+               method == InteropService.System_Runtime_GetNotifications ||
+               method == InteropService.System_Runtime_GetInvocationCounter ||
+               method == InteropService.System_Runtime_GetTrigger ||
+               method == InteropService.System_Runtime_GetTime ||
+               method == InteropService.System_Runtime_Platform ||
+               method == InteropService.System_Runtime_Log ||
+               method == InteropService.System_Runtime_Notify ||
+               // Json
+               method == InteropService.Neo_Json_Deserialize ||
+               method == InteropService.Neo_Json_Serialize ||
+               // Contract
+               method == InteropService.System_Contract_Call
+               )
             {
                 return base.OnSysCall(method);
             }
 
             throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
-        }
-
-        private bool Runtime_GetNotifications()
-        {
-            byte[] data = CurrentContext.EvaluationStack.Pop().GetByteArray();
-            if ((data.Length != 0) && (data.Length != UInt160.Length)) return false;
-
-            IEnumerable<NotifyEventArgs> notifications = new NotifyEventArgs[]
-            {
-                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
-                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
-            };
-
-            if (data.Length == UInt160.Length) // must filter by scriptHash
-            {
-                var hash = new UInt160(data);
-                notifications = notifications.Where(p => p.ScriptHash == hash);
-            }
-
-            CurrentContext.EvaluationStack.Push(notifications.Select(u => new VM.Types.Array(new StackItem[] { u.ScriptHash.ToArray(), u.State })).ToArray());
-            return true;
         }
 
         public bool CheckAsciiChar(string s)

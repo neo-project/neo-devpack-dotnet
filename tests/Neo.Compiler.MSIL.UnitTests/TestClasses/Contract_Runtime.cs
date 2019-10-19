@@ -34,10 +34,29 @@ namespace Neo.Compiler.MSIL.TestClasses
             Runtime.Notify(message);
         }
 
+        public static bool CheckWitness(byte[] hashOrPubkey)
+        {
+            return Runtime.CheckWitness(hashOrPubkey);
+        }
+
         public static int GetNotificationsCount(byte[] hash)
         {
             var notifications = Runtime.GetNotifications(hash);
             return notifications.Length;
+        }
+
+        public static int GetAllNotifications()
+        {
+            int sum = 0;
+            var notifications = Runtime.GetNotifications();
+
+            for (int x = 0; x < notifications.Length; x++)
+            {
+                var notify = notifications[x];
+                sum += (int)notify.State;
+            }
+
+            return sum;
         }
 
         public static int GetNotifications(byte[] hash)
@@ -49,14 +68,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             {
                 var notify = notifications[x];
 
-                if (hash.Length != 0)
-                {
-                    // Check that the hash is working well
+                // Check that the hash is working well
 
-                    for (int y = 0; y < notify.ScriptHash.Length; y++)
-                    {
-                        if (notify.ScriptHash[y] != hash[y]) return int.MinValue;
-                    }
+                for (int y = 0; y < notify.ScriptHash.Length; y++)
+                {
+                    if (notify.ScriptHash[y] != hash[y]) return int.MinValue;
                 }
 
                 sum += (int)notify.State;
