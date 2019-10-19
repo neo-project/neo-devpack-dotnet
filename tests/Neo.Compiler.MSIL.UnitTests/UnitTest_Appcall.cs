@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
-using System;
 
 namespace Neo.Compiler.MSIL
 {
@@ -11,8 +10,15 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_Appcall()
         {
+            var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
             var testengine = new TestEngine();
-            testengine.AddAppcallScript("./TestClasses/Contract1.cs", "0102030405060708090A0102030405060708090A");
+
+            testengine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
+            {
+                Manifest = new SmartContract.Manifest.ContractManifest(),
+                Script = testengine.Build("./TestClasses/Contract1.cs").finalNEF
+            });
+
             //will appcall 0102030405060708090A0102030405060708090A
             testengine.AddEntryScript("./TestClasses/Contract_appcall.cs");
 

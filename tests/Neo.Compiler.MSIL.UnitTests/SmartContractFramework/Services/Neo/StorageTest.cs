@@ -34,14 +34,13 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             return rItem.GetByteArray();
         }
 
-        private bool Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
+        private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
-            Assert.IsInstanceOfType(rItem, typeof(Boolean));
+            Assert.IsInstanceOfType(rItem, typeof(ByteArray));
             Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(prefix.Concat(key))));
-            return rItem.GetBoolean();
         }
 
         [TestMethod]
@@ -75,12 +74,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             // Delete
 
             testengine.Reset();
-            var del = Delete(testengine, "TestDeleteByte", prefix, key);
-            Assert.IsTrue(del);
-
-            testengine.Reset();
-            del = Delete(testengine, "TestDeleteByte", prefix, key);
-            Assert.IsFalse(del);
+            Delete(testengine, "TestDeleteByte", prefix, key);
         }
 
         [TestMethod]
@@ -114,12 +108,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             // Delete
 
             testengine.Reset();
-            var del = Delete(testengine, "TestDeleteByteArray", prefix, key);
-            Assert.IsTrue(del);
-
-            testengine.Reset();
-            del = Delete(testengine, "TestDeleteByteArray", prefix, key);
-            Assert.IsFalse(del);
+            Delete(testengine, "TestDeleteByteArray", prefix, key);
         }
 
         [TestMethod]
@@ -153,12 +142,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
             // Delete
 
             testengine.Reset();
-            var del = Delete(testengine, "TestDeleteString", prefix, key);
-            Assert.IsTrue(del);
-
-            testengine.Reset();
-            del = Delete(testengine, "TestDeleteString", prefix, key);
-            Assert.IsFalse(del);
+            Delete(testengine, "TestDeleteString", prefix, key);
         }
     }
 }

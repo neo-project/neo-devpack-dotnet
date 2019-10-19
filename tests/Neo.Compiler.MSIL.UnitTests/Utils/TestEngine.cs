@@ -25,28 +25,19 @@ namespace Neo.Compiler.MSIL.Utils
             Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public void AddAppcallScript(string filename, string specScriptID)
+        public BuildScript Build(string filename)
         {
-            byte[] hex = NeonTestTool.HexString2Bytes(specScriptID);
-            if (hex.Length != 20)
-                throw new Exception("fail Script ID");
-
             if (scriptsAll.ContainsKey(filename) == false)
             {
                 scriptsAll[filename] = NeonTestTool.BuildScript(filename);
             }
 
-            Scripts[specScriptID.ToLower()] = scriptsAll[filename];
+            return scriptsAll[filename];
         }
 
         public void AddEntryScript(string filename)
         {
-            if (scriptsAll.ContainsKey(filename) == false)
-            {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename);
-            }
-
-            ScriptEntry = scriptsAll[filename];
+            ScriptEntry = Build(filename);
             Reset();
         }
 
@@ -129,57 +120,38 @@ namespace Neo.Compiler.MSIL.Utils
 
         protected override bool OnSysCall(uint method)
         {
-            if (method == InteropService.System_Contract_Call)
+            if (method == InteropService.System_Runtime_GetNotifications)
             {
-                //a appcall
-                return Contract_Call();
+                return Runtime_GetNotifications();
             }
-            else if (method == InteropService.System_Runtime_Log)
-            {
-                return Contract_Log();
-            }
-            else if (method == InteropService.System_Runtime_Notify)
-            {
-                return Contract_Log();
-            }
-            // Storages
             else if (
+                // Account
+                method == InteropService.Neo_Account_IsStandard ||
+                // Storages
                 method == InteropService.System_Storage_GetContext ||
                 method == InteropService.System_Storage_GetReadOnlyContext ||
                 method == InteropService.System_Storage_Get ||
                 method == InteropService.System_Storage_Delete ||
-                method == InteropService.System_Storage_Put)
-            {
-                return base.OnSysCall(method);
-            }
-            else if (method == InteropService.System_Runtime_GetInvocationCounter)
-            {
-                return Runtime_GetInvocationCounter();
-            }
-            else if (method == InteropService.System_Runtime_GetNotifications)
-            {
-                return Runtime_GetNotifications();
-            }
-            else if (method == InteropService.Neo_Account_IsStandard)
-            {
-                return Account_IsStandard();
-            }
-            else if (
+                method == InteropService.System_Storage_Put ||
+                // Runtime
+                method == InteropService.System_Runtime_GetInvocationCounter ||
+                method == InteropService.System_Runtime_GetTrigger ||
+                method == InteropService.System_Runtime_GetTime ||
+                method == InteropService.System_Runtime_Platform ||
+                method == InteropService.System_Runtime_Log ||
+                method == InteropService.System_Runtime_Notify ||
+                // Json
                 method == InteropService.Neo_Json_Deserialize ||
-                method == InteropService.Neo_Json_Serialize)
+                method == InteropService.Neo_Json_Serialize ||
+                // Contract
+                method == InteropService.System_Contract_Call
+                )
             {
                 return base.OnSysCall(method);
             }
 
             Console.WriteLine($"Syscall not found: {method.ToString("X2")} (using base call)");
             return base.OnSysCall(method);
-        }
-
-        private bool Account_IsStandard()
-        {
-            UInt160 hash = new UInt160(CurrentContext.EvaluationStack.Pop().GetByteArray());
-            CurrentContext.EvaluationStack.Push(hash.Equals(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")));
-            return true;
         }
 
         private bool Runtime_GetNotifications()
@@ -200,35 +172,6 @@ namespace Neo.Compiler.MSIL.Utils
             }
 
             CurrentContext.EvaluationStack.Push(notifications.Select(u => new VM.Types.Array(new StackItem[] { u.ScriptHash.ToArray(), u.State })).ToArray());
-            return true;
-        }
-
-        private bool Runtime_GetInvocationCounter()
-        {
-            CurrentContext.EvaluationStack.Push(0x01);
-            return true;
-        }
-
-        private bool Contract_Call()
-        {
-            StackItem item0 = this.CurrentContext.EvaluationStack.Pop();
-            var contractid = item0.GetByteArray();
-            var contractkey = NeonTestTool.Bytes2HexString(contractid.Reverse().ToArray()).ToLower();
-            var contract = Scripts[contractkey];
-
-            if (contract is null) return false;
-            StackItem item1 = this.CurrentContext.EvaluationStack.Pop();
-            StackItem item2 = this.CurrentContext.EvaluationStack.Pop();
-            ExecutionContext context_new = this.LoadScript(contract.finalNEF, 1);
-            context_new.EvaluationStack.Push(item2);
-            context_new.EvaluationStack.Push(item1);
-            return true;
-        }
-
-        private bool Contract_Log()
-        {
-            StackItem item0 = this.CurrentContext.EvaluationStack.Pop();
-            DumpItem(item0);
             return true;
         }
 

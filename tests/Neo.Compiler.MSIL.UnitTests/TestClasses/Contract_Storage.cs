@@ -15,13 +15,10 @@ namespace Neo.Compiler.MSIL.TestClasses
             return true;
         }
 
-        public static bool TestDeleteByte(byte[] key)
+        public static void TestDeleteByte(byte[] key)
         {
             var storage = Storage.CurrentContext.CreateMap(0xAA);
-            var value = storage.Get(key);
-            if (value == null) return false;
             storage.Delete(key);
-            return true;
         }
 
         public static byte[] TestGetByte(byte[] key)
@@ -43,14 +40,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return true;
         }
 
-        public static bool TestDeleteString(byte[] key)
+        public static void TestDeleteString(byte[] key)
         {
             var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
-            var value = storage.Get(key);
-            if (value == null) return false;
             storage.Delete(key);
-            return true;
         }
 
         public static byte[] TestGetString(byte[] key)
@@ -73,14 +67,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return true;
         }
 
-        public static bool TestDeleteByteArray(byte[] key)
+        public static void TestDeleteByteArray(byte[] key)
         {
             var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
-            var value = storage.Get(key);
-            if (value == null) return false;
             storage.Delete(key);
-            return true;
         }
 
         public static byte[] TestGetByteArray(byte[] key)

@@ -1,22 +1,49 @@
+using Neo.SmartContract.Framework.Services.Neo;
+
 namespace Neo.Compiler.MSIL.TestClasses
 {
-    public class Contract_Syscalls : SmartContract.Framework.SmartContract
+    public class Contract_Runtime : SmartContract.Framework.SmartContract
     {
         public static uint GetInvocationCounter()
         {
-            return SmartContract.Framework.Services.Neo.Runtime.InvocationCounter;
+            return Runtime.InvocationCounter;
+        }
+
+        public static ulong GetTime()
+        {
+            return Runtime.Time;
+        }
+
+        public static string GetPlatform()
+        {
+            return Runtime.Platform;
+        }
+
+        public static TriggerType GetTrigger()
+        {
+            return Runtime.Trigger;
+        }
+
+        public static void Log(string message)
+        {
+            Runtime.Log(message);
+        }
+
+        public static void Notify(string message)
+        {
+            Runtime.Notify(message);
         }
 
         public static int GetNotificationsCount(byte[] hash)
         {
-            var notifications = SmartContract.Framework.Services.Neo.Runtime.GetNotifications(hash);
+            var notifications = Runtime.GetNotifications(hash);
             return notifications.Length;
         }
 
         public static int GetNotifications(byte[] hash)
         {
             int sum = 0;
-            var notifications = SmartContract.Framework.Services.Neo.Runtime.GetNotifications(hash);
+            var notifications = Runtime.GetNotifications(hash);
 
             for (int x = 0; x < notifications.Length; x++)
             {
