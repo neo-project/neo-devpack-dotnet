@@ -763,6 +763,15 @@ namespace Neo.Compiler.MSIL
                     _Convert1by1(VM.OpCode.SETITEM, null, to);
                     return 0;
                 }
+<<<<<<< HEAD
+=======
+                //else if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
+                //{
+                //    // Calling the generated ComputeStringHash() in the runtime is too expensive.
+                //    return _ConvertStringSwitch(method,src, to);
+                //    throw new Exception("A large 'switch' was found with 'ComputeStringHash' optimization, this optimization is not supported on neovm now.");
+                //}
+>>>>>>> a2dbe13... 1.add support for switchlong
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
                     _Convert1by1(VM.OpCode.SHL, src, to);
@@ -974,6 +983,10 @@ namespace Neo.Compiler.MSIL
             int brcount = 0;
             do
             {
+<<<<<<< HEAD
+=======
+
+>>>>>>> a2dbe13... 1.add support for switchlong
                 OpCode code1 = method.body_Codes[jumptableaddr];
                 if (code1.code == CodeEx.Ret || code1.code == CodeEx.Br || code1.code == CodeEx.Br_S)
                 {
@@ -1015,6 +1028,10 @@ namespace Neo.Compiler.MSIL
                             throw new Exception("unknown switch info");
                             //is not
                         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> a2dbe13... 1.add support for switchlong
                     }
                 }
             }
@@ -1058,6 +1075,10 @@ namespace Neo.Compiler.MSIL
                 {
                     isjumpstr = false;//結束處理jmp
                 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> a2dbe13... 1.add support for switchlong
             }
             while (isjumpstr);
             //之后会有超过6个跳转表段落

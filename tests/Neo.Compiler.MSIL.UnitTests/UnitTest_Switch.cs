@@ -13,6 +13,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_SwitchLong()
         {
+<<<<<<< HEAD
             RandomAccessStack<StackItem> result;
             TestEngine testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
@@ -22,13 +23,32 @@ namespace Neo.Compiler.MSIL
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
+=======
+            TestEngine testengine;
+
+            RandomAccessStack<StackItem> result;
+
+            // Test cases
+
+            for (int x = 0; x <= 5; x++)
+            {
+                testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs");
+
+>>>>>>> a2dbe13... 1.add support for switchlong
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
+<<<<<<< HEAD
             testengine.Reset();
+=======
+            testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs");
+
+>>>>>>> a2dbe13... 1.add support for switchlong
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }

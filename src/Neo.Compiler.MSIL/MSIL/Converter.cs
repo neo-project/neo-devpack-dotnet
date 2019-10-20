@@ -866,7 +866,11 @@ namespace Neo.Compiler.MSIL
                         if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
                         {
                             // this method maybe is a tag of switch
+<<<<<<< HEAD
                             skipcount = _ConvertStringSwitch(method, src, to);
+=======
+                            skipcount= _ConvertStringSwitch(method, src, to);
+>>>>>>> a2dbe13... 1.add support for switchlong
                         }
                         else
                         {
