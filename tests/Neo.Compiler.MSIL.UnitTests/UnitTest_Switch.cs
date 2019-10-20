@@ -30,10 +30,10 @@ namespace Neo.Compiler.MSIL
 
             // Test cases
 
-            for (int x = 0; x <= 5; x++)
+            for (int x = 0; x <= 20; x++)
             {
                 testengine = new TestEngine();
-                testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs");
+                testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
 >>>>>>> a2dbe13... 1.add support for switchlong
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
@@ -46,7 +46,7 @@ namespace Neo.Compiler.MSIL
             testengine.Reset();
 =======
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs");
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
 >>>>>>> a2dbe13... 1.add support for switchlong
             result = testengine.ExecuteTestCaseStandard("default");
@@ -64,14 +64,26 @@ namespace Neo.Compiler.MSIL
 
             for (int x = 0; x <= 5; x++)
             {
+<<<<<<< HEAD
                 testengine.Reset();
+=======
+                testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
+
+>>>>>>> b4c4c78... change test filename
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
+<<<<<<< HEAD
             testengine.Reset();
+=======
+            testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
+
+>>>>>>> b4c4c78... change test filename
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
