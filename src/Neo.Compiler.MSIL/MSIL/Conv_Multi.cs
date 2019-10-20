@@ -982,34 +982,21 @@ namespace Neo.Compiler.MSIL
             var _method = type.methods[method.FullName];
             try
             {
-                NeoMethod nm = new NeoMethod();
-                if (method.FullName.Contains(".cctor"))
+                if (method.Is_cctor())
                 {
                     CctorSubVM.Parse(_method, this.outModule);
                     //continue;
                     return false;
                 }
-                if (method.IsConstructor)
+                if (method.Is_ctor())
                 {
                     return false;
                     //continue;
                 }
-                nm._namespace = method.DeclaringType.FullName;
-                nm.name = method.FullName;
-                nm.displayName = method.Name;
-                Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = method.CustomAttributes;
-                foreach (var attr in ca)
-                {
-                    if (attr.AttributeType.Name == "DisplayNameAttribute")
-                    {
-                        nm.displayName = (string)attr.ConstructorArguments[0].Value;
-                    }
-                }
-                nm.inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
-                nm.isPublic = method.IsPublic;
+
+                NeoMethod nm = new NeoMethod(method);
                 this.methodLink[_method] = nm;
                 outModule.mapMethods[nm.name] = nm;
-
                 ConvertMethod(_method, nm);
                 return true;
             }
