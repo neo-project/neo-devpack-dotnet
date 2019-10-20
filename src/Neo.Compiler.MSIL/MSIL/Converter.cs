@@ -859,7 +859,17 @@ namespace Neo.Compiler.MSIL
                 //call
                 case CodeEx.Call:
                 case CodeEx.Callvirt:
-                    _ConvertCall(src, to);
+                    {
+                        if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
+                        {
+                            // this method maybe is a tag of switch
+                            skipcount= _ConvertStringSwitch(method, src, to);
+                        }
+                        else
+                        {
+                            _ConvertCall(src, to);
+                        }
+                    }
                     break;
 
                 //用上一个参数作为数量，new 一个数组
