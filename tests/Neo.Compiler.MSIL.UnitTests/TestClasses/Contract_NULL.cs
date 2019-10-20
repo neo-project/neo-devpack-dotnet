@@ -9,7 +9,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static bool EqualNull(byte[] value)
         {
-            return value == null;
+            return null == value;
         }
     }
 }

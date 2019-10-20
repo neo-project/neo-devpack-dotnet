@@ -853,7 +853,7 @@ namespace Neo.Compiler.MSIL
                     _Convert1by1(VM.OpCode.GT, src, to);
                     break;
                 case CodeEx.Ceq:
-                    _Convert1by1(VM.OpCode.NUMEQUAL, src, to);
+                    skipcount = _ConvertCeq(method, src, to);
                     break;
 
                 //call
