@@ -14,8 +14,28 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_InvalidSwitch()
         {
-            var testengine = new TestEngine();
-            Assert.ThrowsException<Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs"));
+            TestEngine testengine;
+
+            RandomAccessStack<StackItem> result;
+
+            // Test cases
+
+            for (int x = 0; x <= 5; x++)
+            {
+                testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs");
+
+                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
+            }
+
+            // Test default
+
+            testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchInvalid.cs");
+
+            result = testengine.ExecuteTestCaseStandard("default");
+            Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
 
         [TestMethod]
