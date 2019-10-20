@@ -38,6 +38,7 @@ namespace Neo.Compiler.MSIL
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0x01, item.GetBigInteger());
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("GetNotificationsCount", new ByteArray(new byte[0]));
             Assert.AreEqual(1, result.Count);
 
@@ -56,6 +57,7 @@ namespace Neo.Compiler.MSIL
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0x02, item.GetBigInteger());
 
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("GetNotifications", new ByteArray(new byte[0]));
             Assert.AreEqual(1, result.Count);
 

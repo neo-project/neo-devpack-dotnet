@@ -53,12 +53,20 @@ namespace Neo.Compiler.MSIL.Utils
             }
 
             ScriptEntry = scriptsAll[filename];
+            Reset();
+        }
+        public void Reset()
+        {
+            this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
+            this.InvocationStack.Clear();
+            this.LoadScript(ScriptEntry.finalNEF);
         }
 
         public class ContractMethod
         {
-            TestEngine engine;
-            string methodname;
+            readonly TestEngine engine;
+            readonly string methodname;
+
             public ContractMethod(TestEngine engine, string methodname)
             {
                 this.engine = engine;
@@ -75,13 +83,10 @@ namespace Neo.Compiler.MSIL.Utils
             return new ContractMethod(this, methodname);
         }
 
-        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] _params)
+        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-            //var engine = new ExecutionEngine();
-            this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
-            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
-            this.CurrentContext.EvaluationStack.Push(_params);
+            this.CurrentContext.EvaluationStack.Push(args);
             this.CurrentContext.EvaluationStack.Push(methodname);
             while (true)
             {
@@ -98,16 +103,15 @@ namespace Neo.Compiler.MSIL.Utils
             return this.ResultStack;
         }
 
-        public RandomAccessStack<StackItem> ExecuteTestCase(StackItem[] _params)
+        public RandomAccessStack<StackItem> ExecuteTestCase(params StackItem[] args)
         {
             //var engine = new ExecutionEngine();
-            this.LoadScript(ScriptEntry.finalNEF);
             this.InvocationStack.Peek().InstructionPointer = 0;
-            if (_params != null)
+            if (args != null)
             {
-                for (var i = _params.Length - 1; i >= 0; i--)
+                for (var i = args.Length - 1; i >= 0; i--)
                 {
-                    this.CurrentContext.EvaluationStack.Push(_params[i]);
+                    this.CurrentContext.EvaluationStack.Push(args[i]);
                 }
             }
             while (true)
