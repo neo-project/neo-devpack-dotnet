@@ -1032,7 +1032,8 @@ namespace Neo.Compiler.MSIL
             var skip = 0;
             return skip;
         }
-            private int _ConvertNewArr(ILMethod method, OpCode src, NeoMethod to)
+
+        private int _ConvertNewArr(ILMethod method, OpCode src, NeoMethod to)
         {
             var type = src.tokenType;
             if ((type != "System.Byte") && (type != "System.SByte"))

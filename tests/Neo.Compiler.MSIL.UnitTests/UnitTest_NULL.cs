@@ -38,7 +38,7 @@ namespace Neo.Compiler.MSIL
 
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
-            var result = testengine.ExecuteTestCaseStandard("EqualNull", StackItem.Null);
+            var result = testengine.ExecuteTestCaseStandard("EqualNullA", StackItem.Null);
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -47,7 +47,25 @@ namespace Neo.Compiler.MSIL
             // False
 
             testengine.InvocationStack.Clear();
-            result = testengine.ExecuteTestCaseStandard("EqualNull", new Integer(1));
+            result = testengine.ExecuteTestCaseStandard("EqualNullA", new Integer(1));
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            // True
+
+            testengine.InvocationStack.Clear();
+            result = testengine.ExecuteTestCaseStandard("EqualNullB", StackItem.Null);
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+
+            // False
+
+            testengine.InvocationStack.Clear();
+            result = testengine.ExecuteTestCaseStandard("EqualNullB", new Integer(1));
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));

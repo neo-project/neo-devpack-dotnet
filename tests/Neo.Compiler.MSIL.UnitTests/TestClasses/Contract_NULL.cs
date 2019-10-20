@@ -7,9 +7,14 @@ namespace Neo.Compiler.MSIL.TestClasses
             return value is null;
         }
 
-        public static bool EqualNull(byte[] value)
+        public static bool EqualNullA(byte[] value)
         {
             return null == value;
+        }
+
+        public static bool EqualNullB(byte[] value)
+        {
+            return value == null;
         }
     }
 }
