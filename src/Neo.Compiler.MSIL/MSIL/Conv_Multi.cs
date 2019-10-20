@@ -987,9 +987,12 @@ namespace Neo.Compiler.MSIL
             do
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+>>>>>>> d6cbb58... Clean code
                 OpCode code1 = method.body_Codes[jumptableaddr];
                 if (code1.code == CodeEx.Ret || code1.code == CodeEx.Br || code1.code == CodeEx.Br_S)
                 {
@@ -1032,9 +1035,12 @@ namespace Neo.Compiler.MSIL
                             //is not
                         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+>>>>>>> d6cbb58... Clean code
                     }
                 }
             }
@@ -1079,9 +1085,12 @@ namespace Neo.Compiler.MSIL
                     isjumpstr = false;//結束處理jmp
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+>>>>>>> d6cbb58... Clean code
             }
             while (isjumpstr);
             //之后会有超过6个跳转表段落
