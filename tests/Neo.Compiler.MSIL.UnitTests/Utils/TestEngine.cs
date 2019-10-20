@@ -55,6 +55,7 @@ namespace Neo.Compiler.MSIL.Utils
             ScriptEntry = scriptsAll[filename];
             Reset();
         }
+
         public void Reset()
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
