@@ -763,12 +763,6 @@ namespace Neo.Compiler.MSIL
                     _Convert1by1(VM.OpCode.SETITEM, null, to);
                     return 0;
                 }
-                //else if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
-                //{
-                //    // Calling the generated ComputeStringHash() in the runtime is too expensive.
-                //    return _ConvertStringSwitch(method,src, to);
-                //    throw new Exception("A large 'switch' was found with 'ComputeStringHash' optimization, this optimization is not supported on neovm now.");
-                //}
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
                     _Convert1by1(VM.OpCode.SHL, src, to);
