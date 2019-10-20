@@ -867,10 +867,14 @@ namespace Neo.Compiler.MSIL
                         {
                             // this method maybe is a tag of switch
 <<<<<<< HEAD
+<<<<<<< HEAD
                             skipcount = _ConvertStringSwitch(method, src, to);
 =======
                             skipcount= _ConvertStringSwitch(method, src, to);
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+                            skipcount = _ConvertStringSwitch(method, src, to);
+>>>>>>> 61e684f... Format
                         }
                         else
                         {
