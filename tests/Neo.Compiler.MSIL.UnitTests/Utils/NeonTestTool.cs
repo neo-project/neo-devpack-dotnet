@@ -73,6 +73,8 @@ namespace Neo.Compiler.MSIL.Utils
                 var bs = new BuildScript();
                 bs.Build(streamDll, streamPdb);
 
+                if (bs.Error != null) throw bs.Error;
+
                 return bs;
             }
         }
