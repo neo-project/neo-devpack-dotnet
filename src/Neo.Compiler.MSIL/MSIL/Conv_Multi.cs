@@ -1029,8 +1029,7 @@ namespace Neo.Compiler.MSIL
             {
                 _Convert1by1(VM.OpCode.NUMEQUAL, src, to);
             }
-            var skip = 0;
-            return skip;
+            return 0;
         }
 
         private int _ConvertNewArr(ILMethod method, OpCode src, NeoMethod to)
