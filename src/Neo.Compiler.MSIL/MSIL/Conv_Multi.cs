@@ -901,7 +901,6 @@ namespace Neo.Compiler.MSIL
             {
                 for (var j = 0; j < callcodes.Length; j++)
                 {
-
                     if (callcodes[j] == VM.OpCode.SYSCALL)
                     {
                         //if(isHex)
@@ -975,7 +974,6 @@ namespace Neo.Compiler.MSIL
             int brcount = 0;
             do
             {
-
                 OpCode code1 = method.body_Codes[jumptableaddr];
                 if (code1.code == CodeEx.Ret || code1.code == CodeEx.Br || code1.code == CodeEx.Br_S)
                 {
@@ -1017,7 +1015,6 @@ namespace Neo.Compiler.MSIL
                             throw new Exception("unknown switch info");
                             //is not
                         }
-
                     }
                 }
             }
@@ -1061,7 +1058,6 @@ namespace Neo.Compiler.MSIL
                 {
                     isjumpstr = false;//結束處理jmp
                 }
-
             }
             while (isjumpstr);
             //之后会有超过6个跳转表段落
