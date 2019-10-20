@@ -14,6 +14,7 @@ namespace Neo.Compiler.MSIL
         public void Test_SwitchLong()
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             RandomAccessStack<StackItem> result;
             TestEngine testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
@@ -26,16 +27,24 @@ namespace Neo.Compiler.MSIL
 =======
             TestEngine testengine;
 
+=======
+>>>>>>> 9129587... UT optimization (#117)
             RandomAccessStack<StackItem> result;
+            TestEngine testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
             // Test cases
 
             for (int x = 0; x <= 20; x++)
             {
+<<<<<<< HEAD
                 testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+                testengine.Reset();
+>>>>>>> 9129587... UT optimization (#117)
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
@@ -43,12 +52,16 @@ namespace Neo.Compiler.MSIL
             // Test default
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             testengine.Reset();
 =======
             testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+            testengine.Reset();
+>>>>>>> 9129587... UT optimization (#117)
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
@@ -65,12 +78,16 @@ namespace Neo.Compiler.MSIL
             for (int x = 0; x <= 5; x++)
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 testengine.Reset();
 =======
                 testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
 
 >>>>>>> b4c4c78... change test filename
+=======
+                testengine.Reset();
+>>>>>>> 9129587... UT optimization (#117)
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
@@ -78,12 +95,16 @@ namespace Neo.Compiler.MSIL
             // Test default
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             testengine.Reset();
 =======
             testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
 
 >>>>>>> b4c4c78... change test filename
+=======
+            testengine.Reset();
+>>>>>>> 9129587... UT optimization (#117)
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }

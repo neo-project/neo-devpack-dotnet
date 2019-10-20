@@ -764,6 +764,7 @@ namespace Neo.Compiler.MSIL
                     return 0;
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 //else if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
                 //{
@@ -772,6 +773,8 @@ namespace Neo.Compiler.MSIL
                 //    throw new Exception("A large 'switch' was found with 'ComputeStringHash' optimization, this optimization is not supported on neovm now.");
                 //}
 >>>>>>> a2dbe13... 1.add support for switchlong
+=======
+>>>>>>> 9129587... UT optimization (#117)
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
                     _Convert1by1(VM.OpCode.SHL, src, to);

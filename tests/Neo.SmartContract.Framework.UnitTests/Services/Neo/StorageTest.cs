@@ -12,6 +12,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     {
         private void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
+            testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key), new ByteArray(value));
             var rItem = result.Pop();
 
@@ -28,6 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
+            testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
@@ -38,6 +40,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
+            testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
