@@ -46,7 +46,11 @@ namespace Neo.Compiler.MSIL.Utils
             ScriptEntry = scriptsAll[filename];
             Reset();
         }
+<<<<<<< HEAD
 >>>>>>> 9129587... UT optimization (#117)
+=======
+
+>>>>>>> 6d44ce5... Update TestEngine.cs
         public void Reset()
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
