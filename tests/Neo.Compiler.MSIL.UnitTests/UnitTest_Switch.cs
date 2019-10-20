@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
-using System;
 
 namespace Neo.Compiler.MSIL
 {
@@ -12,54 +11,47 @@ namespace Neo.Compiler.MSIL
         /// switch of more than 6 entries require a ComputeStringHash method
         /// </summary>
         [TestMethod]
-        public void Test_InvalidSwitch()
+        public void Test_SwitchLong()
         {
-            TestEngine testengine;
-
             RandomAccessStack<StackItem> result;
+            TestEngine testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
             // Test cases
 
             for (int x = 0; x <= 20; x++)
             {
-                testengine = new TestEngine();
-                testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
-
+                testengine.Reset();
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
-            testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
-
+            testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
 
         [TestMethod]
-        public void Test_ValidSwitch()
+        public void Test_Switch6()
         {
-            TestEngine testengine;
             RandomAccessStack<StackItem> result;
+            TestEngine testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
 
             // Test cases
 
             for (int x = 0; x <= 5; x++)
             {
-                testengine = new TestEngine();
-                testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
-
+                testengine.Reset();
                 result = testengine.ExecuteTestCaseStandard(x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
-            testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
-
+            testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
