@@ -1,8 +1,8 @@
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
-using Neo.Persistence;
 using System;
 using System.Collections.Generic;
 
@@ -18,15 +18,6 @@ namespace Neo.Compiler.MSIL.Utils
         public readonly IDictionary<string, BuildScript> Scripts;
 
         public BuildScript ScriptEntry { get; private set; }
-
-        /// <summary>
-        /// Set Persisting block for unit test
-        /// </summary>
-        /// <param name="block">Block</param>
-        public void SetPersistingBlock(Block block)
-        {
-            Snapshot.GetType().GetProperty("PersistingBlock").SetValue(Snapshot, block);
-        }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, Snapshot snapshot = null)
             : base(trigger, verificable, snapshot == null ? new TestSnapshot() : snapshot, 0, true)

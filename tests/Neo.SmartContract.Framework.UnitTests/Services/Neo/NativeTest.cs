@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine = new TestEngine();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
-            _engine.SetPersistingBlock(new Network.P2P.Payloads.Block()
+            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Network.P2P.Payloads.Block()
             {
                 Index = 0,
                 ConsensusData = new Network.P2P.Payloads.ConsensusData(),

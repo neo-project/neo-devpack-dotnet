@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_Time()
         {
-            _engine.SetPersistingBlock(new Block()
+            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Block()
             {
                 Index = 123,
                 Timestamp = 1234,
