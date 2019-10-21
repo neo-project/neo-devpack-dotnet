@@ -18,6 +18,15 @@ namespace Neo.Compiler.MSIL.Utils
 
         public BuildScript ScriptEntry { get; private set; }
 
+        /// <summary>
+        /// Set Persisting block for unit test
+        /// </summary>
+        /// <param name="block">Block</param>
+        public void SetPersistingBlock(Block block)
+        {
+            Snapshot.GetType().GetProperty("PersistingBlock").SetValue(Snapshot, block);
+        }
+
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null)
             : base(trigger, verificable, new TestSnapshot(), 0, true)
         {
@@ -120,6 +129,8 @@ namespace Neo.Compiler.MSIL.Utils
         protected override bool OnSysCall(uint method)
         {
             if (
+               // Native
+               method == InteropService.Neo_Native_Deploy ||
                // Account
                method == InteropService.Neo_Account_IsStandard ||
                // Storages

@@ -42,6 +42,10 @@ namespace Neo.SmartContract.Framework.UnitTests
             foreach (var syscall in InteropService.SupportedMethods().Values)
             {
                 if (syscall == "Neo.Native.Deploy") continue;
+                if (syscall == "Neo.Native.Tokens.NEO") continue;
+                if (syscall == "Neo.Native.Tokens.GAS") continue;
+                if (syscall == "Neo.Native.Policy") continue;
+
                 if (list.Remove(syscall)) continue;
 
                 notFound.Add(syscall);

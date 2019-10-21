@@ -35,7 +35,8 @@ namespace Neo.Compiler
                 return BitConverter.ToUInt32(sha.ComputeHash(method), 0);
             }
         }
-        public static byte[] HexString2Bytes(string str)
+
+        public static byte[] HexString2Bytes(this string str)
         {
             if (str.IndexOf("0x") == 0)
                 str = str.Substring(2);
@@ -46,6 +47,7 @@ namespace Neo.Compiler
             }
             return outd;
         }
+
         public static byte[] OpDataToBytes(string opdata)
         {
             try  // convert hex string to byte[]
@@ -54,7 +56,7 @@ namespace Neo.Compiler
             }
             catch
             {
-                return System.Text.Encoding.UTF8.GetBytes(opdata);
+                return Encoding.UTF8.GetBytes(opdata);
             }
         }
     }
