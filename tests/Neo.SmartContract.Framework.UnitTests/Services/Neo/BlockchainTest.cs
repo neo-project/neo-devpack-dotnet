@@ -210,9 +210,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetByteArray());
         }
 
-        private StackItem[] Concat(StackItem[] notFoundArgs, ByteArray byteArray)
+        private StackItem[] Concat(StackItem[] a, ByteArray b)
         {
-            return notFoundArgs.Concat(new StackItem[] { byteArray }).ToArray();
+            return a.Concat(new StackItem[] { b }).ToArray();
         }
 
         [TestMethod]
@@ -331,10 +331,64 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void GetContract()
         {
-            // TODO: 
-            //[Syscall("System.Blockchain.GetContract")]
-            //public static extern Contract GetContract(byte[] script_hash);
-            Assert.IsTrue(false);
+            var contract = new ContractState()
+            {
+                Script = new byte[] { 0x01, 0x02, 0x03 },
+                Manifest = new Manifest.ContractManifest()
+                {
+                    Features = Manifest.ContractFeatures.HasStorage
+                }
+            };
+            _engine.Snapshot.Contracts.GetOrAdd(contract.ScriptHash, () => contract);
+
+            // Not found
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(UInt160.Zero.ToArray()), new ByteArray(new byte[0]));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Null));
+
+            // Found + HasStorage
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("HasStorage")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
+            Assert.AreEqual(contract.HasStorage, item.GetBoolean());
+
+            // Found + IsPayable
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("IsPayable")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
+            Assert.AreEqual(contract.Payable, item.GetBoolean());
+
+            // Found + IsPayable
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("Script")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteArray));
+            CollectionAssert.AreEqual(contract.Script, item.GetByteArray());
+
+            // Found + Uknown property
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("ASD")));
+            Assert.AreEqual(VMState.FAULT, _engine.State);
         }
     }
 }

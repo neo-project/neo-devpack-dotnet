@@ -160,6 +160,7 @@ namespace Neo.Compiler.MSIL.Utils
                // Blockchain
                method == InteropService.System_Blockchain_GetHeight ||
                method == InteropService.System_Blockchain_GetBlock ||
+               method == InteropService.System_Blockchain_GetContract ||
                method == InteropService.System_Blockchain_GetTransaction ||
                method == InteropService.System_Blockchain_GetTransactionHeight ||
                method == InteropService.System_Blockchain_GetTransactionFromBlock ||

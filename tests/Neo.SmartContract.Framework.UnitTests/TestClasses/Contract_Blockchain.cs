@@ -85,5 +85,26 @@ namespace Neo.Compiler.MSIL.TestClasses
 
             throw new Exception("Uknown property");
         }
+
+        public static object GetContract(byte[] hash, string whatReturn)
+        {
+            var contract = Blockchain.GetContract(hash);
+            return GetContractInfo(contract, whatReturn);
+        }
+
+        private static object GetContractInfo(Contract contract, string whatReturn)
+        {
+            if (contract == null)
+            {
+                Runtime.Log("NULL contract");
+                return null;
+            }
+
+            if (whatReturn == "HasStorage") return contract.HasStorage;
+            if (whatReturn == "IsPayable") return contract.IsPayable;
+            if (whatReturn == "Script") return contract.Script;
+
+            throw new Exception("Uknown property");
+        }
     }
 }
