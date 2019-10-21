@@ -2,6 +2,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.Persistence;
 using System;
 using System.Collections.Generic;
 
@@ -27,8 +28,8 @@ namespace Neo.Compiler.MSIL.Utils
             Snapshot.GetType().GetProperty("PersistingBlock").SetValue(Snapshot, block);
         }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null)
-            : base(trigger, verificable, new TestSnapshot(), 0, true)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, Snapshot snapshot = null)
+            : base(trigger, verificable, snapshot == null ? new TestSnapshot() : snapshot, 0, true)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
@@ -156,6 +157,12 @@ namespace Neo.Compiler.MSIL.Utils
                // Json
                method == InteropService.Neo_Json_Deserialize ||
                method == InteropService.Neo_Json_Serialize ||
+               // Blockchain
+               method == InteropService.System_Blockchain_GetHeight ||
+               method == InteropService.System_Blockchain_GetBlock ||
+               method == InteropService.System_Blockchain_GetTransaction ||
+               method == InteropService.System_Blockchain_GetTransactionHeight ||
+               method == InteropService.System_Blockchain_GetTransactionFromBlock ||
                // Native
                method == NativeContract.NEO.ServiceName.ToInteropMethodHash() ||
                method == NativeContract.GAS.ServiceName.ToInteropMethodHash() ||

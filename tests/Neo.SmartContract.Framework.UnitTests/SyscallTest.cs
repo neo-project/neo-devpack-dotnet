@@ -5,7 +5,7 @@ using System.IO;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class UT_SyscallTest
+    public class SyscallTest
     {
         [TestMethod]
         public void TestAllSyscalls()

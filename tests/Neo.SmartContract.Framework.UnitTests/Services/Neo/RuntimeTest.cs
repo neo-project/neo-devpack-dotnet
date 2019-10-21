@@ -94,7 +94,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine.SetPersistingBlock(new Block()
             {
-                Timestamp = 123
+                Index = 123,
+                Timestamp = 1234,
+                ConsensusData = new ConsensusData(),
+                Transactions = new Transaction[0],
+                Witness = new Witness()
+                {
+                    InvocationScript = new byte[0],
+                    VerificationScript = new byte[0]
+                },
+                NextConsensus = UInt160.Zero,
+                MerkleRoot = UInt256.Zero,
+                PrevHash = UInt256.Zero
             });
 
             var result = _engine.ExecuteTestCaseStandard("GetTime");
@@ -102,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetBigInteger());
+            Assert.AreEqual(1234, item.GetBigInteger());
         }
 
         [TestMethod]

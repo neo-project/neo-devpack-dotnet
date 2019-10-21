@@ -17,7 +17,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
             _engine.SetPersistingBlock(new Network.P2P.Payloads.Block()
             {
-                Index = 0
+                Index = 0,
+                ConsensusData = new Network.P2P.Payloads.ConsensusData(),
+                Transactions = new Network.P2P.Payloads.Transaction[0],
+                Witness = new Network.P2P.Payloads.Witness()
+                {
+                    InvocationScript = new byte[0],
+                    VerificationScript = new byte[0]
+                },
+                NextConsensus = UInt160.Zero,
+                MerkleRoot = UInt256.Zero,
+                PrevHash = UInt256.Zero
             });
 
             // Deploy native contracts
