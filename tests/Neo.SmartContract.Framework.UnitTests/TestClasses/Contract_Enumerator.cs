@@ -22,12 +22,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             int sum = 0;
             var enumeratorA = Enumerator<byte>.Create(a);
             var enumeratorB = Enumerator<byte>.Create(b);
+            var enumeratorC = enumeratorA.Concat(enumeratorB);
 
-            var enumerator = enumeratorA.Concat(enumeratorB);
-
-            while (enumerator.Next())
+            while (enumeratorC.Next())
             {
-                sum += enumerator.Value;
+                sum += enumeratorC.Value;
             }
 
             return sum;

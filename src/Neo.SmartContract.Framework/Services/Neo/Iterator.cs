@@ -5,7 +5,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Iterator<TKey, TValue>
     {
         [Syscall("Neo.Iterator.Create")]
-        public static extern Iterator<TKey, TValue> Create(IDictionary<TKey, TValue> entry);
+        public static extern Iterator<TKey, TValue> Create(Map<TKey, TValue> entry);
 
         [Syscall("Neo.Iterator.Create")]
         public static extern Iterator<TKey, TValue> Create(IEnumerable<TValue> entry);

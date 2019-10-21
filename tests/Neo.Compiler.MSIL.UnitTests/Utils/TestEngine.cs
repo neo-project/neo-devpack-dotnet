@@ -138,6 +138,12 @@ namespace Neo.Compiler.MSIL.Utils
                method == InteropService.Neo_Enumerator_Create ||
                method == InteropService.Neo_Enumerator_Next ||
                method == InteropService.Neo_Enumerator_Value ||
+               // Iterator
+               method == InteropService.Neo_Iterator_Concat ||
+               method == InteropService.Neo_Iterator_Create ||
+               method == InteropService.Neo_Iterator_Key ||
+               method == InteropService.Neo_Iterator_Keys ||
+               method == InteropService.Neo_Iterator_Values ||
                // ExecutionEngine
                method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
                method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
