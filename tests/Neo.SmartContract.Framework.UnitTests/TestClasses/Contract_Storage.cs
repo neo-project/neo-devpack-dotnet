@@ -23,7 +23,8 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static byte[] TestGetByte(byte[] key)
         {
-            var storage = Storage.CurrentContext.CreateMap(0xAA);
+            var context = Storage.CurrentReadOnlyContext;
+            var storage = context.CreateMap(0xAA);
             var value = storage.Get(key);
             return value;
         }
@@ -50,7 +51,8 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static byte[] TestGetString(byte[] key)
         {
             var prefix = "aa";
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var context = Storage.CurrentReadOnlyContext;
+            var storage = context.CreateMap(prefix);
             var value = storage.Get(key);
             return value;
         }
@@ -77,11 +79,21 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static byte[] TestGetByteArray(byte[] key)
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var context = Storage.CurrentContext.AsReadOnly;
+            var storage = context.CreateMap(prefix);
             var value = storage.Get(key);
             return value;
         }
 
         #endregion
+
+        public static bool TestPutReadOnly(byte[] key, byte[] value)
+        {
+            var prefix = new byte[] { 0x00, 0xFF };
+            var context = Storage.CurrentContext.AsReadOnly;
+            var storage = context.CreateMap(prefix);
+            storage.Put(key, value);
+            return true;
+        }
     }
 }

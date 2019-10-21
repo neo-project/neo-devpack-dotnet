@@ -128,6 +128,8 @@ namespace Neo.Compiler.MSIL.Utils
                // Storages
                method == InteropService.System_Storage_GetContext ||
                method == InteropService.System_Storage_GetReadOnlyContext ||
+               method == InteropService.System_Storage_GetReadOnlyContext ||
+               method == InteropService.System_StorageContext_AsReadOnly ||
                method == InteropService.System_Storage_Get ||
                method == InteropService.System_Storage_Delete ||
                method == InteropService.System_Storage_Put ||

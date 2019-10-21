@@ -4,7 +4,6 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NEOSmartContract = Neo.SmartContract;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -54,20 +53,26 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             return l.ToArray();
         }
 
-        [TestMethod]
-        public void Test_Byte()
+        TestEngine testengine;
+
+        [TestInitialize]
+        public void Init()
         {
-            var testengine = new TestEngine();
+            testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
             testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
             {
                 Script = testengine.EntryContext.Script,
-                Manifest = new NEOSmartContract.Manifest.ContractManifest()
+                Manifest = new Manifest.ContractManifest()
                 {
-                    Features = NEOSmartContract.Manifest.ContractFeatures.HasStorage
+                    Features = Manifest.ContractFeatures.HasStorage
                 }
             });
+        }
 
+        [TestMethod]
+        public void Test_Byte()
+        {
             var prefix = new byte[] { 0xAA };
             var key = new byte[] { 0x01, 0x02, 0x03 };
             var value = new byte[] { 0x04, 0x05, 0x06 };
@@ -91,17 +96,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_ByteArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
-            {
-                Script = testengine.EntryContext.Script,
-                Manifest = new NEOSmartContract.Manifest.ContractManifest()
-                {
-                    Features = NEOSmartContract.Manifest.ContractFeatures.HasStorage
-                }
-            });
-
             var prefix = new byte[] { 0x00, 0xFF };
             var key = new byte[] { 0x01, 0x02, 0x03 };
             var value = new byte[] { 0x04, 0x05, 0x06 };
@@ -125,23 +119,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_String()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
-            {
-                Script = testengine.EntryContext.Script,
-                Manifest = new NEOSmartContract.Manifest.ContractManifest()
-                {
-                    Features = NEOSmartContract.Manifest.ContractFeatures.HasStorage
-                }
-            });
-
             var prefix = new byte[] { 0x61, 0x61 };
             var key = new byte[] { 0x01, 0x02, 0x03 };
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
             // Put
 
+            testengine.Reset();
             Put(testengine, "TestPutString", prefix, key, value);
 
             // Get
@@ -154,6 +138,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             testengine.Reset();
             Delete(testengine, "TestDeleteString", prefix, key);
+        }
+
+        [TestMethod]
+        public void Test_ReadOnly()
+        {
+            var key = new byte[] { 0x01, 0x02, 0x03 };
+            var value = new byte[] { 0x04, 0x05, 0x06 };
+
+            // Put
+
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("TestPutReadOnly", new ByteArray(key), new ByteArray(value));
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+            Assert.AreEqual(0, result.Count);
         }
     }
 }
