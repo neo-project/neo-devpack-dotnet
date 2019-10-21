@@ -133,6 +133,11 @@ namespace Neo.Compiler.MSIL.Utils
                method == InteropService.System_Storage_Get ||
                method == InteropService.System_Storage_Delete ||
                method == InteropService.System_Storage_Put ||
+               // Enumerator
+               method == InteropService.Neo_Enumerator_Concat ||
+               method == InteropService.Neo_Enumerator_Create ||
+               method == InteropService.Neo_Enumerator_Next ||
+               method == InteropService.Neo_Enumerator_Value ||
                // ExecutionEngine
                method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
                method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
