@@ -18,13 +18,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly bool IsPayable;
 
         [Syscall("System.Contract.Call")]
-        public static extern Contract Call(byte[] scriptHash, string method, object[] arguments);
+        public static extern object Call(byte[] scriptHash, string method, object[] arguments);
 
         [Syscall("Neo.Contract.Create")]
         public static extern Contract Create(byte[] script, string manifest);
 
         [Syscall("Neo.Contract.Update")]
-        public static extern Contract Update(byte[] script, string manifest);
+        public static extern void Update(byte[] script, string manifest);
 
         [Syscall("System.Contract.Destroy")]
         public static extern void Destroy();

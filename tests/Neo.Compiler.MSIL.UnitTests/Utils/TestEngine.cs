@@ -177,7 +177,10 @@ namespace Neo.Compiler.MSIL.Utils
                method == NativeContract.GAS.ServiceName.ToInteropMethodHash() ||
                method == NativeContract.Policy.ServiceName.ToInteropMethodHash() ||
                // Contract
-               method == InteropService.System_Contract_Call
+               method == InteropService.System_Contract_Call ||
+               method == InteropService.System_Contract_Destroy ||
+               method == InteropService.Neo_Contract_Create ||
+               method == InteropService.Neo_Contract_Update
                )
             {
                 return base.OnSysCall(method);
