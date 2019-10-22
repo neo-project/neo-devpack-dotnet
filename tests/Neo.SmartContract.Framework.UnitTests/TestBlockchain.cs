@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 _Store.Setup(p => p.GetHeaderHashIndex()).Returns(mockSnapshot.HeaderHashIndex);
                 _Store.Setup(p => p.GetSnapshot()).Returns(mockSnapshot.Clone());
 
-                TheNeoSystem = new NeoSystem(_Store.Object); // new Mock<NeoSystem>(mockStore.Object);
+                TheNeoSystem = new NeoSystem(_Store.Object);
 
                 // Ensure that blockchain is loaded
 
