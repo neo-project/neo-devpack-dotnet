@@ -2,28 +2,22 @@ language: csharp
 
 os:
  - linux
- - osx
 
 dist: bionic
-osx_image: xcode9.1
-
 mono: none
 dotnet: 2.2.402
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ulimit -n 2048; fi
 install:
-  - dotnet tool install -g dotnet-format --version 4.0.40103 --add-source https://dotnet.myget.org/F/format/api/v3/index.json
+  - dotnet tool install -g dotnet-format
   - export PATH="$PATH:$HOME/.dotnet/tools"
   - dotnet-format --version
-before_script:
+script:
  - echo "Checking format..." 
  - dotnet format --check --dry-run -w src/Installer
  - dotnet format --check --dry-run -w src/Neo.Compiler.MSIL
  - dotnet format --check --dry-run -w src/Neo.SmartContract.Framework
  - dotnet format --check --dry-run -w tests/Neo.Compiler.MSIL.UnitTests
  - dotnet format --check --dry-run -w tests/Neo.SmartContract.Framework.UnitTests
-script:
  - cd tests/Neo.Compiler.MSIL.UnitTests
  - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=json /p:CoverletOutput='../coverageA.json' /p:Exclude="[Neo.SmartContract.*]*"
