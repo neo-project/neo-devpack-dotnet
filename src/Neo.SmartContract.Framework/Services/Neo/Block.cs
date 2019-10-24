@@ -1,14 +1,14 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Block : Header
+    public class Block
     {
-        [Syscall("Neo.Block.GetTransactionCount")]
-        public extern int GetTransactionCount();
-
-        [Syscall("Neo.Block.GetTransactions")]
-        public extern Transaction[] GetTransactions();
-
-        [Syscall("Neo.Block.GetTransaction")]
-        public extern Transaction GetTransaction(int index);
+        public readonly byte[] Hash;
+        public readonly uint Version;
+        public readonly byte[] PrevHash;
+        public readonly byte[] MerkleRoot;
+        public readonly ulong Timestamp;
+        public readonly uint Index;
+        public readonly byte[] NextConsensus;
+        public readonly int TransactionsCount;
     }
 }

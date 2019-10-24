@@ -1,0 +1,264 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Utils;
+using Neo.VM;
+using Neo.VM.Types;
+
+namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+{
+    [TestClass]
+    public class IteratorTest
+    {
+        private TestEngine _engine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _engine = new TestEngine();
+            _engine.AddEntryScript("./TestClasses/Contract_Iterator.cs");
+        }
+
+        [TestMethod]
+        public void TestNextArray()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("TestNextArray", new Array(new StackItem[] { 1, 2, 3 }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(6, item.GetBigInteger());
+        }
+
+        [TestMethod]
+        public void TestConcatArray()
+        {
+            var a = new Array(new StackItem[] { 1, 2, 3 });
+            var b = new Array(new StackItem[] { 4, 5, 6 });
+
+            // A and B
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("TestConcatArray", a, b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(21, item.GetBigInteger());
+
+            // Only A
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatArray", a, new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(6, item.GetBigInteger());
+
+            // Only B
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatArray", new Array(), b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(15, item.GetBigInteger());
+
+            // Empty
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatArray", new Array(), new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.AreEqual(0, item.GetByteLength());
+        }
+
+        [TestMethod]
+        public void TestConcatMap()
+        {
+            var a = new Map
+            {
+                [new Integer(1)] = new Integer(2),
+                [new Integer(3)] = new Integer(4)
+            };
+
+            var b = new Map
+            {
+                [new Integer(5)] = new Integer(6),
+                [new Integer(7)] = new Integer(8)
+            };
+
+            // A and B
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("TestConcatMap", a, b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(36, item.GetBigInteger());
+
+            // Only A
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatMap", a, new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(10, item.GetBigInteger());
+
+            // Only B
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatMap", new Array(), b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(26, item.GetBigInteger());
+
+            // Empty
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatMap", new Array(), new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.AreEqual(0, item.GetByteLength());
+        }
+
+        [TestMethod]
+        public void TestConcatKeys()
+        {
+            var a = new Map
+            {
+                [new Integer(1)] = new Integer(2),
+                [new Integer(3)] = new Integer(4)
+            };
+
+            var b = new Map
+            {
+                [new Integer(5)] = new Integer(6),
+                [new Integer(7)] = new Integer(8)
+            };
+
+            // A and B
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("TestConcatKeys", a, b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(16, item.GetBigInteger());
+
+            // Only A
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatKeys", a, new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(4, item.GetBigInteger());
+
+            // Only B
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatKeys", new Array(), b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(12, item.GetBigInteger());
+
+            // Empty
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatKeys", new Array(), new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.AreEqual(0, item.GetByteLength());
+        }
+
+        [TestMethod]
+        public void TestConcatValues()
+        {
+            var a = new Map
+            {
+                [new Integer(1)] = new Integer(2),
+                [new Integer(3)] = new Integer(4)
+            };
+
+            var b = new Map
+            {
+                [new Integer(5)] = new Integer(6),
+                [new Integer(7)] = new Integer(8)
+            };
+
+            // A and B
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("TestConcatValues", a, b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(20, item.GetBigInteger());
+
+            // Only A
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatValues", a, new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(6, item.GetBigInteger());
+
+            // Only B
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatValues", new Array(), b);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(14, item.GetBigInteger());
+
+            // Empty
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("TestConcatValues", new Array(), new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.AreEqual(0, item.GetByteLength());
+        }
+    }
+}
