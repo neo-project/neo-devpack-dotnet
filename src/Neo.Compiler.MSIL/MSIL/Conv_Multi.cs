@@ -234,13 +234,10 @@ namespace Neo.Compiler.MSIL
 
                         try
                         {
-                            hash = new byte[20];
-                            if (hashstr.Length < 40)
-                                throw new Exception("hash too short:" + hashstr);
-                            for (var i = 0; i < 20; i++)
-                            {
-                                hash[i] = byte.Parse(hashstr.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber);
-                            }
+                            hash = hashstr.HexString2Bytes();
+                            if (hash.Length != 20)
+                                throw new Exception("Wrong hash:" + hashstr);
+
                             //string hexhash 需要反序
                             hash = hash.Reverse().ToArray();
                             return true;

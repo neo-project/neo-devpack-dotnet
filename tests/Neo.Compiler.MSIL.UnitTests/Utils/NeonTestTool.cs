@@ -51,8 +51,8 @@ namespace Neo.Compiler.MSIL.Utils
             var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
             var srccode = File.ReadAllText(filename);
             var tree = CSharpSyntaxTree.ParseText(srccode);
-            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-            var comp = CSharpCompilation.Create("aaa.dll", new[] { tree }, new[]
+            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
+            var comp = CSharpCompilation.Create("TestContract", new[] { tree }, new[]
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
