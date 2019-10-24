@@ -7,7 +7,7 @@ using VMOpCode = Neo.VM.OpCode;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class UT_OpcodeTest
+    public class OpcodeTest
     {
         [TestMethod]
         public void TestAllOpcodes()

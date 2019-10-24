@@ -8,13 +8,21 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest_NULL
     {
+        private TestEngine testengine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+        }
+
         [TestMethod]
         public void IsNull()
         {
             // True
 
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard("IsNull", StackItem.Null);
             var item = result.Pop();
 
@@ -23,7 +31,7 @@ namespace Neo.Compiler.MSIL
 
             // False
 
-            testengine.InvocationStack.Clear();
+            testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("IsNull", new Integer(1));
             item = result.Pop();
 
@@ -36,8 +44,7 @@ namespace Neo.Compiler.MSIL
         {
             // True
 
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard("EqualNullA", StackItem.Null);
             var item = result.Pop();
 
@@ -46,7 +53,7 @@ namespace Neo.Compiler.MSIL
 
             // False
 
-            testengine.InvocationStack.Clear();
+            testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("EqualNullA", new Integer(1));
             item = result.Pop();
 
@@ -55,7 +62,7 @@ namespace Neo.Compiler.MSIL
 
             // True
 
-            testengine.InvocationStack.Clear();
+            testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("EqualNullB", StackItem.Null);
             item = result.Pop();
 
@@ -64,7 +71,7 @@ namespace Neo.Compiler.MSIL
 
             // False
 
-            testengine.InvocationStack.Clear();
+            testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("EqualNullB", new Integer(1));
             item = result.Pop();
 

@@ -238,10 +238,10 @@ namespace Neo.SmartContract.Framework
         [NonemitWithConvert(ConvertMethod.ToBigInteger)]
         public extern static BigInteger ToBigInteger(this string text);
 
-        [Syscall("Neo.Runtime.Serialize")]
+        [Syscall("System.Runtime.Serialize")]
         public extern static byte[] Serialize(this object source);
 
-        [Syscall("Neo.Runtime.Deserialize")]
+        [Syscall("System.Runtime.Deserialize")]
         public extern static object Deserialize(this byte[] source);
     }
 }
