@@ -9,11 +9,11 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             return UnitTest_001();
         }
+
         public static byte[] UnitTest_001()
         {
             var nb = new byte[] { 1, 2, 3, 4 };
             return nb;
         }
-
     }
 }
