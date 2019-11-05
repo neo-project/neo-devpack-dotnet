@@ -114,14 +114,7 @@ namespace Neo.Compiler.MSIL
                 {
                     if (e.Value.isEvent)
                     {
-                        NeoEvent ae = new NeoEvent
-                        {
-                            _namespace = e.Value.field.DeclaringType.FullName,
-                            name = e.Value.field.DeclaringType.FullName + "::" + e.Key,
-                            displayName = e.Value.displayName,
-                            returntype = e.Value.returntype,
-                            paramtypes = e.Value.paramtypes
-                        };
+                        NeoEvent ae = new NeoEvent(e.Value);
                         outModule.mapEvents[ae.name] = ae;
                     }
                 }
