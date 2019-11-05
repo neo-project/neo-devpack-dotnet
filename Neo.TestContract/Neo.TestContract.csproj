@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>TestContract</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\neo-devpack-dotnet\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Neo.Compiler.MSIL.UnitTests\$(OutDir)\..\netcoreapp3.0&quot;&#xD;&#xA;copy  /Y &quot;$(TargetDir)Neo.SmartContract.Framework.dll&quot; &quot;$(SolutionDir)Neo.Compiler.MSIL.UnitTests\$(OutDir)\..\netcoreapp3.0&quot;" />
+  </Target>
+
+</Project>

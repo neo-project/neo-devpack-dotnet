@@ -175,10 +175,6 @@ namespace Neo.Compiler.MSIL.Utils
                 }
             }
             engine.Execute();
-            //while (((engine.State & VMState.FAULT) == 0) && ((engine.State & VMState.HALT) == 0))
-            //{
-            //    engine.ExecuteNext();
-            //}
             return engine;
         }
 

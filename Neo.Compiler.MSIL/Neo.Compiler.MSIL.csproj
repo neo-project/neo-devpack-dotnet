@@ -5,8 +5,8 @@
     <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
     <Version>2.4.1.1</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
-    <OutputType>Exe</OutputType>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <OutputType>Library</OutputType>
     <AssemblyName>neon</AssemblyName>
     <PackageId>Neo.Compiler.MSIL</PackageId>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>

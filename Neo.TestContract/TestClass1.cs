@@ -11,6 +11,7 @@ namespace TestContract
         {
             return null;
         }
+
         public static byte UnitTest_001()
         {
             var nb = new byte[] { 1, 2, 3, 4 };
@@ -20,6 +21,11 @@ namespace TestContract
         {
             var nb = new byte[] { 1, 2, 3, 4 };
             return nb[2];
+        }
+
+        public static string UnitTest_003()
+        {
+            return "Unit Test";
         }
     }
 }

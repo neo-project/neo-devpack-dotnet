@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest1
     {
-        private static readonly NeonTestTool testtool = new NeonTestTool("net4smartcontract.test.dll");
+        private static readonly NeonTestTool testtool = new NeonTestTool("TestContract.dll");
 
         private static void DumpAVM(NeoMethod avmMethod)
         {
@@ -65,6 +65,16 @@ namespace Neo.Compiler.MSIL
             // and check if the result is 3
 
             Assert.AreEqual(resultnum, 3);
+        }
+
+        [TestMethod]
+        public void TestRunAFuncString()
+        {
+            var ilmethod = testtool.FindMethod("TestClass1", "UnitTest_003");
+            var neomethod = testtool.GetNEOVMMethod(ilmethod);
+            var result = testtool.RunScript(neomethod.funcaddr, null);
+            var resultnum = result.ResultStack.Peek().GetString();
+            Assert.AreEqual(resultnum, "Unit Test");
         }
     }
 }
