@@ -1,5 +1,6 @@
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
