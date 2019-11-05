@@ -149,7 +149,6 @@ namespace Neo.Compiler
         public string name;
         public string displayName;
         public List<NeoParam> paramtypes = new List<NeoParam>();
-        public string returntype;
     }
 
     public class NeoCode

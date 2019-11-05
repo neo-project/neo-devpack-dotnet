@@ -9,7 +9,7 @@ namespace Neo.Compiler.MSIL
     public class UnitTest_ABI_Event
     {
         [TestMethod]
-        public void Test_ABI_Event()
+        public void Test_Good()
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
@@ -20,6 +20,13 @@ namespace Neo.Compiler.MSIL
 
             string expecteventabi = @"{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}";
             Assert.AreEqual(events, expecteventabi);
+        }
+
+        [TestMethod]
+        public void Test_Wrong()
+        {
+            var testengine = new TestEngine();
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_WrongEvent.cs"));
         }
     }
 }
