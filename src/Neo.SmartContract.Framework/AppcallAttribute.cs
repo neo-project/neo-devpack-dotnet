@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 
 namespace Neo.SmartContract.Framework
@@ -18,6 +18,12 @@ namespace Neo.SmartContract.Framework
         public AppcallAttribute(string scriptHash)
         {
             if (scriptHash == null) throw new ArgumentNullException();
+
+            if (scriptHash.StartsWith("0x"))
+            {
+                scriptHash = scriptHash.Remove(0, 2);
+            }
+
             if (scriptHash.Length != 40) throw new ArgumentException();
             this.ScriptHash = new byte[scriptHash.Length / 2];
             for (int i = 0; i < this.ScriptHash.Length; i++)

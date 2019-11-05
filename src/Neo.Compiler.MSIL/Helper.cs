@@ -1,11 +1,28 @@
-﻿using System;
+using Mono.Cecil;
+using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler
 {
     public static class Helper
     {
+        // System.Void Neo.Compiler.MSIL.TestClasses.Contract_syscall::.cctor()
+        private readonly static Regex _regex_cctor = new Regex(@".*\:\:\.cctor\(\)");
+        // System.Void Neo.Compiler.MSIL.TestClasses.Contract_syscall::.ctor(System.Int32)
+        private readonly static Regex _regex_ctor = new Regex(@".*\:\:\.ctor\(.*\)");
+
+        public static bool Is_cctor(this MethodDefinition method)
+        {
+            return method.IsConstructor && _regex_cctor.IsMatch(method.FullName);
+        }
+
+        public static bool Is_ctor(this MethodDefinition method)
+        {
+            return method.IsConstructor && _regex_ctor.IsMatch(method.FullName);
+        }
+
         public static uint ToInteropMethodHash(this string method)
         {
             return ToInteropMethodHash(Encoding.ASCII.GetBytes(method));
@@ -18,7 +35,8 @@ namespace Neo.Compiler
                 return BitConverter.ToUInt32(sha.ComputeHash(method), 0);
             }
         }
-        public static byte[] HexString2Bytes(string str)
+
+        public static byte[] HexString2Bytes(this string str)
         {
             if (str.IndexOf("0x") == 0)
                 str = str.Substring(2);
@@ -29,6 +47,7 @@ namespace Neo.Compiler
             }
             return outd;
         }
+
         public static byte[] OpDataToBytes(string opdata)
         {
             try  // convert hex string to byte[]
@@ -37,7 +56,7 @@ namespace Neo.Compiler
             }
             catch
             {
-                return System.Text.Encoding.UTF8.GetBytes(opdata);
+                return Encoding.UTF8.GetBytes(opdata);
             }
         }
     }

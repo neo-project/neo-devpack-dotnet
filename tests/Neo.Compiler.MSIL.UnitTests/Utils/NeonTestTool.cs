@@ -1,17 +1,29 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Framework;
 using Neo.VM;
-using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Neo.Compiler.MSIL.Utils
 {
     internal static class NeonTestTool
     {
+        /// <summary>
+        /// Is not the official script hash, just a unique hash related to the script used for unit test purpose
+        /// </summary>
+        /// <param name="context">Context</param>
+        /// <returns>UInt160</returns>
+        public static UInt160 ScriptHash(this ExecutionContext context)
+        {
+            using (var sha = SHA1.Create())
+            {
+                return new UInt160(sha.ComputeHash(((byte[])context.Script)));
+            }
+        }
+
         public static string Bytes2HexString(byte[] data)
         {
             StringBuilder sb = new StringBuilder();
@@ -21,6 +33,7 @@ namespace Neo.Compiler.MSIL.Utils
             }
             return sb.ToString();
         }
+
         public static byte[] HexString2Bytes(string str)
         {
             if (str.IndexOf("0x") == 0)
@@ -38,8 +51,8 @@ namespace Neo.Compiler.MSIL.Utils
             var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
             var srccode = File.ReadAllText(filename);
             var tree = CSharpSyntaxTree.ParseText(srccode);
-            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-            var comp = CSharpCompilation.Create("aaa.dll", new[] { tree }, new[]
+            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
+            var comp = CSharpCompilation.Create("TestContract", new[] { tree }, new[]
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
@@ -65,11 +78,10 @@ namespace Neo.Compiler.MSIL.Utils
                     throw (bs.Error);
                 }
 
+                if (bs.Error != null) throw bs.Error;
+
                 return bs;
             }
         }
-
-
-
     }
 }

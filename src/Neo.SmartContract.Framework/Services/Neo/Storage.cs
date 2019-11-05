@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
@@ -10,6 +10,15 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern StorageContext CurrentContext
         {
             [Syscall("System.Storage.GetContext")]
+            get;
+        }
+
+        /// <summary>
+        /// Returns current read only StorageContext
+        /// </summary>
+        public static extern StorageContext CurrentReadOnlyContext
+        {
+            [Syscall("System.Storage.GetReadOnlyContext")]
             get;
         }
 
@@ -107,6 +116,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern void Put(byte[] key, byte[] value);
 
         /// <summary>
+        /// Writes BigInteger value on string key for current Storage context
+        /// </summary>
+        [Syscall("System.Storage.GetContext")]
+        [Syscall("System.Storage.PutEx")]
+        public static extern void PutEx(byte[] key, byte[] value, StorageFlags flags);
+
+        /// <summary>
         /// Writes BigInteger value on byte[] key for current Storage context
         /// </summary>
         [Syscall("System.Storage.GetContext")]
@@ -114,11 +130,25 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern void Put(byte[] key, BigInteger value);
 
         /// <summary>
+        /// Writes BigInteger value on string key for current Storage context
+        /// </summary>
+        [Syscall("System.Storage.GetContext")]
+        [Syscall("System.Storage.PutEx")]
+        public static extern void PutEx(byte[] key, BigInteger value, StorageFlags flags);
+
+        /// <summary>
         /// Writes string value on byte[] key for current Storage context
         /// </summary>
         [Syscall("System.Storage.GetContext")]
         [Syscall("System.Storage.Put")]
         public static extern void Put(byte[] key, string value);
+
+        /// <summary>
+        /// Writes BigInteger value on string key for current Storage context
+        /// </summary>
+        [Syscall("System.Storage.GetContext")]
+        [Syscall("System.Storage.PutEx")]
+        public static extern void PutEx(byte[] key, string value, StorageFlags flags);
 
         /// <summary>
         /// Writes byte[] value on string key for current Storage context
@@ -131,8 +161,22 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// Writes BigInteger value on string key for current Storage context
         /// </summary>
         [Syscall("System.Storage.GetContext")]
+        [Syscall("System.Storage.PutEx")]
+        public static extern void PutEx(string key, byte[] value, StorageFlags flags);
+
+        /// <summary>
+        /// Writes BigInteger value on string key for current Storage context
+        /// </summary>
+        [Syscall("System.Storage.GetContext")]
         [Syscall("System.Storage.Put")]
         public static extern void Put(string key, BigInteger value);
+
+        /// <summary>
+        /// Writes BigInteger value on string key for current Storage context
+        /// </summary>
+        [Syscall("System.Storage.GetContext")]
+        [Syscall("System.Storage.PutEx")]
+        public static extern void PutEx(string key, BigInteger value, StorageFlags flags);
 
         /// <summary>
         /// Writes string value on string key for current Storage context
@@ -140,6 +184,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Storage.GetContext")]
         [Syscall("System.Storage.Put")]
         public static extern void Put(string key, string value);
+
+        /// <summary>
+        /// Writes string value on string key for current Storage context
+        /// </summary>
+        [Syscall("System.Storage.GetContext")]
+        [Syscall("System.Storage.PutEx")]
+        public static extern void PutEx(string key, string value, StorageFlags flags);
 
         /// <summary>
         /// Deletes byte[] key from current Storage context

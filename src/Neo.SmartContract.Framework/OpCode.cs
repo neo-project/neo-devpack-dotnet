@@ -1,10 +1,12 @@
-﻿namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework
 {
     public enum OpCode : byte
     {
         // Constants
         /// <summary>
-        /// An empty array of bytes is pushed onto the stack.
+        /// An empty array of bytes is pushed onto the stack. 
+        /// This is equivalent to pushing Integer zero to the stack.
+        /// This is equivalent to pushing Boolean false to the stack.
         /// </summary>
         PUSH0 = 0x00,
         PUSHF = PUSH0,
@@ -325,6 +327,10 @@
         /// </summary>
         PUSHM1 = 0x4F,
         /// <summary>
+        /// The item null is pushed onto the stack.
+        /// </summary>
+        PUSHNULL = 0x50,
+        /// <summary>
         /// The number 1 is pushed onto the stack.
         /// </summary>
         PUSH1 = 0x51,
@@ -396,19 +402,19 @@
         /// </summary>
         NOP = 0x61,
         /// <summary>
-        /// Reads a 2-byte value n and a jump is performed to relative position n-3.
+        /// Reads a 2-byte value n and a jump is performed to relative position n (counting from opcode JMP address).
         /// </summary>
         JMP = 0x62,
         /// <summary>
-        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is True then a jump is performed to relative position n-3.
+        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is True then a jump is performed to relative position n (counting from opcode JMPIF address).
         /// </summary>
         JMPIF = 0x63,
         /// <summary>
-        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is False then a jump is performed to relative position n-3.
+        /// A boolean value b is taken from main stack and reads a 2-byte value n, if b is False then a jump is performed to relative position n (counting from opcode JMPIFNOT address).
         /// </summary>
         JMPIFNOT = 0x64,
         /// <summary>
-        /// Current context is copied to the invocation stack. Reads a 2-byte value n and a jump is performed to relative position n-3.
+        /// Current context is copied to the invocation stack. Reads a 2-byte value n and a jump is performed to relative position n.
         /// </summary>
         CALL = 0x65,
         /// <summary>
@@ -423,14 +429,6 @@
 
         // Stack
         /// <summary>
-        /// Copies the bottom of alt stack and put it on top of main stack.
-        /// </summary> 
-        DUPFROMALTSTACKBOTTOM = 0x69,
-        /// <summary>
-        /// Duplicates the item on top of alt stack and put it on top of main stack.
-        /// </summary>
-        DUPFROMALTSTACK = 0x6A,
-        /// <summary>
         /// Puts the input onto the top of the alt stack. Removes it from the main stack.
         /// </summary>
         TOALTSTACK = 0x6B,
@@ -439,9 +437,21 @@
         /// </summary>
         FROMALTSTACK = 0x6C,
         /// <summary>
+        /// Duplicates the item on top of alt stack and put it on top of main stack.
+        /// </summary>
+        DUPFROMALTSTACK = 0x6D,
+        /// <summary>
+        /// Copies the bottom of alt stack and put it on top of main stack.
+        /// </summary> 
+        DUPFROMALTSTACKBOTTOM = 0x6E,
+        /// <summary>
+        /// Returns true if the input is null. Returns false otherwise.
+        /// </summary>
+        ISNULL = 0x70,
+        /// <summary>
         /// The item n back in the main stack is removed.
         /// </summary>
-        XDROP = 0x6D,
+        XDROP = 0x71,
         /// <summary>
         /// The item n back in the main stack in swapped with top stack item.
         /// </summary>
@@ -640,18 +650,8 @@
         /// </summary>
         WITHIN = 0xA5,
 
-
-        // Crypto
-        //RIPEMD160 = 0xA6, // The input is hashed using RIPEMD-160.
-        /// <summary>
-        /// The input is hashed using SHA-1.
-        /// </summary>
-        SHA1 = 0xA7,
-        /// <summary>
-        /// The input is hashed using SHA-256.
-        /// </summary>
-        SHA256 = 0xA8,
-
+        //Reserved = 0xAC,
+        //Reserved = 0xAE,
 
         // Array
         /// <summary>
@@ -676,10 +676,12 @@
         SETITEM = 0xC4,
         /// <summary>
         /// A value n is taken from top of main stack. A zero-filled array type with size n is put on top of the main stack.
+        /// OR a struct is taken from top of main stack and is converted to an array.
         /// </summary>
         NEWARRAY = 0xC5,
         /// <summary>
         /// A value n is taken from top of main stack. A zero-filled struct type with size n is put on top of the main stack.
+        /// OR an array is taken from top of main stack and is converted to a struct.
         /// </summary>
         NEWSTRUCT = 0xC6,
         /// <summary>

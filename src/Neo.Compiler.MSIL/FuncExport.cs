@@ -1,4 +1,4 @@
-﻿using Neo.Compiler;
+using Neo.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,19 +81,18 @@ namespace vmtool
             outjson.SetDictValue("hash", sb.ToString());
 
             //entrypoint
-            outjson.SetDictValue("entrypoint", "Main");
+            var entryPoint = "Main";
             var mainmethod = module.mapMethods[module.mainMethod];
             if (mainmethod != null)
             {
-                var name = mainmethod.displayName;
-                outjson.SetDictValue("entrypoint", name);
+                entryPoint = mainmethod.displayName;
             }
+
             //functions
-            var funcsigns = new MyJson.JsonNode_Array();
-            outjson["functions"] = funcsigns;
+            var methods = new MyJson.JsonNode_Array();
+            outjson["methods"] = methods;
 
             List<string> names = new List<string>();
-
             foreach (var function in module.mapMethods)
             {
                 var mm = function.Value;
@@ -101,15 +100,16 @@ namespace vmtool
                     continue;
                 if (mm.isPublic == false)
                     continue;
-                var ps = mm.name.Split(new char[] { ' ', '(' }, StringSplitOptions.RemoveEmptyEntries);
-                var funcsign = new MyJson.JsonNode_Object();
 
-                funcsigns.Add(funcsign);
-                var funcname = ps[1];
-                if (funcname.IndexOf("::") > 0)
+                var funcsign = new MyJson.JsonNode_Object();
+                if (function.Value.displayName == entryPoint)
                 {
-                    var sps = funcname.Split(new string[] { "::" }, StringSplitOptions.RemoveEmptyEntries);
-                    funcname = sps.Last();
+                    // This is the entryPoint
+                    outjson.SetDictValue("entryPoint", funcsign);
+                }
+                else
+                {
+                    methods.Add(funcsign);
                 }
                 funcsign.SetDictValue("name", function.Value.displayName);
                 if (names.Contains(function.Value.displayName))
@@ -133,7 +133,7 @@ namespace vmtool
                 }
 
                 var rtype = ConvType(mm.returntype);
-                funcsign.SetDictValue("returntype", rtype);
+                funcsign.SetDictValue("returnType", rtype);
             }
 
             //events
@@ -142,10 +142,7 @@ namespace vmtool
             foreach (var events in module.mapEvents)
             {
                 var mm = events.Value;
-
-                var ps = mm.name.Split(new char[] { ' ', '(' }, StringSplitOptions.RemoveEmptyEntries);
                 var funcsign = new MyJson.JsonNode_Object();
-
                 eventsigns.Add(funcsign);
 
                 funcsign.SetDictValue("name", events.Value.displayName);

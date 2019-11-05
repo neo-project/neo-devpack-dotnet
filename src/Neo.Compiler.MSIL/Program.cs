@@ -1,4 +1,5 @@
 using Neo.Compiler.MSIL;
+using Neo.SmartContract;
 using System;
 using System.IO;
 using System.Reflection;
@@ -78,7 +79,7 @@ namespace Neo.Compiler
                 return;
             }
             byte[] bytes;
-            bool bSucc;
+            int bSucc = 0;
             string jsonstr = null;
             //convert and build
             try
@@ -111,13 +112,25 @@ namespace Neo.Compiler
             //write bytes
             try
             {
-
-                string bytesname = onlyname + ".avm";
+                string bytesname = onlyname + ".nef";
+                var nef = new NefFile
+                {
+                    Compiler = "neon",
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
+                    Script = bytes,
+                    ScriptHash = bytes.ToScriptHash()
+                };
+                nef.CheckSum = NefFile.ComputeChecksum(nef);
 
                 File.Delete(bytesname);
-                File.WriteAllBytes(bytesname, bytes);
+                using (var stream = File.OpenWrite(bytesname))
+                using (var writer = new BinaryWriter(stream))
+                {
+                    nef.Serialize(writer);
+                }
                 log.Log("write:" + bytesname);
-                bSucc = true;
+                bSucc++;
             }
             catch (Exception err)
             {
@@ -126,17 +139,34 @@ namespace Neo.Compiler
             }
             try
             {
-
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);
                 File.WriteAllText(abiname, jsonstr);
                 log.Log("write:" + abiname);
-                bSucc = true;
+                bSucc++;
             }
             catch (Exception err)
             {
                 log.Log("Write abi Error:" + err.ToString());
+                return;
+            }
+            try
+            {
+                string manifest = onlyname + ".manifest.json";
+                string defManifest =
+                    @"{""groups"":[],""features"":{""storage"":false,""payable"":false},""abi"":" +
+                    jsonstr +
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
+
+                File.Delete(manifest);
+                File.WriteAllText(manifest, defManifest);
+                log.Log("write:" + manifest);
+                bSucc++;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write manifest Error:" + err.ToString());
                 return;
             }
             try
@@ -150,7 +180,7 @@ namespace Neo.Compiler
 
             }
 
-            if (bSucc)
+            if (bSucc == 3)
             {
                 log.Log("SUCC");
             }
