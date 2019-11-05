@@ -163,9 +163,6 @@ namespace vmtool
                         item.SetDictValue("type", ptype);
                     }
                 }
-                //event do not have returntype in nep3
-                //var rtype = ConvType(mm.returntype);
-                //funcsign.SetDictValue("returntype", rtype);
             }
 
             return outjson;
