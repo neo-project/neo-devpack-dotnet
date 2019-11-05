@@ -183,6 +183,11 @@ namespace Neo.Compiler
             name = value.field.DeclaringType.FullName + "::" + value.field.Name;
             displayName = value.displayName;
             paramtypes = value.paramtypes;
+            
+            if (value.returntype != "System.Void")
+            {
+                throw new NotSupportedException($"NEP-3 does not support return types for events. Expected: `System.Void`, Detected: `{value.returntype}`");
+            }
         }
     }
 
