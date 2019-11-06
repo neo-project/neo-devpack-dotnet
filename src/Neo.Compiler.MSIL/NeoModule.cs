@@ -1,5 +1,6 @@
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
@@ -176,15 +177,18 @@ namespace Neo.Compiler
         public string name;
         public string displayName;
         public List<NeoParam> paramtypes = new List<NeoParam>();
-        public string returntype;
 
         public NeoEvent(ILField value)
         {
             _namespace = value.field.DeclaringType.FullName;
             name = value.field.DeclaringType.FullName + "::" + value.field.Name;
             displayName = value.displayName;
-            returntype = value.returntype;
             paramtypes = value.paramtypes;
+
+            if (value.returntype != "System.Void")
+            {
+                throw new NotSupportedException($"NEP-3 does not support return types for events. Expected: `System.Void`, Detected: `{value.returntype}`");
+            }
         }
     }
 
