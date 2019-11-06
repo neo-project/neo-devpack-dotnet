@@ -154,6 +154,10 @@ namespace Neo.Compiler
             this.method = method;
             this.type = method.type;
 
+            foreach (var attr in method.method.CustomAttributes)
+            {
+                ProcessAttribute(attr);
+            }
             _namespace = method.method.DeclaringType.FullName;
             name = method.method.FullName;
             displayName = method.method.Name;
