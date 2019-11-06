@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Neo.Compiler
 {
-    public class Compiler
+    public class Program
     {
         //Console.WriteLine("helo ha:"+args[0]); //普通输出
         //Console.WriteLine("<WARN> 这是一个严重的问题。");//警告输出，黄字
@@ -15,7 +15,7 @@ namespace Neo.Compiler
         //Console.WriteLine("<ERR|aaaa.cs> 这是ee一个严重的问题。");//错误输出，带文件名
         //Console.WriteLine("SUCC");//输出这个表示编译成功
         //控制台输出约定了特别的语法
-        public static void Run(string[] args)
+        public static void Main(string[] args)
         {
             //set console
             Console.OutputEncoding = System.Text.Encoding.UTF8;
