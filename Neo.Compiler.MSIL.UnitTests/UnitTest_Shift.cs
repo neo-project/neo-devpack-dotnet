@@ -15,14 +15,5 @@ namespace Neo.Compiler.MSIL
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("testfunc");
         }
-        [TestMethod]
-        public void Test_Shift_BigInteger()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_shift_bigint.cs");
-            testengine.ScriptEntry.DumpNEF();
-            StackItem[] _params = new StackItem[] { "testfunc", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);
-        }
     }
 }
