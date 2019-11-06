@@ -2,6 +2,7 @@ using Neo.Compiler.MSIL;
 using Neo.SmartContract;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -81,18 +82,19 @@ namespace Neo.Compiler
             byte[] bytes;
             int bSucc = 0;
             string jsonstr = null;
+            NeoModule module = null;
             //convert and build
             try
             {
                 var conv = new ModuleConverter(log);
                 ConvOption option = new ConvOption();
-                NeoModule am = conv.Convert(mod, option);
-                bytes = am.Build();
+                module = conv.Convert(mod, option);
+                bytes = module.Build();
                 log.Log("convert succ");
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(am, bytes);
+                    var outjson = vmtool.FuncExport.Export(module, bytes);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();
@@ -153,9 +155,12 @@ namespace Neo.Compiler
             }
             try
             {
+                var storage = (module != null && module.attributes.Any(t => t.GetType().Name == "StorageAttribute")).ToString().ToLowerInvariant();
+                var payable = (module != null && module.attributes.Any(t => t.GetType().Name == "PayableAttribute")).ToString().ToLowerInvariant();
+
                 string manifest = onlyname + ".manifest.json";
                 string defManifest =
-                    @"{""groups"":[],""features"":{""storage"":false,""payable"":false},""abi"":" +
+                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
                     @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
 

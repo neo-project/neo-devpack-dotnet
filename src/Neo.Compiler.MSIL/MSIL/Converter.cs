@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -91,7 +92,7 @@ namespace Neo.Compiler.MSIL
                         continue;
                     }
                     if (m.Value.method.Is_ctor()) continue;
-                    NeoMethod nm = new NeoMethod(m.Value.method);
+                    NeoMethod nm = new NeoMethod(m.Value);
                     this.methodLink[m.Value] = nm;
                     outModule.mapMethods[nm.name] = nm;
                 }
@@ -185,7 +186,6 @@ namespace Neo.Compiler.MSIL
 
             foreach (var key in outModule.mapMethods.Keys)
             {
-
                 if (key.Contains("::Main("))
                 {
                     NeoMethod m = outModule.mapMethods[key];
@@ -201,7 +201,6 @@ namespace Neo.Compiler.MSIL
                             }
                         }
                     }
-
                 }
             }
             if (mainmethod == "")
@@ -214,7 +213,11 @@ namespace Neo.Compiler.MSIL
                 //单一默认入口
                 logger.Log("Find entrypoint:" + mainmethod);
             }
-
+            var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type.attributes.ToArray()).FirstOrDefault();
+            if (attr?.Length > 0)
+            {
+                outModule.attributes.AddRange(attr);
+            }
             outModule.mainMethod = mainmethod;
             this.LinkCode(mainmethod);
             //this.findFirstFunc();//得找到第一个函数
