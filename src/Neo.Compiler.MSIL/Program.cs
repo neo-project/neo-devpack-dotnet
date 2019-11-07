@@ -155,8 +155,13 @@ namespace Neo.Compiler
             }
             try
             {
-                var storage = (module != null && module.attributes.Any(t => t.GetType().Name == "StorageAttribute")).ToString().ToLowerInvariant();
-                var payable = (module != null && module.attributes.Any(t => t.GetType().Name == "PayableAttribute")).ToString().ToLowerInvariant();
+                var features = module == null ? ContractFeatures.NoProperty : module.attributes
+                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                    .FirstOrDefault();
+
+                var storage = features.HasFlag(ContractFeatures.HasStorage);
+                var payable = features.HasFlag(ContractFeatures.Payable);
 
                 string manifest = onlyname + ".manifest.json";
                 string defManifest =
