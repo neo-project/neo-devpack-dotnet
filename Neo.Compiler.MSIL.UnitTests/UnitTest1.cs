@@ -8,10 +8,10 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest1
     {
-        private static void DumpNEF(NeoMethod nefMethod)
+        private static void DumpAVM(NeoMethod method)
         {
-            Console.WriteLine("dump:" + nefMethod.displayName + " addr in nef:" + nefMethod.funcaddr);
-            foreach (var c in nefMethod.body_Codes)
+            Console.WriteLine("dump:" + method.displayName + " addr in avm:" + method.funcaddr);
+            foreach (var c in method.body_Codes)
             {
                 Console.WriteLine(c.Key.ToString("X04") + "=>" + c.Value.ToString());
             }
@@ -19,7 +19,7 @@ namespace Neo.Compiler.MSIL
 
         private static void DumpBytes(byte[] data)
         {
-            Console.WriteLine("NEF=");
+            Console.WriteLine("AVM=");
             foreach (var b in data)
             {
                 Console.Write(b.ToString("X02"));
@@ -44,7 +44,7 @@ namespace Neo.Compiler.MSIL
             var testtool = NeonTestTool.BuildScript("./TestClasses/Contract1.cs");
             var ilmethod = testtool.FindMethod("Contract1", "UnitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
-            DumpNEF(neomethod);
+            DumpAVM(neomethod);
             var bytes = testtool.NeoMethodToBytes(neomethod);
             DumpBytes(bytes);
         }

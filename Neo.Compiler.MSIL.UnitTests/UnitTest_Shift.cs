@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift.cs");
-            testengine.ScriptEntry.DumpNEF();
+            testengine.ScriptEntry.DumpAVM();
             var result = testengine.ExecuteTestCaseStandard("testfunc");
         }
     }
