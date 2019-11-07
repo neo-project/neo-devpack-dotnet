@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
             this.InvocationStack.Clear();
-            this.LoadScript(ScriptEntry.finalNEF);
+            this.LoadScript(ScriptEntry.finalAVM);
         }
 
         public class ContractMethod
