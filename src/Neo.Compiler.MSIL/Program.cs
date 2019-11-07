@@ -1,5 +1,6 @@
 using Neo.Compiler.MSIL;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.IO;
 using System.Linq;
