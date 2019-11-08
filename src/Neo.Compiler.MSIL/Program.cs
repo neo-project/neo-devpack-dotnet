@@ -161,8 +161,8 @@ namespace Neo.Compiler
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                     .FirstOrDefault();
 
-                var storage = features.HasFlag(ContractFeatures.HasStorage);
-                var payable = features.HasFlag(ContractFeatures.Payable);
+                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
                 string manifest = onlyname + ".manifest.json";
                 string defManifest =
