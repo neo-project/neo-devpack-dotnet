@@ -1,7 +1,9 @@
+using CommandLine;
 using Neo.Compiler.MSIL;
 using Neo.SmartContract;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -18,22 +20,24 @@ namespace Neo.Compiler
         //控制台输出约定了特别的语法
         public static void Main(string[] args)
         {
-            //set console
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Parser.Default.ParseArguments<CmdOptions>(args)
+             .WithParsed(o => Run(o))
+             .WithNotParsed((errs) => { });
+        }
+
+        private static void Run(CmdOptions args)
+        {
+            Stream fs;
+            Stream fspdb;
+            var onlyname = Path.GetFileNameWithoutExtension(args.Filename);
+
+            // Set console
+            Console.OutputEncoding = Encoding.UTF8;
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            if (args.Length == 0)
-            {
-                log.Log("need one param for DLL filename.");
-                log.Log("Example:neon abc.dll");
-                return;
-            }
-
-            string filename = args[0];
-            string onlyname = Path.GetFileNameWithoutExtension(filename);
-            string filepdb = onlyname + ".pdb";
-            var path = Path.GetDirectoryName(filename);
+            // Set current directory
+            var path = Path.GetDirectoryName(args.Filename);
             if (!string.IsNullOrEmpty(path))
             {
                 try
@@ -48,27 +52,43 @@ namespace Neo.Compiler
                 }
             }
 
-            ILModule mod = new ILModule(log);
-            Stream fs;
-            Stream fspdb = null;
-
-            //open file
-            try
+            if (args.Compile)
             {
-                fs = File.OpenRead(filename);
+                // Compile source
 
-                if (File.Exists(filepdb))
+                var output = Compiler.BuildScript(new string[] { args.Filename }, args.References.ToArray());
+
+                fs = new MemoryStream(output.Dll);
+                fspdb = new MemoryStream(output.Pdb);
+            }
+            else
+            {
+                string filepdb = onlyname + ".pdb";
+
+                //open file
+                try
                 {
-                    fspdb = File.OpenRead(filepdb);
-                }
+                    fs = File.OpenRead(args.Filename);
 
+                    if (File.Exists(filepdb))
+                    {
+                        fspdb = File.OpenRead(filepdb);
+                    }
+                    else
+                    {
+                        fspdb = null;
+                    }
+                }
+                catch (Exception err)
+                {
+                    log.Log("Open File Error:" + err.ToString());
+                    return;
+                }
             }
-            catch (Exception err)
-            {
-                log.Log("Open File Error:" + err.ToString());
-                return;
-            }
-            //load module
+
+            ILModule mod = new ILModule(log);
+
+            // Load module
             try
             {
                 mod.LoadModule(fs, fspdb);
@@ -81,7 +101,8 @@ namespace Neo.Compiler
             byte[] bytes;
             int bSucc = 0;
             string jsonstr = null;
-            //convert and build
+
+            // Convert and build
             try
             {
                 var conv = new ModuleConverter(log);
@@ -109,7 +130,8 @@ namespace Neo.Compiler
                 log.Log("Convert Error:" + err.ToString());
                 return;
             }
-            //write bytes
+
+            // Write bytes
             try
             {
                 string bytesname = onlyname + ".nef";
