@@ -55,7 +55,6 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
 
-
             var result = testengine.GetMethod("testfunc").Run();
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
