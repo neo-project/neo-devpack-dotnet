@@ -59,7 +59,6 @@ namespace Neo.Compiler
                         // Compile C# source
 
                         var output = Compiler.BuildCSharpScript(new string[] { args.Filename }, args.References.ToArray());
-
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
@@ -69,7 +68,6 @@ namespace Neo.Compiler
                         // Compile VB source
 
                         var output = Compiler.BuildVBScript(new string[] { args.Filename }, args.References.ToArray());
-
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
@@ -78,7 +76,7 @@ namespace Neo.Compiler
                     {
                         string filepdb = onlyname + ".pdb";
 
-                        //open file
+                        // Open file
                         try
                         {
                             fs = File.OpenRead(args.Filename);
@@ -147,6 +145,7 @@ namespace Neo.Compiler
             }
 
             // Write bytes
+
             try
             {
                 string bytesname = onlyname + ".nef";
@@ -174,6 +173,7 @@ namespace Neo.Compiler
                 log.Log("Write Bytes Error:" + err.ToString());
                 return;
             }
+
             try
             {
                 string abiname = onlyname + ".abi.json";
@@ -188,6 +188,7 @@ namespace Neo.Compiler
                 log.Log("Write abi Error:" + err.ToString());
                 return;
             }
+
             try
             {
                 string manifest = onlyname + ".manifest.json";
@@ -206,6 +207,7 @@ namespace Neo.Compiler
                 log.Log("Write manifest Error:" + err.ToString());
                 return;
             }
+
             try
             {
                 fs.Dispose();
