@@ -46,7 +46,7 @@ namespace Neo.Compiler
                     streamDll.Position = 0;
                     streamPdb.Position = 0;
 
-                    return new Assembly(streamDll.ToArray(), streamPdb.ToArray()); 
+                    return new Assembly(streamDll.ToArray(), streamPdb.ToArray());
                 }
             }
         }
