@@ -33,13 +33,14 @@ namespace Neo.Compiler
             string filename = args[0];
             string onlyname = Path.GetFileNameWithoutExtension(filename);
             string filepdb = onlyname + ".pdb";
-            var fileInfo = new FileInfo(filename);
-            var path = fileInfo.Directory;
-            if (!string.IsNullOrEmpty(path.FullName))
+            string dllName = onlyname + ".dll";
+
+            var path = new FileInfo(filename).Directory.FullName;
+            if (!string.IsNullOrEmpty(path))
             {
                 try
                 {
-                    Directory.SetCurrentDirectory(path.FullName);
+                    Directory.SetCurrentDirectory(path);
                 }
                 catch
                 {
@@ -56,7 +57,7 @@ namespace Neo.Compiler
             //open file
             try
             {
-                fs = File.OpenRead(filename);
+                fs = File.OpenRead(dllName);
 
                 if (File.Exists(filepdb))
                 {
