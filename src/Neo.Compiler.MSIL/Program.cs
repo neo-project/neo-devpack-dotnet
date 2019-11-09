@@ -64,6 +64,16 @@ namespace Neo.Compiler
                         fspdb = new MemoryStream(output.Pdb);
                         break;
                     }
+                case ".vb":
+                    {
+                        // Compile VB source
+
+                        var output = Compiler.BuildVBScript(new string[] { args.Filename }, args.References.ToArray());
+
+                        fs = new MemoryStream(output.Dll);
+                        fspdb = new MemoryStream(output.Pdb);
+                        break;
+                    }
                 default:
                     {
                         string filepdb = onlyname + ".pdb";
