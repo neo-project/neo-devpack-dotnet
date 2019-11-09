@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
@@ -55,6 +56,43 @@ namespace Neo.Compiler
 
             switch (Path.GetExtension(args.Filename).ToLowerInvariant())
             {
+                case ".csproj":
+                    {
+                        // Compile csproj source
+
+                        XNamespace xmlns = ""; // http://schemas.microsoft.com/developer/msbuild/2003";
+                        XDocument projDefinition = XDocument.Load(args.Filename);
+
+                        // Detect references
+
+                        var refs = projDefinition
+                            .Element(xmlns + "Project")
+                            .Elements(xmlns + "ItemGroup")
+                            .Elements(xmlns + "PackageReference")
+                            .Select(u => u.Attribute("Include").Value + ".dll")
+                            .ToList();
+
+                        var references = args.References.ToList();
+                        if (refs.Count > 0)
+                        {
+                            references.AddRange(refs);
+                        }
+
+                        // Detect files
+
+                        var files = projDefinition
+                            .Element(xmlns + "Project")
+                            .Elements(xmlns + "ItemGroup")
+                            .Elements(xmlns + "Compile")
+                            .Select(u => u.Attribute("Update").Value)
+                            .ToList();
+
+                        log.Log("Compiling from csproj source");
+                        var output = Compiler.BuildCSharpScript(files.ToArray(), references.ToArray());
+                        fs = new MemoryStream(output.Dll);
+                        fspdb = new MemoryStream(output.Pdb);
+                        break;
+                    }
                 case ".cs":
                     {
                         // Compile C# source
