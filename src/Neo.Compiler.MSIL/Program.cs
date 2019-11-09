@@ -52,38 +52,43 @@ namespace Neo.Compiler
                 }
             }
 
-            if (args.Compile)
+            switch (Path.GetExtension(args.Filename))
             {
-                // Compile source
-
-                var output = Compiler.BuildScript(new string[] { args.Filename }, args.References.ToArray());
-
-                fs = new MemoryStream(output.Dll);
-                fspdb = new MemoryStream(output.Pdb);
-            }
-            else
-            {
-                string filepdb = onlyname + ".pdb";
-
-                //open file
-                try
-                {
-                    fs = File.OpenRead(args.Filename);
-
-                    if (File.Exists(filepdb))
+                case ".cs":
                     {
-                        fspdb = File.OpenRead(filepdb);
+                        // Compile C# source
+
+                        var output = Compiler.BuildCSharpScript(new string[] { args.Filename }, args.References.ToArray());
+
+                        fs = new MemoryStream(output.Dll);
+                        fspdb = new MemoryStream(output.Pdb);
+                        break;
                     }
-                    else
+                default:
                     {
-                        fspdb = null;
+                        string filepdb = onlyname + ".pdb";
+
+                        //open file
+                        try
+                        {
+                            fs = File.OpenRead(args.Filename);
+
+                            if (File.Exists(filepdb))
+                            {
+                                fspdb = File.OpenRead(filepdb);
+                            }
+                            else
+                            {
+                                fspdb = null;
+                            }
+                        }
+                        catch (Exception err)
+                        {
+                            log.Log("Open File Error:" + err.ToString());
+                            return;
+                        }
+                        break;
                     }
-                }
-                catch (Exception err)
-                {
-                    log.Log("Open File Error:" + err.ToString());
-                    return;
-                }
             }
 
             ILModule mod = new ILModule(log);

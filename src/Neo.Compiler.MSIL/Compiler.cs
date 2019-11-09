@@ -21,7 +21,7 @@ namespace Neo.Compiler
         /// <param name="filenames">File names</param>
         /// <param name="references">References</param>
         /// <returns></returns>
-        public static Assembly BuildScript(string[] filenames, string[] references)
+        public static Assembly BuildCSharpScript(string[] filenames, string[] references)
         {
             var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
             var refs = new List<MetadataReference>(new MetadataReference[]

@@ -45,7 +45,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         public static BuildScript BuildScript(string filename)
         {
-            var comp = Compiler.BuildScript(new string[] { filename }, new string[] { typeof(OpCodeAttribute).Assembly.Location });
+            var comp = Compiler.BuildCSharpScript(new string[] { filename }, new string[] { typeof(OpCodeAttribute).Assembly.Location });
 
             using (var streamDll = new MemoryStream(comp.Dll))
             using (var streamPdb = new MemoryStream(comp.Pdb))

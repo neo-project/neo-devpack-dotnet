@@ -10,8 +10,5 @@ namespace Neo.Compiler
 
         [Option('r', "references", Required = false, HelpText = "Compilation references")]
         public IEnumerable<string> References { get; set; }
-
-        [Option('c', "compile", Required = false, HelpText = "Is the source already compiled?")]
-        public bool Compile { get; set; } = false;
     }
 }
