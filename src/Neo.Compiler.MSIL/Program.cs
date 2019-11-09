@@ -115,6 +115,7 @@ namespace Neo.Compiler
             byte[] bytes;
             int bSucc = 0;
             string jsonstr = null;
+            NeoModule module = null;
 
             // Convert and build
             try
