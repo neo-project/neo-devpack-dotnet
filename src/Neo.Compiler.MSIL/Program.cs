@@ -1,6 +1,7 @@
 using CommandLine;
 using Neo.Compiler.MSIL;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.IO;
 using System.Linq;
@@ -120,13 +121,13 @@ namespace Neo.Compiler
             {
                 var conv = new ModuleConverter(log);
                 ConvOption option = new ConvOption();
-                NeoModule am = conv.Convert(mod, option);
-                bytes = am.Build();
+                module = conv.Convert(mod, option);
+                bytes = module.Build();
                 log.Log("convert succ");
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(am, bytes);
+                    var outjson = vmtool.FuncExport.Export(module, bytes);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();
@@ -191,9 +192,17 @@ namespace Neo.Compiler
 
             try
             {
+                var features = module == null ? ContractFeatures.NoProperty : module.attributes
+                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                    .FirstOrDefault();
+
+                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
+
                 string manifest = onlyname + ".manifest.json";
                 string defManifest =
-                    @"{""groups"":[],""features"":{""storage"":false,""payable"":false},""abi"":" +
+                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
                     @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
 

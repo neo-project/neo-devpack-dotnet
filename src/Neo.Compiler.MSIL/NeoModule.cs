@@ -13,6 +13,7 @@ namespace Neo.Compiler
 
         public string mainMethod;
         public ConvOption option;
+        public List<CustomAttribute> attributes = new List<CustomAttribute>();
         public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
         public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
         public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
@@ -95,6 +96,9 @@ namespace Neo.Compiler
         public string returntype;
         public bool isPublic = true;
         public bool inSmartContract;
+        public ILMethod method;
+        public ILType type;
+
         //临时变量
         public List<NeoParam> body_Variables = new List<NeoParam>();
 
@@ -145,18 +149,20 @@ namespace Neo.Compiler
         /// Constructor
         /// </summary>
         /// <param name="method">Method</param>
-        public NeoMethod(MethodDefinition method)
+        public NeoMethod(ILMethod method)
         {
-            _namespace = method.DeclaringType.FullName;
-            name = method.FullName;
-            displayName = method.Name;
-            inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
-            isPublic = method.IsPublic;
+            this.method = method;
+            this.type = method.type;
 
-            foreach (var attr in method.CustomAttributes)
+            foreach (var attr in method.method.CustomAttributes)
             {
                 ProcessAttribute(attr);
             }
+            _namespace = method.method.DeclaringType.FullName;
+            name = method.method.FullName;
+            displayName = method.method.Name;
+            inSmartContract = method.method.DeclaringType.BaseType.Name == "SmartContract";
+            isPublic = method.method.IsPublic;
         }
 
         private void ProcessAttribute(CustomAttribute attr)

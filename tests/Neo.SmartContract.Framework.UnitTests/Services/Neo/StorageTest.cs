@@ -60,6 +60,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
+            Assert.AreEqual(ContractFeatures.HasStorage, testengine.ScriptEntry.converterIL.outModule.attributes
+                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                .FirstOrDefault());
+
             testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
             {
                 Script = testengine.EntryContext.Script,
