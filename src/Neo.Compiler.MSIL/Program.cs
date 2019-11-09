@@ -33,12 +33,13 @@ namespace Neo.Compiler
             string filename = args[0];
             string onlyname = Path.GetFileNameWithoutExtension(filename);
             string filepdb = onlyname + ".pdb";
-            var path = Path.GetDirectoryName(filename);
-            if (!string.IsNullOrEmpty(path))
+            var fileInfo = new FileInfo(filename);
+            var path = fileInfo.Directory;
+            if (!string.IsNullOrEmpty(path.FullName))
             {
                 try
                 {
-                    Directory.SetCurrentDirectory(path);
+                    Directory.SetCurrentDirectory(path.FullName);
                 }
                 catch
                 {
