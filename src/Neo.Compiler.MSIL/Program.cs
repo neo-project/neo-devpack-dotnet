@@ -60,16 +60,15 @@ namespace Neo.Compiler
                     {
                         // Compile csproj source
 
-                        XNamespace xmlns = ""; // http://schemas.microsoft.com/developer/msbuild/2003";
                         XDocument projDefinition = XDocument.Load(args.Filename);
 
                         // Detect references
 
                         var references = args.References.ToList();
                         var refs = projDefinition
-                            .Element(xmlns + "Project")
-                            .Elements(xmlns + "ItemGroup")
-                            .Elements(xmlns + "PackageReference")
+                            .Element("Project")
+                            .Elements("ItemGroup")
+                            .Elements("PackageReference")
                             .Select(u => u.Attribute("Include").Value + ".dll")
                             .ToList();
 
@@ -81,10 +80,10 @@ namespace Neo.Compiler
                         // Detect hints
 
                         refs = projDefinition
-                            .Element(xmlns + "Project")
-                            .Elements(xmlns + "ItemGroup")
-                            .Elements(xmlns + "Reference")
-                            .Elements(xmlns + "HintPath")
+                            .Element("Project")
+                            .Elements("ItemGroup")
+                            .Elements("Reference")
+                            .Elements("HintPath")
                             .Select(u => u.Value)
                             .ToList();
 
@@ -96,9 +95,9 @@ namespace Neo.Compiler
                         // Detect files
 
                         var files = projDefinition
-                            .Element(xmlns + "Project")
-                            .Elements(xmlns + "ItemGroup")
-                            .Elements(xmlns + "Compile")
+                            .Element("Project")
+                            .Elements("ItemGroup")
+                            .Elements("Compile")
                             .Select(u => u.Attribute("Update").Value)
                             .ToList();
 
