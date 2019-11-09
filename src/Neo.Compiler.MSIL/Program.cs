@@ -65,6 +65,7 @@ namespace Neo.Compiler
 
                         // Detect references
 
+                        var references = args.References.ToList();
                         var refs = projDefinition
                             .Element(xmlns + "Project")
                             .Elements(xmlns + "ItemGroup")
@@ -72,7 +73,21 @@ namespace Neo.Compiler
                             .Select(u => u.Attribute("Include").Value + ".dll")
                             .ToList();
 
-                        var references = args.References.ToList();
+                        if (refs.Count > 0)
+                        {
+                            references.AddRange(refs);
+                        }
+
+                        // Detect hints
+
+                        refs = projDefinition
+                            .Element(xmlns + "Project")
+                            .Elements(xmlns + "ItemGroup")
+                            .Elements(xmlns + "Reference")
+                            .Elements(xmlns + "HintPath")
+                            .Select(u => u.Value)
+                            .ToList();
+
                         if (refs.Count > 0)
                         {
                             references.AddRange(refs);
@@ -86,6 +101,9 @@ namespace Neo.Compiler
                             .Elements(xmlns + "Compile")
                             .Select(u => u.Attribute("Update").Value)
                             .ToList();
+
+                        files.AddRange(Directory.GetFiles(Path.GetDirectoryName(args.Filename), "*.cs", SearchOption.AllDirectories));
+                        files = files.Distinct().ToList();
 
                         log.Log("Compiling from csproj source");
                         var output = Compiler.BuildCSharpScript(files.ToArray(), references.ToArray());
