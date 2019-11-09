@@ -59,6 +59,7 @@ namespace Neo.Compiler
                     {
                         // Compile C# source
 
+                        log.Log("Compiling from c# source");
                         var output = Compiler.BuildCSharpScript(new string[] { args.Filename }, args.References.ToArray());
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
@@ -68,6 +69,7 @@ namespace Neo.Compiler
                     {
                         // Compile VB source
 
+                        log.Log("Compiling from VB source");
                         var output = Compiler.BuildVBScript(new string[] { args.Filename }, args.References.ToArray());
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
