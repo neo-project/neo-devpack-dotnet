@@ -64,9 +64,15 @@ namespace Neo.Compiler.MSIL
     {
         public Dictionary<string, ILField> fields = new Dictionary<string, ILField>();
         public Dictionary<string, ILMethod> methods = new Dictionary<string, ILMethod>();
+        public List<Mono.Cecil.CustomAttribute> attributes = new List<Mono.Cecil.CustomAttribute>();
 
         public ILType(ILModule module, Mono.Cecil.TypeDefinition type, ILogger logger)
         {
+            if (type.HasCustomAttributes && type.IsClass)
+            {
+                attributes.AddRange(type.CustomAttributes);
+            }
+
             foreach (Mono.Cecil.FieldDefinition f in type.Fields)
             {
                 this.fields.Add(f.Name, new ILField(this, f));
@@ -196,17 +202,20 @@ namespace Neo.Compiler.MSIL
 
     public class ILMethod
     {
+        public ILType type = null;
+        public Mono.Cecil.MethodDefinition method;
         public string returntype;
         public List<NeoParam> paramtypes = new List<NeoParam>();
         public bool hasParam = false;
-        public Mono.Cecil.MethodDefinition method;
         public List<NeoParam> body_Variables = new List<NeoParam>();
         public SortedDictionary<int, OpCode> body_Codes = new SortedDictionary<int, OpCode>();
         public string fail = null;
 
         public ILMethod(ILType type, Mono.Cecil.MethodDefinition method, ILogger logger = null)
         {
+            this.type = type;
             this.method = method;
+
             if (method != null)
             {
                 returntype = method.ReturnType.FullName;
