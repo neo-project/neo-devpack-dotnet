@@ -52,7 +52,7 @@ namespace Neo.Compiler
                 }
             }
 
-            switch (Path.GetExtension(args.Filename))
+            switch (Path.GetExtension(args.Filename).ToLowerInvariant())
             {
                 case ".cs":
                     {
