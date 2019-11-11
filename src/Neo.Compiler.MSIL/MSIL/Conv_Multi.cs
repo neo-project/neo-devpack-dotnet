@@ -234,13 +234,10 @@ namespace Neo.Compiler.MSIL
 
                         try
                         {
-                            hash = new byte[20];
-                            if (hashstr.Length < 40)
-                                throw new Exception("hash too short:" + hashstr);
-                            for (var i = 0; i < 20; i++)
-                            {
-                                hash[i] = byte.Parse(hashstr.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber);
-                            }
+                            hash = hashstr.HexString2Bytes();
+                            if (hash.Length != 20)
+                                throw new Exception("Wrong hash:" + hashstr);
+
                             //string hexhash 需要反序
                             hash = hash.Reverse().ToArray();
                             return true;
@@ -768,11 +765,9 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
                 {
-                    throw new Exception("not supported on neovm now.");
-                    // 需要neo.vm nuget更新以后，这个才可以放开，就可以处理 string switch了。");
+                    // Calling the generated ComputeStringHash() in the runtime is too expensive.
 
-                    //_Convert1by1(VM.OpCode.CSHARPSTRHASH32, src, to);
-                    //return 0;
+                    throw new Exception("A large 'switch' was found with 'ComputeStringHash' optimization, this optimization is not supported on neovm now.");
                 }
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
@@ -984,34 +979,21 @@ namespace Neo.Compiler.MSIL
             var _method = type.methods[method.FullName];
             try
             {
-                NeoMethod nm = new NeoMethod();
-                if (method.FullName.Contains(".cctor"))
+                if (method.Is_cctor())
                 {
                     CctorSubVM.Parse(_method, this.outModule);
                     //continue;
                     return false;
                 }
-                if (method.IsConstructor)
+                if (method.Is_ctor())
                 {
                     return false;
                     //continue;
                 }
-                nm._namespace = method.DeclaringType.FullName;
-                nm.name = method.FullName;
-                nm.displayName = method.Name;
-                Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = method.CustomAttributes;
-                foreach (var attr in ca)
-                {
-                    if (attr.AttributeType.Name == "DisplayNameAttribute")
-                    {
-                        nm.displayName = (string)attr.ConstructorArguments[0].Value;
-                    }
-                }
-                nm.inSmartContract = method.DeclaringType.BaseType.Name == "SmartContract";
-                nm.isPublic = method.IsPublic;
+
+                NeoMethod nm = new NeoMethod(_method);
                 this.methodLink[_method] = nm;
                 outModule.mapMethods[nm.name] = nm;
-
                 ConvertMethod(_method, nm);
                 return true;
             }
@@ -1030,6 +1012,23 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
+        private int _ConvertCeq(ILMethod method, OpCode src, NeoMethod to)
+        {
+            var code = to.body_Codes.Last().Value;
+            if (code.code == VM.OpCode.PUSHNULL)
+            {
+                //remove last code
+                to.body_Codes.Remove(code.addr);
+                this.addr = code.addr;
+                _Convert1by1(VM.OpCode.ISNULL, src, to);
+            }
+            else
+            {
+                _Convert1by1(VM.OpCode.NUMEQUAL, src, to);
+            }
+            return 0;
+        }
+
         private int _ConvertNewArr(ILMethod method, OpCode src, NeoMethod to)
         {
             var type = src.tokenType;

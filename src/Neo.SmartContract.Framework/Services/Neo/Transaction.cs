@@ -1,20 +1,14 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Transaction : IScriptContainer
+    public class Transaction
     {
-        public extern byte[] Hash
-        {
-            [Syscall("System.Transaction.GetHash")]
-            get;
-        }
-
-        public extern byte[] Script
-        {
-            [Syscall("Neo.Transaction.GetScript")]
-            get;
-        }
-
-        [Syscall("Neo.Transaction.GetAttributes")]
-        public extern TransactionAttribute[] GetAttributes();
+        public readonly byte[] Hash;
+        public readonly byte Version;
+        public readonly uint Nonce;
+        public readonly byte[] Sender;
+        public readonly long SystemFee;
+        public readonly long NetworkFee;
+        public readonly uint ValidUntilBlock;
+        public readonly byte[] Script;
     }
 }

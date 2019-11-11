@@ -1,7 +1,9 @@
 using Neo.Compiler.MSIL;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -79,20 +81,21 @@ namespace Neo.Compiler
                 return;
             }
             byte[] bytes;
-            bool bSucc;
+            int bSucc = 0;
             string jsonstr = null;
+            NeoModule module = null;
             //convert and build
             try
             {
                 var conv = new ModuleConverter(log);
                 ConvOption option = new ConvOption();
-                NeoModule am = conv.Convert(mod, option);
-                bytes = am.Build();
+                module = conv.Convert(mod, option);
+                bytes = module.Build();
                 log.Log("convert succ");
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(am, bytes);
+                    var outjson = vmtool.FuncExport.Export(module, bytes);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();
@@ -130,7 +133,7 @@ namespace Neo.Compiler
                     nef.Serialize(writer);
                 }
                 log.Log("write:" + bytesname);
-                bSucc = true;
+                bSucc++;
             }
             catch (Exception err)
             {
@@ -139,17 +142,42 @@ namespace Neo.Compiler
             }
             try
             {
-
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);
                 File.WriteAllText(abiname, jsonstr);
                 log.Log("write:" + abiname);
-                bSucc = true;
+                bSucc++;
             }
             catch (Exception err)
             {
                 log.Log("Write abi Error:" + err.ToString());
+                return;
+            }
+            try
+            {
+                var features = module == null ? ContractFeatures.NoProperty : module.attributes
+                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                    .FirstOrDefault();
+
+                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
+
+                string manifest = onlyname + ".manifest.json";
+                string defManifest =
+                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
+                    jsonstr +
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
+
+                File.Delete(manifest);
+                File.WriteAllText(manifest, defManifest);
+                log.Log("write:" + manifest);
+                bSucc++;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write manifest Error:" + err.ToString());
                 return;
             }
             try
@@ -163,7 +191,7 @@ namespace Neo.Compiler
 
             }
 
-            if (bSucc)
+            if (bSucc == 3)
             {
                 log.Log("SUCC");
             }

@@ -1,16 +1,26 @@
+using Mono.Cecil;
+using Neo.Compiler.MSIL;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace Neo.Compiler
 {
     public class NeoModule
     {
-        public NeoModule(ILogger logger)
-        {
-        }
+        public NeoModule(ILogger logger) { }
 
+        public string mainMethod;
+        public ConvOption option;
+        public List<CustomAttribute> attributes = new List<CustomAttribute>();
+        public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
+        public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
+        public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
+        public Dictionary<string, object> staticfields = new Dictionary<string, object>();
         //小蚁没类型，只有方法
         public SortedDictionary<int, NeoCode> total_Codes = new SortedDictionary<int, NeoCode>();
+
         public byte[] Build()
         {
             List<byte> bytes = new List<byte>();
@@ -26,13 +36,7 @@ namespace Neo.Compiler
             return bytes.ToArray();
             //将body链接，生成this.code       byte[]
             //并计算 this.codehash            byte[]
-        }
-        public string mainMethod;
-        public ConvOption option;
-        public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
-        public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
-        public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
-        //public Dictionary<string, byte[]> codes = new Dictionary<string, byte[]>();
+        } //public Dictionary<string, byte[]> codes = new Dictionary<string, byte[]>();
         //public byte[] GetScript(byte[] script_hash)
         //{
         //    string strhash = "";
@@ -71,21 +75,19 @@ namespace Neo.Compiler
                 methodinfo[m.Key] = m.Value.GenJson();
             }
 
-
             StringBuilder sb = new StringBuilder();
             json.ConvertToStringWithFormat(sb, 4);
             return sb.ToString();
         }
-        public void FromJson(string json)
-        {
-
-        }
-
-        public Dictionary<string, object> staticfields = new Dictionary<string, object>();
     }
 
     public class NeoMethod
     {
+        public string lastsfieldname = null;//最后一个加载的静态成员的名字，仅event使用
+
+        public int lastparam = -1;//最后一个加载的参数对应
+        public int lastCast = -1;
+
         public bool isEntry = false;
         public string _namespace;
         public string name;
@@ -94,6 +96,9 @@ namespace Neo.Compiler
         public string returntype;
         public bool isPublic = true;
         public bool inSmartContract;
+        public ILMethod method;
+        public ILType type;
+
         //临时变量
         public List<NeoParam> body_Variables = new List<NeoParam>();
 
@@ -118,10 +123,6 @@ namespace Neo.Compiler
             return json;
         }
 
-        public void FromJson(MyJson.JsonNode_Object json)
-        {
-        }
-
         //public byte[] Build()
         //{
         //    List<byte> bytes = new List<byte>();
@@ -138,10 +139,43 @@ namespace Neo.Compiler
         //    //将body链接，生成this.code       byte[]
         //    //并计算 this.codehash            byte[]
         //}
-        public string lastsfieldname = null;//最后一个加载的静态成员的名字，仅event使用
 
-        public int lastparam = -1;//最后一个加载的参数对应
-        public int lastCast = -1;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public NeoMethod() { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="method">Method</param>
+        public NeoMethod(ILMethod method)
+        {
+            this.method = method;
+            this.type = method.type;
+
+            foreach (var attr in method.method.CustomAttributes)
+            {
+                ProcessAttribute(attr);
+            }
+            _namespace = method.method.DeclaringType.FullName;
+            name = method.method.FullName;
+            displayName = method.method.Name;
+            inSmartContract = method.method.DeclaringType.BaseType.Name == "SmartContract";
+            isPublic = method.method.IsPublic;
+        }
+
+        private void ProcessAttribute(CustomAttribute attr)
+        {
+            switch (attr.AttributeType.Name)
+            {
+                case nameof(DisplayNameAttribute):
+                    {
+                        displayName = (string)attr.ConstructorArguments[0].Value;
+                        break;
+                    }
+            }
+        }
     }
     public class NeoEvent
     {
@@ -149,7 +183,19 @@ namespace Neo.Compiler
         public string name;
         public string displayName;
         public List<NeoParam> paramtypes = new List<NeoParam>();
-        public string returntype;
+
+        public NeoEvent(ILField value)
+        {
+            _namespace = value.field.DeclaringType.FullName;
+            name = value.field.DeclaringType.FullName + "::" + value.field.Name;
+            displayName = value.displayName;
+            paramtypes = value.paramtypes;
+
+            if (value.returntype != "System.Void")
+            {
+                throw new NotSupportedException($"NEP-3 does not support return types for events. Expected: `System.Void`, Detected: `{value.returntype}`");
+            }
+        }
     }
 
     public class NeoCode
@@ -224,40 +270,24 @@ namespace Neo.Compiler
             }
             return new MyJson.JsonNode_ValueString(info);
         }
-
-        public void FromJson(MyJson.JsonNode_Object json)
-        {
-        }
     }
     public class NeoField : NeoParam
     {
+        public int index { get; private set; }
         public NeoField(string name, string type, int index) : base(name, type)
         {
             this.index = index;
-        }
-        public int index
-        {
-            get;
-            private set;
         }
     }
 
     public class NeoParam
     {
+        public string name { get; private set; }
+        public string type { get; private set; }
         public NeoParam(string name, string type)
         {
             this.name = name;
             this.type = type;
-        }
-        public string name
-        {
-            get;
-            private set;
-        }
-        public string type
-        {
-            get;
-            private set;
         }
         public override string ToString()
         {

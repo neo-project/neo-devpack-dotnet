@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Neo.Compiler.MSIL.Utils
 {
-    class BuildScript
+    public class BuildScript
     {
         public bool IsBuild
         {

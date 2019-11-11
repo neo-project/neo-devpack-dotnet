@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -85,27 +86,13 @@ namespace Neo.Compiler.MSIL
                     if (m.Value.method == null) continue;
                     if (m.Value.method.IsAddOn || m.Value.method.IsRemoveOn)
                         continue;//event 自动生成的代码，不要
-                    NeoMethod nm = new NeoMethod();
-                    if (m.Key.Contains(".cctor"))
+                    if (m.Value.method.Is_cctor())
                     {
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
-                    if (m.Value.method.IsConstructor) continue;
-                    nm._namespace = m.Value.method.DeclaringType.FullName;
-                    nm.name = m.Value.method.FullName;
-                    nm.displayName = m.Value.method.Name;
-
-                    Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = m.Value.method.CustomAttributes;
-                    foreach (var attr in ca)
-                    {
-                        if (attr.AttributeType.Name == "DisplayNameAttribute")
-                        {
-                            nm.displayName = (string)attr.ConstructorArguments[0].Value;
-                        }
-                    }
-                    nm.inSmartContract = m.Value.method.DeclaringType.BaseType.Name == "SmartContract";
-                    nm.isPublic = m.Value.method.IsPublic;
+                    if (m.Value.method.Is_ctor()) continue;
+                    NeoMethod nm = new NeoMethod(m.Value);
                     this.methodLink[m.Value] = nm;
                     outModule.mapMethods[nm.name] = nm;
                 }
@@ -114,14 +101,7 @@ namespace Neo.Compiler.MSIL
                 {
                     if (e.Value.isEvent)
                     {
-                        NeoEvent ae = new NeoEvent
-                        {
-                            _namespace = e.Value.field.DeclaringType.FullName,
-                            name = e.Value.field.DeclaringType.FullName + "::" + e.Key,
-                            displayName = e.Value.displayName,
-                            returntype = e.Value.returntype,
-                            paramtypes = e.Value.paramtypes
-                        };
+                        NeoEvent ae = new NeoEvent(e.Value);
                         outModule.mapEvents[ae.name] = ae;
                     }
                     else if (e.Value.field.IsStatic)
@@ -145,9 +125,8 @@ namespace Neo.Compiler.MSIL
 
                 foreach (var m in value.methods)
                 {
-
                     if (m.Value.method == null) continue;
-                    if (m.Key.Contains(".cctor"))
+                    if (m.Value.method.Is_cctor())
                     {
                         continue;
                     }
@@ -207,7 +186,6 @@ namespace Neo.Compiler.MSIL
 
             foreach (var key in outModule.mapMethods.Keys)
             {
-
                 if (key.Contains("::Main("))
                 {
                     NeoMethod m = outModule.mapMethods[key];
@@ -223,7 +201,6 @@ namespace Neo.Compiler.MSIL
                             }
                         }
                     }
-
                 }
             }
             if (mainmethod == "")
@@ -236,7 +213,11 @@ namespace Neo.Compiler.MSIL
                 //单一默认入口
                 logger.Log("Find entrypoint:" + mainmethod);
             }
-
+            var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type.attributes.ToArray()).FirstOrDefault();
+            if (attr?.Length > 0)
+            {
+                outModule.attributes.AddRange(attr);
+            }
             outModule.mainMethod = mainmethod;
             this.LinkCode(mainmethod);
             //this.findFirstFunc();//得找到第一个函数
@@ -557,7 +538,7 @@ namespace Neo.Compiler.MSIL
                     break;
 
                 case CodeEx.Ldnull:
-                    _ConvertPush(new byte[0], src, to);
+                    _Convert1by1(VM.OpCode.PUSHNULL, src, to);
                     break;
 
                 case CodeEx.Ldc_I4:
@@ -875,7 +856,7 @@ namespace Neo.Compiler.MSIL
                     _Convert1by1(VM.OpCode.GT, src, to);
                     break;
                 case CodeEx.Ceq:
-                    _Convert1by1(VM.OpCode.NUMEQUAL, src, to);
+                    skipcount = _ConvertCeq(method, src, to);
                     break;
 
                 //call

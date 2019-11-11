@@ -6,7 +6,9 @@ namespace Neo.Compiler.MSIL
 {
     class CctorSubVM
     {
-        static Stack<object> calcStack;
+        private const ushort MaxArraySize = ushort.MaxValue;
+        private static Stack<object> calcStack;
+
         public static object Dup(object src)
         {
             if (src.GetType() == typeof(byte[]))
@@ -35,15 +37,7 @@ namespace Neo.Compiler.MSIL
                 return null;
             }
         }
-        public static byte[] HexString2Bytes(string str)
-        {
-            byte[] outd = new byte[str.Length / 2];
-            for (var i = 0; i < str.Length / 2; i++)
-            {
-                outd[i] = byte.Parse(str.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber);
-            }
-            return outd;
-        }
+
         public static void Parse(ILMethod from, NeoModule to)
         {
             calcStack = new Stack<object>();
@@ -100,6 +94,7 @@ namespace Neo.Compiler.MSIL
                             if ((src.tokenType == "System.Byte") || (src.tokenType == "System.SByte"))
                             {
                                 var count = (int)calcStack.Pop();
+                                if (count > MaxArraySize) throw new ArgumentException("MaxArraySize found");
                                 byte[] data = new byte[count];
                                 calcStack.Push(data);
                             }
@@ -188,8 +183,7 @@ namespace Neo.Compiler.MSIL
                                         }
                                         else if (attrname == "HexToBytes")//HexString2Bytes to bytes[]
                                         {
-                                            if (text.IndexOf("0x") == 0) text = text.Substring(2);
-                                            var hex = HexString2Bytes(text);
+                                            var hex = text.HexString2Bytes();
                                             calcStack.Push(hex);
                                         }
                                         else if (attrname == "ToBigInteger")
