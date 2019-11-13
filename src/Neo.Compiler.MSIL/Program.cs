@@ -40,7 +40,7 @@ namespace Neo.Compiler
 
             // Set current directory
             var fileInfo = new FileInfo(args.Filename);
-            if(!fileInfo.Exists)
+            if (!fileInfo.Exists)
             {
                 log.Log("Could not find file " + args.Filename);
                 Environment.Exit(-1);
