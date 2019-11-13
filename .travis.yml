@@ -18,7 +18,6 @@ script:
  - dotnet format --check --dry-run -w Neo.SmartContract.Framework
  - dotnet format --check --dry-run -w Neo.Compiler.MSIL.UnitTests
  - dotnet format --check --dry-run -w Neo.ConvertTask
- - dotnet format --check --dry-run -w Neo.SmartContract.Framework.UnitTests
  - cd Neo.Compiler.MSIL.UnitTests
  - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
  - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
