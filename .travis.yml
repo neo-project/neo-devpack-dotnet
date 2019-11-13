@@ -1,0 +1,29 @@
+language: csharp
+
+os:
+ - linux
+
+dist: bionic
+mono: none
+dotnet: 2.2.402
+
+install:
+  - dotnet tool install -g dotnet-format
+  - export PATH="$PATH:$HOME/.dotnet/tools"
+  - dotnet-format --version
+script:
+ - echo "Checking format..." 
+ - dotnet format --check --dry-run -w Installer
+ - dotnet format --check --dry-run -w Neo.Compiler.MSIL
+ - dotnet format --check --dry-run -w Neo.SmartContract.Framework
+ - dotnet format --check --dry-run -w Neo.Compiler.MSIL.UnitTests
+ - dotnet format --check --dry-run -w Neo.ConvertTask
+ - dotnet format --check --dry-run -w Neo.SmartContract.Framework.UnitTests
+ - cd Neo.Compiler.MSIL.UnitTests
+ - find * -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+ - dotnet test -v m /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+after_success:
+ # Send coverage
+ - echo "Test Success - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
+ - bash <(curl -s https://codecov.io/bash) -v -f 'coverage.xml'
+
