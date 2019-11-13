@@ -39,7 +39,15 @@ namespace Neo.Compiler
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
             // Set current directory
-            var path = Path.GetDirectoryName(args.Filename);
+            var fileInfo = new FileInfo(args.Filename);
+            if(!fileInfo.Exists)
+            {
+                log.Log("Could not find file " + args.Filename);
+                Environment.Exit(-1);
+                return;
+            }
+
+            var path = fileInfo.Directory.FullName;
             if (!string.IsNullOrEmpty(path))
             {
                 try
@@ -101,7 +109,7 @@ namespace Neo.Compiler
                             .Select(u => u.Attribute("Update").Value)
                             .ToList();
 
-                        files.AddRange(Directory.GetFiles(Path.GetDirectoryName(args.Filename), "*.cs", SearchOption.AllDirectories));
+                        files.AddRange(Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories));
                         files = files.Distinct().ToList();
 
                         log.Log("Compiling from csproj source");

@@ -29,4 +29,7 @@
     <PackageReference Include="Neo" Version="3.0.0-CI00191" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+  </ItemGroup>
 </Project>
