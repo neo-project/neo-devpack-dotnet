@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("[null,true,\"asd\"]", item.GetString());
+            Assert.AreEqual("[null,true,\"YXNk\"]", item.GetString());
 
             // Deserialize
 
