@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
@@ -66,74 +65,30 @@ namespace Neo.Compiler
             {
                 case ".csproj":
                     {
-                        // Compile csproj source
-
-                        XDocument projDefinition = XDocument.Load(args.Filename);
-
-                        // Detect references
-
-                        var references = args.References.ToList();
-                        var refs = projDefinition
-                            .Element("Project")
-                            .Elements("ItemGroup")
-                            .Elements("PackageReference")
-                            .Select(u => u.Attribute("Include").Value + ".dll")
-                            .ToList();
-
-                        if (refs.Count > 0)
-                        {
-                            references.AddRange(refs);
-                        }
-
-                        // Detect hints
-
-                        refs = projDefinition
-                            .Element("Project")
-                            .Elements("ItemGroup")
-                            .Elements("Reference")
-                            .Elements("HintPath")
-                            .Select(u => u.Value)
-                            .ToList();
-
-                        if (refs.Count > 0)
-                        {
-                            references.AddRange(refs);
-                        }
-
-                        // Detect files
-
-                        var files = projDefinition
-                            .Element("Project")
-                            .Elements("ItemGroup")
-                            .Elements("Compile")
-                            .Select(u => u.Attribute("Update").Value)
-                            .ToList();
-
-                        files.AddRange(Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories));
-                        files = files.Distinct().ToList();
+                        // Compile csproj file
 
                         log.Log("Compiling from csproj source");
-                        var output = Compiler.BuildCSharpScript(files.ToArray(), references.ToArray());
+                        var output = Compiler.CompileCSProj(args.Filename);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
                     }
                 case ".cs":
                     {
-                        // Compile C# source
+                        // Compile C# files
 
                         log.Log("Compiling from c# source");
-                        var output = Compiler.BuildCSharpScript(new string[] { args.Filename }, args.References.ToArray());
+                        var output = Compiler.CompileCSFile(new string[] { args.Filename }, args.References.ToArray());
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
                     }
                 case ".vb":
                     {
-                        // Compile VB source
+                        // Compile VB files
 
                         log.Log("Compiling from VB source");
-                        var output = Compiler.BuildVBScript(new string[] { args.Filename }, args.References.ToArray());
+                        var output = Compiler.CompileVBFile(new string[] { args.Filename }, args.References.ToArray());
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;

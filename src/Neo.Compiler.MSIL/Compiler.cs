@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
@@ -54,10 +55,67 @@ namespace Neo.Compiler
         /// <summary>
         /// Build script
         /// </summary>
+        /// <param name="filename">File name</param>
+        /// <returns>Assembly</returns>
+        public static Assembly CompileCSProj(string filename)
+        {
+            var fileInfo = new FileInfo(filename);
+
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException(filename);
+            }
+
+            // Compile csproj source
+
+            XDocument projDefinition = XDocument.Load(fileInfo.FullName);
+
+            // Detect references
+
+            var references = projDefinition
+                .Element("Project")
+                .Elements("ItemGroup")
+                .Elements("PackageReference")
+                .Select(u => u.Attribute("Include").Value + ".dll")
+                .ToList();
+
+            // Detect hints
+
+            var refs = projDefinition
+                .Element("Project")
+                .Elements("ItemGroup")
+                .Elements("Reference")
+                .Elements("HintPath")
+                .Select(u => u.Value)
+                .ToList();
+
+            if (refs.Count > 0)
+            {
+                references.AddRange(refs);
+            }
+
+            // Detect files
+
+            var files = projDefinition
+                .Element("Project")
+                .Elements("ItemGroup")
+                .Elements("Compile")
+                .Select(u => u.Attribute("Update").Value)
+                .ToList();
+
+            files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*.cs", SearchOption.AllDirectories));
+            files = files.Distinct().ToList();
+
+            return Compiler.CompileCSFile(files.ToArray(), references.ToArray());
+        }
+
+        /// <summary>
+        /// Build script
+        /// </summary>
         /// <param name="filenames">File names</param>
         /// <param name="references">References</param>
         /// <returns>Assembly</returns>
-        public static Assembly BuildVBScript(string[] filenames, string[] references)
+        public static Assembly CompileVBFile(string[] filenames, string[] references)
         {
             var tree = filenames.Select(u => VisualBasicSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
             var op = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
@@ -70,7 +128,7 @@ namespace Neo.Compiler
         /// <param name="filenames">File names</param>
         /// <param name="references">References</param>
         /// <returns>Assembly</returns>
-        public static Assembly BuildCSharpScript(string[] filenames, string[] references)
+        public static Assembly CompileCSFile(string[] filenames, string[] references)
         {
             var tree = filenames.Select(u => CSharpSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
             var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
