@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Neo.Compiler
@@ -68,7 +69,8 @@ namespace Neo.Compiler
 
             // Compile csproj source
 
-            XDocument projDefinition = XDocument.Load(fileInfo.FullName);
+            var reader = XmlReader.Create(filename, new XmlReaderSettings() { XmlResolver = null });
+            var projDefinition = XDocument.Load(reader);
 
             // Detect references
 
@@ -105,8 +107,9 @@ namespace Neo.Compiler
 
             files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*.cs", SearchOption.AllDirectories));
             files = files.Distinct().ToList();
+            reader.Dispose();
 
-            return Compiler.CompileCSFile(files.ToArray(), references.ToArray());
+            return CompileCSFile(files.ToArray(), references.ToArray());
         }
 
         /// <summary>
