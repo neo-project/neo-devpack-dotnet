@@ -6,7 +6,7 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static bool VerifySignature(byte[] pubkey, byte[] signature)
         {
-            return Crypto.ECDsaVerify(pubkey, signature);
+            return Crypto.ECDsaVerify(null, pubkey, signature);
         }
 
         public static bool VerifySignatureWithMessage(byte[] message, byte[] pubkey, byte[] signature)
@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static bool VerifySignatures(byte[][] pubkeys, byte[][] signatures)
         {
-            return Crypto.ECDsaCheckMultiSig(pubkeys, signatures);
+            return Crypto.ECDsaCheckMultiSig(null, pubkeys, signatures);
         }
 
         public static bool VerifySignaturesWithMessage(byte[] message, byte[][] pubkeys, byte[][] signatures)
