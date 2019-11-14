@@ -139,10 +139,10 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static sbyte ToSbyte(this BigInteger source)
         {
-            if(source > 127)
+            if (source > 127)
                 source = source - 256;
             Assert(source.Within(-128, 128));
-            return (sbyte) (source + 0);
+            return (sbyte)(source + 0);
         }
 
         /// <summary>
@@ -151,10 +151,10 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static sbyte ToSbyte(this int source)
         {
-            if(source > 127)
+            if (source > 127)
                 source = source - 256;
             Assert(source.Within(-128, 128));
-            return (sbyte) (source + 0);
+            return (sbyte)(source + 0);
         }
 
         /// <summary>
@@ -164,9 +164,9 @@ namespace Neo.SmartContract.Framework
         public static byte ToByte(this BigInteger source)
         {
             Assert(source.Within(0, 256));
-            if(source > 127)
+            if (source > 127)
                 source = source - 256;
-            return (byte) (source + 0);
+            return (byte)(source + 0);
         }
 
         /// <summary>
@@ -176,9 +176,9 @@ namespace Neo.SmartContract.Framework
         public static byte ToByte(this int source)
         {
             Assert(source.Within(0, 256));
-            if(source > 127)
+            if (source > 127)
                 source = source - 256;
-            return (byte) (source + 0);
+            return (byte)(source + 0);
         }
 
         [OpCode(OpCode.CAT)]
@@ -208,7 +208,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte[] Reverse(this byte[] source)
         {
-            for(int k = 0; k< source.Length/2; k++)
+            for (int k = 0; k < source.Length / 2; k++)
             {
                 int m = source.Length - k - 1;
                 byte bg = source[k]; // must store on variable before next assignment
