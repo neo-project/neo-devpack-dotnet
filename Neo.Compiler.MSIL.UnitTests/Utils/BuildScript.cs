@@ -6,39 +6,15 @@ namespace Neo.Compiler.MSIL.Utils
 {
     public class BuildScript
     {
-        public bool IsBuild
-        {
-            get;
-            private set;
-        }
-        public Exception Error
-        {
-            get;
-            private set;
-        }
-        public ILModule modIL
-        {
-            get;
-            private set;
-        }
-        public ModuleConverter converterIL
-        {
-            get;
-            private set;
-        }
-        public byte[] finalAVM
-        {
-            get;
-            private set;
-        }
-        public MyJson.JsonNode_Object finialABI
-        {
-            get;
-            private set;
-        }
-        public BuildScript()
-        {
-        }
+        public bool IsBuild { get; private set; }
+        public Exception Error { get; private set; }
+        public ILModule modIL { get; private set; }
+        public ModuleConverter converterIL { get; private set; }
+        public byte[] finalAVM { get; private set; }
+        public MyJson.JsonNode_Object finialABI { get; private set; }
+
+        public BuildScript() { }
+
         public void Build(Stream fs, Stream fspdb)
         {
             this.IsBuild = false;
@@ -75,11 +51,9 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalAVM);
             }
-            catch (Exception err)
-            {
-            }
-
+            catch { }
         }
+
         public string[] GetAllILFunction()
         {
             List<string> lists = new List<string>();
@@ -147,6 +121,7 @@ namespace Neo.Compiler.MSIL.Utils
             var neomethod = this.converterIL.methodLink[method];
             return neomethod;
         }
+
         public NeoMethod[] GetAllNEOVMMethod()
         {
             return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray();
@@ -154,24 +129,22 @@ namespace Neo.Compiler.MSIL.Utils
 
         public void DumpAVM()
         {
+            Console.WriteLine("dump:");
+            foreach (var c in this.converterIL.outModule.total_Codes)
             {
-                Console.WriteLine("dump:");
-                foreach (var c in this.converterIL.outModule.total_Codes)
+                var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
+                if (c.Value.bytes != null && c.Value.bytes.Length > 0)
                 {
-                    var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
-                    if (c.Value.bytes != null && c.Value.bytes.Length > 0)
+                    line += " HEX:";
+                    foreach (var b in c.Value.bytes)
                     {
-                        line += " HEX:";
-                        foreach (var b in c.Value.bytes)
-                        {
-                            line += b.ToString("X02");
-                        }
+                        line += b.ToString("X02");
                     }
-                    Console.WriteLine(line);
                 }
-
+                Console.WriteLine(line);
             }
         }
+
         public byte[] NeoMethodToBytes(NeoMethod method)
         {
             List<byte> bytes = new List<byte>();
@@ -186,6 +159,5 @@ namespace Neo.Compiler.MSIL.Utils
             }
             return bytes.ToArray();
         }
-
     }
 }
