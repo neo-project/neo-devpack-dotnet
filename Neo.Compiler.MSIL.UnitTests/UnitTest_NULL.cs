@@ -63,7 +63,7 @@ namespace Neo.Compiler.MSIL
             // True
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("EqualNullB",(StackItem)new byte[0]);
+            result = testengine.ExecuteTestCaseStandard("EqualNullB", (StackItem)new byte[0]);
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
