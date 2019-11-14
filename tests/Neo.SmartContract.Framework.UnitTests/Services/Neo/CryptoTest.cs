@@ -112,6 +112,41 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
+        public void Test_VerifySignaturesWithMessage()
+        {
+            byte[] signature = Crypto.Default.Sign(_engine.ScriptContainer.GetHashData(),
+                _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+
+            // False
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("VerifySignaturesWithMessage",
+                new ByteArray(new byte[0]),
+                new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
+                new Array(new StackItem[] { new ByteArray(new byte[64]) }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            // True
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("VerifySignaturesWithMessage",
+                new ByteArray(_engine.ScriptContainer.GetHashData()),
+                new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
+                new Array(new StackItem[] { new ByteArray(signature) }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+        }
+
+        [TestMethod]
         public void Test_VerifySignatureWithMessage()
         {
             byte[] signature = Crypto.Default.Sign(_engine.ScriptContainer.GetHashData(),
