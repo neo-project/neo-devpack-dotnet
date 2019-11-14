@@ -1,4 +1,3 @@
-using CommandLine;
 using Neo.Compiler.MSIL;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -21,32 +20,38 @@ namespace Neo.Compiler
         //控制台输出约定了特别的语法
         public static void Main(string[] args)
         {
-            Parser.Default.ParseArguments<CmdOptions>(args)
-             .WithParsed(o => Run(o))
-             .WithNotParsed((errs) => { });
-        }
-
-        private static void Run(CmdOptions args)
-        {
-            Stream fs;
-            Stream fspdb;
-            var onlyname = Path.GetFileNameWithoutExtension(args.Filename);
-
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            // Set current directory
-            var fileInfo = new FileInfo(args.Filename);
-            if (!fileInfo.Exists)
+            // Check argmuents
+            if (args.Length == 0)
             {
-                log.Log("Could not find file " + args.Filename);
+                log.Log("You need a parameter to specify the DLL or the file name of the project.");
+                log.Log("Examples: ");
+                log.Log("  neon mySmartContract.dll");
+                log.Log("  neon mySmartContract.csproj");
+
                 Environment.Exit(-1);
                 return;
             }
 
+            var fileInfo = new FileInfo(args[0]);
+
+            // Set current directory
+            if (!fileInfo.Exists)
+            {
+                log.Log("Could not find file " + fileInfo.FullName);
+                Environment.Exit(-1);
+                return;
+            }
+
+            Stream fs;
+            Stream fspdb;
+            var onlyname = Path.GetFileNameWithoutExtension(fileInfo.Name);
             var path = fileInfo.Directory.FullName;
+
             if (!string.IsNullOrEmpty(path))
             {
                 try
@@ -61,14 +66,14 @@ namespace Neo.Compiler
                 }
             }
 
-            switch (Path.GetExtension(args.Filename).ToLowerInvariant())
+            switch (fileInfo.Extension.ToLowerInvariant())
             {
                 case ".csproj":
                     {
                         // Compile csproj file
 
                         log.Log("Compiling from csproj source");
-                        var output = Compiler.CompileCSProj(args.Filename);
+                        var output = Compiler.CompileCSProj(fileInfo.FullName);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
@@ -78,7 +83,7 @@ namespace Neo.Compiler
                         // Compile C# files
 
                         log.Log("Compiling from c# source");
-                        var output = Compiler.CompileCSFile(new string[] { args.Filename }, args.References.ToArray());
+                        var output = Compiler.CompileCSFile(new string[] { fileInfo.FullName }, new string[0]);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
@@ -88,7 +93,7 @@ namespace Neo.Compiler
                         // Compile VB files
 
                         log.Log("Compiling from VB source");
-                        var output = Compiler.CompileVBFile(new string[] { args.Filename }, args.References.ToArray());
+                        var output = Compiler.CompileVBFile(new string[] { fileInfo.FullName }, new string[0]);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
@@ -100,7 +105,7 @@ namespace Neo.Compiler
                         // Open file
                         try
                         {
-                            fs = File.OpenRead(args.Filename);
+                            fs = fileInfo.OpenRead();
 
                             if (File.Exists(filepdb))
                             {
