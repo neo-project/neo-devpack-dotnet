@@ -15,7 +15,6 @@ namespace Neo.Compiler.MSIL.Utils
 
         public BuildScript ScriptEntry { get; private set; }
 
-
         public TestEngine()
             : base(new TestTransaction(), new TestCrypto(), new TestTable(), new TestInteropService())
         {
@@ -114,8 +113,6 @@ namespace Neo.Compiler.MSIL.Utils
             var stack = this.ResultStack;
             return stack;
         }
-
-
 
         public bool CheckAsciiChar(string s)
         {
