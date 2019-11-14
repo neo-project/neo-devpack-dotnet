@@ -1,4 +1,4 @@
-﻿using Neo.Compiler.MSIL;
+using Neo.Compiler.MSIL;
 using System;
 using System.Collections.Generic;
 using System.Text;
