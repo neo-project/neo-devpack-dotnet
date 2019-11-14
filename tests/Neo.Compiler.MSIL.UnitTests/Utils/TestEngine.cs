@@ -162,9 +162,8 @@ namespace Neo.Compiler.MSIL.Utils
                method == InteropService.Neo_Json_Deserialize ||
                method == InteropService.Neo_Json_Serialize ||
                // Crypto
-               method == InteropService.Neo_Crypto_CheckSig ||
-               method == InteropService.System_Crypto_Verify ||
-               method == InteropService.Neo_Crypto_CheckMultiSig ||
+               method == InteropService.Neo_Crypto_ECDsaVerify ||
+               method == InteropService.Neo_Crypto_ECDsaCheckMultiSig ||
                // Blockchain
                method == InteropService.System_Blockchain_GetHeight ||
                method == InteropService.System_Blockchain_GetBlock ||
