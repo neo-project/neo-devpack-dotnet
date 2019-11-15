@@ -46,12 +46,15 @@ namespace Neo.Compiler.MSIL.Utils
             return outd;
         }
 
-        public static BuildScript BuildScript(string filename)
+        public static BuildScript BuildScript(string filename,bool releasemode=false)
         {
             var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
             var srccode = File.ReadAllText(filename);
             var tree = CSharpSyntaxTree.ParseText(srccode);
-            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Debug);
+
+            OptimizationLevel oplevel = releasemode ? OptimizationLevel.Release : OptimizationLevel.Debug;
+            //OptimizationLevel will got differnt contract hash.
+            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: oplevel);
             var comp = CSharpCompilation.Create("TestContract", new[] { tree }, new[]
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
