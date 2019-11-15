@@ -962,13 +962,13 @@ namespace Neo.Compiler.MSIL
             OpCode last = method.body_Codes[lastaddr];
             OpCode next = method.body_Codes[nextaddr];
             var bLdLoc = (last.code == CodeEx.Ldloc || last.code == CodeEx.Ldloc_0 || last.code == CodeEx.Ldloc_1 || last.code == CodeEx.Ldloc_2 || last.code == CodeEx.Ldloc_3 || last.code == CodeEx.Ldloc_S);
-            var bLdArg = (last.code == CodeEx.Ldarg|| last.code == CodeEx.Ldarg_0|| last.code == CodeEx.Ldarg_1 || last.code == CodeEx.Ldarg_2 || last.code == CodeEx.Ldarg_3 || last.code == CodeEx.Ldarg_S);
+            var bLdArg = (last.code == CodeEx.Ldarg || last.code == CodeEx.Ldarg_0 || last.code == CodeEx.Ldarg_1 || last.code == CodeEx.Ldarg_2 || last.code == CodeEx.Ldarg_3 || last.code == CodeEx.Ldarg_S);
             var bStLoc = (next.code == CodeEx.Stloc || next.code == CodeEx.Stloc_0 || next.code == CodeEx.Stloc_1 || next.code == CodeEx.Stloc_2 || next.code == CodeEx.Stloc_3 || next.code == CodeEx.Stloc_S);
-            if(bLdLoc&&bStLoc&&last.tokenI32!=next.tokenI32)
+            if (bLdLoc && bStLoc && last.tokenI32 != next.tokenI32)
             {//use temp var for switch
 
             }
-            else if(bLdArg&&bStLoc)
+            else if (bLdArg && bStLoc)
             {
                 //use arg for switch
             }
@@ -1020,7 +1020,7 @@ namespace Neo.Compiler.MSIL
                         {
                             //is switch ldstr with ldloc
                         }
-                        else if(bLdArg1 && code1.tokenI32 ==last.tokenI32&&code2.code == CodeEx.Ldstr && (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality"))
+                        else if (bLdArg1 && code1.tokenI32 == last.tokenI32 && code2.code == CodeEx.Ldstr && (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality"))
                         {
                             //is switch ldstr with ldarg
                         }
@@ -1052,7 +1052,7 @@ namespace Neo.Compiler.MSIL
                 var bLDStr2 = code2.code == CodeEx.Ldstr;
                 var bCallStrEq3 = (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Is_String_op_Equality();
                 var bBRTrue4 = code4.code == CodeEx.Brtrue || code4.code == CodeEx.Brtrue_S;
-                if ((bLdLoc1|| bLdArg1) && bLDStr2 && bCallStrEq3 && bBRTrue4)
+                if ((bLdLoc1 || bLdArg1) && bLDStr2 && bCallStrEq3 && bBRTrue4)
                 {
                     isjumpstr = true;
 
