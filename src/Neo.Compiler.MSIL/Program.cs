@@ -78,6 +78,16 @@ namespace Neo.Compiler
                         fspdb = new MemoryStream(output.Pdb);
                         break;
                     }
+                case ".vbproj":
+                    {
+                        // Compile vbproj file
+
+                        log.Log("Compiling from vbproj source");
+                        var output = Compiler.CompileVBProj(fileInfo.FullName);
+                        fs = new MemoryStream(output.Dll);
+                        fspdb = new MemoryStream(output.Pdb);
+                        break;
+                    }
                 case ".cs":
                     {
                         // Compile C# files
@@ -98,7 +108,7 @@ namespace Neo.Compiler
                         fspdb = new MemoryStream(output.Pdb);
                         break;
                     }
-                default:
+                case ".dll":
                     {
                         string filepdb = onlyname + ".pdb";
 
@@ -122,6 +132,12 @@ namespace Neo.Compiler
                             return;
                         }
                         break;
+                    }
+                default:
+                    {
+                        log.Log("File format not supported by neon: " + path);
+                        Environment.Exit(-1);
+                        return;
                     }
             }
 

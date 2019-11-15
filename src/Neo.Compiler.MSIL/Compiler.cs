@@ -58,7 +58,31 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="filename">File name</param>
         /// <returns>Assembly</returns>
+        public static Assembly CompileVBProj(string filename)
+        {
+            ExtractFileAndReferences(filename, ".vb", out var files, out var references);
+            return CompileVBFile(files.ToArray(), references.ToArray());
+        }
+
+        /// <summary>
+        /// Build script
+        /// </summary>
+        /// <param name="filename">File name</param>
+        /// <returns>Assembly</returns>
         public static Assembly CompileCSProj(string filename)
+        {
+            ExtractFileAndReferences(filename, ".cs", out var files, out var references);
+            return CompileCSFile(files.ToArray(), references.ToArray());
+        }
+
+        /// <summary>
+        /// Extract information in project files
+        /// </summary>
+        /// <param name="filename">File name</param>
+        /// <param name="extension">Extension</param>
+        /// <param name="files">Files</param>
+        /// <param name="references">References</param>
+        private static void ExtractFileAndReferences(string filename, string extension, out List<string> files, out List<string> references)
         {
             var fileInfo = new FileInfo(filename);
 
@@ -74,12 +98,12 @@ namespace Neo.Compiler
 
             // Detect references
 
-            var references = projDefinition
-                .Element("Project")
-                .Elements("ItemGroup")
-                .Elements("PackageReference")
-                .Select(u => u.Attribute("Include").Value + ".dll")
-                .ToList();
+            references = projDefinition
+               .Element("Project")
+               .Elements("ItemGroup")
+               .Elements("PackageReference")
+               .Select(u => u.Attribute("Include").Value + ".dll")
+               .ToList();
 
             // Detect hints
 
@@ -98,18 +122,16 @@ namespace Neo.Compiler
 
             // Detect files
 
-            var files = projDefinition
-                .Element("Project")
-                .Elements("ItemGroup")
-                .Elements("Compile")
-                .Select(u => u.Attribute("Update").Value)
-                .ToList();
+            files = projDefinition
+               .Element("Project")
+               .Elements("ItemGroup")
+               .Elements("Compile")
+               .Select(u => u.Attribute("Update").Value)
+               .ToList();
 
-            files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*.cs", SearchOption.AllDirectories));
+            files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*" + extension, SearchOption.AllDirectories));
             files = files.Distinct().ToList();
             reader.Dispose();
-
-            return CompileCSFile(files.ToArray(), references.ToArray());
         }
 
         /// <summary>
