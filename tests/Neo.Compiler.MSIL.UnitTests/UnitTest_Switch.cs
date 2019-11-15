@@ -70,7 +70,7 @@ namespace Neo.Compiler.MSIL
         {
             RandomAccessStack<StackItem> result;
             TestEngine testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs",true);
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs", true);
 
             // Test cases
 
