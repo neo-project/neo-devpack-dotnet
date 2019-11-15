@@ -82,7 +82,7 @@ namespace Neo.Compiler.MSIL
             {
                 _ConvertPush(pos + method.paramtypes.Count, src, to);
             }
-            else if (n2.code == CodeEx.Call && n2.tokenMethod.Contains(".ctor"))
+            else if (n2.code == CodeEx.Call && n2.tokenMethod.Is_ctor())
             {
                 _ConvertPush(pos + method.paramtypes.Count, src, to);
 
@@ -1035,7 +1035,7 @@ namespace Neo.Compiler.MSIL
                     {
                         isjumptable = false;
                         //順便看看是不是ldstr 段
-                        if (bLdLoc1 && code1.tokenI32 == last.tokenI32 && code2.code == CodeEx.Ldstr && (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality"))
+                        if (bLdLoc1 && code1.tokenI32 == last.tokenI32 && code2.code == CodeEx.Ldstr && (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Is_String_op_Equality())
                         {
                             //is switch ldstr with ldloc
                         }
@@ -1076,7 +1076,7 @@ namespace Neo.Compiler.MSIL
                      && code1.tokenI32 == last.tokenI32;
 
                 var bLDStr2 = code2.code == CodeEx.Ldstr;
-                var bCallStrEq3 = (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality");
+                var bCallStrEq3 = (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Is_String_op_Equality();
                 var bBRTrue4 = code4.code == CodeEx.Brtrue || code4.code == CodeEx.Brtrue_S;
                 if ((bLdLoc1|| bLdArg1) && bLDStr2 && bCallStrEq3 && bBRTrue4)
                 {
