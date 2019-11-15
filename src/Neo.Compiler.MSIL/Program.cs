@@ -72,7 +72,7 @@ namespace Neo.Compiler
                     {
                         // Compile csproj file
 
-                        log.Log("Compiling from csproj source");
+                        log.Log("Compiling from csproj project");
                         var output = Compiler.CompileCSProj(fileInfo.FullName);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
@@ -82,7 +82,7 @@ namespace Neo.Compiler
                     {
                         // Compile vbproj file
 
-                        log.Log("Compiling from vbproj source");
+                        log.Log("Compiling from vbproj project");
                         var output = Compiler.CompileVBProj(fileInfo.FullName);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
