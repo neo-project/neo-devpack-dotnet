@@ -46,7 +46,7 @@ namespace Neo.Compiler.MSIL.Utils
             return outd;
         }
 
-        public static BuildScript BuildScript(string filename,bool releasemode=false)
+        public static BuildScript BuildScript(string filename, bool releasemode = false)
         {
             var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
             var srccode = File.ReadAllText(filename);
