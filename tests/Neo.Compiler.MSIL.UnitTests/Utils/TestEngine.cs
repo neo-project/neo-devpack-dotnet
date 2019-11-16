@@ -40,17 +40,6 @@ namespace Neo.Compiler.MSIL.Utils
             ScriptEntry = Build(filename, releaseMode);
             Reset();
         }
-
-<<<<<<< HEAD
-=======
-            ScriptEntry = scriptsAll[filename];
-            Reset();
-        }
-<<<<<<< HEAD
->>>>>>> 9129587... UT optimization (#117)
-=======
-
->>>>>>> 6d44ce5... Update TestEngine.cs
         public void Reset()
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
@@ -82,10 +71,6 @@ namespace Neo.Compiler.MSIL.Utils
 
         public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-<<<<<<< HEAD
-            //var engine = new ExecutionEngine();
-=======
->>>>>>> 9129587... UT optimization (#117)
             this.InvocationStack.Peek().InstructionPointer = 0;
             this.CurrentContext.EvaluationStack.Push(args);
             this.CurrentContext.EvaluationStack.Push(methodname);
