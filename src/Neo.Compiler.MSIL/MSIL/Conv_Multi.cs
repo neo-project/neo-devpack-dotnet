@@ -763,12 +763,6 @@ namespace Neo.Compiler.MSIL
                     _Convert1by1(VM.OpCode.SETITEM, null, to);
                     return 0;
                 }
-                else if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
-                {
-                    // Calling the generated ComputeStringHash() in the runtime is too expensive.
-
-                    throw new Exception("A large 'switch' was found with 'ComputeStringHash' optimization, this optimization is not supported on neovm now.");
-                }
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
                     _Convert1by1(VM.OpCode.SHL, src, to);
@@ -907,7 +901,6 @@ namespace Neo.Compiler.MSIL
             {
                 for (var j = 0; j < callcodes.Length; j++)
                 {
-
                     if (callcodes[j] == VM.OpCode.SYSCALL)
                     {
                         //if(isHex)
@@ -960,6 +953,151 @@ namespace Neo.Compiler.MSIL
                 _Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.System_Contract_Call));
             }
             return 0;
+        }
+
+        private int _ConvertStringSwitch(ILMethod method, OpCode src, NeoMethod to)
+        {
+            var lastaddr = method.GetLastCodeAddr(src.addr);
+            var nextaddr = method.GetNextCodeAddr(src.addr);
+            OpCode last = method.body_Codes[lastaddr];
+            OpCode next = method.body_Codes[nextaddr];
+            var bLdLoc = (last.code == CodeEx.Ldloc || last.code == CodeEx.Ldloc_0 || last.code == CodeEx.Ldloc_1 || last.code == CodeEx.Ldloc_2 || last.code == CodeEx.Ldloc_3 || last.code == CodeEx.Ldloc_S);
+            var bLdArg = (last.code == CodeEx.Ldarg|| last.code == CodeEx.Ldarg_0|| last.code == CodeEx.Ldarg_1 || last.code == CodeEx.Ldarg_2 || last.code == CodeEx.Ldarg_3 || last.code == CodeEx.Ldarg_S);
+            var bStLoc = (next.code == CodeEx.Stloc || next.code == CodeEx.Stloc_0 || next.code == CodeEx.Stloc_1 || next.code == CodeEx.Stloc_2 || next.code == CodeEx.Stloc_3 || next.code == CodeEx.Stloc_S);
+            if(bLdLoc&&bStLoc&&last.tokenI32!=next.tokenI32)
+            {//use temp var for switch
+
+            }
+            else if(bLdArg&&bStLoc)
+            {
+                //use arg for switch
+            }
+            else
+            {//not parse this type of code yet.
+                throw new Exception("not use a temp loc,not parse this type of code yet.");
+            }
+            int skipcount = 1;
+            bool isjumptable = false;
+            var jumptableaddr = method.GetNextCodeAddr(nextaddr);
+            int jumptablecount = 0;
+            int brcount = 0;
+            do
+            {
+                OpCode code1 = method.body_Codes[jumptableaddr];
+                if (code1.code == CodeEx.Ret || code1.code == CodeEx.Br || code1.code == CodeEx.Br_S)
+                {
+                    isjumptable = true;
+                    jumptableaddr = method.GetNextCodeAddr(jumptableaddr);
+                    skipcount++;
+                    brcount++;
+                }
+                else
+                {
+                    OpCode code2 = method.body_Codes[method.GetNextCodeAddr(jumptableaddr)];
+                    OpCode code3 = method.body_Codes[method.GetNextCodeAddr(code2.addr)];
+                    var bLdLoc1 = (code1.code == CodeEx.Ldloc || code1.code == CodeEx.Ldloc_0 || code1.code == CodeEx.Ldloc_1 || code1.code == CodeEx.Ldloc_2 || code1.code == CodeEx.Ldloc_3 || code1.code == CodeEx.Ldloc_S);
+                    var bLdArg1 = (code1.code == CodeEx.Ldarg || code1.code == CodeEx.Ldarg_0 || code1.code == CodeEx.Ldarg_1 || code1.code == CodeEx.Ldarg_2 || code1.code == CodeEx.Ldarg_3 || code1.code == CodeEx.Ldarg_S);
+                    var bLdC4 = code2.code == CodeEx.Ldc_I4 || code2.code == CodeEx.Ldc_I4_0 || code2.code == CodeEx.Ldc_I4_1 || code2.code == CodeEx.Ldc_I4_2 || code2.code == CodeEx.Ldc_I4_3
+                        || code2.code == CodeEx.Ldc_I4_4 || code2.code == CodeEx.Ldc_I4_5 || code2.code == CodeEx.Ldc_I4_6 || code2.code == CodeEx.Ldc_I4_7 || code2.code == CodeEx.Ldc_I4_8
+                        || code2.code == CodeEx.Ldc_I4_M1 || code2.code == CodeEx.Ldc_I4_S;
+                    var bJmp = code3.code == CodeEx.Beq || code3.code == CodeEx.Beq_S || code3.code == CodeEx.Bge || code3.code == CodeEx.Bge_S || code3.code == CodeEx.Bge_Un || code3.code == CodeEx.Bge_Un_S
+                        || code3.code == CodeEx.Bgt || code3.code == CodeEx.Bgt_S || code3.code == CodeEx.Bgt_Un || code3.code == CodeEx.Bgt_Un_S
+                        || code3.code == CodeEx.Ble || code3.code == CodeEx.Ble_S || code3.code == CodeEx.Ble_Un || code3.code == CodeEx.Ble_Un_S
+                        || code3.code == CodeEx.Blt || code3.code == CodeEx.Blt_S || code3.code == CodeEx.Blt_Un || code3.code == CodeEx.Blt_Un_S
+                        || code3.code == CodeEx.Bne_Un || code3.code == CodeEx.Bne_Un_S;
+                    if (bLdLoc1 && bLdC4 && bJmp)
+                    {
+                        isjumptable = true;
+                        jumptableaddr = method.GetNextCodeAddr(code3.addr);
+                        skipcount += 3;
+                        jumptablecount++;
+                    }
+                    else
+                    {
+                        isjumptable = false;
+                        //順便看看是不是ldstr 段
+                        if (bLdLoc1 && code1.tokenI32 == last.tokenI32 && code2.code == CodeEx.Ldstr && (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality"))
+                        {
+                            //is switch ldstr with ldloc
+                        }
+                        else if(bLdArg1 && code1.tokenI32 ==last.tokenI32&&code2.code == CodeEx.Ldstr && (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality"))
+                        {
+                            //is switch ldstr with ldarg
+                        }
+                        else
+                        {
+                            throw new Exception("unknown switch info");
+                            //is not
+                        }
+                    }
+                }
+            }
+            while (isjumptable);
+
+            //處理之後的jmpstr段落
+            bool isjumpstr = false;
+            do
+            {
+                OpCode code1 = method.body_Codes[jumptableaddr];
+                OpCode code2 = method.body_Codes[method.GetNextCodeAddr(jumptableaddr)];
+                OpCode code3 = method.body_Codes[method.GetNextCodeAddr(code2.addr)];
+                OpCode code4 = method.body_Codes[method.GetNextCodeAddr(code3.addr)];
+                //ldstr with ldloc
+                var bLdLoc1 = (code1.code == CodeEx.Ldloc || code1.code == CodeEx.Ldloc_0 || code1.code == CodeEx.Ldloc_1 || code1.code == CodeEx.Ldloc_2 || code1.code == CodeEx.Ldloc_3 || code1.code == CodeEx.Ldloc_S)
+                     && code1.tokenI32 == last.tokenI32;
+                //ldstr with ldarg :release and switch with a function param
+                var bLdArg1 = (code1.code == CodeEx.Ldarg || code1.code == CodeEx.Ldarg_0 || code1.code == CodeEx.Ldarg_1 || code1.code == CodeEx.Ldarg_2 || code1.code == CodeEx.Ldarg_3 || code1.code == CodeEx.Ldarg_S)
+                     && code1.tokenI32 == last.tokenI32;
+
+                var bLDStr2 = code2.code == CodeEx.Ldstr;
+                var bCallStrEq3 = (code3.code == CodeEx.Call || code3.code == CodeEx.Callvirt) && code3.tokenMethod.Contains("String::op_Equality");
+                var bBRTrue4 = code4.code == CodeEx.Brtrue || code4.code == CodeEx.Brtrue_S;
+                if ((bLdLoc1|| bLdArg1) && bLDStr2 && bCallStrEq3 && bBRTrue4)
+                {
+                    isjumpstr = true;
+
+                    skipcount += ConvertCode(method, code1, to);
+                    skipcount += ConvertCode(method, code2, to);
+                    skipcount += ConvertCode(method, code3, to);
+                    skipcount += ConvertCode(method, code4, to);
+                    //is switch ldstr
+                    var code5 = method.body_Codes[method.GetNextCodeAddr(code4.addr)];
+                    if (code5.code == CodeEx.Ret || code5.code == CodeEx.Br || code5.code == CodeEx.Br_S)
+                    {
+                        //code5是個跳轉指令，不要他le
+                        skipcount++;
+                        jumptableaddr = method.GetNextCodeAddr(code5.addr);
+                    }
+                    else
+                    {
+                        jumptableaddr = code5.addr;
+                    }
+                }
+                else
+                {
+                    isjumpstr = false;//結束處理jmp
+                }
+            }
+            while (isjumpstr);
+            //之后会有超过6个跳转表段落
+            //特征是三條指令一組
+            //ldloc =last
+            //ldc.i4
+            //條件指令 bgt bet
+
+            //也可能會出現return 段落
+
+            //查找這些段落，直到找到第一個不符合規律的段，如果總數小於6，那就不是switch指令
+
+
+            //再之後，會進入string比較段落
+            //ldloc =last
+            //ldstr
+            //call String::op_Equality(string, string)
+            //brtrue 條件跳轉
+
+            //找到這個段落就ok，刪除跳轉表段落即可
+            return skipcount;
         }
         private bool TryInsertMethod(NeoModule outModule, Mono.Cecil.MethodDefinition method)
         {
