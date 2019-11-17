@@ -32,6 +32,7 @@ namespace Neo.Compiler.MSIL
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
+
         [TestMethod]
         public void Test_SwitchLong_Release()
         {
@@ -54,6 +55,7 @@ namespace Neo.Compiler.MSIL
             result = testengine.ExecuteTestCaseStandard("default");
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
+
         [TestMethod]
         public void Test_Switch6()
         {
