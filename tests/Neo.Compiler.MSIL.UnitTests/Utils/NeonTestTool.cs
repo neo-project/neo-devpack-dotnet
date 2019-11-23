@@ -1,7 +1,3 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Framework;
 using Neo.VM;
 using System.IO;
 using System.Security.Cryptography;
@@ -46,33 +42,19 @@ namespace Neo.Compiler.MSIL.Utils
             return outd;
         }
 
-        public static BuildScript BuildScript(string filename, bool releasemode = false)
+        /// <summary>
+        /// Build script
+        /// </summary>
+        /// <param name="filename">File</param>
+        /// <param name="releaseMode">Release mode (default=false)</param>
+        /// <returns>BuildScript</returns>
+        public static BuildScript BuildScript(string filename, bool releaseMode = false)
         {
-            var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
-            var srccode = File.ReadAllText(filename);
-            var tree = CSharpSyntaxTree.ParseText(srccode);
+            var comp = Compiler.CompileCSFile(new string[] { filename }, new string[0] { }, releaseMode);
 
-            OptimizationLevel oplevel = releasemode ? OptimizationLevel.Release : OptimizationLevel.Debug;
-            //OptimizationLevel will got differnt contract hash.
-            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: oplevel);
-            var comp = CSharpCompilation.Create("TestContract", new[] { tree }, new[]
+            using (var streamDll = new MemoryStream(comp.Dll))
+            using (var streamPdb = new MemoryStream(comp.Pdb))
             {
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
-                MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
-
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(OpCodeAttribute).Assembly.Location)
-           }, op);
-            using (var streamDll = new MemoryStream())
-            using (var streamPdb = new MemoryStream())
-            {
-                var result = comp.Emit(streamDll, streamPdb);
-                Assert.IsTrue(result.Success);
-                streamDll.Position = 0;
-                streamPdb.Position = 0;
-
                 var bs = new BuildScript();
                 bs.Build(streamDll, streamPdb);
 
