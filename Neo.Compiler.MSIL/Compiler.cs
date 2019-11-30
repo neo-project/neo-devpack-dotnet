@@ -175,7 +175,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
                 MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(SmartContract.Framework.SmartContract).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(SmartContract.Framework.SyscallAttribute).Assembly.Location),
             });
             refs.AddRange(references.Select(u => MetadataReference.CreateFromFile(u)));
             return refs.ToArray();
