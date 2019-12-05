@@ -74,7 +74,7 @@ namespace Neo.Compiler.MSIL.Utils
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
             this.InvocationStack.Peek().InstructionPointer = 0;
-            this.Push(new VM.Types.Array(args));
+            this.Push(new VM.Types.Array(this.ReferenceCounter, args));
             this.Push(methodname);
             while (true)
             {
