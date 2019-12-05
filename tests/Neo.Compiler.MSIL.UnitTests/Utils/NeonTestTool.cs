@@ -1,4 +1,3 @@
-using Neo.SmartContract.Framework;
 using Neo.VM;
 using System.IO;
 using System.Security.Cryptography;
@@ -43,9 +42,15 @@ namespace Neo.Compiler.MSIL.Utils
             return outd;
         }
 
-        public static BuildScript BuildScript(string filename)
+        /// <summary>
+        /// Build script
+        /// </summary>
+        /// <param name="filename">File</param>
+        /// <param name="releaseMode">Release mode (default=false)</param>
+        /// <returns>BuildScript</returns>
+        public static BuildScript BuildScript(string filename, bool releaseMode = false)
         {
-            var comp = Compiler.CompileCSFile(new string[] { filename }, new string[0] { });
+            var comp = Compiler.CompileCSFile(new string[] { filename }, new string[0] { }, releaseMode);
 
             using (var streamDll = new MemoryStream(comp.Dll))
             using (var streamPdb = new MemoryStream(comp.Pdb))
