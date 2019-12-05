@@ -22,7 +22,7 @@ namespace Neo.Compiler.MSIL
         public void Test_ValidSwitch()
         {
             TestEngine testengine;
-            RandomAccessStack<StackItem> result;
+            EvaluationStack result;
 
             // Test cases
 

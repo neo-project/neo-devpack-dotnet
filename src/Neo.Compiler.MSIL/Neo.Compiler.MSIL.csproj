@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Copyright>2015-2019 The Neo Project</Copyright>
     <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
     <Version>2.4.1</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <AssemblyName>neon</AssemblyName>
     <PackageId>Neo.Compiler.MSIL</PackageId>
@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.3.1" />
     <PackageReference Include="Mono.Cecil" Version="0.11.1" />
-    <PackageReference Include="Neo" Version="3.0.0-CI00212" />
+    <PackageReference Include="Neo" Version="3.0.0-CI00818" />
   </ItemGroup>
 
   <ItemGroup>

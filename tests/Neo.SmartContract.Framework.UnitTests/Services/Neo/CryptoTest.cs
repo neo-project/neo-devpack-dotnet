@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_VerifySignature()
         {
-            byte[] signature = Crypto.Default.Sign(_engine.ScriptContainer.GetHashData(),
+            byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetHashData(),
                 _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
 
             // False
@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
 
             // True
 
@@ -75,13 +75,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
         }
 
         [TestMethod]
         public void Test_VerifySignatures()
         {
-            byte[] signature = Crypto.Default.Sign(_engine.ScriptContainer.GetHashData(),
+            byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetHashData(),
                 _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
 
             // False
@@ -95,7 +95,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
 
             // True
 
@@ -108,13 +108,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
         }
 
         [TestMethod]
         public void Test_VerifySignaturesWithMessage()
         {
-            byte[] signature = Crypto.Default.Sign(_engine.ScriptContainer.GetHashData(),
+            byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetHashData(),
                 _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
 
             // False
@@ -129,7 +129,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
 
             // True
 
@@ -143,13 +143,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
         }
 
         [TestMethod]
         public void Test_VerifySignatureWithMessage()
         {
-            byte[] signature = Crypto.Default.Sign(_engine.ScriptContainer.GetHashData(),
+            byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetHashData(),
                 _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
 
             // False
@@ -163,7 +163,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
 
             // True
 
@@ -176,7 +176,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
         }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.IO;
 using Neo.Ledger;
 using Neo.Persistence;
 using Neo.VM;
@@ -15,16 +16,16 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     {
         private Network.P2P.Payloads.Block _block;
         private TestEngine _engine;
-        private Store _store;
+        private IStore _store;
 
         [TestInitialize]
         public void Init()
         {
             _store = TestBlockchain.GetStore();
-            var snapshot = _store.GetSnapshot();
+            var snapshot = new SnapshotView(_store);
 
             _block = Blockchain.GenesisBlock;
-            _engine = new TestEngine(snapshot: snapshot);
+            _engine = new TestEngine(snapshot: snapshot.Clone());
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
         }
 
@@ -129,7 +130,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(tx.Hash.ToArray(), item.GetByteArray());
+            CollectionAssert.AreEqual(tx.Hash.ToArray(), item.GetSpan().ToArray());
 
             // NetworkFee
 
@@ -195,7 +196,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(tx.Script, item.GetByteArray());
+            CollectionAssert.AreEqual(tx.Script, item.GetSpan().ToArray());
 
             // Sender
 
@@ -206,7 +207,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetByteArray());
+            CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetSpan().ToArray());
         }
 
         private StackItem[] Concat(StackItem[] a, ByteArray b)
@@ -241,7 +242,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(_block.Hash.ToArray(), item.GetByteArray());
+            CollectionAssert.AreEqual(_block.Hash.ToArray(), item.GetSpan().ToArray());
 
             // Index
 
@@ -263,7 +264,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(_block.MerkleRoot.ToArray(), item.GetByteArray());
+            CollectionAssert.AreEqual(_block.MerkleRoot.ToArray(), item.GetSpan().ToArray());
 
             // NextConsensus
 
@@ -274,7 +275,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(_block.NextConsensus.ToArray(), item.GetByteArray());
+            CollectionAssert.AreEqual(_block.NextConsensus.ToArray(), item.GetSpan().ToArray());
 
             // PrevHash
 
@@ -285,7 +286,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            CollectionAssert.AreEqual(_block.PrevHash.ToArray(), item.GetByteArray());
+            CollectionAssert.AreEqual(_block.PrevHash.ToArray(), item.GetSpan().ToArray());
 
             // Timestamp
 
@@ -359,7 +360,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.AreEqual(contract.HasStorage, item.GetBoolean());
+            Assert.AreEqual(contract.HasStorage, item.ToBoolean());
 
             // Found + IsPayable
 
@@ -370,7 +371,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.AreEqual(contract.Payable, item.GetBoolean());
+            Assert.AreEqual(contract.Payable, item.ToBoolean());
 
             // Found + IsPayable
 
@@ -381,7 +382,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.ByteArray));
-            CollectionAssert.AreEqual(contract.Script, item.GetByteArray());
+            CollectionAssert.AreEqual(contract.Script, item.GetSpan().ToArray());
 
             // Found + Uknown property
 

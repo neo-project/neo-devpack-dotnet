@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL
 {
@@ -27,7 +28,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
             testengine.ScriptEntry.DumpNEF();
-            StackItem[] _params = new StackItem[] { "privateMethod", new StackItem[0] };
+            StackItem[] _params = new StackItem[] { "privateMethod", new Array() };
             var result = testengine.ExecuteTestCase(_params);//new test method02
 
             bool hadFault = (testengine.State & VMState.FAULT) > 0;

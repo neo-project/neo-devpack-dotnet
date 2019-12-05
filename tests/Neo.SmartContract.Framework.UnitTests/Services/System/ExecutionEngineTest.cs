@@ -25,7 +25,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             {
             }
 
-            public UInt160[] GetScriptHashesForVerifying(Snapshot snapshot)
+            public UInt160[] GetScriptHashesForVerifying(StoreView snapshot)
             {
                 throw new global::System.NotImplementedException();
             }
@@ -58,7 +58,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetByteArray().ToHexString());
+            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetByteArray().ToHexString());
+            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetByteArray().ToHexString());
+            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetSpan().ToHexString());
         }
 
         [TestMethod]

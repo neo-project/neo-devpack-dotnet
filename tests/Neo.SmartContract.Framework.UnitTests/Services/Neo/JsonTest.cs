@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(entry, typeof(Null));
             entry = ((Array)item)[1];
             Assert.IsInstanceOfType(entry, typeof(Boolean));
-            Assert.AreEqual(true, entry.GetBoolean());
+            Assert.AreEqual(true, entry.ToBoolean());
             entry = ((Array)item)[2];
             Assert.IsInstanceOfType(entry, typeof(ByteArray));
             Assert.AreEqual("asd", entry.GetString());

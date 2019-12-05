@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var rItem = result.Pop();
 
             Assert.IsInstanceOfType(rItem, typeof(Integer));
-            Assert.AreEqual(1, rItem.GetBigInteger());
+            Assert.AreEqual(1, ((Integer)rItem).ToBigInteger());
             Assert.AreEqual(1,
                 testengine.Snapshot.Storages.GetChangeSet()
                 .Count(a =>
@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
-            return rItem.GetByteArray();
+            return ((ByteArray)rItem).ToByteArray().ToArray();
         }
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)

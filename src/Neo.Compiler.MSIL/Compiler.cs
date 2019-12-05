@@ -42,7 +42,7 @@ namespace Neo.Compiler
 
                     if (!result.Success)
                     {
-                        throw new ArgumentException();
+                        throw new ArgumentException(string.Join(Environment.NewLine, result.Diagnostics.Select(u => u.ToString())));
                     }
 
                     streamDll.Position = 0;
@@ -175,7 +175,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
                 MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Neo.SmartContract.Framework.SmartContract).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(SmartContract.Framework.SmartContract).Assembly.Location),
             });
             refs.AddRange(references.Select(u => MetadataReference.CreateFromFile(u)));
             return refs.ToArray();
