@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework
     }
 
     [AttributeUsage(AttributeTargets.Assembly, Inherited = false)]
-    public sealed class ContractHasDynamicInvoke: Attribute
+    public sealed class ContractHasDynamicInvoke : Attribute
     {
     }
 
