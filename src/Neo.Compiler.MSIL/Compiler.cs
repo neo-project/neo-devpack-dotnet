@@ -57,22 +57,24 @@ namespace Neo.Compiler
         /// Build script
         /// </summary>
         /// <param name="filename">File name</param>
+        /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileVBProj(string filename)
+        public static Assembly CompileVBProj(string filename, bool releaseMode = true)
         {
             ExtractFileAndReferences(filename, ".vb", out var files, out var references);
-            return CompileVBFile(files.ToArray(), references.ToArray());
+            return CompileVBFile(files.ToArray(), references.ToArray(), releaseMode);
         }
 
         /// <summary>
         /// Build script
         /// </summary>
         /// <param name="filename">File name</param>
+        /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileCSProj(string filename)
+        public static Assembly CompileCSProj(string filename, bool releaseMode = true)
         {
             ExtractFileAndReferences(filename, ".cs", out var files, out var references);
-            return CompileCSFile(files.ToArray(), references.ToArray());
+            return CompileCSFile(files.ToArray(), references.ToArray(), releaseMode);
         }
 
         /// <summary>
@@ -139,11 +141,12 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="filenames">File names</param>
         /// <param name="references">References</param>
+        /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileVBFile(string[] filenames, string[] references)
+        public static Assembly CompileVBFile(string[] filenames, string[] references, bool releaseMode = true)
         {
             var tree = filenames.Select(u => VisualBasicSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
-            var op = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
+            var op = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
             return Assembly.Create(VisualBasicCompilation.Create("SmartContract", tree, CreateReferences(references), op));
         }
 
@@ -152,11 +155,12 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="filenames">File names</param>
         /// <param name="references">References</param>
+        /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileCSFile(string[] filenames, string[] references)
+        public static Assembly CompileCSFile(string[] filenames, string[] references, bool releaseMode = true)
         {
             var tree = filenames.Select(u => CSharpSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
-            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
+            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
             return Assembly.Create(CSharpCompilation.Create("SmartContract", tree, CreateReferences(references), op));
         }
 

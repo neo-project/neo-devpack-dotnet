@@ -58,7 +58,13 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetSpan().ToHexString());
+            //test by this way is bad idea? how to sure got a fix hash always?
+            var gothash = item.GetSpan().ToHexString();
+            var bequal =
+                gothash == "3632c01ec5cc1961ba49d8033798e469f6a6f697"//build by realse
+                ||
+                gothash == "548fa39db17d90ad37bfa62a3bd10830227579bd";//build by debug
+            Assert.IsTrue(bequal);
         }
 
         [TestMethod]
@@ -71,7 +77,13 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetSpan().ToHexString());
+            //test by this way is bad idea? how to sure got a fix hash always?
+            var gothash = item.GetSpan().ToHexString();
+            var bequal =
+                gothash == "3632c01ec5cc1961ba49d8033798e469f6a6f697"//build by realse
+                ||
+                gothash == "548fa39db17d90ad37bfa62a3bd10830227579bd";//build by debug
+            Assert.IsTrue(bequal);
         }
 
         [TestMethod]
@@ -84,7 +96,13 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("3632c01ec5cc1961ba49d8033798e469f6a6f697", item.GetSpan().ToHexString());
+            //test by this way is bad idea? how to sure got a fix hash always? 
+            var gothash = item.GetSpan().ToHexString();
+            var bequal =
+                gothash == "3632c01ec5cc1961ba49d8033798e469f6a6f697"//build by realse
+                ||
+                gothash == "548fa39db17d90ad37bfa62a3bd10830227579bd";//build by debug
+            Assert.IsTrue(bequal);
         }
 
         [TestMethod]
