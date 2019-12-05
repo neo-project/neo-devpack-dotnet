@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.IO;
 using Neo.Ledger;
-using Neo.Persistence;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
@@ -16,13 +15,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     {
         private Network.P2P.Payloads.Block _block;
         private TestEngine _engine;
-        private IStore _store;
 
         [TestInitialize]
         public void Init()
         {
-            _store = TestBlockchain.GetStore();
-            var snapshot = new SnapshotView(_store);
+            var _ = TestBlockchain.TheNeoSystem;
+            var snapshot = Blockchain.Singleton.GetSnapshot();
 
             _block = Blockchain.GenesisBlock;
             _engine = new TestEngine(snapshot: snapshot.Clone());

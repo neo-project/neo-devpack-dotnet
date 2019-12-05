@@ -1,38 +1,18 @@
 using Neo.Ledger;
-using Neo.Persistence;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     public static class TestBlockchain
     {
-        private static NeoSystem TheNeoSystem;
-        private static IStore _Store;
-
-        public static IStore GetStore()
-        {
-            if (_Store == null) InitializeMockNeoSystem();
-            return _Store;
-        }
+        public static readonly NeoSystem TheNeoSystem;
 
         static TestBlockchain()
         {
-            InitializeMockNeoSystem();
-            GetStore();
-        }
+            TheNeoSystem = new NeoSystem();
 
-        public static NeoSystem InitializeMockNeoSystem()
-        {
-            if (TheNeoSystem == null)
-            {
-                _Store = new MemoryStore();
-                TheNeoSystem = new NeoSystem(null);
+            // Ensure that blockchain is loaded
 
-                // Ensure that blockchain is loaded
-
-                var blockchain = Blockchain.Singleton;
-            }
-
-            return TheNeoSystem;
+            var _ = Blockchain.Singleton;
         }
     }
 }
