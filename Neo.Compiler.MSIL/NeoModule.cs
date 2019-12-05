@@ -7,6 +7,15 @@ namespace Neo.Compiler
 {
     public class NeoModule
     {
+        public string Title;
+        public string Description;
+        public string Version;
+        public string Author;
+        public string Email;
+        public bool HasStorage;
+        public bool HasDynamicInvoke;
+        public bool IsPayable;
+
         public NeoModule(ILogger logger)
         {
         }
