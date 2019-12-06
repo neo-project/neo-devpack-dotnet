@@ -134,7 +134,7 @@ namespace Neo.Compiler
                 {
                     var outjson = DebugExport.Export(am);
                     StringBuilder sb = new StringBuilder();
-                    outjson.ConvertToStringWithFormat(sb, 0);
+                    outjson.ConvertToString(sb);
                     debugstr = sb.ToString();
                     log.Log("gen debug succ");
                 }
@@ -183,12 +183,11 @@ namespace Neo.Compiler
             try
             {
                 string debugname = onlyname + ".debug.json";
-                string debugzip = onlyname + ".debug.zip";
+                string debugzip = onlyname + ".avmdbgnfo";
 
                 var tempName = Path.GetTempFileName();
                 File.Delete(tempName);
                 File.WriteAllText(tempName, debugstr);
-
 
                 File.Delete(debugzip);
                 using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
