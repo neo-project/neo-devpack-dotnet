@@ -1,6 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
-using Neo.VM.Types;
+using Neo.SmartContract;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace Neo.Compiler.MSIL
 {
@@ -10,19 +13,33 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_Shift()
         {
+            var list = new List<BigInteger>();
+            var method = new EventHandler<NotifyEventArgs>((sender, e) => list.Add(((VM.Types.Integer)((VM.Types.Array)e.State)[0]).ToBigInteger()));
+            ApplicationEngine.Notify += method;
+
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift.cs");
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("testfunc");
+            ApplicationEngine.Notify -= method;
+
+            CollectionAssert.AreEqual(new BigInteger[] { 16, 17179869184, 4, 0 }, list);
         }
+
         [TestMethod]
         public void Test_Shift_BigInteger()
         {
+            var list = new List<BigInteger>();
+            var method = new EventHandler<NotifyEventArgs>((sender, e) => list.Add(((VM.Types.Integer)((VM.Types.Array)e.State)[0]).ToBigInteger()));
+            ApplicationEngine.Notify += method;
+
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_shift_bigint.cs");
             testengine.ScriptEntry.DumpNEF();
-            StackItem[] _params = new StackItem[] { "testfunc", new Array() };
-            var result = testengine.ExecuteTestCase(_params);
+            var result = testengine.ExecuteTestCaseStandard("testfunc");
+            ApplicationEngine.Notify -= method;
+
+            CollectionAssert.AreEqual(new BigInteger[] { 16, 4, 4, 16 }, list);
         }
     }
 }
