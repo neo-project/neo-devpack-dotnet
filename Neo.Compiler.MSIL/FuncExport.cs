@@ -1,4 +1,4 @@
-﻿using Neo.Compiler;
+using Neo.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace vmtool
 {
     public class FuncExport
     {
-        static string ConvType(string _type)
+        public static string ConvType(string _type)
         {
             switch (_type)
             {
@@ -57,7 +57,7 @@ namespace vmtool
                 case "System.Object":
                     return "ByteArray";
             }
-            if (_type.Contains("[]"))
+            if (_type != null && _type.Contains("[]"))
                 return "Array";
 
             return "Unknown:" + _type;
