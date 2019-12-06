@@ -28,8 +28,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
             testengine.ScriptEntry.DumpNEF();
-            StackItem[] _params = new StackItem[] { "privateMethod", new Array() };
-            var result = testengine.ExecuteTestCase(_params);//new test method02
+            var result = testengine.ExecuteTestCaseStandard("privateMethod");//new test method02
 
             bool hadFault = (testengine.State & VMState.FAULT) > 0;
             Assert.AreEqual(0, result.Count);//because no methodname had found, it do not return anything.
