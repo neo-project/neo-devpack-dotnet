@@ -73,6 +73,9 @@ namespace Neo.Compiler.MSIL
             {
                 option = option ?? ConvOption.Default
             };
+
+            ParseMetadata(this.inModule, this.outModule);
+
             foreach (var t in _in.mapType)
             {
                 if (t.Key.Contains("<"))
@@ -300,6 +303,56 @@ namespace Neo.Compiler.MSIL
                         throw new Exception("not have right fill bytes");
                     }
                     c.needfixfunc = false;
+                }
+            }
+        }
+
+        private static void ParseMetadata(ILModule inModule, NeoModule outModule)
+        {
+            var assemblyDef = inModule.module.Assembly;
+            outModule.Title = assemblyDef.Name.Name;
+            outModule.Version = assemblyDef.Name.Version.ToString();
+
+            foreach (var attrib in assemblyDef.CustomAttributes)
+            {
+                switch (attrib.AttributeType.FullName)
+                {
+                    case "System.Reflection.AssemblyTitleAttribute":
+                        if (outModule.Title == assemblyDef.Name.Name)
+                        {
+                            outModule.Title = attrib.ConstructorArguments[0].Value.ToString();
+                        }
+                        break;
+                    case "System.Reflection.AssemblyDescriptionAttribute":
+                        if (string.IsNullOrEmpty(outModule.Description))
+                        {
+                            outModule.Description = attrib.ConstructorArguments[0].Value.ToString();
+                        }
+                        break;
+                    case "Neo.SmartContract.Framework.ContractAuthor":
+                        outModule.Author = attrib.ConstructorArguments[0].Value.ToString();
+                        break;
+                    case "Neo.SmartContract.Framework.ContractDescription":
+                        outModule.Description = attrib.ConstructorArguments[0].Value.ToString();
+                        break;
+                    case "Neo.SmartContract.Framework.ContractEmail":
+                        outModule.Email = attrib.ConstructorArguments[0].Value.ToString();
+                        break;
+                    case "Neo.SmartContract.Framework.ContractHasDynamicInvoke":
+                        outModule.HasDynamicInvoke = true;
+                        break;
+                    case "Neo.SmartContract.Framework.ContractHasStorage":
+                        outModule.HasStorage = true;
+                        break;
+                    case "Neo.SmartContract.Framework.ContractIsPayable":
+                        outModule.IsPayable = true;
+                        break;
+                    case "Neo.SmartContract.Framework.ContractTitle":
+                        outModule.Title = attrib.ConstructorArguments[0].Value.ToString();
+                        break;
+                    case "Neo.SmartContract.Framework.ContractVersion":
+                        outModule.Version = attrib.ConstructorArguments[0].Value.ToString();
+                        break;
                 }
             }
         }
