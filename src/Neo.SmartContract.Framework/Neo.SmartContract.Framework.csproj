@@ -3,7 +3,8 @@
   <PropertyGroup>
     <Copyright>2016-2017 The Neo Project</Copyright>
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
-    <Version>2.9.3</Version>
+    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionSuffix>preview1</VersionSuffix>
     <Authors>The Neo Project</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
