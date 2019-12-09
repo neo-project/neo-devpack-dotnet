@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_SwitchLong()
         {
-            RandomAccessStack<StackItem> result;
+            EvaluationStack result;
             TestEngine testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
@@ -36,7 +36,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_SwitchLong_Release()
         {
-            RandomAccessStack<StackItem> result;
+            EvaluationStack result;
             TestEngine testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs", true);
 
@@ -59,7 +59,7 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_Switch6()
         {
-            RandomAccessStack<StackItem> result;
+            EvaluationStack result;
             TestEngine testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
 

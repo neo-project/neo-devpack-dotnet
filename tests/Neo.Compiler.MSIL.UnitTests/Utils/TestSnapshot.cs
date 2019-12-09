@@ -1,18 +1,18 @@
+using Neo.IO;
 using Neo.IO.Caching;
-using Neo.IO.Wrappers;
 using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 
 namespace Neo.Compiler.MSIL.Utils
 {
-    public class TestSnapshot : Snapshot
+    public class TestSnapshot : StoreView
     {
         private DataCache<UInt256, TrimmedBlock> _Blocks = new TestDataCache<UInt256, TrimmedBlock>();
         private DataCache<UInt256, TransactionState> _Transactions = new TestDataCache<UInt256, TransactionState>();
         private DataCache<UInt160, ContractState> _Contracts = new TestDataCache<UInt160, ContractState>();
         private DataCache<StorageKey, StorageItem> _Storages = new TestDataCache<StorageKey, StorageItem>();
-        private DataCache<UInt32Wrapper, HeaderHashList> _HeaderHashList = new TestDataCache<UInt32Wrapper, HeaderHashList>();
+        private DataCache<SerializableWrapper<uint>, HeaderHashList> _HeaderHashList = new TestDataCache<SerializableWrapper<uint>, HeaderHashList>();
         private MetaDataCache<HashIndexState> _BlockHashIndex = new TestMetaDataCache<HashIndexState>();
         private MetaDataCache<HashIndexState> _HeaderHashIndex = new TestMetaDataCache<HashIndexState>();
 
@@ -24,7 +24,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         public override DataCache<StorageKey, StorageItem> Storages => _Storages;
 
-        public override DataCache<UInt32Wrapper, HeaderHashList> HeaderHashList => _HeaderHashList;
+        public override DataCache<SerializableWrapper<uint>, HeaderHashList> HeaderHashList => _HeaderHashList;
 
         public override MetaDataCache<HashIndexState> BlockHashIndex => _BlockHashIndex;
 
