@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
-using Neo.VM;
 using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL
@@ -27,7 +26,7 @@ namespace Neo.Compiler.MSIL
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
 
             // False
 
@@ -36,7 +35,7 @@ namespace Neo.Compiler.MSIL
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
         }
 
         [TestMethod]
@@ -49,7 +48,7 @@ namespace Neo.Compiler.MSIL
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
 
             // False
 
@@ -58,7 +57,7 @@ namespace Neo.Compiler.MSIL
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
 
             // True
 
@@ -67,7 +66,7 @@ namespace Neo.Compiler.MSIL
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
 
             // False
 
@@ -76,7 +75,7 @@ namespace Neo.Compiler.MSIL
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
         }
     }
 }

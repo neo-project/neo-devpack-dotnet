@@ -5,7 +5,7 @@ os:
 
 dist: bionic
 mono: none
-dotnet: 2.2.402
+dotnet: 3.1.100
 
 install:
   - dotnet tool install -g dotnet-format

@@ -18,7 +18,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             dic.Add(key, value);
         }
-        public override void DeleteInternal(TKey key)
+        protected override void DeleteInternal(TKey key)
         {
             dic.Remove(key);
         }
@@ -28,9 +28,9 @@ namespace Neo.Compiler.MSIL.Utils
             dic.Add(key, value);
         }
 
-        protected override IEnumerable<KeyValuePair<TKey, TValue>> FindInternal(byte[] key_prefix)
+        protected override IEnumerable<(TKey Key, TValue Value)> FindInternal(byte[] key_prefix)
         {
-            return dic.ToList();
+            return dic.Select(u => (u.Key, u.Value));
         }
 
         protected override TValue GetInternal(TKey key)

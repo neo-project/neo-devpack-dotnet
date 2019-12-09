@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.Ledger;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         private void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key), new ByteArray(value));
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
             var rItem = result.Pop();
 
             Assert.IsInstanceOfType(rItem, typeof(Integer));
-            Assert.AreEqual(1, rItem.GetBigInteger());
+            Assert.AreEqual(1, ((Integer)rItem).ToBigInteger());
             Assert.AreEqual(1,
                 testengine.Snapshot.Storages.GetChangeSet()
                 .Count(a =>
@@ -29,16 +31,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
-            return rItem.GetByteArray();
+            return ((ByteArray)rItem).ToByteArray().ToArray();
         }
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
@@ -53,12 +57,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             return l.ToArray();
         }
 
-        TestEngine testengine;
+        private TestEngine testengine;
 
         [TestInitialize]
         public void Init()
         {
-            testengine = new TestEngine();
+            var _ = TestBlockchain.TheNeoSystem;
+            var snapshot = Blockchain.Singleton.GetSnapshot();
+
+            testengine = new TestEngine(snapshot: snapshot.Clone());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
             Assert.AreEqual(ContractFeatures.HasStorage, testengine.ScriptEntry.converterIL.outModule.attributes
                 .Where(u => u.AttributeType.Name == "FeaturesAttribute")

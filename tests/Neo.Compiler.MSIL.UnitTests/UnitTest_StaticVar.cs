@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
-using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL
 {
