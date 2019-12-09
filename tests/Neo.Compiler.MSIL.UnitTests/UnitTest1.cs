@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
-using Neo.VM;
+using Neo.VM.Types;
 using System;
 
 namespace Neo.Compiler.MSIL
@@ -62,6 +62,7 @@ namespace Neo.Compiler.MSIL
             var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
         }
+
         [TestMethod]
         public void Test_ByteArrayPick()
         {

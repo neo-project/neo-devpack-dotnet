@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.IO;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;

@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.VM;
@@ -25,7 +26,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             public void DeserializeUnsigned(BinaryReader reader) { }
 
-            public UInt160[] GetScriptHashesForVerifying(Snapshot snapshot)
+            public UInt160[] GetScriptHashesForVerifying(StoreView snapshot)
             {
                 return new UInt160[]
                 {
@@ -166,7 +167,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(item.ToBoolean());
 
             // False
 
@@ -178,7 +179,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(item.ToBoolean());
         }
 
         [TestMethod]

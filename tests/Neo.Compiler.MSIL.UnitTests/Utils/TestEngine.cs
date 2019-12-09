@@ -3,6 +3,7 @@ using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 
@@ -19,7 +20,7 @@ namespace Neo.Compiler.MSIL.Utils
 
         public BuildScript ScriptEntry { get; private set; }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, Snapshot snapshot = null)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
             : base(trigger, verificable, snapshot == null ? new TestSnapshot() : snapshot, 0, true)
         {
             Scripts = new Dictionary<string, BuildScript>();
@@ -70,12 +71,11 @@ namespace Neo.Compiler.MSIL.Utils
             return new ContractMethod(this, methodname);
         }
 
-        public RandomAccessStack<StackItem> ExecuteTestCaseStandard(string methodname, params StackItem[] args)
+        public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-            //var engine = new ExecutionEngine();
             this.InvocationStack.Peek().InstructionPointer = 0;
-            this.CurrentContext.EvaluationStack.Push(args);
-            this.CurrentContext.EvaluationStack.Push(methodname);
+            this.Push(new VM.Types.Array(this.ReferenceCounter, args));
+            this.Push(methodname);
             while (true)
             {
                 var bfault = (this.State & VMState.FAULT) > 0;
@@ -91,7 +91,7 @@ namespace Neo.Compiler.MSIL.Utils
             return this.ResultStack;
         }
 
-        public RandomAccessStack<StackItem> ExecuteTestCase(params StackItem[] args)
+        public EvaluationStack ExecuteTestCase(params StackItem[] args)
         {
             //var engine = new ExecutionEngine();
             this.InvocationStack.Peek().InstructionPointer = 0;
@@ -114,8 +114,7 @@ namespace Neo.Compiler.MSIL.Utils
                 this.CurrentContext.CurrentInstruction.OpCode);
                 this.ExecuteNext();
             }
-            var stack = this.ResultStack;
-            return stack;
+            return this.ResultStack;
         }
 
         protected override bool OnSysCall(uint method)
@@ -203,7 +202,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             var spacestr = "";
             for (var i = 0; i < space; i++) spacestr += "    ";
-            var line = NeonTestTool.Bytes2HexString(item.GetByteArray());
+            var line = NeonTestTool.Bytes2HexString(item.GetSpan().ToArray());
 
             if (item is Neo.VM.Types.ByteArray)
             {
@@ -222,7 +221,7 @@ namespace Neo.Compiler.MSIL.Utils
             for (var i = 0; i < space; i++) spacestr += "    ";
             Console.WriteLine(spacestr + "got Param:" + item.GetType().ToString());
 
-            if (item is Neo.VM.Types.Array || item is Neo.VM.Types.Struct)
+            if (item is VM.Types.Array || item is Neo.VM.Types.Struct)
             {
                 var array = item as Neo.VM.Types.Array;
                 for (var i = 0; i < array.Count; i++)
@@ -245,8 +244,8 @@ namespace Neo.Compiler.MSIL.Utils
             else
             {
                 Console.WriteLine(spacestr + "--as num:" + item.GetBigInteger());
+                Console.WriteLine(spacestr + "--as bin:" + NeonTestTool.Bytes2HexString(item.GetSpan().ToArray()));
 
-                Console.WriteLine(spacestr + "--as bin:" + NeonTestTool.Bytes2HexString(item.GetByteArray()));
                 if (item is Neo.VM.Types.ByteArray)
                 {
                     var str = item.GetString();

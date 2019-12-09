@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL
 {
@@ -27,8 +28,7 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
             testengine.ScriptEntry.DumpNEF();
-            StackItem[] _params = new StackItem[] { "privateMethod", new StackItem[0] };
-            var result = testengine.ExecuteTestCase(_params);//new test method02
+            var result = testengine.ExecuteTestCaseStandard("privateMethod");//new test method02
 
             bool hadFault = (testengine.State & VMState.FAULT) > 0;
             Assert.AreEqual(0, result.Count);//because no methodname had found, it do not return anything.
