@@ -274,7 +274,18 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
-
+        public int GetLastCodeAddr(int srcaddr)
+        {
+            int last = -1;
+            for (var i = 0; i < srcaddr; i++)
+            {
+                if (i == srcaddr)
+                    break;
+                if (this.body_Codes.ContainsKey(i))
+                    last = i;// method.body_Codes[i];
+            }
+            return last;
+        }
         public int GetNextCodeAddr(int srcaddr)
         {
             bool bskip = false;
@@ -701,9 +712,6 @@ namespace Neo.Compiler.MSIL
                     this.tokenValueType = TokenValueType.String;
                     break;
 
-                case CodeEx.Stloc_0:
-
-                    break;
                 case CodeEx.Ldloca:
                 case CodeEx.Ldloca_S:
                 case CodeEx.Ldloc_S:
@@ -717,27 +725,27 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Stloc:
                     this.tokenI32 = (int)_p;
                     this.tokenValueType = TokenValueType.I32;
-
                     break;
+                case CodeEx.Stloc_0:
                 case CodeEx.Ldloc_0:
                     this.tokenI32 = 0;
                     this.tokenValueType = TokenValueType.I32;
 
                     break;
+                case CodeEx.Stloc_1:
                 case CodeEx.Ldloc_1:
                     this.tokenI32 = 1;
                     this.tokenValueType = TokenValueType.I32;
-
                     break;
+                case CodeEx.Stloc_2:
                 case CodeEx.Ldloc_2:
                     this.tokenI32 = 2;
                     this.tokenValueType = TokenValueType.I32;
-
                     break;
+                case CodeEx.Stloc_3:
                 case CodeEx.Ldloc_3:
                     this.tokenI32 = 3;
                     this.tokenValueType = TokenValueType.I32;
-
                     break;
 
                 case CodeEx.Ldarga:
