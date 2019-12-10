@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL.Utils
         public ModuleConverter converterIL { get; private set; }
         public byte[] finalAVM { get; private set; }
         public MyJson.JsonNode_Object finialABI { get; private set; }
-        public MyJson.JsonNode_Object debugInfo {get; private set; }
+        public MyJson.JsonNode_Object debugInfo { get; private set; }
 
         public BuildScript() { }
 
