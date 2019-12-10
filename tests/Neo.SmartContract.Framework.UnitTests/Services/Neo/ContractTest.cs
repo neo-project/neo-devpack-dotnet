@@ -43,13 +43,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Check first
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("Call", manifest.Hash.ToArray());
+            var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
 
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Create", script, manifest.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("create", script, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Call", manifest.Hash.ToArray(), Null.Null, Null.Null);
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), Null.Null, Null.Null);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Destroy
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Destroy");
+            result = _engine.ExecuteTestCaseStandard("destroy");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -83,7 +83,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Check again for failures
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Call", manifest.Hash.ToArray());
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
 
@@ -132,17 +132,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Check first
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("Call", manifest.Hash.ToArray());
+            var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Call", manifestUpdate.Hash.ToArray());
+            result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
 
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Create", script, manifest.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("create", script, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -154,7 +154,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call & Update
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Call", manifest.Hash.ToArray(), Null.Null, Null.Null);
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), Null.Null, Null.Null);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -165,7 +165,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call Again
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Call", manifestUpdate.Hash.ToArray(), Null.Null, Null.Null);
+            result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), Null.Null, Null.Null);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -176,7 +176,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Check again for failures
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Call", manifest.Hash.ToArray());
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
     }

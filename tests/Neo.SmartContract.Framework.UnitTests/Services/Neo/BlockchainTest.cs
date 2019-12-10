@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_GetHeight()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("GetHeight");
+            var result = _engine.ExecuteTestCaseStandard("getHeight");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Not found
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("GetTransactionHeight", new ByteArray(UInt256.Zero.ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getTransactionHeight", new ByteArray(UInt256.Zero.ToArray()));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetTransactionHeight", new ByteArray(_block.Transactions[0].Hash.ToArray()));
+            result = _engine.ExecuteTestCaseStandard("getTransactionHeight", new ByteArray(_block.Transactions[0].Hash.ToArray()));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -69,13 +69,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_GetBlockByHash()
         {
-            Test_GetBlock("GetBlockByHash", new ByteArray(_block.Hash.ToArray()), new ByteArray(UInt256.Zero.ToArray()));
+            Test_GetBlock("getBlockByHash", new ByteArray(_block.Hash.ToArray()), new ByteArray(UInt256.Zero.ToArray()));
         }
 
         [TestMethod]
         public void Test_GetTxByHash()
         {
-            Test_GetTransaction("GetTxByHash", new StackItem[] { new ByteArray(_block.Transactions[0].Hash.ToArray()) },
+            Test_GetTransaction("getTxByHash", new StackItem[] { new ByteArray(_block.Transactions[0].Hash.ToArray()) },
                 new StackItem[] { new ByteArray(UInt256.Zero.ToArray()) },
                 true);
         }
@@ -83,7 +83,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_GetTxByBlockIndex()
         {
-            Test_GetTransaction("GetTxByBlockIndex", new StackItem[] {
+            Test_GetTransaction("getTxByBlockIndex", new StackItem[] {
                 new Integer(_block.Index), new Integer(0) },
                 new StackItem[] { new Integer(_block.Index), new Integer(_block.Transactions.Length + 1) },
                 false);
@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_GetTxByBlockHash()
         {
-            Test_GetTransaction("GetTxByBlockHash", new StackItem[] {
+            Test_GetTransaction("getTxByBlockHash", new StackItem[] {
                 new ByteArray(_block.Hash.ToArray()), new Integer(0) },
                 new StackItem[] { new ByteArray(_block.Hash.ToArray()), new Integer(_block.Transactions.Length + 1) },
                 false);
@@ -216,7 +216,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_GetBlockByIndex()
         {
-            Test_GetBlock("GetBlockByIndex", new Integer(_block.Index), new Integer(_block.Index + 100));
+            Test_GetBlock("getBlockByIndex", new Integer(_block.Index), new Integer(_block.Index + 100));
         }
 
         public void Test_GetBlock(string method, StackItem foundArg, StackItem notFoundArg)
@@ -342,7 +342,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Not found
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(UInt160.Zero.ToArray()), new ByteArray(new byte[0]));
+            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteArray(UInt160.Zero.ToArray()), new ByteArray(new byte[0]));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -352,7 +352,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + HasStorage
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("HasStorage")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("HasStorage")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -363,7 +363,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + IsPayable
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("IsPayable")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("IsPayable")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -374,7 +374,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + IsPayable
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("Script")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("Script")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -385,7 +385,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + Uknown property
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("ASD")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteArray(contract.ScriptHash.ToArray()), new ByteArray(Encoding.UTF8.GetBytes("ASD")));
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
     }

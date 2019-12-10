@@ -154,15 +154,15 @@ namespace Neo.Compiler
             this.method = method;
             this.type = method.type;
 
+            _namespace = method.method.DeclaringType.FullName;
+            name = method.method.FullName;
+            displayName = method.method.Name[..1].ToLowerInvariant() + method.method.Name[1..];
+            inSmartContract = method.method.DeclaringType.BaseType.Name == "SmartContract";
+            isPublic = method.method.IsPublic;
             foreach (var attr in method.method.CustomAttributes)
             {
                 ProcessAttribute(attr);
             }
-            _namespace = method.method.DeclaringType.FullName;
-            name = method.method.FullName;
-            displayName = method.method.Name;
-            inSmartContract = method.method.DeclaringType.BaseType.Name == "SmartContract";
-            isPublic = method.method.IsPublic;
         }
 
         private void ProcessAttribute(CustomAttribute attr)

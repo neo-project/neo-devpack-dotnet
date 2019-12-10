@@ -23,21 +23,21 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // Empty Serialize
 
-            var result = _engine.ExecuteTestCaseStandard("Serialize");
+            var result = _engine.ExecuteTestCaseStandard("serialize");
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
 
             // Empty Serialize
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Deserialize");
+            result = _engine.ExecuteTestCaseStandard("deserialize");
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
 
             // Serialize
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Serialize", new Array(new StackItem[]{
+            result = _engine.ExecuteTestCaseStandard("serialize", new Array(new StackItem[]{
                  StackItem.Null, new Boolean(true), new ByteArray(Encoding.ASCII.GetBytes("asd"))
             }));
             Assert.AreEqual(VMState.HALT, _engine.State);
@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Deserialize
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Deserialize", new ByteArray(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
+            result = _engine.ExecuteTestCaseStandard("deserialize", new ByteArray(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

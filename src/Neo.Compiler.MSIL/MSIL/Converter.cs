@@ -234,7 +234,7 @@ namespace Neo.Compiler.MSIL
             NeoMethod autoEntry = new NeoMethod();
             autoEntry._namespace = "";
             autoEntry.name = "Main";
-            autoEntry.displayName = "Main";
+            autoEntry.displayName = "main";
             autoEntry.paramtypes.Add(new NeoParam(name, "string"));
             autoEntry.paramtypes.Add(new NeoParam(name, "array"));
             autoEntry.returntype = "object";

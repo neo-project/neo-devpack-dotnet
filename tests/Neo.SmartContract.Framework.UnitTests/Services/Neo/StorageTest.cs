@@ -91,18 +91,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             // Put
 
-            Put(testengine, "TestPutByte", prefix, key, value);
+            Put(testengine, "testPutByte", prefix, key, value);
 
             // Get
 
             testengine.Reset();
-            var getVal = Get(testengine, "TestGetByte", prefix, key);
+            var getVal = Get(testengine, "testGetByte", prefix, key);
             CollectionAssert.AreEqual(value, getVal);
 
             // Delete
 
             testengine.Reset();
-            Delete(testengine, "TestDeleteByte", prefix, key);
+            Delete(testengine, "testDeleteByte", prefix, key);
         }
 
         [TestMethod]
@@ -114,18 +114,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             // Put
 
-            Put(testengine, "TestPutByteArray", prefix, key, value);
+            Put(testengine, "testPutByteArray", prefix, key, value);
 
             // Get
 
             testengine.Reset();
-            var getVal = Get(testengine, "TestGetByteArray", prefix, key);
+            var getVal = Get(testengine, "testGetByteArray", prefix, key);
             CollectionAssert.AreEqual(value, getVal);
 
             // Delete
 
             testengine.Reset();
-            Delete(testengine, "TestDeleteByteArray", prefix, key);
+            Delete(testengine, "testDeleteByteArray", prefix, key);
         }
 
         [TestMethod]
@@ -138,18 +138,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Put
 
             testengine.Reset();
-            Put(testengine, "TestPutString", prefix, key, value);
+            Put(testengine, "testPutString", prefix, key, value);
 
             // Get
 
             testengine.Reset();
-            var getVal = Get(testengine, "TestGetString", prefix, key);
+            var getVal = Get(testengine, "testGetString", prefix, key);
             CollectionAssert.AreEqual(value, getVal);
 
             // Delete
 
             testengine.Reset();
-            Delete(testengine, "TestDeleteString", prefix, key);
+            Delete(testengine, "testDeleteString", prefix, key);
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Put
 
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("TestPutReadOnly", new ByteArray(key), new ByteArray(value));
+            var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new ByteArray(key), new ByteArray(value));
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(0, result.Count);
         }
