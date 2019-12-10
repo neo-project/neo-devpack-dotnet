@@ -8,7 +8,7 @@ using vmtool;
 
 namespace Neo.Compiler
 {
-    static class DebugExport
+    public static class DebugExport
     {
         private static MyJson.JsonNode_Array GetSequencePoints(IEnumerable<NeoCode> codes, IDictionary<string, int> docMap)
         {
