@@ -81,7 +81,7 @@ namespace vmtool
             outjson.SetDictValue("hash", sb.ToString());
 
             //entrypoint
-            var entryPoint = "Main";
+            var entryPoint = "main";
             var mainmethod = module.mapMethods[module.mainMethod];
             if (mainmethod != null)
             {

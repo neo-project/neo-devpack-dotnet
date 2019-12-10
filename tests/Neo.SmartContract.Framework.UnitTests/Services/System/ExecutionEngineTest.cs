@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System.IO;
@@ -40,19 +42,21 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         }
 
         private TestEngine _engine;
+        private string scriptHash;
 
         [TestInitialize]
         public void Init()
         {
             _engine = new TestEngine(SmartContract.TriggerType.Application, new DummyVerificable());
             _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
+            scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash().ToArray().ToHexString();
         }
 
         [TestMethod]
         public void CallingScriptHashTest()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("CallingScriptHash");
+            var result = _engine.ExecuteTestCaseStandard("callingScriptHash");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -60,18 +64,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.IsInstanceOfType(item, typeof(ByteArray));
             //test by this way is bad idea? how to sure got a fix hash always?
             var gothash = item.GetSpan().ToHexString();
-            var bequal =
-                gothash == "3632c01ec5cc1961ba49d8033798e469f6a6f697"//build by realse
-                ||
-                gothash == "548fa39db17d90ad37bfa62a3bd10830227579bd";//build by debug
-            Assert.IsTrue(bequal);
+            Assert.AreEqual(scriptHash, gothash);
         }
 
         [TestMethod]
         public void EntryScriptHashTest()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("EntryScriptHash");
+            var result = _engine.ExecuteTestCaseStandard("entryScriptHash");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -79,18 +79,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.IsInstanceOfType(item, typeof(ByteArray));
             //test by this way is bad idea? how to sure got a fix hash always?
             var gothash = item.GetSpan().ToHexString();
-            var bequal =
-                gothash == "3632c01ec5cc1961ba49d8033798e469f6a6f697"//build by realse
-                ||
-                gothash == "548fa39db17d90ad37bfa62a3bd10830227579bd";//build by debug
-            Assert.IsTrue(bequal);
+            Assert.AreEqual(scriptHash, gothash);
         }
 
         [TestMethod]
         public void ExecutingScriptHashTest()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("ExecutingScriptHash");
+            var result = _engine.ExecuteTestCaseStandard("executingScriptHash");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -98,18 +94,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.IsInstanceOfType(item, typeof(ByteArray));
             //test by this way is bad idea? how to sure got a fix hash always? 
             var gothash = item.GetSpan().ToHexString();
-            var bequal =
-                gothash == "3632c01ec5cc1961ba49d8033798e469f6a6f697"//build by realse
-                ||
-                gothash == "548fa39db17d90ad37bfa62a3bd10830227579bd";//build by debug
-            Assert.IsTrue(bequal);
+            Assert.AreEqual(scriptHash, gothash);
         }
 
         [TestMethod]
         public void ScriptContainerTest()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("ScriptContainer");
+            var result = _engine.ExecuteTestCaseStandard("scriptContainer");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

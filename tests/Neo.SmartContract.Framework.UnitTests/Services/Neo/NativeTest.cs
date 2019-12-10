@@ -88,7 +88,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_Policy()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("Policy_GetFeePerByte");
+            var result = _engine.ExecuteTestCaseStandard("policy_GetFeePerByte");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
