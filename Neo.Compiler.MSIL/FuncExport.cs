@@ -1,4 +1,4 @@
-using Neo.Compiler;
+﻿using Neo.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,9 +43,6 @@ namespace vmtool
 
                 case "System.String":
                     return "String";
-
-                case "System.Object[]":
-                    return "Array";
 
                 case "__InteropInterface":
                 case "IInteropInterface":
