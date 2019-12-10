@@ -9,8 +9,6 @@ namespace Neo.Compiler
 {
     public class NeoModule
     {
-        public NeoModule(ILogger logger) { }
-
         public string mainMethod;
         public ConvOption option;
         public List<CustomAttribute> attributes = new List<CustomAttribute>();
@@ -20,6 +18,11 @@ namespace Neo.Compiler
         public Dictionary<string, object> staticfields = new Dictionary<string, object>();
         //小蚁没类型，只有方法
         public SortedDictionary<int, NeoCode> total_Codes = new SortedDictionary<int, NeoCode>();
+
+        public NeoModule(ILogger logger, ILModule _in)
+        {
+            attributes.AddRange(_in.attributes);
+        }
 
         public byte[] Build()
         {

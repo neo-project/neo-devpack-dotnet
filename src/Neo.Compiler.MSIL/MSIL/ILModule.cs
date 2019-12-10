@@ -12,7 +12,9 @@ namespace Neo.Compiler.MSIL
         public Mono.Cecil.ModuleDefinition module = null;
         public List<string> moduleref = new List<string>();
         public Dictionary<string, ILType> mapType = new Dictionary<string, ILType>();
+        public List<Mono.Cecil.CustomAttribute> attributes = new List<Mono.Cecil.CustomAttribute>();
         public ILogger logger;
+
         public ILModule(ILogger _logger = null)
         {
             this.logger = _logger;
@@ -20,6 +22,12 @@ namespace Neo.Compiler.MSIL
         public void LoadModule(System.IO.Stream dllStream, System.IO.Stream pdbStream)
         {
             this.module = Mono.Cecil.ModuleDefinition.ReadModule(dllStream);
+
+            if (module.Assembly.HasCustomAttributes)
+            {
+                attributes.AddRange(module.Assembly.CustomAttributes);
+            }
+
             //#if WITHPDB
             if (pdbStream != null)
             {
@@ -52,7 +60,6 @@ namespace Neo.Compiler.MSIL
                         foreach (var nt in t.NestedTypes)
                         {
                             mapType[nt.FullName] = new ILType(this, nt, logger);
-
                         }
                     }
                 }

@@ -70,7 +70,7 @@ namespace Neo.Compiler.MSIL
         {
             this.inModule = _in;
             //logger.Log("beginConvert.");
-            this.outModule = new NeoModule(this.logger)
+            this.outModule = new NeoModule(this.logger, _in)
             {
                 option = option ?? ConvOption.Default
             };
