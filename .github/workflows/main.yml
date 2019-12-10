@@ -26,7 +26,7 @@ jobs:
     - name: Add package coverlet.msbuild
       run: find Neo.Compiler.MSIL.UnitTests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.MSIL.UnitTests
-      run: dotnet test Neo.Compiler.MSIL.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ /p:Exclude="[Neo.SmartContract.*]*"
+      run: dotnet test Neo.Compiler.MSIL.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:Exclude="[Neo.SmartContract.*]*" /p:CoverletOutputFormat=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
