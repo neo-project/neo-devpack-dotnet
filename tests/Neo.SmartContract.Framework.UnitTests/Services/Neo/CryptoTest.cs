@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("VerifySignature",
+            var result = _engine.ExecuteTestCaseStandard("verifySignature",
                 new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(new byte[64]));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // True
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("VerifySignature",
+            result = _engine.ExecuteTestCaseStandard("verifySignature",
                 new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -87,7 +87,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("VerifySignatures",
+            var result = _engine.ExecuteTestCaseStandard("verifySignatures",
                 new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
                 new Array(new StackItem[] { new ByteArray(new byte[64]) }));
             Assert.AreEqual(VMState.HALT, _engine.State);
@@ -100,7 +100,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // True
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("VerifySignatures",
+            result = _engine.ExecuteTestCaseStandard("verifySignatures",
                 new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
                 new Array(new StackItem[] { new ByteArray(signature) }));
             Assert.AreEqual(VMState.HALT, _engine.State);
@@ -120,7 +120,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("VerifySignaturesWithMessage",
+            var result = _engine.ExecuteTestCaseStandard("verifySignaturesWithMessage",
                 new ByteArray(new byte[0]),
                 new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
                 new Array(new StackItem[] { new ByteArray(new byte[64]) }));
@@ -134,7 +134,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // True
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("VerifySignaturesWithMessage",
+            result = _engine.ExecuteTestCaseStandard("verifySignaturesWithMessage",
                 new ByteArray(_engine.ScriptContainer.GetHashData()),
                 new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
                 new Array(new StackItem[] { new ByteArray(signature) }));
@@ -155,7 +155,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("VerifySignatureWithMessage",
+            var result = _engine.ExecuteTestCaseStandard("verifySignatureWithMessage",
                 new ByteArray(new byte[0]),
                 new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);
@@ -168,7 +168,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // True
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("VerifySignatureWithMessage",
+            result = _engine.ExecuteTestCaseStandard("verifySignatureWithMessage",
                 new ByteArray(_engine.ScriptContainer.GetHashData()),
                 new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);

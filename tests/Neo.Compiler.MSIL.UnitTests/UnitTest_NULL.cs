@@ -22,7 +22,7 @@ namespace Neo.Compiler.MSIL
             // True
 
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("IsNull", StackItem.Null);
+            var result = testengine.ExecuteTestCaseStandard("isNull", StackItem.Null);
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -31,7 +31,7 @@ namespace Neo.Compiler.MSIL
             // False
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("IsNull", new Integer(1));
+            result = testengine.ExecuteTestCaseStandard("isNull", new Integer(1));
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -44,7 +44,7 @@ namespace Neo.Compiler.MSIL
             // True
 
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("EqualNullA", StackItem.Null);
+            var result = testengine.ExecuteTestCaseStandard("equalNullA", StackItem.Null);
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -53,7 +53,7 @@ namespace Neo.Compiler.MSIL
             // False
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("EqualNullA", new Integer(1));
+            result = testengine.ExecuteTestCaseStandard("equalNullA", new Integer(1));
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -62,7 +62,7 @@ namespace Neo.Compiler.MSIL
             // True
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("EqualNullB", StackItem.Null);
+            result = testengine.ExecuteTestCaseStandard("equalNullB", StackItem.Null);
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -71,7 +71,7 @@ namespace Neo.Compiler.MSIL
             // False
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("EqualNullB", new Integer(1));
+            result = testengine.ExecuteTestCaseStandard("equalNullB", new Integer(1));
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));

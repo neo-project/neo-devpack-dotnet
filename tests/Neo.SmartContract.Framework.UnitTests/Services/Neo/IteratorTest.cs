@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void TestNextArray()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("TestNextArray", new Array(new StackItem[] { 1, 2, 3 }));
+            var result = _engine.ExecuteTestCaseStandard("testNextArray", new Array(new StackItem[] { 1, 2, 3 }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // A and B
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("TestConcatArray", a, b);
+            var result = _engine.ExecuteTestCaseStandard("testConcatArray", a, b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only A
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatArray", a, new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatArray", a, new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only B
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatArray", new Array(), b);
+            result = _engine.ExecuteTestCaseStandard("testConcatArray", new Array(), b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Empty
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatArray", new Array(), new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatArray", new Array(), new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -99,7 +99,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // A and B
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("TestConcatMap", a, b);
+            var result = _engine.ExecuteTestCaseStandard("testConcatMap", a, b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -110,7 +110,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only A
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatMap", a, new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatMap", a, new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only B
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatMap", new Array(), b);
+            result = _engine.ExecuteTestCaseStandard("testConcatMap", new Array(), b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -132,7 +132,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Empty
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatMap", new Array(), new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatMap", new Array(), new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -159,7 +159,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // A and B
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("TestConcatKeys", a, b);
+            var result = _engine.ExecuteTestCaseStandard("testConcatKeys", a, b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -170,7 +170,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only A
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatKeys", a, new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatKeys", a, new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -181,7 +181,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only B
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatKeys", new Array(), b);
+            result = _engine.ExecuteTestCaseStandard("testConcatKeys", new Array(), b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -192,7 +192,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Empty
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatKeys", new Array(), new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatKeys", new Array(), new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -219,7 +219,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // A and B
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("TestConcatValues", a, b);
+            var result = _engine.ExecuteTestCaseStandard("testConcatValues", a, b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -230,7 +230,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only A
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatValues", a, new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatValues", a, new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -241,7 +241,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Only B
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatValues", new Array(), b);
+            result = _engine.ExecuteTestCaseStandard("testConcatValues", new Array(), b);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -252,7 +252,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Empty
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("TestConcatValues", new Array(), new Array());
+            result = _engine.ExecuteTestCaseStandard("testConcatValues", new Array(), new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

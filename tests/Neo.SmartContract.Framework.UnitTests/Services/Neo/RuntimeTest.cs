@@ -69,9 +69,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             using (ScriptBuilder sb = new ScriptBuilder())
             {
                 // First
-                sb.EmitAppCall(contract, "GetInvocationCounter");
+                sb.EmitAppCall(contract, "getInvocationCounter");
                 // Second
-                sb.EmitAppCall(contract, "GetInvocationCounter");
+                sb.EmitAppCall(contract, "getInvocationCounter");
 
                 _engine.LoadScript(sb.ToArray());
             }
@@ -109,7 +109,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 PrevHash = UInt256.Zero
             });
 
-            var result = _engine.ExecuteTestCaseStandard("GetTime");
+            var result = _engine.ExecuteTestCaseStandard("getTime");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -120,7 +120,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_Platform()
         {
-            var result = _engine.ExecuteTestCaseStandard("GetPlatform");
+            var result = _engine.ExecuteTestCaseStandard("getPlatform");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -131,7 +131,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_Trigger()
         {
-            var result = _engine.ExecuteTestCaseStandard("GetTrigger");
+            var result = _engine.ExecuteTestCaseStandard("getTrigger");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -146,7 +146,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var method = new EventHandler<LogEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Log += method;
-            var result = _engine.ExecuteTestCaseStandard("Log", new ByteArray(Encoding.UTF8.GetBytes("LogTest")));
+            var result = _engine.ExecuteTestCaseStandard("log", new ByteArray(Encoding.UTF8.GetBytes("LogTest")));
             ApplicationEngine.Log -= method;
 
             Assert.AreEqual(1, list.Count);
@@ -160,7 +160,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // True
 
-            var result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray(
+            var result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteArray(
                 new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
                 ));
             Assert.AreEqual(1, result.Count);
@@ -172,7 +172,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("CheckWitness", new ByteArray(
+            result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteArray(
                 new byte[] { 0xFA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
                 ));
             Assert.AreEqual(1, result.Count);
@@ -189,7 +189,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var method = new EventHandler<NotifyEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Notify += method;
-            var result = _engine.ExecuteTestCaseStandard("Notify", new ByteArray(Encoding.UTF8.GetBytes("NotifyTest")));
+            var result = _engine.ExecuteTestCaseStandard("notify", new ByteArray(Encoding.UTF8.GetBytes("NotifyTest")));
             ApplicationEngine.Notify -= method;
 
             Assert.AreEqual(1, list.Count);
@@ -211,7 +211,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
             });
 
-            var result = _engine.ExecuteTestCaseStandard("GetNotificationsCount", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -219,7 +219,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0x01, item.GetBigInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetNotificationsCount", StackItem.Null);
+            result = _engine.ExecuteTestCaseStandard("getNotificationsCount", StackItem.Null);
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
@@ -238,7 +238,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
             });
 
-            var result = _engine.ExecuteTestCaseStandard("GetNotifications", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -246,7 +246,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0x02, item.GetBigInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GetAllNotifications");
+            result = _engine.ExecuteTestCaseStandard("getAllNotifications");
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
