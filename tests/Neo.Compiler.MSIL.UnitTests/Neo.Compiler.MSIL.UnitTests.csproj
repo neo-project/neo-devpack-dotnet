@@ -4,9 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <RootNamespace>Neo.Compiler.MSIL</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
   </PropertyGroup>
 
@@ -22,9 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="TestClasses\*.cs">
+    <Compile Remove="TestClasses\*.cs" />
+    <None Include="TestClasses\*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
+    </None>
   </ItemGroup>
 
 </Project>
