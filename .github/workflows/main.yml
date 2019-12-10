@@ -1,0 +1,34 @@
+name: .NET Core Test and Publish
+
+on:
+  push:
+    branches: master
+  pull_request:
+
+env:
+  DOTNET_VERSION: 3.1.100
+
+jobs:
+
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Check format
+      run: |
+        dotnet tool install --tool-path ./ dotnet-format
+        ./dotnet-format --check --dry-run -v diagnostic
+    - name: Add package coverlet.msbuild
+      run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+    - name: Test Neo.Compiler.MSIL.UnitTests
+      run: dotnet test Neo.Compiler.MSIL.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ /p:Exclude="[Neo.SmartContract.*]*"
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
