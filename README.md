@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <a href="https://travis-ci.com/neo-project/neo-devpack-dotnet">
-    <img src="https://travis-ci.com/neo-project/neo-devpack-dotnet.svg?branch=master">
+  <a href='https://coveralls.io/github/neo-project/neo-devpack-dotnet'>
+    <img src='https://coveralls.io/repos/github/neo-project/neo-devpack-dotnet/badge.svg' alt='Coverage Status' />
   </a>
   <a href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg">
