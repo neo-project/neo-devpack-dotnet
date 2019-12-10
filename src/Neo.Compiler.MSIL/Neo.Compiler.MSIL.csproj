@@ -19,6 +19,7 @@
     <Product>Neo.Compiler.MSIL</Product>
     <Description>Neo.Compiler.MSIL</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
