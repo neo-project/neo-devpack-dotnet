@@ -75,7 +75,7 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF);
             }
-            catch (Exception err)
+            catch
             {
             }
 
