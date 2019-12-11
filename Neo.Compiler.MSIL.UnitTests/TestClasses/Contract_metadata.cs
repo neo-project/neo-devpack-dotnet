@@ -7,9 +7,10 @@ using System.Numerics;
 [assembly: Neo.SmartContract.Framework.ContractVersion("contract version")]
 [assembly: Neo.SmartContract.Framework.ContractAuthor("contract author")]
 [assembly: Neo.SmartContract.Framework.ContractEmail("contract email")]
-[assembly: Neo.SmartContract.Framework.ContractHasDynamicInvoke]
-[assembly: Neo.SmartContract.Framework.ContractHasStorage]
-[assembly: Neo.SmartContract.Framework.ContractIsPayable]
+[assembly: Neo.SmartContract.Framework.Features(
+    Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.HasStorage |
+    Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.HasDynamicInvoke |
+    Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.Payable )]
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
