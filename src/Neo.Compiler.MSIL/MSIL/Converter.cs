@@ -181,9 +181,9 @@ namespace Neo.Compiler.MSIL
                     //}
                 }
             }
+
             //转换完了，做个link，全部拼到一起
             string mainmethod = "";
-
             foreach (var key in outModule.mapMethods.Keys)
             {
                 if (key.Contains("::Main("))
@@ -196,7 +196,7 @@ namespace Neo.Compiler.MSIL
                             if (l.Value == m)
                             {
                                 if (mainmethod != "")
-                                    throw new Exception("Have too mush EntryPoint,Check it.");
+                                    throw new Exception("The smart contract contains multiple entryPoints, please check it.");
                                 mainmethod = key;
                             }
                         }
