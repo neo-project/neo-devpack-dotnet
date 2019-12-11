@@ -12,7 +12,7 @@ namespace Neo.Compiler
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="count">Count</param>
+        /// <param name="count">Number of entry point founds</param>
         /// <param name="message">Message</param>
         public EntryPointException(int count, string message) : base(message)
         {

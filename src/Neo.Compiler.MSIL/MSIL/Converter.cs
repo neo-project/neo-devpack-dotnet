@@ -213,7 +213,7 @@ namespace Neo.Compiler.MSIL
 
                 if (string.IsNullOrEmpty(mainmethod))
                 {
-                    throw new EntryPointException(0, "The smart contract contains multiple entryPoints, please check it.");
+                    throw new EntryPointException(0, "The smart contract doesn't contain any entryPoints, please check it.");
                 }
 
                 logger.Log("Auto Insert entrypoint.");
