@@ -10,7 +10,7 @@ using System.Numerics;
 [assembly: Neo.SmartContract.Framework.Features(
     Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.HasStorage |
     Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.HasDynamicInvoke |
-    Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.Payable )]
+    Neo.SmartContract.Framework.Services.Neo.ContractPropertyState.Payable)]
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
