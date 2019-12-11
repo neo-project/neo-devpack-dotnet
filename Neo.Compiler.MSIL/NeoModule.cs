@@ -187,6 +187,8 @@ namespace Neo.Compiler
         public int srcaddr;
         public int[] srcaddrswitch;
         public string srcfunc;
+        public Mono.Cecil.Cil.SequencePoint sequencePoint;
+
         public override string ToString()
         {
             //string info = "AL_" + addr.ToString("X04") + " " + code.ToString();

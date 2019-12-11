@@ -233,7 +233,9 @@ namespace Neo.Compiler.MSIL
                     {
                         foreach (var v in bodyNative.Variables)
                         {
-                            var indexname = v.VariableType.Name + ":" + v.Index;
+                            var indexname = method.DebugInformation.TryGetName(v, out var varname)
+                                ? varname
+                                : v.VariableType.Name + ":" + v.Index;
                             this.body_Variables.Add(new NeoParam(indexname, v.VariableType.FullName));
                         }
                     }
@@ -247,10 +249,11 @@ namespace Neo.Compiler.MSIL
                         };
 
                         var sp = method.DebugInformation.GetSequencePoint(code);
-                        if (sp != null)
+                        if (sp != null && !sp.IsHidden)
                         {
                             c.debugcode = sp.Document.Url;
                             c.debugline = sp.StartLine;
+                            c.sequencePoint = sp;
                         }
                         c.InitToken(code.Operand);
                         this.body_Codes.Add(c.addr, c);
@@ -543,6 +546,7 @@ namespace Neo.Compiler.MSIL
         public CodeEx code;
         public int debugline = -1;
         public string debugcode;
+        public Mono.Cecil.Cil.SequencePoint sequencePoint;
         public object tokenUnknown;
         public int tokenAddr_Index;
         //public int tokenAddr;

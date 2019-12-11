@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 
 namespace Neo.Compiler.MSIL
@@ -78,6 +78,7 @@ namespace Neo.Compiler.MSIL
                 _code.debugline = src.debugline;
                 _code.debugILAddr = src.addr;
                 _code.debugILCode = src.code.ToString();
+                _code.sequencePoint = src.sequencePoint;
             }
 
 

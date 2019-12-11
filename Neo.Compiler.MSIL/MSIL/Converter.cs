@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -166,6 +166,11 @@ namespace Neo.Compiler.MSIL
                         foreach (var src in m.Value.paramtypes)
                         {
                             nm.paramtypes.Add(new NeoParam(src.name, src.type));
+                        }
+
+                        foreach (var @var in m.Value.body_Variables)
+                        {
+                            nm.body_Variables.Add(@var);
                         }
 
                         if (IsAppCall(m.Value.method, out byte[] outcall))
