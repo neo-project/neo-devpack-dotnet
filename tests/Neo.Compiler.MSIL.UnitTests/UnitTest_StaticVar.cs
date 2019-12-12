@@ -23,16 +23,25 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_StaticVarInit()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
-            var result = testengine.ExecuteTestCaseStandard("staticinit");
-
-            //test (1+5)*7 == 42
-            var retvar = result.Pop();
-
-            StackItem wantresult = 42;
-            var bequal = wantresult.Equals(retvar);
-            Assert.IsTrue(bequal);
+            ByteArray var1;
+            ByteArray var2;
+            {
+                var testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+                var result = testengine.ExecuteTestCaseStandard("staticinit");
+                //test (1+5)*7 == 42
+                var1 = (result.Pop() as ByteArray);
+            }
+            {
+                var testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+                var result = testengine.ExecuteTestCaseStandard("directget");
+                //test (1+5)*7 == 42
+                var2 = (result.Pop() as ByteArray);
+            }
+            Assert.IsNotNull(var1);
+            Assert.AreEqual(var1, var2);
         }
+
     }
 }
