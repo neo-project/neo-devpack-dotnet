@@ -19,6 +19,7 @@ namespace Neo.Compiler.MSIL
             var bequal = wantresult.Equals(result.Pop());
             Assert.IsTrue(bequal);
         }
+
         [TestMethod]
         public void Test_IntArrayInit()
         {
@@ -31,6 +32,7 @@ namespace Neo.Compiler.MSIL
             var bequal = wantresult.Equals(result.Pop());
             Assert.IsTrue(bequal);
         }
+
         [TestMethod]
         public void Test_StructArray()
         {
@@ -44,6 +46,7 @@ namespace Neo.Compiler.MSIL
             var bequal = neostruct != null;
             Assert.IsTrue(bequal);
         }
+
         [TestMethod]
         public void Test_StructArrayInit()
         {
