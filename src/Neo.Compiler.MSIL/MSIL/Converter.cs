@@ -202,8 +202,9 @@ namespace Neo.Compiler.MSIL
                         {
                             if (l.Value == m)
                             {
+                                if (mainmethod != "")
+                                    throw new Exception("Have too mush EntryPoint,Check it.");
                                 mainmethod = key;
-                                break;
                             }
                         }
                     }
