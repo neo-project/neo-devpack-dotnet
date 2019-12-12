@@ -14,7 +14,6 @@ namespace Neo.Compiler.MSIL.TestClasses
 
     class Contract_Array : SmartContract.Framework.SmartContract
     {
-
         public static object Main(string method, object[] args)
         {
             if (method == "intarray")
@@ -35,6 +34,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             }
             return null;
         }
+
         public static object TestIntArray()
         {
             var arrobj = new int[3];
@@ -42,6 +42,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             arrobj[2] = 33;
             return arrobj[2];
         }
+
         public static object TestIntArrayInit()
         {
             var arrobj = new int[] { 0, 88, 33 };
@@ -49,6 +50,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             arrobj[2] = 33;
             return arrobj[2];
         }
+
         public static object TestStructArray()
         {
             var s = new State();
@@ -56,6 +58,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             sarray[2] = s;
             return sarray[2];
         }
+
         public static object TestStructArrayInit()
         {
             var s = new State();
@@ -68,5 +71,4 @@ namespace Neo.Compiler.MSIL.TestClasses
             return null;
         }
     }
-
 }
