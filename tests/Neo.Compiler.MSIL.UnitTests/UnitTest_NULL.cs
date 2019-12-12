@@ -37,6 +37,7 @@ namespace Neo.Compiler.MSIL
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsFalse(item.ToBoolean());
         }
+
         [TestMethod]
         public void NullCoalescing()
         {
@@ -62,6 +63,7 @@ namespace Neo.Compiler.MSIL
                 Assert.IsTrue(item.IsNull);
             }
         }
+
         [TestMethod]
         public void NullCollation()
         {
@@ -71,10 +73,10 @@ namespace Neo.Compiler.MSIL
             // nes->nes
             testengine.Reset();
             {
-                var result = testengine.ExecuteTestCaseStandard("nullCollation","nes");
+                var result = testengine.ExecuteTestCaseStandard("nullCollation", "nes");
                 var item = result.Pop() as ByteArray;
                 var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
-                Assert.IsTrue(str=="nes");
+                Assert.IsTrue(str == "nes");
             }
 
             // null->linux
@@ -86,6 +88,7 @@ namespace Neo.Compiler.MSIL
                 Assert.IsTrue(str == "linux");
             }
         }
+
         [TestMethod]
         public void EqualNull()
         {

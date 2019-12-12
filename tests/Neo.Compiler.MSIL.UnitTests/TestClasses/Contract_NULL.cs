@@ -22,6 +22,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             string myname = code?.Substring(1, 2);
             return myname;
         }
+
         public static string NullCollation(string code)
         {
             string myname = code ?? "linux";
