@@ -204,6 +204,15 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
+            // Check defined entry points
+
+            if (entryPoints > 1)
+                throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
+
+            // Check specific cases
+
+            entryPoints = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type).Distinct().Count();
+
             if (entryPoints > 1)
                 throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
 
