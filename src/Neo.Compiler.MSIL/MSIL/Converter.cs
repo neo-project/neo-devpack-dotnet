@@ -88,6 +88,9 @@ namespace Neo.Compiler.MSIL
                         continue;//event 自动生成的代码，不要
                     if (m.Value.method.Is_cctor())
                     {
+                        //if cctor contains sth can not be as a const value.
+                        //  then need 1.record these cctor's code.
+                        //            2.insert them to main function
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
@@ -1058,7 +1061,7 @@ namespace Neo.Compiler.MSIL
                             )
                         {
                             var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;
-                            var _src = outModule.staticfields[fname];
+                            var _src = outModule.staticfieldsWithConstValue[fname];
                             if (_src is byte[])
                             {
                                 var bytesrc = (byte[])_src;

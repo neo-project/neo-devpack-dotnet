@@ -20,5 +20,19 @@ namespace Neo.Compiler.MSIL
             Assert.IsTrue(bequal);
         }
 
+        [TestMethod]
+        public void Test_StaticVarInit()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            var result = testengine.ExecuteTestCaseStandard("staticinit");
+
+            //test (1+5)*7 == 42
+            var retvar = result.Pop();
+
+            StackItem wantresult = 42;
+            var bequal = wantresult.Equals(retvar);
+            Assert.IsTrue(bequal);
+        }
     }
 }
