@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
 using Neo.VM.Types;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL
 {
@@ -27,10 +28,10 @@ namespace Neo.Compiler.MSIL
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("intarrayinit");
 
-            //test (1+5)*7 == 42
-            StackItem wantresult = 33;
-            var bequal = wantresult.Equals(result.Pop());
-            Assert.IsTrue(bequal);
+            //test 1,4,5
+            Assert.IsTrue(result.TryPop(out Array arr));
+            Assert.AreEqual(3, arr.Count);
+            CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => u.ToBigInteger()).ToArray());
         }
 
         [TestMethod]

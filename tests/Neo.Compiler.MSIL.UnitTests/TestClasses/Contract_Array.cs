@@ -45,10 +45,10 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object TestIntArrayInit()
         {
-            var arrobj = new int[] { 0, 88, 33 };
-            arrobj[1] = 88;
-            arrobj[2] = 33;
-            return arrobj[2];
+            var arrobj = new int[] { 1, 2, 3 };
+            arrobj[1] = 4;
+            arrobj[2] = 5;
+            return arrobj;
         }
 
         public static object TestStructArray()
