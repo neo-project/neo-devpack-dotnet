@@ -30,8 +30,13 @@ namespace Neo.Compiler.MSIL
 
             //test 1,4,5
             Assert.IsTrue(result.TryPop(out Array arr));
-            Assert.AreEqual(3, arr.Count);
-            CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => u.ToBigInteger()).ToArray());
+            var wantarray = new int[] { 1, 4, 5 };
+            Assert.AreEqual(wantarray.Length, arr.Count);
+            var resultarray = arr.Cast<Integer>().Select(u => u.ToBigInteger()).ToArray();
+            for(var i=0;i<wantarray.Length;i++)
+            {
+                Assert.AreEqual(resultarray[i], wantarray[i]);
+            }
         }
 
         [TestMethod]

@@ -1191,6 +1191,54 @@ namespace Neo.Compiler.MSIL
                         }
                         return 3;
                     }
+                    else if (type == "System.UInt32")
+                    {
+                        for (var i = 0; i < data.Length; i += 4)
+                        {
+                            var info = BitConverter.ToUInt32(data, i);
+                            _Convert1by1(VM.OpCode.DUP, null, to);
+                            _ConvertPush(i / 4, null, to);
+                            _ConvertPush(info, null, to);
+                            _Convert1by1(VM.OpCode.SETITEM, null, to);
+                        }
+                        return 3;
+                    }
+                    else if(type=="System.Int32")
+                    {
+                        for (var i = 0; i < data.Length; i += 4)
+                        {
+                            var info = BitConverter.ToInt32(data, i);
+                            _Convert1by1(VM.OpCode.DUP, null, to);
+                            _ConvertPush(i / 4, null, to);
+                            _ConvertPush(info, null, to);
+                            _Convert1by1(VM.OpCode.SETITEM, null, to);
+                        }
+                        return 3;
+                    }
+                    else if (type == "System.Int64")
+                    {
+                        for (var i = 0; i < data.Length; i += 8)
+                        {
+                            var info = BitConverter.ToInt64(data, i);
+                            _Convert1by1(VM.OpCode.DUP, null, to);
+                            _ConvertPush(i / 8, null, to);
+                            _ConvertPush(info, null, to);
+                            _Convert1by1(VM.OpCode.SETITEM, null, to);
+                        }
+                        return 3;
+                    }
+                    else if (type == "System.UInt64")
+                    {
+                        for (var i = 0; i < data.Length; i += 8)
+                        {
+                            var info = (System.Numerics.BigInteger)BitConverter.ToUInt64(data, i);
+                            _Convert1by1(VM.OpCode.DUP, null, to);
+                            _ConvertPush(i / 8, null, to);
+                            _ConvertPush(info.ToByteArray(), null, to);
+                            _Convert1by1(VM.OpCode.SETITEM, null, to);
+                        }
+                        return 3;
+                    }
                     throw new Exception($"not support this type's init array. type: {type}");
 
                 }
