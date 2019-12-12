@@ -228,6 +228,7 @@ namespace Neo.Compiler.MSIL
 
         private void _insertSharedStaticVarCode(NeoMethod to)
         {
+            //insert init constvalue part
             _InsertPush(this.outModule.mapFields.Count, "static var", to);
             _Insert1(VM.OpCode.NEWARRAY, "", to);
             _Insert1(VM.OpCode.TOALTSTACK, "", to);
@@ -275,12 +276,20 @@ namespace Neo.Compiler.MSIL
                     }
                     else
                     {
+                        //continue;
+                        //no need to init null
                         _Convert1by1(VM.OpCode.PUSHNULL, null, to);
                         //throw new Exception("not support type _insertSharedStaticVarCode\r\n   in: " + to.name + "\r\n");
                     }
                     #endregion
                     _Insert1(VM.OpCode.SETITEM, "", to);
                 }
+            }
+
+            //insert code part
+            foreach(var cctor in this.outModule.staticfieldsCctor)
+            {
+                FillMethod(cctor, to,false);
             }
         }
 

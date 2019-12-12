@@ -406,6 +406,38 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
+        private void FillMethod(ILMethod from, NeoMethod to, bool withReturn)
+        {
+            int skipcount = 0;
+            foreach (var src in from.body_Codes.Values)
+            {
+                if (skipcount > 0)
+                {
+                    skipcount--;
+                }
+                else
+                {
+                    //在return之前加入清理参数代码
+                    if (src.code == CodeEx.Ret)//before return
+                    {
+                        if (!withReturn) break;
+
+                        _insertEndCode(to, src);
+
+                    }
+                    try
+                    {
+
+                        skipcount = ConvertCode(from, src, to);
+                    }
+                    catch (Exception err)
+                    {
+                        throw new Exception("error:" + from.method.FullName + "::" + src, err);
+                    }
+                }
+            }
+            ConvertAddrInMethod(to);
+        }
 
         private void ConvertMethod(ILMethod from, NeoMethod to)
         {
@@ -419,32 +451,7 @@ namespace Neo.Compiler.MSIL
             //插入一个记录深度的代码，再往前的是参数
             _insertBeginCode(from, to);
 
-            int skipcount = 0;
-            foreach (var src in from.body_Codes.Values)
-            {
-                if (skipcount > 0)
-                {
-                    skipcount--;
-                }
-                else
-                {
-                    //在return之前加入清理参数代码
-                    if (src.code == CodeEx.Ret)//before return
-                    {
-                        _insertEndCode(to, src);
-                    }
-                    try
-                    {
-                        skipcount = ConvertCode(from, src, to);
-                    }
-                    catch (Exception err)
-                    {
-                        throw new Exception("error:" + from.method.FullName + "::" + src, err);
-                    }
-                }
-            }
-
-            ConvertAddrInMethod(to);
+            FillMethod(from, to, true);
         }
 
         private readonly Dictionary<int, int> addrconv = new Dictionary<int, int>();
