@@ -182,8 +182,14 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
+            // Check entry Points
+
+            var entryPoints = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type).Distinct().Count();
+
+            if (entryPoints > 1)
+                throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
+
             //转换完了，做个link，全部拼到一起
-            int entryPoints = 0;
             string mainmethod = "";
             foreach (var key in outModule.mapMethods.Keys)
             {
@@ -196,25 +202,13 @@ namespace Neo.Compiler.MSIL
                         {
                             if (l.Value == m)
                             {
-                                entryPoints++;
                                 mainmethod = key;
+                                break;
                             }
                         }
                     }
                 }
             }
-
-            // Check defined entry points
-
-            if (entryPoints > 1)
-                throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
-
-            // Check specific cases
-
-            entryPoints = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type).Distinct().Count();
-
-            if (entryPoints > 1)
-                throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
 
             if (string.IsNullOrEmpty(mainmethod))
             {
