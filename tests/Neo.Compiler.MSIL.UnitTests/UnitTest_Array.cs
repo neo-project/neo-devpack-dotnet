@@ -13,12 +13,11 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
-            var result = testengine.ExecuteTestCaseStandard("intarray");
+            var result = testengine.ExecuteTestCaseStandard("testIntArray");
 
-            //test (1+5)*7 == 42
-            StackItem wantresult = 33;
-            var bequal = wantresult.Equals(result.Pop());
-            Assert.IsTrue(bequal);
+            //test 0,1,2
+            Assert.IsTrue(result.TryPop(out Array arr));
+            CollectionAssert.AreEqual(new int[] { 0, 1, 2 }, arr.Cast<PrimitiveType>().Select(u => (int)u.ToBigInteger()).ToArray());
         }
 
         [TestMethod]
@@ -26,17 +25,22 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
-            var result = testengine.ExecuteTestCaseStandard("intarrayinit");
+            var result = testengine.ExecuteTestCaseStandard("testIntArrayInit");
 
             //test 1,4,5
             Assert.IsTrue(result.TryPop(out Array arr));
-            var wantarray = new int[] { 1, 4, 5 };
-            Assert.AreEqual(wantarray.Length, arr.Count);
-            var resultarray = arr.Cast<Integer>().Select(u => u.ToBigInteger()).ToArray();
-            for(var i=0;i<wantarray.Length;i++)
-            {
-                Assert.AreEqual(resultarray[i], wantarray[i]);
-            }
+            CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.ToBigInteger()).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_DefaultArray()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("TestDefaultArray");
+
+            //test true
+            Assert.IsTrue(result.TryPop(out Boolean b) && b.ToBoolean());
         }
 
         [TestMethod]
@@ -44,7 +48,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
-            var result = testengine.ExecuteTestCaseStandard("structarray");
+            var result = testengine.ExecuteTestCaseStandard("testStructArray");
 
             //test (1+5)*7 == 42
             var neostruct = result.Pop() as Struct;
@@ -58,7 +62,7 @@ namespace Neo.Compiler.MSIL
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
-            var result = testengine.ExecuteTestCaseStandard("structarrayinit");
+            var result = testengine.ExecuteTestCaseStandard("testStructArrayInit");
 
             //test (1+5)*7 == 42
             var neostruct = result.Pop() as Struct;
