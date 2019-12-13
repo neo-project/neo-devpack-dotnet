@@ -1025,6 +1025,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Conv_U2:
                 case CodeEx.Conv_U4:
                 case CodeEx.Conv_U8:
+                    this.addrconv[src.addr] = addr;
                     break;
 
                 ///////////////////////////////////////////////
