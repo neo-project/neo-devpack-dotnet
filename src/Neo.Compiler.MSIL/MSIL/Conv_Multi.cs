@@ -1205,7 +1205,7 @@ namespace Neo.Compiler.MSIL
                         }
                         return 3;
                     }
-                    else if(type=="System.Int32")
+                    else if (type == "System.Int32")
                     {
                         for (var i = 0; i < data.Length; i += 4)
                         {
