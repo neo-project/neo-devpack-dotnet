@@ -32,6 +32,7 @@ namespace Neo.Compiler.MSIL
             CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.ToBigInteger()).ToArray());
         }
 
+        /* TODO: We should uncomment this when NEWARRAY_T was done
         [TestMethod]
         public void Test_DefaultArray()
         {
@@ -42,6 +43,7 @@ namespace Neo.Compiler.MSIL
             //test true
             Assert.IsTrue(result.TryPop(out Boolean b) && b.ToBoolean());
         }
+        */
 
         [TestMethod]
         public void Test_StructArray()
