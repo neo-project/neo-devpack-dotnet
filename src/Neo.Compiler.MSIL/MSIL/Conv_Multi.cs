@@ -485,7 +485,7 @@ namespace Neo.Compiler.MSIL
             if (IsNonCall(defs))
             {
                 this.addrconv[src.addr] = addr;
-              
+
                 return 0;
             }
             else if (IsNotifyCall(defs, refs, to, out callname))
