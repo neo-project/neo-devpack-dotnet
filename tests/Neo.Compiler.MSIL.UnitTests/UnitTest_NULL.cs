@@ -39,6 +39,57 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void NullCoalescing()
+        {
+            //  call NullCoalescing(string code)
+            // return  code ?.Substring(1,2);
+
+            // a123b->12
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCoalescing", "a123b");
+                var item = result.Pop() as ByteArray;
+
+                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(str == "12");
+            }
+            // null->null
+
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCoalescing", StackItem.Null);
+                var item = result.Pop();
+
+                Assert.IsTrue(item.IsNull);
+            }
+        }
+
+        [TestMethod]
+        public void NullCollation()
+        {
+            // call nullCollation(string code)
+            // return code ?? "linux"
+
+            // nes->nes
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCollation", "nes");
+                var item = result.Pop() as ByteArray;
+                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(str == "nes");
+            }
+
+            // null->linux
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCollation", StackItem.Null);
+                var item = result.Pop() as ByteArray;
+                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(str == "linux");
+            }
+        }
+
+        [TestMethod]
         public void EqualNull()
         {
             // True
