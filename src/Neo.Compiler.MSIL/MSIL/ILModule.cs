@@ -52,7 +52,6 @@ namespace Neo.Compiler.MSIL
                         foreach (var nt in t.NestedTypes)
                         {
                             mapType[nt.FullName] = new ILType(this, nt, logger);
-
                         }
                     }
                 }

@@ -78,8 +78,8 @@ namespace Neo.Compiler.MSIL.Utils
             catch
             {
             }
-
         }
+
         public string[] GetAllILFunction()
         {
             List<string> lists = new List<string>();
