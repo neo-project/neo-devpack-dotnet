@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Copyright>2016-2017 The Neo Project</Copyright>
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
-    <Version>2.9.3.1</Version>
+    <Version>2.10</Version>
     <Authors>The Neo Project</Authors>
     <TargetFrameworks>netstandard1.6;net40</TargetFrameworks>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
@@ -16,6 +16,8 @@
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
     <Company>The Neo Project</Company>
     <Description>Neo.SmartContract.Framework</Description>
+    <PackageIcon>neo-logo-72.png</PackageIcon>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.6|AnyCPU'">
@@ -27,6 +29,10 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../neo-logo-72.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
 </Project>
