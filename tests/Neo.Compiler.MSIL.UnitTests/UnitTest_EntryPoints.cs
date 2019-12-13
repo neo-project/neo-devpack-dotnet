@@ -11,12 +11,12 @@ namespace Neo.Compiler.MSIL
         {
             using (var testengine = new TestEngine())
             {
-                Assert.AreEqual(2, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/Contract_multilecontracts.cs")).Count);
+                Assert.AreEqual(2, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/Contract_MultipleContracts.cs")).Count);
             }
 
             using (var testengine = new TestEngine())
             {
-                Assert.AreEqual(2, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/Contract_multilecontracts2.cs")).Count);
+                Assert.AreEqual(2, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/Contract_MultipleContracts2.cs")).Count);
             }
         }
 
