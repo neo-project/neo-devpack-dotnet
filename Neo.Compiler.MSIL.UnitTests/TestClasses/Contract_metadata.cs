@@ -1,7 +1,3 @@
-using System;
-using System.ComponentModel;
-using System.Numerics;
-
 [assembly: Neo.SmartContract.Framework.ContractDescription("contract description")]
 [assembly: Neo.SmartContract.Framework.ContractTitle("contract title")]
 [assembly: Neo.SmartContract.Framework.ContractVersion("contract version")]
