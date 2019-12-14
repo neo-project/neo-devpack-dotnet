@@ -1,6 +1,7 @@
 using Neo.Compiler.MSIL;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 
@@ -186,9 +187,8 @@ namespace Neo.Compiler
             byte[] bytes;
             bool bSucc;
             string jsonstr = null;
-
             // Convert and build
-
+            string debugstr = null;
             try
             {
                 var conv = new ModuleConverter(log);
@@ -214,6 +214,18 @@ namespace Neo.Compiler
                     log.Log("gen abi Error:" + err.ToString());
                 }
 
+                try
+                {
+                    var outjson = DebugExport.Export(am);
+                    StringBuilder sb = new StringBuilder();
+                    outjson.ConvertToString(sb);
+                    debugstr = sb.ToString();
+                    log.Log("gen debug succ");
+                }
+                catch (Exception err)
+                {
+                    log.Log("gen debug Error:" + err.ToString());
+                }
             }
             catch (Exception err)
             {
@@ -241,7 +253,6 @@ namespace Neo.Compiler
 
             try
             {
-
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);
@@ -252,6 +263,30 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Write abi Error:" + err.ToString());
+                return;
+            }
+
+            try
+            {
+                string debugname = onlyname + ".debug.json";
+                string debugzip = onlyname + ".avmdbgnfo";
+
+                var tempName = Path.GetTempFileName();
+                File.Delete(tempName);
+                File.WriteAllText(tempName, debugstr);
+
+                File.Delete(debugzip);
+                using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
+                {
+                    archive.CreateEntryFromFile(tempName, Path.GetFileName(debugname));
+                }
+                File.Delete(tempName);
+                log.Log("write:" + debugzip);
+                bSucc = true;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write debug Error:" + err.ToString());
                 return;
             }
 

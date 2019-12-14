@@ -7,6 +7,15 @@ namespace Neo.Compiler
 {
     public class NeoModule
     {
+        public string Title;
+        public string Description;
+        public string Version;
+        public string Author;
+        public string Email;
+        public bool HasStorage;
+        public bool HasDynamicInvoke;
+        public bool IsPayable;
+
         public NeoModule(ILogger logger)
         {
         }
@@ -178,6 +187,8 @@ namespace Neo.Compiler
         public int srcaddr;
         public int[] srcaddrswitch;
         public string srcfunc;
+        public Mono.Cecil.Cil.SequencePoint sequencePoint;
+
         public override string ToString()
         {
             //string info = "AL_" + addr.ToString("X04") + " " + code.ToString();
