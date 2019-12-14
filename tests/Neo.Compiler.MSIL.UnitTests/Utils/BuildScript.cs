@@ -59,18 +59,23 @@ namespace Neo.Compiler.MSIL.Utils
 
             converterIL = new ModuleConverter(log);
             ConvOption option = new ConvOption();
+#if NDEBUG
             try
+
+#endif
             {
                 converterIL.Convert(modIL, option);
                 finalNEF = converterIL.outModule.Build();
                 IsBuild = true;
             }
+#if NDEBUG
             catch (Exception err)
             {
                 this.Error = err;
                 log.Log("Convert IL->ASM Error:" + err.ToString());
                 return;
             }
+#endif
             try
             {
                 finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF);
@@ -78,8 +83,8 @@ namespace Neo.Compiler.MSIL.Utils
             catch
             {
             }
-
         }
+
         public string[] GetAllILFunction()
         {
             List<string> lists = new List<string>();

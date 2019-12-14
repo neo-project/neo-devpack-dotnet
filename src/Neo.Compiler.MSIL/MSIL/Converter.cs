@@ -71,6 +71,9 @@ namespace Neo.Compiler.MSIL
                         continue;//event 自动生成的代码，不要
                     if (m.Value.method.Is_cctor())
                     {
+                        //if cctor contains sth can not be as a const value.
+                        //  then need 1.record these cctor's code.
+                        //            2.insert them to main function
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
@@ -164,9 +167,16 @@ namespace Neo.Compiler.MSIL
                     //}
                 }
             }
+
+            // Check entry Points
+
+            var entryPoints = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type).Distinct().Count();
+
+            if (entryPoints > 1)
+                throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
+
             //转换完了，做个link，全部拼到一起
             string mainmethod = "";
-
             foreach (var key in outModule.mapMethods.Keys)
             {
                 if (key.Contains("::Main("))
@@ -186,9 +196,16 @@ namespace Neo.Compiler.MSIL
                     }
                 }
             }
-            if (mainmethod == "")
+
+            if (string.IsNullOrEmpty(mainmethod))
             {
                 mainmethod = InsertAutoEntry();
+
+                if (string.IsNullOrEmpty(mainmethod))
+                {
+                    throw new EntryPointException(0, "The smart contract doesn't contain any entryPoints, please check it.");
+                }
+
                 logger.Log("Auto Insert entrypoint.");
             }
             else
@@ -222,13 +239,15 @@ namespace Neo.Compiler.MSIL
             autoEntry.paramtypes.Add(new NeoParam(name, "array"));
             autoEntry.returntype = "object";
             autoEntry.funcaddr = 0;
-            FillEntryMethod(autoEntry);
+            if (!FillEntryMethod(autoEntry))
+            {
+                return "";
+            }
             outModule.mapMethods[name] = autoEntry;
-
             return name;
         }
 
-        private void FillEntryMethod(NeoMethod to)
+        private bool FillEntryMethod(NeoMethod to)
         {
             this.addr = 0;
             this.addrconv.Clear();
@@ -237,16 +256,17 @@ namespace Neo.Compiler.MSIL
             _Insert1(VM.OpCode.NOP, "this is a debug code.", to);
 #endif
             _insertSharedStaticVarCode(to);
-
             _insertBeginCodeEntry(to);
 
+            bool inserted = false;
             List<int> calladdr = new List<int>();
             List<int> calladdrbegin = new List<int>();
             //add callfunc
             foreach (var m in this.outModule.mapMethods)
             {
                 if (m.Value.inSmartContract && m.Value.isPublic)
-                {//add a call;
+                {
+                    //add a call;
                     //get name
                     calladdrbegin.Add(this.addr);
                     _Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
@@ -279,8 +299,11 @@ namespace Neo.Compiler.MSIL
                     }
                     _insertEndCode(to, null);
                     _Insert1(VM.OpCode.RET, "", to);
+                    inserted = true;
                 }
             }
+
+            if (!inserted) return false;
 
             //add returen
             calladdrbegin.Add(this.addr);//record add fix jumppos later
@@ -304,6 +327,7 @@ namespace Neo.Compiler.MSIL
             _Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
 #endif
             ConvertAddrInMethod(to);
+            return true;
         }
 
         private void LinkCode(string main)
@@ -387,18 +411,8 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        private void ConvertMethod(ILMethod from, NeoMethod to)
+        private void FillMethod(ILMethod from, NeoMethod to, bool withReturn)
         {
-            this.addr = 0;
-            this.addrconv.Clear();
-
-            if (to.isEntry)
-            {
-                _insertSharedStaticVarCode(to);
-            }
-            //插入一个记录深度的代码，再往前的是参数
-            _insertBeginCode(from, to);
-
             int skipcount = 0;
             foreach (var src in from.body_Codes.Values)
             {
@@ -411,6 +425,7 @@ namespace Neo.Compiler.MSIL
                     //在return之前加入清理参数代码
                     if (src.code == CodeEx.Ret)//before return
                     {
+                        if (!withReturn) break;
                         _insertEndCode(to, src);
                     }
                     try
@@ -423,8 +438,22 @@ namespace Neo.Compiler.MSIL
                     }
                 }
             }
-
             ConvertAddrInMethod(to);
+        }
+
+        private void ConvertMethod(ILMethod from, NeoMethod to)
+        {
+            this.addr = 0;
+            this.addrconv.Clear();
+
+            if (to.isEntry)
+            {
+                _insertSharedStaticVarCode(to);
+            }
+            //插入一个记录深度的代码，再往前的是参数
+            _insertBeginCode(from, to);
+
+            FillMethod(from, to, true);
         }
 
         private readonly Dictionary<int, int> addrconv = new Dictionary<int, int>();
@@ -1008,6 +1037,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Conv_U2:
                 case CodeEx.Conv_U4:
                 case CodeEx.Conv_U8:
+                    this.addrconv[src.addr] = addr;
                     break;
 
                 ///////////////////////////////////////////////
@@ -1041,7 +1071,7 @@ namespace Neo.Compiler.MSIL
                             )
                         {
                             var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;
-                            var _src = outModule.staticfields[fname];
+                            var _src = outModule.staticfieldsWithConstValue[fname];
                             if (_src is byte[])
                             {
                                 var bytesrc = (byte[])_src;

@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Neo.Compiler.MSIL.TestClasses
 {
-
     class Contract_staticvar : SmartContract.Framework.SmartContract
     {
         static int a1 = 1;
@@ -25,5 +20,4 @@ namespace Neo.Compiler.MSIL.TestClasses
             a1 *= 7;
         }
     }
-
 }

@@ -20,5 +20,29 @@ namespace Neo.Compiler.MSIL
             Assert.IsTrue(bequal);
         }
 
+        [TestMethod]
+        public void Test_StaticVarInit()
+        {
+            ByteArray var1;
+            ByteArray var2;
+            {
+                var testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+                var result = testengine.ExecuteTestCaseStandard("staticinit");
+                // static byte[] callscript = ExecutionEngine.EntryScriptHash;
+                // ...
+                // return callscript
+                var1 = (result.Pop() as ByteArray);
+            }
+            {
+                var testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+                var result = testengine.ExecuteTestCaseStandard("directget");
+                // return ExecutionEngine.EntryScriptHash
+                var2 = (result.Pop() as ByteArray);
+            }
+            Assert.IsNotNull(var1);
+            Assert.AreEqual(var1, var2);
+        }
     }
 }
