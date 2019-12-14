@@ -29,14 +29,16 @@ namespace Neo.Compiler.MSIL
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
                 var result = testengine.ExecuteTestCaseStandard("staticinit");
-                //test (1+5)*7 == 42
+                // static byte[] callscript = ExecutionEngine.EntryScriptHash;
+                // ...
+                // return callscript
                 var1 = (result.Pop() as ByteArray);
             }
             {
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
                 var result = testengine.ExecuteTestCaseStandard("directget");
-                //test (1+5)*7 == 42
+                // return ExecutionEngine.EntryScriptHash
                 var2 = (result.Pop() as ByteArray);
             }
             Assert.IsNotNull(var1);

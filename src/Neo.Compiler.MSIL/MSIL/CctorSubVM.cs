@@ -101,9 +101,9 @@ namespace Neo.Compiler.MSIL
                             }
                             else
                             {
+                                //other type mean is not a constValue
                                 constValue = false;
                                 continue;
-                                //throw new Exception("only byte[] can be defined in here.");
                             }
                         }
                         break;
