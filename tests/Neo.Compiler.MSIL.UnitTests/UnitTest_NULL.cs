@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
+using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL
@@ -38,6 +39,96 @@ namespace Neo.Compiler.MSIL
             Assert.IsFalse(item.ToBoolean());
         }
 
+        [TestMethod]
+        public void NullCoalescing()
+        {
+            //  call NullCoalescing(string code)
+            // return  code ?.Substring(1,2);
+
+            // a123b->12
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCoalescing", "a123b");
+                var item = result.Pop() as ByteArray;
+
+                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(str == "12");
+            }
+            // null->null
+
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCoalescing", StackItem.Null);
+                var item = result.Pop();
+
+                Assert.IsTrue(item.IsNull);
+            }
+        }
+
+        [TestMethod]
+        public void NullCollation()
+        {
+            // call nullCollation(string code)
+            // return code ?? "linux"
+
+            // nes->nes
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCollation", "nes");
+                var item = result.Pop() as ByteArray;
+                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(str == "nes");
+            }
+
+            // null->linux
+            testengine.Reset();
+            {
+                var result = testengine.ExecuteTestCaseStandard("nullCollation", StackItem.Null);
+                var item = result.Pop() as ByteArray;
+                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(str == "linux");
+            }
+        }
+        [TestMethod]
+        public void NullCollationAndCollation()
+        {
+            var _testengine = new TestEngine();
+            _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            _testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
+            {
+                Script = testengine.EntryContext.Script,
+                Manifest = new ContractManifest()
+                {
+                    Features = ContractFeatures.HasStorage
+                }
+            });
+            {
+                var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
+                var item = result.Pop() as ByteArray;
+                var num = item.ToBigInteger();
+                Assert.IsTrue(num == 123);
+            }
+        }
+        [TestMethod]
+        public void NullCollationAndCollation2()
+        {
+            var _testengine = new TestEngine();
+            _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            _testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
+            {
+                Script = testengine.EntryContext.Script,
+                Manifest = new ContractManifest()
+                {
+                    Features = ContractFeatures.HasStorage
+                }
+            });
+            {
+                var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
+                var item = result.Pop() as ByteArray;
+                var num = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                Assert.IsTrue(num == "111");
+            }
+        }
         [TestMethod]
         public void EqualNull()
         {

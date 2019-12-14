@@ -184,9 +184,16 @@ namespace Neo.Compiler.MSIL
                     //}
                 }
             }
+
+            // Check entry Points
+
+            var entryPoints = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type).Distinct().Count();
+
+            if (entryPoints > 1)
+                throw new EntryPointException(entryPoints, "The smart contract contains multiple entryPoints, please check it.");
+
             //转换完了，做个link，全部拼到一起
             string mainmethod = "";
-
             foreach (var key in outModule.mapMethods.Keys)
             {
                 if (key.Contains("::Main("))
@@ -206,9 +213,16 @@ namespace Neo.Compiler.MSIL
                     }
                 }
             }
-            if (mainmethod == "")
+
+            if (string.IsNullOrEmpty(mainmethod))
             {
                 mainmethod = InsertAutoEntry();
+
+                if (string.IsNullOrEmpty(mainmethod))
+                {
+                    throw new EntryPointException(0, "The smart contract doesn't contain any entryPoints, please check it.");
+                }
+
                 logger.Log("Auto Insert entrypoint.");
             }
             else
@@ -242,13 +256,15 @@ namespace Neo.Compiler.MSIL
             autoEntry.paramtypes.Add(new NeoParam(name, "array"));
             autoEntry.returntype = "object";
             autoEntry.funcaddr = 0;
-            FillEntryMethod(autoEntry);
+            if (!FillEntryMethod(autoEntry))
+            {
+                return "";
+            }
             outModule.mapMethods[name] = autoEntry;
-
             return name;
         }
 
-        private void FillEntryMethod(NeoMethod to)
+        private bool FillEntryMethod(NeoMethod to)
         {
             this.addr = 0;
             this.addrconv.Clear();
@@ -257,16 +273,17 @@ namespace Neo.Compiler.MSIL
             _Insert1(VM.OpCode.NOP, "this is a debug code.", to);
 #endif
             _insertSharedStaticVarCode(to);
-
             _insertBeginCodeEntry(to);
 
+            bool inserted = false;
             List<int> calladdr = new List<int>();
             List<int> calladdrbegin = new List<int>();
             //add callfunc
             foreach (var m in this.outModule.mapMethods)
             {
                 if (m.Value.inSmartContract && m.Value.isPublic)
-                {//add a call;
+                {
+                    //add a call;
                     //get name
                     calladdrbegin.Add(this.addr);
                     _Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
@@ -299,8 +316,11 @@ namespace Neo.Compiler.MSIL
                     }
                     _insertEndCode(to, null);
                     _Insert1(VM.OpCode.RET, "", to);
+                    inserted = true;
                 }
             }
+
+            if (!inserted) return false;
 
             //add returen
             calladdrbegin.Add(this.addr);//record add fix jumppos later
@@ -324,6 +344,7 @@ namespace Neo.Compiler.MSIL
             _Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
 #endif
             ConvertAddrInMethod(to);
+            return true;
         }
 
         private void LinkCode(string main)
@@ -1033,6 +1054,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Conv_U2:
                 case CodeEx.Conv_U4:
                 case CodeEx.Conv_U8:
+                    this.addrconv[src.addr] = addr;
                     break;
 
                 ///////////////////////////////////////////////

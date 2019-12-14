@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Services.Neo;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
-    [Features(SmartContract.Framework.ContractFeatures.HasStorage)]
+    [Features(ContractFeatures.HasStorage)]
     class Contract_Storage : SmartContract.Framework.SmartContract
     {
         // There is no main here, it can be auto generation.
