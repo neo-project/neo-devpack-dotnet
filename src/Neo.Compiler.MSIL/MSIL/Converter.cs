@@ -88,6 +88,9 @@ namespace Neo.Compiler.MSIL
                         continue;//event 自动生成的代码，不要
                     if (m.Value.method.Is_cctor())
                     {
+                        //if cctor contains sth can not be as a const value.
+                        //  then need 1.record these cctor's code.
+                        //            2.insert them to main function
                         CctorSubVM.Parse(m.Value, this.outModule);
                         continue;
                     }
@@ -425,18 +428,8 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        private void ConvertMethod(ILMethod from, NeoMethod to)
+        private void FillMethod(ILMethod from, NeoMethod to, bool withReturn)
         {
-            this.addr = 0;
-            this.addrconv.Clear();
-
-            if (to.isEntry)
-            {
-                _insertSharedStaticVarCode(to);
-            }
-            //插入一个记录深度的代码，再往前的是参数
-            _insertBeginCode(from, to);
-
             int skipcount = 0;
             foreach (var src in from.body_Codes.Values)
             {
@@ -449,6 +442,7 @@ namespace Neo.Compiler.MSIL
                     //在return之前加入清理参数代码
                     if (src.code == CodeEx.Ret)//before return
                     {
+                        if (!withReturn) break;
                         _insertEndCode(to, src);
                     }
                     try
@@ -461,8 +455,22 @@ namespace Neo.Compiler.MSIL
                     }
                 }
             }
-
             ConvertAddrInMethod(to);
+        }
+
+        private void ConvertMethod(ILMethod from, NeoMethod to)
+        {
+            this.addr = 0;
+            this.addrconv.Clear();
+
+            if (to.isEntry)
+            {
+                _insertSharedStaticVarCode(to);
+            }
+            //插入一个记录深度的代码，再往前的是参数
+            _insertBeginCode(from, to);
+
+            FillMethod(from, to, true);
         }
 
         private readonly Dictionary<int, int> addrconv = new Dictionary<int, int>();
@@ -1080,7 +1088,7 @@ namespace Neo.Compiler.MSIL
                             )
                         {
                             var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;
-                            var _src = outModule.staticfields[fname];
+                            var _src = outModule.staticfieldsWithConstValue[fname];
                             if (_src is byte[])
                             {
                                 var bytesrc = (byte[])_src;
