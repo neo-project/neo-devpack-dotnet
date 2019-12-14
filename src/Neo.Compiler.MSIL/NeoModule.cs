@@ -17,7 +17,8 @@ namespace Neo.Compiler
         public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
         public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
         public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
-        public Dictionary<string, object> staticfields = new Dictionary<string, object>();
+        public Dictionary<string, object> staticfieldsWithConstValue = new Dictionary<string, object>();
+        public List<ILMethod> staticfieldsCctor = new List<ILMethod>();
         //小蚁没类型，只有方法
         public SortedDictionary<int, NeoCode> total_Codes = new SortedDictionary<int, NeoCode>();
 
