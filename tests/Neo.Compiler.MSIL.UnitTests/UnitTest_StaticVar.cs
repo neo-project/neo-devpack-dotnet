@@ -44,6 +44,5 @@ namespace Neo.Compiler.MSIL
             Assert.IsNotNull(var1);
             Assert.AreEqual(var1, var2);
         }
-
     }
 }

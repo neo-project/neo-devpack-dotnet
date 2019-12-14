@@ -183,7 +183,6 @@ namespace Neo.Compiler.MSIL
                                             var bytes = NEO.AllianceOfThinWallet.Cryptography.Base58.Decode(text);
                                             var hash = bytes.Skip(1).Take(20).ToArray();
                                             calcStack.Push(hash);
-
                                         }
                                         else if (attrname == "HexToBytes")//HexString2Bytes to bytes[]
                                         {
@@ -204,7 +203,7 @@ namespace Neo.Compiler.MSIL
                         {
                             var field = src.tokenUnknown as Mono.Cecil.FieldReference;
                             var fname = field.FullName;
-                            if(calcStack.Count==0)
+                            if (calcStack.Count == 0)
                             {
                                 constValue = false;
                                 to.staticfieldsWithConstValue[fname] = null;
@@ -228,7 +227,7 @@ namespace Neo.Compiler.MSIL
                         break;
                 }
             }
-            if(constValue==false)
+            if (constValue == false)
             {
                 if (to.staticfieldsCctor.Contains(from) == false)
                     to.staticfieldsCctor.Add(from);

@@ -406,6 +406,7 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
+
         private void FillMethod(ILMethod from, NeoMethod to, bool withReturn)
         {
             int skipcount = 0;
@@ -421,13 +422,10 @@ namespace Neo.Compiler.MSIL
                     if (src.code == CodeEx.Ret)//before return
                     {
                         if (!withReturn) break;
-
                         _insertEndCode(to, src);
-
                     }
                     try
                     {
-
                         skipcount = ConvertCode(from, src, to);
                     }
                     catch (Exception err)

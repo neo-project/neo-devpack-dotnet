@@ -276,10 +276,8 @@ namespace Neo.Compiler.MSIL
                     }
                     else
                     {
-                        //continue;
                         //no need to init null
                         _Convert1by1(VM.OpCode.PUSHNULL, null, to);
-                        //throw new Exception("not support type _insertSharedStaticVarCode\r\n   in: " + to.name + "\r\n");
                     }
                     #endregion
                     _Insert1(VM.OpCode.SETITEM, "", to);
@@ -287,9 +285,9 @@ namespace Neo.Compiler.MSIL
             }
 
             //insert code part
-            foreach(var cctor in this.outModule.staticfieldsCctor)
+            foreach (var cctor in this.outModule.staticfieldsCctor)
             {
-                FillMethod(cctor, to,false);
+                FillMethod(cctor, to, false);
             }
         }
 
