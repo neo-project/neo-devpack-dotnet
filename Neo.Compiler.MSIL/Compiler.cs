@@ -99,14 +99,14 @@ namespace Neo.Compiler
             // Find ItemGroups
 
             var nspace = "";
-            var itemGroups = projDefinition.Element("Project")?.Elements("ItemGroup");
+            var itemGroups = projDefinition.Element("Project")?.Elements("ItemGroup").ToArray();
 
-            if (itemGroups == null)
+            if (itemGroups == null || itemGroups.Length == 0)
             {
                 // Try other version
 
                 nspace = "{http://schemas.microsoft.com/developer/msbuild/2003}";
-                itemGroups = projDefinition.Element(nspace + "Project").Elements(nspace + "ItemGroup");
+                itemGroups = projDefinition.Element(nspace + "Project").Elements(nspace + "ItemGroup").ToArray();
             }
 
             // Detect references
