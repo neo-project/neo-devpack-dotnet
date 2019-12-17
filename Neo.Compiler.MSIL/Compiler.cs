@@ -96,26 +96,37 @@ namespace Neo.Compiler
             var reader = XmlReader.Create(filename, new XmlReaderSettings() { XmlResolver = null });
             var projDefinition = XDocument.Load(reader);
 
+            // Find ItemGroups
+
+            var nspace = "";
+            var itemGroups = projDefinition.Element("Project")?.Elements("ItemGroup");
+
+            if (itemGroups == null)
+            {
+                // Try other version
+
+                nspace = "{http://schemas.microsoft.com/developer/msbuild/2003}";
+                itemGroups = projDefinition.Element(nspace + "Project").Elements(nspace + "ItemGroup");
+            }
+
             // Detect references
 
-            references = projDefinition
-               .Element("Project")
-               .Elements("ItemGroup")
-               .Elements("PackageReference")
-               .Select(u => u.Attribute("Include").Value + ".dll")
-               .ToList();
+            references = itemGroups?
+                       .Elements(nspace + "PackageReference")
+                       .Select(u => u.Attribute("Include").Value + ".dll")
+                       .ToList();
+
+            if (references == null) references = new List<string>();
 
             // Detect hints
 
-            var refs = projDefinition
-                .Element("Project")
-                .Elements("ItemGroup")
-                .Elements("Reference")
-                .Elements("HintPath")
+            var refs = itemGroups?
+                .Elements(nspace + "Reference")?
+                .Elements(nspace + "HintPath")?
                 .Select(u => u.Value)
                 .ToList();
 
-            if (refs.Count > 0)
+            if (refs != null && refs.Count > 0)
             {
                 references.AddRange(refs);
             }
@@ -123,11 +134,11 @@ namespace Neo.Compiler
             // Detect files
 
             files = projDefinition
-               .Element("Project")
-               .Elements("ItemGroup")
-               .Elements("Compile")
-               .Select(u => u.Attribute("Update").Value)
-               .ToList();
+               .Elements(nspace + "Compile")?
+                .Select(u => u.Attribute("Update").Value)
+                .ToList();
+
+            if (files == null) files = new List<string>();
 
             files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*" + extension, SearchOption.AllDirectories));
             files = files.Distinct().ToList();
