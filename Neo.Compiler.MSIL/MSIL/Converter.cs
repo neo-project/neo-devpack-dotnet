@@ -343,18 +343,14 @@ namespace Neo.Compiler.MSIL
                     case "Neo.SmartContract.Framework.ContractEmail":
                         outModule.Email = attrib.ConstructorArguments[0].Value.ToString();
                         break;
-                    case "Neo.SmartContract.Framework.FeaturesAttribute":
-                        {
-                            // define constants to mirror ContractPropertyState values
-                            const byte HAS_STORAGE = 1 << 0;
-                            const byte HAS_DYNAMIC_INVOKE = 1 << 1;
-                            const byte PAYABLE = 1 << 2;
-
-                            var features = (byte)attrib.ConstructorArguments[0].Value;
-                            outModule.HasDynamicInvoke = (features & HAS_DYNAMIC_INVOKE) != 0;
-                            outModule.HasStorage = (features & HAS_STORAGE) != 0;
-                            outModule.IsPayable = (features & PAYABLE) != 0;
-                        }
+                    case "Neo.SmartContract.Framework.ContractHasDynamicInvoke":
+                        outModule.HasDynamicInvoke = true;
+                        break;
+                    case "Neo.SmartContract.Framework.ContractHasStorage":
+                        outModule.HasStorage = true;
+                        break;
+                    case "Neo.SmartContract.Framework.ContractIsPayable":
+                        outModule.IsPayable = true;
                         break;
                     case "Neo.SmartContract.Framework.ContractTitle":
                         outModule.Title = attrib.ConstructorArguments[0].Value.ToString();

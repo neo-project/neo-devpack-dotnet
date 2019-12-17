@@ -1,27 +1,8 @@
-using Neo.SmartContract.Framework.Services.Neo;
 using Neo.VM;
 using System;
 
 namespace Neo.SmartContract.Framework
 {
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public class FeaturesAttribute : Attribute
-    {
-        /// <summary>
-        /// Smart contract features
-        /// </summary>
-        public ContractPropertyState Features { get; }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="features">Specify the smart contract features</param>
-        public FeaturesAttribute(ContractPropertyState features)
-        {
-            Features = features;
-        }
-    }
-
     [AttributeUsage(AttributeTargets.Assembly, Inherited = false)]
     public sealed class ContractAuthor : Attribute
     {
@@ -53,6 +34,21 @@ namespace Neo.SmartContract.Framework
         }
 
         public string Email { get; }
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false)]
+    public sealed class ContractHasDynamicInvoke : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false)]
+    public sealed class ContractHasStorage : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false)]
+    public sealed class ContractIsPayable : Attribute
+    {
     }
 
     [AttributeUsage(AttributeTargets.Assembly, Inherited = false)]
