@@ -43,23 +43,6 @@ namespace Neo.Compiler.MSIL
                 logger = new DefLogger();
             }
             this.logger = logger;
-#if NET47
-            try
-            {
-                var assm = System.Reflection.Assembly.GetAssembly(typeof(System.Action));
-                var name = System.IO.Path.GetFileName(assm.Location);
-                if (name.ToLower() == "mscorlib.dll")
-                {
-                    var path = System.IO.Path.GetFullPath(".");
-                    System.IO.File.Copy(assm.Location, System.IO.Path.Combine(path, name));
-                }
-            }
-            catch
-            {
-
-            }
-            //assm.Location
-#endif
         }
 
         private readonly ILogger logger;
@@ -1182,12 +1165,8 @@ namespace Neo.Compiler.MSIL
                     break;
 
                 default:
-#if WITHPDB
                     logger.Log("unsupported instruction " + src.code + "\r\n   in: " + to.name + "\r\n");
-                    break;
-#else
                     throw new Exception("unsupported instruction " + src.code + "\r\n   in: " + to.name + "\r\n");
-#endif
             }
 
             return skipcount;
