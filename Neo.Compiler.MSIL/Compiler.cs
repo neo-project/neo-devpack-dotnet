@@ -141,10 +141,13 @@ namespace Neo.Compiler
                 .ToList();
 
             if (files == null) files = new List<string>();
+            reader.Dispose();
+
+            var bin = Path.Combine(fileInfo.DirectoryName, "bin");
+            var obj = Path.Combine(fileInfo.DirectoryName, "obj");
 
             files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*" + extension, SearchOption.AllDirectories));
-            files = files.Distinct().ToList();
-            reader.Dispose();
+            files = files.Where(u => !u.StartsWith(bin) && !u.StartsWith(obj)).Distinct().ToList();
         }
 
         /// <summary>
@@ -192,7 +195,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(SmartContract.Framework.SyscallAttribute).Assembly.Location),
             });
-            refs.AddRange(references.Select(u => MetadataReference.CreateFromFile(u)));
+            refs.AddRange(references.Where(u => u != "Neo.SmartContract.Framework.dll").Select(u => MetadataReference.CreateFromFile(u)));
             return refs.ToArray();
         }
     }
