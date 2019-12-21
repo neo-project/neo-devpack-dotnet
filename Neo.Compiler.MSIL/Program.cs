@@ -16,7 +16,7 @@ namespace Neo.Compiler
         //Console.WriteLine("<ERR|aaaa.cs> 这是ee一个严重的问题。");//错误输出，带文件名
         //Console.WriteLine("SUCC");//输出这个表示编译成功
         //控制台输出约定了特别的语法
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
@@ -31,8 +31,7 @@ namespace Neo.Compiler
                 log.Log("  neon mySmartContract.dll");
                 log.Log("  neon mySmartContract.csproj");
 
-                Environment.Exit(-1);
-                return;
+                return -1;
             }
 
             bool bCompatible = false;
@@ -59,7 +58,7 @@ namespace Neo.Compiler
                 log.Log("need one param for DLL filename.");
                 log.Log("[--compatible] disable nep8 function and disable SyscallInteropHash");
                 log.Log("Example:neon abc.dll --compatible");
-                return;
+                return 0;
             }
 
             // Set current directory
@@ -67,8 +66,7 @@ namespace Neo.Compiler
             if (!fileInfo.Exists)
             {
                 log.Log("Could not find file " + fileInfo.FullName);
-                Environment.Exit(-1);
-                return;
+                return -1;
             }
 
             if (bCompatible)
@@ -90,8 +88,7 @@ namespace Neo.Compiler
                 catch
                 {
                     log.Log("Could not find path: " + path);
-                    Environment.Exit(-1);
-                    return;
+                    return -1;
                 }
             }
 
@@ -158,15 +155,14 @@ namespace Neo.Compiler
                         catch (Exception err)
                         {
                             log.Log("Open File Error:" + err.ToString());
-                            return;
+                            return -1;
                         }
                         break;
                     }
                 default:
                     {
                         log.Log("File format not supported by neon: " + path);
-                        Environment.Exit(-1);
-                        return;
+                        return -1;
                     }
             }
 
@@ -181,7 +177,7 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("LoadModule Error:" + err.ToString());
-                return;
+                return -1;
             }
 
             byte[] bytes;
@@ -230,7 +226,7 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Convert Error:" + err.ToString());
-                return;
+                return -1;
             }
 
             // Write bytes
@@ -248,7 +244,7 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Write Bytes Error:" + err.ToString());
-                return;
+                return -1;
             }
 
             try
@@ -263,7 +259,7 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Write abi Error:" + err.ToString());
-                return;
+                return -1;
             }
 
             try
@@ -287,7 +283,7 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Write debug Error:" + err.ToString());
-                return;
+                return -1;
             }
 
             try
@@ -304,7 +300,10 @@ namespace Neo.Compiler
             if (bSucc)
             {
                 log.Log("SUCC");
+                return 1;
             }
+
+            return -1;
         }
     }
 }
