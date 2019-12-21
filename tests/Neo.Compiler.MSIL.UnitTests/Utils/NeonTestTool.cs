@@ -50,7 +50,7 @@ namespace Neo.Compiler.MSIL.Utils
         /// <returns>BuildScript</returns>
         public static BuildScript BuildScript(string filename, bool releaseMode = false)
         {
-            var comp = Compiler.CompileCSFile(new string[] { filename }, new string[0] { }, releaseMode);
+            var comp = Compiler.CompileCSFiles(new string[] { filename }, new string[0] { }, releaseMode);
 
             using (var streamDll = new MemoryStream(comp.Dll))
             using (var streamPdb = new MemoryStream(comp.Pdb))
