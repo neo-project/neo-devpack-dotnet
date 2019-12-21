@@ -55,7 +55,7 @@ namespace Neo.Compiler
 
             if (fileInfo == null)
             {
-                log.Log("need one param for DLL filename.");
+                log.Log("Need one param for filename (DLL or source)");
                 log.Log("[--compatible] disable nep8 function and disable SyscallInteropHash");
                 log.Log("Example:neon abc.dll --compatible");
                 return 0;
