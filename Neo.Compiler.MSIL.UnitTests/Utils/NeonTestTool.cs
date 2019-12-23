@@ -1,10 +1,3 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Framework;
-using Neo.VM;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -36,30 +29,18 @@ namespace Neo.Compiler.MSIL.Utils
 
         public static BuildScript BuildScript(string filename)
         {
-            var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
-            var srccode = File.ReadAllText(filename);
-            var tree = CSharpSyntaxTree.ParseText(srccode);
-            var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
-            var comp = CSharpCompilation.Create("TestContract", new[] { tree }, new[]
-            {
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "mscorlib.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
-                MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
+            var comp = Compiler.CompileCSFiles(new string[] { filename }, new string[0] { });
 
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(OpCodeAttribute).Assembly.Location)
-           }, op);
-            using (var streamDll = new MemoryStream())
-            using (var streamPdb = new MemoryStream())
+            using (var streamDll = new MemoryStream(comp.Dll))
+            using (var streamPdb = new MemoryStream(comp.Pdb))
             {
-                var result = comp.Emit(streamDll, streamPdb);
-                Assert.IsTrue(result.Success);
-                streamDll.Position = 0;
-                streamPdb.Position = 0;
-
                 var bs = new BuildScript();
                 bs.Build(streamDll, streamPdb);
+
+                if (bs.Error != null)
+                {
+                    throw (bs.Error);
+                }
 
                 if (bs.Error != null) throw bs.Error;
 

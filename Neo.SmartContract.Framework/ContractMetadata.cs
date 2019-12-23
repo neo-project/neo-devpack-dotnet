@@ -1,5 +1,4 @@
 using Neo.SmartContract.Framework.Services.Neo;
-using Neo.VM;
 using System;
 
 namespace Neo.SmartContract.Framework

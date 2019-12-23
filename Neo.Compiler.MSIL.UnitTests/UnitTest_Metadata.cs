@@ -1,8 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Utils;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Neo.Compiler.MSIL
 {
@@ -17,7 +14,7 @@ namespace Neo.Compiler.MSIL
             var abi = testengine.ScriptEntry.finialABI;
             var metadata = abi["metadata"].asDict();
 
-            Assert.AreEqual(metadata["title"].AsString(), "TestContract");
+            Assert.AreEqual(metadata["title"].AsString(), "SmartContract");
             Assert.AreEqual(metadata["version"].AsString(), "0.0.0.0");
             Assert.AreEqual(metadata["description"].AsString(), null);
             Assert.AreEqual(metadata["author"].AsString(), null);
