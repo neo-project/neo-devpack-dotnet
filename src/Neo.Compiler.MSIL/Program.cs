@@ -93,7 +93,7 @@ namespace Neo.Compiler
                         // Compile C# files
 
                         log.Log("Compiling from c# source");
-                        var output = Compiler.CompileCSFile(new string[] { fileInfo.FullName }, new string[0]);
+                        var output = Compiler.CompileCSFiles(new string[] { fileInfo.FullName }, new string[0]);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;
@@ -103,7 +103,7 @@ namespace Neo.Compiler
                         // Compile VB files
 
                         log.Log("Compiling from VB source");
-                        var output = Compiler.CompileVBFile(new string[] { fileInfo.FullName }, new string[0]);
+                        var output = Compiler.CompileVBFiles(new string[] { fileInfo.FullName }, new string[0]);
                         fs = new MemoryStream(output.Dll);
                         fspdb = new MemoryStream(output.Pdb);
                         break;

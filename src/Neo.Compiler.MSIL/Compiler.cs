@@ -62,7 +62,7 @@ namespace Neo.Compiler
         public static Assembly CompileVBProj(string filename, bool releaseMode = true)
         {
             ExtractFileAndReferences(filename, ".vb", out var files, out var references);
-            return CompileVBFile(files.ToArray(), references.ToArray(), releaseMode);
+            return CompileVBFiles(files.ToArray(), references.ToArray(), releaseMode);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Neo.Compiler
         public static Assembly CompileCSProj(string filename, bool releaseMode = true)
         {
             ExtractFileAndReferences(filename, ".cs", out var files, out var references);
-            return CompileCSFile(files.ToArray(), references.ToArray(), releaseMode);
+            return CompileCSFiles(files.ToArray(), references.ToArray(), releaseMode);
         }
 
         /// <summary>
@@ -98,26 +98,37 @@ namespace Neo.Compiler
             var reader = XmlReader.Create(filename, new XmlReaderSettings() { XmlResolver = null });
             var projDefinition = XDocument.Load(reader);
 
+            // Find ItemGroups
+
+            var nspace = "";
+            var itemGroups = projDefinition.Element("Project")?.Elements("ItemGroup").ToArray();
+
+            if (itemGroups == null || itemGroups.Length == 0)
+            {
+                // Try other version
+
+                nspace = "{http://schemas.microsoft.com/developer/msbuild/2003}";
+                itemGroups = projDefinition.Element(nspace + "Project").Elements(nspace + "ItemGroup").ToArray();
+            }
+
             // Detect references
 
-            references = projDefinition
-               .Element("Project")
-               .Elements("ItemGroup")
-               .Elements("PackageReference")
-               .Select(u => u.Attribute("Include").Value + ".dll")
-               .ToList();
+            references = itemGroups?
+                       .Elements(nspace + "PackageReference")
+                       .Select(u => u.Attribute("Include").Value + ".dll")
+                       .ToList();
+
+            if (references == null) references = new List<string>();
 
             // Detect hints
 
-            var refs = projDefinition
-                .Element("Project")
-                .Elements("ItemGroup")
-                .Elements("Reference")
-                .Elements("HintPath")
+            var refs = itemGroups?
+                .Elements(nspace + "Reference")?
+                .Elements(nspace + "HintPath")?
                 .Select(u => u.Value)
                 .ToList();
 
-            if (refs.Count > 0)
+            if (refs != null && refs.Count > 0)
             {
                 references.AddRange(refs);
             }
@@ -125,15 +136,18 @@ namespace Neo.Compiler
             // Detect files
 
             files = projDefinition
-               .Element("Project")
-               .Elements("ItemGroup")
-               .Elements("Compile")
-               .Select(u => u.Attribute("Update").Value)
-               .ToList();
+               .Elements(nspace + "Compile")?
+                .Select(u => u.Attribute("Update").Value)
+                .ToList();
+
+            if (files == null) files = new List<string>();
+            reader.Dispose();
+
+            var bin = Path.Combine(fileInfo.DirectoryName, "bin");
+            var obj = Path.Combine(fileInfo.DirectoryName, "obj");
 
             files.AddRange(Directory.GetFiles(fileInfo.Directory.FullName, "*" + extension, SearchOption.AllDirectories));
-            files = files.Distinct().ToList();
-            reader.Dispose();
+            files = files.Where(u => !u.StartsWith(bin) && !u.StartsWith(obj)).Distinct().ToList();
         }
 
         /// <summary>
@@ -143,7 +157,7 @@ namespace Neo.Compiler
         /// <param name="references">References</param>
         /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileVBFile(string[] filenames, string[] references, bool releaseMode = true)
+        public static Assembly CompileVBFiles(string[] filenames, string[] references, bool releaseMode = true)
         {
             var tree = filenames.Select(u => VisualBasicSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
             var op = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
@@ -157,7 +171,7 @@ namespace Neo.Compiler
         /// <param name="references">References</param>
         /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileCSFile(string[] filenames, string[] references, bool releaseMode = true)
+        public static Assembly CompileCSFiles(string[] filenames, string[] references, bool releaseMode = true)
         {
             var tree = filenames.Select(u => CSharpSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
             var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
@@ -182,7 +196,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(SmartContract.Framework.SmartContract).Assembly.Location),
             });
-            refs.AddRange(references.Select(u => MetadataReference.CreateFromFile(u)));
+            refs.AddRange(references.Where(u => u != "Neo.SmartContract.Framework.dll").Select(u => MetadataReference.CreateFromFile(u)));
             return refs.ToArray();
         }
     }
