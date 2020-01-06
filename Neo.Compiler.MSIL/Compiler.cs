@@ -62,7 +62,7 @@ namespace Neo.Compiler
         public static Assembly CompileVBProj(string filename, bool releaseMode = true)
         {
             ExtractFileAndReferences(filename, ".vb", out var files, out var references);
-            return CompileVBFiles(files.ToArray(), references.ToArray(), releaseMode);
+            return CompileVBFile(files.ToArray(), references.ToArray(), releaseMode);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Neo.Compiler
         public static Assembly CompileCSProj(string filename, bool releaseMode = true)
         {
             ExtractFileAndReferences(filename, ".cs", out var files, out var references);
-            return CompileCSFiles(files.ToArray(), references.ToArray(), releaseMode);
+            return CompileCSFile(files.ToArray(), references.ToArray(), releaseMode);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Neo.Compiler
         /// <param name="references">References</param>
         /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileVBFiles(string[] filenames, string[] references, bool releaseMode = true)
+        public static Assembly CompileVBFile(string[] filenames, string[] references, bool releaseMode = true)
         {
             var tree = filenames.Select(u => VisualBasicSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
             var op = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
@@ -171,7 +171,7 @@ namespace Neo.Compiler
         /// <param name="references">References</param>
         /// <param name="releaseMode">Release mode (default=true)</param>
         /// <returns>Assembly</returns>
-        public static Assembly CompileCSFiles(string[] filenames, string[] references, bool releaseMode = true)
+        public static Assembly CompileCSFile(string[] filenames, string[] references, bool releaseMode = true)
         {
             var tree = filenames.Select(u => CSharpSyntaxTree.ParseText(File.ReadAllText(u))).ToArray();
             var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);

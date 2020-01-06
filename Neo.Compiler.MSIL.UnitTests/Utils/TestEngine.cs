@@ -21,19 +21,19 @@ namespace Neo.Compiler.MSIL.Utils
             Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public BuildScript Build(string filename)
+        public BuildScript Build(string filename, bool releaseMode = false)
         {
             if (scriptsAll.ContainsKey(filename) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename);
+                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode);
             }
 
             return scriptsAll[filename];
         }
 
-        public void AddEntryScript(string filename)
+        public void AddEntryScript(string filename, bool releaseMode = false)
         {
-            ScriptEntry = Build(filename);
+            ScriptEntry = Build(filename, releaseMode);
             Reset();
         }
 
