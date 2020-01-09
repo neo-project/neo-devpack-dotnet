@@ -300,7 +300,7 @@ namespace Neo.Compiler
             if (bSucc)
             {
                 log.Log("SUCC");
-                return 1;
+                return 0;
             }
 
             return -1;
