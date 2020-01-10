@@ -319,7 +319,7 @@ namespace Neo.Compiler.MSIL
                 var addr = calladdr[i];
                 var nextaddr = calladdrbegin[i + 1];
                 var op = to.body_Codes[addr];
-                Int16 addroff = (Int16)(nextaddr - addr);
+                Int32 addroff = (Int32)(nextaddr - addr);
                 op.bytes = BitConverter.GetBytes(addroff);
             }
 #if DEBUG
