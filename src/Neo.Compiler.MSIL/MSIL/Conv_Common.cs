@@ -238,8 +238,10 @@ namespace Neo.Compiler.MSIL
             //insert init constvalue part
             byte count = (byte)this.outModule.mapFields.Count;
             //INITSSLOT with a u8 len
-            _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count });
-
+            if (count > 0)
+            {
+                _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count });
+            }
             foreach (var defvar in this.outModule.staticfieldsWithConstValue)
             {
                 if (this.outModule.mapFields.TryGetValue(defvar.Key, out NeoField field))
@@ -310,18 +312,9 @@ namespace Neo.Compiler.MSIL
 
             byte paramcount = (byte)from.paramtypes.Count;
             byte varcount = (byte)from.body_Variables.Count;
-            _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
-            //移动参数槽位
-            for (byte i = 0; i < from.paramtypes.Count; i++)
+            if (paramcount + varcount > 0)
             {
-                if (i < 7)
-                {
-                    _Insert1((VM.OpCode.STARG0 + i), null, to);
-                }
-                else
-                {
-                    _Insert1(VM.OpCode.STARG, null, to, new byte[] { i });
-                }
+                _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
             }
         }
         private void _insertBeginCodeEntry(NeoMethod to)
@@ -329,19 +322,6 @@ namespace Neo.Compiler.MSIL
             byte paramcount = (byte)2;
             byte varcount = (byte)0;
             _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
-
-            //移动参数槽位
-            for (byte i = 0; i < 2; i++)
-            {
-                if (i < 7)
-                {
-                    _Insert1((VM.OpCode.STARG0 + i), null, to);
-                }
-                else
-                {
-                    _Insert1(VM.OpCode.STARG, null, to, new byte[] { i });
-                }
-            }
         }
 
         private void _insertEndCode(NeoMethod to, OpCode src)
