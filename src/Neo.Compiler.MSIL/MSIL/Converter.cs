@@ -919,7 +919,7 @@ namespace Neo.Compiler.MSIL
                     _Convert1by1(VM.OpCode.PICKITEM, src, to);
                     break;
                 case CodeEx.Ldlen:
-                    _Convert1by1(VM.OpCode.ARRAYSIZE, src, to);
+                    _Convert1by1(VM.OpCode.SIZE, src, to);
                     break;
 
                 case CodeEx.Stelem_I1:
@@ -962,7 +962,7 @@ namespace Neo.Compiler.MSIL
                             _Convert1by1(VM.OpCode.ROT, null, to);
                             _Convert1by1(VM.OpCode.ROT, null, to);
                             _Convert1by1(VM.OpCode.OVER, null, to);
-                            _Convert1by1(VM.OpCode.ARRAYSIZE, null, to);
+                            _Convert1by1(VM.OpCode.SIZE, null, to);
                             _Convert1by1(VM.OpCode.DEC, null, to);
                             _Convert1by1(VM.OpCode.SWAP, null, to);
                             _Convert1by1(VM.OpCode.SUB, null, to);
