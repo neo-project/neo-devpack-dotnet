@@ -97,12 +97,13 @@ namespace Neo.Compiler.MSIL
         private NeoCode _ConvertPush(byte[] data, OpCode src, NeoMethod to)
         {
             if (data.Length == 0) return _Convert1by1(VM.OpCode.PUSH0, src, to);
-            if (data.Length == 1) return _Convert1by1(VM.OpCode.PUSHINT8, src, to, data);
-            if (data.Length == 2) return _Convert1by1(VM.OpCode.PUSHINT16, src, to, data);
-            if (data.Length == 4) return _Convert1by1(VM.OpCode.PUSHINT32, src, to, data);
-            if (data.Length == 8) return _Convert1by1(VM.OpCode.PUSHINT64, src, to, data);
-            if (data.Length == 16) return _Convert1by1(VM.OpCode.PUSHINT128, src, to, data);
-            if (data.Length == 32) return _Convert1by1(VM.OpCode.PUSHINT256, src, to, data);
+            //this will get a number about int.
+            //if (data.Length == 1) return _Convert1by1(VM.OpCode.PUSHINT8, src, to, data);
+            //if (data.Length == 2) return _Convert1by1(VM.OpCode.PUSHINT16, src, to, data);
+            //if (data.Length == 4) return _Convert1by1(VM.OpCode.PUSHINT32, src, to, data);
+            //if (data.Length == 8) return _Convert1by1(VM.OpCode.PUSHINT64, src, to, data);
+            //if (data.Length == 16) return _Convert1by1(VM.OpCode.PUSHINT128, src, to, data);
+            //if (data.Length == 32) return _Convert1by1(VM.OpCode.PUSHINT256, src, to, data);
             byte prefixLen;
             VM.OpCode code;
             if (data.Length <= byte.MaxValue)

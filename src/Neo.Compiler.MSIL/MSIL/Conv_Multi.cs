@@ -791,7 +791,7 @@ namespace Neo.Compiler.MSIL
             }
             if (calltype == 1)
             {
-                var c = _Convert1by1(VM.OpCode.CALL, null, to, new byte[] { 5, 0 });
+                var c = _Convert1by1(VM.OpCode.CALL_L, null, to, new byte[] { 5,0,0,0});
                 c.needfixfunc = true;
                 c.srcfunc = src.tokenMethod;
                 return 0;
