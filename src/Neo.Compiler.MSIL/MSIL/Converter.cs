@@ -479,8 +479,10 @@ namespace Neo.Compiler.MSIL
         //}
         static int getNumber(NeoCode code)
         {
-            if (code.code <= VM.OpCode.PUSHBYTES75 && code.code >= VM.OpCode.PUSHBYTES1)
+            if (code.code <= VM.OpCode.PUSHINT256)
                 return (int)new BigInteger(code.bytes);
+
+            else if (code.code == VM.OpCode.PUSHM1) return -1;
             else if (code.code == VM.OpCode.PUSH0) return 0;
             else if (code.code == VM.OpCode.PUSH1) return 1;
             else if (code.code == VM.OpCode.PUSH2) return 2;
@@ -739,7 +741,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Ble:
                 case CodeEx.Ble_S:
                     {
-                        _Convert1by1(VM.OpCode.LTE, src, to);
+                        _Convert1by1(VM.OpCode.LE, src, to);
                         var code = _Convert1by1(VM.OpCode.JMPIF, null, to, new byte[] { 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
@@ -752,7 +754,7 @@ namespace Neo.Compiler.MSIL
                         _Convert1by1(VM.OpCode.SWAP, null, to);
                         _Convert1by1(VM.OpCode.ABS, null, to);
                         _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.LTE, null, to);
+                        _Convert1by1(VM.OpCode.LE, null, to);
                         var code = _Convert1by1(VM.OpCode.JMPIF, null, to, new byte[] { 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
@@ -784,7 +786,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Bge_S:
                     {
 
-                        _Convert1by1(VM.OpCode.GTE, src, to);
+                        _Convert1by1(VM.OpCode.GE, src, to);
                         var code = _Convert1by1(VM.OpCode.JMPIF, null, to, new byte[] { 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
@@ -797,7 +799,7 @@ namespace Neo.Compiler.MSIL
                         _Convert1by1(VM.OpCode.SWAP, null, to);
                         _Convert1by1(VM.OpCode.ABS, null, to);
                         _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.GTE, null, to);
+                        _Convert1by1(VM.OpCode.GE, null, to);
                         var code = _Convert1by1(VM.OpCode.JMPIF, null, to, new byte[] { 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;

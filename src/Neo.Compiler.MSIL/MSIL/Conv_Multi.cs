@@ -706,14 +706,14 @@ namespace Neo.Compiler.MSIL
                 {
                     //各类<=指令
                     //有可能有一些会特殊处理，故还保留独立判断
-                    _Convert1by1(VM.OpCode.LTE, src, to);
+                    _Convert1by1(VM.OpCode.LE, src, to);
                     return 0;
                 }
                 else if (src.tokenMethod.Contains("::op_GreaterThanOrEqual("))
                 {
                     //各类>=指令
                     //有可能有一些会特殊处理，故还保留独立判断
-                    _Convert1by1(VM.OpCode.GTE, src, to);
+                    _Convert1by1(VM.OpCode.GE, src, to);
                     return 0;
                 }
                 else if (src.tokenMethod.Contains("::get_Length("))
@@ -925,7 +925,7 @@ namespace Neo.Compiler.MSIL
             else if (calltype == 4)
             {
                 _ConvertPush(callhash, src, to);
-                _Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(InteropService.System_Contract_Call));
+                _Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(InteropService.Contract.Call));
             }
             else if (calltype == 5)
             {
@@ -940,7 +940,7 @@ namespace Neo.Compiler.MSIL
 
                 //a syscall
                 {
-                    var bytes = BitConverter.GetBytes(InteropService.System_Runtime_Notify);
+                    var bytes = BitConverter.GetBytes(InteropService.Runtime.Notify);
                     //byte[] outbytes = new byte[bytes.Length + 1];
                     //outbytes[0] = (byte)bytes.Length;
                     //Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
@@ -952,7 +952,7 @@ namespace Neo.Compiler.MSIL
             {
                 _ConvertPush(callpcount, src, to);
                 _Convert1by1(VM.OpCode.ROLL, null, to);
-                _Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.System_Contract_Call));
+                _Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.Contract.Call));
             }
             return 0;
         }
