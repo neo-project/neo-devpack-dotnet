@@ -838,30 +838,16 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (pcount == 3)
                 {
-                    _InsertPush(2, "swap 0 and 2 param", to);
-                    _Insert1(VM.OpCode.XSWAP, "", to);
+                    _Insert1(VM.OpCode.REVERSE3, "", to);
+                }
+                else if (pcount == 4)
+                {
+                    _Insert1(VM.OpCode.REVERSE4, "", to);
                 }
                 else
                 {
-                    for (var i = 0; i < pcount / 2; i++)
-                    {
-                        int saveto = (pcount - 1 - i);
-                        _InsertPush(saveto, "load" + saveto, to);
-                        _Insert1(VM.OpCode.PICK, "", to);
-
-                        _InsertPush(i + 1, "load" + i + 1, to);
-                        _Insert1(VM.OpCode.PICK, "", to);
-
-
-                        _InsertPush(saveto + 2, "save to" + saveto + 2, to);
-                        _Insert1(VM.OpCode.XSWAP, "", to);
-                        _Insert1(VM.OpCode.DROP, "", to);
-
-                        _InsertPush(i + 1, "save to" + i + 1, to);
-                        _Insert1(VM.OpCode.XSWAP, "", to);
-                        _Insert1(VM.OpCode.DROP, "", to);
-
-                    }
+                    _InsertPush(pcount, "swap" + pcount, to);
+                    _Insert1(VM.OpCode.REVERSEN, "", to);
                 }
             }
             if (calltype == 1)
