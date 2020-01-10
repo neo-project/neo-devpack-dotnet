@@ -31,13 +31,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             });
 
             // Deploy native contracts
-
-            using (var script = new ScriptBuilder())
-            {
-                script.EmitSysCall(InteropService.Neo_Native_Deploy);
-                _engine.LoadScript(script.ToArray());
-                _engine.Execute();
-            }
+            Assert.Fail("neo 3 has not Neo_Native_Deploy.");
+            //using (var script = new ScriptBuilder())
+            //{
+            //    script.EmitSysCall(InteropService.Neo_Native_Deploy);
+            //    _engine.LoadScript(script.ToArray());
+            //    _engine.Execute();
+            //}
         }
 
         [TestMethod]

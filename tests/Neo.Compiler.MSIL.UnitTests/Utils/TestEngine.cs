@@ -116,75 +116,26 @@ namespace Neo.Compiler.MSIL.Utils
             }
             return this.ResultStack;
         }
-
+        static Dictionary<uint, InteropDescriptor> callmethod;
+        
         protected override bool OnSysCall(uint method)
         {
-            if (
-               // Native
-               method == InteropService.Neo_Native_Deploy ||
-               // Account
-               method == InteropService.Neo_Account_IsStandard ||
-               // Storages
-               method == InteropService.System_Storage_GetContext ||
-               method == InteropService.System_Storage_GetReadOnlyContext ||
-               method == InteropService.System_Storage_GetReadOnlyContext ||
-               method == InteropService.System_StorageContext_AsReadOnly ||
-               method == InteropService.System_Storage_Get ||
-               method == InteropService.System_Storage_Delete ||
-               method == InteropService.System_Storage_Put ||
-               // Enumerator
-               method == InteropService.Neo_Enumerator_Concat ||
-               method == InteropService.Neo_Enumerator_Create ||
-               method == InteropService.Neo_Enumerator_Next ||
-               method == InteropService.Neo_Enumerator_Value ||
-               // Iterator
-               method == InteropService.Neo_Iterator_Concat ||
-               method == InteropService.Neo_Iterator_Create ||
-               method == InteropService.Neo_Iterator_Key ||
-               method == InteropService.Neo_Iterator_Keys ||
-               method == InteropService.Neo_Iterator_Values ||
-               // ExecutionEngine
-               method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
-               method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
-               method == InteropService.System_ExecutionEngine_GetExecutingScriptHash ||
-               method == InteropService.System_ExecutionEngine_GetScriptContainer ||
-               // Runtime
-               method == InteropService.System_Runtime_CheckWitness ||
-               method == InteropService.System_Runtime_GetNotifications ||
-               method == InteropService.System_Runtime_GetInvocationCounter ||
-               method == InteropService.System_Runtime_GetTrigger ||
-               method == InteropService.System_Runtime_GetTime ||
-               method == InteropService.System_Runtime_Platform ||
-               method == InteropService.System_Runtime_Log ||
-               method == InteropService.System_Runtime_Notify ||
-               // Json
-               method == InteropService.Neo_Json_Deserialize ||
-               method == InteropService.Neo_Json_Serialize ||
-               // Crypto
-               method == InteropService.Neo_Crypto_ECDsaVerify ||
-               method == InteropService.Neo_Crypto_ECDsaCheckMultiSig ||
-               // Blockchain
-               method == InteropService.System_Blockchain_GetHeight ||
-               method == InteropService.System_Blockchain_GetBlock ||
-               method == InteropService.System_Blockchain_GetContract ||
-               method == InteropService.System_Blockchain_GetTransaction ||
-               method == InteropService.System_Blockchain_GetTransactionHeight ||
-               method == InteropService.System_Blockchain_GetTransactionFromBlock ||
-               // Native
-               method == NativeContract.NEO.ServiceName.ToInteropMethodHash() ||
-               method == NativeContract.GAS.ServiceName.ToInteropMethodHash() ||
-               method == NativeContract.Policy.ServiceName.ToInteropMethodHash() ||
-               // Contract
-               method == InteropService.System_Contract_Call ||
-               method == InteropService.System_Contract_Destroy ||
-               method == InteropService.Neo_Contract_Create ||
-               method == InteropService.Neo_Contract_Update
-               )
+            if(callmethod==null)
+            {
+                callmethod = new Dictionary<uint, InteropDescriptor>();
+                foreach(var m in InteropService.SupportedMethods())
+                {
+                    callmethod[m] = m;
+                }
+            }
+            if(callmethod.ContainsKey(method)==false)
+            {
+                throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
+            }
+            else
             {
                 return base.OnSysCall(method);
             }
-
-            throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
         }
 
         public bool CheckAsciiChar(string s)

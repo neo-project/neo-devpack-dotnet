@@ -105,9 +105,10 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(InteropInterface<IVerifiable>));
-            Assert.AreEqual(_engine.ScriptContainer, ((InteropInterface<IVerifiable>)item).GetInterface<IVerifiable>());
+            var item = result.Pop() as InteropInterface;
+            var ver = item.GetInterface<IVerifiable>();
+            Assert.IsTrue(ver!=null);
+            Assert.AreEqual(_engine.ScriptContainer, ver);
         }
     }
 }

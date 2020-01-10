@@ -35,8 +35,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
+            System.ReadOnlySpan<byte> data = rItem as ByteArray;
+
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
-            return ((ByteArray)rItem).ToByteArray().ToArray();
+            return data.ToArray();
         }
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)

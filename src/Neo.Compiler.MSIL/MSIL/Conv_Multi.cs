@@ -695,12 +695,13 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
                 {
-                    _Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
-                    _ConvertPush(2, null, to);
-                    _Convert1by1(VM.OpCode.ROLL, null, to);
-                    _ConvertPush(2, null, to);
-                    _Convert1by1(VM.OpCode.ROLL, null, to);
-                    _Convert1by1(VM.OpCode.SETITEM, null, to);
+                    //this code is from NEO2,it is not working for now.
+                    //_Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
+                    //_ConvertPush(2, null, to);
+                    //_Convert1by1(VM.OpCode.ROLL, null, to);
+                    //_ConvertPush(2, null, to);
+                    //_Convert1by1(VM.OpCode.ROLL, null, to);
+                    //_Convert1by1(VM.OpCode.SETITEM, null, to);
                     return 0;
                 }
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
@@ -1318,45 +1319,20 @@ namespace Neo.Compiler.MSIL
             }
             //now stack  a index, a value
 
+
+            //this code is from neo2.It is not working for now.
             //getarray
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, null, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            _Convert1by1(VM.OpCode.DUPFROMALTSTACK, null, to);
+            //_Convert1by1(VM.OpCode.DUPFROMALTSTACK, null, to);
 
-            _InsertPush(2, "", to);//move item
-            _Insert1(VM.OpCode.ROLL, null, to);
+            //_InsertPush(2, "", to);//move item
+            //_Insert1(VM.OpCode.ROLL, null, to);
 
-            _InsertPush(2, "", to);//move value
-            _Insert1(VM.OpCode.ROLL, null, to);
+            //_InsertPush(2, "", to);//move value
+            //_Insert1(VM.OpCode.ROLL, null, to);
 
-            _Insert1(VM.OpCode.SETITEM, null, to);
+            //_Insert1(VM.OpCode.SETITEM, null, to);
 
-            ////然後要將計算棧上的第一個值，寫入第二個值對應的pos
-            //_Convert1by1(VM.OpCode.SWAP, null, to);//replace n to top
 
-            ////push d
-            //_Convert1by1(VM.OpCode.DEPTH, null, to);
-
-            //_Convert1by1(VM.OpCode.DEC, null, to);//d 多了一位，剪掉
-            //_Convert1by1(VM.OpCode.SWAP, null, to);//把n拿上來
-            ////push n
-            ////_ConvertPush(pos, null, to);有n了
-            ////d-n-1
-            //_Convert1by1(VM.OpCode.SUB, null, to);
-            //_Convert1by1(VM.OpCode.DEC, null, to);
-
-            ////push olddepth
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, null, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            ////(d-n-1)-olddepth
-            //_Convert1by1(VM.OpCode.SUB, null, to);
-
-            ////swap d-n-1 and top
-            //_Convert1by1(VM.OpCode.XSWAP, null, to);
-            ////drop top
-            //_Convert1by1(VM.OpCode.DROP, null, to);
             return 0;
         }
         private int _ConvertNewObj(OpCode src, NeoMethod to)
