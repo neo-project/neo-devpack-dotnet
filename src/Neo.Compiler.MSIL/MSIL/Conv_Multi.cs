@@ -13,65 +13,26 @@ namespace Neo.Compiler.MSIL
     {
         private void _ConvertStLoc(ILMethod method, OpCode src, NeoMethod to, int pos)
         {
-
-            //get array
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, src, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            _Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
-
-            //get i
-            _ConvertPush(pos + method.paramtypes.Count, null, to);//翻转取参数顺序
-
-            //getitem
-            _ConvertPush(2, null, to);
-            _Convert1by1(VM.OpCode.ROLL, null, to);
-
-            _Convert1by1(VM.OpCode.SETITEM, null, to);
-
-
-            //_Convert1by1(VM.OpCode.CLONESTRUCTONLY, src, to);
-            ////push d
-            //var c = _Convert1by1(VM.OpCode.DEPTH, null, to);
-            //if (c.debugcode == null)
-            //{
-            //    c.debugcode = "from StLoc -> 6 code";
-            //    c.debugline = 0;
-            //}
-
-
-            ////_Convert1by1(VM.ScriptOp.OP_DUP, src, to);
-            ////push n
-            //_ConvertPush(pos, null, to);
-            ////d-n-1
-            //_Convert1by1(VM.OpCode.SUB, null, to);
-            //_Convert1by1(VM.OpCode.DEC, null, to);
-
-            ////push olddepth
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, null, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            ////(d-n-1)-olddepth
-            //_Convert1by1(VM.OpCode.SUB, null, to);
-
-            ////swap d-n-1 and top
-            //_Convert1by1(VM.OpCode.XSWAP, null, to);
-            ////drop top
-            //_Convert1by1(VM.OpCode.DROP, null, to);
-
+            if (pos < 7)
+            {
+                _Convert1by1(VM.OpCode.STLOC0 + (byte)pos, src, to);
+            }
+            else
+            {
+                _Convert1by1(VM.OpCode.STLOC, src, to, new byte[] { (byte)pos });
+            }
         }
         private void _ConvertLdLoc(ILMethod method, OpCode src, NeoMethod to, int pos)
         {
-            //get array
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, src, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            _Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
-            //get i
-            _ConvertPush(pos + method.paramtypes.Count, null, to);//翻转取参数顺序
-            _Convert1by1(VM.OpCode.PICKITEM, null, to);
 
-
+            if (pos < 7)
+            {
+                _Convert1by1(VM.OpCode.LDLOC0 + (byte)pos, src, to);
+            }
+            else
+            {
+                _Convert1by1(VM.OpCode.LDLOC, src, to, new byte[] { (byte)pos });
+            }
         }
         private void _ConvertLdLocA(ILMethod method, OpCode src, NeoMethod to, int pos)
         {//这有两种情况，我们需要先判断这个引用地址是拿出来干嘛的
@@ -139,51 +100,28 @@ namespace Neo.Compiler.MSIL
             {
 
             }
-            //}
-            //get array
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, src, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            _Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
-            //get i
-            _ConvertPush(pos, null, to);//翻转取参数顺序
-            _Convert1by1(VM.OpCode.PICKITEM, null, to);
+            if(pos<7)
+            {
+                _Convert1by1(VM.OpCode.LDARG0+(byte)pos, src, to);
+            }
+            else
+            {
+                _Convert1by1(VM.OpCode.LDARG, src, to,new byte[] { (byte)pos });
+            }
 
-            ////push d
-            //var c = _Convert1by1(VM.OpCode.DEPTH, src, to);
-            //if (c.debugcode == null)
-            //{
-            //    c.debugcode = "from LdArg -> 5 code";
-            //    c.debugline = 0;
-            //}
-            ////push n
-            //_ConvertPush(pos, null, to);//翻转取参数顺序
-            ////_Convert1by1(VM.OpCode.PUSHDATA1, null, to, int2Pushdata1bytes(to.paramtypes.Count - 1 - pos));
-            ////d+n
-            //_Convert1by1(VM.OpCode.ADD, null, to);
-
-            ////push olddepth
-            //_Convert1by1(VM.OpCode.FROMALTSTACK, null, to);
-            //_Convert1by1(VM.OpCode.DUP, null, to);
-            //_Convert1by1(VM.OpCode.TOALTSTACK, null, to);
-            ////(d+n)-olddepth
-            //_Convert1by1(VM.OpCode.SUB, null, to);
-
-            ////pick
-            //_Convert1by1(VM.OpCode.PICK, null, to);
         }
         private void _ConvertStArg(OpCode src, NeoMethod to, int pos)
         {
-            //get array
-            _Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
-            //set i
-            _ConvertPush(pos, null, to);//翻转取参数顺序
+            if (pos < 7)
+            {
+                _Convert1by1(VM.OpCode.STLOC0 + (byte)pos, src, to);
 
-            //got v to top
-            _ConvertPush(2, null, to);
-            _Convert1by1(VM.OpCode.ROLL, null, to);
+            }
+            else
+            {
+                _Convert1by1(VM.OpCode.STLOC, src, to, new byte[] { (byte)pos });
 
-            _Convert1by1(VM.OpCode.SETITEM, null, to);
+            }
         }
 
         /*

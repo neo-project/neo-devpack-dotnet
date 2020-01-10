@@ -228,21 +228,17 @@ namespace Neo.Compiler.MSIL
 
         private void _insertSharedStaticVarCode(NeoMethod to)
         {
+            if (this.outModule.mapFields.Count > 255)
+                throw new Exception("too mush static fields");
             //insert init constvalue part
-            _InsertPush(this.outModule.mapFields.Count, "static var", to);
-            _Insert1(VM.OpCode.NEWARRAY, "", to);
-            _Insert1(VM.OpCode.TOALTSTACK, "", to);
+            byte count = (byte)this.outModule.mapFields.Count;
+            //INITSSLOT with a u8 len
+            _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count });
 
             foreach (var defvar in this.outModule.staticfieldsWithConstValue)
             {
                 if (this.outModule.mapFields.TryGetValue(defvar.Key, out NeoField field))
                 {
-                    //array
-                    _Insert1(VM.OpCode.DUPFROMALTSTACKBOTTOM, "", to);
-
-                    //index
-                    _ConvertPush(field.index, null, to);
-
                     //value
                     #region insertValue
                     //this static var had a default value.
@@ -280,7 +276,16 @@ namespace Neo.Compiler.MSIL
                         _Convert1by1(VM.OpCode.PUSHNULL, null, to);
                     }
                     #endregion
-                    _Insert1(VM.OpCode.SETITEM, "", to);
+
+                    if (field.index < 7)
+                    {
+                        _Insert1(VM.OpCode.STSFLD0 + (byte)field.index, "", to);
+                    }
+                    else
+                    {
+                        var fieldIndex = (byte)field.index;
+                        _Insert1(VM.OpCode.STSFLD, "", to, new byte[] { fieldIndex });
+                    }
                 }
             }
 
@@ -293,102 +298,54 @@ namespace Neo.Compiler.MSIL
 
         private void _insertBeginCode(ILMethod from, NeoMethod to)
         {
-            ////压入深度临时栈
-            //_Insert1(VM.OpCode.DEPTH, "record depth.", to);
-            //_Insert1(VM.OpCode.TOALTSTACK, "", to);
+            if (from.paramtypes.Count > 255)
+                throw new Exception("too mush params in:" + from);
+            if (from.body_Variables.Count > 255)
+                throw new Exception("too mush local varibles in:" + from);
 
-            ////初始化临时槽位位置
-            //foreach (var src in from.body_Variables)
-            //{
-            //    to.body_Variables.Add(new ILParam(src.name, src.type));
-            //    _InsertPush(0, "body_Variables init", to);
-            //}
-
-            //新玩法，用一个数组，应该能减少指令数量
-            _InsertPush(from.paramtypes.Count + from.body_Variables.Count, "begincode", to);
-            _Insert1(VM.OpCode.NEWARRAY, "", to);
-            _Insert1(VM.OpCode.TOALTSTACK, "", to);
+            byte paramcount = (byte)from.paramtypes.Count;
+            byte varcount = (byte)from.body_Variables.Count;
+            _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
             //移动参数槽位
-            for (var i = 0; i < from.paramtypes.Count; i++)
+            for (byte i = 0; i < from.paramtypes.Count; i++)
             {
-                //getarray
-                _Insert1(VM.OpCode.FROMALTSTACK, "set param:" + i, to);
-                _Insert1(VM.OpCode.DUP, null, to);
-                _Insert1(VM.OpCode.TOALTSTACK, null, to);
-
-                _InsertPush(i, "", to); //Array pos
-
-                _InsertPush(2, "", to); //Array item
-                _Insert1(VM.OpCode.ROLL, null, to);
-
-                _Insert1(VM.OpCode.SETITEM, null, to);
+                if (i < 7)
+                {
+                    _Insert1((VM.OpCode.STARG0 + i), null, to);
+                }
+                else
+                {
+                    _Insert1(VM.OpCode.STARG, null, to, new byte[] { i });
+                }
             }
         }
         private void _insertBeginCodeEntry(NeoMethod to)
         {
-            _InsertPush(2, "begincode", to);
-            _Insert1(VM.OpCode.NEWARRAY, "", to);
-            _Insert1(VM.OpCode.TOALTSTACK, "", to);
+            byte paramcount = (byte)2;
+            byte varcount = (byte)0;
+            _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
+
             //移动参数槽位
-            for (var i = 0; i < 2; i++)
+            for (byte i = 0; i < 2; i++)
             {
-                //getarray
-                _Insert1(VM.OpCode.FROMALTSTACK, "set param:" + i, to);
-                _Insert1(VM.OpCode.DUP, null, to);
-                _Insert1(VM.OpCode.TOALTSTACK, null, to);
-
-                _InsertPush(i, "", to); //Array pos
-
-                _InsertPush(2, "", to); //Array item
-                _Insert1(VM.OpCode.ROLL, null, to);
-
-                _Insert1(VM.OpCode.SETITEM, null, to);
+                if (i < 7)
+                {
+                    _Insert1((VM.OpCode.STARG0 + i), null, to);
+                }
+                else
+                {
+                    _Insert1(VM.OpCode.STARG, null, to, new byte[] { i });
+                }
             }
         }
 
         private void _insertEndCode(NeoMethod to, OpCode src)
         {
-            ////占位不谢
-            _Convert1by1(VM.OpCode.NOP, src, to);
+            //no need to clear altstack.
 
-            ////移除临时槽位
-            ////drop body_Variables
-            //for (var i = 0; i < from.body_Variables.Count; i++)
-            //{
-            //    _Insert1(VM.OpCode.DEPTH, "body_Variables drop", to, null);
-            //    _Insert1(VM.OpCode.DEC, null, to, null);
-
-            //    //push olddepth
-            //    _Insert1(VM.OpCode.FROMALTSTACK, null, to);
-            //    _Insert1(VM.OpCode.DUP, null, to);
-            //    _Insert1(VM.OpCode.TOALTSTACK, null, to);
-            //    //(d-1)-olddepth
-            //    _Insert1(VM.OpCode.SUB, null, to);
-
-            //    _Insert1(VM.OpCode.XDROP, null, to, null);
-            //}
-            ////移除参数槽位
-            //for (var i = 0; i < from.paramtypes.Count; i++)
-            //{
-            //    //d
-            //    _Insert1(VM.OpCode.DEPTH, "param drop", to, null);
-
-            //    //push olddepth
-            //    _Insert1(VM.OpCode.FROMALTSTACK, null, to);
-            //    _Insert1(VM.OpCode.DUP, null, to);
-            //    _Insert1(VM.OpCode.DEC, null, to);//深度-1
-            //    _Insert1(VM.OpCode.TOALTSTACK, null, to);
-
-            //    //(d)-olddepth
-            //    _Insert1(VM.OpCode.SUB, null, to);
-
-            //    _Insert1(VM.OpCode.XDROP, null, to, null);
-
-            //}
-
-            //移除深度临时栈
-            _Insert1(VM.OpCode.FROMALTSTACK, "endcode", to);
-            _Insert1(VM.OpCode.DROP, "", to);
+            ////移除深度临时栈
+            //_Insert1(VM.OpCode.FROMALTSTACK, "endcode", to);
+            //_Insert1(VM.OpCode.DROP, "", to);
         }
     }
 }

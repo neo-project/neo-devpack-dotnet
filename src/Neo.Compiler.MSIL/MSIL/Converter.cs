@@ -269,9 +269,11 @@ namespace Neo.Compiler.MSIL
                     //add a call;
                     //get name
                     calladdrbegin.Add(this.addr);
-                    _Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
-                    _InsertPush(0, "", to);
-                    _Insert1(VM.OpCode.PICKITEM, "", to);
+                    //_Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
+                    //_InsertPush(0, "", to);
+                    //_Insert1(VM.OpCode.PICKITEM, "", to);
+                    _Insert1(VM.OpCode.LDARG0, "get name", to);
+
                     _InsertPush(System.Text.Encoding.UTF8.GetBytes(m.Value.displayName), "", to);
                     _Insert1(VM.OpCode.NUMEQUAL, "", to);
                     calladdr.Add(this.addr);//record add fix jumppos later
@@ -280,10 +282,7 @@ namespace Neo.Compiler.MSIL
                     {
                         for (var i = m.Value.paramtypes.Count - 1; i >= 0; i--)
                         {
-                            _Insert1(VM.OpCode.DUPFROMALTSTACK, "get params", to);
-                            _InsertPush(1, "", to);
-                            _Insert1(VM.OpCode.PICKITEM, "", to);
-
+                            _Insert1(VM.OpCode.LDARG1, "get params array", to);
                             _InsertPush(i, "get one param:" + i, to);
                             _Insert1(VM.OpCode.PICKITEM, "", to);
                         }
@@ -1131,31 +1130,16 @@ namespace Neo.Compiler.MSIL
                         }
                         else
                         {
-                            //如果走到这里，是一个静态成员，但是没有添加readonly 表示
-                            //lights add,need static var load function
                             var field = this.outModule.mapFields[d.FullName];
-                            _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
-                            _ConvertPush(field.index, null, to);
-
-                            _Insert1(VM.OpCode.PICKITEM, "", to);
-
-                            //throw new Exception("Just allow defined a static variable with readonly." + d.FullName);
+                            _Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index});
                         }
                     }
                     break;
                 case CodeEx.Stsfld:
                     {
-                        _Convert1by1(VM.OpCode.NOP, src, to);
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
                         var field = this.outModule.mapFields[d.FullName];
-                        _Convert1by1(VM.OpCode.DUPFROMALTSTACKBOTTOM, null, to);
-                        _ConvertPush(field.index, null, to);
-
-                        //got v to top
-                        _ConvertPush(2, null, to);
-                        _Convert1by1(VM.OpCode.ROLL, null, to);
-
-                        _Insert1(VM.OpCode.SETITEM, "", to);
+                        _Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)field.index });
                     }
                     break;
                 case CodeEx.Throw:
