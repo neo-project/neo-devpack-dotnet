@@ -459,7 +459,7 @@ namespace Neo.Compiler.MSIL
 
         private readonly Dictionary<int, int> addrconv = new Dictionary<int, int>();
         private int addr = 0;
-
+        private int ldloca_slot = -1;
         //Dictionary<string, string[]> srccodes = new Dictionary<string, string[]>();
         //string getSrcCode(string url, int line)
         //{

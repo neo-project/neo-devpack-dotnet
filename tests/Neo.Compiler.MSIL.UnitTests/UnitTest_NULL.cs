@@ -49,7 +49,7 @@ namespace Neo.Compiler.MSIL
             testengine.Reset();
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCoalescing", "a123b");
-                var item = result.Pop() as ByteArray;
+                var item = result.Pop().ConvertTo(StackItemType.ByteArray) as ByteArray;
                 System.ReadOnlySpan<byte> data = item; 
                 var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "12");

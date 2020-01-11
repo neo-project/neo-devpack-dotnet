@@ -41,12 +41,13 @@ namespace Neo.Compiler.MSIL
             var n2 = method.body_Codes[method.GetNextCodeAddr(n1.addr)];
             if (n1.code == CodeEx.Initobj)//初始化结构体，必须给引用地址
             {
-                _ConvertPush(pos + method.paramtypes.Count, src, to);
+                //some initobj,need  setloc after initobj.save slot first.
+                ldloca_slot = pos;
             }
             else if (n2.code == CodeEx.Call && n2.tokenMethod.Is_ctor())
             {
-                _ConvertPush(pos + method.paramtypes.Count, src, to);
-
+                //some ctor,need  setloc after ctor.save slot first.
+                ldloca_slot = pos;
             }
             else
             {
@@ -1317,20 +1318,9 @@ namespace Neo.Compiler.MSIL
             {
                 _Insert1(VM.OpCode.NEWARRAY, null, to);
             }
-            //now stack  a index, a value
+            //use slot set before by ldloca
+            _ConvertStLoc(null, src, to, ldloca_slot);
 
-
-            //this code is from neo2.It is not working for now.
-            //getarray
-            //_Convert1by1(VM.OpCode.DUPFROMALTSTACK, null, to);
-
-            //_InsertPush(2, "", to);//move item
-            //_Insert1(VM.OpCode.ROLL, null, to);
-
-            //_InsertPush(2, "", to);//move value
-            //_Insert1(VM.OpCode.ROLL, null, to);
-
-            //_Insert1(VM.OpCode.SETITEM, null, to);
 
 
             return 0;
