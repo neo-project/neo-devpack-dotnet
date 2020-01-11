@@ -4,25 +4,25 @@ namespace Neo.SmartContract.Framework.Services.System
     {
         public static extern IScriptContainer ScriptContainer
         {
-            [Syscall("System.ExecutionEngine.GetScriptContainer")]
+            [Syscall("System.Runtime.GetScriptContainer")]
             get;
         }
 
         public static extern byte[] ExecutingScriptHash
         {
-            [Syscall("System.ExecutionEngine.GetExecutingScriptHash")]
+            [Syscall("System.Runtime.GetExecutingScriptHash")]
             get;
         }
 
         public static extern byte[] CallingScriptHash
         {
-            [Syscall("System.ExecutionEngine.GetCallingScriptHash")]
+            [Syscall("System.Runtime.GetCallingScriptHash")]
             get;
         }
 
         public static extern byte[] EntryScriptHash
         {
-            [Syscall("System.ExecutionEngine.GetEntryScriptHash")]
+            [Syscall("System.Runtime.GetEntryScriptHash")]
             get;
         }
     }

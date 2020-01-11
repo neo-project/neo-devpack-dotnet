@@ -696,13 +696,9 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
                 {
-                    //this code is from NEO2,it is not working for now.
-                    //_Convert1by1(VM.OpCode.DUPFROMALTSTACK, src, to);
-                    //_ConvertPush(2, null, to);
-                    //_Convert1by1(VM.OpCode.ROLL, null, to);
-                    //_ConvertPush(2, null, to);
-                    //_Convert1by1(VM.OpCode.ROLL, null, to);
-                    //_Convert1by1(VM.OpCode.SETITEM, null, to);
+                    //use slot set before by ldloca
+                    _ConvertStLoc(null, src, to, ldloca_slot);
+                    ldloca_slot = -1;
                     return 0;
                 }
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
@@ -1320,7 +1316,7 @@ namespace Neo.Compiler.MSIL
             }
             //use slot set before by ldloca
             _ConvertStLoc(null, src, to, ldloca_slot);
-
+            ldloca_slot = -1;
 
 
             return 0;
