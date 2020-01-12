@@ -39,7 +39,7 @@ namespace Neo.Compiler.MSIL
             var result = testengine.ExecuteTestCaseStandard("testfunc");
             ApplicationEngine.Notify -= method;
 
-            CollectionAssert.AreEqual(new BigInteger[] { 16, 4, 4, 16 }, list);
+            CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);
         }
     }
 }
