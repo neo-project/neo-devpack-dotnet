@@ -4,18 +4,18 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Enumerator<TValue>
     {
-        [Syscall("Neo.Enumerator.Create")]
+        [Syscall("System.Enumerator.Create")]
         public static extern Enumerator<TValue> Create(IEnumerable<TValue> entry);
 
-        [Syscall("Neo.Enumerator.Concat")]
+        [Syscall("System.Enumerator.Concat")]
         public extern Enumerator<TValue> Concat(Enumerator<TValue> value);
 
-        [Syscall("Neo.Enumerator.Next")]
+        [Syscall("System.Enumerator.Next")]
         public extern bool Next();
 
         public extern TValue Value
         {
-            [Syscall("Neo.Enumerator.Value")]
+            [Syscall("System.Enumerator.Value")]
             get;
         }
     }
