@@ -19,6 +19,16 @@ namespace Neo.Compiler.MSIL.TestClasses
             return value == null;
         }
 
+        public static bool EqualNotNullA(byte[] value)
+        {
+            return null != value;
+        }
+
+        public static bool EqualNotNullB(byte[] value)
+        {
+            return value != null;
+        }
+
         public static string NullCoalescing(string code)
         {
             string myname = code?.Substring(1, 2);
