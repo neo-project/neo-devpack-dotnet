@@ -865,7 +865,8 @@ namespace Neo.Compiler.MSIL
                     break;
                 case CodeEx.Cgt:
                 case CodeEx.Cgt_Un:
-                    _Convert1by1(VM.OpCode.GT, src, to);
+                    skipcount = _ConvertCgt(method, src, to);
+
                     break;
                 case CodeEx.Ceq:
                     skipcount = _ConvertCeq(method, src, to);
