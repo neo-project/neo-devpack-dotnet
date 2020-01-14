@@ -168,5 +168,45 @@ namespace Neo.Compiler.MSIL
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsFalse(item.ToBoolean());
         }
+
+        [TestMethod]
+        public void EqualNotNull()
+        {
+            // True
+
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("equalNotNullA", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.ToBoolean());
+
+            // False
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("equalNotNullA", new Integer(1));
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.ToBoolean());
+
+            // True
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("equalNotNullB", StackItem.Null);
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.ToBoolean());
+
+            // False
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("equalNotNullB", new Integer(1));
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.ToBoolean());
+        }
     }
 }

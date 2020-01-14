@@ -1152,6 +1152,23 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
+        private int _ConvertCgt(ILMethod method, OpCode src, NeoMethod to)
+        {
+            var code = to.body_Codes.Last().Value;
+            if (code.code == VM.OpCode.PUSHNULL)
+            {
+                //remove last code
+                to.body_Codes.Remove(code.addr);
+                this.addr = code.addr;
+                _Convert1by1(VM.OpCode.ISNULL, src, to);
+                _Convert1by1(VM.OpCode.NOT, src, to);
+            }
+            else
+            {
+                _Convert1by1(VM.OpCode.GT, src, to);
+            }
+            return 0;
+        }
         private int _ConvertCeq(ILMethod method, OpCode src, NeoMethod to)
         {
             var code = to.body_Codes.Last().Value;
