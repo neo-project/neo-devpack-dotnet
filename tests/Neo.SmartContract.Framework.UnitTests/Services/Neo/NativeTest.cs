@@ -39,6 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Assert.AreEqual(VMState.HALT, _engine.Execute());
             }
 
+            _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
         }
 
