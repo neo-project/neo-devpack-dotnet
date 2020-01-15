@@ -51,22 +51,18 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
             scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash().ToArray().ToHexString();
         }
-        //bad tests
 
-        //[TestMethod]
-        //public void CallingScriptHashTest()
-        //{
-        //    _engine.Reset();
-        //    var result = _engine.ExecuteTestCaseStandard("");
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
+        [TestMethod]
+        public void CallingScriptHashTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("callingScriptHash");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //    var item = result.Pop();
-        //    Assert.IsInstanceOfType(item, typeof(ByteArray));
-        //    //test by this way is bad idea? how to sure got a fix hash always?
-        //    var gothash = item.GetSpan().ToHexString();
-        //    Assert.AreEqual(scriptHash, gothash);
-        //}
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Null));
+        }
 
         [TestMethod]
         public void EntryScriptHashTest()
