@@ -1,7 +1,6 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
-using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -11,6 +10,19 @@ namespace Neo.Compiler.MSIL.Utils
 {
     public class TestEngine : ApplicationEngine
     {
+        public static InteropDescriptor Native_Deploy;
+
+        static TestEngine()
+        {
+            // Extract Native deploy syscall
+
+            Native_Deploy = (InteropDescriptor)typeof(InteropService)
+                    .GetNestedType("Native", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                    .GetField("Deploy")
+                    .GetValue(null);
+        }
+
+
         public const int MaxStorageKeySize = 64;
         public const int MaxStorageValueSize = ushort.MaxValue;
 
@@ -122,7 +134,10 @@ namespace Neo.Compiler.MSIL.Utils
         {
             if (callmethod == null)
             {
-                callmethod = new Dictionary<uint, InteropDescriptor>();
+                callmethod = new Dictionary<uint, InteropDescriptor>()
+                {
+                    { Native_Deploy.Hash , Native_Deploy }
+                };
                 foreach (var m in InteropService.SupportedMethods())
                 {
                     callmethod[m] = m;

@@ -14,7 +14,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Init()
         {
             _engine = new TestEngine();
-            _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
+
+            // Deploy native contracts
+
             ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Network.P2P.Payloads.Block()
             {
                 Index = 0,
@@ -30,14 +32,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 PrevHash = UInt256.Zero
             });
 
-            // Deploy native contracts
-            Assert.Fail("neo 3 has not Neo_Native_Deploy.");
-            //using (var script = new ScriptBuilder())
-            //{
-            //    script.EmitSysCall(InteropService.Neo_Native_Deploy);
-            //    _engine.LoadScript(script.ToArray());
-            //    _engine.Execute();
-            //}
+            using (var script = new ScriptBuilder())
+            {
+                script.EmitSysCall(TestEngine.Native_Deploy);
+                _engine.LoadScript(script.ToArray());
+                Assert.AreEqual(VMState.HALT, _engine.Execute());
+            }
+
+            _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
         }
 
         [TestMethod]
