@@ -101,13 +101,13 @@ namespace Neo.Compiler.MSIL
             {
 
             }
-            if(pos<7)
+            if (pos < 7)
             {
-                _Convert1by1(VM.OpCode.LDARG0+(byte)pos, src, to);
+                _Convert1by1(VM.OpCode.LDARG0 + (byte)pos, src, to);
             }
             else
             {
-                _Convert1by1(VM.OpCode.LDARG, src, to,new byte[] { (byte)pos });
+                _Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
             }
 
         }
@@ -788,7 +788,7 @@ namespace Neo.Compiler.MSIL
             }
             if (calltype == 1)
             {
-                var c = _Convert1by1(VM.OpCode.CALL_L, null, to, new byte[] { 5,0,0,0});
+                var c = _Convert1by1(VM.OpCode.CALL_L, null, to, new byte[] { 5, 0, 0, 0 });
                 c.needfixfunc = true;
                 c.srcfunc = src.tokenMethod;
                 return 0;

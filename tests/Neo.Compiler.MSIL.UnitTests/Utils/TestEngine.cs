@@ -117,18 +117,18 @@ namespace Neo.Compiler.MSIL.Utils
             return this.ResultStack;
         }
         static Dictionary<uint, InteropDescriptor> callmethod;
-        
+
         protected override bool OnSysCall(uint method)
         {
-            if(callmethod==null)
+            if (callmethod == null)
             {
                 callmethod = new Dictionary<uint, InteropDescriptor>();
-                foreach(var m in InteropService.SupportedMethods())
+                foreach (var m in InteropService.SupportedMethods())
                 {
                     callmethod[m] = m;
                 }
             }
-            if(callmethod.ContainsKey(method)==false)
+            if (callmethod.ContainsKey(method) == false)
             {
                 throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
             }
