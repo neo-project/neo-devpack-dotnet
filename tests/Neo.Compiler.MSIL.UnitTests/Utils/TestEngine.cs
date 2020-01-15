@@ -128,6 +128,7 @@ namespace Neo.Compiler.MSIL.Utils
             }
             return this.ResultStack;
         }
+
         static Dictionary<uint, InteropDescriptor> callmethod;
 
         protected override bool OnSysCall(uint method)
@@ -150,76 +151,6 @@ namespace Neo.Compiler.MSIL.Utils
             else
             {
                 return base.OnSysCall(method);
-            }
-        }
-
-        public bool CheckAsciiChar(string s)
-        {
-            for (int i = 0; i < s.Length; i++)
-            {
-                char c = s.ToLower().ToCharArray()[i];
-                if ((!((c >= 97 && c <= 123) || (c >= 48 && c <= 57) || c == 45 || c == 46 || c == 64 || c == 95)))
-                    return false;
-            }
-            return true;
-        }
-
-        private void DumpItemShort(StackItem item, int space = 0)
-        {
-            var spacestr = "";
-            for (var i = 0; i < space; i++) spacestr += "    ";
-            var line = NeonTestTool.Bytes2HexString(item.GetSpan().ToArray());
-
-            if (item is Neo.VM.Types.ByteArray)
-            {
-                var str = item.GetString();
-                if (CheckAsciiChar(str))
-                {
-                    line += "|" + str;
-                }
-            }
-            Console.WriteLine(spacestr + line);
-        }
-
-        private void DumpItem(StackItem item, int space = 0)
-        {
-            var spacestr = "";
-            for (var i = 0; i < space; i++) spacestr += "    ";
-            Console.WriteLine(spacestr + "got Param:" + item.GetType().ToString());
-
-            if (item is VM.Types.Array || item is Neo.VM.Types.Struct)
-            {
-                var array = item as Neo.VM.Types.Array;
-                for (var i = 0; i < array.Count; i++)
-                {
-                    var subitem = array[i];
-                    DumpItem(subitem, space + 1);
-                }
-            }
-            else if (item is Neo.VM.Types.Map)
-            {
-                var map = item as Neo.VM.Types.Map;
-                foreach (var subitem in map)
-                {
-                    Console.WriteLine("---Key---");
-                    DumpItemShort(subitem.Key, space + 1);
-                    Console.WriteLine("---Value---");
-                    DumpItem(subitem.Value, space + 1);
-                }
-            }
-            else
-            {
-                Console.WriteLine(spacestr + "--as num:" + item.GetBigInteger());
-                Console.WriteLine(spacestr + "--as bin:" + NeonTestTool.Bytes2HexString(item.GetSpan().ToArray()));
-
-                if (item is Neo.VM.Types.ByteArray)
-                {
-                    var str = item.GetString();
-                    if (CheckAsciiChar(str))
-                    {
-                        Console.WriteLine(spacestr + "--as str:" + item.GetString());
-                    }
-                }
             }
         }
     }
