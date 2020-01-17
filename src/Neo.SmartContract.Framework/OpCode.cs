@@ -1,27 +1,18 @@
-using Neo.VM;
-
 namespace Neo.SmartContract.Framework
 {
     public enum OpCode : byte
     {
         #region Constants
 
-        [OperandSize(Size = 1)]
         PUSHINT8 = 0x00,
-        [OperandSize(Size = 2)]
         PUSHINT16 = 0x01,
-        [OperandSize(Size = 4)]
         PUSHINT32 = 0x02,
-        [OperandSize(Size = 8)]
         PUSHINT64 = 0x03,
-        [OperandSize(Size = 16)]
         PUSHINT128 = 0x04,
-        [OperandSize(Size = 32)]
         PUSHINT256 = 0x05,
         /// <summary>
         /// Convert the next four bytes to an address, and push the address onto the stack.
         /// </summary>
-        [OperandSize(Size = 4)]
         PUSHA = 0x0A,
         /// <summary>
         /// The item <see langword="null"/> is pushed onto the stack.
@@ -30,17 +21,14 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// The next byte contains the number of bytes to be pushed onto the stack.
         /// </summary>
-        [OperandSize(SizePrefix = 1)]
         PUSHDATA1 = 0x0C,
         /// <summary>
         /// The next two bytes contain the number of bytes to be pushed onto the stack.
         /// </summary>
-        [OperandSize(SizePrefix = 2)]
         PUSHDATA2 = 0x0D,
         /// <summary>
         /// The next four bytes contain the number of bytes to be pushed onto the stack.
         /// </summary>
-        [OperandSize(SizePrefix = 4)]
         PUSHDATA4 = 0x0E,
         /// <summary>
         /// The number -1 is pushed onto the stack.
@@ -126,102 +114,82 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Unconditionally transfers control to a target instruction. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMP = 0x22,
         /// <summary>
         /// Unconditionally transfers control to a target instruction. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMP_L = 0x23,
         /// <summary>
         /// Transfers control to a target instruction if the value is <see langword="true"/>, not <see langword="null"/>, or non-zero. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPIF = 0x24,
         /// <summary>
         /// Transfers control to a target instruction if the value is <see langword="true"/>, not <see langword="null"/>, or non-zero. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPIF_L = 0x25,
         /// <summary>
         /// Transfers control to a target instruction if the value is <see langword="false"/>, a <see langword="null"/> reference, or zero. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPIFNOT = 0x26,
         /// <summary>
         /// Transfers control to a target instruction if the value is <see langword="false"/>, a <see langword="null"/> reference, or zero. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPIFNOT_L = 0x27,
         /// <summary>
         /// Transfers control to a target instruction if two values are equal. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPEQ = 0x28,
         /// <summary>
         /// Transfers control to a target instruction if two values are equal. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPEQ_L = 0x29,
         /// <summary>
         /// Transfers control to a target instruction when two values are not equal. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPNE = 0x2A,
         /// <summary>
         /// Transfers control to a target instruction when two values are not equal. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPNE_L = 0x2B,
         /// <summary>
         /// Transfers control to a target instruction if the first value is greater than the second value. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPGT = 0x2C,
         /// <summary>
         /// Transfers control to a target instruction if the first value is greater than the second value. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPGT_L = 0x2D,
         /// <summary>
         /// Transfers control to a target instruction if the first value is greater than or equal to the second value. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPGE = 0x2E,
         /// <summary>
         /// Transfers control to a target instruction if the first value is greater than or equal to the second value. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPGE_L = 0x2F,
         /// <summary>
         /// Transfers control to a target instruction if the first value is less than the second value. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPLT = 0x30,
         /// <summary>
         /// Transfers control to a target instruction if the first value is less than the second value. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPLT_L = 0x31,
         /// <summary>
         /// Transfers control to a target instruction if the first value is less than or equal to the second value. The target instruction is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         JMPLE = 0x32,
         /// <summary>
         /// Transfers control to a target instruction if the first value is less than or equal to the second value. The target instruction is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         JMPLE_L = 0x33,
         /// <summary>
         /// Calls the function at the target address which is represented as a 1-byte signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 1)]
         CALL = 0x34,
         /// <summary>
         /// Calls the function at the target address which is represented as a 4-bytes signed offset from the beginning of the current instruction.
         /// </summary>
-        [OperandSize(Size = 4)]
         CALL_L = 0x35,
         /// <summary>
         /// Pop the address of a function from the stack, and call the function.
@@ -242,7 +210,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Calls to an interop service.
         /// </summary>
-        [OperandSize(Size = 4)]
         SYSCALL = 0x41,
 
         #endregion
@@ -317,12 +284,10 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Initialize the static field list for the current execution context.
         /// </summary>
-        [OperandSize(Size = 1)]
         INITSSLOT = 0x56,
         /// <summary>
         /// Initialize the argument slot and the local variable list for the current execution context.
         /// </summary>
-        [OperandSize(Size = 2)]
         INITSLOT = 0x57,
         /// <summary>
         /// Loads the static field at index 0 onto the evaluation stack.
@@ -355,7 +320,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Loads the static field at a specified index onto the evaluation stack. The index is represented as a 1-byte unsigned integer.
         /// </summary>
-        [OperandSize(Size = 1)]
         LDSFLD = 0x5F,
         /// <summary>
         /// Stores the value on top of the evaluation stack in the static field list at index 0.
@@ -388,7 +352,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Stores the value on top of the evaluation stack in the static field list at a specified index. The index is represented as a 1-byte unsigned integer.
         /// </summary>
-        [OperandSize(Size = 1)]
         STSFLD = 0x67,
         /// <summary>
         /// Loads the local variable at index 0 onto the evaluation stack.
@@ -421,7 +384,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Loads the local variable at a specified index onto the evaluation stack. The index is represented as a 1-byte unsigned integer.
         /// </summary>
-        [OperandSize(Size = 1)]
         LDLOC = 0x6F,
         /// <summary>
         /// Stores the value on top of the evaluation stack in the local variable list at index 0.
@@ -454,7 +416,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Stores the value on top of the evaluation stack in the local variable list at a specified index. The index is represented as a 1-byte unsigned integer.
         /// </summary>
-        [OperandSize(Size = 1)]
         STLOC = 0x77,
         /// <summary>
         /// Loads the argument at index 0 onto the evaluation stack.
@@ -487,7 +448,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Loads the argument at a specified index onto the evaluation stack. The index is represented as a 1-byte unsigned integer.
         /// </summary>
-        [OperandSize(Size = 1)]
         LDARG = 0x7F,
         /// <summary>
         /// Stores the value on top of the evaluation stack in the argument slot at index 0.
@@ -520,7 +480,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Stores the value on top of the evaluation stack in the argument slot at a specified index. The index is represented as a 1-byte unsigned integer.
         /// </summary>
-        [OperandSize(Size = 1)]
         STARG = 0x87,
 
         #endregion
@@ -703,7 +662,6 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// A value n is taken from top of main stack. An array of type T with size n is put on top of the main stack.
         /// </summary>
-        [OperandSize(Size = 1)]
         NEWARRAY_T = 0xC4,
         /// <summary>
         /// An empty struct (with size 0) is put on top of the main stack.
@@ -769,12 +727,10 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Returns true if the top item is of the specified type.
         /// </summary>
-        [OperandSize(Size = 1)]
         ISTYPE = 0xD9,
         /// <summary>
         /// Converts the top item to the specified type.
         /// </summary>
-        [OperandSize(Size = 1)]
         CONVERT = 0xDB,
 
         #endregion
