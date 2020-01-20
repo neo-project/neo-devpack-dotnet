@@ -2,7 +2,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Account
     {
-        [Syscall("Neo.Account.IsStandard")]
+        [Syscall("System.Contract.IsStandard")]
         public static extern bool IsStandard(byte[] scripthash);
     }
 }

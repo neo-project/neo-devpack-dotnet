@@ -4,39 +4,39 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Iterator<TKey, TValue>
     {
-        [Syscall("Neo.Iterator.Create")]
+        [Syscall("System.Iterator.Create")]
         public static extern Iterator<TKey, TValue> Create(Map<TKey, TValue> entry);
 
-        [Syscall("Neo.Iterator.Create")]
+        [Syscall("System.Iterator.Create")]
         public static extern Iterator<TKey, TValue> Create(IEnumerable<TValue> entry);
 
-        [Syscall("Neo.Iterator.Concat")]
+        [Syscall("System.Iterator.Concat")]
         public extern Iterator<TKey, TValue> Concat(Iterator<TKey, TValue> value);
 
-        [Syscall("Neo.Enumerator.Next")]
+        [Syscall("System.Enumerator.Next")]
         public extern bool Next();
 
         public extern TKey Key
         {
-            [Syscall("Neo.Iterator.Key")]
+            [Syscall("System.Iterator.Key")]
             get;
         }
 
         public extern TValue Value
         {
-            [Syscall("Neo.Enumerator.Value")]
+            [Syscall("System.Enumerator.Value")]
             get;
         }
 
         public extern Enumerator<TKey> Keys
         {
-            [Syscall("Neo.Iterator.Keys")]
+            [Syscall("System.Iterator.Keys")]
             get;
         }
 
         public extern Enumerator<TValue> Values
         {
-            [Syscall("Neo.Iterator.Values")]
+            [Syscall("System.Iterator.Values")]
             get;
         }
     }

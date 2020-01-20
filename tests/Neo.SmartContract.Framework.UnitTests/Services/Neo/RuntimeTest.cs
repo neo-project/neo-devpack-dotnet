@@ -58,7 +58,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var contract = _engine.EntryScriptHash;
             _engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
             {
-                Script = _engine.InvocationStack.Peek(0).Script,
+                Script = _engine.InvocationStack.Peek().Script,
                 Manifest = new NEOSmartContract.Manifest.ContractManifest()
                 {
                 }
