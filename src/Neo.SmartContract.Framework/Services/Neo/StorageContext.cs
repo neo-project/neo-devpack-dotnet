@@ -7,7 +7,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// </summary>
         public extern StorageContext AsReadOnly
         {
-            [Syscall("System.StorageContext.AsReadOnly")]
+            [Syscall("System.Storage.AsReadOnly")]
             get;
         }
     }
