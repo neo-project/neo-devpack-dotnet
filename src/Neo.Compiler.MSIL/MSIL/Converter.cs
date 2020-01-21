@@ -520,17 +520,32 @@ namespace Neo.Compiler.MSIL
             {
                 if (c.needfix)
                 {
-
-                    try
+                    if (c.code == VM.OpCode.TRY_L)
                     {
-                        var _addr = addrconv[c.srcaddr];
-                        Int32 addroff = (Int32)(_addr - c.addr);
-                        c.bytes = BitConverter.GetBytes(addroff);
-                        c.needfix = false;
+                        var srcCatch = BitConverter.ToInt32(c.bytes, 0);
+                        var srcFinal = BitConverter.ToInt32(c.bytes, 4);
+                        var _addrCatch = addrconv[srcCatch];
+                        Int32 addroffCatch = (Int32)(_addrCatch - c.addr);
+                        var _addrFinal = addrconv[srcFinal];
+                        Int32 addroffFinal = (Int32)(_addrFinal - c.addr);
+                        var bytesCatch = BitConverter.GetBytes(addroffCatch);
+                        var bytesFinal = BitConverter.GetBytes(addroffFinal);
+                        Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
+                        Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
                     }
-                    catch
+                    else
                     {
-                        throw new Exception("cannot convert addr in: " + to.name + "\r\n");
+                        try
+                        {
+                            var _addr = addrconv[c.srcaddr];
+                            Int32 addroff = (Int32)(_addr - c.addr);
+                            c.bytes = BitConverter.GetBytes(addroff);
+                            c.needfix = false;
+                        }
+                        catch
+                        {
+                            throw new Exception("cannot convert addr in: " + to.name + "\r\n");
+                        }
                     }
                 }
             }
@@ -538,6 +553,28 @@ namespace Neo.Compiler.MSIL
 
         private int ConvertCode(ILMethod method, OpCode src, NeoMethod to)
         {
+            //add try code
+            if (method.tryPositions.Contains(src.addr))
+            {
+                foreach (var info in method.tryInfos)
+                {
+                    if (info.addr_Try_Begin == src.addr)
+                    {
+                        var bytesFinally = BitConverter.GetBytes(info.addr_Finally_Begin);
+                        if (info.catch_Infos.Count != 1)
+                            throw new Exception("only support one catch for now.");
+                        var first = info.catch_Infos.First().Value;
+                        var bytesCatch = BitConverter.GetBytes(first.addrBegin);
+                        var buf = new byte[8];
+                        Array.Copy(bytesCatch, 0, buf, 0, 4);
+                        Array.Copy(bytesFinally, 0, buf, 4, 4);
+                        var trycode = _Convert1by1(VM.OpCode.TRY_L, src, to, buf);
+                        trycode.needfix = true;
+
+                    }
+
+                }
+            }
             int skipcount = 0;
             switch (src.code)
             {
@@ -654,14 +691,42 @@ namespace Neo.Compiler.MSIL
                 //需要地址轉換的情況
                 case CodeEx.Br:
                 case CodeEx.Br_S:
-                case CodeEx.Leave:
-                case CodeEx.Leave_S:
                     {
                         var code = _Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
+                    break;
+                case CodeEx.Leave:
+                case CodeEx.Leave_S:
+                    {//will support try catch
+                        if (method.IsTryCode(src.addr))
+                        {
+                            _Convert1by1(VM.OpCode.ENDT, src, to);
+                        }
+                        else
+                        {
+                            ILCatchInfo catchinfo = method.GetCatchInfo(src.addr);
+                            if (catchinfo != null)
+                            {
+                                _Convert1by1(VM.OpCode.ENDC, src, to);
+                            }
+                            else
+                            {
+                                //maybe is in finally try ,just jump.
+                            }
+                        }
 
+                        var code = _Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
+                        code.needfix = true;
+                        code.srcaddr = src.tokenAddr_Index;
+                    }
+                    break;
+                case CodeEx.Endfinally:
+                    {
+                        //need vm add these opcodes
+                        var code = _Convert1by1(VM.OpCode.ENDF, src, to);
+                    }
                     break;
                 case CodeEx.Switch:
                     {

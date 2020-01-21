@@ -196,6 +196,20 @@ namespace Neo.Compiler.MSIL
             return type;
         }
     }
+    public class ILCatchInfo
+    {
+        public int addrBegin;
+        public int addrEnd;
+        public string catchType;
+    }
+    public class ILTryInfo
+    {
+        public int addr_Try_Begin = -1;
+        public int addr_Try_End = -1;
+        public Dictionary<string, ILCatchInfo> catch_Infos = new Dictionary<string, ILCatchInfo>();
+        public int addr_Finally_Begin = -1;
+        public int addr_Finally_End = -1;
+    }
 
     public class ILMethod
     {
@@ -207,7 +221,8 @@ namespace Neo.Compiler.MSIL
         public List<NeoParam> body_Variables = new List<NeoParam>();
         public SortedDictionary<int, OpCode> body_Codes = new SortedDictionary<int, OpCode>();
         public string fail = null;
-
+        public List<ILTryInfo> tryInfos = new List<ILTryInfo>();
+        public List<int> tryPositions = new List<int>();
         public ILMethod(ILType type, Mono.Cecil.MethodDefinition method, ILogger logger = null)
         {
             this.type = type;
@@ -268,8 +283,160 @@ namespace Neo.Compiler.MSIL
                         c.InitToken(code.Operand);
                         this.body_Codes.Add(c.addr, c);
                     }
+                    if (method.Body.HasExceptionHandlers)
+                    {
+                        var mapTryInfos = new Dictionary<string, ILTryInfo>();
+                        foreach (var e in method.Body.ExceptionHandlers)
+                        {
+                            if (e.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Catch)
+                            {
+                                var key = e.TryStart.Offset + "_" + e.TryEnd.Offset;
+                                if (mapTryInfos.ContainsKey(key) == false)
+                                    mapTryInfos[key] = new ILTryInfo();
+
+                                var tryinfo = mapTryInfos[key];
+                                tryinfo.addr_Try_Begin = e.TryStart.Offset;
+                                tryinfo.addr_Try_End = e.TryEnd.Offset;
+
+
+                                var catchtypestr = e.CatchType.FullName;
+
+                                tryinfo.catch_Infos[catchtypestr] = new ILCatchInfo()
+                                {
+                                    addrBegin = e.HandlerStart.Offset,
+                                    addrEnd = e.HandlerEnd.Offset,
+                                    catchType = catchtypestr
+                                };
+
+                            }
+                            else if (e.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Finally)
+                            {
+                                int start = e.TryStart.Offset;
+                                int end = e.TryEnd.Offset;
+                                Mono.Cecil.Cil.ExceptionHandler handler = null;
+                                foreach (var tryinfocatch in method.Body.ExceptionHandlers)
+                                {
+                                    if (tryinfocatch.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Catch && tryinfocatch.TryStart.Offset == e.TryStart.Offset && tryinfocatch.TryEnd.Offset <= e.TryEnd.Offset)
+                                    {//find include catch element.
+                                        if (handler == null)
+                                            handler = tryinfocatch;
+                                        else if (handler.TryEnd.Offset < tryinfocatch.TryEnd.Offset)
+                                            handler = tryinfocatch;
+                                    }
+                                }
+                                if (handler != null)
+                                {
+                                    start = handler.TryStart.Offset;
+                                    end = handler.TryEnd.Offset;
+                                }
+
+                                var key = start + "_" + end;
+
+                                if (mapTryInfos.ContainsKey(key) == false)
+                                    mapTryInfos[key] = new ILTryInfo();
+
+                                var tryinfo = mapTryInfos[key];
+                                tryinfo.addr_Try_Begin = start;
+                                tryinfo.addr_Try_End = end;
+
+
+                                tryinfo.addr_Finally_Begin = e.HandlerStart.Offset;
+                                tryinfo.addr_Finally_End = e.HandlerEnd.Offset;
+                            }
+                            else
+                            {
+                                throw new Exception("not support yet." + e.HandlerType);
+                            }
+                        }
+                        this.tryInfos = new List<ILTryInfo>(mapTryInfos.Values);
+                        foreach (var info in this.tryInfos)
+                        {
+                            if (this.tryPositions.Contains(info.addr_Try_Begin) == false)
+                                this.tryPositions.Add(info.addr_Try_Begin);
+                        }
+                    }
                 }
             }
+        }
+        public ILTryInfo GetTryInfo(int addr)
+        {
+            ILTryInfo last = null;
+            int begin = -1;
+            int end = -1;
+            foreach (var info in tryInfos)
+            {
+                //find match try
+                if (info.addr_Try_Begin <= addr && addr <= info.addr_Try_End)
+                {
+                    if (last == null)
+                    {
+                        last = info;
+                        begin = info.addr_Try_Begin;
+                        end = last.addr_Try_End;
+                    }
+                    else if (begin <= info.addr_Try_Begin && last.addr_Try_End <= end)
+                    {
+                        last = info;
+                        begin = info.addr_Try_Begin;
+                        end = last.addr_Try_End;
+                    }
+                }
+                //find match finally
+                if (info.addr_Finally_Begin <= addr && addr <= info.addr_Finally_End)
+                {
+                    if (last == null)
+                    {
+                        last = info;
+                        begin = info.addr_Finally_Begin;
+                        end = last.addr_Finally_End;
+                    }
+                    else if (begin <= info.addr_Finally_Begin && last.addr_Finally_End <= end)
+                    {
+                        last = info;
+                        begin = info.addr_Finally_Begin;
+                        end = last.addr_Finally_End;
+                    }
+                }
+                //find match catch
+                foreach (var c in info.catch_Infos)
+                {
+                    if (c.Value.addrBegin <= addr && addr <= c.Value.addrEnd)
+                    {
+                        if (last == null)
+                        {
+                            last = info;
+                            begin = c.Value.addrBegin;
+                            end = c.Value.addrEnd;
+                        }
+                        else if (begin <= c.Value.addrBegin && c.Value.addrBegin <= end)
+                        {
+                            last = info;
+                            begin = c.Value.addrBegin;
+                            end = c.Value.addrEnd;
+                        }
+                    }
+                }
+            }
+            return last;
+        }
+        public bool IsTryCode(int addr)
+        {
+            ILTryInfo info = GetTryInfo(addr);
+            if (info == null)
+                return false;
+            return info.addr_Try_Begin <= addr && addr <= info.addr_Try_End;
+        }
+        public ILCatchInfo GetCatchInfo(int addr)
+        {
+            ILTryInfo info = GetTryInfo(addr);
+            if (info == null)
+                return null;
+            foreach (var c in info.catch_Infos)
+            {
+                if (c.Value.addrBegin <= addr && addr <= c.Value.addrEnd)
+                    return c.Value;
+            }
+            return null;
         }
         public int GetLastCodeAddr(int srcaddr)
         {
