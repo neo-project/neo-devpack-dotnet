@@ -524,14 +524,30 @@ namespace Neo.Compiler.MSIL
                     {
                         var srcCatch = BitConverter.ToInt32(c.bytes, 0);
                         var srcFinal = BitConverter.ToInt32(c.bytes, 4);
-                        var _addrCatch = addrconv[srcCatch];
-                        Int32 addroffCatch = (Int32)(_addrCatch - c.addr);
-                        var _addrFinal = addrconv[srcFinal];
-                        Int32 addroffFinal = (Int32)(_addrFinal - c.addr);
-                        var bytesCatch = BitConverter.GetBytes(addroffCatch);
-                        var bytesFinal = BitConverter.GetBytes(addroffFinal);
-                        Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
-                        Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
+                        if(srcCatch==-1)
+                        {
+                            var bytesCatch = new byte[0, 0, 0, 0];
+                            Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
+                        }
+                        else
+                        {
+                            var _addrCatch = addrconv[srcCatch];
+                            Int32 addroffCatch = (Int32)(_addrCatch - c.addr);
+                            var bytesCatch = BitConverter.GetBytes(addroffCatch);
+                            Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
+                        }
+                        if (srcFinal == -1)
+                        {
+                            var bytesFinal = new byte[0, 0, 0, 0];
+                            Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
+                        }
+                        else
+                        {
+                            var _addrFinal = addrconv[srcFinal];
+                            Int32 addroffFinal = (Int32)(_addrFinal - c.addr);
+                            var bytesFinal = BitConverter.GetBytes(addroffFinal);
+                            Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
+                        }
                     }
                     else
                     {
