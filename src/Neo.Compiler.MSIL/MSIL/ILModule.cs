@@ -366,7 +366,7 @@ namespace Neo.Compiler.MSIL
             foreach (var info in tryInfos)
             {
                 //find match try
-                if (info.addr_Try_Begin <= addr && addr <= info.addr_Try_End)
+                if (info.addr_Try_Begin <= addr && addr < info.addr_Try_End)
                 {
                     if (last == null)
                     {
@@ -382,7 +382,7 @@ namespace Neo.Compiler.MSIL
                     }
                 }
                 //find match finally
-                if (info.addr_Finally_Begin <= addr && addr <= info.addr_Finally_End)
+                if (info.addr_Finally_Begin <= addr && addr < info.addr_Finally_End)
                 {
                     if (last == null)
                     {
@@ -390,7 +390,7 @@ namespace Neo.Compiler.MSIL
                         begin = info.addr_Finally_Begin;
                         end = last.addr_Finally_End;
                     }
-                    else if (begin <= info.addr_Finally_Begin && last.addr_Finally_End <= end)
+                    else if (begin <= info.addr_Finally_Begin && last.addr_Finally_End < end)
                     {
                         last = info;
                         begin = info.addr_Finally_Begin;
@@ -400,7 +400,7 @@ namespace Neo.Compiler.MSIL
                 //find match catch
                 foreach (var c in info.catch_Infos)
                 {
-                    if (c.Value.addrBegin <= addr && addr <= c.Value.addrEnd)
+                    if (c.Value.addrBegin <= addr && addr < c.Value.addrEnd)
                     {
                         if (last == null)
                         {
@@ -408,7 +408,7 @@ namespace Neo.Compiler.MSIL
                             begin = c.Value.addrBegin;
                             end = c.Value.addrEnd;
                         }
-                        else if (begin <= c.Value.addrBegin && c.Value.addrBegin <= end)
+                        else if (begin <= c.Value.addrBegin && c.Value.addrBegin < end)
                         {
                             last = info;
                             begin = c.Value.addrBegin;
