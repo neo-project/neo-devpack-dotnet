@@ -67,7 +67,7 @@ namespace Neo.Compiler.MSIL.Utils
         }
 
 
-        public void AddEntryScript(string []filenames, bool releaseMode = false)
+        public void AddEntryScript(string[] filenames, bool releaseMode = false)
         {
             ScriptEntry = Build(filenames, releaseMode);
             Reset();
