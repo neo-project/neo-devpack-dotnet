@@ -162,6 +162,10 @@ namespace Neo.Compiler
                 bytes = module.Build();
                 log.Log("convert succ");
 
+                var optimize = new NefOptimizer(bytes).Optimize();
+                log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                bytes = optimize;
+
                 try
                 {
                     var outjson = vmtool.FuncExport.Export(module, bytes);
