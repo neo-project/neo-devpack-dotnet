@@ -13,8 +13,11 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Blockchain.GetBlock")]
         public static extern Block GetBlock(byte[] hash);
 
+        [Syscall("System.Blockchain.GetCurrentTransaction")]
+        public static extern Transaction GetCurrentTransaction();
+
         [Syscall("System.Blockchain.GetTransaction")]
-        public static extern Transaction GetTransaction(byte[] hash = null);
+        public static extern Transaction GetTransaction(byte[] hash);
 
         [Syscall("System.Blockchain.GetTransactionFromBlock")]
         public static extern Transaction GetTransactionFromBlock(byte[] blockHash, int txIndex);
