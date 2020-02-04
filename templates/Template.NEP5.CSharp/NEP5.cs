@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Template.NEP5.CSharp
 {
+    [Features(ContractFeatures.HasStorage | ContractFeatures.Payable)]
     public partial class NEP5 : SmartContract
     {
         #region Token Settings
