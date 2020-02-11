@@ -47,8 +47,8 @@ namespace Neo.Compiler
 
             public int Offset
             {
-                get => _instruction.Operand[0];
-                set { _instruction.Operand[0] = (byte)value; }
+                get => (sbyte)_instruction.Operand[0];
+                set { _instruction.Operand[0] = (byte)(sbyte)value; }
             }
 
             /// <summary>
@@ -77,12 +77,12 @@ namespace Neo.Compiler
             /// <summary>
             /// OpCode
             /// </summary>
-            public OpCode OpCode => _instruction.OpCode;
+            public OpCode OpCode { get; internal set; }
 
             /// <summary>
             /// Size
             /// </summary>
-            public int Size => _instruction.Size;
+            public int Size { get; internal set; }
 
             /// <summary>
             /// Operand
@@ -92,7 +92,7 @@ namespace Neo.Compiler
             /// <summary>
             /// Jump
             /// </summary>
-            public IJump Jump { get; }
+            public IJump Jump { get; internal set; }
 
             /// <summary>
             /// Static constructor
@@ -122,6 +122,8 @@ namespace Neo.Compiler
                 Offset = offset;
                 _instruction = (Instruction)InstructionConstructor.Invoke(new object[] { script, offset });
                 Operand = _instruction.Operand.ToArray();
+                OpCode = _instruction.OpCode;
+                Size = _instruction.Size;
 
                 switch (_instruction.OpCode)
                 {
@@ -220,6 +222,7 @@ namespace Neo.Compiler
         public byte[] Optimize()
         {
             RemoveNops();
+            RecalculeLongJumps();
 
             return Dump();
         }
@@ -262,6 +265,48 @@ namespace Neo.Compiler
         }
 
         /// <summary>
+        /// Recalculate long jumps
+        /// </summary>
+        private void RecalculeLongJumps()
+        {
+            for (int x = 0; x < Instructions.Count;)
+            {
+                var ins = Instructions[x++];
+
+                if (ins.OpCode == OpCode.PUSHA ||
+                    !(ins.Jump is JumpI32 jmp)) continue;
+
+                if (jmp.Offset > sbyte.MaxValue) continue;
+                if (jmp.Offset < sbyte.MinValue) continue;
+
+                // Remove _L
+
+                ins.OpCode = (OpCode)(((byte)ins.OpCode) - 1);
+                ins.Operand = new byte[] { ins.Operand[0] };
+                ins.Size -= 3;
+                ins.Jump = new JumpI8(ins);
+
+                // Recalculate offsets
+
+                for (int index = x; index < Instructions.Count; index++)
+                {
+                    Instructions[index].Offset -= 3;
+                }
+
+                // Recalculate jumps
+
+                if (ins.Jump.Offset < 0)
+                {
+                    RecalculateJumps(Instructions.Where(u => u != ins), ins.Offset, 3);
+                }
+                else
+                {
+                    RecalculateJumps(Instructions, ins.Offset, 3);
+                }
+            }
+        }
+
+        /// <summary>
         /// Remove At
         /// </summary>
         /// <param name="index">Index</param>
@@ -283,34 +328,31 @@ namespace Neo.Compiler
 
             // Recalculate jumps
 
-            RecalculateJumps(remove.Offset, remove.Size);
+            RecalculateJumps(Instructions, remove.Offset, remove.Size);
         }
 
         /// <summary>
         /// Recalculate jumps
         /// </summary>
+        /// <param name="instructions">Instructions</param>
         /// <param name="offset">Offset</param>
-        /// <param name="size">Size</param>
-        private void RecalculateJumps(int offset, int size)
+        /// <param name="lessSize">Size</param>
+        private static void RecalculateJumps(IEnumerable<NefInstruction> instructions, int offset, int lessSize)
         {
-            foreach (var instruction in Instructions)
+            foreach (var instruction in instructions.Where(u => u.Jump != null))
             {
-                // Find jumps
-
-                if (instruction.Jump == null) continue;
-
                 // Recalculate positive jumps
 
-                if (instruction.Jump.Offset > 0 && instruction.Jump.Offset >= offset)
+                if (instruction.Jump.Offset > 0 && instruction.Offset + instruction.Jump.Offset > offset)
                 {
-                    instruction.Jump.Offset -= size;
+                    instruction.Jump.Offset -= lessSize;
                 }
 
                 // Recalculate negative jumps
 
-                else if (instruction.Jump.Offset < 0 && instruction.Jump.Offset <= offset)
+                else if (instruction.Jump.Offset < 0 && instruction.Offset + instruction.Jump.Offset < offset)
                 {
-                    instruction.Jump.Offset += size;
+                    instruction.Jump.Offset += lessSize;
                 }
             }
         }
