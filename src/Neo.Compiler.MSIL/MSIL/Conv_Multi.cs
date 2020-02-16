@@ -1348,11 +1348,24 @@ namespace Neo.Compiler.MSIL
             }
             else if (_type.DeclaringType.FullName.Contains("Exception"))
             {
+                //对异常对象要留一个，因为catch 会处理这个栈
                 _Convert1by1(VM.OpCode.NOP, src, to);//空白
                 var pcount = _type.Parameters.Count;
-                for (var i = 0; i < pcount; i++)
+                if (pcount == 0)//沒參數插一個
                 {
-                    _Insert1(VM.OpCode.DROP, "", to);
+                    var data = System.Text.Encoding.UTF8.GetBytes("usererror");
+                    _ConvertPush(data, src, to);
+                }
+                else if (pcount == 1)
+                {
+
+                }
+                else
+                {//對異常對象保留第一個參數
+                    for (var i = 0; i < pcount - 1; i++)
+                    {
+                        _Insert1(VM.OpCode.DROP, "", to);
+                    }
                 }
                 return 0;
             }

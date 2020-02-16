@@ -26,10 +26,10 @@
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.1" />
     <PackageReference Include="Neo" Version="3.0.0-CI00848" />
-    <PackageReference Include="Neo.VM" Version="3.0.0-CI00205" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Tommo-L\neo-vm\src\neo-vm\neo-vm.csproj" />
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
   </ItemGroup>
 </Project>
