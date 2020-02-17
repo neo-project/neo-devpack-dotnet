@@ -22,28 +22,81 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
-        public void Test_Optimize_Recalculate_Positive_JMP()
+        public void Test_Optimize_Recalculate_JMP_L()
         {
-            using var scriptBefore = new ScriptBuilder();
-            scriptBefore.EmitJump(VM.OpCode.JMP, 4);    // ─┐
-            scriptBefore.Emit(VM.OpCode.NOP);           //  │
-            scriptBefore.Emit(VM.OpCode.NOP);           //  │
-            scriptBefore.Emit(VM.OpCode.RET);           // <┘
-
-            var optimized = new NefOptimizer(scriptBefore.ToArray()).Optimize();
-
-            using var scriptAfter = new ScriptBuilder();
-            scriptAfter.EmitJump(VM.OpCode.JMP, 2);     // ─┐
-            scriptAfter.Emit(VM.OpCode.RET);            // <┘
-
-            CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMP_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMP_L);
         }
 
         [TestMethod]
-        public void Test_Optimize_Recalculate_Positive_JMP_L()
+        public void Test_Optimize_Recalculate_CALL_L()
         {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.CALL_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.CALL_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPEQ_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPEQ_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPEQ_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPGE_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPGE_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPGE_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPGT_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPGT_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPGT_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPIFNOT_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPIFNOT_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPIFNOT_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPIF_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPIF_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPIF_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPLE_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPLE_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPLE_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPLT_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPLT_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPLT_L);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_JMPNE_L()
+        {
+            Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode.JMPNE_L);
+            Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode.JMPNE_L);
+        }
+
+        private void Test_Optimize_Recalculate_Positive_JMPX_L(VM.OpCode biGJumpOpCode)
+        {
+            var smallJumpOpCode = (VM.OpCode)(biGJumpOpCode - 1);
+
             using var scriptBefore = new ScriptBuilder();
-            scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(7));  // ─┐
+            scriptBefore.Emit(biGJumpOpCode, ToJumpLArg(7));    // ─┐
             scriptBefore.Emit(VM.OpCode.NOP);                   //  │
             scriptBefore.Emit(VM.OpCode.NOP);                   //  │
             scriptBefore.Emit(VM.OpCode.RET);                   // <┘
@@ -51,50 +104,29 @@ namespace Neo.Compiler.MSIL
             var optimized = new NefOptimizer(scriptBefore.ToArray()).Optimize();
 
             using var scriptAfter = new ScriptBuilder();
-            scriptAfter.EmitJump(VM.OpCode.JMP, 2);     // ─┐
-            scriptAfter.Emit(VM.OpCode.RET);            // <┘
+            scriptAfter.Emit(smallJumpOpCode, ToJumpArg(2));    // ─┐
+            scriptAfter.Emit(VM.OpCode.RET);                    // <┘
 
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
         }
 
-        [TestMethod]
-        public void Test_Optimize_Recalculate_Negative_JMP()
+        private void Test_Optimize_Recalculate_Negative_JMPX_L(VM.OpCode biGJumpOpCode)
         {
+            var smallJumpOpCode = (VM.OpCode)(biGJumpOpCode - 1);
+
             using var scriptBefore = new ScriptBuilder();
-            scriptBefore.EmitJump(VM.OpCode.JMP, 6);    // ───┐
-            scriptBefore.Emit(VM.OpCode.PUSH1);         // <┐ │
-            scriptBefore.Emit(VM.OpCode.RET);           //  │ │
-            scriptBefore.Emit(VM.OpCode.NOP);           //  │ │
-            scriptBefore.Emit(VM.OpCode.NOP);           //  │ │
-            scriptBefore.EmitJump(VM.OpCode.JMP, -4);   //  x<┘
-
-            using var scriptAfter = new ScriptBuilder();
-            scriptAfter.EmitJump(VM.OpCode.JMP, 4);     // ───┐
-            scriptAfter.Emit(VM.OpCode.PUSH1);          // <┐ │
-            scriptAfter.Emit(VM.OpCode.RET);            //  │ │
-            scriptAfter.EmitJump(VM.OpCode.JMP, -2);    //  x<┘
-
-            var optimized = new NefOptimizer(scriptBefore.ToArray()).Optimize();
-
-            CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
-        }
-
-        [TestMethod]
-        public void Test_Optimize_Recalculate_Negative_JMP_L()
-        {
-            using var scriptBefore = new ScriptBuilder();
-            scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(9));      // ───┐
+            scriptBefore.Emit(biGJumpOpCode, ToJumpLArg(9));        // ───┐
             scriptBefore.Emit(VM.OpCode.PUSH1);                     // <┐ │
             scriptBefore.Emit(VM.OpCode.RET);                       //  │ │
             scriptBefore.Emit(VM.OpCode.NOP);                       //  │ │
             scriptBefore.Emit(VM.OpCode.NOP);                       //  │ │
-            scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(-4));     //  x<┘
+            scriptBefore.Emit(biGJumpOpCode, ToJumpLArg(-4));       //  x<┘
 
             using var scriptAfter = new ScriptBuilder();
-            scriptAfter.EmitJump(VM.OpCode.JMP, 4);     // ───┐
-            scriptAfter.Emit(VM.OpCode.PUSH1);          // <┐ │
-            scriptAfter.Emit(VM.OpCode.RET);            //  │ │
-            scriptAfter.EmitJump(VM.OpCode.JMP, -2);    //  x<┘
+            scriptAfter.Emit(smallJumpOpCode, ToJumpArg(4));        // ───┐
+            scriptAfter.Emit(VM.OpCode.PUSH1);                      // <┐ │
+            scriptAfter.Emit(VM.OpCode.RET);                        //  │ │
+            scriptAfter.Emit(smallJumpOpCode, ToJumpArg(-2));       //  x<┘
 
             var optimized = new NefOptimizer(scriptBefore.ToArray()).Optimize();
 
@@ -106,6 +138,11 @@ namespace Neo.Compiler.MSIL
             var ret = new byte[4];
             BinaryPrimitives.WriteInt32LittleEndian(ret, value);
             return ret;
+        }
+
+        private byte[] ToJumpArg(int value)
+        {
+            return new byte[1] { (byte)value };
         }
     }
 }
