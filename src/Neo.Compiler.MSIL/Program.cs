@@ -1,3 +1,4 @@
+using CommandLine;
 using Neo.Compiler.MSIL;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -11,6 +12,15 @@ namespace Neo.Compiler
 {
     public class Program
     {
+        public class Options
+        {
+            [Option('f', "file", Required = true, HelpText = "File for compile.")]
+            public string File { get; set; }
+
+            [Option('o', "optimize", Required = true, HelpText = "Optimize.")]
+            public bool Optimize { get; set; } = false;
+        }
+
         //Console.WriteLine("helo ha:"+args[0]); //普通输出
         //Console.WriteLine("<WARN> 这是一个严重的问题。");//警告输出，黄字
         //Console.WriteLine("<WARN|aaaa.cs(1)> 这是ee一个严重的问题。");//警告输出，带文件名行号
@@ -18,24 +28,19 @@ namespace Neo.Compiler
         //Console.WriteLine("<ERR|aaaa.cs> 这是ee一个严重的问题。");//错误输出，带文件名
         //Console.WriteLine("SUCC");//输出这个表示编译成功
         //控制台输出约定了特别的语法
-        public static int Main(string[] args)
+        public static void Main(string[] args)
+        {
+            Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Main(o));
+        }
+
+        public static int Main(Options options)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            // Check argmuents
-            if (args.Length == 0)
-            {
-                log.Log("You need a parameter to specify the DLL or the file name of the project.");
-                log.Log("Examples: ");
-                log.Log("  neon mySmartContract.dll");
-                log.Log("  neon mySmartContract.csproj");
-                return -1;
-            }
-
-            var fileInfo = new FileInfo(args[0]);
+            var fileInfo = new FileInfo(options.File);
 
             // Set current directory
             if (!fileInfo.Exists)
@@ -162,9 +167,12 @@ namespace Neo.Compiler
                 bytes = module.Build();
                 log.Log("convert succ");
 
-                var optimize = new NefOptimizer(bytes).Optimize();
-                log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
-                bytes = optimize;
+                if (options.Optimize)
+                {
+                    var optimize = new NefOptimizer(bytes).Optimize();
+                    log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                    bytes = optimize;
+                }
 
                 try
                 {
