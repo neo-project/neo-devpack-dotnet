@@ -48,7 +48,7 @@ namespace Neo.Compiler.MSIL.Utils
         /// <param name="filename">File</param>
         /// <param name="releaseMode">Release mode (default=false)</param>
         /// <returns>BuildScript</returns>
-        public static BuildScript BuildScript(string filename, bool releaseMode = false)
+        public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
         {
             var comp = Compiler.CompileCSFiles(new string[] { filename }, new string[0] { }, releaseMode);
 
@@ -56,7 +56,7 @@ namespace Neo.Compiler.MSIL.Utils
             using (var streamPdb = new MemoryStream(comp.Pdb))
             {
                 var bs = new BuildScript();
-                bs.Build(streamDll, streamPdb);
+                bs.Build(streamDll, streamPdb, optimizer);
 
                 if (bs.Error != null)
                 {

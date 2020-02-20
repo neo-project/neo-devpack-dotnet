@@ -38,19 +38,19 @@ namespace Neo.Compiler.MSIL.Utils
             Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public BuildScript Build(string filename, bool releaseMode = false)
+        public BuildScript Build(string filename, bool releaseMode = false, bool optimizer = true)
         {
             if (scriptsAll.ContainsKey(filename) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode);
+                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
             }
 
             return scriptsAll[filename];
         }
 
-        public void AddEntryScript(string filename, bool releaseMode = false)
+        public void AddEntryScript(string filename, bool releaseMode = false,bool optimizer=true)
         {
-            ScriptEntry = Build(filename, releaseMode);
+            ScriptEntry = Build(filename, releaseMode, optimizer);
             Reset();
         }
 
