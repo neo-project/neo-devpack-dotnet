@@ -294,15 +294,7 @@ namespace Neo.Compiler
                 }
 
                 // Recalculate jumps
-
-                if (ins.Jump.Offset < 0)
-                {
-                    RecalculateJumps(Instructions.Where(u => u != ins), ins.Offset, 3);
-                }
-                else
-                {
-                    RecalculateJumps(Instructions, ins.Offset, 3);
-                }
+                RecalculateJumpsForLongJump(Instructions, ins.Offset, 3, ins.Jump.Offset);
             }
         }
 
@@ -328,29 +320,61 @@ namespace Neo.Compiler
 
             // Recalculate jumps
 
-            RecalculateJumps(Instructions, remove.Offset, remove.Size);
+            RecalculateJumpsForRemoveInstruction(Instructions, remove.Offset, remove.Size);
         }
 
         /// <summary>
-        /// Recalculate jumps
+        /// Recalculate jumps for remove instruction
         /// </summary>
         /// <param name="instructions">Instructions</param>
         /// <param name="offset">Offset</param>
         /// <param name="lessSize">Size</param>
-        private static void RecalculateJumps(IEnumerable<NefInstruction> instructions, int offset, int lessSize)
+        private static void RecalculateJumpsForRemoveInstruction(IEnumerable<NefInstruction> instructions, int offset, int lessSize)
         {
             foreach (var instruction in instructions.Where(u => u.Jump != null))
             {
                 // Recalculate positive jumps
 
-                if (instruction.Jump.Offset > 0 && instruction.Offset + instruction.Jump.Offset > offset)
+                if (instruction.Offset < offset && instruction.Jump.Offset > 0 && instruction.Offset + instruction.Jump.Offset > offset)
                 {
                     instruction.Jump.Offset -= lessSize;
                 }
 
                 // Recalculate negative jumps
 
-                else if (instruction.Jump.Offset < 0 && instruction.Offset + instruction.Jump.Offset < offset)
+                else if (instruction.Offset >= offset && instruction.Jump.Offset < 0 && instruction.Offset + instruction.Jump.Offset < offset)
+                {
+                    instruction.Jump.Offset += lessSize;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Recalculate jumps for LongJump
+        /// </summary>
+        /// <param name="instructions">Instructions</param>
+        /// <param name="offset">Offset</param>
+        /// <param name="lessSize">Size</param>
+        /// <param name="jumpOffset">JumpOffset</param>
+        private static void RecalculateJumpsForLongJump(IEnumerable<NefInstruction> instructions, int offset, int lessSize, int jumpOffset)
+        {
+            foreach (var instruction in instructions.Where(u => u.Jump != null))
+            {
+                if (instruction.Offset == offset && jumpOffset >= 0)
+                {
+                    instruction.Jump.Offset -= lessSize;
+                }
+
+                // Recalculate positive jumps
+
+                if (instruction.Offset < offset && instruction.Jump.Offset > 0 && instruction.Offset + instruction.Jump.Offset > offset)
+                {
+                    instruction.Jump.Offset -= lessSize;
+                }
+
+                // Recalculate negative jumps
+
+                else if (instruction.Offset > offset && instruction.Jump.Offset < 0 && instruction.Offset + instruction.Jump.Offset < offset)
                 {
                     instruction.Jump.Offset += lessSize;
                 }
