@@ -10,7 +10,7 @@ using OpCode = Neo.VM.OpCode;
 namespace Neo.Compiler.Optimizer
 {
     [DebuggerDisplay("Offset={Offset}, OpCode={OpCode}, Size={Data}")]
-    public class NefInstruction
+    public class NefInstruction : INefItem
     {
         private static readonly uint[] OperandSizePrefixTable = new uint[256];
         private static readonly uint[] OperandSizeTable = new uint[256];
@@ -99,8 +99,36 @@ namespace Neo.Compiler.Optimizer
                         throw new Exception("error DataSize");
 
                     Data = _Data;
-
                 }
+            }
+        }
+
+        public int AddressCountInData => labels == null ? 0 : labels.Length;
+        public int GetAddressInData(int index)
+        {
+            //Include Address
+            if (this.AddressSize == 0)
+            {
+                throw new Exception("this data have not Addresses");
+            }
+            else
+            {
+                byte[] buf = new byte[4];
+                Array.Copy(this.Data, this.AddressSize * index, buf, 0, this.AddressSize);
+                var addr = BitConverter.ToInt32(buf, 0);
+                return addr;
+            }
+        }
+        public void SetAddressInData(int index, int addr)
+        {
+            if (this.AddressSize == 0)
+            {
+                throw new Exception("this data have not Addresses");
+            }
+            else
+            {
+                byte[] buf = BitConverter.GetBytes(addr);
+                Array.Copy(buf, 0, this.Data, this.AddressSize * index, this.AddressSize);
             }
         }
         /// <summary>
@@ -109,7 +137,13 @@ namespace Neo.Compiler.Optimizer
         public int Offset { get; private set; }
 
         public string[] labels { get; private set; }
-        public int AddrLen { get; private set; }
+
+        /// <summary>
+        /// address type
+        /// like JMP =2 bytes
+        /// or JMP_L =4 bytes
+        /// </summary>
+        public int AddressSize { get; private set; }
 
         public void SetOffset(int offset)
         {
@@ -137,7 +171,7 @@ namespace Neo.Compiler.Optimizer
                     Data = null;
             }
 
-            AddrLen = 0;
+            AddressSize = 0;
             switch (_OpCode)
             {
                 case OpCode.PUSHA:
@@ -153,7 +187,7 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPGE_L:
                 case OpCode.JMPGT_L:
                     labels = new string[1];
-                    AddrLen = 4;
+                    AddressSize = 4;
                     break;
                 case OpCode.CALL:
 
@@ -167,7 +201,7 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
                     labels = new string[1];
-                    AddrLen = 1;
+                    AddressSize = 2;
 
                     break;
             }
