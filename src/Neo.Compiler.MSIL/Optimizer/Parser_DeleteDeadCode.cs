@@ -16,7 +16,6 @@ namespace Neo.Compiler.Optimizer
             touchCodes.Sort();
             //so 一个循环我们得到有可能可以执行到的那些指令
 
-            //死码剔除优化器可以最后一步做
             //这个死代码剔除比较简单，还没有处理JMPIF这类条件跳转
             //对JMPIF这类指令 如果他前一条指令是PUSH，可以提前确定JMPIF是否也是死指令
 
@@ -33,7 +32,7 @@ namespace Neo.Compiler.Optimizer
 
         private static void Touch(List<INefItem> Items, List<int> touchCodes, int beginaddr)
         {
-            bool bTouchMode = true;
+            //bool bTouchMode = true;
 
             bool findbegin = false;
             for (int x = 0; x < Items.Count; x++)
@@ -50,36 +49,24 @@ namespace Neo.Compiler.Optimizer
                         continue;
                 }
 
-                if (bTouchMode)
+                if (inst.OpCode == OpCode.NOP)//NOP指令永不touch
+                    continue;
+
+                if (touchCodes.Contains(inst.Offset) == false)
                 {
-                    if (inst.OpCode == OpCode.NOP)//NOP指令永不touch
-                        continue;
-
-                    if (touchCodes.Contains(inst.Offset) == false)
-                    {
-                        touchCodes.Add(inst.Offset);
-                    }
-
-                    if (inst.AddressCountInData > 0)//这是个含地址的指令，他可能有跳转
-                    {
-                        for (var i = 0; i < inst.AddressCountInData; i++)
-                        {
-                            var addr = inst.GetAddressInData(i) + inst.Offset;
-                            if (touchCodes.Contains(addr) == false)
-                            {
-                                touchCodes.Add(addr);
-                                Touch(Items, touchCodes, addr);
-                            }
-                        }
-                    }
-
+                    touchCodes.Add(inst.Offset);
                 }
-                else
+
+                if (inst.AddressCountInData > 0)//这是个含地址的指令，他可能有跳转
                 {
-                    //遇到一个标记过被跳转到的指令，打开
-                    if (touchCodes.Contains(inst.Offset))
+                    for (var i = 0; i < inst.AddressCountInData; i++)
                     {
-                        bTouchMode = true;
+                        var addr = inst.GetAddressInData(i) + inst.Offset;
+                        if (touchCodes.Contains(addr) == false)
+                        {
+                            touchCodes.Add(addr);
+                            Touch(Items, touchCodes, addr);
+                        }
                     }
                 }
 
@@ -90,7 +77,10 @@ namespace Neo.Compiler.Optimizer
                     inst.OpCode == OpCode.THROW ||
                     inst.OpCode == OpCode.THROWIF ||
                     inst.OpCode == OpCode.THROWIFNOT)
-                    bTouchMode = false;
+                {
+
+                    return;
+                }
 
             }
         }

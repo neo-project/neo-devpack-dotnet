@@ -13,7 +13,7 @@ namespace Neo.Compiler.Optimizer
             {
                 _optimizer = new NefOptimizer();
 
-                _optimizer.AddOptimizeParser(new Parser_DeleteNop());
+                //_optimizer.AddOptimizeParser(new Parser_DeleteNop());
 
                 _optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
 
