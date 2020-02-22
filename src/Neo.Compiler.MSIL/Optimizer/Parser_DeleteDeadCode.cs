@@ -7,24 +7,6 @@ namespace Neo.Compiler.Optimizer
     class Parser_DeleteDeadCode : IOptimizeParser
     {
         public bool NeedRightAddr => true;
-        public bool Is8BitAddress(NefInstruction inst)
-        {
-            if (inst.AddressCountInData == 9)
-                return false;
-            for (var i = 0; i < inst.AddressCountInData; i++)
-            {
-                var addr = inst.GetAddressInData(i);
-                if (addr >= sbyte.MinValue && addr <= sbyte.MaxValue)
-                {
-                    //smallAddr = true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
         public void Parse(List<INefItem> Items)
         {
             List<int> touchCodes = new List<int>();
