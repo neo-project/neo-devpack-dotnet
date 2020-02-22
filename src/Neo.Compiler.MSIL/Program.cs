@@ -1,5 +1,6 @@
 using CommandLine;
 using Neo.Compiler.MSIL;
+using Neo.Compiler.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
@@ -169,7 +170,7 @@ namespace Neo.Compiler
 
                 if (options.Optimize)
                 {
-                    var optimize = new NefOptimizer(bytes).Optimize();
+                    var optimize = NefOptimizer.Optimize(bytes);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
                     bytes = optimize;
                 }
