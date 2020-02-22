@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Neo.VM;
+using System.Collections.Generic;
+
 namespace Neo.Compiler.Optimizer
 {
     class Parser_UseShortAddress : IOptimizeParser
@@ -12,6 +11,7 @@ namespace Neo.Compiler.Optimizer
         {
             if (inst.AddressCountInData == 9)
                 return false;
+
             for (var i = 0; i < inst.AddressCountInData; i++)
             {
                 var addr = inst.GetAddressInData(i);
@@ -24,16 +24,17 @@ namespace Neo.Compiler.Optimizer
                     return false;
                 }
             }
+
             return true;
         }
+
         public void Parse(List<INefItem> Items)
         {
             for (int x = 0; x < Items.Count; x++)
             {
-                var inst = Items[x] as NefInstruction;
-                if (inst == null)
+                if (!(Items[x] is NefInstruction inst))
                     continue;
-                if (inst.OpCode == OpCode.PUSHA)//PUSHA 没有8bit对应指令
+                if (inst.OpCode == OpCode.PUSHA) //PUSHA 没有8bit对应指令
                     continue;
                 if (inst.AddressSize != 4)
                     continue;
@@ -48,7 +49,6 @@ namespace Neo.Compiler.Optimizer
 
                     //Link will fill right Address
                 }
-
             }
         }
     }

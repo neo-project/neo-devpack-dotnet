@@ -1,19 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Neo.VM;
+using System.Collections.Generic;
 namespace Neo.Compiler.Optimizer
 {
     class Parser_DeleteDeadCode : IOptimizeParser
     {
         public bool NeedRightAddr => true;
+
         public void Parse(List<INefItem> Items)
         {
             List<int> touchCodes = new List<int>();
-
             Touch(Items, touchCodes, 0);
-
             touchCodes.Sort();
+
             //so 一个循环我们得到有可能可以执行到的那些指令
 
             //这个死代码剔除比较简单，还没有处理JMPIF这类条件跳转
@@ -21,8 +19,7 @@ namespace Neo.Compiler.Optimizer
 
             for (var i = Items.Count - 1; i >= 0; i--)
             {
-                var inst = Items[i] as NefInstruction;
-                if (inst == null)
+                if (!(Items[i] is NefInstruction inst))
                     continue;
                 var addr = Items[i].Offset;
                 if (!touchCodes.Contains(addr))
@@ -37,9 +34,7 @@ namespace Neo.Compiler.Optimizer
             bool findbegin = false;
             for (int x = 0; x < Items.Count; x++)
             {
-
-                var inst = Items[x] as NefInstruction;
-                if (inst == null)
+                if (!(Items[x] is NefInstruction inst))
                     continue;
                 if (!findbegin)
                 {
@@ -78,10 +73,8 @@ namespace Neo.Compiler.Optimizer
                     inst.OpCode == OpCode.THROWIF ||
                     inst.OpCode == OpCode.THROWIFNOT)
                 {
-
                     return;
                 }
-
             }
         }
     }

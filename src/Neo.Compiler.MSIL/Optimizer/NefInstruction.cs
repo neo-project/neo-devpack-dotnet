@@ -1,43 +1,21 @@
 using Neo.VM;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace Neo.Compiler.Optimizer
 {
-    [DebuggerDisplay("Offset={Offset}, OpCode={OpCode}, Size={Data}")]
+    [DebuggerDisplay("Offset={Offset}, OpCode={OpCode}")]
     public class NefInstruction : INefItem
     {
         private static readonly uint[] OperandSizePrefixTable = new uint[256];
         private static readonly uint[] OperandSizeTable = new uint[256];
-        public static uint GetOperandSize(OpCode opcode)
-        {
-            return OperandSizeTable[(int)opcode];
-        }
-        public static uint GetOperandPrefixSize(OpCode opcode)
-        {
-            return OperandSizePrefixTable[(int)opcode];
-        }
-        static NefInstruction()
-        {
-            foreach (var field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
-            {
-                var attribute = field.GetCustomAttribute<OperandSizeAttribute>();
-                if (attribute == null) continue;
-                int index = (int)(OpCode)field.GetValue(null);
-                OperandSizePrefixTable[index] = (uint)attribute.SizePrefix;
-                OperandSizeTable[index] = (uint)attribute.Size;
-            }
-        }
-
 
         /// <summary>
         /// OpCode
         /// </summary>
         public OpCode OpCode { get; private set; }
-
 
         /// <summary>
         /// Size
@@ -52,7 +30,12 @@ namespace Neo.Compiler.Optimizer
                     return (uint)(1 + DataSize);
             }
         }
+
         public uint DataPrefixSize => GetOperandPrefixSize(OpCode);
+
+        /// <summary>
+        /// Data size
+        /// </summary>
         public uint DataSize
         {
             get
@@ -67,41 +50,98 @@ namespace Neo.Compiler.Optimizer
                 }
             }
         }
+
         /// <summary>
         /// Operand
         /// </summary>
-        public byte[] Data
+        public byte[] Data { get; private set; }
+
+        /// <summary>
+        /// Offset
+        /// </summary>
+        public int Offset { get; private set; }
+
+        /// <summary>
+        /// Labels
+        /// </summary>
+        public string[] Labels { get; private set; }
+
+        /// <summary>
+        /// address type
+        /// like JMP =2 bytes
+        /// or JMP_L =4 bytes
+        /// </summary>
+        public int AddressSize { get; private set; }
+
+        public int AddressCountInData => Labels == null ? 0 : Labels.Length;
+
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static NefInstruction()
         {
-            get;
-            private set;
+            foreach (var field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                var attribute = field.GetCustomAttribute<OperandSizeAttribute>();
+                if (attribute == null) continue;
+                int index = (int)(OpCode)field.GetValue(null);
+                OperandSizePrefixTable[index] = (uint)attribute.SizePrefix;
+                OperandSizeTable[index] = (uint)attribute.Size;
+            }
         }
 
-        public void SetData(byte[] _Data)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="opCode">Opcode</param>
+        /// <param name="data">Data</param>
+        /// <param name="offset">Offset</param>
+        public NefInstruction(OpCode opCode, byte[] data = null, int offset = -1)
+        {
+            SetOpCode(opCode);
+            SetData(data);
+            SetOffset(offset);
+        }
+
+        /// <summary>
+        /// Set data
+        /// </summary>
+        /// <param name="data">Data</param>
+        public void SetData(byte[] data)
         {
             if (this.DataPrefixSize > 0)
             {
-                this.Data = _Data;
+                this.Data = data;
             }
             else
             {
                 if (this.DataSize == 0)
                 {
-                    if (_Data != null && _Data.Length > 0)
+                    if (data != null && data.Length > 0)
                         throw new Exception("error DataSize");
                 }
                 else
                 {
-                    if (_Data == null)
+                    if (data == null)
                         return;
-                    if (_Data.Length != this.DataSize)
+                    if (data.Length != this.DataSize)
                         throw new Exception("error DataSize");
 
-                    Data = _Data;
+                    Data = data;
                 }
             }
         }
 
-        public int AddressCountInData => labels == null ? 0 : labels.Length;
+        public static uint GetOperandSize(OpCode opcode)
+        {
+            return OperandSizeTable[(int)opcode];
+        }
+
+        public static uint GetOperandPrefixSize(OpCode opcode)
+        {
+            return OperandSizePrefixTable[(int)opcode];
+        }
+
         public int GetAddressInData(int index)
         {
             //Include Address
@@ -117,6 +157,7 @@ namespace Neo.Compiler.Optimizer
                 return addr;
             }
         }
+
         public void SetAddressInData(int index, int addr)
         {
             if (this.AddressSize == 0)
@@ -129,24 +170,12 @@ namespace Neo.Compiler.Optimizer
                 Array.Copy(buf, 0, this.Data, this.AddressSize * index, this.AddressSize);
             }
         }
-        /// <summary>
-        /// Offset
-        /// </summary>
-        public int Offset { get; private set; }
-
-        public string[] labels { get; private set; }
-
-        /// <summary>
-        /// address type
-        /// like JMP =2 bytes
-        /// or JMP_L =4 bytes
-        /// </summary>
-        public int AddressSize { get; private set; }
 
         public void SetOffset(int offset)
         {
             this.Offset = offset;
         }
+
         public void SetOpCode(OpCode _OpCode)
         {
             this.OpCode = _OpCode;
@@ -169,8 +198,8 @@ namespace Neo.Compiler.Optimizer
                     Data = null;
             }
 
-            var oldlabels = labels;
-            labels = null;
+            var oldlabels = Labels;
+            Labels = null;
             AddressSize = 0;
             switch (_OpCode)
             {
@@ -186,11 +215,13 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ_L:
                 case OpCode.JMPGE_L:
                 case OpCode.JMPGT_L:
-                    labels = new string[1];//1个地址
-                    if (oldlabels != null && oldlabels.Length >= 1)
-                        labels[0] = oldlabels[0];
-                    AddressSize = 4;//32bit
-                    break;
+                    {
+                        Labels = new string[1];//1个地址
+                        if (oldlabels != null && oldlabels.Length >= 1)
+                            Labels[0] = oldlabels[0];
+                        AddressSize = 4;//32bit
+                        break;
+                    }
                 case OpCode.CALL:
 
                 case OpCode.JMP:
@@ -202,32 +233,27 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ:
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
-                    labels = new string[1];//1个地址
-                    if (oldlabels != null && oldlabels.Length >= 1)
-                        labels[0] = oldlabels[0];
-                    AddressSize = 1;//8bit
-                    break;
+                    {
+                        Labels = new string[1];//1个地址
+                        if (oldlabels != null && oldlabels.Length >= 1)
+                            Labels[0] = oldlabels[0];
+                        AddressSize = 1;//8bit
+                        break;
+                    }
             }
         }
-        public NefInstruction(OpCode _OpCode, byte[] _Data = null, int _Offset = -1)
-        {
-            SetOpCode(_OpCode);
-            SetData(_Data);
-            SetOffset(_Offset);
-        }
-        public static NefInstruction ReadFrom(System.IO.Stream stream)
-        {
 
+        public static NefInstruction ReadFrom(Stream stream)
+        {
             var offset = (int)stream.Position;
-
 
             byte[] buf = new byte[4];
             var readlen = stream.Read(buf, 0, 1);
             if (readlen == 0)
                 return null;
 
+            uint datalen;
             var opcode = (OpCode)buf[0];
-            uint datalen = 0;
             var prefixlen = GetOperandPrefixSize(opcode);
             if (prefixlen > 0)
             {
@@ -251,28 +277,26 @@ namespace Neo.Compiler.Optimizer
                 buf = null;
             }
 
-
             return new NefInstruction(opcode, buf, offset);
         }
 
-        public static void WriteTo(NefInstruction _inst, System.IO.Stream stream)
+        public static void WriteTo(NefInstruction instruction, Stream stream)
         {
-            stream.WriteByte((byte)_inst.OpCode);
+            stream.WriteByte((byte)instruction.OpCode);
 
-            if (_inst.DataPrefixSize > 0)
+            if (instruction.DataPrefixSize > 0)
             {
-                var buflen = BitConverter.GetBytes(_inst.DataSize);
-                stream.Write(buflen, 0, (int)_inst.DataPrefixSize);
-                if (_inst.DataSize > 0)
+                var buflen = BitConverter.GetBytes(instruction.DataSize);
+                stream.Write(buflen, 0, (int)instruction.DataPrefixSize);
+                if (instruction.DataSize > 0)
                 {
-                    stream.Write(_inst.Data, 0, (int)_inst.DataSize);
+                    stream.Write(instruction.Data, 0, (int)instruction.DataSize);
                 }
             }
-            else if (_inst.DataSize > 0)
+            else if (instruction.DataSize > 0)
             {
-                stream.Write(_inst.Data, 0, (int)_inst.DataSize);
+                stream.Write(instruction.Data, 0, (int)instruction.DataSize);
             }
         }
     }
-
 }
