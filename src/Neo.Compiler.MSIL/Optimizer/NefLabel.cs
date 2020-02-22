@@ -7,9 +7,9 @@ namespace Neo.Compiler.Optimizer
 {
     [DebuggerDisplay("Label:Name={Name}: = {Offset}")]
 
-    class NefLabel :INefItem
+    class NefLabel : INefItem
     {
-        public NefLabel(string name,int Offset)
+        public NefLabel(string name, int Offset)
         {
             this.Name = name;
             this.Offset = Offset;
