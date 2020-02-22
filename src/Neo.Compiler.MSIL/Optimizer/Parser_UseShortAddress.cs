@@ -6,7 +6,9 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_UseShortAddress : IOptimizeParser
     {
-        public bool Is8BitAddress(NefInstruction inst)
+        public bool NeedRightAddr => false;
+
+        private bool Is8BitAddress(NefInstruction inst)
         {
             if (inst.AddressCountInData == 9)
                 return false;
@@ -31,7 +33,7 @@ namespace Neo.Compiler.Optimizer
                 var inst = Items[x] as NefInstruction;
                 if (inst == null)
                     continue;
-                if (inst.OpCode == OpCode.PUSHA)
+                if (inst.OpCode == OpCode.PUSHA)//PUSHA 没有8bit对应指令
                     continue;
                 if (inst.AddressSize != 4)
                     continue;

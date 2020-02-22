@@ -36,10 +36,14 @@ namespace Neo.Compiler.Optimizer
         {
             if (OptimizeFunctions == null || OptimizeFunctions.Count == 0)
                 return;
-            foreach (var func in OptimizeFunctions)
+            for (var i = 0; i < OptimizeFunctions.Count; i++)
             {
+                var func = OptimizeFunctions[i];
+                if (i > 0 && func.NeedRightAddr)
+                    RefillAddr();
                 func.Parse(this.Items);
             }
+
         }
         //Step01 Load
         public void LoadNef(System.IO.Stream stream)
@@ -98,7 +102,7 @@ namespace Neo.Compiler.Optimizer
         //Step02
 
         //Step03 Link
-        public void LinkNef(System.IO.Stream stream)
+        void RefillAddr()
         {
             Dictionary<string, uint> mapLabel2Addr = new Dictionary<string, uint>();
             //Recalc Address
@@ -135,6 +139,12 @@ namespace Neo.Compiler.Optimizer
                     }
                 }
             }
+        }
+        public void LinkNef(System.IO.Stream stream)
+        {
+            //Recalc Address
+            //collection Labels and Resort Offset
+            RefillAddr();
             //and Link
             foreach (var _inst in this.Items)
             {

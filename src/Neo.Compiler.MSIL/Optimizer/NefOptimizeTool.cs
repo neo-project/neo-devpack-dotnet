@@ -12,8 +12,14 @@ namespace Neo.Compiler.Optimizer
             if (_optimizer == null)
             {
                 _optimizer = new NefOptimizer();
+
                 _optimizer.AddOptimizeParser(new Parser_DeleteNop());
+
+                _optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
+
                 _optimizer.AddOptimizeParser(new Parser_UseShortAddress());
+
+
             }
             //step01 Load
             using (var ms = new System.IO.MemoryStream(script))

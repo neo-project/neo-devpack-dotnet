@@ -6,6 +6,8 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_DeleteNop : IOptimizeParser
     {
+        public bool NeedRightAddr => false;
+
         public void Parse(List<INefItem> Items)
         {
             for (int x = Items.Count - 1; x >= 0; x--)
