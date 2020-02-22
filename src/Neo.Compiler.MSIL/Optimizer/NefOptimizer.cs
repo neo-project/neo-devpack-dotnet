@@ -142,51 +142,7 @@ namespace Neo.Compiler.Optimizer
                     NefInstruction.WriteTo(_inst as NefInstruction, stream);
             }
         }
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="script">Script</param>
 
-        //Step1.LoadInstructWithLabel
-        //Step2.DoOptimze(blabla);
-
-
-
-
-
-        /// <summary>
-        /// Recalculate long jumps
-        /// </summary>
-        public void RecalculeLongJumps()
-        {
-            //for (int x = 0; x < Instructions.Count;)
-            //{
-            //    var ins = Instructions[x++];
-
-            //    if (ins.OpCode == OpCode.PUSHA ||
-            //        !(ins.Jump is JumpI32 jmp)) continue;
-
-            //    if (jmp.Offset > sbyte.MaxValue) continue;
-            //    if (jmp.Offset < sbyte.MinValue) continue;
-
-            //    // Remove _L
-
-            //    ins.OpCode = (OpCode)(((byte)ins.OpCode) - 1);
-            //    ins.Operand = new byte[] { ins.Operand[0] };
-            //    ins.Size -= 3;
-            //    ins.Jump = new JumpI8(ins);
-
-            //    // Recalculate offsets
-
-            //    for (int index = x; index < Instructions.Count; index++)
-            //    {
-            //        Instructions[index].Offset -= 3;
-            //    }
-
-            //    // Recalculate jumps
-            //    RecalculateJumpsForLongJump(Instructions, ins.Offset, 3, ins.Jump.Offset);
-            //}
-        }
 
     }
 }

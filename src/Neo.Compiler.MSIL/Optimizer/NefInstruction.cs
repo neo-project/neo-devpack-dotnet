@@ -169,6 +169,8 @@ namespace Neo.Compiler.Optimizer
                     Data = null;
             }
 
+            var oldlabels = labels;
+            labels = null;
             AddressSize = 0;
             switch (_OpCode)
             {
@@ -184,8 +186,10 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ_L:
                 case OpCode.JMPGE_L:
                 case OpCode.JMPGT_L:
-                    labels = new string[1];
-                    AddressSize = 4;
+                    labels = new string[1];//1个地址
+                    if (oldlabels != null && oldlabels.Length >= 1)
+                        labels[0] = oldlabels[0];
+                    AddressSize = 4;//32bit
                     break;
                 case OpCode.CALL:
 
@@ -198,9 +202,10 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ:
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
-                    labels = new string[1];
-                    AddressSize = 2;
-
+                    labels = new string[1];//1个地址
+                    if (oldlabels != null && oldlabels.Length >= 1)
+                        labels[0] = oldlabels[0];
+                    AddressSize = 1;//8bit
                     break;
             }
         }
