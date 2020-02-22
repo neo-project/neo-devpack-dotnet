@@ -170,7 +170,7 @@ namespace Neo.Compiler
 
                 if (options.Optimize)
                 {
-                    var optimize = NefOptimizer.Optimize(bytes);
+                    var optimize = NefOptimizeTool.Optimize(bytes);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
                     bytes = optimize;
                 }

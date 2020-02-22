@@ -11,62 +11,11 @@ namespace Neo.Compiler.Optimizer
 {
     public class NefOptimizer
     {
-        //public interface IJump
-        //{
-        //    /// <summary>
-        //    /// Offset
-        //    /// </summary>
-        //    int Offset { get; set; }
-        //}
-
-        //[DebuggerDisplay("Offset={Offset}")]
-        //public class JumpI32 : IJump
-        //{
-        //    private readonly NefInstruction _instruction;
-
-        //    public int Offset
-        //    {
-        //        get => BinaryPrimitives.ReadInt32LittleEndian(_instruction.Operand.AsSpan());
-        //        set { BinaryPrimitives.WriteInt32LittleEndian(_instruction.Operand, value); }
-        //    }
-
-        //    /// <summary>
-        //    /// Constructor
-        //    /// </summary>
-        //    /// <param name="instruction">Instruction</param>
-        //    public JumpI32(NefInstruction instruction)
-        //    {
-        //        _instruction = instruction;
-        //    }
-        //}
-
-        //[DebuggerDisplay("Offset={Offset}")]
-        //public class JumpI8 : IJump
-        //{
-        //    private readonly NefInstruction _instruction;
-
-        //    public int Offset
-        //    {
-        //        get => (sbyte)_instruction.Operand[0];
-        //        set { _instruction.Operand[0] = (byte)(sbyte)value; }
-        //    }
-
-        //    /// <summary>
-        //    /// Constructor
-        //    /// </summary>
-        //    /// <param name="instruction">Instruction</param>
-        //    public JumpI8(NefInstruction instruction)
-        //    {
-        //        _instruction = instruction;
-        //    }
-        //}
-
-
         /// <summary>
         /// Instructions
         /// </summary>
         private List<INefItem> Items;
-
+        private List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
         public NefOptimizer(byte[] script = null)
         {
             if (script != null)
@@ -75,6 +24,21 @@ namespace Neo.Compiler.Optimizer
                 {
                     LoadNef(ms);
                 }
+            }
+        }
+        public void AddOptimizeParser(IOptimizeParser function)
+        {
+            if (OptimizeFunctions == null)
+                OptimizeFunctions = new List<IOptimizeParser>();
+            OptimizeFunctions.Add(function);
+        }
+        public void Optimize()
+        {
+            if (OptimizeFunctions == null || OptimizeFunctions.Count == 0)
+                return;
+            foreach (var func in OptimizeFunctions)
+            {
+                func.Parse(this.Items);
             }
         }
         //Step01 Load
@@ -186,42 +150,9 @@ namespace Neo.Compiler.Optimizer
         //Step1.LoadInstructWithLabel
         //Step2.DoOptimze(blabla);
 
-        static NefOptimizer _optimizer;
-        public static byte[] Optimize(byte[] script)
-        {
-            if (_optimizer == null)
-                _optimizer = new NefOptimizer();
-            //step01 Load
-            using (var ms = new System.IO.MemoryStream(script))
-            {
-                _optimizer.LoadNef(ms);
-            }
-            //step02 doOptimize
-            _optimizer.RemoveNops();
-            _optimizer.RecalculeLongJumps();
-            //step03 link
-            using (var ms = new System.IO.MemoryStream())
-            {
-                _optimizer.LinkNef(ms);
-                var bytes = ms.ToArray();
-                return bytes;
-            }
-        }
 
-        /// <summary>
-        /// Remove nops
-        /// </summary>
-        public void RemoveNops()
-        {
-            for (int x = Items.Count - 1; x >= 0; x--)
-            {
-                var ins = Items[x] as NefInstruction;
-                if (ins != null && ins.OpCode == OpCode.NOP)
-                {
-                    Items.RemoveAt(x);
-                }
-            }
-        }
+
+
 
         /// <summary>
         /// Recalculate long jumps

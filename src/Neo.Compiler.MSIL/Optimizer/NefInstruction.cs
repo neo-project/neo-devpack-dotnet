@@ -1,11 +1,9 @@
-using Neo.Compiler.MSIL;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler.Optimizer
 {

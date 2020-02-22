@@ -69,7 +69,7 @@ namespace Neo.Compiler.MSIL.Utils
                 finalNEF = converterIL.outModule.Build();
                 if (optimizer)
                 {
-                    var opbytes = NefOptimizer.Optimize(finalNEF);
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF);
                     float radio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
                     log.Log("optimization radio = " + radio + "%");
                     finalNEF = opbytes;
