@@ -6,6 +6,24 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_UseShortAddress : IOptimizeParser
     {
+        public bool Is8BitAddress(NefInstruction inst)
+        {
+            if (inst.AddressCountInData == 9)
+                return false;
+            for (var i = 0; i < inst.AddressCountInData; i++)
+            {
+                var addr = inst.GetAddressInData(i);
+                if (addr >= sbyte.MinValue && addr <= sbyte.MaxValue)
+                {
+                    //smallAddr = true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         public void Parse(List<INefItem> Items)
         {
             for (int x = 0; x < Items.Count; x++)
@@ -18,28 +36,16 @@ namespace Neo.Compiler.Optimizer
                 if (inst.AddressSize != 4)
                     continue;
 
-                bool smallAddr = false;
-
-                int[] oldaddr = new int[inst.AddressCountInData];
-                for (var i = 0; i < inst.AddressCountInData; i++)
-                {
-                    var addr = inst.GetAddressInData(i);
-                    oldaddr[i] = addr;
-                    if (addr >= sbyte.MinValue || addr <= sbyte.MaxValue)
-                    {
-                        smallAddr = true;
-                    }
-                    else
-                    {
-                        smallAddr = false;
-                        break;
-                    }
-                }
-                if (smallAddr)
+                if (Is8BitAddress(inst))
                 {
                     var newcode = (OpCode)(((byte)inst.OpCode) - 1);
                     inst.SetOpCode(newcode);
-                }// Remove _L
+
+                    // That's OK
+                    //No need to do anything here.
+
+                    //Link will fill right Address
+                }
 
             }
         }
