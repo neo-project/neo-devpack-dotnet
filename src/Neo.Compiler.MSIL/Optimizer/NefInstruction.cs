@@ -216,10 +216,10 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPGE_L:
                 case OpCode.JMPGT_L:
                     {
-                        Labels = new string[1];//1个地址
+                        Labels = new string[1]; // is an address
                         if (oldlabels != null && oldlabels.Length >= 1)
                             Labels[0] = oldlabels[0];
-                        AddressSize = 4;//32bit
+                        AddressSize = 4; // 32 bit
                         break;
                     }
                 case OpCode.CALL:
@@ -234,10 +234,10 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
                     {
-                        Labels = new string[1];//1个地址
+                        Labels = new string[1]; // an address
                         if (oldlabels != null && oldlabels.Length >= 1)
                             Labels[0] = oldlabels[0];
-                        AddressSize = 1;//8bit
+                        AddressSize = 1; //8 bit
                         break;
                     }
             }
