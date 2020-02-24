@@ -34,7 +34,7 @@ namespace Neo.Compiler.Optimizer
             {
                 if (!(Items[x] is NefInstruction inst))
                     continue;
-                if (inst.OpCode == OpCode.PUSHA) //PUSHA 没有8bit对应指令
+                if (inst.OpCode == OpCode.PUSHA) //PUSHA is not 8 bits
                     continue;
                 if (inst.AddressSize != 4)
                     continue;

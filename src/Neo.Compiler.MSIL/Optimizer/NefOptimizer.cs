@@ -29,8 +29,6 @@ namespace Neo.Compiler.Optimizer
 
         public void AddOptimizeParser(IOptimizeParser function)
         {
-            if (OptimizeFunctions == null)
-                OptimizeFunctions = new List<IOptimizeParser>();
             OptimizeFunctions.Add(function);
         }
 
@@ -39,7 +37,7 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         public void Optimize()
         {
-            if (OptimizeFunctions == null || OptimizeFunctions.Count == 0)
+            if (OptimizeFunctions.Count == 0)
                 return;
             for (var i = 0; i < OptimizeFunctions.Count; i++)
             {
