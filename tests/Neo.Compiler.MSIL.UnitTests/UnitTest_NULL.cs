@@ -40,6 +40,17 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void IfNull()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("ifNull", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.IsFalse(item.ToBoolean());
+        }
+
+        [TestMethod]
         public void NullCoalescing()
         {
             //  call NullCoalescing(string code)
