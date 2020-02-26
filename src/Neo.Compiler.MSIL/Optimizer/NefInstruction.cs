@@ -19,9 +19,7 @@ namespace Neo.Compiler.Optimizer
         private uint DataSize => DataPrefixSize > 0 ? (uint)(Data?.Length ?? 0) : GetOperandSize(OpCode);
 
         public byte[] Data { get; private set; }
-
         public int Offset { get; private set; }
-
         public string[] Labels { get; private set; }
 
         /// <summary>
