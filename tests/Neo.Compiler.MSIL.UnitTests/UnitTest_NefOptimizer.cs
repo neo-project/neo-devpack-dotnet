@@ -174,6 +174,36 @@ namespace Neo.Compiler.MSIL
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
         }
 
+        [TestMethod]
+        public void Test_Optimize_JMP_LNext()
+        {
+            using var scriptBefore = new ScriptBuilder();
+            scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(5));       // ───┐
+            scriptBefore.Emit(VM.OpCode.PUSH1);                      // <──┘
+
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray());
+
+            using var scriptAfter = new ScriptBuilder();
+            scriptAfter.Emit(VM.OpCode.PUSH1);
+
+            CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_JMP_Next()
+        {
+            using var scriptBefore = new ScriptBuilder();
+            scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(2));        // ───┐
+            scriptBefore.Emit(VM.OpCode.PUSH1);                    // <──┘
+
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray());
+
+            using var scriptAfter = new ScriptBuilder();
+            scriptAfter.Emit(VM.OpCode.PUSH1);
+
+            CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+        }
+
         private byte[] ToJumpLArg(int value)
         {
             var ret = new byte[4];
