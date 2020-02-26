@@ -103,18 +103,18 @@ namespace Neo.Compiler.Optimizer
             var mapLabel2Addr = new Dictionary<string, uint>();
             //Recalc Address
             //collection Labels and Resort Offset
-            uint Offset = 0;
+            uint offset = 0;
             foreach (var item in Items)
             {
                 if (item is NefInstruction inst)
                 {
-                    inst.SetOffset((int)Offset);
-                    Offset += inst.Size;
+                    inst.SetOffset((int)offset);
+                    offset += inst.Size;
                 }
                 else if (item is NefLabel label)
                 {
-                    label.SetOffset((int)Offset);
-                    mapLabel2Addr[label.Name] = Offset;
+                    label.SetOffset((int)offset);
+                    mapLabel2Addr[label.Name] = offset;
                 }
             }
 
@@ -142,8 +142,8 @@ namespace Neo.Compiler.Optimizer
             //and Link
             foreach (var _inst in this.Items)
             {
-                if (_inst is NefInstruction)
-                    NefInstruction.WriteTo(_inst as NefInstruction, stream);
+                if (_inst is NefInstruction i)
+                    NefInstruction.WriteTo(i, stream);
             }
         }
     }
