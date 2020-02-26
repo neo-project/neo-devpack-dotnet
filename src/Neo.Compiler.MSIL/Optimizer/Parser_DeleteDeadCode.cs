@@ -19,8 +19,7 @@ namespace Neo.Compiler.Optimizer
             {
                 if (!(items[i] is NefInstruction inst))
                     continue;
-                var addr = inst.Offset;
-                if (!reachableAddrs.Contains(addr))
+                if (!reachableAddrs.Contains(inst.Offset))
                     items.RemoveAt(i);
             }
         }
