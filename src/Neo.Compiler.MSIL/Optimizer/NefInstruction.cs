@@ -24,7 +24,7 @@ namespace Neo.Compiler.Optimizer
 
         /// <summary>
         /// address type
-        /// like JMP =2 bytes
+        /// like JMP =1 byte
         /// or JMP_L =4 bytes
         /// </summary>
         public int AddressSize { get; private set; }
@@ -97,6 +97,7 @@ namespace Neo.Compiler.Optimizer
         {
             Offset = offset;
         }
+
         /// <summary>
         /// Change Opcode in this instruction
         /// If new Opcode has a different data length,then cut current data,or add zero 
