@@ -108,7 +108,7 @@ namespace Neo.Compiler.Optimizer
                 uint oplen = GetOperandSize(_OpCode);
                 byte[] newdata = new byte[oplen];
                 Data ??= new byte[0];
-                if(oplen > 0)
+                if (oplen > 0)
                 {
                     Array.Copy(Data, 0, newdata, 0, Math.Min(Data.Length, oplen));
                 }
