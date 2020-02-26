@@ -8,9 +8,9 @@ namespace Neo.Compiler.Optimizer
 
         public void Parse(List<INefItem> Items)
         {
-            List<int> touchCodes = new List<int>();
-            Touch(Items, touchCodes, 0);
-            touchCodes.Sort();
+            List<int> reachableAddrs = new List<int>();
+            Touch(Items, reachableAddrs, 0);
+            reachableAddrs.Sort();
 
             // Remove useless instructions like JPMIF false xxx
             // If the previous instruction of JMPIF is PUSH, we can tell whether JMPIF is useful in advance
@@ -19,46 +19,34 @@ namespace Neo.Compiler.Optimizer
             {
                 if (!(Items[i] is NefInstruction inst))
                     continue;
-                var addr = Items[i].Offset;
-                if (!touchCodes.Contains(addr))
+                var addr = inst.Offset;
+                if (!reachableAddrs.Contains(addr))
                     Items.RemoveAt(i);
             }
         }
 
-        private static void Touch(List<INefItem> Items, List<int> touchCodes, int beginaddr)
+        private static void Touch(List<INefItem> Items, List<int> reachableAddrs, int beginAddr)
         {
-            //bool bTouchMode = true;
-
-            bool findbegin = false;
-            for (int x = 0; x < Items.Count; x++)
+            for (int i = 0; i < Items.Count; i++)
             {
-                if (!(Items[x] is NefInstruction inst))
-                    continue;
-                if (!findbegin)
-                {
-                    if (inst.Offset >= beginaddr)
-                        findbegin = true;
-                    else
-                        continue;
-                }
+                if (!(Items[i] is NefInstruction inst)) continue;
+                if (inst.Offset < beginAddr) continue;
+                if (inst.OpCode == OpCode.NOP) continue; // NOP never touch
 
-                if (inst.OpCode == OpCode.NOP) // NOP never touch
-                    continue;
-
-                if (touchCodes.Contains(inst.Offset) == false)
+                if (reachableAddrs.Contains(inst.Offset) == false)
                 {
-                    touchCodes.Add(inst.Offset);
+                    reachableAddrs.Add(inst.Offset);
                 }
 
                 if (inst.AddressCountInData > 0)// The instruction may contain jmp addess
                 {
-                    for (var i = 0; i < inst.AddressCountInData; i++)
+                    for (var j = 0; j < inst.AddressCountInData; j++)
                     {
-                        var addr = inst.GetAddressInData(i) + inst.Offset;
-                        if (touchCodes.Contains(addr) == false)
+                        var addr = inst.GetAddressInData(j) + inst.Offset;
+                        if (reachableAddrs.Contains(addr) == false)
                         {
-                            touchCodes.Add(addr);
-                            Touch(Items, touchCodes, addr);
+                            reachableAddrs.Add(addr);
+                            Touch(Items, reachableAddrs, addr); // goto the JMP/call/... new address
                         }
                     }
                 }
