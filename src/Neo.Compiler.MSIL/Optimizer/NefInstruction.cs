@@ -113,12 +113,12 @@ namespace Neo.Compiler.Optimizer
             if (opprefix == 0)
             {
                 uint oplen = GetOperandSize(_OpCode);
-                if(Data==null)
+                if (Data == null)
                 {
                     //if do not have a old Data,just new it.
                     Data = new byte[oplen];
                 }
-                else if(oplen<Data.Length)
+                else if (oplen != Data.Length)
                 {
                     //if have a old Data,but length is not right
                     //create a newdata,and copy data
