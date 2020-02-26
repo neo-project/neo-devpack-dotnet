@@ -10,7 +10,7 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         private List<INefItem> Items;
 
-        private List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
+        private readonly List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
 
         /// <summary>
         /// Constructor
@@ -140,9 +140,9 @@ namespace Neo.Compiler.Optimizer
             RefillAddr();
 
             //and Link
-            foreach (var _inst in this.Items)
+            foreach (var inst in this.Items)
             {
-                if (_inst is NefInstruction i)
+                if (inst is NefInstruction i)
                     NefInstruction.WriteTo(i, stream);
             }
         }
