@@ -38,5 +38,27 @@ namespace Neo.Compiler.MSIL.TestClasses
             }
             return v;
         }
+        public static object throwcall()
+        {
+            throw new System.Exception();
+        }
+        public static object try03()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                throwcall();
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
     }
 }
