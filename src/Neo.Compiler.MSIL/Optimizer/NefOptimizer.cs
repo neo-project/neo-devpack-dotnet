@@ -116,7 +116,7 @@ namespace Neo.Compiler.Optimizer
                 if (item is NefInstruction inst)
                 {
                     inst.SetOffset((int)Offset);
-                    Offset += inst.CalcTotalSize;
+                    Offset += inst.Size;
                 }
                 else if (item is NefLabel label)
                 {
