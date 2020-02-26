@@ -143,7 +143,7 @@ namespace Neo.Compiler.Optimizer
             foreach (var inst in this.Items)
             {
                 if (inst is NefInstruction i)
-                    NefInstruction.WriteTo(i, stream);
+                    i.WriteTo(stream);
             }
         }
     }

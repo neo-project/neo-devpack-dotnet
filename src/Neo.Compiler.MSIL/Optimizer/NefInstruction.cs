@@ -214,18 +214,18 @@ namespace Neo.Compiler.Optimizer
             return new NefInstruction(opcode, data, offset);
         }
 
-        public static void WriteTo(NefInstruction instruction, Stream stream)
+        public void WriteTo(Stream stream)
         {
-            stream.WriteByte((byte)instruction.OpCode);
+            stream.WriteByte((byte)OpCode);
 
-            if (instruction.DataPrefixSize > 0)
+            if (DataPrefixSize > 0)
             {
-                var buflen = BitConverter.GetBytes(instruction.DataSize);
-                stream.Write(buflen, 0, (int)instruction.DataPrefixSize);
+                var buflen = BitConverter.GetBytes(DataSize);
+                stream.Write(buflen, 0, (int)DataPrefixSize);
             }
-            if (instruction.DataSize > 0)
+            if (DataSize > 0)
             {
-                stream.Write(instruction.Data, 0, (int)instruction.DataSize);
+                stream.Write(Data, 0, (int)DataSize);
             }
         }
     }
