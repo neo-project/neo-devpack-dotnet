@@ -12,58 +12,16 @@ namespace Neo.Compiler.Optimizer
         private static readonly uint[] OperandSizePrefixTable = new uint[256];
         private static readonly uint[] OperandSizeTable = new uint[256];
 
-        /// <summary>
-        /// OpCode
-        /// </summary>
         public OpCode OpCode { get; private set; }
+        public uint Size => (1 + DataPrefixSize + DataSize);
 
-        /// <summary>
-        /// Size
-        /// </summary>
-        public uint CalcTotalSize
-        {
-            get
-            {
-                if (DataPrefixSize > 0)
-                    return (uint)(1 + DataPrefixSize + Data.Length);
-                else
-                    return (uint)(1 + DataSize);
-            }
-        }
+        private uint DataPrefixSize => GetOperandPrefixSize(OpCode);
+        private uint DataSize => DataPrefixSize > 0 ? (uint)(Data?.Length ?? 0) : GetOperandSize(OpCode);
 
-        public uint DataPrefixSize => GetOperandPrefixSize(OpCode);
-
-        /// <summary>
-        /// Data size
-        /// </summary>
-        public uint DataSize
-        {
-            get
-            {
-                if (DataPrefixSize > 0)
-                {
-                    return Data != null ? (uint)Data.Length : 0;
-                }
-                else
-                {
-                    return GetOperandSize(OpCode);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Operand
-        /// </summary>
         public byte[] Data { get; private set; }
 
-        /// <summary>
-        /// Offset
-        /// </summary>
         public int Offset { get; private set; }
 
-        /// <summary>
-        /// Labels
-        /// </summary>
         public string[] Labels { get; private set; }
 
         /// <summary>
@@ -90,12 +48,6 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="opCode">Opcode</param>
-        /// <param name="data">Data</param>
-        /// <param name="offset">Offset</param>
         public NefInstruction(OpCode opCode, byte[] data = null, int offset = -1)
         {
             SetOpCode(opCode);
@@ -103,33 +55,13 @@ namespace Neo.Compiler.Optimizer
             SetOffset(offset);
         }
 
-        /// <summary>
-        /// Set data
-        /// </summary>
-        /// <param name="data">Data</param>
         public void SetData(byte[] data)
         {
-            if (this.DataPrefixSize > 0)
-            {
-                this.Data = data;
-            }
-            else
-            {
-                if (this.DataSize == 0)
-                {
-                    if (data != null && data.Length > 0)
-                        throw new Exception("error DataSize");
-                }
-                else
-                {
-                    if (data == null)
-                        return;
-                    if (data.Length != this.DataSize)
-                        throw new Exception("error DataSize");
+            data ??= new byte[0];
+            if (DataPrefixSize == 0 && data.Length != DataSize)
+                throw new Exception("error DataSize");
 
-                    Data = data;
-                }
-            }
+            Data = data;
         }
 
         public static uint GetOperandSize(OpCode opcode)
@@ -145,35 +77,27 @@ namespace Neo.Compiler.Optimizer
         public int GetAddressInData(int index)
         {
             //Include Address
-            if (this.AddressSize == 0)
-            {
+            if (AddressSize == 0)
                 throw new Exception("this data have not Addresses");
-            }
-            else
-            {
-                byte[] buf = new byte[4];
-                Array.Copy(this.Data, this.AddressSize * index, buf, 0, this.AddressSize);
-                var addr = BitConverter.ToInt32(buf, 0);
-                return addr;
-            }
+
+            byte[] buf = new byte[4];
+            Array.Copy(Data, AddressSize * index, buf, 0, AddressSize);
+            var addr = BitConverter.ToInt32(buf, 0);
+            return addr;
         }
 
         public void SetAddressInData(int index, int addr)
         {
-            if (this.AddressSize == 0)
-            {
+            if (AddressSize == 0)
                 throw new Exception("this data have not Addresses");
-            }
-            else
-            {
-                byte[] buf = BitConverter.GetBytes(addr);
-                Array.Copy(buf, 0, this.Data, this.AddressSize * index, this.AddressSize);
-            }
+
+            byte[] buf = BitConverter.GetBytes(addr);
+            Array.Copy(buf, 0, Data, AddressSize * index, AddressSize);
         }
 
         public void SetOffset(int offset)
         {
-            this.Offset = offset;
+            Offset = offset;
         }
 
         public void SetOpCode(OpCode _OpCode)
@@ -184,18 +108,13 @@ namespace Neo.Compiler.Optimizer
             if (opprefix == 0)
             {
                 uint oplen = GetOperandSize(_OpCode);
-                if (oplen > 0)
+                byte[] newdata = new byte[oplen];
+                Data ??= new byte[0];
+                if(oplen > 0)
                 {
-                    if (Data == null)
-                        Data = new byte[oplen];
-                    else if (Data.Length != oplen)
-                    {
-                        byte[] newdata = new byte[oplen];
-                        Array.Copy(Data, 0, newdata, 0, Math.Min(Data.Length, oplen));
-                    }
+                    Array.Copy(Data, 0, newdata, 0, Math.Min(Data.Length, oplen));
                 }
-                else
-                    Data = null;
+                Data = newdata;
             }
 
             var oldlabels = Labels;
@@ -222,6 +141,8 @@ namespace Neo.Compiler.Optimizer
                         AddressSize = 4; // 32 bit
                         break;
                     }
+                //TODO case OpCode.TRY_L: 32 + 32 bit
+                //TODO case OpCode.TRY: 8 + 8 bit
                 case OpCode.CALL:
 
                 case OpCode.JMP:
@@ -265,19 +186,15 @@ namespace Neo.Compiler.Optimizer
                 datalen = GetOperandSize(opcode);
             }
 
+            var data = new byte[datalen];
             if (datalen > 0)
             {
-                buf = new byte[datalen];
-                var readOperandlen = stream.Read(buf, 0, (int)datalen);
+                var readOperandlen = stream.Read(data, 0, (int)datalen);
                 if (readOperandlen != datalen)
                     throw new Exception("error read Instruction");
             }
-            else
-            {
-                buf = null;
-            }
 
-            return new NefInstruction(opcode, buf, offset);
+            return new NefInstruction(opcode, data, offset);
         }
 
         public static void WriteTo(NefInstruction instruction, Stream stream)
@@ -288,12 +205,8 @@ namespace Neo.Compiler.Optimizer
             {
                 var buflen = BitConverter.GetBytes(instruction.DataSize);
                 stream.Write(buflen, 0, (int)instruction.DataPrefixSize);
-                if (instruction.DataSize > 0)
-                {
-                    stream.Write(instruction.Data, 0, (int)instruction.DataSize);
-                }
             }
-            else if (instruction.DataSize > 0)
+            if (instruction.DataSize > 0)
             {
                 stream.Write(instruction.Data, 0, (int)instruction.DataSize);
             }
