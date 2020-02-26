@@ -33,7 +33,7 @@ namespace Neo.Compiler.Optimizer
                 if (inst.Offset < beginAddr) continue;
                 if (inst.OpCode == OpCode.NOP) continue; // NOP never touch
 
-                if (reachableAddrs.Contains(inst.Offset) == false)
+                if (!reachableAddrs.Contains(inst.Offset))
                 {
                     reachableAddrs.Add(inst.Offset);
                 }
@@ -43,7 +43,7 @@ namespace Neo.Compiler.Optimizer
                     for (var j = 0; j < inst.AddressCountInData; j++)
                     {
                         var addr = inst.GetAddressInData(j) + inst.Offset;
-                        if (reachableAddrs.Contains(addr) == false)
+                        if (!reachableAddrs.Contains(addr))
                         {
                             reachableAddrs.Add(addr);
                             Touch(Items, reachableAddrs, addr); // goto the JMP/call/... new address
