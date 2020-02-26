@@ -9,17 +9,13 @@ namespace Neo.Compiler.Optimizer
 
         private bool Is8BitAddress(NefInstruction inst)
         {
-            if (inst.AddressCountInData == 9)
+            if (inst.AddressCountInData == 0)
                 return false;
 
             for (var i = 0; i < inst.AddressCountInData; i++)
             {
                 var addr = inst.GetAddressInData(i);
-                if (addr >= sbyte.MinValue && addr <= sbyte.MaxValue)
-                {
-                    //smallAddr = true;
-                }
-                else
+                if (addr < sbyte.MinValue || addr > sbyte.MaxValue)
                 {
                     return false;
                 }
@@ -32,16 +28,13 @@ namespace Neo.Compiler.Optimizer
         {
             for (int x = 0; x < Items.Count; x++)
             {
-                if (!(Items[x] is NefInstruction inst))
-                    continue;
-                if (inst.OpCode == OpCode.PUSHA) //PUSHA is not 8 bits
-                    continue;
-                if (inst.AddressSize != 4)
-                    continue;
+                if (!(Items[x] is NefInstruction inst)) continue;
+                if (inst.OpCode == OpCode.PUSHA) continue; //PUSHA is not 8 bits
+                if (inst.AddressSize != 4) continue;
 
                 if (Is8BitAddress(inst))
                 {
-                    var newcode = (OpCode)(((byte)inst.OpCode) - 1);
+                    var newcode = (OpCode)(((byte)inst.OpCode) - 1); // Mind! The value of `inst_L` must equal the value of `inst` + 1
                     inst.SetOpCode(newcode);
 
                     // That's OK

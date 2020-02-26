@@ -159,6 +159,7 @@ namespace Neo.Compiler.Optimizer
                         AddressSize = 1; //8 bit
                         break;
                     }
+                default: break;
             }
         }
 

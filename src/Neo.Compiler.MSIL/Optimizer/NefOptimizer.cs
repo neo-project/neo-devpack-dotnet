@@ -37,14 +37,12 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         public void Optimize()
         {
-            if (OptimizeFunctions.Count == 0)
-                return;
             for (var i = 0; i < OptimizeFunctions.Count; i++)
             {
                 var func = OptimizeFunctions[i];
                 if (i > 0 && func.NeedRightAddr)
                     RefillAddr();
-                func.Parse(this.Items);
+                func.Parse(Items);
             }
         }
 
@@ -67,30 +65,25 @@ namespace Neo.Compiler.Optimizer
                 if (inst != null)
                 {
                     listInst.Add(inst);
-                    if (inst.AddressCountInData > 0)
+                    for (var i = 0; i < inst.AddressCountInData; i++)
                     {
-                        for (var i = 0; i < inst.AddressCountInData; i++)
+                        // mapping addr to label
+                        int addr = inst.GetAddressInData(i) + inst.Offset;
+                        if (!mapLabel.ContainsKey(addr))
                         {
-                            var addr = inst.GetAddressInData(i) + inst.Offset;
-                            if (!mapLabel.ContainsKey(addr))
-                            {
-                                var labelname = "label" + labelindex.ToString("D06");
-                                labelindex++;
-                                var label = new NefLabel(labelname, addr);
-                                mapLabel.Add(addr, label);
-                            }
-
-                            inst.Labels[i] = mapLabel[addr].Name;
+                            var labelname = "label" + labelindex.ToString("D06");
+                            labelindex++;
+                            var label = new NefLabel(labelname, addr);
+                            mapLabel.Add(addr, label);
                         }
+
+                        inst.Labels[i] = mapLabel[addr].Name;
                     }
                 }
             } while (inst != null);
 
             //Add Labels
-            if (Items == null)
-                Items = new List<INefItem>();
-            else
-                Items.Clear();
+            Items = new List<INefItem>();
             foreach (var instruction in listInst)
             {
                 var curOffset = instruction.Offset;
@@ -111,7 +104,7 @@ namespace Neo.Compiler.Optimizer
             //Recalc Address
             //collection Labels and Resort Offset
             uint Offset = 0;
-            foreach (var item in this.Items)
+            foreach (var item in Items)
             {
                 if (item is NefInstruction inst)
                 {
@@ -126,7 +119,7 @@ namespace Neo.Compiler.Optimizer
             }
 
             //ChangeAddress
-            foreach (var item in this.Items)
+            foreach (var item in Items)
             {
                 if (item is NefInstruction inst)
                 {
