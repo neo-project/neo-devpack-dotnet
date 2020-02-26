@@ -6,30 +6,30 @@ namespace Neo.Compiler.Optimizer
     {
         public bool NeedRightAddr => true;
 
-        public void Parse(List<INefItem> Items)
+        public void Parse(List<INefItem> items)
         {
             List<int> reachableAddrs = new List<int>();
-            Touch(Items, reachableAddrs, 0);
+            Touch(items, reachableAddrs, 0);
             reachableAddrs.Sort();
 
             // Remove useless instructions like JPMIF false xxx
             // If the previous instruction of JMPIF is PUSH, we can tell whether JMPIF is useful in advance
 
-            for (var i = Items.Count - 1; i >= 0; i--)
+            for (var i = items.Count - 1; i >= 0; i--)
             {
-                if (!(Items[i] is NefInstruction inst))
+                if (!(items[i] is NefInstruction inst))
                     continue;
                 var addr = inst.Offset;
                 if (!reachableAddrs.Contains(addr))
-                    Items.RemoveAt(i);
+                    items.RemoveAt(i);
             }
         }
 
-        private static void Touch(List<INefItem> Items, List<int> reachableAddrs, int beginAddr)
+        private static void Touch(List<INefItem> items, List<int> reachableAddrs, int beginAddr)
         {
-            for (int i = 0; i < Items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                if (!(Items[i] is NefInstruction inst)) continue;
+                if (!(items[i] is NefInstruction inst)) continue;
                 if (inst.Offset < beginAddr) continue;
                 if (inst.OpCode == OpCode.NOP) continue; // NOP never touch
 
@@ -46,7 +46,7 @@ namespace Neo.Compiler.Optimizer
                         if (!reachableAddrs.Contains(addr))
                         {
                             reachableAddrs.Add(addr);
-                            Touch(Items, reachableAddrs, addr); // goto the JMP/call/... new address
+                            Touch(items, reachableAddrs, addr); // goto the JMP/call/... new address
                         }
                     }
                 }

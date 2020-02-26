@@ -55,7 +55,7 @@ namespace Neo.Compiler.Optimizer
 
         public void SetData(byte[] data)
         {
-            data ??= new byte[0];
+            data ??= Array.Empty<byte>();
             if (DataPrefixSize == 0 && data.Length != DataSize)
                 throw new Exception("error DataSize");
 
@@ -101,18 +101,18 @@ namespace Neo.Compiler.Optimizer
         /// Change Opcode in this instruction
         /// If new Opcode has a different data length,then cut current data,or add zero 
         /// </summary>
-        /// <param name="_OpCode">New Opcode</param>
-        public void SetOpCode(OpCode _OpCode)
+        /// <param name="opCode">New Opcode</param>
+        public void SetOpCode(OpCode opcode)
         {
-            this.OpCode = _OpCode;
+            this.OpCode = opcode;
 
             //next part is for keep data when you recall SetOpCode
             //do not need to care about data who include address,link will refill it.it just need a right length.
             //if your data need to be changed,should all SetData after this.
-            uint opprefix = GetOperandPrefixSize(_OpCode);
+            uint opprefix = GetOperandPrefixSize(opcode);
             if (opprefix == 0)
             {
-                uint oplen = GetOperandSize(_OpCode);
+                uint oplen = GetOperandSize(opcode);
                 if (Data == null)
                 {
                     //if do not have a old Data,just new it.
@@ -136,7 +136,7 @@ namespace Neo.Compiler.Optimizer
             var oldlabels = Labels;
             Labels = null;
             AddressSize = 0;
-            switch (_OpCode)
+            switch (opcode)
             {
                 case OpCode.PUSHA:
                 case OpCode.CALL_L:

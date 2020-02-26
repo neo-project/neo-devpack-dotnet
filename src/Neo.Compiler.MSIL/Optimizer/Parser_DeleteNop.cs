@@ -10,14 +10,14 @@ namespace Neo.Compiler.Optimizer
         /// <summary>
         /// Parse
         /// </summary>
-        /// <param name="Items">Items</param>
-        public void Parse(List<INefItem> Items)
+        /// <param name="items">Items</param>
+        public void Parse(List<INefItem> items)
         {
-            for (int x = Items.Count - 1; x >= 0; x--)
+            for (int x = items.Count - 1; x >= 0; x--)
             {
-                if (Items[x] is NefInstruction ins && ins.OpCode == OpCode.NOP)
+                if (items[x] is NefInstruction ins && ins.OpCode == OpCode.NOP)
                 {
-                    Items.RemoveAt(x);
+                    items.RemoveAt(x);
                 }
             }
         }

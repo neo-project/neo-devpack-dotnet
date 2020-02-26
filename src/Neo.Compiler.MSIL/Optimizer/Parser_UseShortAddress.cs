@@ -24,11 +24,11 @@ namespace Neo.Compiler.Optimizer
             return true;
         }
 
-        public void Parse(List<INefItem> Items)
+        public void Parse(List<INefItem> items)
         {
-            for (int x = 0; x < Items.Count; x++)
+            for (int x = 0; x < items.Count; x++)
             {
-                if (!(Items[x] is NefInstruction inst)) continue;
+                if (!(items[x] is NefInstruction inst)) continue;
                 if (inst.OpCode == OpCode.PUSHA) continue; //PUSHA is not 8 bits
                 if (inst.AddressSize != 4) continue;
 
