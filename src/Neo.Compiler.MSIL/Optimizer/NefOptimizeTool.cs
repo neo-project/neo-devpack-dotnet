@@ -21,6 +21,7 @@ namespace Neo.Compiler.Optimizer
                 //_optimizer.AddOptimizeParser(new Parser_DeleteNop());
                 _optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
                 _optimizer.AddOptimizeParser(new Parser_UseShortAddress());
+                _optimizer.AddOptimizeParser(new Parser_DeleteUselessJmp());
             }
 
             //step01 Load

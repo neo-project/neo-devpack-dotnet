@@ -1,5 +1,4 @@
 using Neo.VM;
-using System;
 using System.Collections.Generic;
 namespace Neo.Compiler.Optimizer
 {
@@ -32,32 +31,14 @@ namespace Neo.Compiler.Optimizer
                 if (!(items[i] is NefInstruction inst)) continue;
                 if (inst.Offset < beginAddr) continue;
 
-                bool touch = true;
-                switch (inst.OpCode)
-                {
-                    case OpCode.NOP: touch = false; break;
-                    case OpCode.JMP:
-                        {
-                            // Jump always to the next instruction
-                            if (inst.Data[0] == 2) touch = false;
-                            break;
-                        }
-                    case OpCode.JMP_L:
-                        {
-                            // Jump always to the next instruction
-                            if (BitConverter.ToInt32(inst.Data) == 5) touch = false;
-                            break;
-                        }
-                }
-
-                if (!touch) continue; // never touch
+                if (inst.OpCode == OpCode.NOP) continue; // NOP never touch
 
                 if (!reachableAddrs.Contains(inst.Offset))
                 {
                     reachableAddrs.Add(inst.Offset);
                 }
 
-                if (inst.AddressCountInData > 0)// The instruction may contain jmp addess
+                if (inst.AddressCountInData > 0) // The instruction may contain jmp addess
                 {
                     for (var j = 0; j < inst.AddressCountInData; j++)
                     {
