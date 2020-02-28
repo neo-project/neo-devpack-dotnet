@@ -21,9 +21,9 @@ namespace Neo.Compiler.Optimizer
         /// <param name="script">Script</param>
         /// <param name="parsers">Optmize parser, currently, there are four parsers:
         /// <para> deletedeadcode -- delete dead code parser, default parser</para>
-        /// <para> useshortaddress -- use short address. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
+        /// <para> useshortaddress -- use short address parser. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
         /// <para> deletenop -- delete nop parser</para>
-        /// <para> deleteuselessjmp -- delete useless jmp, eg: JPM 2</para>
+        /// <para> deleteuselessjmp -- delete useless jmp parser, eg: JPM 2</para></param>
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script, string[] parsers)
         {
