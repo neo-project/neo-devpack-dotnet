@@ -5,7 +5,7 @@ using System.Text;
 namespace Neo.Compiler.MSIL
 {
     /// <summary>
-    /// 从ILCode 向小蚁 VM 转换的转换器
+    /// Convert IL to NeoVM opcode
     /// </summary>
     public partial class ModuleConverter
     {
@@ -126,13 +126,13 @@ namespace Neo.Compiler.MSIL
             if (i > 0 && i <= 16) return _Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
             return _ConvertPush(((BigInteger)i).ToByteArray(), src, to);
         }
+
         private int _ConvertPushI8WithConv(ILMethod from, long i, OpCode src, NeoMethod to)
         {
             var next = from.GetNextCodeAddr(src.addr);
             var code = from.body_Codes[next].code;
             BigInteger outv;
             if (code == CodeEx.Conv_U || code == CodeEx.Conv_U8)
-            //code == CodeEx.Conv_U1 || code ==CodeEx.Conv_U2 || code==CodeEx.Conv_U4|| code== CodeEx.Conv_U8)
             {
                 ulong v = (ulong)i;
                 outv = v;
@@ -168,7 +168,7 @@ namespace Neo.Compiler.MSIL
                 var call = from.body_Codes[next];
                 if (call.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::op_Implicit(System.UInt64)")
                 {
-                    //如果是ulong转型到biginteger，需要注意
+                    // Be careful with converting ulong to biginteger
                     ulong v = (ulong)i;
                     outv = v;
                     _ConvertPush(outv.ToByteArray(), src, to);
@@ -185,8 +185,8 @@ namespace Neo.Compiler.MSIL
             var next = from.GetNextCodeAddr(src.addr);
             var code = from.body_Codes[next].code;
             BigInteger outv;
+
             if (code == CodeEx.Conv_U || code == CodeEx.Conv_U8)
-            //code == CodeEx.Conv_U1 || code ==CodeEx.Conv_U2 || code==CodeEx.Conv_U4|| code== CodeEx.Conv_U8)
             {
                 ulong v = (uint)i;
                 outv = v;
@@ -228,13 +228,14 @@ namespace Neo.Compiler.MSIL
         {
             if (this.outModule.mapFields.Count > 255)
                 throw new Exception("too mush static fields");
+
             //insert init constvalue part
-            byte count = (byte)this.outModule.mapFields.Count;
-            //INITSSLOT with a u8 len
+            byte count = (byte)this.outModule.mapFields.Count; 
             if (count > 0)
             {
-                _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count });
+                _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count }); // INITSSLOT with a u8 len
             }
+
             foreach (var defvar in this.outModule.staticfieldsWithConstValue)
             {
                 if (this.outModule.mapFields.TryGetValue(defvar.Key, out NeoField field))
@@ -310,6 +311,7 @@ namespace Neo.Compiler.MSIL
                 _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
             }
         }
+
         private void _insertBeginCodeEntry(NeoMethod to)
         {
             byte paramcount = (byte)2;
@@ -321,7 +323,6 @@ namespace Neo.Compiler.MSIL
         {
             //no need to clear altstack.
 
-            ////移除深度临时栈
             //_Insert1(VM.OpCode.FROMALTSTACK, "endcode", to);
             //_Insert1(VM.OpCode.DROP, "", to);
         }
