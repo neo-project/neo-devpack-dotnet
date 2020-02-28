@@ -230,7 +230,7 @@ namespace Neo.Compiler.MSIL
                 throw new Exception("too mush static fields");
 
             //insert init constvalue part
-            byte count = (byte)this.outModule.mapFields.Count; 
+            byte count = (byte)this.outModule.mapFields.Count;
             if (count > 0)
             {
                 _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count }); // INITSSLOT with a u8 len
