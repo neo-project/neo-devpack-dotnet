@@ -28,7 +28,7 @@ namespace Neo.Compiler.Optimizer
         public static byte[] Optimize(byte[] script, string[] parsers)
         {
             var optimizer = new NefOptimizer();
-                
+
             if (parsers.Contains("deletedeadcode"))
             {
                 optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
