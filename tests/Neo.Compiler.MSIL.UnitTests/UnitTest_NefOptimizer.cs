@@ -181,11 +181,15 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(5));       // ───┐
             scriptBefore.Emit(VM.OpCode.PUSH1);                      // <──┘
 
+            // useshortaddress before deleteuselessjmp
             var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new string[] { "useshortaddress", "deleteuselessjmp" });
 
             using var scriptAfter = new ScriptBuilder();
             scriptAfter.Emit(VM.OpCode.PUSH1);
+            CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
+            // deleteuselessjmp before useshortaddress
+            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new string[] { "deleteuselessjmp", "useshortaddress" });
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
             // use deleteuselessjmp only

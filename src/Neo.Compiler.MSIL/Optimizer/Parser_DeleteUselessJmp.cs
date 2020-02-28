@@ -8,7 +8,8 @@ namespace Neo.Compiler.Optimizer
     {
         private uint OptimizedCount = 0;
 
-        public bool HasChangedAddress => OptimizedCount > 0;
+        public bool NeedRightAddress => true;
+        public bool WillChangeAddress => OptimizedCount > 0;
 
         /// <summary>
         /// Parse

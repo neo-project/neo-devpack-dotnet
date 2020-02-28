@@ -37,12 +37,18 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         public void Optimize()
         {
+            bool dirty = false;
             for (var i = 0; i < OptimizeFunctions.Count; i++)
             {
                 var func = OptimizeFunctions[i];
-                func.Parse(Items);
-                if (func.HasChangedAddress)
+                if (dirty && func.NeedRightAddress)
+                {
                     RefillAddr();
+                    dirty = false;
+                }
+                func.Parse(Items);
+                if (func.WillChangeAddress)
+                    dirty = true;
             }
         }
 
