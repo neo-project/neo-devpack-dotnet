@@ -1,11 +1,10 @@
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
     public static class NefOptimizeTool
     {
-        private static NefOptimizer _optimizer;
-
         /// <summary>
         /// Optimize
         /// </summary>
@@ -13,29 +12,53 @@ namespace Neo.Compiler.Optimizer
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script)
         {
-            if (_optimizer == null)
-            {
-                _optimizer = new NefOptimizer();
+            return Optimize(script, new string[] { "deletedeadcode", "useshortaddress" });
+        }
 
-                // Delete dead code include delete Nop
-                //_optimizer.AddOptimizeParser(new Parser_DeleteNop());
-                _optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
-                _optimizer.AddOptimizeParser(new Parser_UseShortAddress());
-                _optimizer.AddOptimizeParser(new Parser_DeleteUselessJmp());
+        /// <summary>
+        /// Optimize
+        /// </summary>
+        /// <param name="script">Script</param>
+        /// <param name="parsers">Optmize parser, currently, there are four parsers:
+        /// <para> deletedeadcode -- delete dead code parser, default parser</para>
+        /// <para> useshortaddress -- use short address. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
+        /// <para> deletenop -- delete nop parser</para>
+        /// <para> deleteuselessjmp -- delete useless jmp, eg: JPM 2</para>
+        /// <returns>Optimized script</returns>
+        public static byte[] Optimize(byte[] script, string[] parsers)
+        {
+            var optimizer = new NefOptimizer();
+                
+            if (parsers.Contains("deletedeadcode"))
+            {
+                optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
+            }
+            if (parsers.Contains("useshortaddress"))
+            {
+                optimizer.AddOptimizeParser(new Parser_UseShortAddress());
+            }
+
+            if (parsers.Contains("deletenop"))
+            {
+                optimizer.AddOptimizeParser(new Parser_DeleteNop());
+            }
+            if (parsers.Contains("deleteuselessjmp"))
+            {
+                optimizer.AddOptimizeParser(new Parser_DeleteUselessJmp());
             }
 
             //step01 Load
             using (var ms = new MemoryStream(script))
             {
-                _optimizer.LoadNef(ms);
+                optimizer.LoadNef(ms);
             }
             //step02 doOptimize
-            _optimizer.Optimize();
+            optimizer.Optimize();
 
             //step03 link
             using (var ms = new MemoryStream())
             {
-                _optimizer.LinkNef(ms);
+                optimizer.LinkNef(ms);
                 var bytes = ms.ToArray();
                 return bytes;
             }

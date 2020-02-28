@@ -5,7 +5,10 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_DeleteNop : IOptimizeParser
     {
-        public bool NeedRightAddr => false;
+        private uint OptimizedCount = 0;
+
+        public bool HasChangedAddress => OptimizedCount > 0;
+
 
         /// <summary>
         /// Parse
@@ -18,6 +21,7 @@ namespace Neo.Compiler.Optimizer
                 if (items[x] is NefInstruction ins && ins.OpCode == OpCode.NOP)
                 {
                     items.RemoveAt(x);
+                    OptimizedCount++;
                 }
             }
         }

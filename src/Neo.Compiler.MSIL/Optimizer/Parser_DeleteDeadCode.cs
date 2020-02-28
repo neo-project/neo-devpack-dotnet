@@ -4,7 +4,9 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_DeleteDeadCode : IOptimizeParser
     {
-        public bool NeedRightAddr => true;
+        private uint OptimizedCount = 0;
+
+        public bool HasChangedAddress => OptimizedCount > 0;
 
         public void Parse(List<INefItem> items)
         {
@@ -20,7 +22,10 @@ namespace Neo.Compiler.Optimizer
                 if (!(items[i] is NefInstruction inst))
                     continue;
                 if (!reachableAddrs.Contains(inst.Offset))
+                {
                     items.RemoveAt(i);
+                    OptimizedCount++;
+                }
             }
         }
 
@@ -30,7 +35,6 @@ namespace Neo.Compiler.Optimizer
             {
                 if (!(items[i] is NefInstruction inst)) continue;
                 if (inst.Offset < beginAddr) continue;
-
                 if (inst.OpCode == OpCode.NOP) continue; // NOP never touch
 
                 if (!reachableAddrs.Contains(inst.Offset))

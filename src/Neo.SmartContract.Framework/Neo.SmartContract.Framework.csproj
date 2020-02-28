@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
     <Company>The Neo Project</Company>
     <Description>Neo.SmartContract.Framework</Description>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
 </Project>

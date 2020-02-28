@@ -5,7 +5,9 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_UseShortAddress : IOptimizeParser
     {
-        public bool NeedRightAddr => false;
+        private uint OptimizedCount = 0;
+
+        public bool HasChangedAddress => OptimizedCount > 0;
 
         private bool Is8BitAddress(NefInstruction inst)
         {
@@ -41,6 +43,8 @@ namespace Neo.Compiler.Optimizer
                     //No need to do anything here.
 
                     //Link will fill right Address
+
+                    OptimizedCount++;
                 }
             }
         }

@@ -6,7 +6,9 @@ namespace Neo.Compiler.Optimizer
 {
     class Parser_DeleteUselessJmp : IOptimizeParser
     {
-        public bool NeedRightAddr => false;
+        private uint OptimizedCount = 0;
+
+        public bool HasChangedAddress => OptimizedCount > 0;
 
         /// <summary>
         /// Parse
@@ -26,13 +28,21 @@ namespace Neo.Compiler.Optimizer
                     case OpCode.JMP:
                         {
                             // Jump always to the next instruction
-                            if (ins.Data[0] == 2) items.RemoveAt(x);
+                            if (ins.Data[0] == 2)
+                            {
+                                items.RemoveAt(x);
+                                OptimizedCount++;
+                            }
                             break;
                         }
                     case OpCode.JMP_L:
                         {
                             // Jump always to the next instruction
-                            if (BitConverter.ToInt32(ins.Data) == 5) items.RemoveAt(x);
+                            if (BitConverter.ToInt32(ins.Data) == 5)
+                            {
+                                items.RemoveAt(x);
+                                OptimizedCount++;
+                            }
                             break;
                         }
                 }

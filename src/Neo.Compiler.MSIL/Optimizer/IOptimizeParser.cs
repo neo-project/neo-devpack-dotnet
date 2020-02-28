@@ -4,7 +4,7 @@ namespace Neo.Compiler.Optimizer
 {
     public interface IOptimizeParser
     {
-        bool NeedRightAddr { get; }
+        bool HasChangedAddress { get; }
 
         /// <summary>
         /// Parse items

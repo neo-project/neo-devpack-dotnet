@@ -40,9 +40,9 @@ namespace Neo.Compiler.Optimizer
             for (var i = 0; i < OptimizeFunctions.Count; i++)
             {
                 var func = OptimizeFunctions[i];
-                if (i > 0 && func.NeedRightAddr)
-                    RefillAddr();
                 func.Parse(Items);
+                if (func.HasChangedAddress)
+                    RefillAddr();
             }
         }
 
