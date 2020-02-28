@@ -944,7 +944,6 @@ namespace Neo.Compiler.MSIL
                         //else
                         //    throw new Exception("neomachine currently supports only variable indexed bytearray attribution, example: byte[] source; int index = 0; byte b = 1; source[index] = b;");
                     } // end case
-                    break;
                 case CodeEx.Stelem_Any:
                 case CodeEx.Stelem_I:
                 //case CodeEx.Stelem_I1:
