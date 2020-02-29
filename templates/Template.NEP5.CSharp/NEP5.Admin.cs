@@ -14,7 +14,7 @@ namespace Template.NEP5.CSharp
             }
 
             StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
-            if (contract.Get("totalSupply").Length != 0)
+            if (contract.Get("totalSupply") != null)
                 throw new Exception("Contract already deployed");
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
