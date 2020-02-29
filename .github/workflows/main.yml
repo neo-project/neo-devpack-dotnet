@@ -26,9 +26,9 @@ jobs:
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.MSIL.UnitTests
-      run: dotnet test tests/Neo.Compiler.MSIL.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ /p:Exclude="[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests*]*"
+      run: dotnet test tests/Neo.Compiler.MSIL.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ /p:Exclude="[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*"
     - name: Test Neo.SmartContract.Framework.UnitTests
-      run: dotnet test tests/Neo.SmartContract.Framework.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude="[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests*]*" /p:CoverletOutputFormat=lcov
+      run: dotnet test tests/Neo.SmartContract.Framework.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude="[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*" /p:CoverletOutputFormat=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
