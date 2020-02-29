@@ -23,8 +23,10 @@ namespace Neo.Compiler.MSIL
         [TestMethod]
         public void Test_NoEntryPoint()
         {
-            using var testengine = new TestEngine();
-            Assert.AreEqual(0, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/NoContract.cs")).Count);
+            using (var testengine = new TestEngine())
+            {
+                Assert.AreEqual(0, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/NoContract.cs")).Count);
+            }
         }
     }
 }

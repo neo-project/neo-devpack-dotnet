@@ -8,15 +8,15 @@ namespace NEO.AllianceOfThinWallet.Cryptography
     public static class Base58
     {
         /// <summary>
-        /// base58编码的字母表
+        /// Base58 encode alphabet
         /// </summary>
         public const string Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
         /// <summary>
-        /// 解码
+        /// Decode
         /// </summary>
-        /// <param name="input">要解码的字符串</param>
-        /// <returns>返回解码后的字节数组</returns>
+        /// <param name="input">The string to decode</param>
+        /// <returns>Returns the decoded byte array</returns>
         public static byte[] Decode(string input)
         {
             BigInteger bi = BigInteger.Zero;
@@ -41,10 +41,10 @@ namespace NEO.AllianceOfThinWallet.Cryptography
         }
 
         /// <summary>
-        /// 编码
+        /// Encode
         /// </summary>
-        /// <param name="input">要编码的字节数组</param>
-        /// <returns>返回编码后的字符串</returns>
+        /// <param name="input">The bytearray to encode</param>
+        /// <returns>Returns the encoded string</returns>
         public static string Encode(byte[] input)
         {
             BigInteger value = new BigInteger(new byte[1].Concat(input).Reverse().ToArray());
