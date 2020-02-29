@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_autoentrypoint : SmartContract.Framework.SmartContract
     {

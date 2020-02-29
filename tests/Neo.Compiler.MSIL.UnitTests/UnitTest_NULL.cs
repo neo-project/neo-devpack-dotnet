@@ -1,9 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.MSIL.UnitTests
 {
     [TestClass]
     public class UnitTest_NULL

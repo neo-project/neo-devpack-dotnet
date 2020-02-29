@@ -6,7 +6,7 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {

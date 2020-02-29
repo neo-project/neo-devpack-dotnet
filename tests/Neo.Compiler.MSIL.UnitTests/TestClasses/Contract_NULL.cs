@@ -1,6 +1,7 @@
 using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework;
-namespace Neo.Compiler.MSIL.TestClasses
+
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_NULL : SmartContract.Framework.SmartContract
     {

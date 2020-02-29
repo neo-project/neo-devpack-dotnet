@@ -1,4 +1,4 @@
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_shift_bigint : SmartContract.Framework.SmartContract
     {
