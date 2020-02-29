@@ -87,7 +87,7 @@ namespace Template.NEP5.UnitTests
 
             snapshot.Storages.Add(new Neo.Ledger.StorageKey()
             {
-                ScriptHash = hash,
+                Id = 0,
                 Key = _prefixContract.Concat(Encoding.ASCII.GetBytes("totalSupply")).ToArray()
             },
             new Neo.Ledger.StorageItem()
@@ -144,7 +144,7 @@ namespace Template.NEP5.UnitTests
 
             snapshot.Storages.Add(new Neo.Ledger.StorageKey()
             {
-                ScriptHash = hash,
+                Id = 0,
                 Key = _prefixBalance.Concat(address).ToArray()
             },
             new Neo.Ledger.StorageItem()

@@ -15,6 +15,7 @@ namespace Neo.Compiler.MSIL.Utils
         private DataCache<SerializableWrapper<uint>, HeaderHashList> _HeaderHashList = new TestDataCache<SerializableWrapper<uint>, HeaderHashList>();
         private MetaDataCache<HashIndexState> _BlockHashIndex = new TestMetaDataCache<HashIndexState>();
         private MetaDataCache<HashIndexState> _HeaderHashIndex = new TestMetaDataCache<HashIndexState>();
+        private MetaDataCache<ContractIdState> _ContractId = new TestMetaDataCache<ContractIdState>();
 
         public override DataCache<UInt256, TrimmedBlock> Blocks => _Blocks;
 
@@ -29,6 +30,8 @@ namespace Neo.Compiler.MSIL.Utils
         public override MetaDataCache<HashIndexState> BlockHashIndex => _BlockHashIndex;
 
         public override MetaDataCache<HashIndexState> HeaderHashIndex => _HeaderHashIndex;
+
+        public override MetaDataCache<ContractIdState> ContractId => _ContractId;
 
         /// <summary>
         /// Set Persisting block for unit test
