@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Copyright>2015-2019 The Neo Project</Copyright>
@@ -6,9 +6,6 @@
     <Version>3.0.0-preview1</Version>
     <Authors>The Neo Project</Authors>
     <TargetFrameworks>netcoreapp3.1;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <NullableContextOptions>enable</NullableContextOptions>
     <OutputType>Exe</OutputType>
     <AssemblyName>neon</AssemblyName>
     <PackageId>Neo.Compiler.MSIL</PackageId>
@@ -22,16 +19,14 @@
     <Product>Neo.Compiler.MSIL</Product>
     <Description>Neo.Compiler.MSIL</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.1" />
     <PackageReference Include="Neo" Version="3.0.0-CI00848" />
-    <PackageReference Include="Neo.VM" Version="3.0.0-CI00206" />
+    <PackageReference Include="Neo.VM" Version="3.0.0-CI00205" />
   </ItemGroup>
 
   <ItemGroup>
