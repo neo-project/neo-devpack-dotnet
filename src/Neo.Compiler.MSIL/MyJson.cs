@@ -47,6 +47,7 @@ namespace Neo.Compiler
                 return new JsonNode_ValueNumber();
             }
         }
+
         public class ScanObj
         {
             public string json;
@@ -78,11 +79,8 @@ namespace Neo.Compiler
 
         public interface IJsonNode
         {
-            JsonType type
-            {
-                get;
+            JsonType type { get; }
 
-            }
             void ConvertToString(StringBuilder sb);
 
             void ConvertToStringPhp(StringBuilder sb);
@@ -95,36 +93,52 @@ namespace Neo.Compiler
 
             IJsonNode Get(string path);
 
-            //增加大量快速访问方法
-            IJsonNode GetArrayItem(int index);
+            IJsonNode GetArrayItem(int index); // fast access
+
             IJsonNode GetDictItem(string key);
 
             void AddArrayValue(IJsonNode node);
+
             void AddArrayValue(double value);
+
             void AddArrayValue(bool value);
+
             void AddArrayValue(string value);
 
             void SetArrayValue(int index, IJsonNode node);
+
             void SetArrayValue(int index, double value);
+
             void SetArrayValue(int index, bool value);
+
             void SetArrayValue(int index, string value);
 
             void SetDictValue(string key, IJsonNode node);
+
             void SetDictValue(string key, double value);
+
             void SetDictValue(string key, bool value);
+
             void SetDictValue(string key, string value);
 
             void SetValue(double value);
+
             void SetValue(string value);
+
             void SetValue(bool value);
 
             double AsDouble();
+
             int AsInt();
+
             bool AsBool();
 
             bool IsNull();
+
             String AsString();
+
             IList<IJsonNode> AsList();
+
             IDictionary<string, IJsonNode> asDict();
 
             bool HaveDictItem(string key);
@@ -136,43 +150,36 @@ namespace Neo.Compiler
         {
             public JsonNode_ValueNumber()
             {
-
             }
+
             public JsonNode_ValueNumber(double value)
             {
                 this.value = value;
                 this.isBool = false;
             }
+
             public JsonNode_ValueNumber(bool value)
             {
                 this.value = value ? 1 : 0;
                 this.isBool = true;
             }
-            public double value
-            {
-                get;
-                set;
-            }
-            public bool isBool
-            {
-                get;
-                private set;
-            }
-            public bool isNull
-            {
-                get;
-                private set;
-            }
+
+            public double value { get; set; }
+            public bool isBool { get; private set; }
+            public bool isNull { get; private set; }
+
             public void SetNull()
             {
                 this.isNull = true;
                 this.isBool = false;
             }
+
             public void SetBool(bool v)
             {
                 this.value = v ? 1 : 0;
                 this.isBool = true;
             }
+
             public override string ToString()
             {
                 if (isBool)
@@ -196,27 +203,28 @@ namespace Neo.Compiler
                     return JsonType.Value_Number;
                 }
             }
+
             public void ConvertToString(StringBuilder sb)
             {
                 sb.Append(ToString());
             }
+
             public void ConvertToStringWithFormat(StringBuilder sb, int spacesub)
             {
-                //for (int i = 0; i < space; i++)
-                //    sb.Append(' ');
                 ConvertToString(sb);
             }
+
             public void ConvertToStringPhp(StringBuilder sb)
             {
 
                 sb.Append(ToString());
             }
+
             public void ConvertToStringPhpWithFormat(StringBuilder sb, int spacesub)
             {
-                //for (int i = 0; i < space; i++)
-                //    sb.Append(' ');
                 ConvertToStringPhp(sb);
             }
+
             public void Scan(MyJson.ScanObj scan)
             {
                 string number = "";
@@ -256,18 +264,22 @@ namespace Neo.Compiler
                     isBool = false;
                 }
             }
+
             public static implicit operator double(JsonNode_ValueNumber m)
             {
                 return m.value;
             }
+
             public static implicit operator float(JsonNode_ValueNumber m)
             {
                 return (float)m.value;
             }
+
             public static implicit operator int(JsonNode_ValueNumber m)
             {
                 return (int)m.value;
             }
+
             public static implicit operator uint(JsonNode_ValueNumber m)
             {
                 return (uint)m.value;
@@ -277,8 +289,6 @@ namespace Neo.Compiler
             {
                 return (uint)m.value != 0;
             }
-
-
             public IJsonNode Get(string path)
             {
                 if (string.IsNullOrEmpty(path)) return this;
@@ -379,14 +389,14 @@ namespace Neo.Compiler
             {
                 if (!this.isNull && !this.isBool)
                     return this.value;
-                throw new Exception("Value type 不同");
+                throw new Exception("Different value type");
             }
 
             public int AsInt()
             {
                 if (!this.isNull && !this.isBool)
                     return (int)this.value;
-                throw new Exception("Value type 不同");
+                throw new Exception("Different value type");
             }
 
             public bool AsBool()
@@ -395,7 +405,7 @@ namespace Neo.Compiler
                 {
                     return (uint)value != 0;
                 }
-                throw new Exception("Value type 不同");
+                throw new Exception("Different value type");
             }
 
             public bool IsNull()
@@ -418,7 +428,6 @@ namespace Neo.Compiler
                 throw new NotImplementedException();
             }
 
-
             public bool HaveDictItem(string key)
             {
                 throw new NotImplementedException();
@@ -429,21 +438,20 @@ namespace Neo.Compiler
                 throw new NotImplementedException();
             }
         }
+
         public class JsonNode_ValueString : IJsonNode
         {
             public JsonNode_ValueString()
             {
-
             }
+
             public JsonNode_ValueString(string value)
             {
                 this.value = value;
             }
-            public string value
-            {
-                get;
-                set;
-            }
+
+            public string value { get; set; }
+
             public override string ToString()
             {
                 return value;
@@ -456,6 +464,7 @@ namespace Neo.Compiler
                     return JsonType.Value_String;
                 }
             }
+
             public void ConvertToString(StringBuilder sb)
             {
                 sb.Append('\"');
@@ -467,12 +476,12 @@ namespace Neo.Compiler
                 }
                 sb.Append('\"');
             }
+
             public void ConvertToStringWithFormat(StringBuilder sb, int spacesub)
             {
-                //for (int i = 0; i < space; i++)
-                //    sb.Append(' ');
                 ConvertToString(sb);
             }
+
             public void ConvertToStringPhp(StringBuilder sb)
             {
                 sb.Append('\"');
@@ -484,12 +493,12 @@ namespace Neo.Compiler
                 }
                 sb.Append('\"');
             }
+
             public void ConvertToStringPhpWithFormat(StringBuilder sb, int spacesub)
             {
-                //for (int i = 0; i < space; i++)
-                //    sb.Append(' ');
                 ConvertToStringPhp(sb);
             }
+
             public void Scan(MyJson.ScanObj scan)
             {
                 string _value = "";
@@ -523,15 +532,12 @@ namespace Neo.Compiler
                 return m.value;
             }
 
-
-
             public IJsonNode Get(string path)
             {
                 if (string.IsNullOrEmpty(path)) return this;
 
                 return null;
             }
-
 
             public IJsonNode GetArrayItem(int index)
             {
@@ -653,7 +659,6 @@ namespace Neo.Compiler
                 throw new NotImplementedException();
             }
 
-
             public bool HaveDictItem(string key)
             {
                 throw new NotImplementedException();
@@ -671,12 +676,14 @@ namespace Neo.Compiler
             {
                 get { return JsonType.Array; }
             }
+
             public override string ToString()
             {
                 StringBuilder sb = new StringBuilder();
                 ConvertToString(sb);
                 return sb.ToString();
             }
+
             public void ConvertToString(StringBuilder sb)
             {
                 sb.Append('[');
@@ -688,6 +695,7 @@ namespace Neo.Compiler
                 }
                 sb.Append(']');
             }
+
             public void ConvertToStringWithFormat(StringBuilder sb, int spacesub)
             {
                 for (int _i = 0; _i < spacesub; _i++)
@@ -710,12 +718,11 @@ namespace Neo.Compiler
                         sb.Append(',');
                     sb.Append('\n');
                 }
-                //for (int _i = 0; _i < space; _i++)
-                //    sb.Append(' ');
                 for (int _i = 0; _i < spacesub; _i++)
                     sb.Append(' ');
                 sb.Append(']');
             }
+
             public void ConvertToStringPhp(StringBuilder sb)
             {
                 sb.Append("Array(");
@@ -727,10 +734,9 @@ namespace Neo.Compiler
                 }
                 sb.Append(')');
             }
+
             public void ConvertToStringPhpWithFormat(StringBuilder sb, int spacesub)
             {
-                //for (int _i = 0; _i < space; _i++)
-                //    sb.Append(' ');
                 sb.Append("Array(\n");
                 for (int i = 0; i < this.Count; i++)
                 {
@@ -742,12 +748,11 @@ namespace Neo.Compiler
                         sb.Append(',');
                     sb.Append('\n');
                 }
-                //for (int _i = 0; _i < space; _i++)
-                //    sb.Append(' ');
                 for (int _i = 0; _i < spacesub; _i++)
                     sb.Append(' ');
                 sb.Append(')');
             }
+
             public void Scan(MyJson.ScanObj scan)
             {
                 for (int i = scan.seed + 1; i < scan.json.Length; i++)
@@ -768,7 +773,6 @@ namespace Neo.Compiler
                         i = scan.seed - 1;
                         this.Add(node);
                     }
-
                 }
             }
 
@@ -810,14 +814,9 @@ namespace Neo.Compiler
                     {
                         return GetFirstKey02(path, i, out nextpath);
                     }
-
                 }
-
                 return -1;
-
-
             }
-
 
             public IJsonNode Get(string path)
             {
@@ -953,7 +952,6 @@ namespace Neo.Compiler
                 throw new NotImplementedException();
             }
 
-
             public bool HaveDictItem(string key)
             {
                 throw new NotImplementedException();
@@ -964,18 +962,21 @@ namespace Neo.Compiler
                 return this.Count;
             }
         }
+
         public class JsonNode_Object : Dictionary<string, IJsonNode>, IJsonNode
         {
             public JsonType type
             {
                 get { return JsonType.Object; }
             }
+
             public override string ToString()
             {
                 StringBuilder sb = new StringBuilder();
                 ConvertToString(sb);
                 return sb.ToString();
             }
+
             public void ConvertToString(StringBuilder sb)
             {
                 sb.Append('{');
@@ -991,6 +992,7 @@ namespace Neo.Compiler
                 }
                 sb.Append('}');
             }
+
             public void ConvertToStringWithFormat(StringBuilder sb, int spacesub)
             {
                 for (int _i = 0; _i < spacesub; _i++)
@@ -1012,12 +1014,11 @@ namespace Neo.Compiler
                     if (i != 0) sb.Append(',');
                     sb.Append('\n');
                 }
-                //for (int _i = 0; _i < space; _i++)
-                //    sb.Append(' ');
                 for (int _i = 0; _i < spacesub; _i++)
                     sb.Append(' ');
                 sb.Append('}');
             }
+
             public void ConvertToStringPhp(StringBuilder sb)
             {
                 sb.Append("Array(");
@@ -1033,10 +1034,9 @@ namespace Neo.Compiler
                 }
                 sb.Append(')');
             }
+
             public void ConvertToStringPhpWithFormat(StringBuilder sb, int spacesub)
             {
-                //for (int _i = 0; _i < space; _i++)
-                //    sb.Append(' ');
                 sb.Append("Array(\n");
                 int i = Count;
                 foreach (var item in this)
@@ -1052,39 +1052,15 @@ namespace Neo.Compiler
                     if (i != 0) sb.Append(',');
                     sb.Append('\n');
                 }
-                //for (int _i = 0; _i < space; _i++)
-                //    sb.Append(' ');
                 for (int _i = 0; _i < spacesub; _i++)
                     sb.Append(' ');
                 sb.Append(')');
             }
-            //public MyJson.IJsonNode  this[string key]
-            //{
-            //    get
-            //    {
-            //        if (this.ContainsKey(key))
-            //        {
-            //            return base[key];
-            //        }
-
-            //        throw new Exception("key not exist");
-
-            //    }
-            //    set
-            //    {
-            //        if (value == null)
-            //        {
-
-            //            throw new Exception("value is null. key:"+key);
-            //        }
-            //        base[key] = value;
-            //    }
-            //}
 
             public void Scan(MyJson.ScanObj scan)
             {
                 string key = null;
-                int keystate = 0;//0 nokey 1scankey 2gotkey
+                int keystate = 0; //0 nokey 1scankey 2gotkey
                 for (int i = scan.seed + 1; i < scan.json.Length; i++)
                 {
                     char c = scan.json[i];
@@ -1108,7 +1084,6 @@ namespace Neo.Compiler
                         if (c == '\"')
                         {
                             keystate = 2;
-                            //scan.seed = i + 1;
                             continue;
                         }
                         else
@@ -1128,9 +1103,9 @@ namespace Neo.Compiler
                             keystate = 0;
                         }
                     }
-
                 }
             }
+
             public string GetFirstKey01(string path, int start, out string nextpath)
             {
                 for (int i = start + 1; i < path.Length; i++)
@@ -1146,6 +1121,7 @@ namespace Neo.Compiler
                 nextpath = null;
                 return null;
             }
+
             public string GetFirstKey02(string path, int start, out string nextpath)
             {
                 string _path = null;
@@ -1173,6 +1149,7 @@ namespace Neo.Compiler
                 nextpath = null;
                 return null;
             }
+
             public string GetFirstKey(string path, out string nextpath)
             {
                 nextpath = null;
@@ -1194,7 +1171,6 @@ namespace Neo.Compiler
                     }
                     else
                     {
-
                         int iend1 = path.IndexOf('[', i + 1);
                         if (iend1 == -1) iend1 = path.Length;
                         int iend2 = path.IndexOf('.', i + 1);
@@ -1205,26 +1181,17 @@ namespace Neo.Compiler
                         nextpath = path.Substring(iss);
                         return _path;
                     }
-
                 }
-
                 return null;
-
-
             }
+
             public IJsonNode Get(string path)
             {
                 if (path.Length == 0) return this;
                 string key = GetFirstKey(path, out string nextpath);
-                if (this.ContainsKey(key))
-                {
-                    return this[key].Get(nextpath);
-                }
-                else
-                {
-                    return null;
-                }
+                if (!this.ContainsKey(key)) return null;
 
+                return this[key].Get(nextpath);
             }
 
             public IJsonNode GetArrayItem(int index)
@@ -1346,7 +1313,6 @@ namespace Neo.Compiler
             {
                 return this;
             }
-
 
             public bool HaveDictItem(string key)
             {
