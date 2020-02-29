@@ -58,7 +58,7 @@ namespace Template.NEP5.CSharp
                 throw new Exception();
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            Transaction tx = Blockchain.GetCurrentTransaction();
+            Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
             var balance = balances.Get(tx.Sender).AsBigInteger();
             balances.Put(tx.Sender, balance + contribution);
             contract.Put("totalSupply", current_supply + contribution);
