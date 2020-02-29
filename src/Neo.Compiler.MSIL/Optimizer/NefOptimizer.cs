@@ -46,6 +46,7 @@ namespace Neo.Compiler.Optimizer
                     RefillAddr();
                     dirty = false;
                 }
+                func.Init();
                 func.Parse(Items);
                 if (func.WillChangeAddress)
                     dirty = true;

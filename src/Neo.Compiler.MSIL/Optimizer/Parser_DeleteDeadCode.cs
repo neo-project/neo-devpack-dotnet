@@ -9,6 +9,11 @@ namespace Neo.Compiler.Optimizer
         public bool NeedRightAddress => true;
         public bool WillChangeAddress => OptimizedCount > 0;
 
+        public void Init()
+        {
+            OptimizedCount = 0;
+        }
+
         public void Parse(List<INefItem> items)
         {
             List<int> reachableAddrs = new List<int>();

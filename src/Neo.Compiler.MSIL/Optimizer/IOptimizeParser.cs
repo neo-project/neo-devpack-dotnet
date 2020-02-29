@@ -7,6 +7,8 @@ namespace Neo.Compiler.Optimizer
         bool NeedRightAddress { get; }
         bool WillChangeAddress { get; }
 
+        void Init();
+
         /// <summary>
         /// Parse items
         /// </summary>

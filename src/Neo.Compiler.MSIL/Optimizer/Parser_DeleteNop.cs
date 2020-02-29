@@ -10,6 +10,11 @@ namespace Neo.Compiler.Optimizer
         public bool NeedRightAddress => false;
         public bool WillChangeAddress => OptimizedCount > 0;
 
+        public void Init()
+        {
+            OptimizedCount = 0;
+        }
+
         /// <summary>
         /// Parse
         /// </summary>
