@@ -169,7 +169,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             {
                 Console.WriteLine("dump:");
-                foreach (var c in this.converterIL.outModule.total_Codes)
+                foreach (var c in this.converterIL.outModule.totalCodes)
                 {
                     var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
                     if (c.Value.bytes != null && c.Value.bytes.Length > 0)
