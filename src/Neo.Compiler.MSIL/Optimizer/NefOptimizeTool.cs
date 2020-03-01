@@ -1,5 +1,5 @@
+using System;
 using System.IO;
-using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
@@ -12,7 +12,7 @@ namespace Neo.Compiler.Optimizer
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script)
         {
-            return Optimize(script, new string[] { "deletedeadcode", "useshortaddress" });
+            return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS });
         }
 
         /// <summary>
@@ -20,31 +20,25 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         /// <param name="script">Script</param>
         /// <param name="parsers">Optmize parser, currently, there are four parsers:
-        /// <para> deletedeadcode -- delete dead code parser, default parser</para>
-        /// <para> useshortaddress -- use short address parser. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
-        /// <para> deletenop -- delete nop parser</para>
-        /// <para> deleteuselessjmp -- delete useless jmp parser, eg: JPM 2</para></param>
+        /// <para> DELETE_DEAD_CODDE -- delete dead code parser, default parser</para>
+        /// <para> USE_SHORT_ADDRESS -- use short address parser. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
+        /// <para> DELETE_NOP -- delete nop parser</para>
+        /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para></param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, string[] parsers)
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes)
         {
             var optimizer = new NefOptimizer();
 
-            if (parsers.Contains("deletedeadcode"))
+            foreach(var parserType in parserTypes)
             {
-                optimizer.AddOptimizeParser(new Parser_DeleteDeadCode());
-            }
-            if (parsers.Contains("useshortaddress"))
-            {
-                optimizer.AddOptimizeParser(new Parser_UseShortAddress());
-            }
+                object[] objAttrs = parserType.GetType().GetField(parserType.ToString()).GetCustomAttributes(typeof(OptimizeParserAttribute), false);
+                if (objAttrs is null || objAttrs.Length == 0) continue;
 
-            if (parsers.Contains("deletenop"))
-            {
-                optimizer.AddOptimizeParser(new Parser_DeleteNop());
-            }
-            if (parsers.Contains("deleteuselessjmp"))
-            {
-                optimizer.AddOptimizeParser(new Parser_DeleteUselessJmp());
+                var attribute = (OptimizeParserAttribute)objAttrs[0];
+                var obj = Activator.CreateInstance(attribute.Type);
+                if (obj is null) continue;
+                IOptimizeParser parser = (IOptimizeParser)obj;
+                optimizer.AddOptimizeParser(parser);
             }
 
             //step01 Load

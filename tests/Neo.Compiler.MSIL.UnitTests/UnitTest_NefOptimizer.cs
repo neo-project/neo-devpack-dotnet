@@ -182,18 +182,18 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.PUSH1);                      // <──┘
 
             // useshortaddress before deleteuselessjmp
-            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new string[] { "useshortaddress", "deleteuselessjmp" });
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS, OptimizeParserType.DELETE_USERLESS_JMP });
 
             using var scriptAfter = new ScriptBuilder();
             scriptAfter.Emit(VM.OpCode.PUSH1);
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
             // deleteuselessjmp before useshortaddress
-            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new string[] { "deleteuselessjmp", "useshortaddress" });
+            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USERLESS_JMP, OptimizeParserType.USE_SHORT_ADDRESS });
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
             // use deleteuselessjmp only
-            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new string[] { "deleteuselessjmp" });
+            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USERLESS_JMP });
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
         }
 
@@ -204,7 +204,7 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(2));        // ───┐
             scriptBefore.Emit(VM.OpCode.PUSH1);                    // <──┘
 
-            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new string[] { "deleteuselessjmp" });
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USERLESS_JMP });
 
             using var scriptAfter = new ScriptBuilder();
             scriptAfter.Emit(VM.OpCode.PUSH1);
