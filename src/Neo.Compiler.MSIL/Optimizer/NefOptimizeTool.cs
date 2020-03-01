@@ -29,7 +29,7 @@ namespace Neo.Compiler.Optimizer
         {
             var optimizer = new NefOptimizer();
 
-            foreach(var parserType in parserTypes)
+            foreach (var parserType in parserTypes)
             {
                 object[] objAttrs = parserType.GetType().GetField(parserType.ToString()).GetCustomAttributes(typeof(OptimizeParserAttribute), false);
                 if (objAttrs is null || objAttrs.Length == 0) continue;
