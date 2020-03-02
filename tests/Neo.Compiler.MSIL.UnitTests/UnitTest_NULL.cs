@@ -1,9 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.MSIL.UnitTests
 {
     [TestClass]
     public class UnitTest_NULL
@@ -36,6 +36,17 @@ namespace Neo.Compiler.MSIL
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.ToBoolean());
+        }
+
+        [TestMethod]
+        public void IfNull()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("ifNull", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.IsFalse(item.ToBoolean());
         }
 

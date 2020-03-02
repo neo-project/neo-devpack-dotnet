@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
@@ -47,7 +47,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(SmartContract.TriggerType.Application, new DummyVerificable());
+            _engine = new TestEngine(TriggerType.Application, new DummyVerificable());
             _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
             scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash().ToArray().ToHexString();
         }
