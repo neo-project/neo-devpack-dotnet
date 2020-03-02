@@ -1,4 +1,6 @@
+using CommandLine;
 using Neo.Compiler.MSIL;
+using Neo.Compiler.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
@@ -11,24 +13,28 @@ namespace Neo.Compiler
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public class Options
+        {
+            [Option('f', "file", Required = true, HelpText = "File for compile.")]
+            public string File { get; set; }
+
+            [Option('o', "optimize", Required = true, HelpText = "Optimize.")]
+            public bool Optimize { get; set; } = false;
+        }
+
+        public static void Main(string[] args)
+        {
+            Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Compile(o));
+        }
+
+        public static int Compile(Options options)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            // Check argmuents
-            if (args.Length == 0)
-            {
-                log.Log("You need a parameter to specify the DLL or the file name of the project.");
-                log.Log("Examples: ");
-                log.Log("  neon mySmartContract.dll");
-                log.Log("  neon mySmartContract.csproj");
-                return -1;
-            }
-
-            var fileInfo = new FileInfo(args[0]);
+            var fileInfo = new FileInfo(options.File);
 
             // Set current directory
             if (!fileInfo.Exists)
@@ -154,6 +160,13 @@ namespace Neo.Compiler
                 module = conv.Convert(mod, option);
                 bytes = module.Build();
                 log.Log("convert succ");
+
+                if (options.Optimize)
+                {
+                    var optimize = NefOptimizeTool.Optimize(bytes);
+                    log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                    bytes = optimize;
+                }
 
                 try
                 {
