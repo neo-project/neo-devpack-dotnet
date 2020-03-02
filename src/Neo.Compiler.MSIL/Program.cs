@@ -24,10 +24,10 @@ namespace Neo.Compiler
 
         public static void Main(string[] args)
         {
-            Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Main(o));
+            Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Compile(o));
         }
 
-        public static int Main(Options options)
+        public static int Compile(Options options)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
