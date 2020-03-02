@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     internal static class NeonTestTool
     {
