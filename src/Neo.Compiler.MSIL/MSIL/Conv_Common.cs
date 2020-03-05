@@ -97,7 +97,7 @@ namespace Neo.Compiler.MSIL
         {
             if (i == 0) _Convert1by1(VM.OpCode.PUSH0, src, to);
             else if (i == -1) _Convert1by1(VM.OpCode.PUSHM1, src, to);
-            else if (i <= 16) _Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
+            else if (i > 0 && i <= 16) _Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
             else
             {
                 _ConvertPushDataArray(i.ToByteArray(), src, to);
