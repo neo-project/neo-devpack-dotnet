@@ -26,6 +26,5 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.IsTrue(arr[6].Type == StackItemType.ByteArray);
             Assert.IsTrue(arr[7].Type == StackItemType.Integer);
         }
-
     }
 }
