@@ -93,9 +93,27 @@ namespace Neo.Compiler.MSIL
             return _code;
         }
 
-        private NeoCode _ConvertPush(byte[] data, OpCode src, NeoMethod to)
+        private void _ConvertPushNumber(System.Numerics.BigInteger i, OpCode src, NeoMethod to)
         {
-            if (data.Length == 0) return _Convert1by1(VM.OpCode.PUSH0, src, to);
+            if (i == 0) _Convert1by1(VM.OpCode.PUSH0, src, to);
+            else if (i == -1) _Convert1by1(VM.OpCode.PUSHM1, src, to);
+            else if (i <= 16) _Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
+            else
+            {
+                _ConvertPushDataArray(i.ToByteArray(), src, to);
+                _Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Integer });
+            }
+        }
+        private void _ConvertPushBoolean(bool b, OpCode src, NeoMethod to)
+        {
+            if (!b)
+                _Convert1by1(VM.OpCode.PUSH0, src, to);
+            else
+                _Convert1by1(VM.OpCode.PUSH1, src, to);
+            _Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Boolean });
+        }
+        private void _ConvertPushDataArray(byte[] data, OpCode src, NeoMethod to)
+        {
             byte prefixLen;
             VM.OpCode code;
             if (data.Length <= byte.MaxValue)
@@ -116,15 +134,13 @@ namespace Neo.Compiler.MSIL
             byte[] bytes = new byte[data.Length + prefixLen];
             Buffer.BlockCopy(BitConverter.GetBytes(data.Length), 0, bytes, 0, prefixLen);
             Buffer.BlockCopy(data, 0, bytes, prefixLen, data.Length);
-            return _Convert1by1(code, src, to, bytes);
+            _Convert1by1(code, src, to, bytes);
         }
 
-        private NeoCode _ConvertPush(long i, OpCode src, NeoMethod to)
+        private void _ConvertPushString(string str, OpCode src, NeoMethod to)
         {
-            if (i == 0) return _Convert1by1(VM.OpCode.PUSH0, src, to);
-            if (i == -1) return _Convert1by1(VM.OpCode.PUSHM1, src, to);
-            if (i > 0 && i <= 16) return _Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
-            return _ConvertPush(((BigInteger)i).ToByteArray(), src, to);
+            var data = Encoding.UTF8.GetBytes(str);
+            _ConvertPushDataArray(data, src, to);
         }
 
         private int _ConvertPushI8WithConv(ILMethod from, long i, OpCode src, NeoMethod to)
@@ -136,14 +152,14 @@ namespace Neo.Compiler.MSIL
             {
                 ulong v = (ulong)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
             }
             else if (code == CodeEx.Conv_U1)
             {
                 byte v = (byte)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -151,7 +167,7 @@ namespace Neo.Compiler.MSIL
             {
                 ushort v = (ushort)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -159,7 +175,7 @@ namespace Neo.Compiler.MSIL
             {
                 uint v = (uint)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -171,12 +187,12 @@ namespace Neo.Compiler.MSIL
                     // Be careful with converting ulong to biginteger
                     ulong v = (ulong)i;
                     outv = v;
-                    _ConvertPush(outv.ToByteArray(), src, to);
+                    _ConvertPushNumber(outv, src, to);
                     return 1;
                 }
             }
 
-            _ConvertPush(i, src, to);
+            _ConvertPushNumber(i, src, to);
             return 0;
         }
 
@@ -190,14 +206,14 @@ namespace Neo.Compiler.MSIL
             {
                 ulong v = (uint)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
             }
             else if (code == CodeEx.Conv_U1)
             {
                 byte v = (byte)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -205,7 +221,7 @@ namespace Neo.Compiler.MSIL
             {
                 ushort v = (ushort)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -213,13 +229,13 @@ namespace Neo.Compiler.MSIL
             {
                 uint v = (uint)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                _ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
             else
             {
-                _ConvertPush(i, src, to);
+                _ConvertPushNumber(i, src, to);
                 return 0;
             }
         }
@@ -247,29 +263,27 @@ namespace Neo.Compiler.MSIL
                     if (_src is byte[])
                     {
                         var bytesrc = (byte[])_src;
-                        _ConvertPush(bytesrc, null, to);
+                        _ConvertPushDataArray(bytesrc, null, to);
                     }
                     else if (_src is int intsrc)
                     {
-                        _ConvertPush(intsrc, null, to);
+                        _ConvertPushNumber(intsrc, null, to);
                     }
                     else if (_src is long longsrc)
                     {
-                        _ConvertPush(longsrc, null, to);
+                        _ConvertPushNumber(longsrc, null, to);
                     }
                     else if (_src is bool bsrc)
                     {
-                        _ConvertPush(bsrc ? 1 : 0, null, to);
+                        _ConvertPushBoolean(bsrc, null, to);
                     }
                     else if (_src is string strsrc)
                     {
-                        var bytesrc = Encoding.UTF8.GetBytes(strsrc);
-                        _ConvertPush(bytesrc, null, to);
+                        _ConvertPushString(strsrc, null, to);
                     }
                     else if (_src is BigInteger bisrc)
                     {
-                        byte[] bytes = bisrc.ToByteArray();
-                        _ConvertPush(bytes, null, to);
+                        _ConvertPushNumber(bisrc, null, to);
                     }
                     else
                     {

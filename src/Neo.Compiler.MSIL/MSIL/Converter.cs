@@ -518,31 +518,31 @@ namespace Neo.Compiler.MSIL
                     skipcount = _ConvertPushI4WithConv(method, src.tokenI32, src, to);
                     break;
                 case CodeEx.Ldc_I4_0:
-                    _ConvertPush(0, src, to);
+                    _ConvertPushNumber(0, src, to);
                     break;
                 case CodeEx.Ldc_I4_1:
-                    _ConvertPush(1, src, to);
+                    _ConvertPushNumber(1, src, to);
                     break;
                 case CodeEx.Ldc_I4_2:
-                    _ConvertPush(2, src, to);
+                    _ConvertPushNumber(2, src, to);
                     break;
                 case CodeEx.Ldc_I4_3:
-                    _ConvertPush(3, src, to);
+                    _ConvertPushNumber(3, src, to);
                     break;
                 case CodeEx.Ldc_I4_4:
-                    _ConvertPush(4, src, to);
+                    _ConvertPushNumber(4, src, to);
                     break;
                 case CodeEx.Ldc_I4_5:
-                    _ConvertPush(5, src, to);
+                    _ConvertPushNumber(5, src, to);
                     break;
                 case CodeEx.Ldc_I4_6:
-                    _ConvertPush(6, src, to);
+                    _ConvertPushNumber(6, src, to);
                     break;
                 case CodeEx.Ldc_I4_7:
-                    _ConvertPush(7, src, to);
+                    _ConvertPushNumber(7, src, to);
                     break;
                 case CodeEx.Ldc_I4_8:
-                    _ConvertPush(8, src, to);
+                    _ConvertPushNumber(8, src, to);
                     break;
                 case CodeEx.Ldc_I4_M1:
                     skipcount = _ConvertPushI4WithConv(method, -1, src, to);
@@ -551,7 +551,7 @@ namespace Neo.Compiler.MSIL
                     skipcount = _ConvertPushI8WithConv(method, src.tokenI64, src, to);
                     break;
                 case CodeEx.Ldstr:
-                    _ConvertPush(Encoding.UTF8.GetBytes(src.tokenStr), src, to);
+                    _ConvertPushString(src.tokenStr, src, to);
                     break;
                 case CodeEx.Stloc_0:
                     _ConvertStLoc(method, src, to, 0);
@@ -1035,29 +1035,27 @@ namespace Neo.Compiler.MSIL
                             if (_src is byte[])
                             {
                                 var bytesrc = (byte[])_src;
-                                _ConvertPush(bytesrc, src, to);
+                                _ConvertPushDataArray(bytesrc, src, to);
                             }
                             else if (_src is int intsrc)
                             {
-                                _ConvertPush(intsrc, src, to);
+                                _ConvertPushNumber(intsrc, src, to);
                             }
                             else if (_src is long longsrc)
                             {
-                                _ConvertPush(longsrc, src, to);
+                                _ConvertPushNumber(longsrc, src, to);
                             }
                             else if (_src is bool bsrc)
                             {
-                                _ConvertPush(bsrc ? 1 : 0, src, to);
+                                _ConvertPushBoolean(bsrc, src, to);
                             }
                             else if (_src is string strsrc)
                             {
-                                var bytesrc = Encoding.UTF8.GetBytes(strsrc);
-                                _ConvertPush(bytesrc, src, to);
+                                _ConvertPushString(strsrc, src, to);
                             }
                             else if (_src is BigInteger bisrc)
                             {
-                                byte[] bytes = bisrc.ToByteArray();
-                                _ConvertPush(bytes, src, to);
+                                _ConvertPushNumber(bisrc, src, to);
                             }
                             else
                             {
