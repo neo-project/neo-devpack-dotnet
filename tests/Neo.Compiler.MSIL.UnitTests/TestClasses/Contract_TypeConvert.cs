@@ -9,30 +9,19 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
     class Contract_TypeConvert : SmartContract.Framework.SmartContract
     {
-        //Integer = 0x21,
-        //ByteArray = 0x28,
-        [OpCode(SmartContract.Framework.OpCode.CONVERT, "0x28")]
-        public extern static byte[] ConvertToByteArray(object from);
-
-
-        [OpCode(SmartContract.Framework.OpCode.CONVERT, "0x21")]
-        public extern static BigInteger ConvertToInteger(byte[] from);
-
-
-
 
         public static object testType()
         {
             BigInteger int0 = 0;
-            var bts0 = ConvertToByteArray(int0);
+            var bts0 = int0.AsByteArray();
             BigInteger int1 = 2;
-            var bts1 = ConvertToByteArray(int1);
+            var bts1 = int1.AsByteArray();
 
             var bts2=new byte[1] { 3 };
-            var int2 = ConvertToInteger(bts2);
+            var int2 = bts2.AsBigInteger();
 
             var bts3 = new byte[0];
-            var int3 = ConvertToInteger(bts3);
+            var int3 = bts3.AsBigInteger();
 
             var arrobj = new object[8];
             arrobj[0] = int0;

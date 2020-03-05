@@ -137,10 +137,11 @@ namespace Neo.Compiler.MSIL.UnitTests
             });
             {
                 var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
-                var item = result.Pop() as ByteArray;
-                System.ReadOnlySpan<byte> data = item;
-                var num = System.Text.Encoding.ASCII.GetString(data);
-                Assert.IsTrue(num == "111");
+                var item = result.Pop() as Integer;
+                var bts = System.Text.Encoding.ASCII.GetBytes("111");
+                var num = new System.Numerics.BigInteger(bts);
+
+                Assert.IsTrue(item.ToBigInteger() == num);
             }
         }
         [TestMethod]
