@@ -31,7 +31,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             var bts2=new byte[1] { 3 };
             var int2 = ConvertToInteger(bts2);
 
-            var bts3 = ConvertToByteArray(new byte[0]) ;
+            var bts3 = new byte[0];
             var int3 = ConvertToInteger(bts3);
 
             var arrobj = new object[8];
