@@ -181,7 +181,7 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
+            Assert.AreEqual(0, item.GetBigInteger());
         }
 
         [TestMethod]

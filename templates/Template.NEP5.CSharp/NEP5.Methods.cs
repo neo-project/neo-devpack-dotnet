@@ -18,7 +18,7 @@ namespace Template.NEP5.CSharp
             if (!ValidateAddress(account)) throw new FormatException("The parameter 'account' SHOULD be 20-byte addresses.");
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            return balances.Get(account).AsBigInteger();
+            return balances.Get(account)?.AsBigInteger() ?? 0;
         }
 
         private static bool Transfer(byte[] from, byte[] to, BigInteger amount)
@@ -44,7 +44,7 @@ namespace Template.NEP5.CSharp
                 balances.Put(from, fromAmount - amount);
             }
 
-            BigInteger toAmount = balances.Get(to).AsBigInteger();
+            BigInteger toAmount = balances.Get(to)?.AsBigInteger() ?? 0;
             balances.Put(to, toAmount + amount);
 
             OnTransfer(from, to, amount);
