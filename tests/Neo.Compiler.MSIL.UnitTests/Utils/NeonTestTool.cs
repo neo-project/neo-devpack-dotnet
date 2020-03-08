@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     internal static class NeonTestTool
     {
@@ -48,7 +48,7 @@ namespace Neo.Compiler.MSIL.Utils
         /// <param name="filename">File</param>
         /// <param name="releaseMode">Release mode (default=false)</param>
         /// <returns>BuildScript</returns>
-        public static BuildScript BuildScript(string filename, bool releaseMode = false)
+        public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
         {
             return BuildScript(new string[] { filename }, releaseMode);
         }
@@ -67,7 +67,7 @@ namespace Neo.Compiler.MSIL.Utils
             using (var streamPdb = new MemoryStream(comp.Pdb))
             {
                 var bs = new BuildScript();
-                bs.Build(streamDll, streamPdb);
+                bs.Build(streamDll, streamPdb, optimizer);
 
                 if (bs.Error != null)
                 {

@@ -6,7 +6,7 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
@@ -38,31 +38,31 @@ namespace Neo.Compiler.MSIL.Utils
             Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public BuildScript Build(string filename, bool releaseMode = false)
+        public BuildScript Build(string filename, bool releaseMode = false, bool optimizer = true)
         {
             if (scriptsAll.ContainsKey(filename) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode);
+                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
             }
 
             return scriptsAll[filename];
         }
 
-        public BuildScript Build(string[] filenames, bool releaseMode = false)
+        public BuildScript Build(string[] filenames, bool releaseMode = false, bool optimizer = true)
         {
             var key = string.Join("\n", filenames);
 
             if (scriptsAll.ContainsKey(key) == false)
             {
-                return NeonTestTool.BuildScript(filenames, releaseMode);
+                return NeonTestTool.BuildScript(filenames, releaseMode, optimizer);
             }
 
             return scriptsAll[key];
         }
 
-        public void AddEntryScript(string filename, bool releaseMode = false)
+        public void AddEntryScript(string filename, bool releaseMode = false, bool optimizer = true)
         {
-            ScriptEntry = Build(filename, releaseMode);
+            ScriptEntry = Build(filename, releaseMode, optimizer);
             Reset();
         }
 
