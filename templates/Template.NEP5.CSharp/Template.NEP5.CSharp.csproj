@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet $(SolutionDir)src\Neo.Compiler.MSIL\bin\$(ConfigurationName)\netcoreapp3.1\neon.dll &quot;$(TargetPath)&quot;" />
+    <Exec Command="dotnet $(SolutionDir)src\Neo.Compiler.MSIL\bin\$(ConfigurationName)\netcoreapp3.1\neon.dll -f &quot;$(TargetPath)&quot; -o" />
   </Target>
   
 </Project>
