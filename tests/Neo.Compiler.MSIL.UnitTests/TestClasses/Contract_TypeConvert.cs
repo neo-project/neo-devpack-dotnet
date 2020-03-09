@@ -6,10 +6,8 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
-
     class Contract_TypeConvert : SmartContract.Framework.SmartContract
     {
-
         public static object testType()
         {
             BigInteger int0 = 0;
@@ -34,7 +32,5 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             arrobj[7] = int3;
             return arrobj;
         }
-
-
     }
 }
