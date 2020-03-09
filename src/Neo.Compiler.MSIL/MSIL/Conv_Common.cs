@@ -104,6 +104,7 @@ namespace Neo.Compiler.MSIL
                 _Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Integer });
             }
         }
+
         private void _ConvertPushBoolean(bool b, OpCode src, NeoMethod to)
         {
             if (!b)
@@ -112,6 +113,7 @@ namespace Neo.Compiler.MSIL
                 _Convert1by1(VM.OpCode.PUSH1, src, to);
             _Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Boolean });
         }
+
         private void _ConvertPushDataArray(byte[] data, OpCode src, NeoMethod to)
         {
             byte prefixLen;
