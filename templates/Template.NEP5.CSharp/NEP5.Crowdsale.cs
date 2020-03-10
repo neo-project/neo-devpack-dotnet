@@ -59,7 +59,7 @@ namespace Template.NEP5.CSharp
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
             Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
-            var balance = balances.Get(tx.Sender).AsBigInteger();
+            var balance = balances.Get(tx.Sender)?.AsBigInteger()??0;
             balances.Put(tx.Sender, balance + contribution);
             contract.Put("totalSupply", current_supply + contribution);
 
