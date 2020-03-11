@@ -635,7 +635,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Char System.String::get_Chars(System.Int32)")
                 {
-                    _ConvertPush(1, src, to);
+                    _ConvertPushNumber(1, src, to);
                     _Convert1by1(VM.OpCode.SUBSTR, null, to);
                     return 0;
                 }
@@ -796,16 +796,16 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 4)
             {
-                _ConvertPush(callhash, src, to);
+                _ConvertPushDataArray(callhash, src, to);
                 _Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(InteropService.Contract.Call));
             }
             else if (calltype == 5)
             {
-                var callp = Encoding.UTF8.GetBytes(callname);
-                _ConvertPush(callp, src, to);
+                //var callp = Encoding.UTF8.GetBytes(callname);
+                _ConvertPushString(callname, src, to);
 
                 // package the arguments into an array
-                _ConvertPush(pcount + 1, null, to);
+                _ConvertPushNumber(pcount + 1, null, to);
                 _Convert1by1(VM.OpCode.PACK, null, to);
 
                 //a syscall
@@ -820,7 +820,7 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 6)
             {
-                _ConvertPush(callpcount, src, to);
+                _ConvertPushNumber(callpcount, src, to);
                 _Convert1by1(VM.OpCode.ROLL, null, to);
                 _Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.Contract.Call));
             }
@@ -1078,8 +1078,8 @@ namespace Neo.Compiler.MSIL
                         {
                             char info = BitConverter.ToChar(data, i);
                             _Convert1by1(VM.OpCode.DUP, null, to);
-                            _ConvertPush(i / 2, null, to);
-                            _ConvertPush(info, null, to);
+                            _ConvertPushNumber(i / 2, null, to);
+                            _ConvertPushNumber(info, null, to);
                             _Convert1by1(VM.OpCode.SETITEM, null, to);
                         }
                         return 3;
@@ -1090,8 +1090,8 @@ namespace Neo.Compiler.MSIL
                         {
                             var info = BitConverter.ToUInt32(data, i);
                             _Convert1by1(VM.OpCode.DUP, null, to);
-                            _ConvertPush(i / 4, null, to);
-                            _ConvertPush(info, null, to);
+                            _ConvertPushNumber(i / 4, null, to);
+                            _ConvertPushNumber(info, null, to);
                             _Convert1by1(VM.OpCode.SETITEM, null, to);
                         }
                         return 3;
@@ -1102,8 +1102,8 @@ namespace Neo.Compiler.MSIL
                         {
                             var info = BitConverter.ToInt32(data, i);
                             _Convert1by1(VM.OpCode.DUP, null, to);
-                            _ConvertPush(i / 4, null, to);
-                            _ConvertPush(info, null, to);
+                            _ConvertPushNumber(i / 4, null, to);
+                            _ConvertPushNumber(info, null, to);
                             _Convert1by1(VM.OpCode.SETITEM, null, to);
                         }
                         return 3;
@@ -1114,8 +1114,8 @@ namespace Neo.Compiler.MSIL
                         {
                             var info = BitConverter.ToInt64(data, i);
                             _Convert1by1(VM.OpCode.DUP, null, to);
-                            _ConvertPush(i / 8, null, to);
-                            _ConvertPush(info, null, to);
+                            _ConvertPushNumber(i / 8, null, to);
+                            _ConvertPushNumber(info, null, to);
                             _Convert1by1(VM.OpCode.SETITEM, null, to);
                         }
                         return 3;
@@ -1126,8 +1126,8 @@ namespace Neo.Compiler.MSIL
                         {
                             var info = (System.Numerics.BigInteger)BitConverter.ToUInt64(data, i);
                             _Convert1by1(VM.OpCode.DUP, null, to);
-                            _ConvertPush(i / 8, null, to);
-                            _ConvertPush(info.ToByteArray(), null, to);
+                            _ConvertPushNumber(i / 8, null, to);
+                            _ConvertPushNumber(info, null, to);
                             _Convert1by1(VM.OpCode.SETITEM, null, to);
                         }
                         return 3;
@@ -1160,7 +1160,7 @@ namespace Neo.Compiler.MSIL
 
                     // System.Byte or System.SByte
                     var data = method.body_Codes[n2].tokenUnknown as byte[];
-                    this._ConvertPush(data, src, to);
+                    this._ConvertPushDataArray(data, src, to);
 
                     return 3;
                 }
@@ -1208,7 +1208,7 @@ namespace Neo.Compiler.MSIL
                         bool bLdLoc = (_code.code == CodeEx.Ldloc || _code.code == CodeEx.Ldloc_0 || _code.code == CodeEx.Ldloc_1 || _code.code == CodeEx.Ldloc_2 || _code.code == CodeEx.Ldloc_3 || _code.code == CodeEx.Ldloc_S);
                         if (bLdLoc == false)//It means there's no initialization at all
                         {
-                            this._ConvertPush(outbyte, src, to);
+                            this._ConvertPushDataArray(outbyte, src, to);
                             return 0;
                         }
                         while (true)
@@ -1237,7 +1237,7 @@ namespace Neo.Compiler.MSIL
                             else if (bLdLoc && !bStelem)
                             {
                                 //This is not a predictive array initialization, we lost one case for handling
-                                this._ConvertPush(outbyte, src, to);
+                                this._ConvertPushDataArray(outbyte, src, to);
                                 // Two cases here
                                 if (skip == 1)
                                 {
@@ -1256,7 +1256,7 @@ namespace Neo.Compiler.MSIL
                     }
                     //Sometimes c# will use the real value for initialization. If the value is byte, it may be an error
 
-                    this._ConvertPush(outbyte, src, to);
+                    this._ConvertPushDataArray(outbyte, src, to);
                     return skip;
                 }
             }
@@ -1266,7 +1266,7 @@ namespace Neo.Compiler.MSIL
         {
             var type = (src.tokenUnknown as Mono.Cecil.TypeReference).Resolve();
             _Convert1by1(VM.OpCode.NOP, src, to);
-            _ConvertPush(type.Fields.Count, null, to);
+            _ConvertPushNumber(type.Fields.Count, null, to);
             if (type.IsValueType)
             {
                 _Insert1(VM.OpCode.NEWSTRUCT, null, to);
@@ -1323,7 +1323,7 @@ namespace Neo.Compiler.MSIL
             }
 
             _Convert1by1(VM.OpCode.NOP, src, to);
-            _ConvertPush(type.DeclaringType.Fields.Count, null, to);
+            _ConvertPushNumber(type.DeclaringType.Fields.Count, null, to);
             if (type.DeclaringType.IsValueType)
             {
                 _Insert1(VM.OpCode.NEWSTRUCT, null, to);
@@ -1345,7 +1345,7 @@ namespace Neo.Compiler.MSIL
 
             //_Convert1by1(VM.OpCode.CLONESTRUCTONLY, src, to);
 
-            _ConvertPush(id, null, to);//index
+            _ConvertPushNumber(id, null, to);//index
             _Convert1by1(VM.OpCode.SWAP, null, to);//put item top
 
             _Convert1by1(VM.OpCode.SETITEM, null, to);//moidfy //item //index //array
@@ -1359,7 +1359,7 @@ namespace Neo.Compiler.MSIL
             var id = type.Fields.IndexOf(field);
             if (id < 0)
                 throw new Exception("impossible.");
-            _ConvertPush(id, src, to);
+            _ConvertPushNumber(id, src, to);
             _Convert1by1(VM.OpCode.PICKITEM, null, to);
 
             return 0;
