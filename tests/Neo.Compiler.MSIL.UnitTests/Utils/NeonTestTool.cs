@@ -50,8 +50,14 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         /// <returns>BuildScript</returns>
         public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
         {
-            var comp = Compiler.CompileCSFiles(new string[] { filename }, new string[0] { }, releaseMode);
-
+            var ext = System.IO.Path.GetExtension(filename);
+            Compiler.Assembly comp = null;
+            if (ext.ToLower() == ".cs")
+                comp = Compiler.CompileCSFiles(new string[] { filename }, new string[0] { }, releaseMode);
+            if (ext.ToLower() == ".vb")
+                comp = Compiler.CompileVBFiles(new string[] { filename }, new string[0] { }, releaseMode);
+            else
+                throw new System.Exception("do not support extname = " + ext);
             using (var streamDll = new MemoryStream(comp.Dll))
             using (var streamPdb = new MemoryStream(comp.Pdb))
             {
