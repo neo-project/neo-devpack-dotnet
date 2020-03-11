@@ -486,6 +486,11 @@ namespace Neo.Compiler.MSIL
 
                     return 0;
                 }
+                else if (src.tokenMethod == "System.Object System.Runtime.CompilerServices.RuntimeHelpers::GetObjectValue(System.Object)")
+                {
+                    //this is for vb.net
+                    return 0;
+                }
                 else if (src.tokenMethod == "System.Void System.Diagnostics.Debugger::Break()")
                 {
                     _Convert1by1(VM.OpCode.NOP, src, to);
