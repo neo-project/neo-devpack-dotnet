@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.InteropInterface);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
             var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
             Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
@@ -150,7 +150,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.InteropInterface);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
             var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
             Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
