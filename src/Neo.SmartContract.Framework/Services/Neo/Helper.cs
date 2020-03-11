@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
             return new StorageMap
             {
                 Context = context,
-                Prefix = prefix.AsByteArray()
+                Prefix = prefix.ToByteArray()
             };
         }
 
@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         public static void Delete(this StorageMap map, string key)
         {
-            byte[] k = map.Prefix.Concat(key.AsByteArray());
+            byte[] k = map.Prefix.Concat(key.ToByteArray());
             Storage.Delete(map.Context, k);
         }
 
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         public static byte[] Get(this StorageMap map, string key)
         {
-            byte[] k = map.Prefix.Concat(key.AsByteArray());
+            byte[] k = map.Prefix.Concat(key.ToByteArray());
             return Storage.Get(map.Context, k);
         }
 
@@ -75,19 +75,19 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         public static void Put(this StorageMap map, string key, byte[] value)
         {
-            byte[] k = map.Prefix.Concat(key.AsByteArray());
+            byte[] k = map.Prefix.Concat(key.ToByteArray());
             Storage.Put(map.Context, k, value);
         }
 
         public static void Put(this StorageMap map, string key, BigInteger value)
         {
-            byte[] k = map.Prefix.Concat(key.AsByteArray());
+            byte[] k = map.Prefix.Concat(key.ToByteArray());
             Storage.Put(map.Context, k, value);
         }
 
         public static void Put(this StorageMap map, string key, string value)
         {
-            byte[] k = map.Prefix.Concat(key.AsByteArray());
+            byte[] k = map.Prefix.Concat(key.ToByteArray());
             Storage.Put(map.Context, k, value);
         }
     }
