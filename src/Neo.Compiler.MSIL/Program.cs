@@ -18,7 +18,7 @@ namespace Neo.Compiler
             [Option('f', "file", Required = true, HelpText = "File for compile.")]
             public string File { get; set; }
 
-            [Option('o', "optimize", Required = true, HelpText = "Optimize.")]
+            [Option('o', "optimize", Required = false, HelpText = "Optimize.")]
             public bool Optimize { get; set; } = false;
         }
 

@@ -54,13 +54,13 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static object NullCollationAndCollation(string code)
         {
-            return Storage.Get(code)?.AsBigInteger() ?? 123;
+            return Storage.Get(code)?.ToBigInteger() ?? 123;
         }
 
         public static object NullCollationAndCollation2(string code)
         {
             Storage.Put(code, "111");
-            return Storage.Get(code)?.AsBigInteger() ?? 123;
+            return Storage.Get(code)?.ToBigInteger() ?? 123;
         }
     }
 }
