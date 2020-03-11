@@ -794,6 +794,11 @@ namespace Neo.Compiler.MSIL
 
                 case CodeEx.Ldtoken:
                     var def = (_p as Mono.Cecil.FieldDefinition);
+                    var tref = _p as Mono.Cecil.TypeReference;
+                    if (tref != null)
+                    {
+                        tref.Resolve();
+                    }
                     this.tokenUnknown = def.InitialValue;
                     this.tokenValueType = TokenValueType.Nothing;
                     break;
