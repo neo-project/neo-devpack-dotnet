@@ -6,7 +6,7 @@ using System;
 namespace Neo.Compiler.MSIL.UnitTests.VB
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTest_Returns
     {
         private static void DumpNEF(NeoMethod nefMethod)
         {
@@ -17,44 +17,37 @@ namespace Neo.Compiler.MSIL.UnitTests.VB
             }
         }
 
-        private static void DumpBytes(byte[] data)
-        {
-            Console.WriteLine("NEF=");
-            foreach (var b in data)
-            {
-                Console.Write(b.ToString("X02"));
-            }
-            Console.WriteLine("");
-        }
-
         [TestMethod]
         public void GetAllILFunction()
         {
-            var nt = NeonTestTool.BuildScript("./TestClasses_VB/Contract1.vb");
+            var nt = NeonTestTool.BuildScript("./TestClasses_VB/Contract_Return1.vb");
             var names = nt.GetAllILFunction();
-            foreach (var n in names)
-            {
-                Console.WriteLine("got name:" + n);
-            }
+
+            CollectionAssert.AreEqual(new string[] {
+                "System.Void SmartContract1::.ctor()",
+                "System.Object SmartContract1::Main()",
+                "System.Byte[] SmartContract1::UnitTest_001()"
+            },
+            names);
         }
 
         [TestMethod]
         public void TestDumpAFunc()
         {
-            var testtool = NeonTestTool.BuildScript("./TestClasses_VB/Contract1.vb");
+            var testtool = NeonTestTool.BuildScript("./TestClasses_VB/Contract_Return1.vb");
             var ilmethod = testtool.FindMethod("SmartContract1", "Main");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpNEF(neomethod);
+
             var bytes = testtool.NeoMethodToBytes(neomethod);
-            DumpBytes(bytes);
+            Assert.IsTrue(bytes.Length > 0);
         }
 
         [TestMethod]
         public void Test_ByteArray_New()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses_VB/Contract1.vb");
-
+            testengine.AddEntryScript("./TestClasses_VB/Contract_Return1.vb");
 
             var result = testengine.GetMethod("UnitTest_001").Run();
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
@@ -67,7 +60,7 @@ namespace Neo.Compiler.MSIL.UnitTests.VB
         public void Test_ByteArrayPick()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses_VB/Contract2.vb");
+            testengine.AddEntryScript("./TestClasses_VB/Contract_Return2.vb");
 
             var result = testengine.GetMethod("UnitTest_002").Run();
             StackItem wantresult = 3;
