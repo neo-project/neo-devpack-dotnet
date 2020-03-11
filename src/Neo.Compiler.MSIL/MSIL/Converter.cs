@@ -403,14 +403,14 @@ namespace Neo.Compiler.MSIL
                         if (!withReturn) break;
                         _insertEndCode(to, src);
                     }
-                    //try
+                    try
                     {
                         skipcount = ConvertCode(from, src, to);
                     }
-                    //catch (Exception err)
-                    //{
-                    //    throw new Exception("error:" + from.method.FullName + "::" + src, err);
-                    //}
+                    catch (Exception err)
+                    {
+                        throw new Exception("error:" + from.method.FullName + "::" + src, err);
+                    }
                 }
             }
             ConvertAddrInMethod(to);
