@@ -1,5 +1,6 @@
 using Neo.VM;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -61,7 +62,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         /// <returns>BuildScript</returns>
         public static BuildScript BuildScript(string[] filenames, bool releaseMode = false, bool optimizer = false)
         {
-            var ext = System.IO.Path.GetExtension(filename);
+            var ext = System.IO.Path.GetExtension(filenames.First());
             var comp = (ext.ToLowerInvariant()) switch
             {
                 ".cs" => Compiler.CompileCSFiles(filenames, new string[0] { }, releaseMode),

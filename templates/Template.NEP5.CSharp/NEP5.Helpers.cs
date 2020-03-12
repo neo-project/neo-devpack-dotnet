@@ -9,7 +9,7 @@ namespace Template.NEP5.CSharp
         {
             if (address.Length != 20)
                 return false;
-            if (address.AsBigInteger() == 0)
+            if (address.ToBigInteger() == 0)
                 return false;
             return true;
         }

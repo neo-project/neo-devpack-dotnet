@@ -10,7 +10,7 @@ namespace Template.NEP5.CSharp
         private static BigInteger TotalSupply()
         {
             StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
-            return contract.Get("totalSupply").AsBigInteger();
+            return contract.Get("totalSupply").ToBigInteger();
         }
 
         private static BigInteger BalanceOf(byte[] account)
@@ -18,7 +18,7 @@ namespace Template.NEP5.CSharp
             if (!ValidateAddress(account)) throw new FormatException("The parameter 'account' SHOULD be 20-byte addresses.");
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            return balances.Get(account)?.AsBigInteger() ?? 0;
+            return balances.Get(account)?.ToBigInteger() ?? 0;
         }
 
         private static bool Transfer(byte[] from, byte[] to, BigInteger amount)
@@ -30,7 +30,7 @@ namespace Template.NEP5.CSharp
             if (!Runtime.CheckWitness(from)) return false;
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            BigInteger fromAmount = balances.Get(from).AsBigInteger();
+            BigInteger fromAmount = balances.Get(from).ToBigInteger();
 
             if (fromAmount < amount) return false;
             if (amount == 0 || from == to) return true;
@@ -44,7 +44,7 @@ namespace Template.NEP5.CSharp
                 balances.Put(from, fromAmount - amount);
             }
 
-            BigInteger toAmount = balances.Get(to)?.AsBigInteger() ?? 0;
+            BigInteger toAmount = balances.Get(to)?.ToBigInteger() ?? 0;
             balances.Put(to, toAmount + amount);
 
             OnTransfer(from, to, amount);
