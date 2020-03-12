@@ -75,7 +75,7 @@ namespace Template.NEP5.CSharp
 
                 #region ADMIN METHODS
                 if (operation == "deploy") return Deploy();
-                if (operation == "migrate") return Migrate((byte[])args[1], (string)args[2]);
+                if (operation == "migrate") return Migrate((byte[])args[0], (string)args[1]);
                 if (operation == "destroy") return Destroy();
                 #endregion
             }
