@@ -1034,6 +1034,9 @@ namespace Neo.Compiler.MSIL
         private int _ConvertCgt(ILMethod method, OpCode src, NeoMethod to)
         {
             var code = to.body_Codes.Last().Value;
+
+            if (code.code == VM.OpCode.CONVERT)
+                code = to.body_Codes.TakeLast(2).First().Value;
             if (code.code == VM.OpCode.PUSHNULL)
             {
                 //remove last code
@@ -1052,6 +1055,10 @@ namespace Neo.Compiler.MSIL
         private int _ConvertCeq(ILMethod method, OpCode src, NeoMethod to)
         {
             var code = to.body_Codes.Last().Value;
+
+            if (code.code == VM.OpCode.CONVERT)
+                code = to.body_Codes.TakeLast(2).First().Value;
+
             if (code.code == VM.OpCode.PUSHNULL)
             {
                 //remove last code
@@ -1146,6 +1153,9 @@ namespace Neo.Compiler.MSIL
             else
             {
                 var code = to.body_Codes.Last().Value;
+
+                if (code.code == VM.OpCode.CONVERT)
+                    code = to.body_Codes.TakeLast(2).First().Value;
 
                 if (code.code > VM.OpCode.PUSH16) //we need a number
                     throw new Exception("_ConvertNewArr::not support var lens for new byte[?].");
