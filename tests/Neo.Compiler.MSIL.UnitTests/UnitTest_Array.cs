@@ -72,5 +72,31 @@ namespace Neo.Compiler.MSIL.UnitTests
             var bequal = neostruct != null;
             Assert.IsTrue(bequal);
         }
+
+        [TestMethod]
+        public void Test_ByteArrayOwner()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testByteArrayOwner");
+
+            var bts = result.Pop() as ByteArray;
+
+            ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            Assert.IsTrue(ByteArray.Equals(bts, test));
+        }
+
+        [TestMethod]
+        public void Test_ByteArrayOwnerCall()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testByteArrayOwnerCall");
+
+            var bts = result.Pop().ConvertTo(StackItemType.ByteArray);
+
+            ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            Assert.IsTrue(ByteArray.Equals(bts, test));
+        }
     }
 }
