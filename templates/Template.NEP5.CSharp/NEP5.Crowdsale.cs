@@ -48,7 +48,11 @@ namespace Template.NEP5.CSharp
             }
 
             StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
-            var current_supply = contract.Get("totalSupply").ToBigInteger();
+            var supply = contract.Get("totalSupply");
+            if (supply == null)
+                throw new Exception("Contract not deployed");
+
+            var current_supply = supply.ToBigInteger();
             var avaliable_supply = MaxSupply() - current_supply;
 
             var contribution = (neo * TokensPerNEO()) + (gas * TokensPerGAS());

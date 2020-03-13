@@ -100,7 +100,7 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(123, item.GetBigInteger());
         }
 
@@ -123,7 +123,8 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetBigInteger());
         }
 
         [TestMethod]
@@ -157,7 +158,7 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(321, item.GetBigInteger());
         }
 
@@ -181,6 +182,7 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetBigInteger());
         }
 

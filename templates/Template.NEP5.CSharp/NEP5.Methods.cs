@@ -10,7 +10,7 @@ namespace Template.NEP5.CSharp
         private static BigInteger TotalSupply()
         {
             StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
-            return contract.Get("totalSupply").ToBigInteger();
+            return contract.Get("totalSupply")?.ToBigInteger() ?? 0;
         }
 
         private static BigInteger BalanceOf(byte[] account)
