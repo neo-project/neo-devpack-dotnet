@@ -18,9 +18,9 @@ namespace Template.NEP5.CSharp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte Decimals() => 8;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong MaxSupply() => 1_000_000_000;
+        public static ulong MaxSupply() => 10_000_000_000_000_000;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong InitialSupply() => 20_000_000;
+        public static ulong InitialSupply() => 2_000_000_000_000_000;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string[] SupportedStandards() => new string[] { "NEP-5", "NEP-10" };
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
