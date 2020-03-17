@@ -25,6 +25,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public override DataCache<StorageKey, StorageItem> Storages => _Storages;
 
+        public override MetaDataCache<ContractIdState> ContractId => _ContractId;
+
         public override DataCache<SerializableWrapper<uint>, HeaderHashList> HeaderHashList => _HeaderHashList;
 
         public override MetaDataCache<HashIndexState> BlockHashIndex => _BlockHashIndex;
