@@ -37,11 +37,11 @@ namespace Template.NEP5.CSharp
             {
                 var notification = notifications[i];
 
-                if (notification.ScriptHash == NeoToken())
+                if (notification.ScriptHash == NeoToken)
                 {
                     neo += GetTransactionAmount(notification.State);
                 }
-                else if (notification.ScriptHash == GasToken())
+                else if (notification.ScriptHash == GasToken)
                 {
                     gas += GetTransactionAmount(notification.State);
                 }

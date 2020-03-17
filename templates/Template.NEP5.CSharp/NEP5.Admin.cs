@@ -8,7 +8,7 @@ namespace Template.NEP5.CSharp
     {
         private static bool Deploy()
         {
-            if (!Runtime.CheckWitness(Owner()))
+            if (!Runtime.CheckWitness(Owner))
             {
                 return false;
             }
@@ -18,16 +18,16 @@ namespace Template.NEP5.CSharp
                 throw new Exception("Contract already deployed");
 
             StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            balances.Put(Owner(), InitialSupply());
+            balances.Put(Owner, InitialSupply());
             contract.Put("totalSupply", InitialSupply());
 
-            OnTransfer(null, Owner(), InitialSupply());
+            OnTransfer(null, Owner, InitialSupply());
             return true;
         }
 
         public static bool Migrate(byte[] script, string manifest)
         {
-            if (!Runtime.CheckWitness(Owner()))
+            if (!Runtime.CheckWitness(Owner))
             {
                 return false;
             }
@@ -41,7 +41,7 @@ namespace Template.NEP5.CSharp
 
         public static bool Destroy()
         {
-            if (!Runtime.CheckWitness(Owner()))
+            if (!Runtime.CheckWitness(Owner))
             {
                 return false;
             }
