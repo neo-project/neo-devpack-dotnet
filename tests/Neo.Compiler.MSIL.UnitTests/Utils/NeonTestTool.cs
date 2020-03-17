@@ -48,6 +48,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         /// </summary>
         /// <param name="filename">File</param>
         /// <param name="releaseMode">Release mode (default=false)</param>
+        /// <param name="optimizer">Optimize script (default=false)</param>
         /// <returns>BuildScript</returns>
         public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
         {
@@ -59,6 +60,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         /// </summary>
         /// <param name="filenames">Files</param>
         /// <param name="releaseMode">Release mode (default=false)</param>
+        /// <param name="optimizer">Optimize script (default=false)</param>
         /// <returns>BuildScript</returns>
         public static BuildScript BuildScript(string[] filenames, bool releaseMode = false, bool optimizer = false)
         {

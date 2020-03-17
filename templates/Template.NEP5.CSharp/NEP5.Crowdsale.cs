@@ -28,7 +28,7 @@ namespace Template.NEP5.CSharp
 
             var notifications = Runtime.GetNotifications();
             if (notifications.Length == 0)
-                throw new Exception();
+                throw new Exception("Contribution transaction not found");
 
             BigInteger neo = 0;
             BigInteger gas = 0;

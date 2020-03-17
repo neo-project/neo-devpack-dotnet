@@ -33,8 +33,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public override MetaDataCache<HashIndexState> HeaderHashIndex => _HeaderHashIndex;
 
-        public override MetaDataCache<ContractIdState> ContractId => _ContractId;
-
         /// <summary>
         /// Set Persisting block for unit test
         /// </summary>

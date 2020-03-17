@@ -67,9 +67,9 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         }
 
 
-        public void AddEntryScript(string[] filenames, bool releaseMode = false)
+        public void AddEntryScript(string[] filenames, bool releaseMode = false, bool optimizer = true)
         {
-            ScriptEntry = Build(filenames, releaseMode);
+            ScriptEntry = Build(filenames, releaseMode, optimizer);
             Reset();
         }
 
