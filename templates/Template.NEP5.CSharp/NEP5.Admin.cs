@@ -13,15 +13,15 @@ namespace Template.NEP5.CSharp
                 return false;
             }
 
-            StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
+            StorageMap contract = Storage.CurrentContext.CreateMap(StoragePrefixContract);
             if (contract.Get("totalSupply") != null)
                 throw new Exception("Contract already deployed");
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
-            balances.Put(Owner, InitialSupply());
-            contract.Put("totalSupply", InitialSupply());
+            StorageMap balances = Storage.CurrentContext.CreateMap(StoragePrefixBalance);
+            balances.Put(Owner, InitialSupply);
+            contract.Put("totalSupply", InitialSupply);
 
-            OnTransfer(null, Owner, InitialSupply());
+            OnTransfer(null, Owner, InitialSupply);
             return true;
         }
 

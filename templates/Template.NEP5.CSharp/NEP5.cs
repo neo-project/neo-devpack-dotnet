@@ -11,23 +11,16 @@ namespace Template.NEP5.CSharp
     public partial class NEP5 : SmartContract
     {
         #region Token Settings
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Name() => "Token Name";
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Symbol() => "TokenSymbol";
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte Decimals() => 8;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong MaxSupply() => 10_000_000_000_000_000;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong InitialSupply() => 2_000_000_000_000_000;
+        static readonly string Name = "Token Name";
+        static readonly string Symbol = "TokenSymbol";
+        static readonly ulong Decimals = 8;
+        static readonly ulong MaxSupply = 10_000_000_000_000_000;
+        static readonly ulong InitialSupply = 2_000_000_000_000_000;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string[] SupportedStandards() => new string[] { "NEP-5", "NEP-10" };
         static readonly byte[] Owner = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong TokensPerNEO() => 1_000_000_000;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong TokensPerGAS() => 1;
+        static readonly ulong TokensPerNEO = 1_000_000_000;
+        static readonly ulong TokensPerGAS = 1;
         static readonly byte[] NeoToken = new byte[] { 0x89, 0x77, 0x20, 0xd8, 0xcd, 0x76, 0xf4, 0xf0, 0x0a, 0xbf, 0xa3, 0x7c, 0x0e, 0xdd, 0x88, 0x9c, 0x20, 0x8f, 0xde, 0x9b };
         static readonly byte[] GasToken = new byte[] { 0x3b, 0x7d, 0x37, 0x11, 0xc6, 0xf0, 0xcc, 0xf9, 0xb1, 0xdc, 0xa9, 0x03, 0xd1, 0xbf, 0xa1, 0xd8, 0x96, 0xf1, 0x23, 0x8c };
         #endregion
@@ -38,10 +31,8 @@ namespace Template.NEP5.CSharp
         #endregion
 
         #region Storage key prefixes
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte[] GetStoragePrefixBalance() => new byte[] { 0x01, 0x01 };
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte[] GetStoragePrefixContract() => new byte[] { 0x02, 0x02 };
+        static readonly byte[] StoragePrefixBalance = new byte[] { 0x01, 0x01 };
+        static readonly byte[] StoragePrefixContract = new byte[] { 0x02, 0x02 };
         #endregion
 
         public static object Main(string operation, object[] args)
@@ -54,9 +45,9 @@ namespace Template.NEP5.CSharp
             else if (Runtime.Trigger == TriggerType.Application)
             {
                 #region NEP5 METHODS
-                if (operation == "name") return Name();
-                if (operation == "symbol") return Symbol();
-                if (operation == "decimals") return Decimals();
+                if (operation == "name") return Name;
+                if (operation == "symbol") return Symbol;
+                if (operation == "decimals") return Decimals;
                 if (operation == "totalSupply") return TotalSupply();
                 if (operation == "balanceOf") return BalanceOf((byte[])args[0]);
                 if (operation == "transfer") return Transfer((byte[])args[0], (byte[])args[1], (BigInteger)args[2]);

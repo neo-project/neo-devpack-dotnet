@@ -9,7 +9,7 @@ namespace Template.NEP5.CSharp
     {
         private static BigInteger TotalSupply()
         {
-            StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
+            StorageMap contract = Storage.CurrentContext.CreateMap(StoragePrefixContract);
             return contract.Get("totalSupply")?.ToBigInteger() ?? 0;
         }
 
@@ -17,7 +17,7 @@ namespace Template.NEP5.CSharp
         {
             if (!ValidateAddress(account)) throw new FormatException("The parameter 'account' SHOULD be 20-byte addresses.");
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
+            StorageMap balances = Storage.CurrentContext.CreateMap(StoragePrefixBalance);
             return balances.Get(account)?.ToBigInteger() ?? 0;
         }
 
@@ -29,7 +29,7 @@ namespace Template.NEP5.CSharp
             if (amount <= 0) throw new InvalidOperationException("The parameter amount MUST be greater than 0.");
             if (!Runtime.CheckWitness(from)) return false;
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
+            StorageMap balances = Storage.CurrentContext.CreateMap(StoragePrefixBalance);
             BigInteger fromAmount = balances.Get(from).ToBigInteger();
 
             if (fromAmount < amount) return false;

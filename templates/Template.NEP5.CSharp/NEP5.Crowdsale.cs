@@ -18,7 +18,9 @@ namespace Template.NEP5.CSharp
             // Check dest
             if ((byte[])notification[2] != ExecutionEngine.ExecutingScriptHash) return 0;
             // Amount
-            return (BigInteger)notification[3];
+            var amount = (BigInteger)notification[3];
+            if (amount < 0) return 0;
+            return amount;
         }
 
         private static bool Mint()
@@ -47,21 +49,21 @@ namespace Template.NEP5.CSharp
                 }
             }
 
-            StorageMap contract = Storage.CurrentContext.CreateMap(GetStoragePrefixContract());
+            StorageMap contract = Storage.CurrentContext.CreateMap(StoragePrefixContract);
             var supply = contract.Get("totalSupply");
             if (supply == null)
                 throw new Exception("Contract not deployed");
 
             var current_supply = supply.ToBigInteger();
-            var avaliable_supply = MaxSupply() - current_supply;
+            var avaliable_supply = MaxSupply - current_supply;
 
-            var contribution = (neo * TokensPerNEO()) + (gas * TokensPerGAS());
+            var contribution = (neo * TokensPerNEO) + (gas * TokensPerGAS);
             if (contribution <= 0)
                 throw new Exception();
             if (contribution > avaliable_supply)
                 throw new Exception();
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(GetStoragePrefixBalance());
+            StorageMap balances = Storage.CurrentContext.CreateMap(StoragePrefixBalance);
             Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
             var balance = balances.Get(tx.Sender)?.ToBigInteger() ?? 0;
             balances.Put(tx.Sender, balance + contribution);
