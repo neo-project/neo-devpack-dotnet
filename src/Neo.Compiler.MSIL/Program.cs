@@ -252,7 +252,7 @@ namespace Neo.Compiler
                 string defManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":"+extra+"}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":" + extra + "}";
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -286,7 +286,7 @@ namespace Neo.Compiler
 
         private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
         {
-            if(extraAttributes.Count == 0)
+            if (extraAttributes.Count == 0)
             {
                 return null;
             }

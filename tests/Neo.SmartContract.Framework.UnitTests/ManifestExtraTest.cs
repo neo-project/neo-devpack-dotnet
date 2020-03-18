@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var extraAttributes = testengine.ScriptEntry.converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
 
-            Assert.AreEqual("Author", extraAttributes[0][0].Value) ;
+            Assert.AreEqual("Author", extraAttributes[0][0].Value);
             Assert.AreEqual("Neo", extraAttributes[0][1].Value);
             Assert.AreEqual("E-mail", extraAttributes[1][0].Value);
             Assert.AreEqual("dev@neo.org", extraAttributes[1][1].Value);
