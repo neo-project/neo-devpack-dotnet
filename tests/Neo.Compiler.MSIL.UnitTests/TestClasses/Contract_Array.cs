@@ -72,5 +72,12 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return Owner();
         }
+
+        static readonly string[] SupportedStandards = new string[] { "NEP-5", "NEP-10" };
+
+        public static object TestSupportedStandards()
+        {
+            return SupportedStandards;
+        }
     }
 }
