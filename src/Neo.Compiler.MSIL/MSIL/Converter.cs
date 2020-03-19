@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace Neo.Compiler.MSIL
 {
@@ -203,10 +202,12 @@ namespace Neo.Compiler.MSIL
         private string InsertAutoEntry()
         {
             string name = "::autoentrypoint";
-            NeoMethod autoEntry = new NeoMethod();
-            autoEntry._namespace = "";
-            autoEntry.name = "Main";
-            autoEntry.displayName = "main";
+            NeoMethod autoEntry = new NeoMethod
+            {
+                _namespace = "",
+                name = "Main",
+                displayName = "main"
+            };
             autoEntry.paramtypes.Add(new NeoParam(name, "string"));
             autoEntry.paramtypes.Add(new NeoParam(name, "array"));
             autoEntry.returntype = "object";
@@ -225,10 +226,10 @@ namespace Neo.Compiler.MSIL
             this.addrconv.Clear();
 
 #if DEBUG
-            _Insert1(VM.OpCode.NOP, "this is a debug code.", to);
+            Insert1(VM.OpCode.NOP, "this is a debug code.", to);
 #endif
-            _insertSharedStaticVarCode(to);
-            _insertBeginCodeEntry(to);
+            InsertSharedStaticVarCode(to);
+            InsertBeginCodeEntry(to);
 
             bool inserted = false;
             List<int> calladdr = new List<int>();
@@ -245,32 +246,31 @@ namespace Neo.Compiler.MSIL
                     //_Insert1(VM.OpCode.DUPFROMALTSTACK, "get name", to);
                     //_InsertPush(0, "", to);
                     //_Insert1(VM.OpCode.PICKITEM, "", to);
-                    _Insert1(VM.OpCode.LDARG0, "get name", to);
+                    Insert1(VM.OpCode.LDARG0, "get name", to);
 
-                    _InsertPush(System.Text.Encoding.UTF8.GetBytes(m.Value.displayName), "", to);
-                    _Insert1(VM.OpCode.NUMEQUAL, "", to);
+                    InsertPush(System.Text.Encoding.UTF8.GetBytes(m.Value.displayName), "", to);
+                    Insert1(VM.OpCode.NUMEQUAL, "", to);
                     calladdr.Add(this.addr);//record add fix jumppos later
-                    _Insert1(VM.OpCode.JMPIFNOT_L, "tonextcallpos", to, new byte[] { 0, 0, 0, 0 });
+                    Insert1(VM.OpCode.JMPIFNOT_L, "tonextcallpos", to, new byte[] { 0, 0, 0, 0 });
                     if (m.Value.paramtypes.Count > 0)
                     {
                         for (var i = m.Value.paramtypes.Count - 1; i >= 0; i--)
                         {
-                            _Insert1(VM.OpCode.LDARG1, "get params array", to);
-                            _InsertPush(i, "get one param:" + i, to);
-                            _Insert1(VM.OpCode.PICKITEM, "", to);
+                            Insert1(VM.OpCode.LDARG1, "get params array", to);
+                            InsertPush(i, "get one param:" + i, to);
+                            Insert1(VM.OpCode.PICKITEM, "", to);
                         }
                         //add params;
                     }
                     //call and return it
-                    var c = _Insert1(VM.OpCode.CALL_L, "", to, new byte[] { 0, 0, 0, 0 });
+                    var c = Insert1(VM.OpCode.CALL_L, "", to, new byte[] { 0, 0, 0, 0 });
                     c.needfixfunc = true;
                     c.srcfunc = m.Key;
                     if (m.Value.returntype == "System.Void")
                     {
-                        _Insert1(VM.OpCode.PUSH0, "", to);
+                        Insert1(VM.OpCode.PUSH0, "", to);
                     }
-                    _insertEndCode(to, null);
-                    _Insert1(VM.OpCode.RET, "", to);
+                    Insert1(VM.OpCode.RET, "", to);
                     inserted = true;
                 }
             }
@@ -280,10 +280,9 @@ namespace Neo.Compiler.MSIL
             //add returen
             calladdrbegin.Add(this.addr);//record add fix jumppos later
 
-            _insertEndCode(to, null);
             //if go here,mean methodname is wrong
             //use throw to instead ret,make vm  fault.
-            _Insert1(VM.OpCode.THROW, "", to);
+            Insert1(VM.OpCode.THROW, "", to);
             //_Insert1(VM.OpCode.RET, "", to);
 
             //convert all Jmp
@@ -296,7 +295,7 @@ namespace Neo.Compiler.MSIL
                 op.bytes = BitConverter.GetBytes(addroff);
             }
 #if DEBUG
-            _Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
+            Insert1(VM.OpCode.NOP, "this is a end debug code.", to);
 #endif
             ConvertAddrInMethod(to);
             return true;
@@ -352,30 +351,29 @@ namespace Neo.Compiler.MSIL
                     if (c.bytes.Length > 4)
                     {
                         var len = c.bytes.Length - 4;
-                        int wantaddr = addrfunc - c.addr - len;
+                        long wantaddr = addrfunc - c.addr - len;
 
                         if (wantaddr < Int32.MinValue || wantaddr > Int32.MaxValue)
                         {
                             throw new Exception("addr jump is too far.");
                         }
-                        Int32 addrconv = (Int32)wantaddr;
 
-                        var bts = BitConverter.GetBytes(addrconv);
-                        c.bytes[c.bytes.Length - 4] = bts[0];
-                        c.bytes[c.bytes.Length - 3] = bts[1];
-                        c.bytes[c.bytes.Length - 2] = bts[2];
-                        c.bytes[c.bytes.Length - 1] = bts[3];
+                        var bts = BitConverter.GetBytes((int)wantaddr);
+                        c.bytes[^4] = bts[0];
+                        c.bytes[^3] = bts[1];
+                        c.bytes[^2] = bts[2];
+                        c.bytes[^1] = bts[3];
                     }
                     else if (c.bytes.Length == 4)
                     {
-                        int wantaddr = addrfunc - c.addr;
+                        long wantaddr = addrfunc - c.addr;
 
                         if (wantaddr < Int32.MinValue || wantaddr > Int32.MaxValue)
                         {
                             throw new Exception("addr jump is too far.");
                         }
-                        Int32 addrconv = (Int32)wantaddr;
-                        c.bytes = BitConverter.GetBytes(addrconv);
+
+                        c.bytes = BitConverter.GetBytes((int)wantaddr);
                     }
                     else
                     {
@@ -401,7 +399,6 @@ namespace Neo.Compiler.MSIL
                     if (src.code == CodeEx.Ret)//before return
                     {
                         if (!withReturn) break;
-                        _insertEndCode(to, src);
                     }
                     try
                     {
@@ -423,10 +420,10 @@ namespace Neo.Compiler.MSIL
 
             if (to.isEntry)
             {
-                _insertSharedStaticVarCode(to);
+                InsertSharedStaticVarCode(to);
             }
             // Insert a code that record the depth
-            _insertBeginCode(from, to);
+            InsertBeginCode(from, to);
 
             FillMethod(from, to, true);
         }
@@ -435,7 +432,7 @@ namespace Neo.Compiler.MSIL
         private int addr = 0;
         private int ldloca_slot = -1;
 
-        static int getNumber(NeoCode code)
+        static int GetNumber(NeoCode code)
         {
             if (code.code <= VM.OpCode.PUSHINT256)
                 return (int)new BigInteger(code.bytes);
@@ -458,12 +455,12 @@ namespace Neo.Compiler.MSIL
             else if (code.code == VM.OpCode.PUSH14) return 14;
             else if (code.code == VM.OpCode.PUSH15) return 15;
             else if (code.code == VM.OpCode.PUSH16) return 16;
-            else if (code.code == VM.OpCode.PUSHDATA1) return pushdata1bytes2int(code.bytes);
+            else if (code.code == VM.OpCode.PUSHDATA1) return Pushdata1bytes2int(code.bytes);
             else
                 throw new Exception("not support getNumber From this:" + code.ToString());
         }
 
-        static int pushdata1bytes2int(byte[] data)
+        static int Pushdata1bytes2int(byte[] data)
         {
             byte[] target = new byte[4];
             for (var i = 1; i < data.Length; i++)
@@ -499,114 +496,114 @@ namespace Neo.Compiler.MSIL
             switch (src.code)
             {
                 case CodeEx.Nop:
-                    _Convert1by1(VM.OpCode.NOP, src, to);
+                    Convert1by1(VM.OpCode.NOP, src, to);
                     break;
                 case CodeEx.Ret:
                     //return was handled outside
-                    _Insert1(VM.OpCode.RET, null, to);
+                    Insert1(VM.OpCode.RET, null, to);
                     break;
                 case CodeEx.Pop:
-                    _Convert1by1(VM.OpCode.DROP, src, to);
+                    Convert1by1(VM.OpCode.DROP, src, to);
                     break;
 
                 case CodeEx.Ldnull:
-                    _Convert1by1(VM.OpCode.PUSHNULL, src, to);
+                    Convert1by1(VM.OpCode.PUSHNULL, src, to);
                     break;
 
                 case CodeEx.Ldc_I4:
                 case CodeEx.Ldc_I4_S:
-                    skipcount = _ConvertPushI4WithConv(method, src.tokenI32, src, to);
+                    skipcount = ConvertPushI4WithConv(method, src.tokenI32, src, to);
                     break;
                 case CodeEx.Ldc_I4_0:
-                    _ConvertPushNumber(0, src, to);
+                    ConvertPushNumber(0, src, to);
                     break;
                 case CodeEx.Ldc_I4_1:
-                    _ConvertPushNumber(1, src, to);
+                    ConvertPushNumber(1, src, to);
                     break;
                 case CodeEx.Ldc_I4_2:
-                    _ConvertPushNumber(2, src, to);
+                    ConvertPushNumber(2, src, to);
                     break;
                 case CodeEx.Ldc_I4_3:
-                    _ConvertPushNumber(3, src, to);
+                    ConvertPushNumber(3, src, to);
                     break;
                 case CodeEx.Ldc_I4_4:
-                    _ConvertPushNumber(4, src, to);
+                    ConvertPushNumber(4, src, to);
                     break;
                 case CodeEx.Ldc_I4_5:
-                    _ConvertPushNumber(5, src, to);
+                    ConvertPushNumber(5, src, to);
                     break;
                 case CodeEx.Ldc_I4_6:
-                    _ConvertPushNumber(6, src, to);
+                    ConvertPushNumber(6, src, to);
                     break;
                 case CodeEx.Ldc_I4_7:
-                    _ConvertPushNumber(7, src, to);
+                    ConvertPushNumber(7, src, to);
                     break;
                 case CodeEx.Ldc_I4_8:
-                    _ConvertPushNumber(8, src, to);
+                    ConvertPushNumber(8, src, to);
                     break;
                 case CodeEx.Ldc_I4_M1:
-                    skipcount = _ConvertPushI4WithConv(method, -1, src, to);
+                    skipcount = ConvertPushI4WithConv(method, -1, src, to);
                     break;
                 case CodeEx.Ldc_I8:
-                    skipcount = _ConvertPushI8WithConv(method, src.tokenI64, src, to);
+                    skipcount = ConvertPushI8WithConv(method, src.tokenI64, src, to);
                     break;
                 case CodeEx.Ldstr:
-                    _ConvertPushString(src.tokenStr, src, to);
+                    ConvertPushString(src.tokenStr, src, to);
                     break;
                 case CodeEx.Stloc_0:
-                    _ConvertStLoc(method, src, to, 0);
+                    ConvertStLoc(src, to, 0);
                     break;
                 case CodeEx.Stloc_1:
-                    _ConvertStLoc(method, src, to, 1);
+                    ConvertStLoc(src, to, 1);
                     break;
                 case CodeEx.Stloc_2:
-                    _ConvertStLoc(method, src, to, 2);
+                    ConvertStLoc(src, to, 2);
                     break;
                 case CodeEx.Stloc_3:
-                    _ConvertStLoc(method, src, to, 3);
+                    ConvertStLoc(src, to, 3);
                     break;
                 case CodeEx.Stloc_S:
-                    _ConvertStLoc(method, src, to, src.tokenI32);
+                    ConvertStLoc(src, to, src.tokenI32);
                     break;
 
                 case CodeEx.Ldloc_0:
-                    _ConvertLdLoc(method, src, to, 0);
+                    ConvertLdLoc(src, to, 0);
                     break;
                 case CodeEx.Ldloc_1:
-                    _ConvertLdLoc(method, src, to, 1);
+                    ConvertLdLoc(src, to, 1);
                     break;
                 case CodeEx.Ldloc_2:
-                    _ConvertLdLoc(method, src, to, 2);
+                    ConvertLdLoc(src, to, 2);
                     break;
                 case CodeEx.Ldloc_3:
-                    _ConvertLdLoc(method, src, to, 3);
+                    ConvertLdLoc(src, to, 3);
                     break;
                 case CodeEx.Ldloc_S:
-                    _ConvertLdLoc(method, src, to, src.tokenI32);
+                    ConvertLdLoc(src, to, src.tokenI32);
                     break;
 
                 case CodeEx.Ldarg_0:
-                    _ConvertLdArg(method, src, to, 0);
+                    ConvertLdArg(method, src, to, 0);
                     break;
                 case CodeEx.Ldarg_1:
-                    _ConvertLdArg(method, src, to, 1);
+                    ConvertLdArg(method, src, to, 1);
                     break;
                 case CodeEx.Ldarg_2:
-                    _ConvertLdArg(method, src, to, 2);
+                    ConvertLdArg(method, src, to, 2);
                     break;
                 case CodeEx.Ldarg_3:
-                    _ConvertLdArg(method, src, to, 3);
+                    ConvertLdArg(method, src, to, 3);
                     break;
                 case CodeEx.Ldarg_S:
                 case CodeEx.Ldarg:
                 case CodeEx.Ldarga:
                 case CodeEx.Ldarga_S:
-                    _ConvertLdArg(method, src, to, src.tokenI32);
+                    ConvertLdArg(method, src, to, src.tokenI32);
                     break;
 
                 case CodeEx.Starg_S:
                 case CodeEx.Starg:
-                    _ConvertStArg(src, to, src.tokenI32);
+                    ConvertStArg(src, to, src.tokenI32);
                     break;
                 // Address convert required
                 case CodeEx.Br:
@@ -614,7 +611,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Leave:
                 case CodeEx.Leave_S:
                     {
-                        var code = _Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
+                        var code = Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -639,7 +636,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Brtrue:
                 case CodeEx.Brtrue_S:
                     {
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, src, to, new byte[] { 0, 0, 0, 0 });
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, src, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -647,7 +644,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Brfalse:
                 case CodeEx.Brfalse_S:
                     {
-                        var code = _Convert1by1(VM.OpCode.JMPIFNOT_L, src, to, new byte[] { 0, 0, 0, 0 });
+                        var code = Convert1by1(VM.OpCode.JMPIFNOT_L, src, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -655,8 +652,8 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Beq:
                 case CodeEx.Beq_S:
                     {
-                        _Convert1by1(VM.OpCode.NUMEQUAL, src, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.NUMEQUAL, src, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -664,12 +661,12 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Bne_Un:
                 case CodeEx.Bne_Un_S:
                     {
-                        _Convert1by1(VM.OpCode.ABS, src, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.ABS, null, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.NUMNOTEQUAL, null, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.ABS, src, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.ABS, null, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.NUMNOTEQUAL, null, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -677,8 +674,8 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Blt:
                 case CodeEx.Blt_S:
                     {
-                        _Convert1by1(VM.OpCode.LT, src, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.LT, src, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -686,12 +683,12 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Blt_Un:
                 case CodeEx.Blt_Un_S:
                     {
-                        _Convert1by1(VM.OpCode.ABS, src, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.ABS, null, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.LT, null, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.ABS, src, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.ABS, null, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.LT, null, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -699,8 +696,8 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Ble:
                 case CodeEx.Ble_S:
                     {
-                        _Convert1by1(VM.OpCode.LE, src, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.LE, src, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -708,12 +705,12 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Ble_Un:
                 case CodeEx.Ble_Un_S:
                     {
-                        _Convert1by1(VM.OpCode.ABS, src, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.ABS, null, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.LE, null, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.ABS, src, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.ABS, null, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.LE, null, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -721,8 +718,8 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Bgt:
                 case CodeEx.Bgt_S:
                     {
-                        _Convert1by1(VM.OpCode.GT, src, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.GT, src, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -730,12 +727,12 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Bgt_Un:
                 case CodeEx.Bgt_Un_S:
                     {
-                        _Convert1by1(VM.OpCode.ABS, src, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.ABS, null, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.GT, null, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.ABS, src, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.ABS, null, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.GT, null, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -744,8 +741,8 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Bge_S:
                     {
 
-                        _Convert1by1(VM.OpCode.GE, src, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.GE, src, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -753,12 +750,12 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Bge_Un:
                 case CodeEx.Bge_Un_S:
                     {
-                        _Convert1by1(VM.OpCode.ABS, src, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.ABS, null, to);
-                        _Convert1by1(VM.OpCode.SWAP, null, to);
-                        _Convert1by1(VM.OpCode.GE, null, to);
-                        var code = _Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
+                        Convert1by1(VM.OpCode.ABS, src, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.ABS, null, to);
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.GE, null, to);
+                        var code = Convert1by1(VM.OpCode.JMPIF_L, null, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
                     }
@@ -766,70 +763,70 @@ namespace Neo.Compiler.MSIL
 
                 //Stack
                 case CodeEx.Dup:
-                    _Convert1by1(VM.OpCode.DUP, src, to);
+                    Convert1by1(VM.OpCode.DUP, src, to);
                     break;
 
                 //Bitwise logic
                 case CodeEx.And:
-                    _Convert1by1(VM.OpCode.AND, src, to);
+                    Convert1by1(VM.OpCode.AND, src, to);
                     break;
                 case CodeEx.Or:
-                    _Convert1by1(VM.OpCode.OR, src, to);
+                    Convert1by1(VM.OpCode.OR, src, to);
                     break;
                 case CodeEx.Xor:
-                    _Convert1by1(VM.OpCode.XOR, src, to);
+                    Convert1by1(VM.OpCode.XOR, src, to);
                     break;
                 case CodeEx.Not:
-                    _Convert1by1(VM.OpCode.INVERT, src, to);
+                    Convert1by1(VM.OpCode.INVERT, src, to);
                     break;
 
                 //math
                 case CodeEx.Add:
                 case CodeEx.Add_Ovf:
                 case CodeEx.Add_Ovf_Un:
-                    _Convert1by1(VM.OpCode.ADD, src, to);
+                    Convert1by1(VM.OpCode.ADD, src, to);
                     break;
                 case CodeEx.Sub:
                 case CodeEx.Sub_Ovf:
                 case CodeEx.Sub_Ovf_Un:
-                    _Convert1by1(VM.OpCode.SUB, src, to);
+                    Convert1by1(VM.OpCode.SUB, src, to);
                     break;
                 case CodeEx.Mul:
                 case CodeEx.Mul_Ovf:
                 case CodeEx.Mul_Ovf_Un:
-                    _Convert1by1(VM.OpCode.MUL, src, to);
+                    Convert1by1(VM.OpCode.MUL, src, to);
                     break;
                 case CodeEx.Div:
                 case CodeEx.Div_Un:
-                    _Convert1by1(VM.OpCode.DIV, src, to);
+                    Convert1by1(VM.OpCode.DIV, src, to);
                     break;
                 case CodeEx.Rem:
                 case CodeEx.Rem_Un:
-                    _Convert1by1(VM.OpCode.MOD, src, to);
+                    Convert1by1(VM.OpCode.MOD, src, to);
                     break;
                 case CodeEx.Neg:
-                    _Convert1by1(VM.OpCode.NEGATE, src, to);
+                    Convert1by1(VM.OpCode.NEGATE, src, to);
                     break;
                 case CodeEx.Shl:
-                    _Convert1by1(VM.OpCode.SHL, src, to);
+                    Convert1by1(VM.OpCode.SHL, src, to);
                     break;
                 case CodeEx.Shr:
                 case CodeEx.Shr_Un:
-                    _Convert1by1(VM.OpCode.SHR, src, to);
+                    Convert1by1(VM.OpCode.SHR, src, to);
                     break;
 
                 //logic
                 case CodeEx.Clt:
                 case CodeEx.Clt_Un:
-                    _Convert1by1(VM.OpCode.LT, src, to);
+                    Convert1by1(VM.OpCode.LT, src, to);
                     break;
                 case CodeEx.Cgt:
                 case CodeEx.Cgt_Un:
-                    skipcount = _ConvertCgt(method, src, to);
+                    skipcount = ConvertCgt(src, to);
 
                     break;
                 case CodeEx.Ceq:
-                    skipcount = _ConvertCeq(method, src, to);
+                    skipcount = ConvertCeq(src, to);
                     break;
 
                 //call
@@ -839,18 +836,18 @@ namespace Neo.Compiler.MSIL
                         if (src.tokenMethod == "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)")
                         {
                             // this method maybe is a tag of switch
-                            skipcount = _ConvertStringSwitch(method, src, to);
+                            skipcount = ConvertStringSwitch(method, src, to);
                         }
                         else
                         {
-                            _ConvertCall(src, to);
+                            ConvertCall(src, to);
                         }
                     }
                     break;
 
                 // Use the previous argument as the array size, then new a array
                 case CodeEx.Newarr:
-                    skipcount = _ConvertNewArr(method, src, to);
+                    skipcount = ConvertNewArr(method, src, to);
                     break;
 
                 //array
@@ -873,10 +870,10 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Ldelem_Ref:
                 case CodeEx.Ldelem_U2:
                 case CodeEx.Ldelem_U4:
-                    _Convert1by1(VM.OpCode.PICKITEM, src, to);
+                    Convert1by1(VM.OpCode.PICKITEM, src, to);
                     break;
                 case CodeEx.Ldlen:
-                    _Convert1by1(VM.OpCode.SIZE, src, to);
+                    Convert1by1(VM.OpCode.SIZE, src, to);
                     break;
 
                 case CodeEx.Stelem_I1:
@@ -953,13 +950,13 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Stelem_R4:
                 case CodeEx.Stelem_R8:
                 case CodeEx.Stelem_Ref:
-                    _Convert1by1(VM.OpCode.SETITEM, src, to);
+                    Convert1by1(VM.OpCode.SETITEM, src, to);
                     break;
 
                 case CodeEx.Isinst://Support `as` expression
                     break;
                 case CodeEx.Castclass:
-                    _ConvertCastclass(method, src, to);
+                    ConvertCastclass(src, to);
                     break;
 
                 case CodeEx.Box:
@@ -1005,24 +1002,24 @@ namespace Neo.Compiler.MSIL
                 // Load a reference, but we change to load the value of `pos` position
                 case CodeEx.Ldloca:
                 case CodeEx.Ldloca_S:
-                    _ConvertLdLocA(method, src, to, src.tokenI32);
+                    ConvertLdLocA(method, src, to, src.tokenI32);
                     break;
                 case CodeEx.Initobj:
-                    _ConvertInitObj(src, to);
+                    ConvertInitObj(src, to);
                     break;
                 case CodeEx.Newobj:
-                    _ConvertNewObj(src, to);
+                    ConvertNewObj(src, to);
                     break;
                 case CodeEx.Stfld:
-                    _ConvertStfld(method, src, to);
+                    ConvertStfld(src, to);
                     break;
                 case CodeEx.Ldfld:
-                    _ConvertLdfld(src, to);
+                    ConvertLdfld(src, to);
                     break;
 
                 case CodeEx.Ldsfld:
                     {
-                        _Convert1by1(VM.OpCode.NOP, src, to);
+                        Convert1by1(VM.OpCode.NOP, src, to);
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
                         // If readdonly, pull a const value
                         if (
@@ -1034,28 +1031,27 @@ namespace Neo.Compiler.MSIL
                             var _src = outModule.staticfieldsWithConstValue[fname];
                             if (_src is byte[])
                             {
-                                var bytesrc = (byte[])_src;
-                                _ConvertPushDataArray(bytesrc, src, to);
+                                ConvertPushDataArray((byte[])_src, src, to);
                             }
                             else if (_src is int intsrc)
                             {
-                                _ConvertPushNumber(intsrc, src, to);
+                                ConvertPushNumber(intsrc, src, to);
                             }
                             else if (_src is long longsrc)
                             {
-                                _ConvertPushNumber(longsrc, src, to);
+                                ConvertPushNumber(longsrc, src, to);
                             }
                             else if (_src is bool bsrc)
                             {
-                                _ConvertPushBoolean(bsrc, src, to);
+                                ConvertPushBoolean(bsrc, src, to);
                             }
                             else if (_src is string strsrc)
                             {
-                                _ConvertPushString(strsrc, src, to);
+                                ConvertPushString(strsrc, src, to);
                             }
                             else if (_src is BigInteger bisrc)
                             {
-                                _ConvertPushNumber(bisrc, src, to);
+                                ConvertPushNumber(bisrc, src, to);
                             }
                             else
                             {
@@ -1088,7 +1084,7 @@ namespace Neo.Compiler.MSIL
                         else
                         {
                             var field = this.outModule.mapFields[d.FullName];
-                            _Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index });
+                            Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index });
                         }
                     }
                     break;
@@ -1096,12 +1092,12 @@ namespace Neo.Compiler.MSIL
                     {
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
                         var field = this.outModule.mapFields[d.FullName];
-                        _Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)field.index });
+                        Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)field.index });
                     }
                     break;
                 case CodeEx.Throw:
                     {
-                        _Convert1by1(VM.OpCode.THROW, src, to);//throw suspends the vm
+                        Convert1by1(VM.OpCode.THROW, src, to);//throw suspends the vm
                         //don't need to insert RET
                         //_Insert1(VM.OpCode.RET, "", to);
                     }

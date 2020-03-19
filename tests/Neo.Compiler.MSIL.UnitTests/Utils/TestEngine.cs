@@ -26,14 +26,14 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public const int MaxStorageKeySize = 64;
         public const int MaxStorageValueSize = ushort.MaxValue;
 
-        static IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
+        static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
         public readonly IDictionary<string, BuildScript> Scripts;
 
         public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot == null ? new TestSnapshot() : snapshot, 0, true)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), 0, true)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
