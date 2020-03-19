@@ -1051,7 +1051,7 @@ namespace Neo.Compiler.MSIL
                             }
                             else if (_src is string[] strArray)
                             {
-                                _ConvertPushStringArray(strArray, src, to);
+                                ConvertPushStringArray(strArray, src, to);
                             }
                             else
                             {
