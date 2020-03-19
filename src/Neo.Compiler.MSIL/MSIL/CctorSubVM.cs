@@ -32,7 +32,7 @@ namespace Neo.Compiler.MSIL
                 Boolean v = (Boolean)src;
                 return v;
             }
-            else if(src.GetType() == typeof(string[]))
+            else if (src.GetType() == typeof(string[]))
             {
                 string[] strArrays = (string[])src;
                 return strArrays;
