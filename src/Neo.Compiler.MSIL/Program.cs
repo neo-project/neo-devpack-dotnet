@@ -288,7 +288,7 @@ namespace Neo.Compiler
         {
             if (extraAttributes.Count == 0)
             {
-                return null;
+                return "{}";
             }
 
             string extra = "{";
