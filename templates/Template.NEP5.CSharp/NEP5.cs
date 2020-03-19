@@ -16,8 +16,7 @@ namespace Template.NEP5.CSharp
         static readonly ulong Decimals = 8;
         static readonly ulong MaxSupply = 10_000_000_000_000_000;
         static readonly ulong InitialSupply = 2_000_000_000_000_000;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string[] SupportedStandards() => new string[] { "NEP-5", "NEP-10" };
+        static readonly string[] SupportedStandards = new string[] { "NEP-5", "NEP-10" };
         static readonly byte[] Owner = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
         static readonly ulong TokensPerNEO = 1_000_000_000;
         static readonly ulong TokensPerGAS = 1;
@@ -54,7 +53,7 @@ namespace Template.NEP5.CSharp
                 #endregion
 
                 #region NEP10 METHODS
-                if (operation == "supportedStandards") return SupportedStandards();
+                if (operation == "supportedStandards") return SupportedStandards;
                 #endregion
 
                 #region CROWDSALE METHODS
