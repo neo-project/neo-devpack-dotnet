@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
@@ -58,7 +58,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var contract = _engine.EntryScriptHash;
             _engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
             {
-                Script = _engine.InvocationStack.Peek(0).Script,
+                Script = _engine.InvocationStack.Peek().Script,
                 Manifest = new NEOSmartContract.Manifest.ContractManifest()
                 {
                 }

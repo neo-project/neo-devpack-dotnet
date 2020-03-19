@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     public class Contract_Event : SmartContract.Framework.SmartContract
     {

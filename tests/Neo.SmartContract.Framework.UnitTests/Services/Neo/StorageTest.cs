@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.VM.Types;
 using System;
@@ -35,8 +35,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(ByteArray));
+            ReadOnlySpan<byte> data = rItem as ByteArray;
+
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
-            return ((ByteArray)rItem).ToByteArray().ToArray();
+            return data.ToArray();
         }
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
@@ -45,7 +47,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
-            Assert.IsInstanceOfType(rItem, typeof(ByteArray));
+            Assert.IsInstanceOfType(rItem, typeof(Integer));
             Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
         }
 

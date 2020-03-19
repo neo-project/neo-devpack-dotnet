@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 这个文件负责 IL dll的解析，核心解析是使用mono.cecil,这里进行了一些预先整理
-/// 使用时更便捷
+/// This file is responsible for the parsing of the IL DLL. The core parsing is using mono.cecil, which is prearranged to make it easier to use
 /// </summary>
 namespace Neo.Compiler.MSIL
 {
@@ -13,10 +12,12 @@ namespace Neo.Compiler.MSIL
         public List<string> moduleref = new List<string>();
         public Dictionary<string, ILType> mapType = new Dictionary<string, ILType>();
         public ILogger logger;
+
         public ILModule(ILogger _logger = null)
         {
             this.logger = _logger;
         }
+
         public void LoadModule(System.IO.Stream dllStream, System.IO.Stream pdbStream)
         {
             this.module = Mono.Cecil.ModuleDefinition.ReadModule(dllStream);
@@ -41,7 +42,7 @@ namespace Neo.Compiler.MSIL
             {
                 foreach (var t in module.Types)
                 {
-                    if (t.FullName.Contains(".My."))//vb 系统类不要
+                    if (t.FullName.Contains(".My."))//vb skip the system class
                         continue;
 
                     mapType[t.FullName] = new ILType(this, t, logger);
@@ -79,7 +80,7 @@ namespace Neo.Compiler.MSIL
                 if (m.IsStatic == false)
                 {
                     var method = new ILMethod(this, null, logger);
-                    method.fail = "只能导出static 函数";
+                    method.fail = "only export static method";
                     methods[m.FullName] = method;
                 }
                 else
@@ -271,6 +272,7 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
+
         public int GetLastCodeAddr(int srcaddr)
         {
             int last = -1;
@@ -283,6 +285,7 @@ namespace Neo.Compiler.MSIL
             }
             return last;
         }
+
         public int GetNextCodeAddr(int srcaddr)
         {
             bool bskip = false;
@@ -297,7 +300,6 @@ namespace Neo.Compiler.MSIL
                 {
                     return key;
                 }
-
             }
             return -1;
         }
@@ -564,7 +566,7 @@ namespace Neo.Compiler.MSIL
         public enum TokenValueType
         {
             Nothing,
-            Addr,//地址
+            Addr,
             AddrArray,
             String,
             Type,
@@ -588,7 +590,7 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Brtrue_S:
                 case CodeEx.Brfalse:
                 case CodeEx.Brfalse_S:
-                //比较流程控制
+                //compare control flow
                 case CodeEx.Beq:
                 case CodeEx.Beq_S:
                 case CodeEx.Bne_Un:
@@ -792,6 +794,11 @@ namespace Neo.Compiler.MSIL
 
                 case CodeEx.Ldtoken:
                     var def = (_p as Mono.Cecil.FieldDefinition);
+                    var tref = _p as Mono.Cecil.TypeReference;
+                    if (tref != null)
+                    {
+                        tref.Resolve();
+                    }
                     this.tokenUnknown = def.InitialValue;
                     this.tokenValueType = TokenValueType.Nothing;
                     break;

@@ -1,5 +1,3 @@
-using Neo.SmartContract.Framework;
-
 namespace Neo.Compiler.MSIL.TestClasses
 {
     class NoContract 

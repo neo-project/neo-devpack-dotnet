@@ -19,13 +19,12 @@ namespace Neo.Compiler
         public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
         public Dictionary<string, object> staticfieldsWithConstValue = new Dictionary<string, object>();
         public List<ILMethod> staticfieldsCctor = new List<ILMethod>();
-        //小蚁没类型，只有方法
-        public SortedDictionary<int, NeoCode> total_Codes = new SortedDictionary<int, NeoCode>();
+        public SortedDictionary<int, NeoCode> totalCodes = new SortedDictionary<int, NeoCode>();
 
         public byte[] Build()
         {
             List<byte> bytes = new List<byte>();
-            foreach (var c in this.total_Codes.Values)
+            foreach (var c in this.totalCodes.Values)
             {
                 bytes.Add((byte)c.code);
                 if (c.bytes != null)
@@ -35,18 +34,8 @@ namespace Neo.Compiler
                     }
             }
             return bytes.ToArray();
-            //将body链接，生成this.code       byte[]
-            //并计算 this.codehash            byte[]
-        } //public Dictionary<string, byte[]> codes = new Dictionary<string, byte[]>();
-        //public byte[] GetScript(byte[] script_hash)
-        //{
-        //    string strhash = "";
-        //    foreach (var b in script_hash)
-        //    {
-        //        strhash += b.ToString("X02");
-        //    }
-        //    return codes[strhash];
-        //}
+        }
+
         public string GenJson()
         {
             MyJson.JsonNode_Object json = new MyJson.JsonNode_Object();
@@ -55,7 +44,7 @@ namespace Neo.Compiler
             //code
             var jsoncode = new MyJson.JsonNode_Array();
             json["code"] = jsoncode;
-            foreach (var c in this.total_Codes.Values)
+            foreach (var c in this.totalCodes.Values)
             {
                 jsoncode.Add(c.GenJson());
             }
@@ -84,9 +73,9 @@ namespace Neo.Compiler
 
     public class NeoMethod
     {
-        public string lastsfieldname = null;//最后一个加载的静态成员的名字，仅event使用
+        public string lastsfieldname = null; // The last name of static filed, only used by event
 
-        public int lastparam = -1;//最后一个加载的参数对应
+        public int lastparam = -1; // The last param
         public int lastCast = -1;
 
         public bool isEntry = false;
@@ -100,12 +89,10 @@ namespace Neo.Compiler
         public ILMethod method;
         public ILType type;
 
-        //临时变量
-        public List<NeoParam> body_Variables = new List<NeoParam>();
-
-        //临时记录在此，会合并到一起
-        public SortedDictionary<int, NeoCode> body_Codes = new SortedDictionary<int, NeoCode>();
+        public List<NeoParam> body_Variables = new List<NeoParam>(); // Temporary variable
+        public SortedDictionary<int, NeoCode> body_Codes = new SortedDictionary<int, NeoCode>(); // Temporary records and will be merged later
         public int funcaddr;
+
         public MyJson.JsonNode_Object GenJson()
         {
             MyJson.JsonNode_Object json = new MyJson.JsonNode_Object();
@@ -124,32 +111,8 @@ namespace Neo.Compiler
             return json;
         }
 
-        //public byte[] Build()
-        //{
-        //    List<byte> bytes = new List<byte>();
-        //    foreach (var c in this.body_Codes.Values)
-        //    {
-        //        bytes.Add((byte)c.code);
-        //        if (c.bytes != null)
-        //            for (var i = 0; i < c.bytes.Length; i++)
-        //            {
-        //                bytes.Add(c.bytes[i]);
-        //            }
-        //    }
-        //    return bytes.ToArray();
-        //    //将body链接，生成this.code       byte[]
-        //    //并计算 this.codehash            byte[]
-        //}
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
         public NeoMethod() { }
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="method">Method</param>
         public NeoMethod(ILMethod method)
         {
             this.method = method;
@@ -160,6 +123,7 @@ namespace Neo.Compiler
             displayName = method.method.Name[..1].ToLowerInvariant() + method.method.Name[1..];
             inSmartContract = method.method.DeclaringType.BaseType.Name == "SmartContract";
             isPublic = method.method.IsPublic;
+
             foreach (var attr in method.method.CustomAttributes)
             {
                 ProcessAttribute(attr);
@@ -178,6 +142,7 @@ namespace Neo.Compiler
             }
         }
     }
+
     public class NeoEvent
     {
         public string _namespace;
@@ -213,16 +178,9 @@ namespace Neo.Compiler
         public int srcaddr;
         public int[] srcaddrswitch;
         public string srcfunc;
+
         public override string ToString()
         {
-            //string info = "AL_" + addr.ToString("X04") + " " + code.ToString();
-            //if (bytes != null)
-            //    info += " len=" + bytes.Length;
-            //if (debugcode != null && debugline >= 0)
-            //{
-            //    info += "    " + debugcode + "(" + debugline + ")";
-            //}
-
             string info = "" + addr.ToString("X04") + " " + code.ToString();
             for (var j = 0; j < 16 - code.ToString().Length; j++)
             {
@@ -244,6 +202,7 @@ namespace Neo.Compiler
             }
             return info;
         }
+
         public MyJson.JsonNode_ValueString GenJson()
         {
             string info = "" + addr.ToString("X04") + " " + code.ToString();
@@ -272,9 +231,11 @@ namespace Neo.Compiler
             return new MyJson.JsonNode_ValueString(info);
         }
     }
+
     public class NeoField : NeoParam
     {
         public int index { get; private set; }
+
         public NeoField(string name, string type, int index) : base(name, type)
         {
             this.index = index;
@@ -285,11 +246,13 @@ namespace Neo.Compiler
     {
         public string name { get; private set; }
         public string type { get; private set; }
+
         public NeoParam(string name, string type)
         {
             this.name = name;
             this.type = type;
         }
+
         public override string ToString()
         {
             return type + " " + name;

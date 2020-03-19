@@ -1,9 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.MSIL.UnitTests
 {
     [TestClass]
     public class UnitTest_NULL
@@ -40,6 +40,17 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void IfNull()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("ifNull", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.IsFalse(item.ToBoolean());
+        }
+
+        [TestMethod]
         public void NullCoalescing()
         {
             //  call NullCoalescing(string code)
@@ -49,9 +60,9 @@ namespace Neo.Compiler.MSIL
             testengine.Reset();
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCoalescing", "a123b");
-                var item = result.Pop() as ByteArray;
-
-                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                var item = result.Pop().ConvertTo(StackItemType.ByteArray) as ByteArray;
+                System.ReadOnlySpan<byte> data = item;
+                var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "12");
             }
             // null->null
@@ -76,7 +87,8 @@ namespace Neo.Compiler.MSIL
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCollation", "nes");
                 var item = result.Pop() as ByteArray;
-                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                System.ReadOnlySpan<byte> data = item;
+                var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "nes");
             }
 
@@ -85,7 +97,8 @@ namespace Neo.Compiler.MSIL
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCollation", StackItem.Null);
                 var item = result.Pop() as ByteArray;
-                var str = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
+                System.ReadOnlySpan<byte> data = item;
+                var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "linux");
             }
         }
@@ -104,7 +117,7 @@ namespace Neo.Compiler.MSIL
             });
             {
                 var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
-                var item = result.Pop() as ByteArray;
+                var item = result.Pop() as Integer;
                 var num = item.ToBigInteger();
                 Assert.IsTrue(num == 123);
             }
@@ -124,9 +137,11 @@ namespace Neo.Compiler.MSIL
             });
             {
                 var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
-                var item = result.Pop() as ByteArray;
-                var num = System.Text.Encoding.ASCII.GetString(item.ToByteArray());
-                Assert.IsTrue(num == "111");
+                var item = result.Pop() as Integer;
+                var bts = System.Text.Encoding.ASCII.GetBytes("111");
+                var num = new System.Numerics.BigInteger(bts);
+
+                Assert.IsTrue(item.ToBigInteger() == num);
             }
         }
         [TestMethod]
@@ -167,6 +182,46 @@ namespace Neo.Compiler.MSIL
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsFalse(item.ToBoolean());
+        }
+
+        [TestMethod]
+        public void EqualNotNull()
+        {
+            // True
+
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("equalNotNullA", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.ToBoolean());
+
+            // False
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("equalNotNullA", new Integer(1));
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.ToBoolean());
+
+            // True
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("equalNotNullB", StackItem.Null);
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.ToBoolean());
+
+            // False
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("equalNotNullB", new Integer(1));
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.ToBoolean());
         }
     }
 }

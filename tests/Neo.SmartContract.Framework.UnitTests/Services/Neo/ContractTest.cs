@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -45,6 +45,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
 
             // Create
 
@@ -54,9 +55,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(InteropInterface<Ledger.ContractState>));
-            Assert.AreEqual(manifest.Hash,
-                ((InteropInterface<Ledger.ContractState>)item).GetInterface<Ledger.ContractState>().ScriptHash);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
+            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
+            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
             // Call
 
@@ -66,7 +67,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(123, item.GetBigInteger());
 
             // Destroy
@@ -77,7 +78,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetByteLength());
 
             // Check again for failures
@@ -85,6 +86,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
@@ -123,7 +125,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
                 // Update
 
-                scriptBuilder.EmitSysCall(InteropService.Neo_Contract_Update, scriptUpdate, manifestUpdate.ToJson().ToString());
+                scriptBuilder.EmitSysCall(InteropService.Contract.Update, scriptUpdate, manifestUpdate.ToJson().ToString());
                 script = scriptBuilder.ToArray();
             }
 
@@ -134,6 +136,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray());
@@ -147,9 +150,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(InteropInterface<Ledger.ContractState>));
-            Assert.AreEqual(manifest.Hash,
-                ((InteropInterface<Ledger.ContractState>)item).GetInterface<Ledger.ContractState>().ScriptHash);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
+            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
+            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
             // Call & Update
 
@@ -159,7 +162,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(123, item.GetBigInteger());
 
             // Call Again
@@ -178,6 +181,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
         }
     }
 }

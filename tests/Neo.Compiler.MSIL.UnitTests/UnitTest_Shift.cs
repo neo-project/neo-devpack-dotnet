@@ -1,11 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.MSIL.UnitTests
 {
     [TestClass]
     public class UnitTest_Shift
@@ -39,7 +39,7 @@ namespace Neo.Compiler.MSIL
             var result = testengine.ExecuteTestCaseStandard("testfunc");
             ApplicationEngine.Notify -= method;
 
-            CollectionAssert.AreEqual(new BigInteger[] { 16, 4, 4, 16 }, list);
+            CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);
         }
     }
 }

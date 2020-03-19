@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace ThinNeo.Cryptography.Cryptography
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public static class Base58
     {

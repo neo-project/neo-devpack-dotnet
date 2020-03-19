@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -86,7 +86,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetByteLength());
         }
     }

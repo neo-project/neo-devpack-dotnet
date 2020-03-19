@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     struct State
     {
@@ -56,6 +56,28 @@ namespace Neo.Compiler.MSIL.TestClasses
                 return state;
             }
             return null;
+        }
+
+        static readonly byte[] OwnerVar = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+        private static byte[] Owner()
+        {
+            var bs = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            return bs;
+        }
+        public static object TestByteArrayOwner()
+        {
+            return OwnerVar;
+        }
+        public static object TestByteArrayOwnerCall()
+        {
+            return Owner();
+        }
+
+        static readonly string[] SupportedStandards = new string[] { "NEP-5", "NEP-10" };
+
+        public static object TestSupportedStandards()
+        {
+            return SupportedStandards;
         }
     }
 }

@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -14,7 +14,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Init()
         {
             _engine = new TestEngine();
-            _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
+
+            // Deploy native contracts
+
             ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Network.P2P.Payloads.Block()
             {
                 Index = 0,
@@ -30,14 +32,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 PrevHash = UInt256.Zero
             });
 
-            // Deploy native contracts
-
             using (var script = new ScriptBuilder())
             {
-                script.EmitSysCall(InteropService.Neo_Native_Deploy);
+                script.EmitSysCall(TestEngine.Native_Deploy);
                 _engine.LoadScript(script.ToArray());
-                _engine.Execute();
+                Assert.AreEqual(VMState.HALT, _engine.Execute());
             }
+
+            _engine.Reset();
+            _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
         }
 
         [TestMethod]

@@ -1,8 +1,9 @@
+using Neo.Compiler.Optimizer;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class BuildScript
     {
@@ -39,7 +40,7 @@ namespace Neo.Compiler.MSIL.Utils
         public BuildScript()
         {
         }
-        public void Build(Stream fs, Stream fspdb)
+        public void Build(Stream fs, Stream fspdb, bool optimizer)
         {
             this.IsBuild = false;
             this.Error = null;
@@ -66,6 +67,13 @@ namespace Neo.Compiler.MSIL.Utils
             {
                 converterIL.Convert(modIL, option);
                 finalNEF = converterIL.outModule.Build();
+                if (optimizer)
+                {
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF);
+                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
+                    log.Log("optimization ratio = " + ratio + "%");
+                    finalNEF = opbytes;
+                }
                 IsBuild = true;
             }
 #if NDEBUG
@@ -161,7 +169,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             {
                 Console.WriteLine("dump:");
-                foreach (var c in this.converterIL.outModule.total_Codes)
+                foreach (var c in this.converterIL.outModule.totalCodes)
                 {
                     var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
                     if (c.Value.bytes != null && c.Value.bytes.Length > 0)

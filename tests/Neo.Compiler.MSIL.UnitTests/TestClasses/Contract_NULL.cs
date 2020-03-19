@@ -1,6 +1,7 @@
 using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework;
-namespace Neo.Compiler.MSIL.TestClasses
+
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_NULL : SmartContract.Framework.SmartContract
     {
@@ -19,6 +20,16 @@ namespace Neo.Compiler.MSIL.TestClasses
             return value == null;
         }
 
+        public static bool EqualNotNullA(byte[] value)
+        {
+            return null != value;
+        }
+
+        public static bool EqualNotNullB(byte[] value)
+        {
+            return value != null;
+        }
+
         public static string NullCoalescing(string code)
         {
             string myname = code?.Substring(1, 2);
@@ -30,14 +41,26 @@ namespace Neo.Compiler.MSIL.TestClasses
             string myname = code ?? "linux";
             return myname;
         }
+
+        public static bool IfNull(object obj)
+        {
+            if ((bool)obj)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static object NullCollationAndCollation(string code)
         {
-            return Storage.Get(code)?.AsBigInteger() ?? 123;
+            return Storage.Get(code)?.ToBigInteger() ?? 123;
         }
+
         public static object NullCollationAndCollation2(string code)
         {
             Storage.Put(code, "111");
-            return Storage.Get(code)?.AsBigInteger() ?? 123;
+            return Storage.Get(code)?.ToBigInteger() ?? 123;
         }
     }
 }

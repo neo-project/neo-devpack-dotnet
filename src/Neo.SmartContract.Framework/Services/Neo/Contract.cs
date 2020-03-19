@@ -20,10 +20,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Contract.Call")]
         public static extern object Call(byte[] scriptHash, string method, object[] arguments);
 
-        [Syscall("Neo.Contract.Create")]
+        [Syscall("System.Contract.CallEx")]
+        public static extern object CallEx(byte[] scriptHash, string method, object[] arguments, CallFlags flag);
+
+        [Syscall("System.Contract.Create")]
         public static extern Contract Create(byte[] script, string manifest);
 
-        [Syscall("Neo.Contract.Update")]
+        [Syscall("System.Contract.Update")]
         public static extern void Update(byte[] script, string manifest);
 
         [Syscall("System.Contract.Destroy")]

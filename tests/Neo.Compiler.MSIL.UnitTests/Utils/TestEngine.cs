@@ -1,16 +1,28 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
-using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
+        public static InteropDescriptor Native_Deploy;
+
+        static TestEngine()
+        {
+            // Extract Native deploy syscall
+
+            Native_Deploy = (InteropDescriptor)typeof(InteropService)
+                    .GetNestedType("Native", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                    .GetField("Deploy")
+                    .GetValue(null);
+        }
+
+
         public const int MaxStorageKeySize = 64;
         public const int MaxStorageValueSize = ushort.MaxValue;
 
@@ -26,19 +38,19 @@ namespace Neo.Compiler.MSIL.Utils
             Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public BuildScript Build(string filename, bool releaseMode = false)
+        public BuildScript Build(string filename, bool releaseMode = false, bool optimizer = true)
         {
             if (scriptsAll.ContainsKey(filename) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode);
+                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
             }
 
             return scriptsAll[filename];
         }
 
-        public void AddEntryScript(string filename, bool releaseMode = false)
+        public void AddEntryScript(string filename, bool releaseMode = false, bool optimizer = true)
         {
-            ScriptEntry = Build(filename, releaseMode);
+            ScriptEntry = Build(filename, releaseMode, optimizer);
             Reset();
         }
 
@@ -46,7 +58,7 @@ namespace Neo.Compiler.MSIL.Utils
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
             this.InvocationStack.Clear();
-            this.LoadScript(ScriptEntry.finalNEF);
+            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEF);
         }
 
         public class ContractMethod
@@ -117,143 +129,28 @@ namespace Neo.Compiler.MSIL.Utils
             return this.ResultStack;
         }
 
+        static Dictionary<uint, InteropDescriptor> callmethod;
+
         protected override bool OnSysCall(uint method)
         {
-            if (
-               // Native
-               method == InteropService.Neo_Native_Deploy ||
-               // Account
-               method == InteropService.Neo_Account_IsStandard ||
-               // Storages
-               method == InteropService.System_Storage_GetContext ||
-               method == InteropService.System_Storage_GetReadOnlyContext ||
-               method == InteropService.System_Storage_GetReadOnlyContext ||
-               method == InteropService.System_StorageContext_AsReadOnly ||
-               method == InteropService.System_Storage_Get ||
-               method == InteropService.System_Storage_Delete ||
-               method == InteropService.System_Storage_Put ||
-               // Enumerator
-               method == InteropService.Neo_Enumerator_Concat ||
-               method == InteropService.Neo_Enumerator_Create ||
-               method == InteropService.Neo_Enumerator_Next ||
-               method == InteropService.Neo_Enumerator_Value ||
-               // Iterator
-               method == InteropService.Neo_Iterator_Concat ||
-               method == InteropService.Neo_Iterator_Create ||
-               method == InteropService.Neo_Iterator_Key ||
-               method == InteropService.Neo_Iterator_Keys ||
-               method == InteropService.Neo_Iterator_Values ||
-               // ExecutionEngine
-               method == InteropService.System_ExecutionEngine_GetCallingScriptHash ||
-               method == InteropService.System_ExecutionEngine_GetEntryScriptHash ||
-               method == InteropService.System_ExecutionEngine_GetExecutingScriptHash ||
-               method == InteropService.System_ExecutionEngine_GetScriptContainer ||
-               // Runtime
-               method == InteropService.System_Runtime_CheckWitness ||
-               method == InteropService.System_Runtime_GetNotifications ||
-               method == InteropService.System_Runtime_GetInvocationCounter ||
-               method == InteropService.System_Runtime_GetTrigger ||
-               method == InteropService.System_Runtime_GetTime ||
-               method == InteropService.System_Runtime_Platform ||
-               method == InteropService.System_Runtime_Log ||
-               method == InteropService.System_Runtime_Notify ||
-               // Json
-               method == InteropService.Neo_Json_Deserialize ||
-               method == InteropService.Neo_Json_Serialize ||
-               // Crypto
-               method == InteropService.Neo_Crypto_ECDsaVerify ||
-               method == InteropService.Neo_Crypto_ECDsaCheckMultiSig ||
-               // Blockchain
-               method == InteropService.System_Blockchain_GetHeight ||
-               method == InteropService.System_Blockchain_GetBlock ||
-               method == InteropService.System_Blockchain_GetContract ||
-               method == InteropService.System_Blockchain_GetTransaction ||
-               method == InteropService.System_Blockchain_GetTransactionHeight ||
-               method == InteropService.System_Blockchain_GetTransactionFromBlock ||
-               // Native
-               method == NativeContract.NEO.ServiceName.ToInteropMethodHash() ||
-               method == NativeContract.GAS.ServiceName.ToInteropMethodHash() ||
-               method == NativeContract.Policy.ServiceName.ToInteropMethodHash() ||
-               // Contract
-               method == InteropService.System_Contract_Call ||
-               method == InteropService.System_Contract_Destroy ||
-               method == InteropService.Neo_Contract_Create ||
-               method == InteropService.Neo_Contract_Update
-               )
+            if (callmethod == null)
             {
-                return base.OnSysCall(method);
-            }
-
-            throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
-        }
-
-        public bool CheckAsciiChar(string s)
-        {
-            for (int i = 0; i < s.Length; i++)
-            {
-                char c = s.ToLower().ToCharArray()[i];
-                if ((!((c >= 97 && c <= 123) || (c >= 48 && c <= 57) || c == 45 || c == 46 || c == 64 || c == 95)))
-                    return false;
-            }
-            return true;
-        }
-
-        private void DumpItemShort(StackItem item, int space = 0)
-        {
-            var spacestr = "";
-            for (var i = 0; i < space; i++) spacestr += "    ";
-            var line = NeonTestTool.Bytes2HexString(item.GetSpan().ToArray());
-
-            if (item is Neo.VM.Types.ByteArray)
-            {
-                var str = item.GetString();
-                if (CheckAsciiChar(str))
+                callmethod = new Dictionary<uint, InteropDescriptor>()
                 {
-                    line += "|" + str;
+                    { Native_Deploy.Hash , Native_Deploy }
+                };
+                foreach (var m in InteropService.SupportedMethods())
+                {
+                    callmethod[m] = m;
                 }
             }
-            Console.WriteLine(spacestr + line);
-        }
-
-        private void DumpItem(StackItem item, int space = 0)
-        {
-            var spacestr = "";
-            for (var i = 0; i < space; i++) spacestr += "    ";
-            Console.WriteLine(spacestr + "got Param:" + item.GetType().ToString());
-
-            if (item is VM.Types.Array || item is Neo.VM.Types.Struct)
+            if (callmethod.ContainsKey(method) == false)
             {
-                var array = item as Neo.VM.Types.Array;
-                for (var i = 0; i < array.Count; i++)
-                {
-                    var subitem = array[i];
-                    DumpItem(subitem, space + 1);
-                }
-            }
-            else if (item is Neo.VM.Types.Map)
-            {
-                var map = item as Neo.VM.Types.Map;
-                foreach (var subitem in map)
-                {
-                    Console.WriteLine("---Key---");
-                    DumpItemShort(subitem.Key, space + 1);
-                    Console.WriteLine("---Value---");
-                    DumpItem(subitem.Value, space + 1);
-                }
+                throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
             }
             else
             {
-                Console.WriteLine(spacestr + "--as num:" + item.GetBigInteger());
-                Console.WriteLine(spacestr + "--as bin:" + NeonTestTool.Bytes2HexString(item.GetSpan().ToArray()));
-
-                if (item is Neo.VM.Types.ByteArray)
-                {
-                    var str = item.GetString();
-                    if (CheckAsciiChar(str))
-                    {
-                        Console.WriteLine(spacestr + "--as str:" + item.GetString());
-                    }
-                }
+                return base.OnSysCall(method);
             }
         }
     }
