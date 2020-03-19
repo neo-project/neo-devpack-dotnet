@@ -1049,6 +1049,10 @@ namespace Neo.Compiler.MSIL
                             {
                                 ConvertPushNumber(bisrc, src, to);
                             }
+                            else if (_src is string[] strArray)
+                            {
+                                _ConvertPushStringArray(strArray, src, to);
+                            }
                             else
                             {
                                 throw new Exception("not support type Ldsfld\r\n   in: " + to.name + "\r\n");

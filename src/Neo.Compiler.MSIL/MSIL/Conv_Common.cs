@@ -145,6 +145,17 @@ namespace Neo.Compiler.MSIL
             ConvertPushDataArray(data, src, to);
         }
 
+        private void ConvertPushStringArray(string[] strArray, OpCode src, NeoMethod to)
+        {
+            for (int i = strArray.Length - 1; i >= 0; i--)
+            {
+                var str = strArray[i];
+                _ConvertPushString(str, src, to);
+            }
+            _ConvertPushNumber(strArray.Length, src, to);
+            _Insert1(VM.OpCode.PACK, "", to);
+        }
+
         private int ConvertPushI8WithConv(ILMethod from, long i, OpCode src, NeoMethod to)
         {
             var next = from.GetNextCodeAddr(src.addr);
@@ -285,6 +296,10 @@ namespace Neo.Compiler.MSIL
                     else if (_src is BigInteger bisrc)
                     {
                         ConvertPushNumber(bisrc, null, to);
+                    }
+                    else if (_src is string[] strArray)
+                    {
+                        _ConvertPushStringArray(strArray, null, to);
                     }
                     else
                     {

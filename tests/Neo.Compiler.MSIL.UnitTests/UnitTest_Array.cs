@@ -94,5 +94,19 @@ namespace Neo.Compiler.MSIL.UnitTests
             ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
             Assert.IsTrue(ByteArray.Equals(bts, test));
         }
+
+        [TestMethod]
+        public void Test_StringArray()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testSupportedStandards");
+
+            var bts = result.Pop().ConvertTo(StackItemType.Array);
+            var items = bts as VM.Types.Array;
+
+            Assert.AreEqual((ByteArray)"NEP-5", items[0]);
+            Assert.AreEqual((ByteArray)"NEP-10", items[1]);
+        }
     }
 }
