@@ -32,7 +32,12 @@ namespace Neo.Compiler.MSIL
                 Boolean v = (Boolean)src;
                 return v;
             }
-            else
+            else if(src.GetType() == typeof(string[]))
+            {
+                string[] strArrays = (string[])src;
+                return strArrays;
+            }
+            else // TODO support more types
             {
                 return null;
             }
@@ -97,6 +102,13 @@ namespace Neo.Compiler.MSIL
                                 var count = (int)calcStack.Pop();
                                 if (count > MaxArraySize) throw new ArgumentException("MaxArraySize found");
                                 byte[] data = new byte[count];
+                                calcStack.Push(data);
+                            }
+                            else if (src.tokenType == "System.String")
+                            {
+                                var count = (int)calcStack.Pop();
+                                if (count > MaxArraySize) throw new ArgumentException("MaxArraySize found");
+                                string[] data = new string[count];
                                 calcStack.Push(data);
                             }
                             else
@@ -215,6 +227,23 @@ namespace Neo.Compiler.MSIL
                             // field.DeclaringType.FullName + "::" + field.Name;
                         }
                         break;
+                    case CodeEx.Stelem_Ref:
+                        {
+                            var refValue = calcStack.Pop();
+                            if (refValue is string) // Currently, we only support string ref
+                            {
+                                var strValue = (string)refValue;
+                                var index = (int)calcStack.Pop();
+                                var array = calcStack.Pop() as string[];
+                                if (array is null)
+                                {
+                                    constValue = false;
+                                    break;
+                                }
+                                array[index] = strValue;
+                            }
+                            break;
+                        }
                     case CodeEx.Stelem_I1:
                         {
                             var v = (byte)(int)calcStack.Pop();
