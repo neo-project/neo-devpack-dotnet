@@ -351,14 +351,9 @@ namespace Neo.Compiler.MSIL
                     if (c.bytes.Length > 4)
                     {
                         var len = c.bytes.Length - 4;
-                        long wantaddr = addrfunc - c.addr - len;
+                        int wantaddr = checked(addrfunc - c.addr - len);
 
-                        if (wantaddr < Int32.MinValue || wantaddr > Int32.MaxValue)
-                        {
-                            throw new Exception("addr jump is too far.");
-                        }
-
-                        var bts = BitConverter.GetBytes((int)wantaddr);
+                        var bts = BitConverter.GetBytes(wantaddr);
                         c.bytes[^4] = bts[0];
                         c.bytes[^3] = bts[1];
                         c.bytes[^2] = bts[2];
@@ -366,14 +361,9 @@ namespace Neo.Compiler.MSIL
                     }
                     else if (c.bytes.Length == 4)
                     {
-                        long wantaddr = addrfunc - c.addr;
+                        int wantaddr = checked(addrfunc - c.addr);
 
-                        if (wantaddr < Int32.MinValue || wantaddr > Int32.MaxValue)
-                        {
-                            throw new Exception("addr jump is too far.");
-                        }
-
-                        c.bytes = BitConverter.GetBytes((int)wantaddr);
+                        c.bytes = BitConverter.GetBytes(wantaddr);
                     }
                     else
                     {
