@@ -139,7 +139,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, result.Count);
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray());
+            _ = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
 
             // Create
