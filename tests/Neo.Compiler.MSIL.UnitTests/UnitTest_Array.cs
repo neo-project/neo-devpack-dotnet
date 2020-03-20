@@ -53,9 +53,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testStructArray");
 
             //test (1+5)*7 == 42
-            var neostruct = result.Pop() as Struct;
-
-            var bequal = neostruct != null;
+            var bequal = result.Pop() as Struct != null;
             Assert.IsTrue(bequal);
         }
 
@@ -67,9 +65,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testStructArrayInit");
 
             //test (1+5)*7 == 42
-            var neostruct = result.Pop() as Struct;
-
-            var bequal = neostruct != null;
+            var bequal = result.Pop() as Struct != null;
             Assert.IsTrue(bequal);
         }
 
