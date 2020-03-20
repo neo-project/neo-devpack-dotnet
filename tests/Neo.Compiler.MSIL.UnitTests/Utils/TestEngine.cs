@@ -6,7 +6,7 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
@@ -31,31 +31,31 @@ namespace Neo.Compiler.MSIL.Utils
         public const int MaxStorageKeySize = 64;
         public const int MaxStorageValueSize = ushort.MaxValue;
 
-        static IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
+        static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
         public readonly IDictionary<string, BuildScript> Scripts;
 
         public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot == null ? new TestSnapshot() : snapshot, 0, true)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), 0, true)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public BuildScript Build(string filename, bool releaseMode = false)
+        public BuildScript Build(string filename, bool releaseMode = false, bool optimizer = true)
         {
             if (scriptsAll.ContainsKey(filename) == false)
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode);
+                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
             }
 
             return scriptsAll[filename];
         }
 
-        public void AddEntryScript(string filename, bool releaseMode = false)
+        public void AddEntryScript(string filename, bool releaseMode = false, bool optimizer = true)
         {
-            ScriptEntry = Build(filename, releaseMode);
+            ScriptEntry = Build(filename, releaseMode, optimizer);
             Reset();
         }
 

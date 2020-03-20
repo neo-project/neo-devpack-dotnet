@@ -1,7 +1,11 @@
+using CommandLine;
+using Mono.Cecil;
 using Neo.Compiler.MSIL;
+using Neo.Compiler.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,31 +15,28 @@ namespace Neo.Compiler
 {
     public class Program
     {
-        //Console.WriteLine("helo ha:"+args[0]); //普通输出
-        //Console.WriteLine("<WARN> 这是一个严重的问题。");//警告输出，黄字
-        //Console.WriteLine("<WARN|aaaa.cs(1)> 这是ee一个严重的问题。");//警告输出，带文件名行号
-        //Console.WriteLine("<ERR> 这是一个严重的问题。");//错误输出，红字
-        //Console.WriteLine("<ERR|aaaa.cs> 这是ee一个严重的问题。");//错误输出，带文件名
-        //Console.WriteLine("SUCC");//输出这个表示编译成功
-        //控制台输出约定了特别的语法
-        public static int Main(string[] args)
+        public class Options
+        {
+            [Option('f', "file", Required = true, HelpText = "File for compile.")]
+            public string File { get; set; }
+
+            [Option('o', "optimize", Required = false, HelpText = "Optimize.")]
+            public bool Optimize { get; set; } = false;
+        }
+
+        public static void Main(string[] args)
+        {
+            Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Compile(o));
+        }
+
+        public static int Compile(Options options)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
             var log = new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
-            // Check argmuents
-            if (args.Length == 0)
-            {
-                log.Log("You need a parameter to specify the DLL or the file name of the project.");
-                log.Log("Examples: ");
-                log.Log("  neon mySmartContract.dll");
-                log.Log("  neon mySmartContract.csproj");
-                return -1;
-            }
-
-            var fileInfo = new FileInfo(args[0]);
+            var fileInfo = new FileInfo(options.File);
 
             // Set current directory
             if (!fileInfo.Exists)
@@ -162,6 +163,13 @@ namespace Neo.Compiler
                 bytes = module.Build();
                 log.Log("convert succ");
 
+                if (options.Optimize)
+                {
+                    var optimize = NefOptimizeTool.Optimize(bytes);
+                    log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                    bytes = optimize;
+                }
+
                 try
                 {
                     var outjson = vmtool.FuncExport.Export(module, bytes);
@@ -234,6 +242,9 @@ namespace Neo.Compiler
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                     .FirstOrDefault();
 
+                var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+
+                var extra = BuildExtraAttributes(extraAttributes);
                 var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
                 var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
@@ -241,7 +252,7 @@ namespace Neo.Compiler
                 string defManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":" + extra + "}";
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -262,7 +273,6 @@ namespace Neo.Compiler
             }
             catch
             {
-
             }
 
             if (bSucc == 3)
@@ -272,6 +282,26 @@ namespace Neo.Compiler
             }
 
             return -1;
+        }
+
+        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
+        {
+            if (extraAttributes.Count == 0)
+            {
+                return "null";
+            }
+
+            string extra = "{";
+            foreach (var extraAttribute in extraAttributes)
+            {
+                var key = extraAttribute[0].Value;
+                var value = extraAttribute[1].Value;
+                extra += ($"\"{key}\":\"{value}\",");
+            }
+            extra = extra.Substring(0, extra.Length - 1);
+            extra += "}";
+
+            return extra;
         }
     }
 }

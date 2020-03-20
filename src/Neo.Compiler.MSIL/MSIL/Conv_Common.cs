@@ -5,11 +5,11 @@ using System.Text;
 namespace Neo.Compiler.MSIL
 {
     /// <summary>
-    /// 从ILCode 向小蚁 VM 转换的转换器
+    /// Convert IL to NeoVM opcode
     /// </summary>
     public partial class ModuleConverter
     {
-        private NeoCode _Insert1(VM.OpCode code, string comment, NeoMethod to, byte[] data = null)
+        private NeoCode Insert1(VM.OpCode code, string comment, NeoMethod to, byte[] data = null)
         {
             NeoCode _code = new NeoCode();
             int startaddr = addr;
@@ -32,9 +32,9 @@ namespace Neo.Compiler.MSIL
             return _code;
         }
 
-        private NeoCode _InsertPush(byte[] data, string comment, NeoMethod to)
+        private NeoCode InsertPush(byte[] data, string comment, NeoMethod to)
         {
-            if (data.Length == 0) return _Insert1(VM.OpCode.PUSH0, comment, to);
+            if (data.Length == 0) return Insert1(VM.OpCode.PUSH0, comment, to);
             byte prefixLen;
             VM.OpCode code;
             if (data.Length <= byte.MaxValue)
@@ -55,18 +55,18 @@ namespace Neo.Compiler.MSIL
             byte[] bytes = new byte[data.Length + prefixLen];
             Buffer.BlockCopy(BitConverter.GetBytes(data.Length), 0, bytes, 0, prefixLen);
             Buffer.BlockCopy(data, 0, bytes, prefixLen, data.Length);
-            return _Insert1(code, comment, to, bytes);
+            return Insert1(code, comment, to, bytes);
         }
 
-        private NeoCode _InsertPush(int i, string comment, NeoMethod to)
+        private NeoCode InsertPush(int i, string comment, NeoMethod to)
         {
-            if (i == 0) return _Insert1(VM.OpCode.PUSH0, comment, to);
-            if (i == -1) return _Insert1(VM.OpCode.PUSHM1, comment, to);
-            if (i > 0 && i <= 16) return _Insert1(VM.OpCode.PUSH0 + (byte)i, comment, to);
-            return _InsertPush(((BigInteger)i).ToByteArray(), comment, to);
+            if (i == 0) return Insert1(VM.OpCode.PUSH0, comment, to);
+            if (i == -1) return Insert1(VM.OpCode.PUSHM1, comment, to);
+            if (i > 0 && i <= 16) return Insert1(VM.OpCode.PUSH0 + (byte)i, comment, to);
+            return InsertPush(((BigInteger)i).ToByteArray(), comment, to);
         }
 
-        private NeoCode _Convert1by1(VM.OpCode code, OpCode src, NeoMethod to, byte[] data = null)
+        private NeoCode Convert1by1(VM.OpCode code, OpCode src, NeoMethod to, byte[] data = null)
         {
             NeoCode _code = new NeoCode();
             int startaddr = addr;
@@ -93,9 +93,29 @@ namespace Neo.Compiler.MSIL
             return _code;
         }
 
-        private NeoCode _ConvertPush(byte[] data, OpCode src, NeoMethod to)
+        private void ConvertPushNumber(BigInteger i, OpCode src, NeoMethod to)
         {
-            if (data.Length == 0) return _Convert1by1(VM.OpCode.PUSH0, src, to);
+            if (i == 0) Convert1by1(VM.OpCode.PUSH0, src, to);
+            else if (i == -1) Convert1by1(VM.OpCode.PUSHM1, src, to);
+            else if (i > 0 && i <= 16) Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
+            else
+            {
+                ConvertPushDataArray(i.ToByteArray(), src, to);
+                Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Integer });
+            }
+        }
+
+        private void ConvertPushBoolean(bool b, OpCode src, NeoMethod to)
+        {
+            if (!b)
+                Convert1by1(VM.OpCode.PUSH0, src, to);
+            else
+                Convert1by1(VM.OpCode.PUSH1, src, to);
+            Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Boolean });
+        }
+
+        private void ConvertPushDataArray(byte[] data, OpCode src, NeoMethod to)
+        {
             byte prefixLen;
             VM.OpCode code;
             if (data.Length <= byte.MaxValue)
@@ -116,34 +136,43 @@ namespace Neo.Compiler.MSIL
             byte[] bytes = new byte[data.Length + prefixLen];
             Buffer.BlockCopy(BitConverter.GetBytes(data.Length), 0, bytes, 0, prefixLen);
             Buffer.BlockCopy(data, 0, bytes, prefixLen, data.Length);
-            return _Convert1by1(code, src, to, bytes);
+            Convert1by1(code, src, to, bytes);
         }
 
-        private NeoCode _ConvertPush(long i, OpCode src, NeoMethod to)
+        private void ConvertPushString(string str, OpCode src, NeoMethod to)
         {
-            if (i == 0) return _Convert1by1(VM.OpCode.PUSH0, src, to);
-            if (i == -1) return _Convert1by1(VM.OpCode.PUSHM1, src, to);
-            if (i > 0 && i <= 16) return _Convert1by1(VM.OpCode.PUSH0 + (byte)i, src, to);
-            return _ConvertPush(((BigInteger)i).ToByteArray(), src, to);
+            var data = Encoding.UTF8.GetBytes(str);
+            ConvertPushDataArray(data, src, to);
         }
-        private int _ConvertPushI8WithConv(ILMethod from, long i, OpCode src, NeoMethod to)
+
+        private void ConvertPushStringArray(string[] strArray, OpCode src, NeoMethod to)
+        {
+            for (int i = strArray.Length - 1; i >= 0; i--)
+            {
+                var str = strArray[i];
+                ConvertPushString(str, src, to);
+            }
+            ConvertPushNumber(strArray.Length, src, to);
+            Insert1(VM.OpCode.PACK, "", to);
+        }
+
+        private int ConvertPushI8WithConv(ILMethod from, long i, OpCode src, NeoMethod to)
         {
             var next = from.GetNextCodeAddr(src.addr);
             var code = from.body_Codes[next].code;
             BigInteger outv;
             if (code == CodeEx.Conv_U || code == CodeEx.Conv_U8)
-            //code == CodeEx.Conv_U1 || code ==CodeEx.Conv_U2 || code==CodeEx.Conv_U4|| code== CodeEx.Conv_U8)
             {
                 ulong v = (ulong)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
             }
             else if (code == CodeEx.Conv_U1)
             {
                 byte v = (byte)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -151,7 +180,7 @@ namespace Neo.Compiler.MSIL
             {
                 ushort v = (ushort)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -159,7 +188,7 @@ namespace Neo.Compiler.MSIL
             {
                 uint v = (uint)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -168,36 +197,36 @@ namespace Neo.Compiler.MSIL
                 var call = from.body_Codes[next];
                 if (call.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::op_Implicit(System.UInt64)")
                 {
-                    //如果是ulong转型到biginteger，需要注意
+                    // Be careful with converting ulong to biginteger
                     ulong v = (ulong)i;
                     outv = v;
-                    _ConvertPush(outv.ToByteArray(), src, to);
+                    ConvertPushNumber(outv, src, to);
                     return 1;
                 }
             }
 
-            _ConvertPush(i, src, to);
+            ConvertPushNumber(i, src, to);
             return 0;
         }
 
-        private int _ConvertPushI4WithConv(ILMethod from, int i, OpCode src, NeoMethod to)
+        private int ConvertPushI4WithConv(ILMethod from, int i, OpCode src, NeoMethod to)
         {
             var next = from.GetNextCodeAddr(src.addr);
             var code = from.body_Codes[next].code;
             BigInteger outv;
+
             if (code == CodeEx.Conv_U || code == CodeEx.Conv_U8)
-            //code == CodeEx.Conv_U1 || code ==CodeEx.Conv_U2 || code==CodeEx.Conv_U4|| code== CodeEx.Conv_U8)
             {
                 ulong v = (uint)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
             }
             else if (code == CodeEx.Conv_U1)
             {
                 byte v = (byte)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -205,7 +234,7 @@ namespace Neo.Compiler.MSIL
             {
                 ushort v = (ushort)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
@@ -213,28 +242,29 @@ namespace Neo.Compiler.MSIL
             {
                 uint v = (uint)i;
                 outv = v;
-                _ConvertPush(outv.ToByteArray(), src, to);
+                ConvertPushNumber(outv, src, to);
                 return 1;
 
             }
             else
             {
-                _ConvertPush(i, src, to);
+                ConvertPushNumber(i, src, to);
                 return 0;
             }
         }
 
-        private void _insertSharedStaticVarCode(NeoMethod to)
+        private void InsertSharedStaticVarCode(NeoMethod to)
         {
             if (this.outModule.mapFields.Count > 255)
                 throw new Exception("too mush static fields");
+
             //insert init constvalue part
             byte count = (byte)this.outModule.mapFields.Count;
-            //INITSSLOT with a u8 len
             if (count > 0)
             {
-                _Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count });
+                Insert1(VM.OpCode.INITSSLOT, "", to, new byte[] { count }); // INITSSLOT with a u8 len
             }
+
             foreach (var defvar in this.outModule.staticfieldsWithConstValue)
             {
                 if (this.outModule.mapFields.TryGetValue(defvar.Key, out NeoField field))
@@ -245,46 +275,47 @@ namespace Neo.Compiler.MSIL
                     var _src = defvar.Value;
                     if (_src is byte[])
                     {
-                        var bytesrc = (byte[])_src;
-                        _ConvertPush(bytesrc, null, to);
+                        ConvertPushDataArray((byte[])_src, null, to);
                     }
                     else if (_src is int intsrc)
                     {
-                        _ConvertPush(intsrc, null, to);
+                        ConvertPushNumber(intsrc, null, to);
                     }
                     else if (_src is long longsrc)
                     {
-                        _ConvertPush(longsrc, null, to);
+                        ConvertPushNumber(longsrc, null, to);
                     }
                     else if (_src is bool bsrc)
                     {
-                        _ConvertPush(bsrc ? 1 : 0, null, to);
+                        ConvertPushBoolean(bsrc, null, to);
                     }
                     else if (_src is string strsrc)
                     {
-                        var bytesrc = Encoding.UTF8.GetBytes(strsrc);
-                        _ConvertPush(bytesrc, null, to);
+                        ConvertPushString(strsrc, null, to);
                     }
                     else if (_src is BigInteger bisrc)
                     {
-                        byte[] bytes = bisrc.ToByteArray();
-                        _ConvertPush(bytes, null, to);
+                        ConvertPushNumber(bisrc, null, to);
+                    }
+                    else if (_src is string[] strArray)
+                    {
+                        ConvertPushStringArray(strArray, null, to);
                     }
                     else
                     {
                         //no need to init null
-                        _Convert1by1(VM.OpCode.PUSHNULL, null, to);
+                        Convert1by1(VM.OpCode.PUSHNULL, null, to);
                     }
                     #endregion
 
                     if (field.index < 7)
                     {
-                        _Insert1(VM.OpCode.STSFLD0 + (byte)field.index, "", to);
+                        Insert1(VM.OpCode.STSFLD0 + (byte)field.index, "", to);
                     }
                     else
                     {
                         var fieldIndex = (byte)field.index;
-                        _Insert1(VM.OpCode.STSFLD, "", to, new byte[] { fieldIndex });
+                        Insert1(VM.OpCode.STSFLD, "", to, new byte[] { fieldIndex });
                     }
                 }
             }
@@ -296,7 +327,7 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        private void _insertBeginCode(ILMethod from, NeoMethod to)
+        private void InsertBeginCode(ILMethod from, NeoMethod to)
         {
             if (from.paramtypes.Count > 255)
                 throw new Exception("too mush params in:" + from);
@@ -307,23 +338,15 @@ namespace Neo.Compiler.MSIL
             byte varcount = (byte)from.body_Variables.Count;
             if (paramcount + varcount > 0)
             {
-                _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
+                Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
             }
         }
-        private void _insertBeginCodeEntry(NeoMethod to)
+
+        private void InsertBeginCodeEntry(NeoMethod to)
         {
             byte paramcount = (byte)2;
             byte varcount = (byte)0;
-            _Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
-        }
-
-        private void _insertEndCode(NeoMethod to, OpCode src)
-        {
-            //no need to clear altstack.
-
-            ////移除深度临时栈
-            //_Insert1(VM.OpCode.FROMALTSTACK, "endcode", to);
-            //_Insert1(VM.OpCode.DROP, "", to);
+            Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
         }
     }
 }

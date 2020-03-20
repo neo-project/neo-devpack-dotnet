@@ -1,6 +1,6 @@
 using Neo.SmartContract.Framework.Services.System;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_staticvar : SmartContract.Framework.SmartContract
     {

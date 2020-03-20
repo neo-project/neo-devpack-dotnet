@@ -1,9 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.MSIL.UnitTests
 {
     [TestClass]
     public class UnitTest_NULL
@@ -36,6 +36,17 @@ namespace Neo.Compiler.MSIL
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.ToBoolean());
+        }
+
+        [TestMethod]
+        public void IfNull()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("ifNull", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.IsFalse(item.ToBoolean());
         }
 
@@ -106,7 +117,7 @@ namespace Neo.Compiler.MSIL
             });
             {
                 var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
-                var item = result.Pop() as ByteArray;
+                var item = result.Pop() as Integer;
                 var num = item.ToBigInteger();
                 Assert.IsTrue(num == 123);
             }
@@ -126,10 +137,11 @@ namespace Neo.Compiler.MSIL
             });
             {
                 var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
-                var item = result.Pop() as ByteArray;
-                System.ReadOnlySpan<byte> data = item;
-                var num = System.Text.Encoding.ASCII.GetString(data);
-                Assert.IsTrue(num == "111");
+                var item = result.Pop() as Integer;
+                var bts = System.Text.Encoding.ASCII.GetBytes("111");
+                var num = new System.Numerics.BigInteger(bts);
+
+                Assert.IsTrue(item.ToBigInteger() == num);
             }
         }
         [TestMethod]

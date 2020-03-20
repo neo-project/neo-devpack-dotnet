@@ -1,9 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
-using Neo.VM;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using System;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.MSIL.UnitTests
 {
     [TestClass]
     public class UnitTest_ABI_Event
