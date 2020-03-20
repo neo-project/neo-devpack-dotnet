@@ -134,7 +134,7 @@ namespace Neo.SmartContract.Framework
         public static sbyte ToSbyte(this BigInteger source)
         {
             if (source > 127)
-                source = source - 256;
+                source -= 256;
             Assert(source.Within(-128, 128));
             return (sbyte)(source + 0);
         }
@@ -146,7 +146,7 @@ namespace Neo.SmartContract.Framework
         public static sbyte ToSbyte(this int source)
         {
             if (source > 127)
-                source = source - 256;
+                source -= 256;
             Assert(source.Within(-128, 128));
             return (sbyte)(source + 0);
         }
@@ -159,7 +159,7 @@ namespace Neo.SmartContract.Framework
         {
             Assert(source.Within(0, 256));
             if (source > 127)
-                source = source - 256;
+                source -= 256;
             return (byte)(source + 0);
         }
 
@@ -171,7 +171,7 @@ namespace Neo.SmartContract.Framework
         {
             Assert(source.Within(0, 256));
             if (source > 127)
-                source = source - 256;
+                source -= 256;
             return (byte)(source + 0);
         }
 
