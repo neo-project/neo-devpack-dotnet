@@ -53,9 +53,28 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return scriptsAll[filename];
         }
 
+        public BuildScript Build(string[] filenames, bool releaseMode = false, bool optimizer = true)
+        {
+            var key = string.Join("\n", filenames);
+
+            if (scriptsAll.ContainsKey(key) == false)
+            {
+                return NeonTestTool.BuildScript(filenames, releaseMode, optimizer);
+            }
+
+            return scriptsAll[key];
+        }
+
         public void AddEntryScript(string filename, bool releaseMode = false, bool optimizer = true)
         {
             ScriptEntry = Build(filename, releaseMode, optimizer);
+            Reset();
+        }
+
+
+        public void AddEntryScript(string[] filenames, bool releaseMode = false, bool optimizer = true)
+        {
+            ScriptEntry = Build(filenames, releaseMode, optimizer);
             Reset();
         }
 

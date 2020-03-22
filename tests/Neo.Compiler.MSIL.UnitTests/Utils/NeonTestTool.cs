@@ -1,5 +1,6 @@
 using Neo.VM;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -47,14 +48,27 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         /// </summary>
         /// <param name="filename">File</param>
         /// <param name="releaseMode">Release mode (default=false)</param>
+        /// <param name="optimizer">Optimize script (default=false)</param>
         /// <returns>BuildScript</returns>
         public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
         {
-            var ext = System.IO.Path.GetExtension(filename);
+            return BuildScript(new string[] { filename }, releaseMode, optimizer);
+        }
+
+        /// <summary>
+        /// Build script
+        /// </summary>
+        /// <param name="filenames">Files</param>
+        /// <param name="releaseMode">Release mode (default=false)</param>
+        /// <param name="optimizer">Optimize script (default=false)</param>
+        /// <returns>BuildScript</returns>
+        public static BuildScript BuildScript(string[] filenames, bool releaseMode = false, bool optimizer = false)
+        {
+            var ext = System.IO.Path.GetExtension(filenames.First());
             var comp = (ext.ToLowerInvariant()) switch
             {
-                ".cs" => Compiler.CompileCSFiles(new string[] { filename }, new string[0] { }, releaseMode),
-                ".vb" => Compiler.CompileVBFiles(new string[] { filename }, new string[0] { }, releaseMode),
+                ".cs" => Compiler.CompileCSFiles(filenames, new string[0] { }, releaseMode),
+                ".vb" => Compiler.CompileVBFiles(filenames, new string[0] { }, releaseMode),
                 _ => throw new System.Exception("do not support extname = " + ext),
             };
 
