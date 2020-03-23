@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Framework
         /// Faults if b is false
         /// </summary>
         [OpCode(OpCode.ASSERT)]
-        public extern static void Assert(this bool b);
+        public extern static void Assert(this bool condition);
 
         /// <summary>
         /// Abort the execution
