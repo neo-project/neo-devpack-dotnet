@@ -74,10 +74,16 @@ namespace Neo.SmartContract.Framework
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
 
         /// <summary>
-        /// Faults iff b is false
+        /// Faults if b is false
         /// </summary>
-        [OpCode(OpCode.THROWIFNOT)]
+        [OpCode(OpCode.ASSERT)]
         public extern static void Assert(this bool b);
+
+        /// <summary>
+        /// Abort the execution
+        /// </summary>
+        [OpCode(OpCode.ABORT)]
+        public extern static void Abort();
 
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
