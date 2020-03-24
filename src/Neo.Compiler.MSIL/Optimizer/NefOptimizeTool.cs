@@ -11,20 +11,19 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         /// <param name="script">Script</param>
         /// <returns>Optimized script</returns>
-
         public static byte[] Optimize(byte[] script)
         {
             return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS }
-            , out Dictionary<uint, uint> AddrConvertTable);
+            , out _);
         }
-        public static byte[] Optimize(byte[] script, out Dictionary<uint, uint> AddrConvertTable)
+        public static byte[] Optimize(byte[] script, out Dictionary<uint, uint> addrConvertTable)
         {
             return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS }
-            , out AddrConvertTable);
+            , out addrConvertTable);
         }
         public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes)
         {
-            return Optimize(script, parserTypes, out Dictionary<uint, uint> AddrConvertTable);
+            return Optimize(script, parserTypes, out _);
         }
         /// <summary>
         /// Optimize
@@ -36,7 +35,7 @@ namespace Neo.Compiler.Optimizer
         /// <para> DELETE_NOP -- delete nop parser</para>
         /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para></param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<uint, uint> AddrConvertTable)
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<uint, uint> addrConvertTable)
         {
             var optimizer = new NefOptimizer();
 
@@ -52,8 +51,6 @@ namespace Neo.Compiler.Optimizer
                 optimizer.AddOptimizeParser(parser);
             }
 
-
-
             //step01 Load
             using (var ms = new MemoryStream(script))
             {
@@ -66,7 +63,7 @@ namespace Neo.Compiler.Optimizer
             using (var ms = new MemoryStream())
             {
                 optimizer.LinkNef(ms);
-                AddrConvertTable = optimizer.GetAddrConvertTable();
+                addrConvertTable = optimizer.GetAddrConvertTable();
                 var bytes = ms.ToArray();
                 return bytes;
             }
