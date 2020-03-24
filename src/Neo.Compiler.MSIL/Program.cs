@@ -165,8 +165,14 @@ namespace Neo.Compiler
 
                 if (options.Optimize)
                 {
-                    var optimize = NefOptimizeTool.Optimize(bytes, module);
+                    var optimize = NefOptimizeTool.Optimize(bytes, out Dictionary<uint, uint> addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                    foreach (var func in module.mapMethods)
+                    {
+                        uint srcaddr = (uint)func.Value.funcaddr;
+                        uint opaddr = addrConvTable[srcaddr];
+                        log.Log("func addr from " + srcaddr + "=>" + opaddr);
+                    }
                     bytes = optimize;
                 }
 

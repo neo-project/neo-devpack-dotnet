@@ -18,17 +18,32 @@ namespace Neo.Compiler.Optimizer
         /// Constructor
         /// </summary>
         /// <param name="script">Script</param>
-        public NefOptimizer(byte[] script = null, Dictionary<string, int> methodEntry = null)
+        public NefOptimizer(byte[] script = null)
         {
             if (script != null)
             {
                 using (var ms = new MemoryStream(script))
                 {
-                    LoadNef(ms, methodEntry);
+                    LoadNef(ms);
                 }
             }
         }
 
+        public Dictionary<string, uint> MapLabels = new Dictionary<string, uint>();
+        public Dictionary<string, uint> MapLabelsOptimized = new Dictionary<string, uint>();
+        
+        public Dictionary<uint,uint> GetAddrConvertTable()
+        {
+            Dictionary<uint, uint> result = new Dictionary<uint, uint>();
+            foreach (var key in MapLabels.Keys)
+            {
+                if(MapLabelsOptimized.ContainsKey(key))
+                {
+                    result[MapLabels[key]] = MapLabelsOptimized[key];
+                }
+            }
+            return   result;
+        }
         public void AddOptimizeParser(IOptimizeParser function)
         {
             OptimizeFunctions.Add(function);
@@ -59,8 +74,10 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream, Dictionary<string, int> methodEntry = null)
+        
+        public void LoadNef(Stream stream)
         {
+            MapLabels.Clear();
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
             //read all Address to listAddr
@@ -84,9 +101,12 @@ namespace Neo.Compiler.Optimizer
                             labelindex++;
                             var label = new NefLabel(labelname, addr);
                             mapLabel.Add(addr, label);
+
+                            MapLabels[labelname] = (uint)addr;
                         }
 
                         inst.Labels[i] = mapLabel[addr].Name;
+                      
                     }
                 }
             } while (inst != null);
@@ -101,13 +121,6 @@ namespace Neo.Compiler.Optimizer
                     Items.Add(mapLabel[curOffset]);
                 }
                 Items.Add(instruction);
-
-                if (methodEntry.ContainsValue(instruction.Offset))
-                {
-                    var methodName = methodEntry.FirstOrDefault(q => q.Value == instruction.Offset).Key;
-                    instruction.IsMethodEntry = true;
-                    instruction.MethodName = methodName;
-                }
             }
         }
 
@@ -116,7 +129,9 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         void RefillAddr()
         {
-            var mapLabel2Addr = new Dictionary<string, uint>();
+            MapLabelsOptimized.Clear();
+
+            //var mapLabel2Addr = new Dictionary<string, uint>();
             //Recalc Address
             //collection Labels and Resort Offset
             uint offset = 0;
@@ -130,7 +145,8 @@ namespace Neo.Compiler.Optimizer
                 else if (item is NefLabel label)
                 {
                     label.SetOffset((int)offset);
-                    mapLabel2Addr[label.Name] = offset;
+                    //mapLabel2Addr[label.Name] = offset;
+                    MapLabelsOptimized[label.Name] = offset;
                 }
             }
 
@@ -142,46 +158,28 @@ namespace Neo.Compiler.Optimizer
                     for (var i = 0; i < inst.AddressCountInData; i++)
                     {
                         var label = inst.Labels[i];
-                        var addr = (int)mapLabel2Addr[label] - inst.Offset;
+                        var addr = (int)MapLabelsOptimized[label] - inst.Offset;
                         inst.SetAddressInData(i, addr);
                     }
                 }
             }
         }
 
-        public void LinkNef(Stream stream, NeoModule module)
+        public void LinkNef(Stream stream)
         {
             //Recalc Address
             //collection Labels and Resort Offset
             RefillAddr();
 
             //and Link
-            //and find method entry offset
-            Dictionary<string, int> methodEntry = new Dictionary<string, int>();
             foreach (var inst in this.Items)
             {
                 if (inst is NefInstruction i)
                 {
                     i.WriteTo(stream);
-                    if (i.IsMethodEntry == true)
-                        methodEntry.TryAdd(i.MethodName, i.Offset);
                 }
             }
 
-            if (module != null)
-            {
-                foreach (var function in module.mapMethods)
-                {
-                    if (methodEntry.ContainsKey(function.Value.displayName))
-                    {
-                        function.Value.funcaddr = methodEntry[function.Value.displayName];
-                    }
-                    else
-                    {
-                        function.Value.funcaddr = -1;
-                    }
-                }
-            }
         }
     }
 }

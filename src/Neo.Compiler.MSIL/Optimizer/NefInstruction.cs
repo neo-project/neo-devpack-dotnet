@@ -14,8 +14,6 @@ namespace Neo.Compiler.Optimizer
 
         public OpCode OpCode { get; private set; }
         public uint Size => (1 + DataPrefixSize + DataSize);
-        public bool IsMethodEntry = false;
-        public string MethodName = null;
 
         private uint DataPrefixSize => GetOperandPrefixSize(OpCode);
         private uint DataSize => DataPrefixSize > 0 ? (uint)(Data?.Length ?? 0) : GetOperandSize(OpCode);

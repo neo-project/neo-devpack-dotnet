@@ -11,11 +11,21 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         /// <param name="script">Script</param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, NeoModule module = null)
-        {
-            return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS }, module);
-        }
 
+        public static byte[] Optimize(byte[] script)
+        {
+            return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS }
+            , out Dictionary<uint, uint> AddrConvertTable);
+        }
+        public static byte[] Optimize(byte[] script, out Dictionary<uint, uint> AddrConvertTable)
+        {
+            return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS }
+            , out AddrConvertTable);
+        }
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes)
+        {
+            return Optimize(script, parserTypes, out Dictionary<uint, uint> AddrConvertTable);
+        }
         /// <summary>
         /// Optimize
         /// </summary>
@@ -26,7 +36,7 @@ namespace Neo.Compiler.Optimizer
         /// <para> DELETE_NOP -- delete nop parser</para>
         /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para></param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, NeoModule module = null)
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<uint, uint> AddrConvertTable)
         {
             var optimizer = new NefOptimizer();
 
@@ -42,26 +52,12 @@ namespace Neo.Compiler.Optimizer
                 optimizer.AddOptimizeParser(parser);
             }
 
-            //find method entry
-            Dictionary<string, int> methodEntry = new Dictionary<string, int>();
-            if (module != null)
-            {
-                foreach (var function in module.mapMethods)
-                {
-                    var mm = function.Value;
-                    if (mm.inSmartContract == false || mm.isPublic == false)
-                        continue;
-                    if (methodEntry.ContainsKey(function.Value.displayName))
-                        throw new Exception("not allow same name functions");
 
-                    methodEntry.Add(function.Value.displayName, function.Value.funcaddr);
-                }
-            }
 
             //step01 Load
             using (var ms = new MemoryStream(script))
             {
-                optimizer.LoadNef(ms, methodEntry);
+                optimizer.LoadNef(ms);
             }
             //step02 doOptimize
             optimizer.Optimize();
@@ -69,7 +65,8 @@ namespace Neo.Compiler.Optimizer
             //step03 link
             using (var ms = new MemoryStream())
             {
-                optimizer.LinkNef(ms, module);
+                optimizer.LinkNef(ms);
+                AddrConvertTable = optimizer.GetAddrConvertTable();
                 var bytes = ms.ToArray();
                 return bytes;
             }
