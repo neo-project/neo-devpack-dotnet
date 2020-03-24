@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
@@ -16,13 +18,13 @@ namespace Neo.Compiler.Optimizer
         /// Constructor
         /// </summary>
         /// <param name="script">Script</param>
-        public NefOptimizer(byte[] script = null)
+        public NefOptimizer(byte[] script = null, Dictionary<string, int> methodEntry = null)
         {
             if (script != null)
             {
                 using (var ms = new MemoryStream(script))
                 {
-                    LoadNef(ms);
+                    LoadNef(ms, methodEntry);
                 }
             }
         }
@@ -57,7 +59,7 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream)
+        public void LoadNef(Stream stream, Dictionary<string, int> methodEntry = null)
         {
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
@@ -99,6 +101,13 @@ namespace Neo.Compiler.Optimizer
                     Items.Add(mapLabel[curOffset]);
                 }
                 Items.Add(instruction);
+
+                if (methodEntry.ContainsValue(instruction.Offset))
+                {
+                    var methodName = methodEntry.FirstOrDefault(q => q.Value == instruction.Offset).Key;
+                    instruction.IsMethodEntry = true;
+                    instruction.MethodName = methodName;
+                }
             }
         }
 
@@ -140,17 +149,38 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        public void LinkNef(Stream stream)
+        public void LinkNef(Stream stream, NeoModule module)
         {
             //Recalc Address
             //collection Labels and Resort Offset
             RefillAddr();
 
             //and Link
+            //and find method entry offset
+            Dictionary<string, int> methodEntry = new Dictionary<string, int>();
             foreach (var inst in this.Items)
             {
                 if (inst is NefInstruction i)
+                {
                     i.WriteTo(stream);
+                    if (i.IsMethodEntry == true)
+                        methodEntry.TryAdd(i.MethodName, i.Offset);
+                }
+            }
+
+            if (module != null)
+            {
+                foreach (var function in module.mapMethods)
+                {
+                    if (methodEntry.ContainsKey(function.Value.displayName))
+                    {
+                        function.Value.funcaddr = methodEntry[function.Value.displayName];
+                    }
+                    else
+                    {
+                        function.Value.funcaddr = -1;
+                    }
+                }
             }
         }
     }
