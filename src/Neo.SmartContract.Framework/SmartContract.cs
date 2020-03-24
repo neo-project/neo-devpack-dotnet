@@ -7,12 +7,12 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         /// <param name="condition">Condition that MUST meet</param>
         [OpCode(OpCode.ASSERT)]
-        public extern static void Assert(bool condition);
+        public static void Assert(bool condition) { }
 
         /// <summary>
         /// Abort the execution
         /// </summary>
         [OpCode(OpCode.ABORT)]
-        public extern static void Abort();
+        public static void Abort() { }
     }
 }
