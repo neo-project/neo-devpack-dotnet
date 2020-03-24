@@ -26,14 +26,14 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestAssertExtension()
+        public void TestAssert()
         {
             var engine = new TestEngine();
             engine.AddEntryScript("./TestClasses/Contract_Helper.cs");
 
             // With extension
 
-            var result = engine.ExecuteTestCaseStandard("assertExtension", new Boolean(true));
+            var result = engine.ExecuteTestCaseStandard("assertCall", new Boolean(true));
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
@@ -41,14 +41,14 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(item.GetBigInteger(), 5);
 
             engine.Reset();
-            result = engine.ExecuteTestCaseStandard("assertExtension", new Boolean(false));
+            result = engine.ExecuteTestCaseStandard("assertCall", new Boolean(false));
             Assert.AreEqual(VMState.FAULT, engine.State);
             Assert.AreEqual(0, result.Count);
 
             // Void With extension
 
             engine.Reset();
-            result = engine.ExecuteTestCaseStandard("voidAssertExtension", new Boolean(true));
+            result = engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(true));
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Count);
             item = result.Pop();
@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(item.GetBigInteger(), 0);
 
             engine.Reset();
-            result = engine.ExecuteTestCaseStandard("voidAssertExtension", new Boolean(false));
+            result = engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(false));
             Assert.AreEqual(VMState.FAULT, engine.State);
             Assert.AreEqual(0, result.Count);
         }

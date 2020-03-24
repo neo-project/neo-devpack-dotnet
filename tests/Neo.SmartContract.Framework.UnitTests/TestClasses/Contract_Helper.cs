@@ -11,20 +11,15 @@ namespace Compiler.MSIL.TestClasses
             return data;
         }
 
-        public static int AssertExtension(bool value)
+        public static int AssertCall(bool value)
         {
-            (value == true).Assert();
+            Assert(value == true);
             return 5;
         }
 
-        public static void VoidAssertExtension(bool value)
+        public static void VoidAssertCall(bool value)
         {
-            (value == true).Assert();
+            Assert(value == true);
         }
-
-        //public static void AssertCall(bool value)
-        //{
-        //    Assert((value == true));
-        //}
     }
 }

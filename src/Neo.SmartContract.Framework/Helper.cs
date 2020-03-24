@@ -74,18 +74,6 @@ namespace Neo.SmartContract.Framework
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
 
         /// <summary>
-        /// Faults if b is false
-        /// </summary>
-        [OpCode(OpCode.ASSERT)]
-        public extern static void Assert(this bool condition);
-
-        /// <summary>
-        /// Abort the execution
-        /// </summary>
-        [OpCode(OpCode.ABORT)]
-        public extern static void Abort();
-
-        /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// ScriptAttribute: DUP ARRAYSIZE PUSH1 NUMEQUAL THROWIFNOT
@@ -128,10 +116,13 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [Script("76c0519cf1")]
         public extern static byte AsByte(this int source);
-        //{
-        //    Assert(((BigInteger)source).AsByteArray().Length == 1);
-        //    return (byte) source;
-        //}
+
+        /// <summary>
+        /// Faults if b is false
+        /// </summary>
+        /// <param name="condition">Condition that MUST meet</param>
+        [OpCode(OpCode.ASSERT)]
+        private extern static void Assert(this bool condition);
 
         /// <summary>
         /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.
