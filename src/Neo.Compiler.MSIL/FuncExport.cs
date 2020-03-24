@@ -88,6 +88,8 @@ namespace vmtool
             List<string> names = new List<string>();
             foreach (var function in module.mapMethods)
             {
+                var offset = function.Value.funcaddr;
+                if (offset == -1) continue;
                 var mm = function.Value;
                 if (mm.inSmartContract == false)
                     continue;
@@ -102,7 +104,6 @@ namespace vmtool
                     throw new Exception("abi not allow same name functions");
                 }
                 names.Add(function.Value.displayName);
-                var offset = function.Value.funcaddr;
                 funcsign.SetDictValue("offset", offset.ToString());
                 MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
                 funcsign["parameters"] = funcparams;

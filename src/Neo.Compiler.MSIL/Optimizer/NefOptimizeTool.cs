@@ -49,15 +49,11 @@ namespace Neo.Compiler.Optimizer
                 foreach (var function in module.mapMethods)
                 {
                     var mm = function.Value;
-                    if (mm.inSmartContract == false)
+                    if (mm.inSmartContract == false || mm.isPublic == false)
                         continue;
-                    if (mm.isPublic == false)
-                        continue;
-
                     if (methodEntry.ContainsKey(function.Value.displayName))
-                    {
                         throw new Exception("not allow same name functions");
-                    }
+
                     methodEntry.Add(function.Value.displayName, function.Value.funcaddr);
                 }
             }
