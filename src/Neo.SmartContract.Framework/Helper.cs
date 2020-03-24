@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Framework
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
 
         /// <summary>
-        /// Faults if b is false
+        /// Faults if `condition` is false
         /// </summary>
         /// <param name="condition">Condition that MUST meet</param>
         [OpCode(OpCode.ASSERT)]

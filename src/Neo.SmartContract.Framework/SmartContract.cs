@@ -3,7 +3,7 @@ namespace Neo.SmartContract.Framework
     public class SmartContract
     {
         /// <summary>
-        /// Faults if b is false
+        /// Faults if `condition` is false
         /// </summary>
         /// <param name="condition">Condition that MUST meet</param>
         [OpCode(OpCode.ASSERT)]
