@@ -27,14 +27,14 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        private  Dictionary<int, int> addrConvertTable;
+        private Dictionary<int, int> addrConvertTable;
 
         public Dictionary<int, int> GetAddrConvertTable()
         {
             foreach (var item in Items)
             {
                 var inst = item as NefInstruction;
-                if (inst!=null)
+                if (inst != null)
                 {
                     addrConvertTable[inst.OffsetInit] = inst.Offset;
                 }
@@ -172,7 +172,6 @@ namespace Neo.Compiler.Optimizer
                     i.WriteTo(stream);
                 }
             }
-
         }
     }
 }
