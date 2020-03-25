@@ -31,6 +31,15 @@ namespace Neo.Compiler.MSIL.TestClasses
             return value;
         }
 
+        public static byte[] TestOver16Bytes()
+        {
+            var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
+            StorageMap storageMap = Storage.CurrentContext.CreateMap("test_map");
+            storageMap.Put(new byte[] { 0x01 }, value);
+            value = storageMap.Get(new byte[] { 0x01 });
+            return value;
+        }
+
         #endregion
 
         #region String

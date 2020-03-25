@@ -131,6 +131,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
+        public void Test_LongBytes()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testOver16Bytes");
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            ByteArray bs = result.Pop() as ByteArray;
+            var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
+
+            Assert.AreEqual(new ByteArray(value), bs);
+        }
+
+        [TestMethod]
         public void Test_String()
         {
             var prefix = new byte[] { 0x61, 0x61 };
