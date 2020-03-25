@@ -74,13 +74,6 @@ namespace Neo.SmartContract.Framework
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
 
         /// <summary>
-        /// Faults if `condition` is false
-        /// </summary>
-        /// <param name="condition">Condition that MUST meet</param>
-        [OpCode(OpCode.ASSERT)]
-        private extern static void Assert(this bool condition);
-
-        /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// ScriptAttribute: DUP ARRAYSIZE PUSH1 NUMEQUAL THROWIFNOT
@@ -136,7 +129,7 @@ namespace Neo.SmartContract.Framework
         {
             if (source > 127)
                 source -= 256;
-            Assert(source.Within(-128, 128));
+            SmartContract.Assert(source.Within(-128, 128));
             return (sbyte)(source + 0);
         }
 
@@ -148,7 +141,7 @@ namespace Neo.SmartContract.Framework
         {
             if (source > 127)
                 source -= 256;
-            Assert(source.Within(-128, 128));
+            SmartContract.Assert(source.Within(-128, 128));
             return (sbyte)(source + 0);
         }
 
@@ -158,7 +151,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte ToByte(this BigInteger source)
         {
-            Assert(source.Within(0, 256));
+            SmartContract.Assert(source.Within(0, 256));
             if (source > 127)
                 source -= 256;
             return (byte)(source + 0);
@@ -170,7 +163,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte ToByte(this int source)
         {
-            Assert(source.Within(0, 256));
+            SmartContract.Assert(source.Within(0, 256));
             if (source > 127)
                 source -= 256;
             return (byte)(source + 0);

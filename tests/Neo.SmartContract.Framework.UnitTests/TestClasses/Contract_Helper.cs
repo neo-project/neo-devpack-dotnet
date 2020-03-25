@@ -13,13 +13,13 @@ namespace Compiler.MSIL.TestClasses
 
         public static int AssertCall(bool value)
         {
-            Debug.Assert(value == true);
+            Assert(value == true);
             return 5;
         }
 
         public static void VoidAssertCall(bool value)
         {
-            Debug.Assert(value == true);
+            Assert(value == true);
         }
     }
 }
