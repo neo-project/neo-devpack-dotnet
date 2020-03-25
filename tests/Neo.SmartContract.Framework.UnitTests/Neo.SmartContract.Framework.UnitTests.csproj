@@ -18,9 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="TestClasses\*.cs">
+    <Compile Remove="TestClasses\*.cs" />
+    <None Include="TestClasses\*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
+    </None>
   </ItemGroup>
 
 </Project>
