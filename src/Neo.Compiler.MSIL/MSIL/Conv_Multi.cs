@@ -1141,7 +1141,7 @@ namespace Neo.Compiler.MSIL
             {
                 var code = to.body_Codes.Last().Value;
 
-                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT) // we need a number, two cases: PUSH1- PUSH16, PUSHDATA[1-4] CONVERT
+                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT) // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1-4] CONVERT(BigInteger)
                     throw new Exception("_ConvertNewArr::not support var lens for new byte[?].");
 
                 to.body_Codes.Remove(code.addr);
@@ -1156,7 +1156,7 @@ namespace Neo.Compiler.MSIL
                 {
                     // This is the initialization array
 
-                    if (code.code == VM.OpCode.CONVERT) // PUSHDATA[1-4], CONVERT
+                    if (code.code == VM.OpCode.CONVERT) // case2: number = PUSHDATA[1-4], CONVERT(BigInteger)
                     {
                         var previousCode = to.body_Codes.Last().Value; // we need to remove OpCode.PUSHDATA[1-4]
                         to.body_Codes.Remove(previousCode.addr);
