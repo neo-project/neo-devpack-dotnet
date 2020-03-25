@@ -1183,7 +1183,7 @@ namespace Neo.Compiler.MSIL
                     return 3;
                 }
                 else
-                {                    
+                {
                     var outbyte = new byte[number];
                     var skip = 0;
                     int start = n;
