@@ -17,7 +17,7 @@ namespace Neo.Compiler.Optimizer
             , out _);
         }
 
-        public static byte[] Optimize(byte[] script, out Dictionary<uint, uint> addrConvertTable)
+        public static byte[] Optimize(byte[] script, out Dictionary<int, int> addrConvertTable)
         {
             return Optimize(script, new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODDE, OptimizeParserType.USE_SHORT_ADDRESS }
             , out addrConvertTable);
@@ -38,7 +38,7 @@ namespace Neo.Compiler.Optimizer
         /// <para> DELETE_NOP -- delete nop parser</para>
         /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para></param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<uint, uint> addrConvertTable)
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<int, int> addrConvertTable)
         {
             var optimizer = new NefOptimizer();
 

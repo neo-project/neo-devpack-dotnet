@@ -19,6 +19,7 @@ namespace Neo.Compiler.Optimizer
         private uint DataSize => DataPrefixSize > 0 ? (uint)(Data?.Length ?? 0) : GetOperandSize(OpCode);
 
         public byte[] Data { get; private set; }
+        public int OffsetInit { get; private set; }
         public int Offset { get; private set; }
         public string[] Labels { get; private set; }
 
@@ -46,10 +47,11 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        public NefInstruction(OpCode opCode, byte[] data = null, int offset = -1)
+        public NefInstruction(OpCode opCode, byte[] data, int offset)
         {
             SetOpCode(opCode);
             SetData(data);
+            OffsetInit = offset;
             SetOffset(offset);
         }
 
