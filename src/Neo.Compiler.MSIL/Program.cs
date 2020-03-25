@@ -1,9 +1,11 @@
 using CommandLine;
+using Mono.Cecil;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +20,7 @@ namespace Neo.Compiler
             [Option('f', "file", Required = true, HelpText = "File for compile.")]
             public string File { get; set; }
 
-            [Option('o', "optimize", Required = true, HelpText = "Optimize.")]
+            [Option('o', "optimize", Required = false, HelpText = "Optimize.")]
             public bool Optimize { get; set; } = false;
         }
 
@@ -240,6 +242,9 @@ namespace Neo.Compiler
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                     .FirstOrDefault();
 
+                var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+
+                var extra = BuildExtraAttributes(extraAttributes);
                 var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
                 var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
@@ -247,7 +252,7 @@ namespace Neo.Compiler
                 string defManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[]}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":" + extra + "}";
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -277,6 +282,26 @@ namespace Neo.Compiler
             }
 
             return -1;
+        }
+
+        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
+        {
+            if (extraAttributes.Count == 0)
+            {
+                return "null";
+            }
+
+            string extra = "{";
+            foreach (var extraAttribute in extraAttributes)
+            {
+                var key = extraAttribute[0].Value;
+                var value = extraAttribute[1].Value;
+                extra += ($"\"{key}\":\"{value}\",");
+            }
+            extra = extra.Substring(0, extra.Length - 1);
+            extra += "}";
+
+            return extra;
         }
     }
 }

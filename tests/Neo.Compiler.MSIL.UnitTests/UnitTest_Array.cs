@@ -53,9 +53,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testStructArray");
 
             //test (1+5)*7 == 42
-            var neostruct = result.Pop() as Struct;
-
-            var bequal = neostruct != null;
+            var bequal = result.Pop() as Struct != null;
             Assert.IsTrue(bequal);
         }
 
@@ -67,10 +65,48 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testStructArrayInit");
 
             //test (1+5)*7 == 42
-            var neostruct = result.Pop() as Struct;
-
-            var bequal = neostruct != null;
+            var bequal = result.Pop() as Struct != null;
             Assert.IsTrue(bequal);
+        }
+
+        [TestMethod]
+        public void Test_ByteArrayOwner()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testByteArrayOwner");
+
+            var bts = result.Pop() as ByteArray;
+
+            ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            Assert.IsTrue(ByteArray.Equals(bts, test));
+        }
+
+        [TestMethod]
+        public void Test_ByteArrayOwnerCall()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testByteArrayOwnerCall");
+
+            var bts = result.Pop().ConvertTo(StackItemType.ByteArray);
+
+            ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            Assert.IsTrue(ByteArray.Equals(bts, test));
+        }
+
+        [TestMethod]
+        public void Test_StringArray()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testSupportedStandards");
+
+            var bts = result.Pop().ConvertTo(StackItemType.Array);
+            var items = bts as VM.Types.Array;
+
+            Assert.AreEqual((ByteArray)"NEP-5", items[0]);
+            Assert.AreEqual((ByteArray)"NEP-10", items[1]);
         }
     }
 }
