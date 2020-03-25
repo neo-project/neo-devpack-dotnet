@@ -41,6 +41,7 @@ namespace Neo.Compiler.Optimizer
             }
             return this.addrConvertTable;
         }
+
         public void AddOptimizeParser(IOptimizeParser function)
         {
             OptimizeFunctions.Add(function);
@@ -71,7 +72,6 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-
         public void LoadNef(Stream stream)
         {
             this.addrConvertTable = new Dictionary<int, int>();
@@ -101,7 +101,6 @@ namespace Neo.Compiler.Optimizer
                         }
 
                         inst.Labels[i] = mapLabel[addr].Name;
-
                     }
                     this.addrConvertTable[inst.OffsetInit] = -1;
                 }
