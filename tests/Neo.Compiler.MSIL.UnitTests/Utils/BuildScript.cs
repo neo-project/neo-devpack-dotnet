@@ -12,6 +12,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             get;
             private set;
         }
+        public bool UseOptimizer
+        {
+            get;
+            private set;
+        }
         public Exception Error
         {
             get;
@@ -44,6 +49,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             this.IsBuild = false;
             this.Error = null;
+            this.UseOptimizer = optimizer;
 
             var log = new DefLogger();
             this.modIL = new ILModule(log);
@@ -64,12 +70,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             try
 
 #endif
+            Dictionary<int, int> addrConvTable = null;
             {
                 converterIL.Convert(modIL, option);
                 finalNEF = converterIL.outModule.Build();
                 if (optimizer)
                 {
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF);
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF, out addrConvTable);
                     float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
                     log.Log("optimization ratio = " + ratio + "%");
                     finalNEF = opbytes;
@@ -86,7 +93,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF);
+                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
             }
             catch
             {
