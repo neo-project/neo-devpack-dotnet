@@ -27,10 +27,9 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        private Dictionary<int, int> addrConvertTable;
-
         public Dictionary<int, int> GetAddrConvertTable()
         {
+            var addrConvertTable = new Dictionary<int, int>();
             foreach (var item in Items)
             {
                 var inst = item as NefInstruction;
@@ -39,7 +38,7 @@ namespace Neo.Compiler.Optimizer
                     addrConvertTable[inst.OffsetInit] = inst.Offset;
                 }
             }
-            return this.addrConvertTable;
+            return addrConvertTable;
         }
 
         public void AddOptimizeParser(IOptimizeParser function)
@@ -74,7 +73,6 @@ namespace Neo.Compiler.Optimizer
         /// <param name="stream">Stream</param>
         public void LoadNef(Stream stream)
         {
-            this.addrConvertTable = new Dictionary<int, int>();
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
             //read all Address to listAddr
@@ -102,7 +100,6 @@ namespace Neo.Compiler.Optimizer
 
                         inst.Labels[i] = mapLabel[addr].Name;
                     }
-                    this.addrConvertTable[inst.OffsetInit] = -1;
                 }
             } while (inst != null);
 
