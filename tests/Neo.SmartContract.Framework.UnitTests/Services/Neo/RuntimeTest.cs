@@ -89,7 +89,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0x01, item.GetBigInteger());
         }
-        
+
         [TestMethod]
         public void Test_GasLeft()
         {
