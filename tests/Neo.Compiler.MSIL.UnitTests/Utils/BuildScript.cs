@@ -70,17 +70,19 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             try
 
 #endif
-            Dictionary<int, int> addrConvTable = null;
-            converterIL.Convert(modIL, option);
-            finalNEF = converterIL.outModule.Build();
-            if (optimizer)
             {
-                var opbytes = NefOptimizeTool.Optimize(finalNEF, out addrConvTable);
-                float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
-                log.Log("optimization ratio = " + ratio + "%");
-                finalNEF = opbytes;
+                Dictionary<int, int> addrConvTable = null;
+                converterIL.Convert(modIL, option);
+                finalNEF = converterIL.outModule.Build();
+                if (optimizer)
+                {
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF, out addrConvTable);
+                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
+                    log.Log("optimization ratio = " + ratio + "%");
+                    finalNEF = opbytes;
+                }
+                IsBuild = true;
             }
-            IsBuild = true;
 #if NDEBUG
             catch (Exception err)
             {
