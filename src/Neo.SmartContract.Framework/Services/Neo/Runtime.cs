@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
             [Syscall("System.Runtime.GetInvocationCounter")]
             get;
         }
-        
+
         public static extern long GasLeft
         {
             [Syscall("System.Runtime.GasLeft")]
