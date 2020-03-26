@@ -65,13 +65,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             }
 
             converterIL = new ModuleConverter(log);
+            Dictionary<int, int> addrConvTable = null;
             ConvOption option = new ConvOption();
 #if NDEBUG
             try
 
 #endif
             {
-                Dictionary<int, int> addrConvTable = null;
                 converterIL.Convert(modIL, option);
                 finalNEF = converterIL.outModule.Build();
                 if (optimizer)
