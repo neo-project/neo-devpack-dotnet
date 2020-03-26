@@ -91,17 +91,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
-        public void Test_GasLeft()
-        {
-            var result = _engine.ExecuteTestCaseStandard("getGasLeft");
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(-1, item.GetBigInteger());
-        }
-
-        [TestMethod]
         public void Test_Time()
         {
             ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Block()
