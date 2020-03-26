@@ -40,7 +40,9 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public BuildScript Build(string filename, bool releaseMode = false, bool optimizer = true)
         {
-            if (scriptsAll.ContainsKey(filename) == false || (scriptsAll.ContainsKey(filename) == true && scriptsAll[filename].UseOptimizer != optimizer))
+            var contains = scriptsAll.ContainsKey(filename);
+
+            if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
             {
                 scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
             }

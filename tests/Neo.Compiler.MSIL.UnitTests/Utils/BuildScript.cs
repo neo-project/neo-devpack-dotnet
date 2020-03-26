@@ -70,7 +70,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             try
 
 #endif
-            Dictionary<int, int> addrConvTable = null;
+            Dictionary<int, int> addrConvTable;
             {
                 converterIL.Convert(modIL, option);
                 finalNEF = converterIL.outModule.Build();
