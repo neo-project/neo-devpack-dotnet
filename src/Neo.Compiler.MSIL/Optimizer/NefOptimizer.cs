@@ -32,8 +32,7 @@ namespace Neo.Compiler.Optimizer
             var addrConvertTable = new Dictionary<int, int>();
             foreach (var item in Items)
             {
-                var inst = item as NefInstruction;
-                if (inst != null)
+                if (item is NefInstruction inst)
                 {
                     addrConvertTable[inst.OffsetInit] = inst.Offset;
                 }
