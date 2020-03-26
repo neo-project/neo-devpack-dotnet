@@ -25,6 +25,12 @@ namespace Neo.SmartContract.Framework.Services.Neo
             [Syscall("System.Runtime.GetInvocationCounter")]
             get;
         }
+        
+        public static extern long GasLeft
+        {
+            [Syscall("System.Runtime.GasLeft")]
+            get;
+        }
 
         /// <summary>
         /// This method gets current invocation notifications from specific 'scriptHash'
