@@ -11,15 +11,15 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         public static object testType()
         {
             BigInteger int0 = 0;
-            var bts0 = int0.AsByteArray();
+            var bts0 = int0.ToByteArray();
             BigInteger int1 = 2;
-            var bts1 = int1.AsByteArray();
+            var bts1 = int1.ToByteArray();
 
             var bts2=new byte[1] { 3 };
-            var int2 = bts2.AsBigInteger();
+            var int2 = bts2.ToBigInteger();
 
             var bts3 = new byte[0];
-            var int3 = bts3.AsBigInteger();
+            var int3 = bts3.ToBigInteger();
 
             var arrobj = new object[8];
             arrobj[0] = int0;
