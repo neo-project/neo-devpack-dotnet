@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Framework
         //const string StackItemType_Boolean = "0x20";
         const string StackItemType_Integer = "0x21";
         const string StackItemType_ByteArray = "0x28";
-        //const string StackItemType_Buffer = "0x30";
+        const string StackItemType_Buffer = "0x30";
         //const string StackItemType_Array = "0x40";
         //const string StackItemType_Struct = "0x41";
         //const string StackItemType_Map = "0x48";
@@ -212,21 +212,31 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Last(this byte[] source, int count);
 
         /// <summary>
-        /// Returns a reversed copy of byte[] parameter 'source' (parameter is not affected because byte[] is copy-based on NeoVM).
-        /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
+        /// Reverse byte array, be careful, it'll convert to Buffer for reversing.
         /// </summary>
-        public static byte[] Reverse(this byte[] source)
-        {
-            for (int k = 0; k < source.Length / 2; k++)
-            {
-                int m = source.Length - k - 1;
-                byte bg = source[k]; // must store on variable before next assignment
-                byte ed = source[m]; // must store on variable before next assignment
-                source[k] = ed;
-                source[m] = bg;
-            }
-            return source;
-        }
+        /// <param name="source"></param>
+        /// <returns></returns>
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.REVERSEITEMS)]
+        public extern static byte[] Reverse(this byte[] source);
+
+        ///// <summary>
+        ///// Returns a reversed copy of byte[] parameter 'source' (parameter is not affected because byte[] is copy-based on NeoVM).
+        ///// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
+        ///// </summary>
+        //public static byte[] Reverse(this byte[] source)
+        //{
+        //    for (int k = 0; k < source.Length / 2; k++)
+        //    {
+        //        int m = source.Length - k - 1;
+        //        byte bg = source[k]; // must store on variable before next assignment
+        //        byte ed = source[m]; // must store on variable before next assignment
+        //        source[k] = ed;
+        //        source[m] = bg;
+        //    }
+        //    return source;
+        //}
 
         [Script]
         public extern static Delegate ToDelegate(this byte[] source);

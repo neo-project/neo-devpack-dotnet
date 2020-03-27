@@ -897,6 +897,13 @@ namespace Neo.Compiler.MSIL
                         //1 c3 PICKITEM
                         //*/
 
+                        // In neo3, we must convert it first, It's too complicated!
+                        // CONVERT StackItemType.Buffer
+                        // set index
+                        // set value
+                        // SETITEM
+
+
                         //if ((to.body_Codes[addr - 1].code == VM.OpCode.PICKITEM)
                         //  && (to.body_Codes[addr - 4].code == VM.OpCode.PICKITEM)
                         //  && (to.body_Codes[addr - 7].code == VM.OpCode.PICKITEM)
