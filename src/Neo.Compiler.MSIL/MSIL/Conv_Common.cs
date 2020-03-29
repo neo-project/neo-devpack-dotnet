@@ -182,7 +182,6 @@ namespace Neo.Compiler.MSIL
                 outv = v;
                 ConvertPushNumber(outv, src, to);
                 return 1;
-
             }
             else if (code == CodeEx.Conv_U4)
             {
