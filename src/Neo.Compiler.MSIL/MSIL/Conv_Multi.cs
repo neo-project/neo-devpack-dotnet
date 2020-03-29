@@ -1153,16 +1153,19 @@ namespace Neo.Compiler.MSIL
             {
                 var code = to.body_Codes.Last().Value;
 
-                if (code.code == VM.OpCode.CONVERT)
-                    code = to.body_Codes.TakeLast(2).First().Value;
-
-                if (code.code > VM.OpCode.PUSH16) //we need a number
+                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT) // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
                     throw new Exception("_ConvertNewArr::not support var lens for new byte[?].");
 
-                var number = GetNumber(code);
+                if (code.code == VM.OpCode.CONVERT) // number = PUSHDATA[1,2,4] CONVERT(Integer)
+                {
+                    to.body_Codes.Remove(code.addr);
+                    code = to.body_Codes.Last().Value;
+                }
 
                 to.body_Codes.Remove(code.addr);
                 this.addr = code.addr;
+
+                var number = GetNumber(code);
 
                 int n = method.GetNextCodeAddr(src.addr);
                 int n2 = method.GetNextCodeAddr(n);
