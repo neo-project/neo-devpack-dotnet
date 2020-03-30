@@ -7,6 +7,10 @@ using System.Runtime.CompilerServices;
 
 namespace Template.NEP5.CSharp
 {
+    [ManifestExtraAttribute("Name", "Demo")]
+    [ManifestExtraAttribute("Author", "Neo")]
+    [ManifestExtraAttribute("Email", "dev@neo.org")]
+    [ManifestExtraAttribute("Description", "This is a contract example")]
     [Features(ContractFeatures.HasStorage | ContractFeatures.Payable)]
     public partial class NEP5 : SmartContract
     {
