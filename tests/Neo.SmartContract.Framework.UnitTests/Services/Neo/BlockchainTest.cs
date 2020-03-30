@@ -69,7 +69,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_GetBlockByHash()
         {
-            Test_GetBlock("getBlockByHash", new ByteArray(_block.Hash.ToArray()), new ByteArray(UInt256.Zero.ToArray()));
+            Test_GetBlock("getBlockByHash", new ByteArray(_block.Hash.ToArray()), new ByteArray(UInt256.Parse("0x0000000000000000000000000000000000000000000000000000000000000001").ToArray()));
         }
 
         [TestMethod]

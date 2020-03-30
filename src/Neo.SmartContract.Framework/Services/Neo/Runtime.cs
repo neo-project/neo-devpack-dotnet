@@ -26,6 +26,12 @@ namespace Neo.SmartContract.Framework.Services.Neo
             get;
         }
 
+        public static extern long GasLeft
+        {
+            [Syscall("System.Runtime.GasLeft")]
+            get;
+        }
+
         /// <summary>
         /// This method gets current invocation notifications from specific 'scriptHash'
         /// 'scriptHash' must have 20 bytes, but if it's all zero 0000...0000 it refers to all existing notifications (like a * wildcard)

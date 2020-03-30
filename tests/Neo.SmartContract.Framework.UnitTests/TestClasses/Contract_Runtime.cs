@@ -14,6 +14,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Runtime.Time;
         }
 
+        public static long GetGasLeft()
+        {
+            return Runtime.GasLeft;
+        }
+
         public static string GetPlatform()
         {
             return Runtime.Platform;
