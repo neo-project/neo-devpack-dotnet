@@ -26,8 +26,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.1" />
-    <PackageReference Include="Neo" Version="3.0.0-CI00860" />
-    <PackageReference Include="Neo.VM" Version="3.0.0-CI00209" />
+    <PackageReference Include="Neo" Version="3.0.0-CI00872" />
   </ItemGroup>
 
   <ItemGroup>
