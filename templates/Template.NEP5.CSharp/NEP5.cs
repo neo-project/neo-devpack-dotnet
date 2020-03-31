@@ -3,13 +3,12 @@ using Neo.SmartContract.Framework.Services.Neo;
 using System;
 using System.ComponentModel;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Template.NEP5.CSharp
 {
-    [ManifestExtraAttribute("Author", "Neo")]
-    [ManifestExtraAttribute("Email", "dev@neo.org")]
-    [ManifestExtraAttribute("Description", "This is a NEP5 example")]
+    [ManifestExtra("Author", "Neo")]
+    [ManifestExtra("Email", "dev@neo.org")]
+    [ManifestExtra("Description", "This is a NEP5 example")]
     [Features(ContractFeatures.HasStorage | ContractFeatures.Payable)]
     public partial class NEP5 : SmartContract
     {

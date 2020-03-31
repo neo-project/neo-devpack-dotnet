@@ -5,9 +5,9 @@ using System.Numerics;
 
 namespace $safeprojectname$
 {
-    [ManifestExtraAttribute("Author", "Neo")]
-    [ManifestExtraAttribute("Email", "dev@neo.org")]
-    [ManifestExtraAttribute("Description", "This is a contract example")]
+    [ManifestExtra("Author", "Neo")]
+    [ManifestExtra("Email", "dev@neo.org")]
+    [ManifestExtra("Description", "This is a contract example")]
     [Features(ContractFeatures.HasStorage)]
     public class Contract1 : SmartContract
     {
