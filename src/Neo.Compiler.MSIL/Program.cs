@@ -165,6 +165,7 @@ namespace Neo.Compiler
                 Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
+                    module.ConvertFuncAddr();
                     var optimize = NefOptimizeTool.Optimize(bytes, out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
                     foreach (var func in module.mapMethods)

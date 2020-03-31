@@ -69,6 +69,21 @@ namespace Neo.Compiler
             json.ConvertToStringWithFormat(sb, 4);
             return sb.ToString();
         }
+
+        internal void ConvertFuncAddr()
+        {
+            foreach (var method in this.mapMethods.Values)
+            {
+                foreach (var code in method.body_Codes.Values)
+                {
+                    if (code.code != VM.OpCode.NOP)
+                    {
+                        method.funcaddr = code.addr;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public class NeoMethod

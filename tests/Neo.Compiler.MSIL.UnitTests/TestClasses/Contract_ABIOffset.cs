@@ -2,33 +2,24 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     public class Contract_ABIOffset : SmartContract.Framework.SmartContract
     {
-        public static void Main(string method, object[] args)
-        {
-            UnitTest_001();
-            UnitTest_002();
-            UnitTest_003();
-            UnitTest_004();
-        }
         public static byte[] UnitTest_001()
         {
             var nb = new byte[] { 1, 2, 3, 4 };
             return nb;
         }
-        public static byte[] UnitTest_002()
+        public static int UnitTest_002()
         {
-            var nb = new byte[] { 1, 2, 3, 4 };
-            return nb;
+            int a = 0;
+            for (int i = 1; i <= 5; i++)
+            {
+                a += i;
+            }
+            return a;
         }
-        public static byte[] UnitTest_003()
+        public static int UnitTest_003()
         {
-            var nb = new byte[] { 1, 2, 3, 4 };
-            return nb;
+            int c = UnitTest_002() + 3;
+            return c;
         }
-        public static byte[] UnitTest_004()
-        {
-            var nb = new byte[] { 1, 2, 3, 4 };
-            return nb;
-        }
-
     }
 }
