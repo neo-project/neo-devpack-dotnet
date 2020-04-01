@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
             testengine.ScriptEntry.DumpNEF();
 
-            var result = testengine.GetMethod("call01").Run();//new test method01
+            var result = testengine.GetMethod("call01").Run().ConvertTo(StackItemType.ByteString);//new test method01
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
             var bequal = wantresult.Equals(result);

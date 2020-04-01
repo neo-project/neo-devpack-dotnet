@@ -76,10 +76,10 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testByteArrayOwner");
 
-            var bts = result.Pop() as ByteArray;
+            var bts = result.Pop() as ByteString;
 
-            ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
-            Assert.IsTrue(ByteArray.Equals(bts, test));
+            ByteString test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            Assert.IsTrue(ByteString.Equals(bts, test));
         }
 
         [TestMethod]
@@ -89,10 +89,10 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testByteArrayOwnerCall");
 
-            var bts = result.Pop().ConvertTo(StackItemType.ByteArray);
+            var bts = result.Pop().ConvertTo(StackItemType.ByteString);
 
-            ByteArray test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
-            Assert.IsTrue(ByteArray.Equals(bts, test));
+            ByteString test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            Assert.IsTrue(ByteString.Equals(bts, test));
         }
 
         [TestMethod]
@@ -105,8 +105,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             var bts = result.Pop().ConvertTo(StackItemType.Array);
             var items = bts as VM.Types.Array;
 
-            Assert.AreEqual((ByteArray)"NEP-5", items[0]);
-            Assert.AreEqual((ByteArray)"NEP-10", items[1]);
+            Assert.AreEqual((ByteString)"NEP-5", items[0]);
+            Assert.AreEqual((ByteString)"NEP-10", items[1]);
         }
     }
 }

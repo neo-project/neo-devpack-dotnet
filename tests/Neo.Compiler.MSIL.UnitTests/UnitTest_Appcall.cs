@@ -22,7 +22,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             //will appcall 0102030405060708090A0102030405060708090A
             testengine.AddEntryScript("./TestClasses/Contract_appcall.cs");
 
-            var result = testengine.GetMethod("testfunc").Run();
+            var result = testengine.GetMethod("testfunc").Run().ConvertTo(StackItemType.ByteString);
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
             var bequal = wantresult.Equals(result);
