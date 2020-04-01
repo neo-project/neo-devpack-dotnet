@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Services.Neo;
 using System;
 using System.Numerics;
 
-namespace $safeprojectname$
+namespace Template.HelloWorld
 {
     [Features(ContractFeatures.HasStorage)]
     public class Contract1 : SmartContract
