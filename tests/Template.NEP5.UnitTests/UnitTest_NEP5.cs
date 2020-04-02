@@ -44,7 +44,7 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("Token Name", item.GetString());
         }
 
@@ -55,7 +55,7 @@ namespace Template.NEP5.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("TokenSymbol", item.GetString());
         }
 
