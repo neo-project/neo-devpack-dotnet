@@ -11,8 +11,8 @@ namespace Neo.SmartContract.Framework
         //const string StackItemType_Pointer = "0x10";
         //const string StackItemType_Boolean = "0x20";
         const string StackItemType_Integer = "0x21";
-        const string StackItemType_ByteArray = "0x28";
-        //const string StackItemType_Buffer = "0x30";
+        //const string StackItemType_ByteArray = "0x28";
+        const string StackItemType_Buffer = "0x30";
         //const string StackItemType_Array = "0x40";
         //const string StackItemType_Struct = "0x41";
         //const string StackItemType_Map = "0x48";
@@ -27,19 +27,19 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts sbyte to byte[].
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
         public extern static byte[] ToByteArray(this sbyte source);
 
         /// <summary>
         /// Converts sbyte[] to byte[].
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
         public extern static byte[] ToByteArray(this sbyte[] source);
 
         /// <summary>
         /// Converts byte[] to sbyte[].
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
         public extern static sbyte[] ToSbyteArray(this byte[] source);
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts string to byte[]. Examples: "hello" -> [0x68656c6c6f]; "" -> []; "Neo" -> [0x4e656f]
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
         public extern static byte[] ToByteArray(this string source);
 
         /// <summary>
