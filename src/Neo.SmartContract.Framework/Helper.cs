@@ -197,17 +197,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.REVERSEITEMS)]
         public extern static byte[] Reverse(this byte[] source);
-        //{
-        //    for (int k = 0; k < source.Length / 2; k++)
-        //    {
-        //        int m = source.Length - k - 1;
-        //        byte bg = source[k]; // must store on variable before next assignment
-        //        byte ed = source[m]; // must store on variable before next assignment
-        //        source[k] = ed;
-        //        source[m] = bg;
-        //    }
-        //    return source;
-        //}
 
         [Script]
         public extern static Delegate ToDelegate(this byte[] source);
