@@ -23,8 +23,8 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_StaticVarInit()
         {
-            ByteArray var1;
-            ByteArray var2;
+            ByteString var1;
+            ByteString var2;
             {
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
@@ -32,14 +32,14 @@ namespace Neo.Compiler.MSIL.UnitTests
                 // static byte[] callscript = ExecutionEngine.EntryScriptHash;
                 // ...
                 // return callscript
-                var1 = (result.Pop() as ByteArray);
+                var1 = (result.Pop() as ByteString);
             }
             {
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
                 var result = testengine.ExecuteTestCaseStandard("directget");
                 // return ExecutionEngine.EntryScriptHash
-                var2 = (result.Pop() as ByteArray);
+                var2 = (result.Pop() as ByteString);
             }
             Assert.IsNotNull(var1);
             Assert.AreEqual(var1, var2);
