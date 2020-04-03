@@ -5,18 +5,16 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
-        /// <summary>
-        /// StackItemType HEX String
-        /// </summary>
-        //const string StackItemType_Pointer = "0x10";
-        //const string StackItemType_Boolean = "0x20";
-        const string StackItemType_Integer = "0x21";
-        //const string StackItemType_ByteArray = "0x28";
-        const string StackItemType_Buffer = "0x30";
-        //const string StackItemType_Array = "0x40";
-        //const string StackItemType_Struct = "0x41";
-        //const string StackItemType_Map = "0x48";
-        //const string StackItemType_InteropInterface = "0x60";
+        private const string StackItemType_Pointer = "0x10";
+        private const string StackItemType_Boolean = "0x20";
+        private const string StackItemType_Integer = "0x21";
+        private const string StackItemType_ByteArray = "0x28";
+        private const string StackItemType_Buffer = "0x30";
+        private const string StackItemType_Array = "0x40";
+        private const string StackItemType_Struct = "0x41";
+        private const string StackItemType_Map = "0x48";
+        private const string StackItemType_InteropInterface = "0x60";
+
         /// <summary>
         /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
         /// </summary>
@@ -191,12 +189,12 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Last(this byte[] source, int count);
 
         /// <summary>
-        /// Returns a reversed copy of byte[] parameter 'source' (parameter is not affected because byte[] is copy-based on NeoVM).
+        /// Returns a reversed copy of parameter 'source'.
         /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
         /// </summary>
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.REVERSEITEMS)]
-        public extern static byte[] Reverse(this byte[] source);
+        public extern static byte[] Reverse(this Array source);
 
         [Script]
         public extern static Delegate ToDelegate(this byte[] source);
