@@ -90,7 +90,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Helper.cs");
             var result = testengine.GetMethod("testSbyteToByteArray").Run();
 
-            StackItem reverseArray = new byte[] { 0x11 };
+            StackItem reverseArray = new byte[] { 255 };
             Assert.AreEqual(reverseArray.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
 
@@ -101,7 +101,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Helper.cs");
             var result = testengine.GetMethod("testSbyteArrayToByteArray").Run();
 
-            StackItem reverseArray = new byte[] { 0x01, 0x02, 0x03 };
+            StackItem reverseArray = new byte[] { 255, 254, 253 };
             Assert.AreEqual(reverseArray.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
 
@@ -112,7 +112,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Helper.cs");
             var result = testengine.GetMethod("testByteArrayToSbyteArray").Run();
 
-            StackItem reverseArray = new byte[] { 0x01, 0x02, 0x03 };
+            StackItem reverseArray = new byte[] { 255, 254, 253 };
             Assert.AreEqual(reverseArray.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
 

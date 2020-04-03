@@ -38,20 +38,20 @@ namespace Compiler.MSIL.TestClasses
 
         public static byte[] testSbyteToByteArray()
         {
-            sbyte a = 0x11;
+            sbyte a = -1;
             var result = a.ToByteArray();
             return result;
         }
 
         public static byte[] testSbyteArrayToByteArray()
         {
-            var result = (new sbyte[] { 0x01, 0x02, 0x03 }).ToByteArray();
+            var result = (new sbyte[] { -1, -2, -3 }).ToByteArray();
             return result;
         }
 
         public static sbyte[] testByteArrayToSbyteArray()
         {
-            var result = (new byte[] { 0x01, 0x02, 0x03 }).ToSbyteArray();
+            var result = (new byte[] { 255, 254, 253 }).ToSbyteArray();
             return result;
         }
 
