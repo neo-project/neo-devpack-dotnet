@@ -43,18 +43,6 @@ namespace Compiler.MSIL.TestClasses
             return result;
         }
 
-        public static byte[] testSbyteArrayToByteArray()
-        {
-            var result = (new sbyte[] { -1, -2, -3 }).ToByteArray();
-            return result;
-        }
-
-        public static sbyte[] testByteArrayToSbyteArray()
-        {
-            var result = (new byte[] { 255, 254, 253 }).ToSbyteArray();
-            return result;
-        }
-
         public static byte[] testStringToByteArray()
         {
             string a = "hello world";

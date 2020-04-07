@@ -29,18 +29,6 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] ToByteArray(this sbyte source);
 
         /// <summary>
-        /// Converts sbyte[] to byte[].
-        /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
-        public extern static byte[] ToByteArray(this sbyte[] source);
-
-        /// <summary>
-        /// Converts byte[] to sbyte[].
-        /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
-        public extern static sbyte[] ToSbyteArray(this byte[] source);
-
-        /// <summary>
         /// Converts byte[] to BigInteger. No guarantees are assumed regarding BigInteger working range.
         /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
