@@ -10,9 +10,9 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         /// <summary>
         /// One return
         /// </summary>
-        public static int Sum(int a, int b)
+        public static int Subtract(int a, int b)
         {
-            return a + b;
+            return a - b;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             (int c, int d) = Div(a, b);
 
-            return Sum(c, d);
+            return Subtract(c, d);
         }
     }
 }

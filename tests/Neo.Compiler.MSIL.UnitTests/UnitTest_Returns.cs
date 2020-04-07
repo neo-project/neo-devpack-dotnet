@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
 
-            var result = testengine.GetMethod("sum").Run(5, 9);
+            var result = testengine.GetMethod("subtract").Run(5, 9);
 
             StackItem wantresult = new byte[] { 14 };
             Assert.IsTrue(wantresult.Equals(result));
@@ -42,10 +42,12 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
 
-            var result = testengine.GetMethod("mix").Run(9, 5);
+            var result = testengine.GetMethod("mix").RunEx(9, 5);
 
-            StackItem wantresult = new byte[] { 5 };
-            Assert.IsTrue(wantresult.Equals(result));
+            Assert.AreEqual(1, result.Count);
+
+            Assert.IsTrue(result.TryPop(out Integer r1));
+            Assert.AreEqual(-4, r1);
         }
     }
 }
