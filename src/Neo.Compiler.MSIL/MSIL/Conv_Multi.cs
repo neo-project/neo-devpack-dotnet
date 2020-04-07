@@ -1340,6 +1340,12 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
+            if (type.DeclaringType.FullName.StartsWith("System.ValueTuple`"))
+            {
+                // Multiple returns
+                return 0;
+            }
+
             Convert1by1(VM.OpCode.NOP, src, to);
             ConvertPushNumber(type.DeclaringType.Fields.Count, null, to);
             if (type.DeclaringType.IsValueType)

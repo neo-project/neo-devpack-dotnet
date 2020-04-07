@@ -283,7 +283,6 @@ namespace Neo.Compiler.MSIL
             //if go here,mean methodname is wrong
             //use throw to instead ret,make vm  fault.
             Insert1(VM.OpCode.THROW, "", to);
-            //_Insert1(VM.OpCode.RET, "", to);
 
             //convert all Jmp
             for (var i = 0; i < calladdr.Count; i++)
@@ -1098,8 +1097,6 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Throw:
                     {
                         Convert1by1(VM.OpCode.THROW, src, to);//throw suspends the vm
-                        //don't need to insert RET
-                        //_Insert1(VM.OpCode.RET, "", to);
                     }
                     break;
                 default:
