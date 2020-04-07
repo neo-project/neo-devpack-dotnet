@@ -21,8 +21,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
-            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteArray).Span.ToHexString());
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteString).Span.ToHexString());
         }
 
         [TestMethod]
