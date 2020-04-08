@@ -49,7 +49,7 @@ namespace Neo.Compiler.MSIL.UnitTests.VB
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses_VB/Contract_Return1.vb");
 
-            var result = testengine.GetMethod("UnitTest_001").Run();
+            var result = testengine.GetMethod("UnitTest_001").Run().ConvertTo(StackItemType.ByteString);
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
             var bequal = wantresult.Equals(result);
