@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("verifySignature",
-                new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(new byte[64]));
+                new ByteString(_key.PublicKey.EncodePoint(true)), new ByteString(new byte[64]));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -69,7 +69,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("verifySignature",
-                new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(signature));
+                new ByteString(_key.PublicKey.EncodePoint(true)), new ByteString(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -88,8 +88,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("verifySignatures",
-                new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
-                new Array(new StackItem[] { new ByteArray(new byte[64]) }));
+                new Array(new StackItem[] { new ByteString(_key.PublicKey.EncodePoint(true)) }),
+                new Array(new StackItem[] { new ByteString(new byte[64]) }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -101,8 +101,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("verifySignatures",
-                new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
-                new Array(new StackItem[] { new ByteArray(signature) }));
+                new Array(new StackItem[] { new ByteString(_key.PublicKey.EncodePoint(true)) }),
+                new Array(new StackItem[] { new ByteString(signature) }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -121,9 +121,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("verifySignaturesWithMessage",
-                new ByteArray(new byte[0]),
-                new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
-                new Array(new StackItem[] { new ByteArray(new byte[64]) }));
+                new ByteString(new byte[0]),
+                new Array(new StackItem[] { new ByteString(_key.PublicKey.EncodePoint(true)) }),
+                new Array(new StackItem[] { new ByteString(new byte[64]) }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -135,9 +135,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("verifySignaturesWithMessage",
-                new ByteArray(_engine.ScriptContainer.GetHashData()),
-                new Array(new StackItem[] { new ByteArray(_key.PublicKey.EncodePoint(true)) }),
-                new Array(new StackItem[] { new ByteArray(signature) }));
+                new ByteString(_engine.ScriptContainer.GetHashData()),
+                new Array(new StackItem[] { new ByteString(_key.PublicKey.EncodePoint(true)) }),
+                new Array(new StackItem[] { new ByteString(signature) }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -156,8 +156,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("verifySignatureWithMessage",
-                new ByteArray(new byte[0]),
-                new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(signature));
+                new ByteString(new byte[0]),
+                new ByteString(_key.PublicKey.EncodePoint(true)), new ByteString(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -169,8 +169,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("verifySignatureWithMessage",
-                new ByteArray(_engine.ScriptContainer.GetHashData()),
-                new ByteArray(_key.PublicKey.EncodePoint(true)), new ByteArray(signature));
+                new ByteString(_engine.ScriptContainer.GetHashData()),
+                new ByteString(_key.PublicKey.EncodePoint(true)), new ByteString(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
