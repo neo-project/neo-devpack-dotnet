@@ -1179,7 +1179,7 @@ namespace Neo.Compiler.MSIL
                     // System.Byte or System.SByte
                     var data = method.body_Codes[n2].tokenUnknown as byte[];
                     this.ConvertPushDataArray(data, src, to);
-
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Buffer });
                     return 3;
                 }
                 else
