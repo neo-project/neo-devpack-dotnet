@@ -653,7 +653,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Byte[] System.Numerics.BigInteger::ToByteArray()")
                 {
-                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { 0x30 });
+                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
