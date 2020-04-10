@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Numerics;
+using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
