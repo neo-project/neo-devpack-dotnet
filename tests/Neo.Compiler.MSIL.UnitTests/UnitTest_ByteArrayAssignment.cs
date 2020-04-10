@@ -18,5 +18,15 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
+
+        [TestMethod]
+        public void Test_ByteArrayAssignmentOutOfBounds()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+
+            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOutOfBounds");
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+        }
     }
 }

@@ -15,5 +15,13 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             a[2] = 0x04;
             return a;
         }
+
+        public static byte[] testByteArrayAssignmentOutOfBounds()
+        {
+            var a = new byte[] { 0x00, 0x02, 0x03 };
+            a[0] = 0x01;
+            a[3] = 0x04;
+            return a;
+        }
     }
 }
