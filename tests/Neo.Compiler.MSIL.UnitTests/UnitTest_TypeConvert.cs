@@ -24,13 +24,13 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.IsTrue(arr[3].Type == StackItemType.ByteString);
             Assert.IsTrue((arr[2] as PrimitiveType).ToBigInteger() == (arr[3] as PrimitiveType).ToBigInteger());
 
-            Assert.IsTrue(arr[4].Type == StackItemType.ByteString);
+            Assert.IsTrue(arr[4].Type == StackItemType.Buffer);
             Assert.IsTrue(arr[5].Type == StackItemType.Integer);
-            Assert.IsTrue((arr[4] as PrimitiveType).ToBigInteger() == (arr[5] as PrimitiveType).ToBigInteger());
+            Assert.IsTrue((arr[4].ConvertTo(StackItemType.ByteString) as PrimitiveType).ToBigInteger() == (arr[5] as PrimitiveType).ToBigInteger());
 
-            Assert.IsTrue(arr[6].Type == StackItemType.ByteString);
+            Assert.IsTrue(arr[6].Type == StackItemType.Buffer);
             Assert.IsTrue(arr[7].Type == StackItemType.Integer);
-            Assert.IsTrue((arr[6] as PrimitiveType).ToBigInteger() == (arr[7] as PrimitiveType).ToBigInteger());
+            Assert.IsTrue((arr[6].ConvertTo(StackItemType.ByteString) as PrimitiveType).ToBigInteger() == (arr[7] as PrimitiveType).ToBigInteger());
         }
     }
 }

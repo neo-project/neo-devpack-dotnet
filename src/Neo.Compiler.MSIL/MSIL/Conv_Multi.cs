@@ -1227,6 +1227,7 @@ namespace Neo.Compiler.MSIL
                         if (bLdLoc == false)//It means there's no initialization at all
                         {
                             this.ConvertPushDataArray(outbyte, src, to);
+                            Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Buffer });
                             return 0;
                         }
                         while (true)
@@ -1254,11 +1255,12 @@ namespace Neo.Compiler.MSIL
                             }
                             else if (bLdLoc && !bStelem)
                             {
-                                //This is not a predictive array initialization, we lost one case for handling
+                                // This is not a predictive array initialization, we lost one case for handling
                                 this.ConvertPushDataArray(outbyte, src, to);
                                 // Two cases here
                                 if (skip == 1)
                                 {
+                                    Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Buffer });
                                     return 0; // Without initialization, the first stloc cannot be skipped
                                 }
                                 else
@@ -1275,6 +1277,7 @@ namespace Neo.Compiler.MSIL
                     //Sometimes c# will use the real value for initialization. If the value is byte, it may be an error
 
                     this.ConvertPushDataArray(outbyte, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Buffer });
                     return skip;
                 }
             }
