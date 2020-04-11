@@ -28,5 +28,38 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOutOfBounds");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
         }
+
+        [TestMethod]
+        public void Test_ByteArrayAssignmentOverflow()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+
+            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOverflow");
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+        }
+
+        [TestMethod]
+        public void Test_ByteArrayAssignmentOverflowUncheked()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+
+            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOverflowUncheked");
+            var result = testengine.GetMethod("testByteArrayAssignment").Run();
+            StackItem wantresult = new byte[] { 0xFF, 0x02, 0x04 };
+
+            Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+        }
+
+        [TestMethod]
+        public void Test_ByteArrayAssignmentWrongCasting()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+
+            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentWrongCasting");
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+        }
     }
 }
