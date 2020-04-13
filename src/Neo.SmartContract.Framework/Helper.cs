@@ -5,18 +5,16 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
-        /// <summary>
-        /// StackItemType HEX String
-        /// </summary>
-        //const string StackItemType_Pointer = "0x10";
-        //const string StackItemType_Boolean = "0x20";
-        const string StackItemType_Integer = "0x21";
-        const string StackItemType_ByteArray = "0x28";
-        //const string StackItemType_Buffer = "0x30";
-        //const string StackItemType_Array = "0x40";
-        //const string StackItemType_Struct = "0x41";
-        //const string StackItemType_Map = "0x48";
-        //const string StackItemType_InteropInterface = "0x60";
+        private const string StackItemType_Pointer = "0x10";
+        private const string StackItemType_Boolean = "0x20";
+        private const string StackItemType_Integer = "0x21";
+        private const string StackItemType_ByteArray = "0x28";
+        private const string StackItemType_Buffer = "0x30";
+        private const string StackItemType_Array = "0x40";
+        private const string StackItemType_Struct = "0x41";
+        private const string StackItemType_Map = "0x48";
+        private const string StackItemType_InteropInterface = "0x60";
+
         /// <summary>
         /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
         /// </summary>
@@ -27,20 +25,8 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts sbyte to byte[].
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
         public extern static byte[] ToByteArray(this sbyte source);
-
-        /// <summary>
-        /// Converts sbyte[] to byte[].
-        /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
-        public extern static byte[] ToByteArray(this sbyte[] source);
-
-        /// <summary>
-        /// Converts byte[] to sbyte[].
-        /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
-        public extern static sbyte[] ToSbyteArray(this byte[] source);
 
         /// <summary>
         /// Converts byte[] to BigInteger. No guarantees are assumed regarding BigInteger working range.
@@ -52,7 +38,7 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts string to byte[]. Examples: "hello" -> [0x68656c6c6f]; "" -> []; "Neo" -> [0x4e656f]
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteArray)]
+        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
         public extern static byte[] ToByteArray(this string source);
 
         /// <summary>
@@ -72,12 +58,6 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [OpCode(OpCode.WITHIN)]
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
-
-        /// <summary>
-        /// Faults iff b is false
-        /// </summary>
-        [OpCode(OpCode.THROWIFNOT)]
-        public extern static void Assert(this bool b);
 
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
@@ -135,7 +115,7 @@ namespace Neo.SmartContract.Framework
         {
             if (source > 127)
                 source -= 256;
-            Assert(source.Within(-128, 128));
+            SmartContract.Assert(source.Within(-128, 128));
             return (sbyte)(source + 0);
         }
 
@@ -147,7 +127,7 @@ namespace Neo.SmartContract.Framework
         {
             if (source > 127)
                 source -= 256;
-            Assert(source.Within(-128, 128));
+            SmartContract.Assert(source.Within(-128, 128));
             return (sbyte)(source + 0);
         }
 
@@ -157,7 +137,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte ToByte(this BigInteger source)
         {
-            Assert(source.Within(0, 256));
+            SmartContract.Assert(source.Within(0, 256));
             if (source > 127)
                 source -= 256;
             return (byte)(source + 0);
@@ -169,7 +149,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static byte ToByte(this int source)
         {
-            Assert(source.Within(0, 256));
+            SmartContract.Assert(source.Within(0, 256));
             if (source > 127)
                 source -= 256;
             return (byte)(source + 0);
@@ -197,21 +177,12 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Last(this byte[] source, int count);
 
         /// <summary>
-        /// Returns a reversed copy of byte[] parameter 'source' (parameter is not affected because byte[] is copy-based on NeoVM).
+        /// Returns a reversed copy of parameter 'source'.
         /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
         /// </summary>
-        public static byte[] Reverse(this byte[] source)
-        {
-            for (int k = 0; k < source.Length / 2; k++)
-            {
-                int m = source.Length - k - 1;
-                byte bg = source[k]; // must store on variable before next assignment
-                byte ed = source[m]; // must store on variable before next assignment
-                source[k] = ed;
-                source[m] = bg;
-            }
-            return source;
-        }
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.REVERSEITEMS)]
+        public extern static byte[] Reverse(this Array source);
 
         [Script]
         public extern static Delegate ToDelegate(this byte[] source);

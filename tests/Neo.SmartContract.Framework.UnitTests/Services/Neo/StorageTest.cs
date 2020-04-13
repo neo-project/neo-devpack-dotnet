@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     {
         private void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key), new ByteArray(value));
+            var result = testengine.ExecuteTestCaseStandard(method, new ByteString(key), new ByteString(value));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             var rItem = result.Pop();
 
@@ -30,12 +30,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
+            var result = testengine.ExecuteTestCaseStandard(method, new ByteString(key));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
-            Assert.IsInstanceOfType(rItem, typeof(ByteArray));
-            ReadOnlySpan<byte> data = rItem as ByteArray;
+            Assert.IsInstanceOfType(rItem, typeof(ByteString));
+            ReadOnlySpan<byte> data = rItem as ByteString;
 
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
             return data.ToArray();
@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteArray(key));
+            var result = testengine.ExecuteTestCaseStandard(method, new ByteString(key));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
@@ -131,6 +131,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
+        public void Test_LongBytes()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testOver16Bytes");
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            ByteString bs = result.Pop() as ByteString;
+            var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
+
+            Assert.AreEqual(new ByteString(value), bs);
+        }
+
+        [TestMethod]
         public void Test_String()
         {
             var prefix = new byte[] { 0x61, 0x61 };
@@ -163,7 +177,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Put
 
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new ByteArray(key), new ByteArray(value));
+            var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new ByteString(key), new ByteString(value));
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(0, result.Count);
         }

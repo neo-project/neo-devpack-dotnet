@@ -653,7 +653,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Byte[] System.Numerics.BigInteger::ToByteArray()")
                 {
-                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { 0x28 });
+                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
@@ -1153,16 +1153,19 @@ namespace Neo.Compiler.MSIL
             {
                 var code = to.body_Codes.Last().Value;
 
-                if (code.code == VM.OpCode.CONVERT)
-                    code = to.body_Codes.TakeLast(2).First().Value;
-
-                if (code.code > VM.OpCode.PUSH16) //we need a number
+                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT) // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
                     throw new Exception("_ConvertNewArr::not support var lens for new byte[?].");
 
-                var number = GetNumber(code);
+                if (code.code == VM.OpCode.CONVERT) // number = PUSHDATA[1,2,4] CONVERT(Integer)
+                {
+                    to.body_Codes.Remove(code.addr);
+                    code = to.body_Codes.Last().Value;
+                }
 
                 to.body_Codes.Remove(code.addr);
                 this.addr = code.addr;
+
+                var number = GetNumber(code);
 
                 int n = method.GetNextCodeAddr(src.addr);
                 int n2 = method.GetNextCodeAddr(n);
@@ -1176,7 +1179,7 @@ namespace Neo.Compiler.MSIL
                     // System.Byte or System.SByte
                     var data = method.body_Codes[n2].tokenUnknown as byte[];
                     this.ConvertPushDataArray(data, src, to);
-
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return 3;
                 }
                 else
@@ -1224,6 +1227,7 @@ namespace Neo.Compiler.MSIL
                         if (bLdLoc == false)//It means there's no initialization at all
                         {
                             this.ConvertPushDataArray(outbyte, src, to);
+                            Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                             return 0;
                         }
                         while (true)
@@ -1251,11 +1255,12 @@ namespace Neo.Compiler.MSIL
                             }
                             else if (bLdLoc && !bStelem)
                             {
-                                //This is not a predictive array initialization, we lost one case for handling
+                                // This is not a predictive array initialization, we lost one case for handling
                                 this.ConvertPushDataArray(outbyte, src, to);
                                 // Two cases here
                                 if (skip == 1)
                                 {
+                                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                                     return 0; // Without initialization, the first stloc cannot be skipped
                                 }
                                 else
@@ -1272,6 +1277,7 @@ namespace Neo.Compiler.MSIL
                     //Sometimes c# will use the real value for initialization. If the value is byte, it may be an error
 
                     this.ConvertPushDataArray(outbyte, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return skip;
                 }
             }
@@ -1297,7 +1303,7 @@ namespace Neo.Compiler.MSIL
             return 0;
         }
 
-        private int ConvertNewObj(OpCode src, NeoMethod to)
+        private int ConvertNewObj(ILMethod from, OpCode src, NeoMethod to)
         {
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
@@ -1349,6 +1355,18 @@ namespace Neo.Compiler.MSIL
                         }
                     }
                 }
+            }
+
+            //ValueTuple
+            if (type.DeclaringType.FullName.StartsWith("System.ValueTuple`"))
+            {
+                // Multiple returns
+                var count = type.DeclaringType.GenericParameters.Count;
+                ConvertPushI4WithConv(from, count, src, to);
+                Insert1(VM.OpCode.PACK, null, to);
+                Insert1(VM.OpCode.DUP, null, to);
+                Insert1(VM.OpCode.REVERSEITEMS, null, to);
+                return 0;
             }
 
             Convert1by1(VM.OpCode.NOP, src, to);

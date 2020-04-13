@@ -124,7 +124,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("NEO", item.GetString());
         }
 
@@ -140,13 +140,24 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
+        public void Test_GasLeft()
+        {
+            var result = _engine.ExecuteTestCaseStandard("getGasLeft");
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(-1, item.GetBigInteger());
+        }
+
+        [TestMethod]
         public void Test_Log()
         {
             var list = new List<LogEventArgs>();
             var method = new EventHandler<LogEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Log += method;
-            var result = _engine.ExecuteTestCaseStandard("log", new ByteArray(Encoding.UTF8.GetBytes("LogTest")));
+            var result = _engine.ExecuteTestCaseStandard("log", new ByteString(Encoding.UTF8.GetBytes("LogTest")));
             ApplicationEngine.Log -= method;
 
             Assert.AreEqual(1, list.Count);
@@ -160,7 +171,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // True
 
-            var result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteArray(
+            var result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteString(
                 new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
                 ));
             Assert.AreEqual(1, result.Count);
@@ -172,7 +183,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteArray(
+            result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteString(
                 new byte[] { 0xFA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
                 ));
             Assert.AreEqual(1, result.Count);
@@ -189,7 +200,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var method = new EventHandler<NotifyEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Notify += method;
-            var result = _engine.ExecuteTestCaseStandard("notify", new ByteArray(Encoding.UTF8.GetBytes("NotifyTest")));
+            var result = _engine.ExecuteTestCaseStandard("notify", new ByteString(Encoding.UTF8.GetBytes("NotifyTest")));
             ApplicationEngine.Notify -= method;
 
             Assert.AreEqual(1, list.Count);
@@ -211,7 +222,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
             });
 
-            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -238,7 +249,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
             });
 
-            var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteArray(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();

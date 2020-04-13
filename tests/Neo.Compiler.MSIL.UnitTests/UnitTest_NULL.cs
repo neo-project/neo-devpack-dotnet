@@ -60,7 +60,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.Reset();
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCoalescing", "a123b");
-                var item = result.Pop().ConvertTo(StackItemType.ByteArray) as ByteArray;
+                var item = result.Pop().ConvertTo(StackItemType.ByteString) as ByteString;
                 System.ReadOnlySpan<byte> data = item;
                 var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "12");
@@ -86,7 +86,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.Reset();
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCollation", "nes");
-                var item = result.Pop() as ByteArray;
+                var item = result.Pop() as ByteString;
                 System.ReadOnlySpan<byte> data = item;
                 var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "nes");
@@ -96,7 +96,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.Reset();
             {
                 var result = testengine.ExecuteTestCaseStandard("nullCollation", StackItem.Null);
-                var item = result.Pop() as ByteArray;
+                var item = result.Pop() as ByteString;
                 System.ReadOnlySpan<byte> data = item;
                 var str = System.Text.Encoding.ASCII.GetString(data);
                 Assert.IsTrue(str == "linux");
