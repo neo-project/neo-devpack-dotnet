@@ -5,15 +5,8 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
-        private const string StackItemType_Pointer = "0x10";
-        private const string StackItemType_Boolean = "0x20";
-        private const string StackItemType_Integer = "0x21";
-        private const string StackItemType_ByteArray = "0x28";
-        private const string StackItemType_Buffer = "0x30";
-        private const string StackItemType_Array = "0x40";
-        private const string StackItemType_Struct = "0x41";
-        private const string StackItemType_Map = "0x48";
-        private const string StackItemType_InteropInterface = "0x60";
+        internal const string StackItemType_Integer = "0x21";
+        internal const string StackItemType_Buffer = "0x30";
 
         /// <summary>
         /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)

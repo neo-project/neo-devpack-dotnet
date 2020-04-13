@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
+using VMStackItemType = Neo.VM.Types.StackItemType;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -69,7 +70,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testByteToByteArray").Run();
 
             StackItem wantResult = new byte[] { 0x01 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -80,7 +81,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testReverse").Run();
 
             StackItem wantResult = new byte[] { 0x03, 0x02, 0x01 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -91,7 +92,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testSbyteToByteArray").Run();
 
             StackItem wantResult = new byte[] { 255 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -102,7 +103,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testStringToByteArray").Run();
 
             StackItem wantResult = new byte[] { 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -113,7 +114,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testConcat").Run();
 
             StackItem wantResult = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -124,7 +125,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testRange").Run();
 
             StackItem wantResult = new byte[] { 0x02 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -135,7 +136,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testTake").Run();
 
             StackItem wantResult = new byte[] { 0x01, 0x02 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -146,7 +147,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testLast").Run();
 
             StackItem wantResult = new byte[] { 0x02, 0x03 };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
 
         [TestMethod]
@@ -157,7 +158,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var result = testengine.GetMethod("testToScriptHash").Run();
 
             StackItem wantResult = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xaa, 0xbb, 0xcc, 0xdd, 0xee };
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
+            Assert.AreEqual(wantResult.ConvertTo(VMStackItemType.ByteString), result.ConvertTo(VMStackItemType.ByteString));
         }
     }
 }
