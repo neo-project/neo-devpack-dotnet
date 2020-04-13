@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.GetMethod("subtract").Run(5, 9);
 
-            StackItem wantresult = new byte[] { 14 };
+            Integer wantresult = -4;
             Assert.IsTrue(wantresult.Equals(result));
         }
 
@@ -27,13 +27,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.GetMethod("div").RunEx(9, 5);
 
-            Assert.AreEqual(2, result.Count);
-
-            Assert.IsTrue(result.TryPop(out Integer r1));
-            Assert.AreEqual(4, r1);
-
-            Assert.IsTrue(result.TryPop(out Integer r2));
-            Assert.AreEqual(1, r2);
+            Assert.AreEqual(1, result.Count);
+            var array = result.Pop() as Array;
+            Assert.AreEqual(1, array[0]);
+            Assert.AreEqual(4, array[1]);
         }
 
         [TestMethod]
@@ -47,7 +44,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(1, result.Count);
 
             Assert.IsTrue(result.TryPop(out Integer r1));
-            Assert.AreEqual(-4, r1);
+            Assert.AreEqual(-3, r1);
         }
     }
 }

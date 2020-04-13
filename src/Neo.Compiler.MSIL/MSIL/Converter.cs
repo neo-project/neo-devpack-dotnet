@@ -1003,7 +1003,7 @@ namespace Neo.Compiler.MSIL
                     ConvertInitObj(src, to);
                     break;
                 case CodeEx.Newobj:
-                    ConvertNewObj(src, to);
+                    ConvertNewObj(method,src, to);
                     break;
                 case CodeEx.Stfld:
                     ConvertStfld(src, to);

@@ -1300,7 +1300,7 @@ namespace Neo.Compiler.MSIL
             return 0;
         }
 
-        private int ConvertNewObj(OpCode src, NeoMethod to)
+        private int ConvertNewObj(ILMethod from, OpCode src, NeoMethod to)
         {
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
@@ -1340,9 +1340,15 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
+            //ValueTuple
             if (type.DeclaringType.FullName.StartsWith("System.ValueTuple`"))
             {
                 // Multiple returns
+                var count = type.DeclaringType.GenericParameters.Count;
+                ConvertPushI4WithConv(from, count, src, to);
+                Insert1(VM.OpCode.PACK, null, to);
+                Insert1(VM.OpCode.DUP, null, to);
+                Insert1(VM.OpCode.REVERSEITEMS, null, to);
                 return 0;
             }
 
