@@ -653,7 +653,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Byte[] System.Numerics.BigInteger::ToByteArray()")
                 {
-                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { 0x28 });
+                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
@@ -1179,7 +1179,7 @@ namespace Neo.Compiler.MSIL
                     // System.Byte or System.SByte
                     var data = method.body_Codes[n2].tokenUnknown as byte[];
                     this.ConvertPushDataArray(data, src, to);
-                    Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Buffer });
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return 3;
                 }
                 else
@@ -1227,6 +1227,7 @@ namespace Neo.Compiler.MSIL
                         if (bLdLoc == false)//It means there's no initialization at all
                         {
                             this.ConvertPushDataArray(outbyte, src, to);
+                            Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                             return 0;
                         }
                         while (true)
@@ -1254,11 +1255,12 @@ namespace Neo.Compiler.MSIL
                             }
                             else if (bLdLoc && !bStelem)
                             {
-                                //This is not a predictive array initialization, we lost one case for handling
+                                // This is not a predictive array initialization, we lost one case for handling
                                 this.ConvertPushDataArray(outbyte, src, to);
                                 // Two cases here
                                 if (skip == 1)
                                 {
+                                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                                     return 0; // Without initialization, the first stloc cannot be skipped
                                 }
                                 else
@@ -1275,6 +1277,7 @@ namespace Neo.Compiler.MSIL
                     //Sometimes c# will use the real value for initialization. If the value is byte, it may be an error
 
                     this.ConvertPushDataArray(outbyte, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
                     return skip;
                 }
             }
