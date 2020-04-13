@@ -97,6 +97,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 return this.engine.ExecuteTestCaseStandard(methodname, _params).Pop();
             }
+
+            public EvaluationStack RunEx(params StackItem[] _params)
+            {
+                return this.engine.ExecuteTestCaseStandard(methodname, _params);
+            }
         }
 
         public ContractMethod GetMethod(string methodname)
