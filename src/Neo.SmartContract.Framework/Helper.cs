@@ -65,7 +65,6 @@ namespace Neo.SmartContract.Framework
         /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
         /// </summary>
         [Script(OpCode.DUP, OpCode.SIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.ASSERT)]
-        // "76c0519cf1")]
         public extern static sbyte AsSbyte(this BigInteger source);
         //{
         //    Assert(source.AsByteArray().Length == 1);
