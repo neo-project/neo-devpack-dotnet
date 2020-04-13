@@ -12,8 +12,8 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestValues()
         {
-            Assert.AreEqual((byte)FrameworkStackItemType.Buffer, Helper.StackItemType_Buffer.HexToBytes()[0]);
-            Assert.AreEqual((byte)FrameworkStackItemType.Integer, Helper.StackItemType_Integer.HexToBytes()[0]);
+            Assert.AreEqual(((byte)FrameworkStackItemType.Buffer).ToString("x2"), Helper.StackItemType_Buffer.Substring(2));
+            Assert.AreEqual(((byte)FrameworkStackItemType.Integer).ToString("x2"), Helper.StackItemType_Integer.Substring(2));
         }
 
         [TestMethod]
