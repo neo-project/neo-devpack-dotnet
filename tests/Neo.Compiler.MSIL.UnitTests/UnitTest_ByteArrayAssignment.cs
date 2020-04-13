@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            var result = testengine.GetMethod("testByteArrayAssignment").Run();
+            var result = testengine.GetMethod("testAssignment").Run();
             StackItem wantresult = new byte[] { 0x01, 0x02, 0x04 };
 
             Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
@@ -25,7 +25,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOutOfBounds");
+            testengine.ExecuteTestCaseStandard("testAssignmentOutOfBounds");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
         }
 
@@ -35,7 +35,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOverflow");
+            testengine.ExecuteTestCaseStandard("testAssignmentOverflow");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
         }
 
@@ -45,9 +45,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentOverflowUncheked");
-            var result = testengine.GetMethod("testByteArrayAssignment").Run();
-            StackItem wantresult = new byte[] { 0xFF, 0x02, 0x04 };
+            var result = testengine.GetMethod("testAssignmentOverflowUncheked").Run();
+            StackItem wantresult = new byte[] { 0xFF, 0x02, 0x03 };
 
             Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
@@ -58,7 +57,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            testengine.ExecuteTestCaseStandard("testByteArrayAssignmentWrongCasting");
+            testengine.ExecuteTestCaseStandard("testAssignmentWrongCasting");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
         }
     }

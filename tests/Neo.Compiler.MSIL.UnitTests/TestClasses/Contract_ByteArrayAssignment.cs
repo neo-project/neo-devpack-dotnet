@@ -8,7 +8,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_ByteArrayAssignment : SmartContract.Framework.SmartContract
     {
-        public static byte[] testByteArrayAssignment()
+        public static byte[] testAssignment()
         {
             var a = new byte[] { 0x00, 0x02, 0x03 };
             a[0] = 0x01;
@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return a;
         }
 
-        public static byte[] testByteArrayAssignmentOutOfBounds()
+        public static byte[] testAssignmentOutOfBounds()
         {
             var a = new byte[] { 0x00, 0x02, 0x03 };
             a[0] = 0x01;
@@ -24,7 +24,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return a;
         }
 
-        public static byte[] testByteArrayAssignmentOverflow()
+        public static byte[] testAssignmentOverflow()
         {
             object obj = int.MaxValue;
             var a = new byte[] { 0x00, 0x02, 0x03 };
@@ -32,14 +32,14 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return a;
         }
 
-        public static byte[] testByteArrayAssignmentOverflowUncheked()
+        public static byte[] testAssignmentOverflowUncheked()
         {
             var a = new byte[] { 0x00, 0x02, 0x03 };
             a[0] = unchecked((byte)int.MaxValue);
             return a;
         }
 
-        public static byte[] testByteArrayAssignmentWrongCasting()
+        public static byte[] testAssignmentWrongCasting()
         {
             object obj = "test";
             var a = new byte[] { 0x00, 0x02, 0x03 };
