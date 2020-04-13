@@ -101,7 +101,7 @@ namespace Neo.Compiler.MSIL
             else
             {
                 ConvertPushDataArray(i.ToByteArray(), src, to);
-                Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Integer });
+                Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Integer });
             }
         }
 
@@ -111,7 +111,7 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.PUSH0, src, to);
             else
                 Convert1by1(VM.OpCode.PUSH1, src, to);
-            Insert1(VM.OpCode.CONVERT, "", to, new byte[1] { (byte)VM.Types.StackItemType.Boolean });
+            Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Boolean });
         }
 
         private void ConvertPushDataArray(byte[] data, OpCode src, NeoMethod to)
