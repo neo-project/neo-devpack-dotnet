@@ -5,15 +5,8 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
-        private const string StackItemType_Pointer = "0x10";
-        private const string StackItemType_Boolean = "0x20";
-        private const string StackItemType_Integer = "0x21";
-        private const string StackItemType_ByteArray = "0x28";
-        private const string StackItemType_Buffer = "0x30";
-        private const string StackItemType_Array = "0x40";
-        private const string StackItemType_Struct = "0x41";
-        private const string StackItemType_Map = "0x48";
-        private const string StackItemType_InteropInterface = "0x60";
+        internal const string StackItemType_Integer = "0x21";
+        internal const string StackItemType_Buffer = "0x30";
 
         /// <summary>
         /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
@@ -62,9 +55,9 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
-        /// ScriptAttribute: DUP ARRAYSIZE PUSH1 NUMEQUAL THROWIFNOT
+        /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
         /// </summary>
-        [Script("76c0519cf1")]
+        [Script(OpCode.DUP, OpCode.SIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.ASSERT)]
         public extern static sbyte AsSbyte(this BigInteger source);
         //{
         //    Assert(source.AsByteArray().Length == 1);
@@ -74,9 +67,9 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
-        /// ScriptAttribute: DUP ARRAYSIZE PUSH1 NUMEQUAL THROWIFNOT
+        /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
         /// </summary>
-        [Script("76c0519cf1")]
+        [Script(OpCode.DUP, OpCode.SIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.ASSERT)]
         public extern static sbyte AsSbyte(this int source);
         //{
         //    Assert(((BigInteger)source).AsByteArray().Length == 1);
@@ -86,9 +79,9 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
-        /// ScriptAttribute: DUP ARRAYSIZE PUSH1 NUMEQUAL THROWIFNOT
+        /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
         /// </summary>
-        [Script("76c0519cf1")]
+        [Script(OpCode.DUP, OpCode.SIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.ASSERT)]
         public extern static byte AsByte(this BigInteger source);
         //{
         //    Assert(source.AsByteArray().Length == 1);
@@ -98,9 +91,9 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
-        /// ScriptAttribute: DUP ARRAYSIZE PUSH1 NUMEQUAL THROWIFNOT
+        /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
         /// </summary>
-        [Script("76c0519cf1")]
+        [Script(OpCode.DUP, OpCode.SIZE, OpCode.PUSH1, OpCode.NUMEQUAL, OpCode.ASSERT)]
         public extern static byte AsByte(this int source);
         //{
         //    Assert(((BigInteger)source).AsByteArray().Length == 1);
