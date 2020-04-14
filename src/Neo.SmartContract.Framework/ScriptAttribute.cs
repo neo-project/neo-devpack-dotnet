@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace Neo.SmartContract.Framework
 {
@@ -10,9 +11,16 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public string Script { get; }
 
-        public ScriptAttribute(string script = "")
+        public ScriptAttribute(params OpCode[] opcodes)
         {
-            Script = script;
+            var sb = new StringBuilder();
+
+            foreach (var opcode in opcodes)
+            {
+                sb.Append(((byte)opcode).ToString("x2"));
+            }
+
+            Script = sb.ToString();
         }
     }
 }
