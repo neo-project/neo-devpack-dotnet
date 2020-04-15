@@ -7,7 +7,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [OpCode(OpCode.PUSHNULL)]   // filterMethod
         [OpCode(OpCode.PUSHNULL)]   // filterAddress
-        [OpCode(OpCode.ROT)]        // Move URL
+        [OpCode(OpCode.ROT)]        // Move URL (this could be optimized by NefOptimizer)
         [Syscall("Neo.Oracle.Get")]
         public static extern byte[] Get(string url);
 
