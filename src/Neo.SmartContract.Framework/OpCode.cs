@@ -4,6 +4,7 @@ namespace Neo.SmartContract.Framework
     {
         #region Constants
 
+      
         PUSHINT8 = 0x00,
         PUSHINT16 = 0x01,
         PUSHINT32 = 0x02,
@@ -203,12 +204,30 @@ namespace Neo.SmartContract.Framework
         /// Pop the top value of the stack, if it false, then exit vm execution and set vm state to FAULT.
         /// </summary>
         ASSERT = 0x38,
+        /// <summary>
+        /// Pop the top value of the stack, and throw it.
+        /// </summary>
         THROW = 0x3A,
-        //TRY = 0x3B,
-        //TRY_L = 0x3C,
-        //ENDT = 0x3D,
-        //ENDC = 0x3E,
-        //ENDF = 0x3F,
+        /// <summary>
+        /// TRY CatchOffset(sbyte) FinallyOffset(sbyte). If there's no catch body, set CatchOffset 0. If there's no finally body, set FinallyOffset 0.
+        /// </summary>
+        TRY = 0x3B,
+        /// <summary>
+        /// TRY_L CatchOffset(int) FinallyOffset(int). If there's no catch body, set CatchOffset 0. If there's no finally body, set FinallyOffset 0.
+        /// </summary>
+        TRY_L = 0x3C,
+        /// <summary>
+        /// Ensures that the appropriate surrounding finally blocks are executed. And then unconditionally transfers control to the specific target instruction, represented as a 1-byte signed offset from the beginning of the current instruction.
+        /// </summary>
+        ENDTRY = 0x3D,
+        /// <summary>
+        /// Ensures that the appropriate surrounding finally blocks are executed. And then unconditionally transfers control to the specific target instruction, represented as a 4-byte signed offset from the beginning of the current instruction.
+        /// </summary>
+        ENDTRY_L = 0x3E,
+        /// <summary>
+        /// End finally, If no exception happen or be catched, vm will jump to the target instruction of ENDTRY/ENDTRY_L. Otherwise vm will rethrow the exception to upper layer.
+        /// </summary>
+        ENDFINALLY = 0x3F,
         /// <summary>
         /// Returns from the current method.
         /// </summary>
