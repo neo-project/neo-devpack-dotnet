@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Utils;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL
         public void Test_TryCatch_Succ()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs",false,false);
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("try01");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
@@ -28,7 +28,7 @@ namespace Neo.Compiler.MSIL
         public void Test_TryCatch_ThrowByCall()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs", false, false);
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("try03");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL
         public void Test_TryCatch_Throw()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs", false, false);
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("try02");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);

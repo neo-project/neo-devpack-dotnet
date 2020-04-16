@@ -474,7 +474,7 @@ namespace Neo.Compiler.MSIL
                     {
                         var srcCatch = BitConverter.ToInt32(c.bytes, 0);
                         var srcFinal = BitConverter.ToInt32(c.bytes, 4);
-                        if(srcCatch==-1)
+                        if (srcCatch == -1)
                         {
                             var bytesCatch = new byte[0, 0, 0, 0];
                             Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
@@ -667,29 +667,31 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Leave_S:
                     {//will support try catch
 
-                        var code = Convert1by1(VM.OpCode.ENDTRY_L, src, to, new byte[] { 0, 0, 0, 0 });
-                        code.needfix = true;
-                        code.srcaddr = src.tokenAddr_Index;
-                        //if (method.IsTryCode(src.addr))
-                        //{
-                            
-                        //}
-                        //else
-                        //{
-                        //    ILCatchInfo catchinfo = method.GetCatchInfo(src.addr);
-                        //    if (catchinfo != null)
-                        //    {
-                        //        _Convert1by1(VM.OpCode.ENDC, src, to);
-                        //    }
-                        //    else
-                        //    {
-                        //        //maybe is in finally try ,just jump.
-                        //    }
-                        //}
 
-                        //var code = _Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
-                        //code.needfix = true;
-                        //code.srcaddr = src.tokenAddr_Index;
+                        if (method.IsTryCode(src.addr))
+                        {
+                            var code = Convert1by1(VM.OpCode.ENDTRY_L, src, to, new byte[] { 0, 0, 0, 0 });
+                            code.needfix = true;
+                            code.srcaddr = src.tokenAddr_Index;
+                        }
+                        else
+                        {
+                            ILCatchInfo catchinfo = method.GetCatchInfo(src.addr);
+                            if (catchinfo != null)
+                            {
+                                var code = Convert1by1(VM.OpCode.ENDTRY_L, src, to, new byte[] { 0, 0, 0, 0 });
+                                code.needfix = true;
+                                code.srcaddr = src.tokenAddr_Index;
+                            }
+                            else
+                            {
+                                //maybe is in finally try ,just jump.
+                                var code = Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
+                                code.needfix = true;
+                                code.srcaddr = src.tokenAddr_Index;
+                            }
+                        }
+
                     }
                     break;
                 case CodeEx.Endfinally:
