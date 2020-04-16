@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL
         public void Test_TryCatch_Succ()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs",false,false);
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("try01");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);

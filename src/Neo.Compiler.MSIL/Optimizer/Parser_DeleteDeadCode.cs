@@ -47,6 +47,8 @@ namespace Neo.Compiler.Optimizer
                 {
                     reachableAddrs.Add(inst.Offset);
                 }
+                //try 不是线性的，遇到try，跳到catch段和final段继续扫，
+                //遇到endtry也应该跳过去扫
 
                 if (inst.AddressCountInData > 0) // The instruction may contain jmp addess
                 {
@@ -66,7 +68,10 @@ namespace Neo.Compiler.Optimizer
                 if (inst.OpCode == OpCode.JMP ||
                     inst.OpCode == OpCode.JMP_L ||
                     inst.OpCode == OpCode.RET ||
-                    inst.OpCode == OpCode.THROW)
+                    inst.OpCode == OpCode.THROW ||
+                    inst.OpCode == OpCode.ENDTRY ||
+                    inst.OpCode == OpCode.ENDTRY_L ||
+                    inst.OpCode == OpCode.ENDFINALLY)
                 {
                     return;
                 }
