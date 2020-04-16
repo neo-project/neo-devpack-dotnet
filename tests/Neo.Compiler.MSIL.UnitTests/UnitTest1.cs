@@ -56,7 +56,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
 
 
-            var result = testengine.GetMethod("testfunc").Run();
+            var result = testengine.GetMethod("testfunc").Run().ConvertTo(StackItemType.ByteString);
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
             var bequal = wantresult.Equals(result);

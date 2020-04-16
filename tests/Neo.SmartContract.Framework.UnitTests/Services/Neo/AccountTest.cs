@@ -33,14 +33,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             // Empty
 
-            var result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteArray(new byte[0]));
+            var result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteString(new byte[0]));
             Assert.AreEqual(VM.VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
 
             // Standard
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteArray(new byte[20]));
+            result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteString(new byte[20]));
             Assert.AreEqual(VM.VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // No standard
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteArray(noStandard));
+            result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteString(noStandard));
             Assert.AreEqual(VM.VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

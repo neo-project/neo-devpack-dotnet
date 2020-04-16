@@ -38,19 +38,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("serialize", new Array(new StackItem[]{
-                 StackItem.Null, new Boolean(true), new ByteArray(Encoding.ASCII.GetBytes("asd"))
+                 StackItem.Null, new Boolean(true), new ByteString(Encoding.ASCII.GetBytes("asd"))
             }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteArray));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("[null,true,\"YXNk\"]", item.GetString());
 
             // Deserialize
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("deserialize", new ByteArray(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
+            result = _engine.ExecuteTestCaseStandard("deserialize", new ByteString(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(entry, typeof(Boolean));
             Assert.AreEqual(true, entry.ToBoolean());
             entry = ((Array)item)[2];
-            Assert.IsInstanceOfType(entry, typeof(ByteArray));
+            Assert.IsInstanceOfType(entry, typeof(ByteString));
             Assert.AreEqual("asd", entry.GetString());
         }
     }
