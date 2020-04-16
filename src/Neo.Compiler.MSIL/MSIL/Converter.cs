@@ -534,7 +534,7 @@ namespace Neo.Compiler.MSIL
                         var buf = new byte[8];
                         Array.Copy(bytesCatch, 0, buf, 0, 4);
                         Array.Copy(bytesFinally, 0, buf, 4, 4);
-                        var trycode = _Convert1by1(VM.OpCode.TRY_L, src, to, buf);
+                        var trycode = Convert1by1(VM.OpCode.TRY_L, src, to, buf);
                         trycode.needfix = true;
 
                     }
@@ -666,32 +666,36 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Leave:
                 case CodeEx.Leave_S:
                     {//will support try catch
-                        if (method.IsTryCode(src.addr))
-                        {
-                            _Convert1by1(VM.OpCode.ENDT, src, to);
-                        }
-                        else
-                        {
-                            ILCatchInfo catchinfo = method.GetCatchInfo(src.addr);
-                            if (catchinfo != null)
-                            {
-                                _Convert1by1(VM.OpCode.ENDC, src, to);
-                            }
-                            else
-                            {
-                                //maybe is in finally try ,just jump.
-                            }
-                        }
 
-                        var code = _Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
+                        var code = Convert1by1(VM.OpCode.ENDTRY_L, src, to, new byte[] { 0, 0, 0, 0 });
                         code.needfix = true;
                         code.srcaddr = src.tokenAddr_Index;
+                        //if (method.IsTryCode(src.addr))
+                        //{
+                            
+                        //}
+                        //else
+                        //{
+                        //    ILCatchInfo catchinfo = method.GetCatchInfo(src.addr);
+                        //    if (catchinfo != null)
+                        //    {
+                        //        _Convert1by1(VM.OpCode.ENDC, src, to);
+                        //    }
+                        //    else
+                        //    {
+                        //        //maybe is in finally try ,just jump.
+                        //    }
+                        //}
+
+                        //var code = _Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
+                        //code.needfix = true;
+                        //code.srcaddr = src.tokenAddr_Index;
                     }
                     break;
                 case CodeEx.Endfinally:
                     {
                         //need vm add these opcodes
-                        var code = _Convert1by1(VM.OpCode.ENDF, src, to);
+                        var code = Convert1by1(VM.OpCode.ENDFINALLY, src, to);
                     }
                     break;
                 case CodeEx.Switch:

@@ -1317,8 +1317,7 @@ namespace Neo.Compiler.MSIL
                 var pcount = _type.Parameters.Count;
                 if (pcount == 0)//沒參數插一個
                 {
-                    var data = System.Text.Encoding.UTF8.GetBytes("usererror");
-                    _ConvertPush(data, src, to);
+                    ConvertPushString("usererror", src, to);
                 }
                 else if (pcount == 1)
                 {
