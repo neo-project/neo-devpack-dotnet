@@ -184,7 +184,7 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
                 case OpCode.ENDTRY:
-                {
+                    {
                         Labels = new string[1]; // an address
                         if (oldlabels != null && oldlabels.Length >= 1)
                             Labels[0] = oldlabels[0];

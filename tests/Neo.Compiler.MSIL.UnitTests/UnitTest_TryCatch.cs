@@ -19,7 +19,7 @@ namespace Neo.Compiler.MSIL
             var result = testengine.ExecuteTestCaseStandard("try01");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
             var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  "+ value.ToString());
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
             Console.WriteLine("result = " + num.ToBigInteger().ToString());
             Assert.AreEqual(num.ToBigInteger(), 3);
