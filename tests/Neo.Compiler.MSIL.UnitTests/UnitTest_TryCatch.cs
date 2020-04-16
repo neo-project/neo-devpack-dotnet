@@ -28,7 +28,7 @@ namespace Neo.Compiler.MSIL
         public void Test_TryCatch_ThrowByCall()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs", false, false);
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("try03");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL
         public void Test_TryCatch_Throw()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs", false, false);
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
             testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("try02");
             Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
