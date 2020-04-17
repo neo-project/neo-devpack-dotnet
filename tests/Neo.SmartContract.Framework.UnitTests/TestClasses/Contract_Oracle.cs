@@ -9,9 +9,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Oracle.Hash;
         }
 
-        public static byte[] get1(string url, byte[] filter, string filterMethod)
+        public static byte[] get1(string url, byte[] filter, string filterMethod, string filterArgs)
         {
-            return Oracle.Get(url, filter, filterMethod);
+            return Oracle.Get(url, filter, filterMethod, filterArgs);
         }
 
         public static byte[] get2(string url)

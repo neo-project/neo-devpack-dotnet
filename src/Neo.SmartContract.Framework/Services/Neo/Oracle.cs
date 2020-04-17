@@ -3,11 +3,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public static class Oracle
     {
         [Syscall("Neo.Oracle.Get")]
-        public static extern byte[] Get(string url, byte[] filterAddress, string filterMethod);
+        public static extern byte[] Get(string url, byte[] filterAddress, string filterMethod, string filterArgs);
 
+        [OpCode(OpCode.PUSHNULL)]   // filterArgs
         [OpCode(OpCode.PUSHNULL)]   // filterMethod
         [OpCode(OpCode.PUSHNULL)]   // filterAddress
-        [OpCode(OpCode.ROT)]        // Move URL (this could be optimized by NefOptimizer)
+        [OpCode(OpCode.PUSH3)]
+        [OpCode(OpCode.ROLL)]       // Move URL (this could be optimized by NefOptimizer)
         [Syscall("Neo.Oracle.Get")]
         public static extern byte[] Get(string url);
 

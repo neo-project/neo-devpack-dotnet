@@ -24,10 +24,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     if (!CurrentContext.EvaluationStack.TryPop(out PrimitiveType url)) return false;
                     if (!CurrentContext.EvaluationStack.TryPop(out StackItem filter)) return false;
                     if (!CurrentContext.EvaluationStack.TryPop(out StackItem filterMethod)) return false;
+                    if (!CurrentContext.EvaluationStack.TryPop(out StackItem filterArgs)) return false;
 
                     if (url.GetString() != "url") return false;
                     if (filter != StackItem.Null && filter.GetString() != "filter") return false;
                     if (filter != StackItem.Null && filterMethod.GetString() != "filterMethod") return false;
+                    if (filter != StackItem.Null && filterArgs.GetString() != "filterArgs") return false;
 
                     Push("0x01020304");
                     return true;
@@ -62,7 +64,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_OracleGet()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("get1", "url", "filter", "filterMethod");
+            var result = _engine.ExecuteTestCaseStandard("get1", "url", "filter", "filterMethod", "filterArgs");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
