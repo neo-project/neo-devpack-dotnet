@@ -10,5 +10,8 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Appcall("0x3209d09120465bf181ced70693b897ec6ea4619a")]
         public static extern object Policy(string method, object[] arguments);
+
+        [Appcall("0x2acbe877270a65668da64cc589e8364bca970ba9")]
+        public static extern object Oracle(string method, object[] arguments);
     }
 }
