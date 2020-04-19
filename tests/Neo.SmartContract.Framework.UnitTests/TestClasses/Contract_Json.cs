@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 
 namespace Neo.Compiler.MSIL.TestClasses
@@ -12,6 +13,12 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static object Deserialize(string json)
         {
             return Json.Deserialize(json);
+        }
+
+        public static object Find(string json, string find)
+        {
+            var item = (Map<string, int>)Json.Deserialize(json);
+            return item[find];
         }
     }
 }

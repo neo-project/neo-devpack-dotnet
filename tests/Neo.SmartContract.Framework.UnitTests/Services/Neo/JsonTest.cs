@@ -66,5 +66,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(entry, typeof(ByteString));
             Assert.AreEqual("asd", entry.GetString());
         }
+
+        [TestMethod]
+        public void Test_DeserializeAndFind()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("find", new ByteString(Encoding.ASCII.GetBytes("{\"a\":1,\"b\":2,\"c\":3}")), "b");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(2, item.GetBigInteger());
+        }
     }
 }
