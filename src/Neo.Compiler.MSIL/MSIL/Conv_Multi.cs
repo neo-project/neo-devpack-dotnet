@@ -85,7 +85,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var ptype = method.method.Parameters[pos].ParameterType.Resolve();
-                if ( ptype.BaseType != null && (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate"))
+                if (ptype.BaseType != null && (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in ptype.Methods)
                     {
