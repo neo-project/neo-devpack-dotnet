@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_ABIOffset.cs", true, false);
             var abi = testengine.ScriptEntry.finialABI;
 
-            var methodsABI = abi["methods"].AsList(); 
+            var methodsABI = abi["methods"].AsList();
             Assert.AreEqual("7", methodsABI[0].GetDictItem("offset").ToString());
             Assert.AreEqual("13", methodsABI[1].GetDictItem("offset").ToString());
             Assert.AreEqual("45", methodsABI[2].GetDictItem("offset").ToString());

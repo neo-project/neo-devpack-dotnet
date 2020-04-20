@@ -124,7 +124,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         }
 
         public void ExecuteInitializeMethod()
-        {  
+        {
             var offset = GetMethodEntryOffset("_initialize");
             this.LoadClonedContext(offset);
             var ret = false;
@@ -133,7 +133,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 var bfault = (this.State & VMState.FAULT) > 0;
                 var bhalt = (this.State & VMState.HALT) > 0;
                 if (bfault || bhalt ) break;
-
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +

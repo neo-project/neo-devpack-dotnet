@@ -1011,7 +1011,7 @@ namespace Neo.Compiler.MSIL
 
                 NeoMethod nm = new NeoMethod(_method);
                 this.methodLink[_method] = nm;
-                outModule.mapMethods[nm.name] = nm;                 
+                outModule.mapMethods[nm.name] = nm;
                 ConvertMethod(_method, nm, true);
                 return true;
             }
