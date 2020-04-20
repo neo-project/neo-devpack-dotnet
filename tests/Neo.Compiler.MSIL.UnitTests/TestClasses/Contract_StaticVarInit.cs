@@ -7,13 +7,14 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         //define and staticvar and initit with a runtime code.
         static byte[] callscript = ExecutionEngine.EntryScriptHash;
 
-        public static object Main(string method, object[] args)
+        public static object staticinit()
         {
-            if (method == "staticinit")
-                return testStaticInit();
-            if (method == "directget")
-                return ExecutionEngine.EntryScriptHash;
-            return null;
+            return testStaticInit();
+        }
+
+        public static object directget()
+        {
+            return ExecutionEngine.EntryScriptHash;
         }
 
         static byte[] testStaticInit()

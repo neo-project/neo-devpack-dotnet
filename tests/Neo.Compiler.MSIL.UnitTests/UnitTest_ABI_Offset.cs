@@ -15,10 +15,12 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_ABIOffset.cs", true, false);
             var abi = testengine.ScriptEntry.finialABI;
 
-            var methodsABI = abi["methods"].AsList();
-            Assert.AreEqual("87", methodsABI[0].GetDictItem("offset").ToString());
-            Assert.AreEqual("94", methodsABI[1].GetDictItem("offset").ToString());
-            Assert.AreEqual("124", methodsABI[2].GetDictItem("offset").ToString());
+            var methodsABI = abi["methods"].AsList(); 
+            Assert.AreEqual("7", methodsABI[0].GetDictItem("offset").ToString());
+            Assert.AreEqual("13", methodsABI[1].GetDictItem("offset").ToString());
+            Assert.AreEqual("45", methodsABI[2].GetDictItem("offset").ToString());
+            // _initialize()
+            Assert.AreEqual("0", methodsABI[3].GetDictItem("offset").ToString());
         }
 
         [TestMethod]
@@ -29,9 +31,22 @@ namespace Neo.Compiler.MSIL.UnitTests
             var abi = testengine.ScriptEntry.finialABI;
 
             var methodsABI = abi["methods"].AsList();
-            Assert.AreEqual("67", methodsABI[0].GetDictItem("offset").ToString());
-            Assert.AreEqual("74", methodsABI[1].GetDictItem("offset").ToString());
-            Assert.AreEqual("98", methodsABI[2].GetDictItem("offset").ToString());
+            Assert.AreEqual("7", methodsABI[0].GetDictItem("offset").ToString());
+            Assert.AreEqual("13", methodsABI[1].GetDictItem("offset").ToString());
+            Assert.AreEqual("39", methodsABI[2].GetDictItem("offset").ToString());
+            // _initialize()
+            Assert.AreEqual("0", methodsABI[3].GetDictItem("offset").ToString());
+        }
+
+        [TestMethod]
+        public void Test_UnitTest_001()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_ABIOffset.cs");
+            var result = testengine.GetMethod("unitTest_001").Run();
+
+            StackItem wantResult = 3;
+            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
     }
 }

@@ -46,9 +46,6 @@ namespace Template.NEP5.CSharp
             else if (Runtime.Trigger == TriggerType.Application)
             {
                 #region NEP5 METHODS
-                if (operation == "name") return Name;
-                if (operation == "symbol") return Symbol;
-                if (operation == "decimals") return Decimals;
                 if (operation == "totalSupply") return TotalSupply();
                 if (operation == "balanceOf") return BalanceOf((byte[])args[0]);
                 if (operation == "transfer") return Transfer((byte[])args[0], (byte[])args[1], (BigInteger)args[2]);
@@ -69,6 +66,26 @@ namespace Template.NEP5.CSharp
                 #endregion
             }
             return false;
+        }
+
+        public static string GetName()
+        {
+            return Name;
+        }
+
+        public static string GetSymbol()
+        {
+            return Symbol;
+        }
+
+        public static ulong GetDecimals()
+        {
+            return Decimals;
+        }
+
+        public static string[] GetSupportedStandards()
+        {
+            return SupportedStandards;
         }
     }
 }

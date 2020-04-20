@@ -5,6 +5,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -109,17 +110,54 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return new ContractMethod(this, methodname);
         }
 
+        public int GetMethodEntryOffset(string methodname)
+        {
+            if (this.ScriptEntry is null) return -1;
+            var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            foreach (var item in methods)
+            {
+                var method = item as MyJson.JsonNode_Object;
+                if (method.GetDictItem("name").ToString() == methodname)
+                    return int.Parse(method.GetDictItem("offset").ToString());
+            }
+            return -1;
+        }
+
+        public void ExecuteInitializeMethod()
+        {  
+            var offset = GetMethodEntryOffset("_initialize");
+            this.LoadClonedContext(offset);
+            var ret = false;
+            while (!ret)
+            {
+                var bfault = (this.State & VMState.FAULT) > 0;
+                var bhalt = (this.State & VMState.HALT) > 0;
+                if (bfault || bhalt ) break;
+
+                Console.WriteLine("op:[" +
+                    this.CurrentContext.InstructionPointer.ToString("X04") +
+                    "]" +
+                this.CurrentContext.CurrentInstruction.OpCode);
+                if (this.CurrentContext.CurrentInstruction.OpCode is VM.OpCode.RET)
+                    ret = true;
+                this.ExecuteNext();
+            }
+        }
+
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-            this.InvocationStack.Peek().InstructionPointer = 0;
-            this.Push(new VM.Types.Array(this.ReferenceCounter, args));
-            this.Push(methodname);
+            ExecuteInitializeMethod();
+            var offset = GetMethodEntryOffset(methodname);
+            if (offset == -1) throw new Exception("Can't find method : " + methodname);
+            this.InvocationStack.Peek().InstructionPointer = offset;
+            for (var i = args.Length - 1; i >= 0; i--)
+                this.Push(args[i]);
             while (true)
             {
                 var bfault = (this.State & VMState.FAULT) > 0;
                 var bhalt = (this.State & VMState.HALT) > 0;
                 if (bfault || bhalt) break;
-
+                if (bfault) break;
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +

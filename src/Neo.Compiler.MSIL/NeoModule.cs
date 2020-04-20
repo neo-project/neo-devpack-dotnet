@@ -11,7 +11,7 @@ namespace Neo.Compiler
     {
         public NeoModule(ILogger logger) { }
 
-        public string mainMethod;
+        public string initializeMethod;
         public ConvOption option;
         public List<CustomAttribute> attributes = new List<CustomAttribute>();
         public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
@@ -93,7 +93,6 @@ namespace Neo.Compiler
         public int lastparam = -1; // The last param
         public int lastCast = -1;
 
-        public bool isEntry = false;
         public string _namespace;
         public string name;
         public string displayName;

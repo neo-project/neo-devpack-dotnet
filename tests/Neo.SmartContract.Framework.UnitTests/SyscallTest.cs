@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -38,16 +39,17 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Neo syscalls
 
             var notFound = new List<string>();
-
+            var s = InteropService.SupportedMethods();
             foreach (var syscall in InteropService.SupportedMethods())
             {
                 if (syscall.Method == "Neo.Native.Deploy") continue;
                 if (syscall.Method == "Neo.Native.Tokens.NEO") continue;
                 if (syscall.Method == "Neo.Native.Tokens.GAS") continue;
                 if (syscall.Method == "Neo.Native.Policy") continue;
+                if (syscall.Method == "System.Contract.CreateStandardAccount") continue;
 
                 if (list.Remove(syscall.Method)) continue;
-
+                Console.WriteLine(syscall.Method);
                 notFound.Add(syscall.Method);
             }
 

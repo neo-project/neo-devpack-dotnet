@@ -63,7 +63,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var dtype = type.Resolve();
-                if (dtype.BaseType.FullName == "System.MulticastDelegate" || dtype.BaseType.FullName == "System.Delegate")
+                if (dtype.BaseType != null && (dtype.BaseType.FullName == "System.MulticastDelegate" || dtype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in dtype.Methods)
                     {
@@ -85,7 +85,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var ptype = method.method.Parameters[pos].ParameterType.Resolve();
-                if (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate")
+                if ( ptype.BaseType != null && (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in ptype.Methods)
                     {
@@ -1011,8 +1011,8 @@ namespace Neo.Compiler.MSIL
 
                 NeoMethod nm = new NeoMethod(_method);
                 this.methodLink[_method] = nm;
-                outModule.mapMethods[nm.name] = nm;
-                ConvertMethod(_method, nm);
+                outModule.mapMethods[nm.name] = nm;                 
+                ConvertMethod(_method, nm, true);
                 return true;
             }
             catch

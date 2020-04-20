@@ -40,7 +40,7 @@ namespace Template.NEP5.UnitTests
         [TestMethod]
         public void Test_name()
         {
-            var result = _engine.ExecuteTestCaseStandard("name");
+            var result = _engine.ExecuteTestCaseStandard("getName");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -51,7 +51,7 @@ namespace Template.NEP5.UnitTests
         [TestMethod]
         public void Test_symbol()
         {
-            var result = _engine.ExecuteTestCaseStandard("symbol");
+            var result = _engine.ExecuteTestCaseStandard("getSymbol");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -62,7 +62,7 @@ namespace Template.NEP5.UnitTests
         [TestMethod]
         public void Test_decimals()
         {
-            var result = _engine.ExecuteTestCaseStandard("decimals");
+            var result = _engine.ExecuteTestCaseStandard("getDecimals");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -189,7 +189,7 @@ namespace Template.NEP5.UnitTests
         [TestMethod]
         public void Test_supportedStandards()
         {
-            var result = _engine.ExecuteTestCaseStandard("supportedStandards");
+            var result = _engine.ExecuteTestCaseStandard("getSupportedStandards");
             Assert.AreEqual(1, result.Count);
 
             var item = (Array)result.Pop();

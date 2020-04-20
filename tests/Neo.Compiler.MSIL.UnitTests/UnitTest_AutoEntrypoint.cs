@@ -22,18 +22,18 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.IsTrue(bequal);
         }
 
-        [TestMethod]
-        public void Test_AutoEntry_private()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
-            testengine.ScriptEntry.DumpNEF();
-            var result = testengine.ExecuteTestCaseStandard("privateMethod");//new test method02
+        //[TestMethod]
+        //public void Test_AutoEntry_private()
+        //{
+        //    var testengine = new TestEngine();
+        //    testengine.AddEntryScript("./TestClasses/Contract_autoentrypoint.cs");
+        //    testengine.ScriptEntry.DumpNEF();
+        //    var result = testengine.ExecuteTestCaseStandard("privateMethod");//new test method02
 
-            bool hadFault = (testengine.State & VMState.FAULT) > 0;
-            Assert.AreEqual(0, result.Count);//because no methodname had found, it do not return anything.
-            Assert.IsTrue(hadFault);///because no methodname had found,vm state=fault.
-        }
+        //    bool hadFault = (testengine.State & VMState.FAULT) > 0;
+        //    Assert.AreEqual(0, result.Count);//because no methodname had found, it do not return anything.
+        //    Assert.IsTrue(hadFault);///because no methodname had found,vm state=fault.
+        //}
 
         [TestMethod]
         public void Test_AutoEntry_call02()

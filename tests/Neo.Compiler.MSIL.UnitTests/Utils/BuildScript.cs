@@ -1,7 +1,10 @@
+using Mono.Cecil;
 using Neo.Compiler.Optimizer;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -42,6 +45,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             get;
             private set;
         }
+
+        public string finalManifest
+        {
+            get;
+            private set;
+        }
+
         public BuildScript()
         {
         }
@@ -94,6 +104,27 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             try
             {
                 finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+            try
+            {
+                var features = converterIL.outModule == null ? ContractFeatures.NoProperty : converterIL.outModule.attributes
+                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                    .FirstOrDefault();
+
+                var extraAttributes = converterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
+
+                finalManifest =
+                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
+                    finialABI +
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":[]" + "}";
             }
             catch
             {

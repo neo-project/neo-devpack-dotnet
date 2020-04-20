@@ -255,7 +255,7 @@ namespace Neo.Compiler.MSIL
         private void InsertSharedStaticVarCode(NeoMethod to)
         {
             if (this.outModule.mapFields.Count > 255)
-                throw new Exception("too mush static fields");
+                throw new Exception("too much static fields");
 
             //insert init constvalue part
             byte count = (byte)this.outModule.mapFields.Count;
@@ -322,16 +322,16 @@ namespace Neo.Compiler.MSIL
             //insert code part
             foreach (var cctor in this.outModule.staticfieldsCctor)
             {
-                FillMethod(cctor, to, false);
+                FillMethod(cctor, to, true);
             }
         }
 
         private void InsertBeginCode(ILMethod from, NeoMethod to)
         {
             if (from.paramtypes.Count > 255)
-                throw new Exception("too mush params in:" + from);
+                throw new Exception("too much params in:" + from);
             if (from.body_Variables.Count > 255)
-                throw new Exception("too mush local varibles in:" + from);
+                throw new Exception("too much local varibles in:" + from);
 
             byte paramcount = (byte)from.paramtypes.Count;
             byte varcount = (byte)from.body_Variables.Count;
