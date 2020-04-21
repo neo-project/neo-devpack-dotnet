@@ -1012,7 +1012,7 @@ namespace Neo.Compiler.MSIL
                 NeoMethod nm = new NeoMethod(_method);
                 this.methodLink[_method] = nm;
                 outModule.mapMethods[nm.name] = nm;
-                ConvertMethod(_method, nm, true);
+                ConvertMethod(_method, nm, false);
                 return true;
             }
             catch

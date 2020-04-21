@@ -322,7 +322,7 @@ namespace Neo.Compiler.MSIL
             //insert code part
             foreach (var cctor in this.outModule.staticfieldsCctor)
             {
-                FillMethod(cctor, to, true);
+                FillMethod(cctor, to, false);
             }
         }
 
