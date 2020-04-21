@@ -21,7 +21,7 @@ namespace Template.NEP5.CSharp
             return balances.Get(account)?.ToBigInteger() ?? 0;
         }
 
-        private static bool Transfer(byte[] from, byte[] to, BigInteger amount)
+        public static bool Transfer(byte[] from, byte[] to, BigInteger amount)
         {
             if (!ValidateAddress(from)) throw new FormatException("The parameter 'from' SHOULD be 20-byte addresses.");
             if (!ValidateAddress(to)) throw new FormatException("The parameters 'to' SHOULD be 20-byte addresses.");

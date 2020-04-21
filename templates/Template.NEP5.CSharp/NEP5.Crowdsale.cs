@@ -23,7 +23,7 @@ namespace Template.NEP5.CSharp
             return amount;
         }
 
-        private static bool Mint()
+        public static bool Mint()
         {
             if (Runtime.InvocationCounter != 1)
                 throw new Exception();

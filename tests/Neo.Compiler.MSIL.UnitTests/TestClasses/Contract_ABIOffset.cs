@@ -12,12 +12,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return i + s;
         }
 
-        //public static byte[] UnitTest_001()
-        //{
-        //    var nb = new byte[] { 1, 2, 3, 4 };
-        //    nb[2] = s.AsByte();
-        //    return nb;
-        //}
         public static int UnitTest_002()
         {
             int a = 0;

@@ -10,19 +10,8 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_MultipleContracts()
         {
-            using (var testengine = new TestEngine())
-            {
-                Assert.ThrowsException<Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_MultipleContracts.cs"));
-            }
+            using var testengine = new TestEngine();
+            Assert.ThrowsException<Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_MultipleContracts.cs"));
         }
-
-        //[TestMethod]
-        //public void Test_NoEntryPoint()
-        //{
-        //    using (var testengine = new TestEngine())
-        //    {
-        //        Assert.AreEqual(0, Assert.ThrowsException<EntryPointException>(() => testengine.AddEntryScript("./TestClasses/NoContract.cs")).Count);
-        //    }
-        //}
     }
 }

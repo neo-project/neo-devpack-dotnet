@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
+using Neo.IO.Json;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
@@ -19,169 +20,130 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
         }
 
-        //[TestMethod]
-        //public void Test_CreateCallDestroy()
-        //{
-        //    // Create
+        [TestMethod]
+        public void Test_CreateCallDestroy()
+        {
+            // Create
 
-        //    byte[] script;
-        //    using (var scriptBuilder = new ScriptBuilder())
-        //    {
-        //        // Drop arguments
+            var script = _engine.Build("./TestClasses/Contract_Create.cs");
+            var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
 
-        //        scriptBuilder.Emit(VM.OpCode.DROP);
-        //        scriptBuilder.Emit(VM.OpCode.DROP);
+            // Check first
 
-        //        // Return 123
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
+            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
 
-        //        scriptBuilder.EmitPush(123);
-        //        script = scriptBuilder.ToArray();
-        //    }
+            // Create
 
-        //    var manifest = ContractManifest.CreateDefault(script.ToScriptHash());
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //    // Check first
+            var item = result.Pop();
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
+            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
+            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
-        //    _engine.Reset();
-        //    var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
-        //    Assert.AreEqual(VMState.FAULT, _engine.State);
-        //    Assert.AreEqual(0, result.Count);
+            // Call
 
-        //    // Create
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("create", script, manifest.ToJson().ToString());
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, item.GetBigInteger());
 
-        //    var item = result.Pop();
-        //    Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
-        //    var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
-        //    Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
+            // Destroy
 
-        //    // Call
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("destroy");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), Null.Null, Null.Null);
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetByteLength());
 
-        //    item = result.Pop();
-        //    Assert.IsInstanceOfType(item, typeof(Integer));
-        //    Assert.AreEqual(123, item.GetBigInteger());
+            // Check again for failures
 
-        //    // Destroy
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
+            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
+        }
 
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("destroy");
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
+        [TestMethod]
+        public void Test_Update()
+        {
+            // Create
 
-        //    item = result.Pop();
-        //    Assert.IsInstanceOfType(item, typeof(Integer));
-        //    Assert.AreEqual(0, item.GetByteLength());
+            var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
+            var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
 
-        //    // Check again for failures
+            var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
+            var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
 
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
-        //    Assert.AreEqual(VMState.FAULT, _engine.State);
-        //    Assert.AreEqual(0, result.Count);
-        //}
+            // Check first
 
-        //[TestMethod]
-        //public void Test_Update()
-        //{
-        //    // Create
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
+            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
 
-        //    byte[] scriptUpdate;
-        //    using (var scriptBuilder = new ScriptBuilder())
-        //    {
-        //        // Drop arguments
+            _engine.Reset();
+            _ = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), "newContract", new Array());
+            Assert.AreEqual(VMState.FAULT, _engine.State);
 
-        //        scriptBuilder.Emit(VM.OpCode.DROP);
-        //        scriptBuilder.Emit(VM.OpCode.DROP);
+            // Create
 
-        //        // Return 124
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //        scriptBuilder.EmitPush(123);
-        //        scriptBuilder.Emit(VM.OpCode.INC);
-        //        scriptUpdate = scriptBuilder.ToArray();
-        //    }
+            var item = result.Pop();
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
+            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
+            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
-        //    var manifestUpdate = ContractManifest.CreateDefault(scriptUpdate.ToScriptHash());
+            // Call & Update
 
-        //    byte[] script;
-        //    using (var scriptBuilder = new ScriptBuilder())
-        //    {
-        //        // Drop arguments
+            _engine.Reset();
+            var args = new Array
+            {
+                scriptUpdate.finalNEF,
+                manifestUpdate.ToJson().ToString()
+            };
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", args);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //        scriptBuilder.Emit(VM.OpCode.DROP);
-        //        scriptBuilder.Emit(VM.OpCode.DROP);
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, item.GetBigInteger());
 
-        //        // Return 123
+            // Call Again
 
-        //        scriptBuilder.EmitPush(123);
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), "newContract", new Array());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
 
-        //        // Update
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(124, item.GetBigInteger());
 
-        //        scriptBuilder.EmitSysCall(InteropService.Contract.Update, scriptUpdate, manifestUpdate.ToJson().ToString());
-        //        script = scriptBuilder.ToArray();
-        //    }
+            // Check again for failures
 
-        //    var manifest = ContractManifest.CreateDefault(script.ToScriptHash());
-
-        //    // Check first
-
-        //    _engine.Reset();
-        //    var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
-        //    Assert.AreEqual(VMState.FAULT, _engine.State);
-        //    Assert.AreEqual(0, result.Count);
-
-        //    _engine.Reset();
-        //    _ = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray());
-        //    Assert.AreEqual(VMState.FAULT, _engine.State);
-
-        //    // Create
-
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("create", script, manifest.ToJson().ToString());
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
-
-        //    var item = result.Pop();
-        //    Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
-        //    var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
-        //    Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
-
-        //    // Call & Update
-
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), Null.Null, Null.Null);
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
-
-        //    item = result.Pop();
-        //    Assert.IsInstanceOfType(item, typeof(Integer));
-        //    Assert.AreEqual(123, item.GetBigInteger());
-
-        //    // Call Again
-
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), Null.Null, Null.Null);
-        //    Assert.AreEqual(VMState.HALT, _engine.State);
-        //    Assert.AreEqual(1, result.Count);
-
-        //    item = result.Pop();
-        //    Assert.IsInstanceOfType(item, typeof(Integer));
-        //    Assert.AreEqual(124, item.GetBigInteger());
-
-        //    // Check again for failures
-
-        //    _engine.Reset();
-        //    result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
-        //    Assert.AreEqual(VMState.FAULT, _engine.State);
-        //    Assert.AreEqual(0, result.Count);
-        //}
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
+            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
+        }
     }
 }
