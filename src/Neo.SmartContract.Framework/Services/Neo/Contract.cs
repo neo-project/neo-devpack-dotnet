@@ -33,6 +33,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern void Destroy();
 
         [Syscall("System.Contract.CreateStandardAccount")]
-        public static extern void Contract_CreateStandardAccount(byte[] script);
+        public static extern void CreateStandardAccount(byte[] script);
     }
 }
