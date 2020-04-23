@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Contract.GetCallFlags")]
         public static extern byte GetCallFlags();
-       
+
         [Syscall("System.Contract.CreateStandardAccount")]
         public static extern byte[] CreateStandardAccount(byte[] pubKey);
     }
