@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2015-2019 The Neo Project</Copyright>
+    <Copyright>2015-2020 The Neo Project</Copyright>
     <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
-    <Version>3.0.0-preview1</Version>
+    <Version>3.0.0-preview2</Version>
     <Authors>The Neo Project</Authors>
     <TargetFrameworks>netcoreapp3.1;netstandard2.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
