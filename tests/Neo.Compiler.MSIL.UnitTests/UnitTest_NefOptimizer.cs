@@ -93,6 +93,60 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void Test_Optimize_Recalculate_BoolEqualTrue()
+        {
+            using var scriptBefore = new ScriptBuilder();
+            scriptBefore.Emit(VM.OpCode.PUSH1);
+            scriptBefore.Emit(VM.OpCode.PUSH1);
+            scriptBefore.Emit(VM.OpCode.EQUAL);
+            scriptBefore.Emit(VM.OpCode.NOP);
+
+            using var scriptAfter = new ScriptBuilder();
+            scriptAfter.Emit(VM.OpCode.PUSH1);
+            scriptAfter.Emit(VM.OpCode.NOP);
+
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_USELESS_EQUAL);
+
+            CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Recalculate_BoolEqualFalse()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            using (var scriptAfter = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH0);
+                scriptBefore.Emit(VM.OpCode.EQUAL);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_USELESS_EQUAL);
+
+                scriptAfter.Emit(VM.OpCode.NOP);
+                scriptAfter.Emit(VM.OpCode.PUSH0);
+
+                CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            using (var scriptAfter = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.PUSH0);
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.EQUAL);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_USELESS_EQUAL);
+
+                scriptAfter.Emit(VM.OpCode.NOP);
+                scriptAfter.Emit(VM.OpCode.PUSH0);
+
+                CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
         public void Test_Optimize_Recalculate_Positive_PUSHA()
         {
             using var scriptBefore = new ScriptBuilder();
@@ -182,18 +236,18 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.PUSH1);                      // <──┘
 
             // useshortaddress before deleteuselessjmp
-            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS, OptimizeParserType.DELETE_USERLESS_JMP });
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS, OptimizeParserType.DELETE_USELESS_JMP });
 
             using var scriptAfter = new ScriptBuilder();
             scriptAfter.Emit(VM.OpCode.PUSH1);
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
             // deleteuselessjmp before useshortaddress
-            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USERLESS_JMP, OptimizeParserType.USE_SHORT_ADDRESS });
+            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP, OptimizeParserType.USE_SHORT_ADDRESS });
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
             // use deleteuselessjmp only
-            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USERLESS_JMP });
+            optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP });
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
         }
 
@@ -204,7 +258,7 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(2));        // ───┐
             scriptBefore.Emit(VM.OpCode.PUSH1);                    // <──┘
 
-            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USERLESS_JMP });
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP });
 
             using var scriptAfter = new ScriptBuilder();
             scriptAfter.Emit(VM.OpCode.PUSH1);
