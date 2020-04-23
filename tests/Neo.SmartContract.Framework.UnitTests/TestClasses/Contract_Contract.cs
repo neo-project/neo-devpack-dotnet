@@ -23,5 +23,10 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             Contract.Destroy();
         }
+
+        public static byte[] CreateStandardAccount(byte[] pubKey)
+        {
+            return Contract.CreateStandardAccount(pubKey);
+        }
     }
 }
