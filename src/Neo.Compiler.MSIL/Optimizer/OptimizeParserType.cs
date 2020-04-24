@@ -28,6 +28,9 @@ namespace Neo.Compiler.Optimizer
         USE_SHORT_ADDRESS = 0x04,
 
         [OptimizeParser(typeof(Parser_DeleteUselessEqual))]
-        DELETE_USELESS_EQUAL = 0x05
+        DELETE_USELESS_EQUAL = 0x05,
+
+        [OptimizeParser(typeof(Parser_DeleteStaticMath))]
+        DELETE_STATIC_MATH = 0x06
     }
 }

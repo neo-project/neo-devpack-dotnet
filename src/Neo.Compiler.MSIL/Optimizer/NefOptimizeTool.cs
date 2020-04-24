@@ -16,7 +16,8 @@ namespace Neo.Compiler.Optimizer
             {
                 OptimizeParserType.DELETE_DEAD_CODDE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
-                OptimizeParserType.DELETE_USELESS_EQUAL
+                OptimizeParserType.DELETE_USELESS_EQUAL,
+                OptimizeParserType.DELETE_STATIC_MATH
             });
         }
 
