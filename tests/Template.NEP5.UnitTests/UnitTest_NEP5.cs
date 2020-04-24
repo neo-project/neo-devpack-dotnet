@@ -56,7 +56,7 @@ namespace Template.NEP5.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("TokenSymbol", item.GetString());
+            Assert.AreEqual("Token Symbol", item.GetString());
         }
 
         [TestMethod]

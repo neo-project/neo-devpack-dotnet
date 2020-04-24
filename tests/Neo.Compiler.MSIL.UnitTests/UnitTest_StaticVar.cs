@@ -28,7 +28,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
-                var result = testengine.ExecuteTestCaseStandard("staticinit");
+                var result = testengine.ExecuteTestCaseStandard("staticInit");
                 // static byte[] callscript = ExecutionEngine.EntryScriptHash;
                 // ...
                 // return callscript
@@ -37,7 +37,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
-                var result = testengine.ExecuteTestCaseStandard("directget");
+                var result = testengine.ExecuteTestCaseStandard("directGet");
                 // return ExecutionEngine.EntryScriptHash
                 var2 = (result.Pop() as ByteString);
             }

@@ -325,9 +325,9 @@ namespace Neo.Compiler.MSIL
 
         private void InsertBeginCode(ILMethod from, NeoMethod to)
         {
-            if (from.paramtypes.Count > 255)
+            if (from.paramtypes.Count > MAX_PARAMS_COUNT)
                 throw new Exception("too much params in:" + from);
-            if (from.body_Variables.Count > 255)
+            if (from.body_Variables.Count > MAX_LOCAL_VARIBLES_COUNT)
                 throw new Exception("too much local varibles in:" + from);
 
             byte paramcount = (byte)from.paramtypes.Count;

@@ -13,12 +13,8 @@ namespace Template.NEP5.CSharp
     public partial class NEP5 : SmartContract
     {
         #region Token Settings
-        static readonly string NEP5_Name = "Token Name";
-        static readonly string NEP5_Symbol = "TokenSymbol";
-        static readonly ulong NEP5_Decimals = 8;
         static readonly ulong MaxSupply = 10_000_000_000_000_000;
         static readonly ulong InitialSupply = 2_000_000_000_000_000;
-        static readonly string[] NEP5_SupportedStandards = new string[] { "NEP-5", "NEP-10" };
         static readonly byte[] Owner = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
         static readonly ulong TokensPerNEO = 1_000_000_000;
         static readonly ulong TokensPerGAS = 1;
@@ -36,21 +32,29 @@ namespace Template.NEP5.CSharp
         static readonly byte[] StoragePrefixContract = new byte[] { 0x02, 0x02 };
         #endregion
 
-        public static object Main()
+        public static bool Verify()
         {
-            if (Runtime.Trigger == TriggerType.Verification)
-            {
-                return Runtime.CheckWitness(Owner);
-            }
-            return false;
+            return Runtime.CheckWitness(Owner);
         }
 
-        public static string Name() => NEP5_Name;
+        public static string Name()
+        {
+            return "Token Name";
+        }
 
-        public static string Symbol() => NEP5_Symbol;
+        public static string Symbol()
+        {
+            return "Token Symbol";
+        }
 
-        public static ulong Decimals() => NEP5_Decimals;
+        public static ulong Decimals()
+        {
+            return 8;
+        }
 
-        public static string[] SupportedStandards() => NEP5_SupportedStandards;
+        public static string[] SupportedStandards()
+        {
+            return new string[] { "NEP-5", "NEP-10" };
+        }
     }
 }

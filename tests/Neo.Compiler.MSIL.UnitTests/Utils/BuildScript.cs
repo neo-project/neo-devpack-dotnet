@@ -22,6 +22,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public BuildScript()
         {
         }
+
         public void Build(Stream fs, Stream fspdb, bool optimizer)
         {
             this.IsBuild = false;
@@ -84,7 +85,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                     .FirstOrDefault();
 
-                var extraAttributes = converterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+                var extraAttributes = converterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>()
+                    : converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
                 var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
                 var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 

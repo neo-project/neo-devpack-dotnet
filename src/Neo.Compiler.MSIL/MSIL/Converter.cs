@@ -27,6 +27,10 @@ namespace Neo.Compiler.MSIL
             this.logger = logger;
         }
 
+        private const int MAX_STATIC_FIELDS_COUNT = 255;
+        private const int MAX_PARAMS_COUNT = 255;
+        private const int MAX_LOCAL_VARIBLES_COUNT = 255;
+
         private readonly ILogger logger;
         public NeoModule outModule;
         private ILModule inModule;
@@ -135,7 +139,7 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
-            if (this.outModule.mapFields.Count > 255)
+            if (this.outModule.mapFields.Count > MAX_STATIC_FIELDS_COUNT)
                 throw new Exception("too much static fields");
             if (this.outModule.mapFields.Count > 0)
             {
