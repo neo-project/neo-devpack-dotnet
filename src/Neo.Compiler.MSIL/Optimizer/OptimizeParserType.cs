@@ -22,9 +22,12 @@ namespace Neo.Compiler.Optimizer
         DELETE_NOP = 0x02,
 
         [OptimizeParser(typeof(Parser_DeleteUselessJmp))]
-        DELETE_USERLESS_JMP = 0x03,
+        DELETE_USELESS_JMP = 0x03,
 
         [OptimizeParser(typeof(Parser_UseShortAddress))]
         USE_SHORT_ADDRESS = 0x04,
+
+        [OptimizeParser(typeof(Parser_DeleteUselessEqual))]
+        DELETE_USELESS_EQUAL = 0x05
     }
 }
