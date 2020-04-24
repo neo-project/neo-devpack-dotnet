@@ -109,6 +109,7 @@ namespace Neo.Compiler.MSIL
 
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
         }
+
         [TestMethod]
         public void Test_OptimizeSkip_Recalculate_BoolEqualTrue()
         {
@@ -129,6 +130,7 @@ namespace Neo.Compiler.MSIL
             CollectionAssert.AreNotEqual(scriptAfter.ToArray(), optimized);
             CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
         }
+
         [TestMethod]
         public void Test_Optimize_Recalculate_BoolEqualFalse()
         {
@@ -254,21 +256,21 @@ namespace Neo.Compiler.MSIL
         //    scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(5));       // ───┐
         //    scriptBefore.Emit(VM.OpCode.PUSH1);                      // <──┘
 
-            // useshortaddress before deleteuselessjmp
-            // var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS, OptimizeParserType.DELETE_USELESS_JMP });
+        //    useshortaddress before deleteuselessjmp
+        //    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS, OptimizeParserType.DELETE_USELESS_JMP });
 
         //    using var scriptAfter = new ScriptBuilder();
         //    scriptAfter.Emit(VM.OpCode.PUSH1);
         //    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
-            // deleteuselessjmp before useshortaddress
-            // optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP, OptimizeParserType.USE_SHORT_ADDRESS });
-            // CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+        //    deleteuselessjmp before useshortaddress
+        //    optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP, OptimizeParserType.USE_SHORT_ADDRESS });
+        //    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
 
-            // use deleteuselessjmp only
-            // optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP });
-            // CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
-        // }
+        //    use deleteuselessjmp only
+        //    optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP });
+        //    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+        //}
 
         //[TestMethod]
         //public void Test_Optimize_JMP_Next()
@@ -277,7 +279,7 @@ namespace Neo.Compiler.MSIL
         //    scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(2));        // ───┐
         //    scriptBefore.Emit(VM.OpCode.PUSH1);                    // <──┘
 
-            // var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP });
+        //    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_USELESS_JMP });
 
         //    using var scriptAfter = new ScriptBuilder();
         //    scriptAfter.Emit(VM.OpCode.PUSH1);
