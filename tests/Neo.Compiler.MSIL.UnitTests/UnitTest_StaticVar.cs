@@ -38,7 +38,7 @@ namespace Neo.Compiler.MSIL.UnitTests
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
                 var result = testengine.ExecuteTestCaseStandard("directget");
-                // return executionengine.entryscripthash
+                // return ExecutionEngine.EntryScriptHash
                 var2 = (result.Pop() as ByteString);
             }
             Assert.IsNotNull(var1);
