@@ -109,7 +109,26 @@ namespace Neo.Compiler.MSIL
 
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
         }
+        [TestMethod]
+        public void Test_OptimizeSkip_Recalculate_BoolEqualTrue()
+        {
+            //jmp will cause skip this equal optimize
+            using var scriptBefore = new ScriptBuilder();
+            scriptBefore.Emit(VM.OpCode.JMP, new byte[2]);
+            scriptBefore.Emit(VM.OpCode.PUSH1);
+            scriptBefore.Emit(VM.OpCode.PUSH1);
+            scriptBefore.Emit(VM.OpCode.EQUAL);
+            scriptBefore.Emit(VM.OpCode.NOP);
 
+            using var scriptAfter = new ScriptBuilder();
+            scriptAfter.Emit(VM.OpCode.PUSH1);
+            scriptAfter.Emit(VM.OpCode.NOP);
+
+            var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_USELESS_EQUAL);
+
+            CollectionAssert.AreNotEqual(scriptAfter.ToArray(), optimized);
+            CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+        }
         [TestMethod]
         public void Test_Optimize_Recalculate_BoolEqualFalse()
         {
