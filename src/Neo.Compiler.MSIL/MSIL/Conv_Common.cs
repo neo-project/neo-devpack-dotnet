@@ -327,8 +327,8 @@ namespace Neo.Compiler.MSIL
         {
             if (from.paramtypes.Count > MAX_PARAMS_COUNT)
                 throw new Exception("too much params in:" + from);
-            if (from.body_Variables.Count > MAX_LOCAL_VARIBLES_COUNT)
-                throw new Exception("too much local varibles in:" + from);
+            if (from.body_Variables.Count > MAX_LOCAL_VARIABLES_COUNT)
+                throw new Exception("too much local variables in:" + from);
 
             byte paramcount = (byte)from.paramtypes.Count;
             byte varcount = (byte)from.body_Variables.Count;

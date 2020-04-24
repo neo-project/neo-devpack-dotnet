@@ -29,7 +29,7 @@ namespace Neo.Compiler.MSIL
 
         private const int MAX_STATIC_FIELDS_COUNT = 255;
         private const int MAX_PARAMS_COUNT = 255;
-        private const int MAX_LOCAL_VARIBLES_COUNT = 255;
+        private const int MAX_LOCAL_VARIABLES_COUNT = 255;
 
         private readonly ILogger logger;
         public NeoModule outModule;
