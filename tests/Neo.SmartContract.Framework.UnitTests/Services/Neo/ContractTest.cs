@@ -64,11 +64,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("destroy");
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetByteLength());
+            Assert.AreEqual(0, result.Count);
 
             // Check again for failures
 

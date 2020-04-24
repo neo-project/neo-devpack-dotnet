@@ -53,10 +53,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(true));
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(item.GetBigInteger(), 0);
+            Assert.AreEqual(0, result.Count);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(false));

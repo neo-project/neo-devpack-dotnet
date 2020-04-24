@@ -130,8 +130,7 @@ namespace Neo.Compiler.MSIL
                         {
                             NeoMethod _m = outModule.mapMethods[m.Key];
                         }
-                        var needReturnZero = m.Value.returntype == "System.Void";
-                        this.ConvertMethod(m.Value, nm, needReturnZero);
+                        this.ConvertMethod(m.Value, nm);
                     }
                 }
             }
@@ -255,7 +254,7 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        private void FillMethod(ILMethod from, NeoMethod to, bool needReturnZero)
+        private void FillMethod(ILMethod from, NeoMethod to, bool withReturn)
         {
             int skipcount = 0;
             foreach (var src in from.body_Codes.Values)
@@ -269,8 +268,7 @@ namespace Neo.Compiler.MSIL
                     //Need clear arguments before return
                     if (src.code == CodeEx.Ret)//before return
                     {
-                        if (needReturnZero)
-                            Insert1(VM.OpCode.PUSH0, "", to);
+                        if (!withReturn) break;
                     }
                     try
                     {
@@ -286,7 +284,7 @@ namespace Neo.Compiler.MSIL
             ConvertAddrInMethod(to);
         }
 
-        private void ConvertMethod(ILMethod from, NeoMethod to, bool needReturnZero)
+        private void ConvertMethod(ILMethod from, NeoMethod to)
         {
             this.addr = 0;
             this.addrconv.Clear();
@@ -294,7 +292,7 @@ namespace Neo.Compiler.MSIL
             // Insert a code that record the depth
             InsertBeginCode(from, to);
 
-            FillMethod(from, to, needReturnZero);
+            FillMethod(from, to, true);
         }
 
         private readonly Dictionary<int, int> addrconv = new Dictionary<int, int>();
