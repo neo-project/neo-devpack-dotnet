@@ -93,6 +93,26 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void Test_CombinedRules()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            using (var scriptAfter = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.PUSH0);
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.EQUAL);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_USELESS_EQUAL, OptimizeParserType.DELETE_NOP);
+
+                scriptAfter.Emit(VM.OpCode.PUSH0);
+
+                CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
         public void Test_Optimize_Recalculate_BoolEqualTrue()
         {
             using var scriptBefore = new ScriptBuilder();
