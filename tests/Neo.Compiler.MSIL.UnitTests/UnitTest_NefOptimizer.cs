@@ -103,10 +103,12 @@ namespace Neo.Compiler.MSIL
                 scriptBefore.Emit(VM.OpCode.PUSH0);
                 scriptBefore.Emit(VM.OpCode.NOP);
                 scriptBefore.Emit(VM.OpCode.EQUAL);
+                scriptBefore.Emit(VM.OpCode.PUSH0);
+                scriptBefore.Emit(VM.OpCode.EQUAL);
 
                 var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_USELESS_EQUAL, OptimizeParserType.DELETE_NOP);
 
-                scriptAfter.Emit(VM.OpCode.PUSH0);
+                scriptAfter.Emit(VM.OpCode.PUSH1);
 
                 CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
             }
