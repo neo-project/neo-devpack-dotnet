@@ -254,9 +254,6 @@ namespace Neo.Compiler.MSIL
 
         private void InsertSharedStaticVarCode(NeoMethod to)
         {
-            if (this.outModule.mapFields.Count > 255)
-                throw new Exception("too much static fields");
-
             //insert init constvalue part
             byte count = (byte)this.outModule.mapFields.Count;
             if (count > 0)
@@ -339,13 +336,6 @@ namespace Neo.Compiler.MSIL
             {
                 Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
             }
-        }
-
-        private void InsertBeginCodeEntry(NeoMethod to)
-        {
-            byte paramcount = (byte)2;
-            byte varcount = (byte)0;
-            Insert1(VM.OpCode.INITSLOT, "begincode", to, new byte[] { varcount, paramcount });
         }
     }
 }

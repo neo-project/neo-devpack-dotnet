@@ -11,7 +11,6 @@ namespace Neo.Compiler
     {
         public NeoModule(ILogger logger) { }
 
-        public string initializeMethod;
         public ConvOption option;
         public List<CustomAttribute> attributes = new List<CustomAttribute>();
         public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();

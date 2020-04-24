@@ -123,34 +123,16 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return -1;
         }
 
-        public void ExecuteInitializeMethod()
-        {
-            var offset = GetMethodEntryOffset("_initialize");
-            this.LoadClonedContext(offset);
-            var ret = false;
-            while (!ret)
-            {
-                var bfault = (this.State & VMState.FAULT) > 0;
-                var bhalt = (this.State & VMState.HALT) > 0;
-                if (bfault || bhalt) break;
-                Console.WriteLine("op:[" +
-                    this.CurrentContext.InstructionPointer.ToString("X04") +
-                    "]" +
-                this.CurrentContext.CurrentInstruction.OpCode);
-                if (this.CurrentContext.CurrentInstruction.OpCode is VM.OpCode.RET)
-                    ret = true;
-                this.ExecuteNext();
-            }
-        }
-
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-            ExecuteInitializeMethod();
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
             this.InvocationStack.Peek().InstructionPointer = offset;
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
+            var initializeOffset = GetMethodEntryOffset("_initialize");
+            if (initializeOffset != -1)
+                this.LoadClonedContext(initializeOffset);
             while (true)
             {
                 var bfault = (this.State & VMState.FAULT) > 0;

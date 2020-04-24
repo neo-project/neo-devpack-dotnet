@@ -136,8 +136,13 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
-            InsertInitializeMethod();
-            logger.Log("Auto Insert _initialize.");
+            if (this.outModule.mapFields.Count > 255)
+                throw new Exception("too much static fields");
+            if (this.outModule.mapFields.Count > 0)
+            {
+                InsertInitializeMethod();
+                logger.Log("Insert _initialize().");
+            }
 
             var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type.attributes.ToArray()).FirstOrDefault();
             if (attr?.Length > 0)
@@ -145,8 +150,7 @@ namespace Neo.Compiler.MSIL
                 outModule.attributes.AddRange(attr);
             }
 
-            outModule.initializeMethod = "::initializemethod";
-            this.LinkCode("::initializemethod");
+            this.LinkCode();
 
             // this.findFirstFunc();// Need to find the first method
             // Assign func addr for each method
@@ -192,33 +196,13 @@ namespace Neo.Compiler.MSIL
             return true;
         }
 
-        private void LinkCode(string initialize)
+        private void LinkCode()
         {
-            if (this.outModule.mapMethods.ContainsKey(initialize) == false)
-            {
-                throw new Exception("Can't find initialize:" + initialize);
-            }
-
-            var first = this.outModule.mapMethods[initialize];
-            first.funcaddr = 0;
             this.outModule.totalCodes.Clear();
             int addr = 0;
-            foreach (var c in first.body_Codes)
-            {
-                if (addr != c.Key)
-                {
-                    throw new Exception("sth error");
-                }
-                this.outModule.totalCodes[addr] = c.Value;
-                addr += 1;
-                if (c.Value.bytes != null)
-                    addr += c.Value.bytes.Length;
-            }
 
             foreach (var m in this.outModule.mapMethods)
             {
-                if (m.Key == initialize) continue;
-
                 m.Value.funcaddr = addr;
 
                 foreach (var c in m.Value.body_Codes)
