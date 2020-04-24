@@ -6,6 +6,7 @@ using VMOpCode = Neo.VM.OpCode;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
+    // TODO: TRY = 0x3B, TRY_L = 0x3C, ENDT = 0x3D, ENDC = 0x3E, ENDF = 0x3F. These opcodes need other PR to open.
     [TestClass]
     public class OpcodeTest
     {

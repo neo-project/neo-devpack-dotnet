@@ -13,17 +13,25 @@ namespace Neo.Compiler.Optimizer
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script)
         {
-            return Optimize(script, new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS }
+            return Optimize(script, new OptimizeParserType[]
+            {
+                OptimizeParserType.USE_SHORT_ADDRESS,
+                OptimizeParserType.DELETE_USELESS_EQUAL
+            }
             , out _);
         }
 
         public static byte[] Optimize(byte[] script, out Dictionary<int, int> addrConvertTable)
         {
-            return Optimize(script, new OptimizeParserType[] { OptimizeParserType.USE_SHORT_ADDRESS }
+            return Optimize(script, new OptimizeParserType[]
+            {
+                OptimizeParserType.USE_SHORT_ADDRESS,
+                OptimizeParserType.DELETE_USELESS_EQUAL
+            }
             , out addrConvertTable);
         }
 
-        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes)
+        public static byte[] Optimize(byte[] script, params OptimizeParserType[] parserTypes)
         {
             return Optimize(script, parserTypes, out _);
         }
@@ -32,11 +40,12 @@ namespace Neo.Compiler.Optimizer
         /// Optimize
         /// </summary>
         /// <param name="script">Script</param>
-        /// <param name="parsers">Optmize parser, currently, there are four parsers:
+        /// <param name="parserTypes">Optmize parser, currently, there are four parsers:
         /// <para> DELETE_DEAD_CODDE -- delete dead code parser, default parser</para>
         /// <para> USE_SHORT_ADDRESS -- use short address parser. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
         /// <para> DELETE_NOP -- delete nop parser</para>
-        /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para></param>
+        /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para>
+        /// <para> DELETE_USELESS_EQUAL -- delete useless equal parser, eg: EQUAL 01 01 </para></param>
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<int, int> addrConvertTable)
         {
