@@ -32,7 +32,8 @@ namespace Template.NEP5.CSharp
         static readonly byte[] StoragePrefixContract = new byte[] { 0x02, 0x02 };
         #endregion
 
-        // TODO add comments
+        // When this contract address is included in the transaction signature,
+        // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
         public static bool Verify()
         {
             return Runtime.CheckWitness(Owner);

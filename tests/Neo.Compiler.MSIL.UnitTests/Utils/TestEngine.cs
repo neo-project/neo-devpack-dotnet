@@ -138,7 +138,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 var bfault = (this.State & VMState.FAULT) > 0;
                 var bhalt = (this.State & VMState.HALT) > 0;
                 if (bfault || bhalt) break;
-                if (bfault) break;
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
