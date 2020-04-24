@@ -32,6 +32,7 @@ namespace Template.NEP5.CSharp
         static readonly byte[] StoragePrefixContract = new byte[] { 0x02, 0x02 };
         #endregion
 
+        // TODO add comments
         public static bool Verify()
         {
             return Runtime.CheckWitness(Owner);
@@ -44,7 +45,7 @@ namespace Template.NEP5.CSharp
 
         public static string Symbol()
         {
-            return "Token Symbol";
+            return "TokenSymbol";
         }
 
         public static ulong Decimals()
