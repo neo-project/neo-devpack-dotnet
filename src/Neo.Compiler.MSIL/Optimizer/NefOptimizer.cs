@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
@@ -25,6 +27,19 @@ namespace Neo.Compiler.Optimizer
                     LoadNef(ms);
                 }
             }
+        }
+
+        public Dictionary<int, int> GetAddrConvertTable()
+        {
+            var addrConvertTable = new Dictionary<int, int>();
+            foreach (var item in Items)
+            {
+                if (item is NefInstruction inst)
+                {
+                    addrConvertTable[inst.OffsetInit] = inst.Offset;
+                }
+            }
+            return addrConvertTable;
         }
 
         public void AddOptimizeParser(IOptimizeParser function)
@@ -102,6 +117,27 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
+        internal Dictionary<int, int> RebuildAddrConvertTable(Dictionary<int, int> addrConvertTable, Dictionary<int, int> addrConvertTableTemp)
+        {
+            for (int i = 0; i < addrConvertTable.Count; i++)
+            {
+                var findFlag = false;
+                var kvp = addrConvertTable.ElementAt(i);
+                foreach (var kvpTemp in addrConvertTableTemp)
+                {
+                    if (kvp.Value == kvpTemp.Key)
+                    {
+                        addrConvertTable[kvp.Key] = addrConvertTableTemp[kvpTemp.Key];
+                        findFlag = true;
+                        break;
+                    }
+                }
+                if (!findFlag)
+                    addrConvertTable.Remove(kvp.Key);
+            }
+            return addrConvertTable;
+        }
+
         /// <summary>
         /// Step03 Link
         /// </summary>
@@ -150,7 +186,9 @@ namespace Neo.Compiler.Optimizer
             foreach (var inst in this.Items)
             {
                 if (inst is NefInstruction i)
+                {
                     i.WriteTo(stream);
+                }
             }
         }
     }

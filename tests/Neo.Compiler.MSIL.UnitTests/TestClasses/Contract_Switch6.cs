@@ -2,7 +2,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_SwitchValid : SmartContract.Framework.SmartContract
     {
-        public static object Main(string method, object[] args)
+        public static object Main(string method)
         {
             switch (method)
             {

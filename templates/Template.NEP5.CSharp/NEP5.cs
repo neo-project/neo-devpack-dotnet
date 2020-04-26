@@ -13,12 +13,8 @@ namespace Template.NEP5.CSharp
     public partial class NEP5 : SmartContract
     {
         #region Token Settings
-        static readonly string Name = "Token Name";
-        static readonly string Symbol = "TokenSymbol";
-        static readonly ulong Decimals = 8;
         static readonly ulong MaxSupply = 10_000_000_000_000_000;
         static readonly ulong InitialSupply = 2_000_000_000_000_000;
-        static readonly string[] SupportedStandards = new string[] { "NEP-5", "NEP-10" };
         static readonly byte[] Owner = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
         static readonly ulong TokensPerNEO = 1_000_000_000;
         static readonly ulong TokensPerGAS = 1;
@@ -36,39 +32,31 @@ namespace Template.NEP5.CSharp
         static readonly byte[] StoragePrefixContract = new byte[] { 0x02, 0x02 };
         #endregion
 
-        public static object Main(string operation, object[] args)
+        // When this contract address is included in the transaction signature,
+        // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
+        public static bool Verify()
         {
-            if (Runtime.Trigger == TriggerType.Verification)
-            {
-                return Runtime.CheckWitness(Owner);
-            }
+            return Runtime.CheckWitness(Owner);
+        }
 
-            else if (Runtime.Trigger == TriggerType.Application)
-            {
-                #region NEP5 METHODS
-                if (operation == "name") return Name;
-                if (operation == "symbol") return Symbol;
-                if (operation == "decimals") return Decimals;
-                if (operation == "totalSupply") return TotalSupply();
-                if (operation == "balanceOf") return BalanceOf((byte[])args[0]);
-                if (operation == "transfer") return Transfer((byte[])args[0], (byte[])args[1], (BigInteger)args[2]);
-                #endregion
+        public static string Name()
+        {
+            return "Token Name";
+        }
 
-                #region NEP10 METHODS
-                if (operation == "supportedStandards") return SupportedStandards;
-                #endregion
+        public static string Symbol()
+        {
+            return "TokenSymbol";
+        }
 
-                #region CROWDSALE METHODS
-                if (operation == "mint") return Mint();
-                #endregion
+        public static ulong Decimals()
+        {
+            return 8;
+        }
 
-                #region ADMIN METHODS
-                if (operation == "deploy") return Deploy();
-                if (operation == "migrate") return Migrate((byte[])args[0], (string)args[1]);
-                if (operation == "destroy") return Destroy();
-                #endregion
-            }
-            return false;
+        public static string[] SupportedStandards()
+        {
+            return new string[] { "NEP-5", "NEP-10" };
         }
     }
 }

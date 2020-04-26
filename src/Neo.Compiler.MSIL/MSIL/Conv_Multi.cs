@@ -63,7 +63,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var dtype = type.Resolve();
-                if (dtype.BaseType.FullName == "System.MulticastDelegate" || dtype.BaseType.FullName == "System.Delegate")
+                if (dtype.BaseType != null && (dtype.BaseType.FullName == "System.MulticastDelegate" || dtype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in dtype.Methods)
                     {
@@ -85,7 +85,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var ptype = method.method.Parameters[pos].ParameterType.Resolve();
-                if (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate")
+                if (ptype.BaseType != null && (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in ptype.Methods)
                     {
