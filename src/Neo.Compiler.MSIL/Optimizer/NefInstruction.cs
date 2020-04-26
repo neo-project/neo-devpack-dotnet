@@ -80,10 +80,18 @@ namespace Neo.Compiler.Optimizer
             if (AddressSize == 0)
                 throw new Exception("this data have not Addresses");
 
-            byte[] buf = new byte[4];
-            Array.Copy(Data, AddressSize * index, buf, 0, AddressSize);
-            var addr = BitConverter.ToInt32(buf, 0);
-            return addr;
+            switch (AddressSize)
+            {
+                // 1 byte is stored as signed byte
+                case 1: return (sbyte)Data[index];
+                case 4:
+                    {
+                        byte[] buf = new byte[4];
+                        Array.Copy(Data, AddressSize * index, buf, 0, AddressSize);
+                        return BitConverter.ToInt32(buf, 0);
+                    }
+                default: throw new Exception("this data have not a valid address");
+            }
         }
 
         public void SetAddressInData(int index, int addr)

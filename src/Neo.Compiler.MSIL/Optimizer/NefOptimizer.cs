@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
@@ -113,6 +115,27 @@ namespace Neo.Compiler.Optimizer
                 }
                 Items.Add(instruction);
             }
+        }
+
+        internal Dictionary<int, int> RebuildAddrConvertTable(Dictionary<int, int> addrConvertTable, Dictionary<int, int> addrConvertTableTemp)
+        {
+            for (int i = 0; i < addrConvertTable.Count; i++)
+            {
+                var findFlag = false;
+                var kvp = addrConvertTable.ElementAt(i);
+                foreach (var kvpTemp in addrConvertTableTemp)
+                {
+                    if (kvp.Value == kvpTemp.Key)
+                    {
+                        addrConvertTable[kvp.Key] = addrConvertTableTemp[kvpTemp.Key];
+                        findFlag = true;
+                        break;
+                    }
+                }
+                if (!findFlag)
+                    addrConvertTable.Remove(kvp.Key);
+            }
+            return addrConvertTable;
         }
 
         /// <summary>

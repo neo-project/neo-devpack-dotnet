@@ -63,22 +63,43 @@ namespace Neo.Compiler.Optimizer
                 optimizer.AddOptimizeParser(parser);
             }
 
-            //step01 Load
-            using (var ms = new MemoryStream(script))
+            bool optimized;
+            addrConvertTable = null;
+            do
             {
-                optimizer.LoadNef(ms);
-            }
-            //step02 doOptimize
-            optimizer.Optimize();
+                //step01 Load
+                using (var ms = new MemoryStream(script))
+                {
+                    optimizer.LoadNef(ms);
+                }
 
-            //step03 link
-            using (var ms = new MemoryStream())
-            {
-                optimizer.LinkNef(ms);
-                addrConvertTable = optimizer.GetAddrConvertTable();
-                var bytes = ms.ToArray();
-                return bytes;
+                //step02 doOptimize
+                optimizer.Optimize();
+
+                //step03 link
+                using (var ms = new MemoryStream())
+                {
+                    optimizer.LinkNef(ms);
+
+                    if (addrConvertTable is null)
+                        addrConvertTable = optimizer.GetAddrConvertTable();
+                    else
+                    {
+                        Dictionary<int, int> addrConvertTableTemp = optimizer.GetAddrConvertTable();
+                        addrConvertTable = optimizer.RebuildAddrConvertTable(addrConvertTable, addrConvertTableTemp);
+                    }
+
+                    var bytes = ms.ToArray();
+
+                    optimized = bytes.Length < script.Length;
+                    if (optimized) { script = bytes; }
+                }
+
+                // Execute it while decrease the size
             }
+            while (optimized);
+
+            return script;
         }
     }
 }
