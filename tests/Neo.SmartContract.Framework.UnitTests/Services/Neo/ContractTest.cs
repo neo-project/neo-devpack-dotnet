@@ -24,43 +24,43 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_CreateCallDestroy()
         {
-            throw new System.Exception("compiler error on  ContractManifest.CreateDefault");
-            //// Create
+            // Create
+
             var script = _engine.Build("./TestClasses/Contract_Create.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
 
+            // Check first
 
-            //// Check first
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
 
+            // Create
 
-            //// Create
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
+            var item = result.Pop();
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
+            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
+            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
-            //var item = result.Pop();
-            //Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
-            //var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
-            //Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
+            // Call
 
-            //// Call
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
 
-            //item = result.Pop();
-            //Assert.IsInstanceOfType(item, typeof(Integer));
-            //Assert.AreEqual(123, item.GetBigInteger());
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, item.GetBigInteger());
 
-            //// Destroy
+            // Destroy
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("destroy");
@@ -68,20 +68,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, result.Count);
 
 
-            //// Check again for failures
+            // Check again for failures
 
-            //_engine.Reset();
-            //result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
-            //Assert.AreEqual(VMState.FAULT, _engine.State);
-            //Assert.AreEqual(0, result.Count);
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
+            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
         public void Test_Update()
         {
-            throw new System.Exception("compiler error on  ContractManifest.CreateDefault");
-            //// Create
 
+            // Create
 
             var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
@@ -89,8 +88,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
 
+            // Check first
 
-            //// Check first
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
             Assert.AreEqual(VMState.FAULT, _engine.State);
@@ -100,19 +99,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _ = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), "newContract", new Array());
             Assert.AreEqual(VMState.FAULT, _engine.State);
 
+            // Create
 
-            //// Create
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            //var item = result.Pop();
-            //Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
-            //var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
-            //Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
+            var item = result.Pop();
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
+            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
+            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
 
-            //// Call & Update
+            // Call & Update
+
             _engine.Reset();
             var args = new Array
             {
@@ -123,21 +123,23 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            //item = result.Pop();
-            //Assert.IsInstanceOfType(item, typeof(Integer));
-            //Assert.AreEqual(123, item.GetBigInteger());
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, item.GetBigInteger());
 
-            //// Call Again
+            // Call Again
+
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), "newContract", new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            //item = result.Pop();
-            //Assert.IsInstanceOfType(item, typeof(Integer));
-            //Assert.AreEqual(124, item.GetBigInteger());
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(124, item.GetBigInteger());
 
-            //// Check again for failures
+            // Check again for failures
+
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
             Assert.AreEqual(VMState.FAULT, _engine.State);
