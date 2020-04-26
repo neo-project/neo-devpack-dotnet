@@ -13,6 +13,9 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestAllOpcodes()
         {
             // Names
+            int i = Enum.GetNames(typeof(VMOpCode)).Length;
+            int j = Enum.GetNames(typeof(FrameworkOpCode)).Length;
+            Assert.AreEqual(i, j);
 
             CollectionAssert.AreEqual
                 (

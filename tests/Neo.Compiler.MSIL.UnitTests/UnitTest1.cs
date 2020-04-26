@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestDumpAFunc()
         {
             var testtool = NeonTestTool.BuildScript("./TestClasses/Contract1.cs");
-            var ilmethod = testtool.FindMethod("Contract1", "UnitTest_001");
+            var ilmethod = testtool.FindMethod("Contract1", "unitTest_001");
             var neomethod = testtool.GetNEOVMMethod(ilmethod);
             DumpNEF(neomethod);
             var bytes = testtool.NeoMethodToBytes(neomethod);
@@ -56,7 +56,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
 
 
-            var result = testengine.GetMethod("testfunc").Run().ConvertTo(StackItemType.ByteString);
+            var result = testengine.GetMethod("unitTest_001").Run().ConvertTo(StackItemType.ByteString);
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
             var bequal = wantresult.Equals(result);
@@ -69,7 +69,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract2.cs");
 
-            var result = testengine.GetMethod("testfunc").Run("hello", 1, 2, 3, 4);
+            var result = testengine.GetMethod("unitTest_002").Run("hello", 1);
             StackItem wantresult = 3;
 
             var bequal = wantresult.Equals(result);

@@ -22,14 +22,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("default");
+            result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
 
@@ -45,14 +45,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("default");
+            result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
 
@@ -68,14 +68,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             for (int x = 0; x <= 5; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("default");
+            result = testengine.ExecuteTestCaseStandard("main", 6.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
     }
