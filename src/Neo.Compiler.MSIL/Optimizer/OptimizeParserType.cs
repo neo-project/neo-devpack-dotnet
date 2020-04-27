@@ -30,7 +30,7 @@ namespace Neo.Compiler.Optimizer
         [OptimizeParser(typeof(Parser_DeleteUselessEqual))]
         DELETE_USELESS_EQUAL = 0x05,
 
-        [OptimizeParser(typeof(Parser_DeleteStaticMath))]
-        DELETE_STATIC_MATH = 0x06
+        [OptimizeParser(typeof(Parser_DeleteConstExecution))]
+        DELETE_CONST_EXECUTION = 0x06
     }
 }

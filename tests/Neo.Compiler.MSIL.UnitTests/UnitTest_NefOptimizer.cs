@@ -131,7 +131,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.Emit(VM.OpCode.PUSH2);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -146,7 +146,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.Emit(VM.OpCode.PUSH10);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -164,7 +164,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(2);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -178,7 +178,39 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(new BigInteger(int.MaxValue) + 1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_Optimize_StaticMath_ISNULL()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.ISNULL);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH0);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSHNULL);
+                scriptBefore.Emit(VM.OpCode.ISNULL);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH1);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -196,7 +228,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(-1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -210,7 +242,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(short.MaxValue);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -228,7 +260,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(0);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -242,7 +274,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(-1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -256,7 +288,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -274,7 +306,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(0);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -288,7 +320,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -302,7 +334,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(-1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -321,7 +353,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(-1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -336,7 +368,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -351,7 +383,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(ushort.MaxValue - short.MaxValue);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -370,7 +402,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(10 / 11);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -385,7 +417,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(11 / 10);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -400,7 +432,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(BigInteger.Divide(new BigInteger(ushort.MaxValue), new BigInteger(short.MaxValue)));
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -419,7 +451,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(10 % 11);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -434,7 +466,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(10 / 4);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -449,7 +481,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(new BigInteger(ushort.MaxValue) % new BigInteger(short.MaxValue));
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -467,7 +499,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(0);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -481,7 +513,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -495,7 +527,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -514,7 +546,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.Emit(VM.OpCode.PUSH2);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -529,7 +561,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.EmitPush(BigInteger.Multiply(new BigInteger(int.MaxValue), new BigInteger(int.MaxValue)));
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_STATIC_MATH);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }

@@ -23,7 +23,7 @@ namespace Neo.Compiler.Optimizer
             {
                 //OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
-                OptimizeParserType.DELETE_STATIC_MATH,
+                OptimizeParserType.DELETE_CONST_EXECUTION,
                 OptimizeParserType.DELETE_USELESS_EQUAL
             }
             , out addrConvertTable);

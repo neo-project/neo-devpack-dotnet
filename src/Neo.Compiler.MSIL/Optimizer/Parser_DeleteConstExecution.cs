@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.Compiler.Optimizer
 {
-    class Parser_DeleteStaticMath : IOptimizeParser
+    class Parser_DeleteConstExecution : IOptimizeParser
     {
         private uint OptimizedCount = 0;
 
@@ -33,6 +33,29 @@ namespace Neo.Compiler.Optimizer
                 {
                     // One stack item
 
+                    case OpCode.ISNULL:
+                        {
+                            if (items[x - 1] is NefInstruction p1)
+                            {
+                                if (p1.IsPush(out _))
+                                {
+                                    items.RemoveRange(x - 1, 1);
+                                    OptimizedCount++;
+                                    x -= 1;
+
+                                    ins.UpdateForPush(0);
+                                }
+                                else if (p1.OpCode == OpCode.PUSHNULL)
+                                {
+                                    items.RemoveRange(x - 1, 1);
+                                    OptimizedCount++;
+                                    x -= 1;
+
+                                    ins.UpdateForPush(1);
+                                }
+                            }
+                            break;
+                        }
                     case OpCode.SIGN:
                         {
                             if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
