@@ -73,11 +73,15 @@ namespace Neo.Compiler.Optimizer
                         {
                             if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
                             {
-                                items.RemoveRange(x - 1, 1);
-                                OptimizedCount++;
-                                x -= 1;
+                                var value = v1 + 1;
+                                if (value.IsValidValue())
+                                {
+                                    items.RemoveRange(x - 1, 1);
+                                    OptimizedCount++;
+                                    x -= 1;
 
-                                ins.UpdateForPush(v1 + 1);
+                                    ins.UpdateForPush(value);
+                                }
                             }
                             break;
                         }
@@ -85,11 +89,15 @@ namespace Neo.Compiler.Optimizer
                         {
                             if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
                             {
-                                items.RemoveRange(x - 1, 1);
-                                OptimizedCount++;
-                                x -= 1;
+                                var value = v1 - 1;
+                                if (value.IsValidValue())
+                                {
+                                    items.RemoveRange(x - 1, 1);
+                                    OptimizedCount++;
+                                    x -= 1;
 
-                                ins.UpdateForPush(v1 - 1);
+                                    ins.UpdateForPush(value);
+                                }
                             }
                             break;
                         }
@@ -105,11 +113,15 @@ namespace Neo.Compiler.Optimizer
                                 p2.IsPush(out var v2)
                                 )
                             {
-                                items.RemoveRange(x - 2, 2);
-                                OptimizedCount++;
-                                x -= 2;
+                                var value = v2 + v1;
+                                if (value.IsValidValue())
+                                {
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
 
-                                ins.UpdateForPush(v1 + v2);
+                                    ins.UpdateForPush(value);
+                                }
                             }
                             break;
                         }
@@ -122,11 +134,15 @@ namespace Neo.Compiler.Optimizer
                                 p2.IsPush(out var v2)
                                 )
                             {
-                                items.RemoveRange(x - 2, 2);
-                                OptimizedCount++;
-                                x -= 2;
+                                var value = v2 - v1;
+                                if (value.IsValidValue())
+                                {
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
 
-                                ins.UpdateForPush(v2 - v1);
+                                    ins.UpdateForPush(value);
+                                }
                             }
                             break;
                         }
@@ -139,11 +155,15 @@ namespace Neo.Compiler.Optimizer
                                 p2.IsPush(out var v2)
                                 )
                             {
-                                items.RemoveRange(x - 2, 2);
-                                OptimizedCount++;
-                                x -= 2;
+                                var value = v2 * v1;
+                                if (value.IsValidValue())
+                                {
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
 
-                                ins.UpdateForPush(v1 * v2);
+                                    ins.UpdateForPush(value);
+                                }
                             }
                             break;
                         }

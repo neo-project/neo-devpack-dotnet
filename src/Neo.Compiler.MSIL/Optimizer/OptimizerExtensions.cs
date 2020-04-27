@@ -21,6 +21,16 @@ namespace Neo.Compiler.Optimizer
             ins.SetData(script.Skip(1).ToArray());
         }
 
+        public static bool IsValidValue(this BigInteger value)
+        {
+            if (value.GetByteCount() > 32)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static bool IsPush(this NefInstruction ins, out BigInteger value)
         {
             switch (ins.OpCode)
@@ -59,7 +69,7 @@ namespace Neo.Compiler.Optimizer
                     {
                         value = new BigInteger(ins.Data);
 
-                        if (value.GetByteCount() > 32)
+                        if (!value.IsValidValue())
                         {
                             value = 0;
                             return false;
