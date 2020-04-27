@@ -17,7 +17,7 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.NOP);
 
             var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(),
-                OptimizeParserType.DELETE_DEAD_CODDE,
+                OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS
                 );
 
@@ -674,7 +674,7 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.RET);                   // <┘
 
             var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(),
-                OptimizeParserType.DELETE_DEAD_CODDE,
+                OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS
                 );
 
@@ -703,7 +703,7 @@ namespace Neo.Compiler.MSIL
             scriptAfter.Emit(VM.OpCode.PUSHA, ToJumpLArg(-2));      //  x<┘
 
             var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(),
-                OptimizeParserType.DELETE_DEAD_CODDE,
+                OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS
                 );
 
@@ -721,7 +721,7 @@ namespace Neo.Compiler.MSIL
             scriptBefore.Emit(VM.OpCode.RET);                   // <┘
 
             var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(),
-                OptimizeParserType.DELETE_DEAD_CODDE,
+                OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS
                 );
 
@@ -751,7 +751,7 @@ namespace Neo.Compiler.MSIL
             scriptAfter.Emit(smallJumpOpCode, ToJumpArg(-2));       //  x<┘
 
             var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(),
-                OptimizeParserType.DELETE_DEAD_CODDE,
+                OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS
                 );
 

@@ -21,7 +21,7 @@ namespace Neo.Compiler.Optimizer
         {
             return Optimize(script, new OptimizeParserType[]
             {
-                //OptimizeParserType.DELETE_DEAD_CODDE,
+                //OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
                 OptimizeParserType.DELETE_STATIC_MATH,
                 OptimizeParserType.DELETE_USELESS_EQUAL
