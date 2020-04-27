@@ -47,7 +47,8 @@ namespace Neo.Compiler.Optimizer
                         }
                     case OpCode.ABS:
                         {
-                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
+                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1) &&
+                                BigInteger.Abs(v1).IsValidValue())
                             {
                                 items.RemoveRange(x - 1, 1);
                                 OptimizedCount++;
@@ -59,7 +60,8 @@ namespace Neo.Compiler.Optimizer
                         }
                     case OpCode.NEGATE:
                         {
-                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
+                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1) &&
+                                (-v1).IsValidValue())
                             {
                                 items.RemoveRange(x - 1, 1);
                                 OptimizedCount++;
@@ -71,33 +73,27 @@ namespace Neo.Compiler.Optimizer
                         }
                     case OpCode.INC:
                         {
-                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
+                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1) &&
+                                (v1 + 1).IsValidValue())
                             {
-                                var value = v1 + 1;
-                                if (value.IsValidValue())
-                                {
-                                    items.RemoveRange(x - 1, 1);
-                                    OptimizedCount++;
-                                    x -= 1;
+                                items.RemoveRange(x - 1, 1);
+                                OptimizedCount++;
+                                x -= 1;
 
-                                    ins.UpdateForPush(value);
-                                }
+                                ins.UpdateForPush(v1 + 1);
                             }
                             break;
                         }
                     case OpCode.DEC:
                         {
-                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
+                            if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1) &&
+                                (v1 - 1).IsValidValue())
                             {
-                                var value = v1 - 1;
-                                if (value.IsValidValue())
-                                {
-                                    items.RemoveRange(x - 1, 1);
-                                    OptimizedCount++;
-                                    x -= 1;
+                                items.RemoveRange(x - 1, 1);
+                                OptimizedCount++;
+                                x -= 1;
 
-                                    ins.UpdateForPush(value);
-                                }
+                                ins.UpdateForPush(v1 - 1);
                             }
                             break;
                         }
