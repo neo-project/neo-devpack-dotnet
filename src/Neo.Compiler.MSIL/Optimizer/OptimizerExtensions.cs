@@ -58,6 +58,13 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.PUSHINT256:
                     {
                         value = new BigInteger(ins.Data);
+
+                        if (value.GetByteCount() > 32)
+                        {
+                            value = 0;
+                            return false;
+                        }
+
                         return true;
                     }
             }
