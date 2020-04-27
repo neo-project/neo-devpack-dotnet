@@ -14,21 +14,14 @@ namespace Neo.Compiler.Optimizer
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script)
         {
-            return Optimize(script, new OptimizeParserType[]
-            {
-                OptimizeParserType.DELETE_DEAD_CODDE,
-                OptimizeParserType.USE_SHORT_ADDRESS,
-                OptimizeParserType.DELETE_STATIC_MATH,
-                OptimizeParserType.DELETE_USELESS_EQUAL
-            }
-            , out _);
+            return Optimize(script, out _);
         }
 
         public static byte[] Optimize(byte[] script, out Dictionary<int, int> addrConvertTable)
         {
             return Optimize(script, new OptimizeParserType[]
             {
-                OptimizeParserType.DELETE_DEAD_CODDE,
+                //OptimizeParserType.DELETE_DEAD_CODDE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
                 OptimizeParserType.DELETE_STATIC_MATH,
                 OptimizeParserType.DELETE_USELESS_EQUAL
