@@ -7,13 +7,13 @@ namespace Template.NEP5.CSharp
 {
     public partial class NEP5 : SmartContract
     {
-        private static BigInteger TotalSupply()
+        public static BigInteger TotalSupply()
         {
             StorageMap contract = Storage.CurrentContext.CreateMap(StoragePrefixContract);
             return contract.Get("totalSupply")?.ToBigInteger() ?? 0;
         }
 
-        private static BigInteger BalanceOf(byte[] account)
+        public static BigInteger BalanceOf(byte[] account)
         {
             if (!ValidateAddress(account)) throw new FormatException("The parameter 'account' SHOULD be 20-byte addresses.");
 
@@ -21,7 +21,7 @@ namespace Template.NEP5.CSharp
             return balances.Get(account)?.ToBigInteger() ?? 0;
         }
 
-        private static bool Transfer(byte[] from, byte[] to, BigInteger amount)
+        public static bool Transfer(byte[] from, byte[] to, BigInteger amount)
         {
             if (!ValidateAddress(from)) throw new FormatException("The parameter 'from' SHOULD be 20-byte addresses.");
             if (!ValidateAddress(to)) throw new FormatException("The parameters 'to' SHOULD be 20-byte addresses.");

@@ -162,17 +162,24 @@ namespace Neo.Compiler
                 module = conv.Convert(mod, option);
                 bytes = module.Build();
                 log.Log("convert succ");
-
+                Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
-                    var optimize = NefOptimizeTool.Optimize(bytes);
+                    module.ConvertFuncAddr();
+                    var optimize = NefOptimizeTool.Optimize(bytes, out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                    foreach (var func in module.mapMethods)
+                    {
+                        int srcaddr = func.Value.funcaddr;
+                        int opaddr = addrConvTable[srcaddr];
+                        log.Log("func addr from " + srcaddr + "=>" + opaddr);
+                    }
                     bytes = optimize;
                 }
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(module, bytes);
+                    var outjson = vmtool.FuncExport.Export(module, bytes, addrConvTable);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();

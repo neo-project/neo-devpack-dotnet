@@ -2,7 +2,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_shift : SmartContract.Framework.SmartContract
     {
-        public static object Main(string method, object[] args)
+        public static object Main()
         {
             int v = 8;
             var v1 = v << 1;

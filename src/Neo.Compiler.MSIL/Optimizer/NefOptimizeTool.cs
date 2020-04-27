@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Neo.Compiler.Optimizer
@@ -14,11 +15,27 @@ namespace Neo.Compiler.Optimizer
         {
             return Optimize(script, new OptimizeParserType[]
             {
-                OptimizeParserType.DELETE_DEAD_CODDE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
-                OptimizeParserType.DELETE_USELESS_EQUAL,
-                OptimizeParserType.DELETE_STATIC_MATH
-            });
+                OptimizeParserType.DELETE_STATIC_MATH,
+                OptimizeParserType.DELETE_USELESS_EQUAL
+            }
+            , out _);
+        }
+
+        public static byte[] Optimize(byte[] script, out Dictionary<int, int> addrConvertTable)
+        {
+            return Optimize(script, new OptimizeParserType[]
+            {
+                OptimizeParserType.USE_SHORT_ADDRESS,
+                OptimizeParserType.DELETE_STATIC_MATH,
+                OptimizeParserType.DELETE_USELESS_EQUAL
+            }
+            , out addrConvertTable);
+        }
+
+        public static byte[] Optimize(byte[] script, params OptimizeParserType[] parserTypes)
+        {
+            return Optimize(script, parserTypes, out _);
         }
 
         /// <summary>
@@ -32,7 +49,7 @@ namespace Neo.Compiler.Optimizer
         /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para>
         /// <para> DELETE_USELESS_EQUAL -- delete useless equal parser, eg: EQUAL 01 01 </para></param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, params OptimizeParserType[] parserTypes)
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<int, int> addrConvertTable)
         {
             var optimizer = new NefOptimizer();
 
@@ -48,21 +65,43 @@ namespace Neo.Compiler.Optimizer
                 optimizer.AddOptimizeParser(parser);
             }
 
-            //step01 Load
-            using (var ms = new MemoryStream(script))
+            bool optimized;
+            addrConvertTable = null;
+            do
             {
-                optimizer.LoadNef(ms);
-            }
-            //step02 doOptimize
-            optimizer.Optimize();
+                //step01 Load
+                using (var ms = new MemoryStream(script))
+                {
+                    optimizer.LoadNef(ms);
+                }
 
-            //step03 link
-            using (var ms = new MemoryStream())
-            {
-                optimizer.LinkNef(ms);
-                var bytes = ms.ToArray();
-                return bytes;
+                //step02 doOptimize
+                optimizer.Optimize();
+
+                //step03 link
+                using (var ms = new MemoryStream())
+                {
+                    optimizer.LinkNef(ms);
+
+                    if (addrConvertTable is null)
+                        addrConvertTable = optimizer.GetAddrConvertTable();
+                    else
+                    {
+                        Dictionary<int, int> addrConvertTableTemp = optimizer.GetAddrConvertTable();
+                        addrConvertTable = optimizer.RebuildAddrConvertTable(addrConvertTable, addrConvertTableTemp);
+                    }
+
+                    var bytes = ms.ToArray();
+
+                    optimized = bytes.Length < script.Length;
+                    if (optimized) { script = bytes; }
+                }
+
+                // Execute it while decrease the size
             }
+            while (optimized);
+
+            return script;
         }
     }
 }
