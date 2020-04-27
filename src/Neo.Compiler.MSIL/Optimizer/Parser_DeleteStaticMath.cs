@@ -152,7 +152,7 @@ namespace Neo.Compiler.Optimizer
                             if (x >= 2 &&
                                 items[x - 1] is NefInstruction p1 &&
                                 items[x - 2] is NefInstruction p2 &&
-                                p1.IsPush(out var v1) &&
+                                p1.IsPush(out var v1) && v1 != BigInteger.Zero &&
                                 p2.IsPush(out var v2)
                                 )
                             {
