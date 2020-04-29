@@ -11,42 +11,42 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static bool Secp256r1VerifySignature(byte[] pubkey, byte[] signature)
         {
-            return Crypto.ECDsaSecp256r1Verify(null, pubkey, signature);
+            return Crypto.ECDsa.Secp256r1.Verify(null, pubkey, signature);
         }
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, byte[] pubkey, byte[] signature)
         {
-            return Crypto.ECDsaSecp256r1Verify(message, pubkey, signature);
+            return Crypto.ECDsa.Secp256r1.Verify(message, pubkey, signature);
         }
 
         public static bool Secp256r1VerifySignatures(byte[][] pubkeys, byte[][] signatures)
         {
-            return Crypto.ECDsaSecp256r1CheckMultiSig(null, pubkeys, signatures);
+            return Crypto.ECDsa.Secp256r1.CheckMultiSig(null, pubkeys, signatures);
         }
 
         public static bool Secp256r1VerifySignaturesWithMessage(byte[] message, byte[][] pubkeys, byte[][] signatures)
         {
-            return Crypto.ECDsaSecp256r1CheckMultiSig(message, pubkeys, signatures);
+            return Crypto.ECDsa.Secp256r1.CheckMultiSig(message, pubkeys, signatures);
         }
 
         public static bool Secp256k1VerifySignature(byte[] pubkey, byte[] signature)
         {
-            return Crypto.ECDsaSecp256k1Verify(null, pubkey, signature);
+            return Crypto.ECDsa.Secp256k1.Verify(null, pubkey, signature);
         }
 
         public static bool Secp256k1VerifySignatureWithMessage(byte[] message, byte[] pubkey, byte[] signature)
         {
-            return Crypto.ECDsaSecp256k1Verify(message, pubkey, signature);
+            return Crypto.ECDsa.Secp256k1.Verify(message, pubkey, signature);
         }
 
         public static bool Secp256k1VerifySignatures(byte[][] pubkeys, byte[][] signatures)
         {
-            return Crypto.ECDsaSecp256k1CheckMultiSig(null, pubkeys, signatures);
+            return Crypto.ECDsa.Secp256k1.CheckMultiSig(null, pubkeys, signatures);
         }
 
         public static bool Secp256k1VerifySignaturesWithMessage(byte[] message, byte[][] pubkeys, byte[][] signatures)
         {
-            return Crypto.ECDsaSecp256k1CheckMultiSig(message, pubkeys, signatures);
+            return Crypto.ECDsa.Secp256k1.CheckMultiSig(message, pubkeys, signatures);
         }
     }
 }
