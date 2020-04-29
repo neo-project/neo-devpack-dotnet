@@ -420,6 +420,7 @@ namespace Neo.Compiler.MSIL
                         Array.Copy(bytesFinally, 0, buf, 4, 4);
                         var trycode = Convert1by1(VM.OpCode.TRY_L, src, to, buf);
                         trycode.needfix = true;
+                        break;
                     }
                 }
             }
