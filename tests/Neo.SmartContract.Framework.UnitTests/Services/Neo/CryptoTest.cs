@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             var data = _engine.ScriptContainer.GetHashData();
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("sHA256",data);
+            var result = _engine.ExecuteTestCaseStandard("sHA256", data);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
