@@ -18,7 +18,7 @@ namespace Neo.Compiler.Optimizer
                 OptimizeParserType.DELETE_DEAD_CODDE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
                 OptimizeParserType.DELETE_USELESS_EQUAL
-            }, new Dictionary<string, int>());
+            }, out _);
         }
 
         public static byte[] Optimize(byte[] script, Dictionary<string, int> funcAddrList)
