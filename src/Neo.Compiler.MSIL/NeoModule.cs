@@ -69,19 +69,25 @@ namespace Neo.Compiler
             return sb.ToString();
         }
 
-        internal void ConvertFuncAddr()
+        public Dictionary<string, int> ConvertFuncAddr()
         {
+            var funcAddrList = new Dictionary<string, int>();
             foreach (var method in this.mapMethods.Values)
             {
+                if (!method.inSmartContract || !method.isPublic)
+                    continue;
                 foreach (var code in method.body_Codes.Values)
                 {
                     if (code.code != VM.OpCode.NOP)
                     {
                         method.funcaddr = code.addr;
+                        if(!funcAddrList.TryAdd(method.displayName, method.funcaddr))
+                            throw new Exception("Functions of the same name are not allowed");
                         break;
                     }
                 }
             }
+            return funcAddrList;
         }
     }
 

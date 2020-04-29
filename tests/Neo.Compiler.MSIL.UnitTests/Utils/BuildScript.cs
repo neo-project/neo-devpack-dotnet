@@ -43,8 +43,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             }
 
             converterIL = new ModuleConverter(log);
-            Dictionary<int, int> addrConvTable = null;
             ConvOption option = new ConvOption();
+            Dictionary<string, int> funcAddrList = null;
 #if NDEBUG
             try
 
@@ -52,9 +52,10 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 converterIL.Convert(modIL, option);
                 finalNEF = converterIL.outModule.Build();
+                funcAddrList = converterIL.outModule.ConvertFuncAddr();
                 if (optimizer)
                 {
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF, out addrConvTable);
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF, funcAddrList);
                     float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
                     log.Log("optimization ratio = " + ratio + "%");
                     finalNEF = opbytes;
@@ -71,7 +72,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, funcAddrList);
             }
             catch (Exception e)
             {

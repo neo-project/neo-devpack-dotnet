@@ -15,25 +15,26 @@ namespace Neo.Compiler.Optimizer
         {
             return Optimize(script, new OptimizeParserType[]
             {
+                OptimizeParserType.DELETE_DEAD_CODDE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
                 OptimizeParserType.DELETE_USELESS_EQUAL
-            }
-            , out _);
+            }, new Dictionary<string, int>());
         }
 
-        public static byte[] Optimize(byte[] script, out Dictionary<int, int> addrConvertTable)
+        public static byte[] Optimize(byte[] script, Dictionary<string, int> funcAddrList)
         {
             return Optimize(script, new OptimizeParserType[]
             {
+                OptimizeParserType.DELETE_DEAD_CODDE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
                 OptimizeParserType.DELETE_USELESS_EQUAL
             }
-            , out addrConvertTable);
+            , funcAddrList);
         }
 
         public static byte[] Optimize(byte[] script, params OptimizeParserType[] parserTypes)
         {
-            return Optimize(script, parserTypes, out _);
+            return Optimize(script, parserTypes, new Dictionary<string, int>());
         }
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace Neo.Compiler.Optimizer
         /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para>
         /// <para> DELETE_USELESS_EQUAL -- delete useless equal parser, eg: EQUAL 01 01 </para></param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, out Dictionary<int, int> addrConvertTable)
+        public static byte[] Optimize(byte[] script, OptimizeParserType[] parserTypes, Dictionary<string, int> funcAddrList)
         {
             var optimizer = new NefOptimizer();
 
@@ -64,13 +65,12 @@ namespace Neo.Compiler.Optimizer
             }
 
             bool optimized;
-            addrConvertTable = null;
             do
             {
                 //step01 Load
                 using (var ms = new MemoryStream(script))
                 {
-                    optimizer.LoadNef(ms);
+                    optimizer.LoadNef(ms, funcAddrList);
                 }
 
                 //step02 doOptimize
@@ -81,13 +81,7 @@ namespace Neo.Compiler.Optimizer
                 {
                     optimizer.LinkNef(ms);
 
-                    if (addrConvertTable is null)
-                        addrConvertTable = optimizer.GetAddrConvertTable();
-                    else
-                    {
-                        Dictionary<int, int> addrConvertTableTemp = optimizer.GetAddrConvertTable();
-                        addrConvertTable = optimizer.RebuildAddrConvertTable(addrConvertTable, addrConvertTableTemp);
-                    }
+                    optimizer.RebuildFuncAddrList(funcAddrList);
 
                     var bytes = ms.ToArray();
 

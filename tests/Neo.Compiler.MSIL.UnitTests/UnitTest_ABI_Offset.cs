@@ -17,9 +17,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             var methodsABI = abi["methods"].AsList();
             Assert.AreEqual("0", methodsABI[0].GetDictItem("offset").ToString());
             Assert.AreEqual("6", methodsABI[1].GetDictItem("offset").ToString());
-            Assert.AreEqual("38", methodsABI[2].GetDictItem("offset").ToString());
+            Assert.AreEqual("39", methodsABI[2].GetDictItem("offset").ToString());
             // _initialize()
-            Assert.AreEqual("49", methodsABI[3].GetDictItem("offset").ToString());
+            Assert.AreEqual("50", methodsABI[3].GetDictItem("offset").ToString());
         }
 
         [TestMethod]
@@ -30,10 +30,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var methodsABI = abi["methods"].AsList();
             Assert.AreEqual("0", methodsABI[0].GetDictItem("offset").ToString());
-            Assert.AreEqual("6", methodsABI[1].GetDictItem("offset").ToString());
-            Assert.AreEqual("32", methodsABI[2].GetDictItem("offset").ToString());
+            Assert.AreEqual("5", methodsABI[1].GetDictItem("offset").ToString());
+            Assert.AreEqual("30", methodsABI[2].GetDictItem("offset").ToString());
             // _initialize()
-            Assert.AreEqual("40", methodsABI[3].GetDictItem("offset").ToString());
+            Assert.AreEqual("36", methodsABI[3].GetDictItem("offset").ToString());
         }
 
         [TestMethod]

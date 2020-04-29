@@ -63,7 +63,7 @@ namespace vmtool
             return "Unknown:" + _type;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<string, int> funcAddrList)
         {
             var sha256 = System.Security.Cryptography.SHA256.Create();
             byte[] hash256 = sha256.ComputeHash(script);
@@ -102,7 +102,7 @@ namespace vmtool
                     throw new Exception("abi not allow same name functions");
                 }
                 names.Add(function.Value.displayName);
-                var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
+                var offset = funcAddrList?[function.Value.displayName] ?? function.Value.funcaddr;
                 funcsign.SetDictValue("offset", offset.ToString());
                 MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
                 funcsign["parameters"] = funcparams;

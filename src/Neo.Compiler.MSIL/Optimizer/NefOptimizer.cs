@@ -72,7 +72,7 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream)
+        public void LoadNef(Stream stream, Dictionary<string, int> funcAddrList = null)
         {
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
@@ -104,16 +104,32 @@ namespace Neo.Compiler.Optimizer
                 }
             } while (inst != null);
 
-            //Add Labels
+            //Add FuncAddr and Labels
             Items = new List<INefItem>();
             foreach (var instruction in listInst)
             {
                 var curOffset = instruction.Offset;
+
+                var funcAddr = funcAddrList.Where(p => p.Value == curOffset).FirstOrDefault();
+                if (funcAddr.Key != null)
+                {
+                    Items.Add(new NefFuncAddr(funcAddr.Key, funcAddr.Value));
+                }
+
                 if (mapLabel.ContainsKey(curOffset))
                 {
                     Items.Add(mapLabel[curOffset]);
                 }
                 Items.Add(instruction);
+            }
+        }
+
+        internal void RebuildFuncAddrList(Dictionary<string, int> funcAddrList)
+        {
+            foreach (var item in Items)
+            {
+                if (item is NefFuncAddr funcAddr)
+                    funcAddrList[funcAddr.FuncName] = funcAddr.Offset;
             }
         }
 
@@ -158,6 +174,10 @@ namespace Neo.Compiler.Optimizer
                 {
                     label.SetOffset((int)offset);
                     mapLabel2Addr[label.Name] = offset;
+                }
+                else if (item is NefFuncAddr funcAddr)
+                {
+                    funcAddr.SetOffset((int)offset);
                 }
             }
 

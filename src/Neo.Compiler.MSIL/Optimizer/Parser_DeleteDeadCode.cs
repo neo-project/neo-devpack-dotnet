@@ -18,6 +18,11 @@ namespace Neo.Compiler.Optimizer
         {
             List<int> reachableAddrs = new List<int>();
             Touch(items, reachableAddrs, 0);
+            foreach (var item in items)
+            {
+                if (item is NefFuncAddr funcAddr && funcAddr.Offset != 0)
+                    Touch(items, reachableAddrs, funcAddr.Offset);
+            }
             reachableAddrs.Sort();
 
             // Remove useless instructions like JPMIF false xxx
