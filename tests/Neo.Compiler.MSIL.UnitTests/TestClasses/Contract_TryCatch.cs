@@ -38,10 +38,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             }
             return v;
         }
-        public static object throwcall()
-        {
-            throw new System.Exception();
-        }
+
         public static object try03()
         {
             int v = 0;
@@ -59,6 +56,83 @@ namespace Neo.Compiler.MSIL.TestClasses
                 v++;
             }
             return v;
+        }
+
+        public static object tryNest()
+        {
+            int v = 0;
+            try
+            {
+                try
+                {
+                    v = 2;
+                    throwcall();
+                }
+                catch
+                {
+                    v = 3;
+                    throwcall();
+                }
+                finally
+                {
+                    throwcall();
+                    v++;
+                }
+            }
+            catch
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryFinally()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryFinallyAndRethrow()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                throwcall();
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryCatch()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                throwcall();
+            }
+            catch
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object throwcall()
+        {
+            throw new System.Exception();
         }
     }
 }

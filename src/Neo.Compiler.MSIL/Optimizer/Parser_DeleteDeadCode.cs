@@ -47,8 +47,9 @@ namespace Neo.Compiler.Optimizer
                 {
                     reachableAddrs.Add(inst.Offset);
                 }
-                //try 不是线性的，遇到try，跳到catch段和final段继续扫，
-                //遇到endtry也应该跳过去扫
+
+                // Try is not linear. If encounter a try, skip to the catch and finally segments to scan.
+                // If encounter endtry, will also skip to finally segment to scan
 
                 if (inst.AddressCountInData > 0) // The instruction may contain jmp addess
                 {

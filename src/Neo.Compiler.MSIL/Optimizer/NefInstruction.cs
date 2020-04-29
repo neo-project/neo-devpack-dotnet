@@ -180,8 +180,6 @@ namespace Neo.Compiler.Optimizer
                         AddressSize = 4; // 32 bit
                         break;
                     }
-                //TODO case OpCode.TRY_L: 32 + 32 bit
-                //TODO case OpCode.TRY: 8 + 8 bit
                 case OpCode.CALL:
 
                 case OpCode.JMP:

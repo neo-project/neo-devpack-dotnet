@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -352,7 +353,7 @@ namespace Neo.Compiler.MSIL
                         var srcFinal = BitConverter.ToInt32(c.bytes, 4);
                         if (srcCatch == -1)
                         {
-                            var bytesCatch = new byte[0, 0, 0, 0];
+                            var bytesCatch = new byte[] { 0, 0, 0, 0 };
                             Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
                         }
                         else
@@ -364,7 +365,7 @@ namespace Neo.Compiler.MSIL
                         }
                         if (srcFinal == -1)
                         {
-                            var bytesFinal = new byte[0, 0, 0, 0];
+                            var bytesFinal = new byte[] { 0, 0, 0, 0 };
                             Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
                         }
                         else
@@ -402,19 +403,25 @@ namespace Neo.Compiler.MSIL
                 {
                     if (info.addr_Try_Begin == src.addr)
                     {
-                        var bytesFinally = BitConverter.GetBytes(info.addr_Finally_Begin);
-                        if (info.catch_Infos.Count != 1)
+                        if (info.catch_Infos.Count > 1)
                             throw new Exception("only support one catch for now.");
-                        var first = info.catch_Infos.First().Value;
-                        var bytesCatch = BitConverter.GetBytes(first.addrBegin);
+
                         var buf = new byte[8];
+                        var catchAddr = -1;
+                        if (info.catch_Infos.Count == 1)
+                        {
+                            var first = info.catch_Infos.First().Value;
+                            catchAddr = first.addrBegin;
+                        }
+                        var bytesCatch = BitConverter.GetBytes(catchAddr);
+                        var bytesFinally = BitConverter.GetBytes(info.addr_Finally_Begin);
+
                         Array.Copy(bytesCatch, 0, buf, 0, 4);
                         Array.Copy(bytesFinally, 0, buf, 4, 4);
                         var trycode = Convert1by1(VM.OpCode.TRY_L, src, to, buf);
                         trycode.needfix = true;
-
+                        break;
                     }
-
                 }
             }
             int skipcount = 0;
@@ -567,7 +574,6 @@ namespace Neo.Compiler.MSIL
                                 code.srcaddr = src.tokenAddr_Index;
                             }
                         }
-
                     }
                     break;
                 case CodeEx.Endfinally:
