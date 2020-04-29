@@ -60,5 +60,48 @@ namespace Neo.Compiler.MSIL.TestClasses
             }
             return v;
         }
+
+        public static object tryNest()
+        {
+            int v = 0;
+            try
+            {
+                try
+                {
+                    v = 2;
+                    throwcall();
+                }
+                catch
+                {
+                    v = 3;
+                    throwcall();
+                }
+                finally
+                {
+                    throwcall();
+                    v++;
+                }
+            }
+            catch
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryFinally()
+        {
+            int v = 0;
+            try
+            {
+                throwcall();
+                v = 2;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
     }
 }
