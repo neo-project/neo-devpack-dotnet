@@ -353,7 +353,7 @@ namespace Neo.Compiler.MSIL
                         var srcFinal = BitConverter.ToInt32(c.bytes, 4);
                         if (srcCatch == -1)
                         {
-                            var bytesCatch = BitConverter.GetBytes(0);
+                            var bytesCatch = new byte[] { 0, 0, 0, 0 };
                             Array.Copy(bytesCatch, 0, c.bytes, 0, 4);
                         }
                         else
@@ -365,7 +365,7 @@ namespace Neo.Compiler.MSIL
                         }
                         if (srcFinal == -1)
                         {
-                            var bytesFinal = BitConverter.GetBytes(0);
+                            var bytesFinal = new byte[] { 0, 0, 0, 0 };
                             Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
                         }
                         else
