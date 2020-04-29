@@ -82,7 +82,9 @@ namespace Neo.Compiler
                     {
                         method.funcaddr = code.addr;
                         if (!funcAddrList.TryAdd(method.displayName, method.funcaddr))
+                        {
                             throw new Exception("Functions of the same name are not allowed");
+                        }
                         break;
                     }
                 }
