@@ -571,7 +571,6 @@ namespace Neo.Compiler.MSIL
                                 code.srcaddr = src.tokenAddr_Index;
                             }
                         }
-
                     }
                     break;
                 case CodeEx.Endfinally:

@@ -197,12 +197,14 @@ namespace Neo.Compiler.MSIL
             return type;
         }
     }
+
     public class ILCatchInfo
     {
         public int addrBegin;
         public int addrEnd;
         public string catchType;
     }
+
     public class ILTryInfo
     {
         public int addr_Try_Begin = -1;
@@ -308,7 +310,6 @@ namespace Neo.Compiler.MSIL
                                     addrEnd = e.HandlerEnd.Offset,
                                     catchType = catchtypestr
                                 };
-
                             }
                             else if (e.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Finally)
                             {
@@ -359,6 +360,7 @@ namespace Neo.Compiler.MSIL
                 }
             }
         }
+
         public ILTryInfo GetTryInfo(int addr)
         {
             ILTryInfo last = null;
@@ -420,6 +422,7 @@ namespace Neo.Compiler.MSIL
             }
             return last;
         }
+
         public bool IsTryCode(int addr)
         {
             ILTryInfo info = GetTryInfo(addr);
@@ -427,6 +430,7 @@ namespace Neo.Compiler.MSIL
                 return false;
             return info.addr_Try_Begin <= addr && addr <= info.addr_Try_End;
         }
+
         public ILCatchInfo GetCatchInfo(int addr)
         {
             ILTryInfo info = GetTryInfo(addr);

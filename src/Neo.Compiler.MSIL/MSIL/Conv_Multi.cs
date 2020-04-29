@@ -1308,14 +1308,14 @@ namespace Neo.Compiler.MSIL
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
             {
-                return 0;//donothing;
+                return 0; // donothing;
             }
             else if (_type.DeclaringType.FullName.Contains("Exception"))
             {
-                //对异常对象要留一个，因为catch 会处理这个栈
+                // NeoVM `catch` instruction need one exception parameter
                 Convert1by1(VM.OpCode.NOP, src, to);
                 var pcount = _type.Parameters.Count;
-                if (pcount == 0)//沒參數插一個
+                if (pcount == 0) // If there is no parameter, insert one pararmeter
                 {
                     ConvertPushString("usererror", src, to);
                 }
@@ -1325,7 +1325,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    //對異常對象保留第一個參數
+                    // Keep the first exception parameter
                     for (var i = 0; i < pcount - 1; i++)
                     {
                         Insert1(VM.OpCode.DROP, "", to);
@@ -1335,7 +1335,7 @@ namespace Neo.Compiler.MSIL
             }
             var type = _type.Resolve();
 
-            //Replace the New Array operation if there is an [OpCode] on the constructor
+            // Replace the New Array operation if there is an [OpCode] on the constructor
             foreach (var m in type.DeclaringType.Methods)
             {
                 if (m.IsConstructor && m.HasCustomAttributes)
