@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
@@ -13,19 +14,16 @@ namespace Neo.Compiler.Optimizer
         /// <returns>Optimized script</returns>
         public static byte[] Optimize(byte[] script)
         {
-            return Optimize(script, new OptimizeParserType[]
-            {
-                OptimizeParserType.USE_SHORT_ADDRESS,
-                OptimizeParserType.DELETE_USELESS_EQUAL
-            }
-            , out _);
+            return Optimize(script, out _);
         }
 
         public static byte[] Optimize(byte[] script, out Dictionary<int, int> addrConvertTable)
         {
             return Optimize(script, new OptimizeParserType[]
             {
+                //OptimizeParserType.DELETE_DEAD_CODE,
                 OptimizeParserType.USE_SHORT_ADDRESS,
+                OptimizeParserType.DELETE_CONST_EXECUTION,
                 OptimizeParserType.DELETE_USELESS_EQUAL
             }
             , out addrConvertTable);
@@ -63,9 +61,9 @@ namespace Neo.Compiler.Optimizer
                 optimizer.AddOptimizeParser(parser);
             }
 
-            bool optimized;
             addrConvertTable = null;
-            do
+            // 10 iterations max
+            for (int x = 0; x < 10; x++)
             {
                 //step01 Load
                 using (var ms = new MemoryStream(script))
@@ -90,14 +88,17 @@ namespace Neo.Compiler.Optimizer
                     }
 
                     var bytes = ms.ToArray();
-
-                    optimized = bytes.Length < script.Length;
-                    if (optimized) { script = bytes; }
+                    if (bytes.SequenceEqual(script))
+                    {
+                        // Sometimes the script could be bigger but more efficient
+                        // int.Max+INC (6 bytes) => PUSHInt64 (9 bytes)
+                        break;
+                    }
+                    script = bytes;
                 }
 
                 // Execute it while decrease the size
             }
-            while (optimized);
 
             return script;
         }
