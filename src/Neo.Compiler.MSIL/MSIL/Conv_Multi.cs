@@ -1314,16 +1314,16 @@ namespace Neo.Compiler.MSIL
             {
                 // NeoVM `catch` instruction need one exception parameter
                 Convert1by1(VM.OpCode.NOP, src, to);
+
                 var pcount = _type.Parameters.Count;
+                //pcount must be 1
+                //if more then one, drop them.
+                //if pcount==0,add one.
                 if (pcount == 0) // If there is no parameter, insert one pararmeter
                 {
                     ConvertPushString("usererror", src, to);
                 }
-                else if (pcount == 1)
-                {
-
-                }
-                else
+                else if (pcount > 1)
                 {
                     // Keep the first exception parameter
                     for (var i = 0; i < pcount - 1; i++)
