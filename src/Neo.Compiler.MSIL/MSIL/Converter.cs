@@ -912,6 +912,7 @@ namespace Neo.Compiler.MSIL
                     }
                 case CodeEx.Ldftn:
                     {
+                        Insert1(VM.OpCode.DROP, "", to); // drop null
                         var c = Convert1by1(VM.OpCode.PUSHA, null, to, new byte[] { 5, 0, 0, 0 });
                         c.needfixfunc = true;
                         c.srcfunc = src.tokenMethod;

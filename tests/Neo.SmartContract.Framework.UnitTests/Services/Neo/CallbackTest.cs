@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Init()
         {
             _engine = new TestEngine(TriggerType.Application);
-            _engine.AddEntryScript("./TestClasses/Contract_Callback.cs", true, false);
+            _engine.AddEntryScript("./TestClasses/Contract_Callback.cs", true, true);
         }
 
         [TestMethod]
@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("createCallback");
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(2, result.Count); // TODO: it should be only one
+            Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // test it
 
             _engine.Reset();
-            _engine.ExecuteTestCaseStandard(((Pointer)item).Position);
+            _engine.ExecuteTestCaseStandard(((Pointer)item).Position + 2/*TODO: Require optimization because it's absolute*/);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
