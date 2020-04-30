@@ -381,7 +381,7 @@ namespace Neo.Compiler.MSIL
                         try
                         {
                             var _addr = addrconv[c.srcaddr];
-                            Int32 addroff = (Int32)(_addr - c.addr);
+                            int addroff = (int)(_addr - c.addr);
                             c.bytes = BitConverter.GetBytes(addroff);
                             c.needfix = false;
                         }
