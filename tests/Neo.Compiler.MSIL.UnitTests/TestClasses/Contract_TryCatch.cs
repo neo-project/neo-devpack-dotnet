@@ -130,6 +130,35 @@ namespace Neo.Compiler.MSIL.TestClasses
             return v;
         }
 
+        public static object tryWithTwoFinally()
+        {
+            int v = 0;
+            try
+            {
+                try
+                {
+                    v++;
+                }
+                catch
+                {
+                    v += 2;
+                }
+                finally
+                {
+                    v += 3;
+                }
+            }
+            catch
+            {
+                v += 4;
+            }
+            finally
+            {
+                v += 5;
+            }
+            return v;
+        }
+
         public static object throwcall()
         {
             throw new System.Exception();
