@@ -908,8 +908,15 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Throw:
                     {
                         Convert1by1(VM.OpCode.THROW, src, to);//throw suspends the vm
+                        break;
                     }
-                    break;
+                case CodeEx.Ldftn:
+                    {
+                        var c = Convert1by1(VM.OpCode.PUSHA, null, to, new byte[] { 5, 0, 0, 0 });
+                        c.needfixfunc = true;
+                        c.srcfunc = src.tokenMethod;
+                        return 1; // skip create object
+                    }
                 default:
                     logger.Log("unsupported instruction " + src.code + "\r\n   in: " + to.name + "\r\n");
                     throw new Exception("unsupported instruction " + src.code + "\r\n   in: " + to.name + "\r\n");
