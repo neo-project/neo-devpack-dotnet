@@ -371,7 +371,7 @@ namespace Neo.Compiler.MSIL
                         else
                         {
                             var _addrFinal = addrconv[srcFinal];
-                            Int32 addroffFinal = (Int32)(_addrFinal - c.addr);
+                            int addroffFinal = (int)(_addrFinal - c.addr);
                             var bytesFinal = BitConverter.GetBytes(addroffFinal);
                             Array.Copy(bytesFinal, 0, c.bytes, 4, 4);
                         }
