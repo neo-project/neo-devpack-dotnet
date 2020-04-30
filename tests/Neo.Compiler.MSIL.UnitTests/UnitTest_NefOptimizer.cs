@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.Optimizer;
 using Neo.VM;
+using Neo.VM.Types;
 using System.Buffers.Binary;
 using System.Numerics;
 
@@ -826,6 +827,64 @@ namespace Neo.Compiler.MSIL
             scriptAfter.Emit(VM.OpCode.PUSH1);
 
             CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Delete_Dead_Code()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(8));        //    ───┐
+                scriptBefore.Emit(VM.OpCode.PUSH1);                    //       |
+                scriptBefore.Emit(VM.OpCode.PUSH2);                    //       |
+                scriptBefore.Emit(VM.OpCode.PUSH3);                    //   ┌<┐ |
+                scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(6));        //   x | |
+                scriptBefore.Emit(VM.OpCode.PUSH4);                    //   | | |
+                scriptBefore.Emit(VM.OpCode.JMP, ToJumpArg(-4));       //   | x<┘
+                scriptBefore.Emit(VM.OpCode.NOP);                      //   |
+                scriptBefore.Emit(VM.OpCode.PUSH5);                    // x<┘
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.PUSH6);
+                scriptBefore.Emit(VM.OpCode.RET);
+                scriptBefore.Emit(VM.OpCode.PUSH7);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODE });
+
+                using var scriptAfter = new ScriptBuilder();
+                scriptAfter.Emit(VM.OpCode.JMP, ToJumpArg(5));
+                scriptAfter.Emit(VM.OpCode.PUSH3);
+                scriptAfter.Emit(VM.OpCode.JMP, ToJumpArg(4));
+                scriptAfter.Emit(VM.OpCode.JMP, ToJumpArg(-3));
+                scriptAfter.Emit(VM.OpCode.PUSH5);
+                scriptAfter.Emit(VM.OpCode.PUSH6);
+                scriptAfter.Emit(VM.OpCode.RET);
+
+                CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.NOP);
+                scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(10));       //  ───┐
+                scriptBefore.Emit(VM.OpCode.PUSH1);                       //     |
+                scriptBefore.Emit(VM.OpCode.PUSH2);                       //     |
+                scriptBefore.Emit(VM.OpCode.PUSH3);                       // x<┐ |
+                scriptBefore.Emit(VM.OpCode.RET);                         //   | |
+                scriptBefore.Emit(VM.OpCode.PUSH4);                       //   | |
+                scriptBefore.Emit(VM.OpCode.JMP_L, ToJumpLArg(-3));       //   x<┘
+                scriptBefore.Emit(VM.OpCode.PUSH5);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), new OptimizeParserType[] { OptimizeParserType.DELETE_DEAD_CODE });
+
+                using var scriptAfter = new ScriptBuilder();
+                scriptAfter.Emit(VM.OpCode.JMP_L, ToJumpLArg(7));
+                scriptAfter.Emit(VM.OpCode.PUSH3);
+                scriptAfter.Emit(VM.OpCode.RET);
+                scriptAfter.Emit(VM.OpCode.JMP_L, ToJumpLArg(-2));
+
+                CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+            }
         }
 
         private byte[] ToJumpLArg(int value)
