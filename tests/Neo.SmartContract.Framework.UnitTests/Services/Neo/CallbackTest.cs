@@ -8,32 +8,38 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     [TestClass]
     public class CallbackTest
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
+        [TestMethod]
+        public void Test_CreatePointer_Optimized()
         {
-            _engine = new TestEngine(TriggerType.Application);
-            _engine.AddEntryScript("./TestClasses/Contract_Callback.cs", true, true);
+            // TODO: Require https://github.com/neo-project/neo-devpack-dotnet/pull/260/files
+            Test_CreatePointer(true);
         }
 
         [TestMethod]
         public void Test_CreatePointer()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("createCallback");
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            // TODO: Require https://github.com/neo-project/neo-vm/pull/317
+            Test_CreatePointer(false);
+        }
+
+        public void Test_CreatePointer(bool optimized)
+        {
+            var engine = new TestEngine(TriggerType.Application);
+            engine.AddEntryScript("./TestClasses/Contract_Callback.cs", true, optimized);
+
+            var result = engine.ExecuteTestCaseStandard("createCallback");
+            Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
             Assert.AreEqual(6, ((Pointer)item).Position);
 
-            // test it
+            // Test pointer
 
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard(((Pointer)item).Position + 2/*TODO: Require optimization because it's absolute*/);
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            engine.Reset();
+            engine.ExecuteTestCaseStandard(((Pointer)item).Position);
+            Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
