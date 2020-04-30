@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.Optimizer;
 using Neo.VM;
-using Neo.VM.Types;
 using System.Buffers.Binary;
 using System.Numerics;
 
