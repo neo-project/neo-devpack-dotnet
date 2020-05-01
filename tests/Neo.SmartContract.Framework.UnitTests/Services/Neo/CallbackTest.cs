@@ -18,7 +18,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_CreatePointer()
         {
-            // TODO: Require https://github.com/neo-project/neo-vm/pull/317
             Test_CreatePointer(false);
         }
 
