@@ -8,8 +8,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     [TestClass]
     public class PointerTest
     {
-        // TODO: Optimized tests require https://github.com/neo-project/neo-devpack-dotnet/pull/260
-
         [TestMethod]
         public void Test_CreatePointer_Optimized()
         {
