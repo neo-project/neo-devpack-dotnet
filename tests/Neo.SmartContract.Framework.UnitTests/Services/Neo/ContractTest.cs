@@ -164,7 +164,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsTrue(item.Type == StackItemType.ByteString);
-            Assert.AreEqual("e30262c57431d82b8295174f762fa36a5be973fd", item.GetSpan().ToHexString());
+            Assert.AreEqual("8b67a062c232ce87dc65cc69391ea909e721cd98", item.GetSpan().ToHexString());
 
             // Good pubKey (uncompressed)
 
@@ -175,7 +175,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsTrue(item.Type == StackItemType.ByteString);
-            Assert.AreEqual("e30262c57431d82b8295174f762fa36a5be973fd", item.GetSpan().ToHexString());
+            Assert.AreEqual("8b67a062c232ce87dc65cc69391ea909e721cd98", item.GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -183,7 +183,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("getCallFlags").Pop();
-            StackItem wantResult = 0b00000111;
+            StackItem wantResult = 0b00001111;
             Assert.AreEqual(wantResult, result);
         }
     }
