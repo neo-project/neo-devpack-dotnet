@@ -2,6 +2,7 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.MSIL
 {
@@ -10,6 +11,8 @@ namespace Neo.Compiler.MSIL
     /// </summary>
     public partial class ModuleConverter
     {
+        static readonly Regex _funcInvokeRegex = new Regex(@"\!0\sSystem\.Func\`[0-9]+\<.*\>\:\:Invoke\(\)");
+
         private void ConvertStLoc(OpCode src, NeoMethod to, int pos)
         {
             if (pos < 7)
@@ -485,6 +488,11 @@ namespace Neo.Compiler.MSIL
 
                     return 0;
                 }
+                else if (_funcInvokeRegex.IsMatch(src.tokenMethod))
+                {
+                    // call pointer
+                    calltype = 3;
+                }
                 else if (src.tokenMethod == "System.Object System.Runtime.CompilerServices.RuntimeHelpers::GetObjectValue(System.Object)")
                 {
                     //this is for vb.net
@@ -493,7 +501,6 @@ namespace Neo.Compiler.MSIL
                 else if (src.tokenMethod == "System.Void System.Diagnostics.Debugger::Break()")
                 {
                     Convert1by1(VM.OpCode.NOP, src, to);
-
                     return 0;
                 }
                 else if (src.tokenMethod.Contains("::op_Equality(") || src.tokenMethod.Contains("::Equals("))
@@ -509,7 +516,6 @@ namespace Neo.Compiler.MSIL
                     else
                     {
                         Convert1by1(VM.OpCode.EQUAL, src, to);
-
                     }
                     //if (src.tokenMethod == "System.Boolean System.String::op_Equality(System.String,System.String)")
                     //{
@@ -673,9 +679,6 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.SHR, src, to);
                     return 0;
                 }
-                else
-                {
-                }
             }
 
             if (calltype == 0)
@@ -753,7 +756,6 @@ namespace Neo.Compiler.MSIL
                 c.srcfunc = src.tokenMethod;
                 return 0;
             }
-
             else if (calltype == 2)
             {
                 Convert1by1(callcodes[0], src, to, Helper.OpDataToBytes(calldata[0]));
@@ -828,6 +830,10 @@ namespace Neo.Compiler.MSIL
                 ConvertPushNumber(callpcount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
                 Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.Contract.Call));
+            }
+            else if (calltype == 3)
+            {
+                Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
         }

@@ -6,12 +6,13 @@ using Neo.VM.Types;
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
     [TestClass]
-    public class CallbackTest
+    public class PointerTest
     {
+        // TODO: Optimized tests require https://github.com/neo-project/neo-devpack-dotnet/pull/260
+
         [TestMethod]
         public void Test_CreatePointer_Optimized()
         {
-            // TODO: Require https://github.com/neo-project/neo-devpack-dotnet/pull/260/files
             Test_CreatePointer(true);
         }
 
@@ -24,9 +25,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_CreatePointer(bool optimized)
         {
             var engine = new TestEngine(TriggerType.Application);
-            engine.AddEntryScript("./TestClasses/Contract_Callback.cs", true, optimized);
+            engine.AddEntryScript("./TestClasses/Contract_Pointers.cs", true, optimized);
 
-            var result = engine.ExecuteTestCaseStandard("createCallback");
+            var result = engine.ExecuteTestCaseStandard("createFuncPointer");
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -42,6 +43,32 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, ((Integer)item).GetBigInteger());
+        }
+
+        [TestMethod]
+        public void Test_ExecutePointer_Optimized()
+        {
+            Test_ExecutePointer(true);
+        }
+
+        [TestMethod]
+        public void Test_ExecutePointer()
+        {
+            Test_ExecutePointer(false);
+        }
+
+        public void Test_ExecutePointer(bool optimized)
+        {
+            var engine = new TestEngine(TriggerType.Application);
+            engine.AddEntryScript("./TestClasses/Contract_Pointers.cs", true, optimized);
+
+            var result = engine.ExecuteTestCaseStandard("callFuncPointer");
+            Assert.AreEqual(VMState.HALT, engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(123, ((Integer)item).GetBigInteger());
         }
