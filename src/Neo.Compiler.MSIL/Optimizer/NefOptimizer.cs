@@ -62,7 +62,8 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream, int[] EntryPoints)
+        /// <param name="entryPoints">Entry points</param>
+        public void LoadNef(Stream stream, int[] entryPoints)
         {
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
@@ -71,12 +72,12 @@ namespace Neo.Compiler.Optimizer
             int labelindex = 1;
 
             //insert EntryPointLabel
-            for (var i = 0; i < EntryPoints.Length; i++)
+            for (var i = 0; i < entryPoints.Length; i++)
             {
-                if (!mapLabel.ContainsKey(EntryPoints[i]))
+                if (!mapLabel.ContainsKey(entryPoints[i]))
                 {
                     var labelname = "method" + i.ToString("D04");
-                    var addr = EntryPoints[i];
+                    var addr = entryPoints[i];
                     var label = new NefLabel(labelname, addr, true);
                     mapLabel.Add(addr, label);
                 }
@@ -105,7 +106,6 @@ namespace Neo.Compiler.Optimizer
                             labelindex++;
                             var label = new NefLabel(labelname, addr);
                             mapLabel.Add(addr, label);
-
                         }
 
                         inst.Labels[i] = mapLabel[addr].Name;
