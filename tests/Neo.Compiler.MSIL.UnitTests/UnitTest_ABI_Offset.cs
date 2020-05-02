@@ -30,7 +30,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var methodsABI = abi["methods"].AsList();
             Assert.AreEqual("0", methodsABI[0].GetDictItem("offset").ToString());
-            Assert.AreEqual("6", methodsABI[1].GetDictItem("offset").ToString());
+            Assert.AreEqual("5", methodsABI[1].GetDictItem("offset").ToString());
             Assert.AreEqual("32", methodsABI[2].GetDictItem("offset").ToString());
             // _initialize()
             Assert.AreEqual("40", methodsABI[3].GetDictItem("offset").ToString());

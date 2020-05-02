@@ -15,6 +15,8 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         public int Offset { get; private set; }
 
+        public int OffsetInit { get; private set; }
+
         public bool IsEntryPoint { get; private set; }
         /// <summary>
         /// Constructor
@@ -25,6 +27,7 @@ namespace Neo.Compiler.Optimizer
         {
             this.Name = name;
             this.Offset = Offset;
+            this.OffsetInit = Offset;
             this.IsEntryPoint = bEntryPoint;
         }
 

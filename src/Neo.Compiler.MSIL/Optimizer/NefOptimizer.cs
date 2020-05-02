@@ -23,10 +23,7 @@ namespace Neo.Compiler.Optimizer
             {
                 foreach (var item in m.Items)
                 {
-                    if (item is NefInstruction inst)
-                    {
-                        addrConvertTable[inst.OffsetInit] = inst.Offset;
-                    }
+                    addrConvertTable[item.OffsetInit] = item.Offset;
                 }
             }
             return addrConvertTable;

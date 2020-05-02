@@ -20,7 +20,7 @@ namespace Neo.Compiler.Optimizer
         public static byte[] Optimize(byte[] script, int[] EntryPoints, out Dictionary<int, int> addrConvertTable)
         {
             return Optimize(script, EntryPoints,
-                //OptimizeParserType.DELETE_DEAD_CODE,
+                OptimizeParserType.DELETE_DEAD_CODE |
                 OptimizeParserType.USE_SHORT_ADDRESS |
                 OptimizeParserType.DELETE_CONST_EXECUTION |
                 OptimizeParserType.DELETE_USELESS_EQUAL
