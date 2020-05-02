@@ -14,9 +14,9 @@ namespace Neo.Compiler.Optimizer
     }
 
     [Flags]
-    public enum OptimizeParserType 
+    public enum OptimizeParserType
     {
-        NONE=0x00,
+        NONE = 0x00,
 
         [OptimizeParser(typeof(Parser_DeleteDeadCode))]
         DELETE_DEAD_CODE = 0x01,
