@@ -65,32 +65,50 @@ namespace Neo.Compiler.Optimizer
 
             addrConvertTable = null;
 
-            //不应该在外部循环多次优化，如果确有需要多遍，应该在优化器内部解决，不要跑到外边来。
-
-            //step01 Load
-            using (var ms = new MemoryStream(script))
+            //优化是一个管线，一次就应该解决问题，这个循环有些蠢，另开issue讨论
+            // 10 iterations max
+            for (int x = 0; x < 10; x++)
             {
-                optimizer.LoadNef(ms, EntryPoints);
-            }
-            //step02 doOptimize
-            optimizer.Optimize();
-
-            //step03 link
-            using (var ms = new MemoryStream())
-            {
-                optimizer.LinkNef(ms);
-
-                if (addrConvertTable is null)
-                    addrConvertTable = optimizer.GetAddrConvertTable();
-                else
+                //step01 Load
+                using (var ms = new MemoryStream(script))
                 {
-                    Dictionary<int, int> addrConvertTableTemp = optimizer.GetAddrConvertTable();
-                    addrConvertTable = optimizer.RebuildAddrConvertTable(addrConvertTable, addrConvertTableTemp);
+                    optimizer.LoadNef(ms, EntryPoints);
                 }
 
-                var bytes = ms.ToArray();
-                return bytes;
+                //step02 doOptimize
+                optimizer.Optimize();
+
+                //step03 link
+                using (var ms = new MemoryStream())
+                {
+                    optimizer.LinkNef(ms);
+
+                    if (addrConvertTable is null)
+                        addrConvertTable = optimizer.GetAddrConvertTable();
+                    else
+                    {
+                        Dictionary<int, int> addrConvertTableTemp = optimizer.GetAddrConvertTable();
+                        addrConvertTable = optimizer.RebuildAddrConvertTable(addrConvertTable, addrConvertTableTemp);
+                    }
+
+                    //updateEntryPoints for next loop
+                    EntryPoints = optimizer.GetEntryPoint();
+
+
+                    var bytes = ms.ToArray();
+                    if (bytes.SequenceEqual(script))
+                    {
+                        // Sometimes the script could be bigger but more efficient
+                        // int.Max+INC (6 bytes) => PUSHInt64 (9 bytes)
+                        break;
+                    }
+                    script = bytes;
+                }
+
+                // Execute it while decrease the size
             }
+
+            return script;
 
         }
     }

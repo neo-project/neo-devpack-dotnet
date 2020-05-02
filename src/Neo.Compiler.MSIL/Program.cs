@@ -171,9 +171,8 @@ namespace Neo.Compiler
                     foreach (var func in module.mapMethods)
                     {
                         int srcaddr = func.Value.funcaddr;
-                        int opaddr = addrConvTable[srcaddr];
-                        EntryPoints.Add(srcaddr);
-                        log.Log("func addr from " + srcaddr + "=>" + opaddr);
+                        if (EntryPoints.Contains(srcaddr) == false)
+                            EntryPoints.Add(srcaddr);
                     }
                     var optimize = NefOptimizeTool.Optimize(bytes, EntryPoints.ToArray(), out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));

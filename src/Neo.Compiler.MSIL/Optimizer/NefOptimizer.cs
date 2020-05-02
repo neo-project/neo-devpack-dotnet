@@ -16,6 +16,15 @@ namespace Neo.Compiler.Optimizer
 
         private readonly List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
 
+        public int[] GetEntryPoint()
+        {
+            int[] methodoffset = new int[Methods.Count];
+            for (var i = 0; i < Methods.Count; i++)
+            {
+                methodoffset[i] = Methods[i].Offset;
+            }
+            return methodoffset;
+        }
         public Dictionary<int, int> GetAddrConvertTable()
         {
             var addrConvertTable = new Dictionary<int, int>();
@@ -73,6 +82,11 @@ namespace Neo.Compiler.Optimizer
             //insert EntryPointLabel
             for (var i = 0; i < EntryPoints.Length; i++)
             {
+                if (i > 0 && EntryPoints[i - 1] == EntryPoints[i])
+                {
+                    //不允许出现一样的EntryPoint
+                    throw new Exception("now allow same EntryPoint.");
+                }
                 if (!mapLabel.ContainsKey(EntryPoints[i]))
                 {
                     var labelname = "method" + i.ToString("D04");
@@ -118,20 +132,27 @@ namespace Neo.Compiler.Optimizer
             Methods = new List<NefMethod>();
 
             var curMethod = new NefMethod();
-            foreach (var instruction in listInst)
+            if (listInst.Count == 0)//空也要插一个标签
             {
-                var curOffset = instruction.Offset;
-                if (mapLabel.ContainsKey(curOffset))
+                curMethod.Items.Add(mapLabel[0]);
+            }
+            else
+            {
+                foreach (var instruction in listInst)
                 {
-                    var label = mapLabel[curOffset];
-                    if (label.IsEntryPoint && curMethod.Items.Count > 0)
+                    var curOffset = instruction.Offset;
+                    if (mapLabel.ContainsKey(curOffset))
                     {
-                        Methods.Add(curMethod);
-                        curMethod = new NefMethod();
+                        var label = mapLabel[curOffset];
+                        if (label.IsEntryPoint && curMethod.Items.Count > 0)
+                        {
+                            Methods.Add(curMethod);
+                            curMethod = new NefMethod();
+                        }
+                        curMethod.Items.Add(mapLabel[curOffset]);
                     }
-                    curMethod.Items.Add(mapLabel[curOffset]);
+                    curMethod.Items.Add(instruction);
                 }
-                curMethod.Items.Add(instruction);
             }
             Methods.Add(curMethod);
         }

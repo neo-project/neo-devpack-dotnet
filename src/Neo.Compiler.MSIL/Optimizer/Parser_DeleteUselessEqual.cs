@@ -21,77 +21,73 @@ namespace Neo.Compiler.Optimizer
         /// <param name="items">Items</param>
         public void Parse(List<INefItem> items)
         {
-            //这个优化器可能需要多次
-            for (var t = 0; t < 3; t++)
+            for (int x = items.Count - 1; x >= 2; x--)
             {
-                for (int x = items.Count - 1; x >= 2; x--)
+                if (!(items[x] is NefInstruction ins))
                 {
-                    if (!(items[x] is NefInstruction ins))
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    switch (ins.OpCode)
-                    {
-                        case OpCode.EQUAL:
+                switch (ins.OpCode)
+                {
+                    case OpCode.EQUAL:
+                        {
+                            if (items[x - 1] is NefInstruction p1 &&
+                                items[x - 2] is NefInstruction p2 &&
+                                p1.IsPush(out var v1) &&
+                                p2.IsPush(out var v2)
+                                )
                             {
-                                if (items[x - 1] is NefInstruction p1 &&
-                                    items[x - 2] is NefInstruction p2 &&
-                                    p1.IsPush(out var v1) &&
-                                    p2.IsPush(out var v2)
-                                    )
+                                if (v1 == v2)
                                 {
-                                    if (v1 == v2)
-                                    {
-                                        // EQUAL true
+                                    // EQUAL true
 
-                                        items.RemoveRange(x - 2, 2);
-                                        OptimizedCount++;
-                                        x -= 2;
-                                        ins.SetOpCode(OpCode.PUSH1);
-                                    }
-                                    else
-                                    {
-                                        // EQUAL false
-
-                                        items.RemoveRange(x - 2, 2);
-                                        OptimizedCount++;
-                                        x -= 2;
-                                        ins.SetOpCode(OpCode.PUSH0);
-                                    }
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
+                                    ins.SetOpCode(OpCode.PUSH1);
                                 }
-                                break;
+                                else
+                                {
+                                    // EQUAL false
+
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
+                                    ins.SetOpCode(OpCode.PUSH0);
+                                }
                             }
-                        case OpCode.NOTEQUAL:
+                            break;
+                        }
+                    case OpCode.NOTEQUAL:
+                        {
+                            if (items[x - 1] is NefInstruction p1 &&
+                                items[x - 2] is NefInstruction p2 &&
+                                p1.IsPush(out var v1) &&
+                                p2.IsPush(out var v2)
+                                )
                             {
-                                if (items[x - 1] is NefInstruction p1 &&
-                                    items[x - 2] is NefInstruction p2 &&
-                                    p1.IsPush(out var v1) &&
-                                    p2.IsPush(out var v2)
-                                    )
+                                if (v1 != v2)
                                 {
-                                    if (v1 != v2)
-                                    {
-                                        // EQUAL true
+                                    // EQUAL true
 
-                                        items.RemoveRange(x - 2, 2);
-                                        OptimizedCount++;
-                                        x -= 2;
-                                        ins.SetOpCode(OpCode.PUSH1);
-                                    }
-                                    else
-                                    {
-                                        // EQUAL false
-
-                                        items.RemoveRange(x - 2, 2);
-                                        OptimizedCount++;
-                                        x -= 2;
-                                        ins.SetOpCode(OpCode.PUSH0);
-                                    }
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
+                                    ins.SetOpCode(OpCode.PUSH1);
                                 }
-                                break;
+                                else
+                                {
+                                    // EQUAL false
+
+                                    items.RemoveRange(x - 2, 2);
+                                    OptimizedCount++;
+                                    x -= 2;
+                                    ins.SetOpCode(OpCode.PUSH0);
+                                }
                             }
-                    }
+                            break;
+                        }
                 }
             }
         }
