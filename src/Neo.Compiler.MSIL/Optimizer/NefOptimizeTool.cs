@@ -11,25 +11,21 @@ namespace Neo.Compiler.Optimizer
         /// Optimize
         /// </summary>
         /// <param name="script">Script</param>
+        /// <param name="entryPoints">Entry points</param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, int[] EntryPoints)
+        public static byte[] Optimize(byte[] script, int[] entryPoints)
         {
-            return Optimize(script, EntryPoints, out _);
+            return Optimize(script, entryPoints, out _);
         }
 
-        public static byte[] Optimize(byte[] script, int[] EntryPoints, out Dictionary<int, int> addrConvertTable)
+        public static byte[] Optimize(byte[] script, int[] entryPoints, out Dictionary<int, int> addrConvertTable)
         {
-            return Optimize(script, EntryPoints,
-                OptimizeParserType.DELETE_DEAD_CODE |
-                OptimizeParserType.USE_SHORT_ADDRESS |
-                OptimizeParserType.DELETE_CONST_EXECUTION |
-                OptimizeParserType.DELETE_USELESS_EQUAL
-            , out addrConvertTable);
+            return Optimize(script, entryPoints, OptimizeParserType.ALL, out addrConvertTable);
         }
 
-        public static byte[] Optimize(byte[] script, int[] EntryPoints, OptimizeParserType parserTypes)
+        public static byte[] Optimize(byte[] script, int[] entryPoints, OptimizeParserType parserTypes)
         {
-            return Optimize(script, EntryPoints, parserTypes, out _);
+            return Optimize(script, entryPoints, parserTypes, out _);
         }
 
         /// <summary>

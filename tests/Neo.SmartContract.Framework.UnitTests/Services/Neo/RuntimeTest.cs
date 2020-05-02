@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
             {
                 Script = _engine.InvocationStack.Peek().Script,
-                Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract_Runtime.cs").finalManifest)),
+                Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract_Runtime.cs").FinalManifest)),
             });
 
             _engine.InvocationStack.Clear();

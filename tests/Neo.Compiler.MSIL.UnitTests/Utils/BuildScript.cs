@@ -13,11 +13,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public bool IsBuild { get; private set; }
         public bool UseOptimizer { get; private set; }
         public Exception Error { get; private set; }
-        public ILModule modIL { get; private set; }
-        public ModuleConverter converterIL { get; private set; }
-        public byte[] finalNEF { get; private set; }
-        public MyJson.JsonNode_Object finialABI { get; private set; }
-        public string finalManifest { get; private set; }
+        public ILModule ModIL { get; private set; }
+        public ModuleConverter ConverterIL { get; private set; }
+        public byte[] FinalNEF { get; private set; }
+        public MyJson.JsonNode_Object FinialABI { get; private set; }
+        public string FinalManifest { get; private set; }
 
         public BuildScript()
         {
@@ -30,10 +30,10 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             this.UseOptimizer = optimizer;
 
             var log = new DefLogger();
-            this.modIL = new ILModule(log);
+            this.ModIL = new ILModule(log);
             try
             {
-                modIL.LoadModule(fs, fspdb);
+                ModIL.LoadModule(fs, fspdb);
             }
             catch (Exception err)
             {
@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 return;
             }
 
-            converterIL = new ModuleConverter(log);
+            ConverterIL = new ModuleConverter(log);
             Dictionary<int, int> addrConvTable = null;
             ConvOption option = new ConvOption();
 #if NDEBUG
@@ -50,19 +50,19 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
 #endif
             {
-                converterIL.Convert(modIL, option);
-                finalNEF = converterIL.outModule.Build();
+                ConverterIL.Convert(ModIL, option);
+                FinalNEF = ConverterIL.outModule.Build();
                 if (optimizer)
                 {
-                    List<int> EntryPoints = new List<int>();
-                    foreach (var f in converterIL.outModule.mapMethods.Values)
+                    List<int> entryPoints = new List<int>();
+                    foreach (var f in ConverterIL.outModule.mapMethods.Values)
                     {
-                        EntryPoints.Add(f.funcaddr);
+                        entryPoints.Add(f.funcaddr);
                     }
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF, EntryPoints.ToArray(), out addrConvTable);
-                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
+                    var opbytes = NefOptimizeTool.Optimize(FinalNEF, entryPoints.ToArray(), out addrConvTable);
+                    float ratio = (opbytes.Length * 100.0f) / (float)FinalNEF.Length;
                     log.Log("optimization ratio = " + ratio + "%");
-                    finalNEF = opbytes;
+                    FinalNEF = opbytes;
                 }
                 IsBuild = true;
             }
@@ -76,7 +76,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                FinialABI = vmtool.FuncExport.Export(ConverterIL.outModule, FinalNEF, addrConvTable);
             }
             catch (Exception e)
             {
@@ -85,19 +85,19 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                var features = converterIL.outModule == null ? ContractFeatures.NoProperty : converterIL.outModule.attributes
+                var features = ConverterIL.outModule == null ? ContractFeatures.NoProperty : ConverterIL.outModule.attributes
                     .Where(u => u.AttributeType.Name == "FeaturesAttribute")
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                     .FirstOrDefault();
 
-                var extraAttributes = converterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>()
-                    : converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+                var extraAttributes = ConverterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>()
+                    : ConverterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
                 var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
                 var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
-                finalManifest =
+                FinalManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                    finialABI +
+                    FinialABI +
                     @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":[]" + "}";
             }
             catch
@@ -108,7 +108,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public string[] GetAllILFunction()
         {
             List<string> lists = new List<string>();
-            foreach (var _class in modIL.mapType)
+            foreach (var _class in ModIL.mapType)
             {
                 foreach (var method in _class.Value.methods)
                 {
@@ -121,7 +121,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public ILMethod FindMethod(string fromclass, string method)
         {
-            foreach (var _class in modIL.mapType)
+            foreach (var _class in ModIL.mapType)
             {
                 var indexbegin = _class.Key.LastIndexOf(".");
                 var classname = _class.Key;
@@ -149,7 +149,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public string GetFullMethodName(string fromclass, string method)
         {
-            foreach (var _class in modIL.mapType)
+            foreach (var _class in ModIL.mapType)
             {
                 var indexbegin = _class.Key.LastIndexOf("::");
                 var classname = _class.Key.Substring(indexbegin + 2);
@@ -169,19 +169,19 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public NeoMethod GetNEOVMMethod(ILMethod method)
         {
-            var neomethod = this.converterIL.methodLink[method];
+            var neomethod = this.ConverterIL.methodLink[method];
             return neomethod;
         }
         public NeoMethod[] GetAllNEOVMMethod()
         {
-            return new List<NeoMethod>(this.converterIL.methodLink.Values).ToArray();
+            return new List<NeoMethod>(this.ConverterIL.methodLink.Values).ToArray();
         }
 
         public void DumpNEF()
         {
             {
                 Console.WriteLine("dump:");
-                foreach (var c in this.converterIL.outModule.totalCodes)
+                foreach (var c in this.ConverterIL.outModule.totalCodes)
                 {
                     var line = c.Key.ToString("X04") + "=>" + c.Value.ToString();
                     if (c.Value.bytes != null && c.Value.bytes.Length > 0)

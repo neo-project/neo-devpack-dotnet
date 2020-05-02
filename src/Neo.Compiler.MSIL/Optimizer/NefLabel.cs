@@ -23,12 +23,13 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         /// <param name="name">Name</param>
         /// <param name="Offset">Offset</param>
-        public NefLabel(string name, int Offset, bool bEntryPoint = false)
+        /// <param name="isEntryPoint">Is entry point</param>
+        public NefLabel(string name, int Offset, bool isEntryPoint = false)
         {
             this.Name = name;
             this.Offset = Offset;
             this.OffsetInit = Offset;
-            this.IsEntryPoint = bEntryPoint;
+            this.IsEntryPoint = isEntryPoint;
         }
 
         /// <summary>

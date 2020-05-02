@@ -49,7 +49,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         {
             _engine = new TestEngine(TriggerType.Application, new DummyVerificable());
             _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
-            scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash().ToArray().ToHexString();
+            scriptHash = _engine.ScriptEntry.FinalNEF.ToScriptHash().ToArray().ToHexString();
         }
 
         [TestMethod]
