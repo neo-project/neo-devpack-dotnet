@@ -15,15 +15,17 @@ namespace Neo.Compiler.Optimizer
         /// </summary>
         public int Offset { get; private set; }
 
+        public bool IsEntryPoint { get; private set; }
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="name">Name</param>
         /// <param name="Offset">Offset</param>
-        public NefLabel(string name, int Offset)
+        public NefLabel(string name, int Offset, bool bEntryPoint = false)
         {
             this.Name = name;
             this.Offset = Offset;
+            this.IsEntryPoint = bEntryPoint;
         }
 
         /// <summary>
