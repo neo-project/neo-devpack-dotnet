@@ -14,21 +14,6 @@ namespace Neo.Compiler.Optimizer
 
         private readonly List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="script">Script</param>
-        public NefOptimizer(byte[] script = null)
-        {
-            if (script != null)
-            {
-                using (var ms = new MemoryStream(script))
-                {
-                    LoadNef(ms);
-                }
-            }
-        }
-
         public Dictionary<int, int> GetAddrConvertTable()
         {
             var addrConvertTable = new Dictionary<int, int>();
@@ -72,7 +57,7 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream)
+        public void LoadNef(Stream stream,int[] EntryPoints)
         {
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();

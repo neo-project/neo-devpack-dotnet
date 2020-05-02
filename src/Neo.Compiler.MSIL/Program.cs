@@ -166,14 +166,17 @@ namespace Neo.Compiler
                 if (options.Optimize)
                 {
                     module.ConvertFuncAddr();
-                    var optimize = NefOptimizeTool.Optimize(bytes, out addrConvTable);
-                    log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
+                    List<int> EntryPoints = new List<int>();
+
                     foreach (var func in module.mapMethods)
                     {
                         int srcaddr = func.Value.funcaddr;
                         int opaddr = addrConvTable[srcaddr];
+                        EntryPoints.Add(srcaddr);
                         log.Log("func addr from " + srcaddr + "=>" + opaddr);
                     }
+                    var optimize = NefOptimizeTool.Optimize(bytes, EntryPoints.ToArray(), out addrConvTable);
+                    log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
                     bytes = optimize;
                 }
 

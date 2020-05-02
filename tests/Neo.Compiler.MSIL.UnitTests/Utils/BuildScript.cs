@@ -54,7 +54,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 finalNEF = converterIL.outModule.Build();
                 if (optimizer)
                 {
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF, out addrConvTable);
+                    List<int> EntryPoints = new List<int>();
+                    foreach (var f in converterIL.outModule.mapMethods.Values)
+                    {
+                        EntryPoints.Add(f.funcaddr);
+                    }
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF, EntryPoints.ToArray(), out addrConvTable);
                     float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
                     log.Log("optimization ratio = " + ratio + "%");
                     finalNEF = opbytes;
