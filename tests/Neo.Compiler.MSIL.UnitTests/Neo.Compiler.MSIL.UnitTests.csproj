@@ -29,10 +29,7 @@
     </None>
   </ItemGroup>
 
-
-
   <ItemGroup>
-
     <Compile Update="UnitTest_TypeConvert.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
@@ -45,7 +42,6 @@
     <None Update="TestClasses_VB\Contract_Return1.vb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-
   </ItemGroup>
 
 </Project>

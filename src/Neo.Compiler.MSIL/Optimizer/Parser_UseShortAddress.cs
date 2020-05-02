@@ -37,10 +37,6 @@ namespace Neo.Compiler.Optimizer
             for (int x = 0; x < items.Count; x++)
             {
                 if (!(items[x] is NefInstruction inst)) continue;
-                if (inst.OpCode == OpCode.TRY_L)
-                {
-
-                }
                 if (inst.OpCode == OpCode.PUSHA) continue; //PUSHA is not 8 bits
                 if (inst.AddressSize != 4) continue;
 

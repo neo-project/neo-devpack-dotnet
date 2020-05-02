@@ -4,7 +4,6 @@ namespace Neo.SmartContract.Framework
     {
         #region Constants
 
-
         PUSHINT8 = 0x00,
         PUSHINT16 = 0x01,
         PUSHINT32 = 0x02,
