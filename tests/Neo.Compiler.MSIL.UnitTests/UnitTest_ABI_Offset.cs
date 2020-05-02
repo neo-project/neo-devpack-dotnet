@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void UnitTest_TestABIOffsetWithoutOptimizer()
         {
             var buildScript = NeonTestTool.BuildScript("./TestClasses/Contract_ABIOffset.cs", true, false);
-            var abi = buildScript.finialABI;
+            var abi = buildScript.FinialABI;
 
             var methodsABI = abi["methods"].AsList();
             Assert.AreEqual("0", methodsABI[0].GetDictItem("offset").ToString());
@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void UnitTest_TestABIOffsetWithOptimizer()
         {
             var buildScript = NeonTestTool.BuildScript("./TestClasses/Contract_ABIOffset.cs", true, true);
-            var abi = buildScript.finialABI;
+            var abi = buildScript.FinialABI;
 
             var methodsABI = abi["methods"].AsList();
             Assert.AreEqual("0", methodsABI[0].GetDictItem("offset").ToString());

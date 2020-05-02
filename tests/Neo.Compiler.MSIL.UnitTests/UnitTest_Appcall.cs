@@ -17,8 +17,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
             {
                 //Manifest = new SmartContract.Manifest.ContractManifest(),
-                Script = testengine.Build("./TestClasses/Contract1.cs").finalNEF,
-                Manifest = ContractManifest.FromJson(JObject.Parse(testengine.Build("./TestClasses/Contract1.cs").finalManifest)),
+                Script = testengine.Build("./TestClasses/Contract1.cs").FinalNEF,
+                Manifest = ContractManifest.FromJson(JObject.Parse(testengine.Build("./TestClasses/Contract1.cs").FinalManifest)),
             });
 
             //will appcall 0102030405060708090A0102030405060708090A
