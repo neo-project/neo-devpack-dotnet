@@ -32,9 +32,6 @@
 
 
   <ItemGroup>
-    <Compile Include="TestClasses\Contract_TryCatch.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
 
     <Compile Update="UnitTest_TypeConvert.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

@@ -209,6 +209,7 @@ namespace Neo.Compiler.MSIL
     {
         public int addr_Try_Begin = -1;
         public int addr_Try_End = -1;
+        public int addr_Try_End_F = -1;//IL try catch，try final is 2 different Block,need to process that.   
         public Dictionary<string, ILCatchInfo> catch_Infos = new Dictionary<string, ILCatchInfo>();
         public int addr_Finally_Begin = -1;
         public int addr_Finally_End = -1;
@@ -301,7 +302,6 @@ namespace Neo.Compiler.MSIL
                                 tryinfo.addr_Try_Begin = e.TryStart.Offset;
                                 tryinfo.addr_Try_End = e.TryEnd.Offset;
 
-
                                 var catchtypestr = e.CatchType.FullName;
 
                                 tryinfo.catch_Infos[catchtypestr] = new ILCatchInfo()
@@ -340,7 +340,7 @@ namespace Neo.Compiler.MSIL
                                 var tryinfo = mapTryInfos[key];
                                 tryinfo.addr_Try_Begin = start;
                                 tryinfo.addr_Try_End = end;
-
+                                tryinfo.addr_Try_End_F = e.TryEnd.Offset;
 
                                 tryinfo.addr_Finally_Begin = e.HandlerStart.Offset;
                                 tryinfo.addr_Finally_End = e.HandlerEnd.Offset;
@@ -361,40 +361,73 @@ namespace Neo.Compiler.MSIL
             }
         }
 
-        public ILTryInfo GetTryInfo(int addr)
+        public enum TryCodeType
         {
+            None,
+            Try,
+            Try_Final,
+            Catch,
+            Final,
+        }
+        public ILTryInfo GetTryInfo(int addr, out TryCodeType type)
+        {
+            type = TryCodeType.None;
             ILTryInfo last = null;
             int begin = -1;
             int end = -1;
             foreach (var info in tryInfos)
             {
-                //find match try
+                //check try first
                 if (info.addr_Try_Begin <= addr && addr < info.addr_Try_End)
                 {
                     if (last == null)
                     {
+                        type = TryCodeType.Try;
                         last = info;
                         begin = info.addr_Try_Begin;
                         end = last.addr_Try_End;
                     }
-                    else if (begin <= info.addr_Try_Begin && last.addr_Try_End <= end)
+                    else if (begin <= info.addr_Try_Begin && last.addr_Try_End < end)
                     {
+                        type = TryCodeType.Try;
                         last = info;
                         begin = info.addr_Try_Begin;
                         end = last.addr_Try_End;
                     }
                 }
+
+                //then code in final but not in try
+                if (info.addr_Try_Begin <= addr && addr < info.addr_Try_End_F)
+                {
+                    if (last == null)
+                    {
+                        type = TryCodeType.Try_Final;
+                        last = info;
+                        begin = info.addr_Try_Begin;
+                        end = last.addr_Try_End_F;
+                    }
+                    else if (begin <= info.addr_Try_Begin && last.addr_Try_End_F < end)
+                    {
+                        type = TryCodeType.Try_Final;
+                        last = info;
+                        begin = info.addr_Try_Begin;
+                        end = last.addr_Try_End_F;
+                    }
+                }
+
                 //find match finally
                 if (info.addr_Finally_Begin <= addr && addr < info.addr_Finally_End)
                 {
                     if (last == null)
                     {
+                        type = TryCodeType.Final;
                         last = info;
                         begin = info.addr_Finally_Begin;
                         end = last.addr_Finally_End;
                     }
                     else if (begin <= info.addr_Finally_Begin && last.addr_Finally_End < end)
                     {
+                        type = TryCodeType.Final;
                         last = info;
                         begin = info.addr_Finally_Begin;
                         end = last.addr_Finally_End;
@@ -407,12 +440,14 @@ namespace Neo.Compiler.MSIL
                     {
                         if (last == null)
                         {
+                            type = TryCodeType.Catch;
                             last = info;
                             begin = c.Value.addrBegin;
                             end = c.Value.addrEnd;
                         }
                         else if (begin <= c.Value.addrBegin && c.Value.addrBegin < end)
                         {
+                            type = TryCodeType.Catch;
                             last = info;
                             begin = c.Value.addrBegin;
                             end = c.Value.addrEnd;
@@ -421,27 +456,6 @@ namespace Neo.Compiler.MSIL
                 }
             }
             return last;
-        }
-
-        public bool IsTryCode(int addr)
-        {
-            ILTryInfo info = GetTryInfo(addr);
-            if (info == null)
-                return false;
-            return info.addr_Try_Begin <= addr && addr <= info.addr_Try_End;
-        }
-
-        public ILCatchInfo GetCatchInfo(int addr)
-        {
-            ILTryInfo info = GetTryInfo(addr);
-            if (info == null)
-                return null;
-            foreach (var c in info.catch_Infos)
-            {
-                if (c.Value.addrBegin <= addr && addr <= c.Value.addrEnd)
-                    return c.Value;
-            }
-            return null;
         }
 
         public int GetLastCodeAddr(int srcaddr)

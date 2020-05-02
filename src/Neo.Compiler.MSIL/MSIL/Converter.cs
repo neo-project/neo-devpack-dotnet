@@ -550,29 +550,21 @@ namespace Neo.Compiler.MSIL
                 case CodeEx.Leave_S:
                     {//will support try catch
 
+                        var tryinfo = method.GetTryInfo(src.addr, out ILMethod.TryCodeType type);
 
-                        if (method.IsTryCode(src.addr))
+                        //leaves in try
+                        //leaves in catch
+                        if (type == ILMethod.TryCodeType.Try || type == ILMethod.TryCodeType.Catch)
                         {
                             var code = Convert1by1(VM.OpCode.ENDTRY_L, src, to, new byte[] { 0, 0, 0, 0 });
                             code.needfix = true;
                             code.srcaddr = src.tokenAddr_Index;
                         }
-                        else
+                        else //or else just jmp
                         {
-                            ILCatchInfo catchinfo = method.GetCatchInfo(src.addr);
-                            if (catchinfo != null)
-                            {
-                                var code = Convert1by1(VM.OpCode.ENDTRY_L, src, to, new byte[] { 0, 0, 0, 0 });
-                                code.needfix = true;
-                                code.srcaddr = src.tokenAddr_Index;
-                            }
-                            else
-                            {
-                                //maybe is in finally try ,just jump.
-                                var code = Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
-                                code.needfix = true;
-                                code.srcaddr = src.tokenAddr_Index;
-                            }
+                            var code = Convert1by1(VM.OpCode.JMP_L, src, to, new byte[] { 0, 0, 0, 0 });
+                            code.needfix = true;
+                            code.srcaddr = src.tokenAddr_Index;
                         }
                     }
                     break;
