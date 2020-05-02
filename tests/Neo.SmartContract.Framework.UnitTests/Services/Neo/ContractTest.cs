@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             var script = _engine.Build("./TestClasses/Contract_Create.cs");
-            var manifest = ContractManifest.FromJson(JObject.Parse(script.FinalManifest));
+            var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
 
             // Check first
 
@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.FinalNEF, manifest.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -80,10 +80,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
-            var manifest = ContractManifest.FromJson(JObject.Parse(script.FinalManifest));
+            var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
-            var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.FinalManifest));
+            var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
 
             // Check first
 
@@ -99,7 +99,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.FinalNEF, manifest.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -113,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             var args = new Array
             {
-                scriptUpdate.FinalNEF,
+                scriptUpdate.finalNEF,
                 manifestUpdate.ToJson().ToString()
             };
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", args);

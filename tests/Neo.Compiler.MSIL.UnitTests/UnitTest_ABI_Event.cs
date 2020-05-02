@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
-            var abi = testengine.ScriptEntry.FinialABI;
+            var abi = testengine.ScriptEntry.finialABI;
             Console.WriteLine("abi=" + abi.ToString());
             var events = abi["events"].AsList()[0].ToString();
             Console.WriteLine("event abi info =" + events);

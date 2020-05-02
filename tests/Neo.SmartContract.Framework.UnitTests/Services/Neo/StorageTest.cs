@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             testengine = new TestEngine(snapshot: snapshot.Clone());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            Assert.AreEqual(ContractFeatures.HasStorage, testengine.ScriptEntry.ConverterIL.outModule.attributes
+            Assert.AreEqual(ContractFeatures.HasStorage, testengine.ScriptEntry.converterIL.outModule.attributes
                 .Where(u => u.AttributeType.Name == "FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault());

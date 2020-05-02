@@ -15,11 +15,11 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Check that we have only one Feature
 
-            Assert.AreEqual(1, testengine.ScriptEntry.ConverterIL.outModule.attributes.Count);
+            Assert.AreEqual(1, testengine.ScriptEntry.converterIL.outModule.attributes.Count);
 
             // Check that was the SmartContract Feature
 
-            Assert.AreEqual(ContractFeatures.Payable, testengine.ScriptEntry.ConverterIL.outModule.attributes
+            Assert.AreEqual(ContractFeatures.Payable, testengine.ScriptEntry.converterIL.outModule.attributes
                 .Where(u => u.AttributeType.Name == "FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault());

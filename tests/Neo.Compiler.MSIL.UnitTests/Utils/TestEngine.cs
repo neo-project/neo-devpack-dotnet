@@ -80,7 +80,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
             this.InvocationStack.Clear();
-            if (ScriptEntry != null) this.LoadScript(ScriptEntry.FinalNEF);
+            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEF);
         }
 
         public class ContractMethod
@@ -113,7 +113,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.FinialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
             foreach (var item in methods)
             {
                 var method = item as MyJson.JsonNode_Object;
