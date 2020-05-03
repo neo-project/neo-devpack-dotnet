@@ -32,14 +32,16 @@ namespace Neo.Compiler.Optimizer
         /// Optimize
         /// </summary>
         /// <param name="script">Script</param>
+        /// <param name="entryPoints">Entry points</param>
         /// <param name="parserTypes">Optmize parser, currently, there are four parsers:
         /// <para> DELETE_DEAD_CODDE -- delete dead code parser, default parser</para>
         /// <para> USE_SHORT_ADDRESS -- use short address parser. eg: JMP_L -> JMP, JMPIF_L -> JMPIF, default parser</para>
         /// <para> DELETE_NOP -- delete nop parser</para>
         /// <para> DELETE_USELESS_JMP -- delete useless jmp parser, eg: JPM 2</para>
         /// <para> DELETE_USELESS_EQUAL -- delete useless equal parser, eg: EQUAL 01 01 </para></param>
+        /// <param name="addrConvertTable">Convert table for addresses</param>
         /// <returns>Optimized script</returns>
-        public static byte[] Optimize(byte[] script, int[] EntryPoints, OptimizeParserType parserTypes, out Dictionary<int, int> addrConvertTable)
+        public static byte[] Optimize(byte[] script, int[] entryPoints, OptimizeParserType parserTypes, out Dictionary<int, int> addrConvertTable)
         {
             var optimizer = new NefOptimizer();
 
@@ -68,7 +70,7 @@ namespace Neo.Compiler.Optimizer
                 //step01 Load
                 using (var ms = new MemoryStream(script))
                 {
-                    optimizer.LoadNef(ms, EntryPoints);
+                    optimizer.LoadNef(ms, entryPoints);
                 }
 
                 //step02 doOptimize
@@ -88,8 +90,7 @@ namespace Neo.Compiler.Optimizer
                     }
 
                     //updateEntryPoints for next loop
-                    EntryPoints = optimizer.GetEntryPoint();
-
+                    entryPoints = optimizer.GetEntryPoint();
 
                     var bytes = ms.ToArray();
                     if (bytes.SequenceEqual(script))
@@ -105,7 +106,6 @@ namespace Neo.Compiler.Optimizer
             }
 
             return script;
-
         }
     }
 }

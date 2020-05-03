@@ -71,7 +71,8 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream, int[] EntryPoints)
+        /// <param name="entryPoints">Entry points</param>
+        public void LoadNef(Stream stream, int[] entryPoints)
         {
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
@@ -80,17 +81,17 @@ namespace Neo.Compiler.Optimizer
             int labelindex = 1;
 
             //insert EntryPointLabel
-            for (var i = 0; i < EntryPoints.Length; i++)
+            for (var i = 0; i < entryPoints.Length; i++)
             {
-                if (i > 0 && EntryPoints[i - 1] == EntryPoints[i])
+                if (i > 0 && entryPoints[i - 1] == entryPoints[i])
                 {
                     //不允许出现一样的EntryPoint
                     throw new Exception("now allow same EntryPoint.");
                 }
-                if (!mapLabel.ContainsKey(EntryPoints[i]))
+                if (!mapLabel.ContainsKey(entryPoints[i]))
                 {
                     var labelname = "method" + i.ToString("D04");
-                    var addr = EntryPoints[i];
+                    var addr = entryPoints[i];
                     var label = new NefLabel(labelname, addr, true);
                     mapLabel.Add(addr, label);
                 }
