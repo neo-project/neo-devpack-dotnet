@@ -59,6 +59,11 @@ namespace Neo.Compiler
 
             foreach (var method in module.mapMethods.Values)
             {
+                if (method.body_Codes.Values.Count == 0)
+                {
+                    continue;
+                }
+
                 var name = string.Format("{0},{1}",
                     method._namespace, method.displayName);
 
