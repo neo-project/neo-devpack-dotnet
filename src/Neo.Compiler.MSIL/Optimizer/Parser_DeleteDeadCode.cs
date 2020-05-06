@@ -48,6 +48,9 @@ namespace Neo.Compiler.Optimizer
                     reachableAddrs.Add(inst.Offset);
                 }
 
+                // Try is not linear. If encounter a try, skip to the catch and finally segments to scan.
+                // If encounter endtry, will also skip to finally segment to scan
+
                 if (inst.AddressCountInData > 0) // The instruction may contain jmp addess
                 {
                     for (var j = 0; j < inst.AddressCountInData; j++)
@@ -66,7 +69,10 @@ namespace Neo.Compiler.Optimizer
                 if (inst.OpCode == OpCode.JMP ||
                     inst.OpCode == OpCode.JMP_L ||
                     inst.OpCode == OpCode.RET ||
-                    inst.OpCode == OpCode.THROW)
+                    inst.OpCode == OpCode.THROW ||
+                    inst.OpCode == OpCode.ENDTRY ||
+                    inst.OpCode == OpCode.ENDTRY_L ||
+                    inst.OpCode == OpCode.ENDFINALLY)
                 {
                     return;
                 }
