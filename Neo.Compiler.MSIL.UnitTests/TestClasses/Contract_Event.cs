@@ -9,6 +9,9 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
 
+        [Neo.SmartContract.Framework.Appcall("1234567890abcdef1234567890abcdef12345678")]
+        public static extern string DynamicTest(string arg);
+
         public static void Main(string method, object[] args) { }
     }
 }

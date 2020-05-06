@@ -1,4 +1,4 @@
-﻿#if !NET461
+#if !NET461
 using System;
 using System.Runtime.InteropServices;
 using System.Security;

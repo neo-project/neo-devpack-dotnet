@@ -1,4 +1,4 @@
-﻿namespace Neo.Compiler
+namespace Neo.Compiler
 {
     public class ConvOption
     {

@@ -1,4 +1,4 @@
-﻿namespace Neo.SmartContract.Framework.Services.System
+namespace Neo.SmartContract.Framework.Services.System
 {
     public static class ExecutionEngine
     {
