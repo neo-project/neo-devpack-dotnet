@@ -1,4 +1,4 @@
-﻿
+
 using Neo.VM;
 
 namespace Neo.Compiler.MSIL.Utils
