@@ -230,7 +230,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.Emit(VM.OpCode.PUSH0);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
@@ -245,7 +245,7 @@ namespace Neo.Compiler.MSIL
                 {
                     scriptAfter.Emit(VM.OpCode.PUSH1);
 
-                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
