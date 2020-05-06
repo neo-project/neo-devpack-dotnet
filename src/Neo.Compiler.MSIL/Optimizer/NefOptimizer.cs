@@ -7,11 +7,6 @@ namespace Neo.Compiler.Optimizer
 {
     public class NefOptimizer
     {
-        /// <summary>
-        /// Instructions
-        /// </summary>
-        //private List<INefItem> Items;
-
         private List<NefMethod> Methods;
 
         private readonly List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
@@ -25,6 +20,7 @@ namespace Neo.Compiler.Optimizer
             }
             return methodoffset;
         }
+
         public Dictionary<int, int> GetAddrConvertTable()
         {
             var addrConvertTable = new Dictionary<int, int>();
