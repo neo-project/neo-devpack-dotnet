@@ -11,6 +11,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
+        protected override bool PreExecuteInstruction()
+        {
+            return true;
+        }
+
         public static InteropDescriptor Native_Deploy;
 
         static TestEngine()
