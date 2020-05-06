@@ -7,36 +7,28 @@ namespace Neo.Compiler.Optimizer
 {
     public class NefOptimizer
     {
-        /// <summary>
-        /// Instructions
-        /// </summary>
-        private List<INefItem> Items;
+        private List<NefMethod> Methods;
 
         private readonly List<IOptimizeParser> OptimizeFunctions = new List<IOptimizeParser>();
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="script">Script</param>
-        public NefOptimizer(byte[] script = null)
+        public int[] GetEntryPoint()
         {
-            if (script != null)
+            int[] methodoffset = new int[Methods.Count];
+            for (var i = 0; i < Methods.Count; i++)
             {
-                using (var ms = new MemoryStream(script))
-                {
-                    LoadNef(ms);
-                }
+                methodoffset[i] = Methods[i].Offset;
             }
+            return methodoffset;
         }
 
         public Dictionary<int, int> GetAddrConvertTable()
         {
             var addrConvertTable = new Dictionary<int, int>();
-            foreach (var item in Items)
+            foreach (var m in Methods)
             {
-                if (item is NefInstruction inst)
+                foreach (var item in m.Items)
                 {
-                    addrConvertTable[inst.OffsetInit] = inst.Offset;
+                    addrConvertTable[item.OffsetInit] = item.Offset;
                 }
             }
             return addrConvertTable;
@@ -62,7 +54,10 @@ namespace Neo.Compiler.Optimizer
                     dirty = false;
                 }
                 func.Init();
-                func.Parse(Items);
+                foreach (var m in Methods)
+                {
+                    func.Parse(m.Items);
+                }
                 if (func.WillChangeAddress)
                     dirty = true;
             }
@@ -72,13 +67,37 @@ namespace Neo.Compiler.Optimizer
         /// Step01 Load
         /// </summary>
         /// <param name="stream">Stream</param>
-        public void LoadNef(Stream stream)
+        /// <param name="entryPoints">Entry points</param>
+        public void LoadNef(Stream stream, int[] entryPoints)
         {
             //read all Instruction to listInst
             var listInst = new List<NefInstruction>();
             //read all Address to listAddr
             var mapLabel = new Dictionary<int, NefLabel>();
             int labelindex = 1;
+
+            //insert EntryPointLabel
+            for (var i = 0; i < entryPoints.Length; i++)
+            {
+                if (i > 0 && entryPoints[i - 1] == entryPoints[i])
+                {
+                    //不允许出现一样的EntryPoint
+                    throw new Exception("now allow same EntryPoint.");
+                }
+                if (!mapLabel.ContainsKey(entryPoints[i]))
+                {
+                    var labelname = "method" + i.ToString("D04");
+                    var addr = entryPoints[i];
+                    var label = new NefLabel(labelname, addr, true);
+                    mapLabel.Add(addr, label);
+                }
+            }
+            if (!mapLabel.ContainsKey(0))
+            {
+                var labelname = "method_zero";
+                var label = new NefLabel(labelname, 0, true);
+                mapLabel.Add(0, label);
+            }
 
             NefInstruction inst;
             do
@@ -97,6 +116,7 @@ namespace Neo.Compiler.Optimizer
                             labelindex++;
                             var label = new NefLabel(labelname, addr);
                             mapLabel.Add(addr, label);
+
                         }
 
                         inst.Labels[i] = mapLabel[addr].Name;
@@ -104,17 +124,34 @@ namespace Neo.Compiler.Optimizer
                 }
             } while (inst != null);
 
-            //Add Labels
-            Items = new List<INefItem>();
-            foreach (var instruction in listInst)
+
+            //Add Labels and split to Methods
+            Methods = new List<NefMethod>();
+
+            var curMethod = new NefMethod();
+            if (listInst.Count == 0)//空也要插一个标签
             {
-                var curOffset = instruction.Offset;
-                if (mapLabel.ContainsKey(curOffset))
-                {
-                    Items.Add(mapLabel[curOffset]);
-                }
-                Items.Add(instruction);
+                curMethod.Items.Add(mapLabel[0]);
             }
+            else
+            {
+                foreach (var instruction in listInst)
+                {
+                    var curOffset = instruction.Offset;
+                    if (mapLabel.ContainsKey(curOffset))
+                    {
+                        var label = mapLabel[curOffset];
+                        if (label.IsEntryPoint && curMethod.Items.Count > 0)
+                        {
+                            Methods.Add(curMethod);
+                            curMethod = new NefMethod();
+                        }
+                        curMethod.Items.Add(mapLabel[curOffset]);
+                    }
+                    curMethod.Items.Add(instruction);
+                }
+            }
+            Methods.Add(curMethod);
         }
 
         internal Dictionary<int, int> RebuildAddrConvertTable(Dictionary<int, int> addrConvertTable, Dictionary<int, int> addrConvertTableTemp)
@@ -147,30 +184,36 @@ namespace Neo.Compiler.Optimizer
             //Recalc Address
             //collection Labels and Resort Offset
             uint offset = 0;
-            foreach (var item in Items)
+            foreach (var m in Methods)
             {
-                if (item is NefInstruction inst)
+                foreach (var item in m.Items)
                 {
-                    inst.SetOffset((int)offset);
-                    offset += inst.Size;
-                }
-                else if (item is NefLabel label)
-                {
-                    label.SetOffset((int)offset);
-                    mapLabel2Addr[label.Name] = offset;
+                    if (item is NefInstruction inst)
+                    {
+                        inst.SetOffset((int)offset);
+                        offset += inst.Size;
+                    }
+                    else if (item is NefLabel label)
+                    {
+                        label.SetOffset((int)offset);
+                        mapLabel2Addr[label.Name] = offset;
+                    }
                 }
             }
 
             //ChangeAddress
-            foreach (var item in Items)
+            foreach (var m in Methods)
             {
-                if (item is NefInstruction inst)
+                foreach (var item in m.Items)
                 {
-                    for (var i = 0; i < inst.AddressCountInData; i++)
+                    if (item is NefInstruction inst)
                     {
-                        var label = inst.Labels[i];
-                        var addr = (int)mapLabel2Addr[label] - inst.Offset;
-                        inst.SetAddressInData(i, addr);
+                        for (var i = 0; i < inst.AddressCountInData; i++)
+                        {
+                            var label = inst.Labels[i];
+                            var addr = (int)mapLabel2Addr[label] - inst.Offset;
+                            inst.SetAddressInData(i, addr);
+                        }
                     }
                 }
             }
@@ -183,11 +226,14 @@ namespace Neo.Compiler.Optimizer
             RefillAddr();
 
             //and Link
-            foreach (var inst in this.Items)
+            foreach (var m in Methods)
             {
-                if (inst is NefInstruction i)
+                foreach (var inst in m.Items)
                 {
-                    i.WriteTo(stream);
+                    if (inst is NefInstruction i)
+                    {
+                        i.WriteTo(stream);
+                    }
                 }
             }
         }
