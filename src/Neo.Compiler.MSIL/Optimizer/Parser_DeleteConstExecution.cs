@@ -56,6 +56,19 @@ namespace Neo.Compiler.Optimizer
                             }
                             break;
                         }
+                    case OpCode.DROP:
+                        {
+                            if (items[x - 1] is NefInstruction p1)
+                            {
+                                if (p1.IsPush(out _) || (p1.OpCode == OpCode.PUSHNULL))
+                                {
+                                    items.RemoveRange(x - 1, 2);
+                                    OptimizedCount++;
+                                    x -= 1;
+                                }
+                            }
+                            break;
+                        }
                     case OpCode.SIGN:
                         {
                             if (items[x - 1] is NefInstruction p1 && p1.IsPush(out var v1))
