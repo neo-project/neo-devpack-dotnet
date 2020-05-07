@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,17 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
                 foreach (var type in module.Types)
                 {
-                    foreach (var method in type.Methods)
-                    {
-                        foreach (var attr in method.CustomAttributes)
-                        {
-                            if (attr.AttributeType.FullName == expectedType)
-                            {
-                                var syscall = attr.ConstructorArguments[0].Value.ToString();
-                                if (!list.Contains(syscall)) list.Add(syscall);
-                            }
-                        }
-                    }
+                    CheckType(type, expectedType, list);
                 }
             }
 
@@ -60,6 +51,26 @@ namespace Neo.SmartContract.Framework.UnitTests
             if (notFound.Count > 0)
             {
                 Assert.Fail($"Not implemented syscalls: {string.Join("\n-", notFound)}");
+            }
+        }
+
+        private void CheckType(TypeDefinition type, string expectedType, List<string> list)
+        {
+            foreach (var nested in type.NestedTypes)
+            {
+                CheckType(nested, expectedType, list);
+            }
+
+            foreach (var method in type.Methods)
+            {
+                foreach (var attr in method.CustomAttributes)
+                {
+                    if (attr.AttributeType.FullName == expectedType)
+                    {
+                        var syscall = attr.ConstructorArguments[0].Value.ToString();
+                        if (!list.Contains(syscall)) list.Add(syscall);
+                    }
+                }
             }
         }
     }

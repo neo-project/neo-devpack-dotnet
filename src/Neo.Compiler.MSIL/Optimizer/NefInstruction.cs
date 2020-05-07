@@ -161,6 +161,7 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ_L:
                 case OpCode.JMPGE_L:
                 case OpCode.JMPGT_L:
+                case OpCode.ENDTRY_L:
                     {
                         Labels = new string[1]; // is an address
                         if (oldlabels != null && oldlabels.Length >= 1)
@@ -168,8 +169,17 @@ namespace Neo.Compiler.Optimizer
                         AddressSize = 4; // 32 bit
                         break;
                     }
-                //TODO case OpCode.TRY_L: 32 + 32 bit
-                //TODO case OpCode.TRY: 8 + 8 bit
+                case OpCode.TRY_L:
+                    {
+                        Labels = new string[2]; // is an address
+                        if (oldlabels != null && oldlabels.Length >= 2)
+                        {
+                            Labels[0] = oldlabels[0];
+                            Labels[1] = oldlabels[1];
+                        }
+                        AddressSize = 4; // 32 bit
+                        break;
+                    }
                 case OpCode.CALL:
 
                 case OpCode.JMP:
@@ -181,10 +191,22 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ:
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
+                case OpCode.ENDTRY:
                     {
                         Labels = new string[1]; // an address
                         if (oldlabels != null && oldlabels.Length >= 1)
                             Labels[0] = oldlabels[0];
+                        AddressSize = 1; //8 bit
+                        break;
+                    }
+                case OpCode.TRY:
+                    {
+                        Labels = new string[2]; // an address
+                        if (oldlabels != null && oldlabels.Length >= 2)
+                        {
+                            Labels[0] = oldlabels[0];
+                            Labels[1] = oldlabels[1];
+                        }
                         AddressSize = 1; //8 bit
                         break;
                     }
