@@ -132,6 +132,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
+            return ExecuteTestCaseStandard(offset, args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(int offset, params StackItem[] args)
+        {
             this.InvocationStack.Peek().InstructionPointer = offset;
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);

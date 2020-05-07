@@ -218,6 +218,40 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void Test_Optimize_Static_DROP()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH0);
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.DROP);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH0);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSHNULL);
+                scriptBefore.Emit(VM.OpCode.DROP);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH1);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+        }
+
+        [TestMethod]
         public void Test_Optimize_StaticMath_DEC()
         {
             using (var scriptBefore = new ScriptBuilder())
