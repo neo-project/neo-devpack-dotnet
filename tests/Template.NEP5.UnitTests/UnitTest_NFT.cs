@@ -95,13 +95,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             wantTotalSupply = 2;
             Assert.AreEqual(wantTotalSupply, result);
 
-            // balance of all
+            // Balance of all
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, Null.Null).Pop();
             wantBalance = 200_000_000;
             Assert.AreEqual(wantBalance, result);
 
-            // balance of token2
+            // Balance of token2
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, tokenid2).Pop();
             wantBalance = 100_000_000;

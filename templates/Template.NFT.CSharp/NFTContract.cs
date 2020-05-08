@@ -12,10 +12,10 @@ namespace NFTContract
     /// </summary>
     public class NFTContract : SmartContract
     {
-        [DisplayName("mintedToken")]
+        [DisplayName("MintedToken")]
         public static event Action<byte[], byte[], byte[]> MintedToken;//(byte[] to, byte[] tokenId, byte[] properties);
 
-        [DisplayName("transferred")]
+        [DisplayName("Transferred")]
         public static event Action<byte[], byte[], BigInteger, byte[]> Transferred; //(byte[] from , byte[] to, BigInteger amount, byte[] TokenId)
 
         //super admin address
@@ -63,7 +63,7 @@ namespace NFTContract
 
         public static Enumerator<byte[]> TokensOf(byte[] owner)
         {
-            if (owner.Length != 20) throw new FormatException("The parameter 'owner' should be 20-byte address."); ;
+            if (owner.Length != 20) throw new FormatException("The parameter 'owner' should be 20-byte address.");
             return Storage.Find(Context(), new byte[] { 0x10 }.Concat(owner)).Values;
         }
 
