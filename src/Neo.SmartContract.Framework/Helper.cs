@@ -148,6 +148,16 @@ namespace Neo.SmartContract.Framework
             return (byte)(source + 0);
         }
 
+        public static bool Equals(this byte[] left, byte[] right)
+        {
+            if (left.Length != right.Length) return false;
+            for (int i = 0; i < left.Length; i++)
+            {
+                if (left[i] != right[i]) return false;
+            }
+            return true;
+        }
+
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, byte[] second);
 
