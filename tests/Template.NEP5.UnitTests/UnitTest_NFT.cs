@@ -3,9 +3,8 @@ using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Enumerators;
 using Neo.VM.Types;
-using Neo.SmartContract.Iterators;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -121,6 +120,28 @@ namespace Neo.SmartContract.Framework.UnitTests
             result = _engine.ExecuteTestCaseStandard("balanceOf", to, tokenid2).Pop();
             wantBalance = 10_000_000;
             Assert.AreEqual(wantBalance, result);
+
+            // OwnerOf
+            _engine.Reset();
+            var iterator = ((InteropInterface)_engine.ExecuteTestCaseStandard("ownerOf", tokenid2).Pop()).GetInterface<IteratorValuesWrapper>();
+            iterator.Next();
+            var v1 = iterator.Value();
+            Assert.AreEqual(new ByteString(to), v1);
+
+            iterator.Next();
+            var v2 = iterator.Value();
+            Assert.AreEqual(new ByteString(owner), v2);
+
+            // TokensOf
+            _engine.Reset();
+            iterator = ((InteropInterface)_engine.ExecuteTestCaseStandard("tokensOf", owner).Pop()).GetInterface<IteratorValuesWrapper>();
+            iterator.Next();
+            v1 = iterator.Value();
+            Assert.AreEqual(new ByteString(tokenid), v1);
+
+            iterator.Next();
+            v2 = iterator.Value();
+            Assert.AreEqual(new ByteString(tokenid2), v2);
         }
     }
 

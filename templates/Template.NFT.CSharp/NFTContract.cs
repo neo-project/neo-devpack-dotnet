@@ -27,6 +27,7 @@ namespace NFTContract
         private static byte[] TotalBalanceKey(byte[] owner) => new byte[] { 0x11 }.Concat(owner);
         private static byte[] TokenBalanceKey(byte[] owner, byte[] tokenId) => new byte[] { 0x12 }.Concat(owner).Concat(tokenId);
         private static byte[] PropertiesKey(byte[] tokenId) => new byte[] { 0x13 }.Concat(tokenId);
+        private static byte[] TokensOfKey(byte[] owner, byte[] tokenId) => new byte[] { 0x14 }.Concat(owner).Concat(tokenId);
 
         private const int TOKEN_DECIMALS = 8;
         private const int MAX_AMOUNT = 100_000_000;
@@ -64,7 +65,7 @@ namespace NFTContract
         public static Enumerator<byte[]> TokensOf(byte[] owner)
         {
             if (owner.Length != 20) throw new FormatException("The parameter 'owner' should be 20-byte address.");
-            return Storage.Find(Context(), new byte[] { 0x10 }.Concat(owner)).Values;
+            return Storage.Find(Context(), new byte[] { 0x14 }.Concat(owner)).Values;
         }
 
         public static byte[] Properties(byte[] tokenid)
@@ -83,6 +84,7 @@ namespace NFTContract
 
             Storage.Put(Context(), PropertiesKey(tokenId), properties);
             Storage.Put(Context(), TokenOwnerKey(tokenId, owner), owner);
+            Storage.Put(Context(), TokensOfKey(owner, tokenId), tokenId);
 
             var totalSupplyKey = TotalSupplyKey();
             var totalSupply = Storage.Get(Context(), totalSupplyKey);
@@ -135,6 +137,8 @@ namespace NFTContract
             if (fromNewBalance == 0)
             {
                 Storage.Delete(Context(), TokenOwnerKey(tokenId, from));
+                Storage.Delete(Context(), TokensOfKey(from, tokenId));
+
             }
             Storage.Put(Context(), TokenBalanceKey(from, tokenId), fromNewBalance);
             Storage.Put(Context(), TotalBalanceKey(from), fromTotalBalance.ToBigInteger() - amount);
@@ -145,6 +149,7 @@ namespace NFTContract
             {
                 Storage.Put(Context(), TokenOwnerKey(tokenId, to), to);
                 Storage.Put(Context(), TokenBalanceKey(to, tokenId), amount);
+                Storage.Put(Context(), TokensOfKey(to, tokenId), tokenId);
             }
             else
             {
