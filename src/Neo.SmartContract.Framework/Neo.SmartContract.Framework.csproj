@@ -18,9 +18,4 @@
     <Description>Neo.SmartContract.Framework</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-CI00907" />
-    <PackageReference Include="Neo.VM" Version="3.0.0-CI00219" />
-  </ItemGroup>
-
 </Project>
