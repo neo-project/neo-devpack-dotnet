@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\NEO\master\src\neo\neo.csproj" />
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
   </ItemGroup>
 </Project>
