@@ -17,7 +17,7 @@ namespace NFTContract
         public static event Action<byte[], byte[], byte[]> MintedToken;
 
         [DisplayName("Transferred")]
-        public static event Action<byte[], byte[], BigInteger, byte[]> Transferred; 
+        public static event Action<byte[], byte[], BigInteger, byte[]> Transferred;
 
         private static readonly byte[] superAdmin = Helper.ToScriptHash("Nj9Epc1x2sDmd6yH5qJPYwXRqSRf5X6KHE");
         private static string TotalSupplyKey() => "totalSupply";
@@ -123,7 +123,6 @@ namespace NFTContract
         {
             if (from.Length != 20 || to.Length != 20) throw new FormatException("The parameters 'from' and 'to' should be 20-byte addresses.");
             if (amount < 0 || amount > MAX_AMOUNT) throw new FormatException("The parameters 'amount' is out of range.");
-
             if (!Runtime.CheckWitness(from)) return false;
 
             if (from.Equals(to))
