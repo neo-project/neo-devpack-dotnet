@@ -178,6 +178,7 @@ namespace Neo.Compiler
         public int srcaddr;
         public int[] srcaddrswitch;
         public string srcfunc;
+        public Mono.Cecil.Cil.SequencePoint sequencePoint;
 
         public override string ToString()
         {

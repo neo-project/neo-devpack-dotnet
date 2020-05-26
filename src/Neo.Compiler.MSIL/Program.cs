@@ -152,6 +152,7 @@ namespace Neo.Compiler
             byte[] bytes;
             int bSucc = 0;
             string jsonstr = null;
+            string debugstr = null;
             NeoModule module = null;
 
             // Convert and build
@@ -183,6 +184,18 @@ namespace Neo.Compiler
                     log.Log("gen abi Error:" + err.ToString());
                 }
 
+                try
+                {
+                    var outjson = DebugExport.Export(module, addrConvTable);
+                    StringBuilder sb = new StringBuilder();
+                    outjson.ConvertToStringWithFormat(sb, 0);
+                    debugstr = sb.ToString();
+                    log.Log("gen debug succ");
+                }
+                catch (Exception err)
+                {
+                    log.Log("gen debug Error:" + err.ToString());
+                }
             }
             catch (Exception err)
             {
@@ -237,6 +250,35 @@ namespace Neo.Compiler
 
             try
             {
+                string debugname = onlyname + ".debug.json";
+                string debugzip = onlyname + ".nefdbgnfo";
+
+                File.Delete(debugname);
+                File.WriteAllText(debugname, debugstr);
+                log.Log("write:" + debugname);
+                bSucc++;
+
+                // var tempName = Path.GetTempFileName();
+                // File.Delete(tempName);
+                // File.WriteAllText(tempName, debugstr);
+
+                // File.Delete(debugzip);
+                // using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
+                // {
+                //     archive.CreateEntryFromFile(tempName, Path.GetFileName(debugname));
+                // }
+                // File.Delete(tempName);
+                // log.Log("write:" + debugzip);
+                // bSucc = true;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write debug Error:" + err.ToString());
+                return -1;
+            }
+
+            try
+            {
                 var features = module == null ? ContractFeatures.NoProperty : module.attributes
                     .Where(u => u.AttributeType.Name == "FeaturesAttribute")
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
@@ -275,7 +317,7 @@ namespace Neo.Compiler
             {
             }
 
-            if (bSucc == 3)
+            if (bSucc == 4)
             {
                 log.Log("SUCC");
                 return 0;
