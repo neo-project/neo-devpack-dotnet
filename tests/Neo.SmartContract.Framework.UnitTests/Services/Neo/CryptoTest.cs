@@ -23,7 +23,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine = new TestEngine(TriggerType.Application, new Transaction()
             {
                 Attributes = new TransactionAttribute[0],
-                Cosigners = new Cosigner[0],
                 Script = new byte[0],
                 Sender = UInt160.Zero,
                 Witnesses = new Witness[0],
