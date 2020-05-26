@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("8d7f537c8c8c4236e99de1a3323c06e7a6b22b7e802a210096520c6a0dc037df", item.GetSpan().ToArray().ToHexString());
+            Assert.AreEqual("293ba9cd0c05e23da15e39d29bcb8edfa5b2eeb29163a325c3229e81feed3d11", item.GetSpan().ToArray().ToHexString());
         }
 
         [TestMethod]
