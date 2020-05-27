@@ -190,6 +190,7 @@ namespace Neo.Compiler
                 catch (Exception err)
                 {
                     log.Log("gen abi Error:" + err.ToString());
+                    return -1;
                 }
 
             }
