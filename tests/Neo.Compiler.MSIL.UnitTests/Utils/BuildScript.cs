@@ -79,9 +79,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
             }
-            catch (Exception e)
+            catch (Exception err)
             {
-                throw e;
+                log.Log("Gen Abi Error:" + err.ToString());
+                this.Error = err;
+                return;
             }
 
             try
