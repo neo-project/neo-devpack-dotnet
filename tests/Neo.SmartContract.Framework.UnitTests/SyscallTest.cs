@@ -37,6 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 if (syscall.Method == "Neo.Native.Tokens.NEO") continue;
                 if (syscall.Method == "Neo.Native.Tokens.GAS") continue;
                 if (syscall.Method == "Neo.Native.Policy") continue;
+                if (syscall.Method == "Neo.Native.Call") continue;
 
                 if (list.Remove(syscall.Method)) continue;
 
