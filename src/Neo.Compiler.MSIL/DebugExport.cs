@@ -1,6 +1,7 @@
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -123,15 +124,15 @@ namespace Neo.Compiler
             return outjson;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, IReadOnlyDictionary<int, int> addrMap)
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script)
         {
             var docMap = GetDocumentMap(module);
 
             var outjson = new MyJson.JsonNode_Object();
             outjson.SetDictValue("hash", FuncExport.ComputeHash(script));
-            // outjson.SetDictValue("entrypoint", am.mainMethod);
+            outjson.SetDictValue("entrypoint", module.mainMethod);
             outjson.SetDictValue("documents", GetDocuments(docMap));
-            outjson.SetDictValue("methods", GetMethods(module, docMap, addrMap));
+            outjson.SetDictValue("methods", GetMethods(module, docMap, null));
             outjson.SetDictValue("events", GetEvents(module));
             return outjson;
         }

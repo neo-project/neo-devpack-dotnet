@@ -186,7 +186,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = DebugExport.Export(module, bytes, addrConvTable);
+                    var outjson = DebugExport.Export(module, bytes);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     debugstr = sb.ToString();

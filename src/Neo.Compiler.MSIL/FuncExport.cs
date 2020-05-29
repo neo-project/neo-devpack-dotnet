@@ -79,7 +79,7 @@ namespace vmtool
             return sb.ToString();
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script)
         {
             var outjson = new MyJson.JsonNode_Object();
 
