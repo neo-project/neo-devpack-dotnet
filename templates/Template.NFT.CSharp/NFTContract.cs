@@ -87,7 +87,7 @@ namespace NFTContract
             if (tokenOwnerMap.Get(owner) != null) return false;
 
             StorageMap tokenOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf, owner));
-            Storage.Put(Context(), CreateStorageKey(Prefix_Properties ,tokenId), properties);
+            Storage.Put(Context(), CreateStorageKey(Prefix_Properties, tokenId), properties);
             tokenOwnerMap.Put(owner, owner);
             tokenOfMap.Put(tokenId, tokenId);
 
@@ -112,7 +112,7 @@ namespace NFTContract
             {
                 var iterator = Storage.Find(Context(), CreateStorageKey(Prefix_TokenBalance, owner));
                 BigInteger result = 0;
-                while(iterator.Next())
+                while (iterator.Next())
                     result += iterator.Value.ToBigInteger();
                 return result;
             }
