@@ -8,6 +8,7 @@ using Neo.SmartContract.Iterators;
 using Neo.VM.Types;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -60,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var properties = "NFT properties";
 
             // Mint NFT
-            var result = _engine.ExecuteTestCaseStandard("mintNFT", tokenid, owner, properties).Pop();
+            var result = _engine.ExecuteTestCaseStandard("mint", tokenid, owner, properties).Pop();
             var wantResult = true;
             Assert.AreEqual(wantResult, result.ConvertTo(StackItemType.Boolean));
 
@@ -75,18 +76,18 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, Null.Null).Pop();
-            var wantBalance = 100_000_000;
+            var wantBalance = new Integer(BigInteger.Pow(10, 8));
             Assert.AreEqual(wantBalance, result);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, tokenid).Pop();
-            wantBalance = 100_000_000;
+            wantBalance = BigInteger.Pow(10, 8);
             Assert.AreEqual(wantBalance, result);
 
             // Mint new NFT
             _engine.Reset();
             var tokenid2 = System.Text.Encoding.Default.GetBytes("def");
-            result = _engine.ExecuteTestCaseStandard("mintNFT", tokenid2, owner, properties).Pop();
+            result = _engine.ExecuteTestCaseStandard("mint", tokenid2, owner, properties).Pop();
             wantResult = true;
             Assert.AreEqual(wantResult, result.ConvertTo(StackItemType.Boolean));
 
@@ -98,28 +99,28 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Balance of all
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, Null.Null).Pop();
-            wantBalance = 200_000_000;
+            wantBalance = 2 * BigInteger.Pow(10, 8);
             Assert.AreEqual(wantBalance, result);
 
             // Balance of token2
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, tokenid2).Pop();
-            wantBalance = 100_000_000;
+            wantBalance = BigInteger.Pow(10, 8);
             Assert.AreEqual(wantBalance, result);
 
             // Transfer
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("transfer", owner, to, 10_000_000, tokenid2).Pop();
+            result = _engine.ExecuteTestCaseStandard("transfer", owner, to, BigInteger.Pow(10, 7), tokenid2).Pop();
             Assert.AreEqual(true, result.ConvertTo(StackItemType.Boolean));
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", owner, tokenid2).Pop();
-            wantBalance = 90_000_000;
+            wantBalance = 9 * BigInteger.Pow(10, 7);
             Assert.AreEqual(wantBalance, result);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("balanceOf", to, tokenid2).Pop();
-            wantBalance = 10_000_000;
+            wantBalance = BigInteger.Pow(10, 7);
             Assert.AreEqual(wantBalance, result);
 
             // OwnerOf
