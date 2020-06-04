@@ -23,9 +23,11 @@ namespace Neo.SmartContract.Framework.UnitTests
             _engine = new TestEngine(TriggerType.Application, new TestScriptContainer(), null);
             _engine.AddEntryScript("../../../../../templates/Template.NFT.CSharp/NFTContract.cs");
         }
+
         [TestMethod]
         public void Test_GetName()
         {
+            _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("name").Pop();
 
             StackItem wantResult = "MyNFT";
@@ -33,8 +35,22 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void Test_GetStandards()
+        {
+            _engine.Reset();
+            var result = (Array)_engine.ExecuteTestCaseStandard("supportedStandards").Pop();
+
+            Assert.AreEqual(result.Count, 2);
+            StackItem wantResult1 = "NEP-10";
+            StackItem wantResult2 = "NEP-11";
+            Assert.AreEqual(wantResult1.ConvertTo(StackItemType.ByteString), result[0]);
+            Assert.AreEqual(wantResult2.ConvertTo(StackItemType.ByteString), result[1]);
+        }
+
+        [TestMethod]
         public void Test_GetDecimals()
         {
+            _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("decimals").Pop();
 
             var wantResult = 8;

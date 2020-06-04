@@ -41,9 +41,9 @@ namespace NFTContract
             return "MNFT";
         }
 
-        public static string SupportedStandards()
+        public static string[] SupportedStandards()
         {
-            return "NEP-10, NEP-11";
+            return new string[] { "NEP-10", "NEP-11" };
         }
 
         public static byte[] CreateStorageKey(byte[] prefix, byte[] key)
