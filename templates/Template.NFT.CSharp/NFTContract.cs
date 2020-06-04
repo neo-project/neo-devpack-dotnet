@@ -21,11 +21,12 @@ namespace NFTContract
         private static readonly byte[] superAdmin = Helper.ToScriptHash("Nj9Epc1x2sDmd6yH5qJPYwXRqSRf5X6KHE");
 
         private static StorageContext Context() => Storage.CurrentContext;
-        private static byte[] Prefix_TotalSupply => new byte[] { 0x10 };
-        private static byte[] Prefix_TokenOwner => new byte[] { 0x11 };
-        private static byte[] Prefix_TokenBalance => new byte[] { 0x12 };
-        private static byte[] Prefix_Properties => new byte[] { 0x13 };
-        private static byte[] Prefix_TokensOf => new byte[] { 0x14 };
+
+        private const byte Prefix_TotalSupply = 10;
+        private const byte Prefix_TokenOwner = 11;
+        private const byte Prefix_TokenBalance = 12;
+        private const byte Prefix_Properties = 13;
+        private const byte Prefix_TokensOf = 14;
 
         private const int TOKEN_DECIMALS = 8;
         private const int FACTOR = 100_000_000;
@@ -52,7 +53,7 @@ namespace NFTContract
 
         public static BigInteger TotalSupply()
         {
-            return Storage.Get(Context(), Prefix_TotalSupply).ToBigInteger();
+            return Storage.Get(Context(), Prefix_TotalSupply.ToByteArray()).ToBigInteger();
         }
 
         public static int Decimals()
@@ -62,18 +63,18 @@ namespace NFTContract
 
         public static Enumerator<byte[]> OwnerOf(byte[] tokenid)
         {
-            return Storage.Find(Context(), CreateStorageKey(Prefix_TokenOwner, tokenid)).Values;
+            return Storage.Find(Context(), CreateStorageKey(Prefix_TokenOwner.ToByteArray(), tokenid)).Values;
         }
 
         public static Enumerator<byte[]> TokensOf(byte[] owner)
         {
             if (owner.Length != 20) throw new FormatException("The parameter 'owner' should be 20-byte address.");
-            return Storage.Find(Context(), CreateStorageKey(Prefix_TokensOf, owner)).Values;
+            return Storage.Find(Context(), CreateStorageKey(Prefix_TokensOf.ToByteArray(), owner)).Values;
         }
 
         public static string Properties(byte[] tokenid)
         {
-            return Storage.Get(Context(), CreateStorageKey(Prefix_Properties, tokenid)).AsString();
+            return Storage.Get(Context(), CreateStorageKey(Prefix_Properties.ToByteArray(), tokenid)).AsString();
         }
 
         public static bool Mint(byte[] tokenId, byte[] owner, byte[] properties)
@@ -83,24 +84,24 @@ namespace NFTContract
             if (owner.Length != 20) throw new FormatException("The parameter 'owner' should be 20-byte address.");
             if (properties.Length > 2048) throw new FormatException("The length of 'properties' should be less than 2048.");
 
-            StorageMap tokenOwnerMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenOwner, tokenId));
+            StorageMap tokenOwnerMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenOwner.ToByteArray(), tokenId));
             if (tokenOwnerMap.Get(owner) != null) return false;
 
-            StorageMap tokenOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf, owner));
-            Storage.Put(Context(), CreateStorageKey(Prefix_Properties, tokenId), properties);
+            StorageMap tokenOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf.ToByteArray(), owner));
+            Storage.Put(Context(), CreateStorageKey(Prefix_Properties.ToByteArray(), tokenId), properties);
             tokenOwnerMap.Put(owner, owner);
             tokenOfMap.Put(tokenId, tokenId);
 
-            var totalSupply = Storage.Get(Context(), Prefix_TotalSupply);
+            var totalSupply = Storage.Get(Context(), Prefix_TotalSupply.ToByteArray());
             if (totalSupply is null)
-                Storage.Put(Context(), Prefix_TotalSupply, 1);
+                Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), 1);
             else
-                Storage.Put(Context(), Prefix_TotalSupply, totalSupply.ToBigInteger() + 1);
+                Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), totalSupply.ToBigInteger() + 1);
 
-            StorageMap tokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance, owner));
+            StorageMap tokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), owner));
             tokenBalanceMap.Put(tokenId, FACTOR);
 
-            //notify
+            // notify
             MintedToken(owner, tokenId, properties);
             return true;
         }
@@ -110,14 +111,14 @@ namespace NFTContract
             if (owner.Length != 20) throw new FormatException("The parameter 'owner' should be 20-byte address.");
             if (tokenid is null)
             {
-                var iterator = Storage.Find(Context(), CreateStorageKey(Prefix_TokenBalance, owner));
+                var iterator = Storage.Find(Context(), CreateStorageKey(Prefix_TokenBalance.ToByteArray(), owner));
                 BigInteger result = 0;
                 while (iterator.Next())
                     result += iterator.Value.ToBigInteger();
                 return result;
             }
             else
-                return Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance, owner)).Get(tokenid).ToBigInteger();
+                return Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), owner)).Get(tokenid).ToBigInteger();
         }
 
         public static bool Transfer(byte[] from, byte[] to, BigInteger amount, byte[] tokenId)
@@ -132,11 +133,11 @@ namespace NFTContract
                 return true;
             }
 
-            StorageMap fromTokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance, from));
-            StorageMap toTokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance, to));
-            StorageMap tokenOwnerMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenOwner, tokenId));
-            StorageMap fromTokensOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf, from));
-            StorageMap toTokensOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf, to));
+            StorageMap fromTokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), from));
+            StorageMap toTokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), to));
+            StorageMap tokenOwnerMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenOwner.ToByteArray(), tokenId));
+            StorageMap fromTokensOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf.ToByteArray(), from));
+            StorageMap toTokensOfMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokensOf.ToByteArray(), to));
 
             var fromTokenBalance = fromTokenBalanceMap.Get(tokenId);
             if (fromTokenBalance == null || fromTokenBalance.ToBigInteger() < amount) return false;
@@ -160,7 +161,7 @@ namespace NFTContract
                 toTokenBalanceMap.Put(tokenId, toTokenBalance.ToBigInteger() + amount);
             }
 
-            //notify
+            // notify
             Transferred(from, to, amount, tokenId);
             return true;
         }
