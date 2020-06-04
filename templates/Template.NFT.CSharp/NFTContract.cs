@@ -129,7 +129,7 @@ namespace NFTContract
 
             if (from.Equals(to))
             {
-                Transfer(from, to, amount, tokenId);
+                TransferNotify(from, to, amount, tokenId);
                 return true;
             }
 
