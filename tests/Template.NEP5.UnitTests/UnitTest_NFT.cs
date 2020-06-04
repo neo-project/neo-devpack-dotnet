@@ -4,7 +4,6 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Enumerators;
-using Neo.SmartContract.Iterators;
 using Neo.VM.Types;
 using System.IO;
 using System.Linq;
@@ -40,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             _engine.Reset();
             var result = (Array)_engine.ExecuteTestCaseStandard("supportedStandards").Pop();
 
-            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(2, result.Count);
             StackItem wantResult1 = "NEP-10";
             StackItem wantResult2 = "NEP-11";
             Assert.AreEqual(wantResult1.ConvertTo(StackItemType.ByteString), result[0]);

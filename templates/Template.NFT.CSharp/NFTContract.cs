@@ -12,11 +12,11 @@ namespace NFTContract
     /// </summary>
     public class NFTContract : SmartContract
     {
-        [DisplayName("MintedToken")]
-        public static event Action<byte[], byte[], byte[]> MintedToken;
+        [DisplayName("MintToken")]
+        public static event Action<byte[], byte[], byte[]> MintTokenNotify;
 
-        [DisplayName("Transferred")]
-        public static event Action<byte[], byte[], BigInteger, byte[]> Transferred;
+        [DisplayName("Transfer")]
+        public static event Action<byte[], byte[], BigInteger, byte[]> TransferNotify;
 
         private static readonly byte[] superAdmin = Helper.ToScriptHash("Nj9Epc1x2sDmd6yH5qJPYwXRqSRf5X6KHE");
 
@@ -101,8 +101,8 @@ namespace NFTContract
             StorageMap tokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), owner));
             tokenBalanceMap.Put(tokenId, FACTOR);
 
-            // notify
-            MintedToken(owner, tokenId, properties);
+            // Notify
+            MintTokenNotify(owner, tokenId, properties);
             return true;
         }
 
@@ -129,7 +129,7 @@ namespace NFTContract
 
             if (from.Equals(to))
             {
-                Transferred(from, to, amount, tokenId);
+                Transfer(from, to, amount, tokenId);
                 return true;
             }
 
@@ -161,8 +161,8 @@ namespace NFTContract
                 toTokenBalanceMap.Put(tokenId, toTokenBalance.ToBigInteger() + amount);
             }
 
-            // notify
-            Transferred(from, to, amount, tokenId);
+            // Notify
+            TransferNotify(from, to, amount, tokenId);
             return true;
         }
 
