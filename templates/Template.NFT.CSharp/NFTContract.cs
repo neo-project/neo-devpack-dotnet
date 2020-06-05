@@ -33,7 +33,7 @@ namespace NFTContract
 
         public static string Name()
         {
-            return "MyNFT";
+            return "NFT";
         }
 
         public static string Symbol()
