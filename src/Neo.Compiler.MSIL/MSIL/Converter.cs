@@ -993,7 +993,7 @@ namespace Neo.Compiler.MSIL
                     break;
                 case CodeEx.Throw:
                     {
-                        Convert1by1(VM.OpCode.THROW, src, to);//throw suspends the vm
+                        Convert1by1(VM.OpCode.THROW, src, to);// throw suspends the vm
                         break;
                     }
                 case CodeEx.Ldftn:
