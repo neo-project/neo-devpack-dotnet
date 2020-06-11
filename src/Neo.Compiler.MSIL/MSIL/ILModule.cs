@@ -247,7 +247,9 @@ namespace Neo.Compiler.MSIL
                     {
                         foreach (var v in bodyNative.Variables)
                         {
-                            var indexname = v.VariableType.Name + ":" + v.Index;
+                            var indexname = method.DebugInformation.TryGetName(v, out var varname)
+                                ? varname
+                                : v.VariableType.Name + ":" + v.Index;
                             this.body_Variables.Add(new NeoParam(indexname, v.VariableType.FullName));
                         }
                     }

@@ -78,7 +78,7 @@ namespace Neo.Compiler
                 methodJson.SetDictValue("range", range);
                 methodJson.SetDictValue("params", ConvertParamList(method.paramtypes));
                 methodJson.SetDictValue("return", ConvertType(method.returntype));
-                methodJson.SetDictValue("variables", ConvertParamList(method.body_Variables));
+                methodJson.SetDictValue("variables", ConvertParamList(method.method.body_Variables));
                 methodJson.SetDictValue("sequence-points", GetSequencePoints(method.body_Codes.Values, docMap, addrMap));
                 outjson.Add(methodJson);
             }
