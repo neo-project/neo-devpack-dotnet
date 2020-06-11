@@ -35,7 +35,6 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_SwitchLongLong()
         {
-            EvaluationStack result;
             TestEngine testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLongLong.cs", false, false);
 
