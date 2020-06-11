@@ -32,6 +32,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
+
         [TestMethod]
         public void Test_SwitchLongLong()
         {
@@ -69,6 +70,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(resultf.GetBigInteger(), fwant);
             Assert.AreEqual(resultg.GetBigInteger(), gwant);
         }
+
         [TestMethod]
         public void Test_SwitchLong_Release()
         {
