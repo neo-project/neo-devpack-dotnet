@@ -836,7 +836,7 @@ namespace Neo.Compiler.MSIL
                 var methodRef = src.tokenUnknown as Mono.Cecil.MethodReference;
                 var parameterCount = methodRef.Parameters.Count;
                 ConvertPushNumber(parameterCount, src, to);
-                Convert1by1(VM.OpCode.ROLL, null, to);           
+                Convert1by1(VM.OpCode.ROLL, null, to);
                 Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
