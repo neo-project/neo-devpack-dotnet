@@ -23,7 +23,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine = new TestEngine(TriggerType.Application, new Transaction()
             {
                 Attributes = new TransactionAttribute[0],
-                Cosigners = new Cosigner[0],
                 Script = new byte[0],
                 Sender = UInt160.Zero,
                 Witnesses = new Witness[0],
@@ -58,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("8d7f537c8c8c4236e99de1a3323c06e7a6b22b7e802a210096520c6a0dc037df", item.GetSpan().ToArray().ToHexString());
+            Assert.AreEqual("293ba9cd0c05e23da15e39d29bcb8edfa5b2eeb29163a325c3229e81feed3d11", item.GetSpan().ToArray().ToHexString());
         }
 
         [TestMethod]
