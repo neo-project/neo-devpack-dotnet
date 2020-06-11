@@ -261,7 +261,7 @@ namespace Neo.Compiler.MSIL
                         };
 
                         var sp = method.DebugInformation.GetSequencePoint(code);
-                        if (sp != null)
+                        if (sp != null && !sp.IsHidden)
                         {
                             c.debugcode = sp.Document.Url;
                             c.debugline = sp.StartLine;
