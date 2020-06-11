@@ -31,5 +31,11 @@ namespace Neo.Compiler.MSIL.TestClasses
 
             return sum;
         }
+
+        public static Enumerator<int> TestIntEnumerator()
+        {
+            var enumerator = Enumerator<int>.Create(new int[3] { 4, 6, 8 });
+            return enumerator;
+        }
     }
 }
