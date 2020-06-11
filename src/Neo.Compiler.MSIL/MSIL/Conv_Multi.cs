@@ -11,7 +11,7 @@ namespace Neo.Compiler.MSIL
     /// </summary>
     public partial class ModuleConverter
     {
-        static readonly Regex _funcInvokeRegex = new Regex(@"\!0\sSystem\.Func\`[0-9]+\<.*\>\:\:Invoke\(\)");
+        static readonly Regex _funcInvokeRegex = new Regex(@"\![0-9]\sSystem\.Func\`[0-9]+\<.*\>\:\:Invoke\(.*\)");
 
         private void ConvertStLoc(OpCode src, NeoMethod to, int pos)
         {
@@ -833,6 +833,10 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 3)
             {
+                var methodRef = src.tokenUnknown as Mono.Cecil.MethodReference;
+                var parameterCount = methodRef.Parameters.Count;
+                ConvertPushNumber(parameterCount, src, to);
+                Convert1by1(VM.OpCode.ROLL, null, to);           
                 Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;

@@ -25,7 +25,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static Func<byte[], BigInteger> CreateFuncPointerWithArg()
         {
-            return new Func<byte[], BigInteger>(num => MyMethodWithArg(num));
+            return new Func<byte[], BigInteger>(MyMethodWithArg);
         }
 
         public static BigInteger MyMethodWithArg(byte[] num)
@@ -33,11 +33,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return num.ToBigInteger();
         }
 
-        public static void CallFuncPointerWithArg()
+        public static BigInteger CallFuncPointerWithArg()
         {
             var pointer = CreateFuncPointerWithArg();
 
-            Runtime.Notify(pointer.Invoke(new byte[] { 11, 22, 33 }));
-        }  
+            return pointer.Invoke(new byte[] { 11, 22, 33 });
+        }
     }
 }
