@@ -85,6 +85,10 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
             this.InvocationStack.Clear();
+            while (this.ResultStack.Count > 0)
+            {
+                this.ResultStack.Pop();
+            }
             if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEF);
         }
 
