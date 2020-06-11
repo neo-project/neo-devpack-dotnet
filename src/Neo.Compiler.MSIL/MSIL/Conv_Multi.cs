@@ -837,7 +837,7 @@ namespace Neo.Compiler.MSIL
             }
             return 0;
         }
-        
+
         private List<string> GetAllConstStringAfter(ILMethod method, OpCode src)
         {
             List<string> strlist = new List<string>();
@@ -852,7 +852,7 @@ namespace Neo.Compiler.MSIL
             }
             return strlist;
         }
-        
+
         private int ConvertStringSwitch(ILMethod method, OpCode src, NeoMethod to)
         {
             var lastaddr = method.GetLastCodeAddr(src.addr);
