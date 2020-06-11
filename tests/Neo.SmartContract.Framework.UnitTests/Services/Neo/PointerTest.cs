@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -69,6 +70,32 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(123, ((Integer)item).GetBigInteger());
+        }
+
+        [TestMethod]
+        public void Test_ExecutePointerWithArgs_Optimized()
+        {
+            Test_ExecutePointerWithArgs(true);
+        }
+
+        [TestMethod]
+        public void Test_ExecutePointerWithArgs()
+        {
+            Test_ExecutePointerWithArgs(false);
+        }
+
+        public void Test_ExecutePointerWithArgs(bool optimized)
+        {
+            var engine = new TestEngine(TriggerType.Application);
+            engine.AddEntryScript("./TestClasses/Contract_Pointers.cs", true, optimized);
+
+            var result = engine.ExecuteTestCaseStandard("callFuncPointerWithArg");
+            Assert.AreEqual(VMState.HALT, engine.State);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            var wantResult = new BigInteger(new byte[] { 11, 22, 33 });
+            Assert.AreEqual(wantResult, ((Integer)item).GetBigInteger());
         }
     }
 }
