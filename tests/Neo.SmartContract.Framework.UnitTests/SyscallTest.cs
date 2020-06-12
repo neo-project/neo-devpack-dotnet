@@ -31,17 +31,17 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var notFound = new List<string>();
 
-            foreach (var syscall in InteropService.SupportedMethods())
+            foreach (var syscall in ApplicationEngine.Services)
             {
-                if (syscall.Method == "Neo.Native.Deploy") continue;
-                if (syscall.Method == "Neo.Native.Tokens.NEO") continue;
-                if (syscall.Method == "Neo.Native.Tokens.GAS") continue;
-                if (syscall.Method == "Neo.Native.Policy") continue;
-                if (syscall.Method == "Neo.Native.Call") continue;
+                if (syscall.Name == "Neo.Native.Deploy") continue;
+                if (syscall.Name == "Neo.Native.Tokens.NEO") continue;
+                if (syscall.Name == "Neo.Native.Tokens.GAS") continue;
+                if (syscall.Name == "Neo.Native.Policy") continue;
+                if (syscall.Name == "Neo.Native.Call") continue;
 
-                if (list.Remove(syscall.Method)) continue;
+                if (list.Remove(syscall.Name)) continue;
 
-                notFound.Add(syscall.Method);
+                notFound.Add(syscall.Name);
             }
 
             if (list.Count > 0)

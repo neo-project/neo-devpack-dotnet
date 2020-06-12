@@ -5,7 +5,6 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -22,10 +21,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             // Extract Native deploy syscall
 
-            Native_Deploy = (InteropDescriptor)typeof(InteropService)
-                    .GetNestedType("Native", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-                    .GetField("Deploy")
-                    .GetValue(null);
+            Native_Deploy = Neo_Native_Deploy;
         }
 
 
@@ -193,7 +189,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 {
                     { Native_Deploy.Hash , Native_Deploy }
                 };
-                foreach (var m in InteropService.SupportedMethods())
+                foreach (var m in ApplicationEngine.Services)
                 {
                     callmethod[m] = m;
                 }

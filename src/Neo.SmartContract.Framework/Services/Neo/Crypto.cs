@@ -5,23 +5,34 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("Neo.Crypto.SHA256")]
         public extern static byte[] SHA256(byte[] value);
 
+        [Syscall("Neo.Crypto.RIPEMD160")]
+        public extern static byte[] RIPEMD160(byte[] value);
+
+        [Syscall("Neo.Crypto.SHA256")]
+        [Syscall("Neo.Crypto.RIPEMD160")]
+        public extern static byte[] HASH160(byte[] value);
+
+        [Syscall("Neo.Crypto.SHA256")]
+        [Syscall("Neo.Crypto.SHA256")]
+        public extern static byte[] HASH256(byte[] value);
+
         public static class ECDsa
         {
             public static class Secp256r1
             {
-                [Syscall("Neo.Crypto.ECDsa.Secp256r1.Verify")]
+                [Syscall("Neo.Crypto.VerifyWithECDsaSecp256r1")]
                 public extern static bool Verify(byte[] message, byte[] pubkey, byte[] signature);
 
-                [Syscall("Neo.Crypto.ECDsa.Secp256r1.CheckMultiSig")]
+                [Syscall("Neo.Crypto.CheckMultisigWithECDsaSecp256r1")]
                 public extern static bool CheckMultiSig(byte[] message, byte[][] pubkey, byte[][] signature);
             }
 
             public static class Secp256k1
             {
-                [Syscall("Neo.Crypto.ECDsa.Secp256k1.Verify")]
+                [Syscall("Neo.Crypto.VerifyWithECDsaSecp256k1")]
                 public extern static bool Verify(byte[] message, byte[] pubkey, byte[] signature);
 
-                [Syscall("Neo.Crypto.ECDsa.Secp256k1.CheckMultiSig")]
+                [Syscall("Neo.Crypto.CheckMultisigWithECDsaSecp256k1")]
                 public extern static bool CheckMultiSig(byte[] message, byte[][] pubkey, byte[][] signature);
             }
         }

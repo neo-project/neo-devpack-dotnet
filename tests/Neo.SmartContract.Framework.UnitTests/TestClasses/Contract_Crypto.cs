@@ -9,6 +9,21 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Crypto.SHA256(value);
         }
 
+        public static byte[] RIPEMD160(byte[] value)
+        {
+            return Crypto.RIPEMD160(value);
+        }
+
+        public static byte[] HASH160(byte[] value)
+        {
+            return Crypto.HASH160(value);
+        }
+
+        public static byte[] HASH256(byte[] value)
+        {
+            return Crypto.HASH256(value);
+        }
+
         public static bool Secp256r1VerifySignature(byte[] pubkey, byte[] signature)
         {
             return Crypto.ECDsa.Secp256r1.Verify(null, pubkey, signature);

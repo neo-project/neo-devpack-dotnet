@@ -61,6 +61,48 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
+        public void Test_RIPEMD160()
+        {
+            _engine.Reset();
+            var str = System.Text.Encoding.Default.GetBytes("hello world");
+            var result = _engine.ExecuteTestCaseStandard("rIPEMD160", str);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("98c615784ccb5fe5936fbc0cbe9dfdb408d92f0f", item.GetSpan().ToArray().ToHexString());
+        }
+
+        [TestMethod]
+        public void Test_HASH160()
+        {
+            _engine.Reset();
+            var str = System.Text.Encoding.Default.GetBytes("hello world");
+            var result = _engine.ExecuteTestCaseStandard("hASH160", str);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("d7d5ee7824ff93f94c3055af9382c86c68b5ca92", item.GetSpan().ToArray().ToHexString());
+        }
+
+        [TestMethod]
+        public void Test_HASH256()
+        {
+            _engine.Reset();
+            var str = System.Text.Encoding.Default.GetBytes("hello world");
+            var result = _engine.ExecuteTestCaseStandard("hASH256", str);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("bc62d4b80d9e36da29c16c5d4d9f11731f36052c72401a76c23c0fb5a9b74423", item.GetSpan().ToArray().ToHexString());
+        }
+
+        [TestMethod]
         public void Test_VerifySignature()
         {
             byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetHashData(),
