@@ -6,7 +6,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static class NEO
         {
-            /// <param name="method">Please input &quot;name&quot;</param>
             [Appcall("0x9bde8f209c88dd0e7ca3bf0af0f476cdd8207789")]
             public static extern string Name(string method = "name");
 
