@@ -9,30 +9,30 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("NEO_Decimals")]
         public static int NEO_Decimals()
         {
-            return (int)Native.NEO("decimals", new object[0]);
+            return (int)Native.NEO.Decimals();
         }
 
         [DisplayName("NEO_Name")]
         public static string NEO_Name()
         {
-            return (string)Native.NEO("name", new object[0]);
+            return (string)Native.NEO.Name();
         }
 
         [DisplayName("GAS_Decimals")]
         public static int GAS_Decimals()
         {
-            return (int)Native.GAS("decimals", new object[0]);
+            return (int)Native.GAS.Decimals();
         }
 
         [DisplayName("GAS_Name")]
         public static string GAS_Name()
         {
-            return (string)Native.GAS("name", new object[0]);
+            return (string)Native.GAS.Name();
         }
 
         public static BigInteger Policy_GetFeePerByte()
         {
-            return (BigInteger)Native.Policy("getFeePerByte", new object[0]);
+            return (BigInteger)Native.Policy.GetFeePerByte();
         }
     }
 }
