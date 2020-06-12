@@ -842,6 +842,21 @@ namespace Neo.Compiler.MSIL
             return 0;
         }
 
+        private List<string> GetAllConstStringAfter(ILMethod method, OpCode src)
+        {
+            List<string> strlist = new List<string>();
+            foreach (var code in method.body_Codes.Values)
+            {
+                if (code.addr < src.addr)
+                    continue;
+                if (code.code == CodeEx.Ldstr)
+                {
+                    strlist.Add(code.tokenStr);
+                }
+            }
+            return strlist;
+        }
+
         private int ConvertStringSwitch(ILMethod method, OpCode src, NeoMethod to)
         {
             var lastaddr = method.GetLastCodeAddr(src.addr);
@@ -851,12 +866,16 @@ namespace Neo.Compiler.MSIL
             var bLdLoc = (last.code == CodeEx.Ldloc || last.code == CodeEx.Ldloc_0 || last.code == CodeEx.Ldloc_1 || last.code == CodeEx.Ldloc_2 || last.code == CodeEx.Ldloc_3 || last.code == CodeEx.Ldloc_S);
             var bLdArg = (last.code == CodeEx.Ldarg || last.code == CodeEx.Ldarg_0 || last.code == CodeEx.Ldarg_1 || last.code == CodeEx.Ldarg_2 || last.code == CodeEx.Ldarg_3 || last.code == CodeEx.Ldarg_S);
             var bStLoc = (next.code == CodeEx.Stloc || next.code == CodeEx.Stloc_0 || next.code == CodeEx.Stloc_1 || next.code == CodeEx.Stloc_2 || next.code == CodeEx.Stloc_3 || next.code == CodeEx.Stloc_S);
-            if (bLdLoc && bStLoc && last.tokenI32 != next.tokenI32)
+            if (bLdLoc && bStLoc)
             {
                 //use temp var for switch
+                //make stloc go
+                ConvertCode(method, next, to);
             }
             else if (bLdArg && bStLoc)
             {
+                //make stloc go
+                ConvertCode(method, next, to);
                 //use arg for switch
             }
             else
@@ -924,6 +943,7 @@ namespace Neo.Compiler.MSIL
 
             // handle jumpstr
             bool isjumpstr;
+            OpCode lastjmp = null;
             do
             {
                 OpCode code1 = method.body_Codes[jumptableaddr];
@@ -944,20 +964,23 @@ namespace Neo.Compiler.MSIL
                 {
                     isjumpstr = true;
 
-                    skipcount += ConvertCode(method, code1, to);
-                    skipcount += ConvertCode(method, code2, to);
-                    skipcount += ConvertCode(method, code3, to);
-                    skipcount += ConvertCode(method, code4, to);
+                    ConvertCode(method, code1, to);
+                    ConvertCode(method, code2, to);
+                    ConvertCode(method, code3, to);
+                    ConvertCode(method, code4, to);
+                    skipcount += 4;
                     //is switch ldstr
                     var code5 = method.body_Codes[method.GetNextCodeAddr(code4.addr)];
                     if (code5.code == CodeEx.Ret || code5.code == CodeEx.Br || code5.code == CodeEx.Br_S)
                     {
+                        lastjmp = code5;
                         //code5 is a jmp instruction
                         skipcount++;
                         jumptableaddr = method.GetNextCodeAddr(code5.addr);
                     }
                     else
                     {
+                        lastjmp = null;
                         jumptableaddr = code5.addr;
                     }
                 }
@@ -968,6 +991,11 @@ namespace Neo.Compiler.MSIL
             }
             while (isjumpstr);
 
+            if (lastjmp != null)
+            {
+                ConvertCode(method, lastjmp, to);
+                //skipcount++;
+            }
             //There will be more than six jump table paragraphs after that
             //The feature is a set of three instructions
             //ldloc =last
