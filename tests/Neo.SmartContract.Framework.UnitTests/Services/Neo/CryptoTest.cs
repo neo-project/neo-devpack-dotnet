@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             var data = _engine.ScriptContainer.GetHashData();
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("sHA256", data);
+            var result = _engine.ExecuteTestCaseStandard("SHA256", data);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine.Reset();
             var str = System.Text.Encoding.Default.GetBytes("hello world");
-            var result = _engine.ExecuteTestCaseStandard("rIPEMD160", str);
+            var result = _engine.ExecuteTestCaseStandard("RIPEMD160", str);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -79,7 +79,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine.Reset();
             var str = System.Text.Encoding.Default.GetBytes("hello world");
-            var result = _engine.ExecuteTestCaseStandard("hASH160", str);
+            var result = _engine.ExecuteTestCaseStandard("hash160", str);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -93,7 +93,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine.Reset();
             var str = System.Text.Encoding.Default.GetBytes("hello world");
-            var result = _engine.ExecuteTestCaseStandard("hASH256", str);
+            var result = _engine.ExecuteTestCaseStandard("hash256", str);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

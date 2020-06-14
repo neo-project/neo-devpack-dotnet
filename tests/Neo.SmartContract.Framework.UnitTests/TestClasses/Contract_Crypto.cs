@@ -1,27 +1,30 @@
 using Neo.SmartContract.Framework.Services.Neo;
+using System.ComponentModel;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Crypto : SmartContract.Framework.SmartContract
     {
+        [DisplayName("SHA256")]
         public static byte[] SHA256(byte[] value)
         {
             return Crypto.SHA256(value);
         }
 
+        [DisplayName("RIPEMD160")]
         public static byte[] RIPEMD160(byte[] value)
         {
             return Crypto.RIPEMD160(value);
         }
 
-        public static byte[] HASH160(byte[] value)
+        public static byte[] Hash160(byte[] value)
         {
-            return Crypto.HASH160(value);
+            return Crypto.Hash160(value);
         }
 
-        public static byte[] HASH256(byte[] value)
+        public static byte[] Hash256(byte[] value)
         {
-            return Crypto.HASH256(value);
+            return Crypto.Hash256(value);
         }
 
         public static bool Secp256r1VerifySignature(byte[] pubkey, byte[] signature)
