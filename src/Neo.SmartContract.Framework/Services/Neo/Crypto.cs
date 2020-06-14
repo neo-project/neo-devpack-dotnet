@@ -10,11 +10,11 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("Neo.Crypto.SHA256")]
         [Syscall("Neo.Crypto.RIPEMD160")]
-        public extern static byte[] HASH160(byte[] value);
+        public extern static byte[] Hash160(byte[] value);
 
         [Syscall("Neo.Crypto.SHA256")]
         [Syscall("Neo.Crypto.SHA256")]
-        public extern static byte[] HASH256(byte[] value);
+        public extern static byte[] Hash256(byte[] value);
 
         public static class ECDsa
         {
