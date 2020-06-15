@@ -8,6 +8,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_Types_Double : SmartContract.Framework.SmartContract
     {
-        public static float checkDouble() { return 0.1D; }
+        public static double checkDouble() { return 0.1D; }
     }
 }
