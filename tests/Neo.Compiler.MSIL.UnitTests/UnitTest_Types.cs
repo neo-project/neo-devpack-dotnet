@@ -9,6 +9,34 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class UnitTest_Types
     {
+        #region Unsupported Types
+
+        [TestMethod]
+        public void float_Test()
+        {
+            var testengine = new TestEngine();
+            var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
+            Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+        }
+
+        [TestMethod]
+        public void decimal_Test()
+        {
+            var testengine = new TestEngine();
+            var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs"));
+            Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+        }
+
+        [TestMethod]
+        public void double_Test()
+        {
+            var testengine = new TestEngine();
+            var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
+            Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+        }
+
+        #endregion
+
         [TestMethod]
         public void null_Test()
         {
