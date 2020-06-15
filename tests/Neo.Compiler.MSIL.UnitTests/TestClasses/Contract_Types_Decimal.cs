@@ -8,6 +8,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_Types_Decimal : SmartContract.Framework.SmartContract
     {
-        public static Decimal checkDouble() { return 0.1M; }
+        public static Decimal checkDecimal() { return 0.1M; }
     }
 }
