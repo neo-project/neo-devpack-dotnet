@@ -68,10 +68,9 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             ret.Value = "neo";
             return ret;
         }
-        //public static (string value1, string value2) checkTuple()
-        //{
-        //    var tuple = ("neo", "smart economy");
-        //    return tuple;
-        //}
+        public static (string value1, string value2) checkTuple()
+        {
+            return ("neo", "smart economy");
+        }
     }
 }

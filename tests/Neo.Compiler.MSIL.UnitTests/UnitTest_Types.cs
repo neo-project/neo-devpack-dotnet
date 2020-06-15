@@ -242,10 +242,10 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkTuple");
 
             Assert.IsTrue(result.TryPop(out StackItem item));
-            Assert.IsInstanceOfType(item, typeof(Struct));
-            Assert.AreEqual(2, ((Struct)item).Count);
-            Assert.AreEqual("neo", (((Struct)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((Struct)item)[1] as ByteString).GetString());
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(2, ((Array)item).Count);
+            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
         }
 
         [TestMethod]
