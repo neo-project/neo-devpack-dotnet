@@ -24,10 +24,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             Native_Deploy = Neo_Native_Deploy;
         }
 
-
-        public const int MaxStorageKeySize = 64;
-        public const int MaxStorageValueSize = ushort.MaxValue;
-
         static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
         public readonly IDictionary<string, BuildScript> Scripts;
