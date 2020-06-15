@@ -513,6 +513,14 @@ namespace Neo.Compiler.MSIL
                     {
                         Convert1by1(VM.OpCode.NUMEQUAL, src, to);
                     }
+                    else if (_ref.DeclaringType.FullName == "System.String")
+                    {
+                        Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.EQUAL, src, to);
+                    }
                     else
                     {
                         Convert1by1(VM.OpCode.EQUAL, src, to);
@@ -538,6 +546,15 @@ namespace Neo.Compiler.MSIL
                         || _ref.DeclaringType.FullName == "System.Numerics.BigInteger")
                     {
                         Convert1by1(VM.OpCode.NUMNOTEQUAL, src, to);
+                    }
+                    else if (_ref.DeclaringType.FullName == "System.String")
+                    {
+                        Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                        Convert1by1(VM.OpCode.SWAP, null, to);
+                        Convert1by1(VM.OpCode.EQUAL, src, to);
+                        Convert1by1(VM.OpCode.NOT, null, to);
                     }
                     else
                     {
