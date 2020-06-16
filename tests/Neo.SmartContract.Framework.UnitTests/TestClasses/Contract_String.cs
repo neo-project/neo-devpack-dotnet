@@ -12,11 +12,11 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             int a = 3;
             string c = s1 + s2;
-            if (c == "student")
+            if (c == "hello")
             {
                 a = 4;
             }
-            else if (c == "test")
+            else if (c == "world")
             {
                 a = 5;
             }

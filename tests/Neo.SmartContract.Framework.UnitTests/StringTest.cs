@@ -20,12 +20,31 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestStringAdd()
         {
-            var result = _engine.ExecuteTestCaseStandard("testStringAdd", "stu", "dent");
+            // ab => 3
+            var result = _engine.ExecuteTestCaseStandard("testStringAdd", "a", "b");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(3, item);
+
+            // hello => 4
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testStringAdd", "he", "llo");
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(4, item);
+
+            // world => 5
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testStringAdd", "wo", "rld");
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(5, item);
         }
     }
 }
