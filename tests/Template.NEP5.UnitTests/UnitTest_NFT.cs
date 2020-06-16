@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("name").Pop();
 
-            StackItem wantResult = "MyNFT";
+            StackItem wantResult = "NFT";
             Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result.ConvertTo(StackItemType.ByteString));
         }
 
@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("totalSupply").Pop();
-            var wantTotalSupply = 1;
+            var wantTotalSupply = BigInteger.Pow(10, 8);
             Assert.AreEqual(wantTotalSupply, result);
 
             _engine.Reset();
@@ -108,7 +108,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("totalSupply").Pop();
-            wantTotalSupply = 2;
+            wantTotalSupply = 2 * BigInteger.Pow(10, 8);
             Assert.AreEqual(wantTotalSupply, result);
 
             // Balance of all
@@ -159,6 +159,21 @@ namespace Neo.SmartContract.Framework.UnitTests
             enumerator.Next();
             v2 = enumerator.Value();
             Assert.AreEqual(new ByteString(tokenid2), v2);
+
+            // BurnToken
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("burn", tokenid2, owner, BigInteger.Pow(10, 7)).Pop();
+            Assert.AreEqual(true, result.ConvertTo(StackItemType.Boolean));
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("balanceOf", owner, tokenid2).Pop();
+            wantBalance = 8 * BigInteger.Pow(10, 7);
+            Assert.AreEqual(wantBalance, result);
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("totalSupply").Pop();
+            wantBalance = 19 * BigInteger.Pow(10, 7);
+            Assert.AreEqual(wantBalance, result);
         }
     }
 

@@ -15,6 +15,9 @@ namespace NFTContract
         [DisplayName("MintToken")]
         public static event Action<byte[], byte[], byte[]> MintTokenNotify;
 
+        [DisplayName("BurnToken")]
+        public static event Action<byte[], byte[], BigInteger> BurnTokenNotify;
+
         [DisplayName("Transfer")]
         public static event Action<byte[], byte[], BigInteger, byte[]> TransferNotify;
 
@@ -38,7 +41,7 @@ namespace NFTContract
 
         public static string Symbol()
         {
-            return "MNFT";
+            return "NFT";
         }
 
         public static string[] SupportedStandards()
@@ -94,15 +97,37 @@ namespace NFTContract
 
             var totalSupply = Storage.Get(Context(), Prefix_TotalSupply.ToByteArray());
             if (totalSupply is null)
-                Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), 1);
+                Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), FACTOR);
             else
-                Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), totalSupply.ToBigInteger() + 1);
+                Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), totalSupply.ToBigInteger() + FACTOR);
 
             StorageMap tokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), owner));
             tokenBalanceMap.Put(tokenId, FACTOR);
 
             // Notify
             MintTokenNotify(owner, tokenId, properties);
+            return true;
+        }
+
+        public static bool Burn(byte[] tokenId, byte[] owner, BigInteger amount)
+        {
+            if (owner.Length != 20) throw new FormatException("The parameters 'owner' should be 20-byte addresses.");
+            if (amount < 0 || amount > FACTOR) throw new FormatException("The parameters 'amount' is out of range.");
+            if (amount == 0) return true;
+            if (!Runtime.CheckWitness(owner)) return false;
+
+            var tokenBalanceMap = Storage.CurrentContext.CreateMap(CreateStorageKey(Prefix_TokenBalance.ToByteArray(), owner));
+            var balance = tokenBalanceMap.Get(tokenId).ToBigInteger();
+            if (balance < amount) return false;
+
+            var totalSupply = Storage.Get(Context(), Prefix_TotalSupply.ToByteArray()).ToBigInteger();
+            balance -= amount;
+            totalSupply -= amount;
+            tokenBalanceMap.Put(tokenId, balance);
+            Storage.Put(Context(), Prefix_TotalSupply.ToByteArray(), totalSupply);
+
+            // Notify
+            BurnTokenNotify(owner, tokenId, amount);
             return true;
         }
 
