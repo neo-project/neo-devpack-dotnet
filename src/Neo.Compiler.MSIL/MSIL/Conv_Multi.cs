@@ -634,12 +634,14 @@ namespace Neo.Compiler.MSIL
                 {
                     //"System.String System.String::Concat(System.String,System.String)"
                     Convert1by1(VM.OpCode.CAT, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
                 }
 
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32,System.Int32)")
                 {
                     Convert1by1(VM.OpCode.SUBSTR, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
 
                 }
