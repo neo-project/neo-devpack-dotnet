@@ -44,9 +44,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
-            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
-            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
+            Assert.IsInstanceOfType(item, typeof(Array));
+            var itemArray = item as Array;
+            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
+            Assert.AreEqual(false, itemArray[1]); // HasStorage
+            Assert.AreEqual(false, itemArray[2]); // Payable
 
             // Call
 
@@ -104,9 +106,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsTrue(item.Type == VM.Types.StackItemType.InteropInterface);
-            var ledger = (item as InteropInterface).GetInterface<Ledger.ContractState>();
-            Assert.AreEqual(manifest.Hash, ledger.ScriptHash);
+            Assert.IsInstanceOfType(item, typeof(Array));
+            var itemArray = item as Array;
+            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
+            Assert.AreEqual(false, itemArray[1]); // HasStorage
+            Assert.AreEqual(false, itemArray[2]); // Payable
 
             // Call & Update
 
@@ -164,7 +168,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsTrue(item.Type == StackItemType.ByteString);
-            Assert.AreEqual("8b67a062c232ce87dc65cc69391ea909e721cd98", item.GetSpan().ToHexString());
+            Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
 
             // Good pubKey (uncompressed)
 
@@ -175,7 +179,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsTrue(item.Type == StackItemType.ByteString);
-            Assert.AreEqual("8b67a062c232ce87dc65cc69391ea909e721cd98", item.GetSpan().ToHexString());
+            Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
         }
 
         [TestMethod]

@@ -830,7 +830,7 @@ namespace Neo.Compiler.MSIL
             else if (calltype == 4)
             {
                 ConvertPushDataArray(callhash, src, to);
-                Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(InteropService.Contract.Call));
+                Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }
             else if (calltype == 5)
             {
@@ -843,7 +843,7 @@ namespace Neo.Compiler.MSIL
 
                 //a syscall
                 {
-                    var bytes = BitConverter.GetBytes(InteropService.Runtime.Notify);
+                    var bytes = BitConverter.GetBytes(ApplicationEngine.System_Runtime_Notify);
                     //byte[] outbytes = new byte[bytes.Length + 1];
                     //outbytes[0] = (byte)bytes.Length;
                     //Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
@@ -855,7 +855,7 @@ namespace Neo.Compiler.MSIL
             {
                 ConvertPushNumber(callpcount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
-                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.Contract.Call));
+                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }
             else if (calltype == 3)
             {
