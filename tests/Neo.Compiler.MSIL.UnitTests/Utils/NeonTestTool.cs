@@ -71,7 +71,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 ".vb" => Compiler.CompileVBFiles(filenames, new string[0] { }, releaseMode),
                 _ => throw new System.Exception("do not support extname = " + ext),
             };
-            System.IO.File.WriteAllBytes("d:\\tdd.dll", comp.Dll);
+
             using (var streamDll = new MemoryStream(comp.Dll))
             using (var streamPdb = new MemoryStream(comp.Pdb))
             {
