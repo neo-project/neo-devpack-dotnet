@@ -576,46 +576,26 @@ namespace Neo.Compiler.MSIL
                     break;
                 case CodeEx.Switch:
                     {
-                        //throw new Exception("need neo.VM update.");
-                        //在此处插入一组if jmp代码，替代Switch语句的支持
-                        //int addrbegin = this.addr;
-
+                        // Insert a set of IF-JMP code here to replace the support of the Switch statement.
+                        // For Switch(int), the compiler will subtract the smallest case value from the input,
+                        // then compare the result with 0,1,2... to get the address to jump to.
                         Convert1by1(VM.OpCode.NOP, src, to);//nop tag
-
-                        //List<NeoCode> jmpnextcode = new List<NeoCode>();
-                        //List<int> addrnext = new List<int>();
+                        Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Integer });
                         for (var i = 0; i < src.tokenAddr_Switch.Length; i++)
                         {
-                            //addrnext.Add(this.addr);
                             Insert1(VM.OpCode.DUP, "", to);
-                            Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Integer });
                             ConvertPushNumber(i, null, to);
                             Insert1(VM.OpCode.NUMEQUAL, "", to);
                             var addroff = BitConverter.GetBytes((int)11);
                             var codenext = Insert1(VM.OpCode.JMPIFNOT_L, "jmp next", to, addroff);
                             codenext.needfix = false;
 
-                            //jmpnextcode.Add(codenext);
                             Insert1(VM.OpCode.DROP, "", to);
                             var codeswitch = Insert1(VM.OpCode.JMP_L, "", to, BitConverter.GetBytes((int)src.tokenAddr_Switch[i]));
                             codeswitch.srcaddr = src.tokenAddr_Switch[i];
                             codeswitch.needfix = true;
                         }
-                        //addrnext.Add(this.addr);
                         Insert1(VM.OpCode.DROP, "switch end", to);
-
-                        //var addrdata = new byte[src.tokenAddr_Switch.Length * 2 + 2];
-                        //var shortaddrcount = (UInt16)src.tokenAddr_Switch.Length;
-                        //var data = BitConverter.GetBytes(shortaddrcount);
-                        //addrdata[0] = data[0];
-                        //addrdata[1] = data[1];
-                        //var code = _Convert1by1(VM.OpCode.SWITCH, src, to, addrdata);
-                        //code.needfix = true;
-                        //code.srcaddrswitch = new int[shortaddrcount];
-                        //for (var i = 0; i < shortaddrcount; i++)
-                        //{
-                        //    code.srcaddrswitch[i] = src.tokenAddr_Switch[i];
-                        //}
                     }
                     break;
                 case CodeEx.Brtrue:
