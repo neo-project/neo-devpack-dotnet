@@ -23,8 +23,16 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void decimal_Test()
         {
             var testengine = new TestEngine();
-            var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs"));
-            Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+            try
+            {
+                testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs");
+                Assert.Fail("must be fault.");
+            }
+            catch (System.Exception ex)
+            {
+                Assert.IsTrue(ex.InnerException.Message.Contains("unsupported"));
+                return;
+            }
         }
 
         [TestMethod]

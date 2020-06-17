@@ -1373,8 +1373,11 @@ namespace Neo.Compiler.MSIL
                 }
                 return 0;
             }
+            else if(_type.DeclaringType.FullName== "System.Decimal")
+            {
+                throw new Exception("unsupported type:System.Decimal.");
+            }
             var type = _type.Resolve();
-
             // Replace the New Array operation if there is an [OpCode] on the constructor
             foreach (var m in type.DeclaringType.Methods)
             {
