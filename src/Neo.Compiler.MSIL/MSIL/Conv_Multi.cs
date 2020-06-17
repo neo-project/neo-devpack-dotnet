@@ -56,7 +56,7 @@ namespace Neo.Compiler.MSIL
                     ldloca_slot = pos;
                     return;
                 }
-                else if (next.code.ToString().IndexOf("Ld")==0)//可以是各種Ld
+                else if (next.code.ToString().IndexOf("Ld") == 0)//可以是各種Ld
                 {
                     next = method.body_Codes[method.GetNextCodeAddr(next.addr)];
                     continue;
@@ -681,7 +681,7 @@ namespace Neo.Compiler.MSIL
                     ldloca_slot = -1;
                     return 0;
                 }
-                else if(src.tokenMethod.IndexOf("System.Void System.ValueTuple`") ==0 )
+                else if (src.tokenMethod.IndexOf("System.Void System.ValueTuple`") == 0)
                 {
                     var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
                     var type = _type.Resolve();
@@ -1397,7 +1397,7 @@ namespace Neo.Compiler.MSIL
                 }
                 return 0;
             }
-            else if(_type.DeclaringType.FullName== "System.Decimal")
+            else if (_type.DeclaringType.FullName == "System.Decimal")
             {
                 throw new Exception("unsupported type:System.Decimal.");
             }
