@@ -103,9 +103,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop() as InteropInterface;
-            var ver = item.GetInterface<IVerifiable>();
-            Assert.IsTrue(ver != null);
-            Assert.AreEqual(_engine.ScriptContainer, ver);
+            Assert.AreEqual(null, item);
         }
     }
 }
