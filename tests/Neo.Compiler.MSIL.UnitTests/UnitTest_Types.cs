@@ -285,6 +285,19 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void tuple2_Test()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            var result = testengine.ExecuteTestCaseStandard("checkTuple2");
+
+            Assert.IsTrue(result.TryPop(out StackItem item));
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(2, ((Array)item).Count);
+            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+        }
+        [TestMethod]
         public void event_Test()
         {
             var testengine = new TestEngine();

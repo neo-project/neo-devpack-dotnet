@@ -41,23 +41,33 @@ namespace Neo.Compiler.MSIL
         private void ConvertLdLocA(ILMethod method, OpCode src, NeoMethod to, int pos)
         {
             // There are two cases, and we need to figure out what the reference address is for
-            var n1 = method.body_Codes[method.GetNextCodeAddr(src.addr)];
-            var n2 = method.body_Codes[method.GetNextCodeAddr(n1.addr)];
 
-            if (n1.code == CodeEx.Initobj)// Initializes the structure and must give the reference address
+            var next = method.body_Codes[method.GetNextCodeAddr(src.addr)];
+            while (next != null)
             {
-                //some initobj, need setloc after initobj.save slot first.
-                ldloca_slot = pos;
+                if (next.code == CodeEx.Initobj)
+                {
+                    ldloca_slot = pos;
+                    return;
+                }
+                else if (next.code == CodeEx.Call && next.tokenMethod.Is_ctor())
+                {
+                    //some ctor,need  setloc after ctor.save slot first.
+                    ldloca_slot = pos;
+                    return;
+                }
+                else if (next.code.ToString().IndexOf("Ld")==0)//可以是各種Ld
+                {
+                    next = method.body_Codes[method.GetNextCodeAddr(next.addr)];
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
-            else if (n2.code == CodeEx.Call && n2.tokenMethod.Is_ctor())
-            {
-                //some ctor,need  setloc after ctor.save slot first.
-                ldloca_slot = pos;
-            }
-            else
-            {
-                ConvertLdLoc(src, to, pos);
-            }
+            ConvertLdLoc(src, to, pos);
+
         }
 
         private void ConvertCastclass(OpCode src, NeoMethod to)
@@ -667,6 +677,20 @@ namespace Neo.Compiler.MSIL
                 else if (src.tokenMethod == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
                 {
                     //use slot set before by ldloca
+                    ConvertStLoc(src, to, ldloca_slot);
+                    ldloca_slot = -1;
+                    return 0;
+                }
+                else if(src.tokenMethod.IndexOf("System.Void System.ValueTuple`") ==0 )
+                {
+                    var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
+                    var type = _type.Resolve();
+                    var count = type.DeclaringType.GenericParameters.Count;
+                    ConvertPushNumber(count, src, to);
+                    //ConvertPushI4WithConv(from, count, src, to);
+                    Insert1(VM.OpCode.PACK, null, to);
+                    Insert1(VM.OpCode.DUP, null, to);
+                    Insert1(VM.OpCode.REVERSEITEMS, null, to);
                     ConvertStLoc(src, to, ldloca_slot);
                     ldloca_slot = -1;
                     return 0;
