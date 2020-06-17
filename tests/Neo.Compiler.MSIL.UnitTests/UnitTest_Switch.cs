@@ -72,6 +72,32 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void Test_SwitchInteger()
+        {
+            TestEngine testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchInteger.cs", false, false);
+
+            var result1 = testengine.ExecuteTestCaseStandard("main", 1).Pop();
+            var onewant = 2;
+            testengine.Reset();
+            var result2 = testengine.ExecuteTestCaseStandard("main", 2).Pop();
+            var twowant = 3;
+            testengine.Reset();
+            var result3 = testengine.ExecuteTestCaseStandard("main", 3).Pop();
+            var threewant = 6;
+            testengine.Reset();
+            var result0 = testengine.ExecuteTestCaseStandard("main", 0).Pop();
+            var zerowant = 0;
+
+            // Test default
+
+            Assert.AreEqual(result1.GetBigInteger(), onewant);
+            Assert.AreEqual(result2.GetBigInteger(), twowant);
+            Assert.AreEqual(result3.GetBigInteger(), threewant);
+            Assert.AreEqual(result0.GetBigInteger(), zerowant);
+        }
+
+        [TestMethod]
         public void Test_SwitchLong_Release()
         {
             EvaluationStack result;
