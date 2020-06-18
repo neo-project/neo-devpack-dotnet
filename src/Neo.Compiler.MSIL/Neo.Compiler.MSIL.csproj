@@ -34,7 +34,7 @@
 
   <PropertyGroup Condition="'$(SharedLibrary)' == true">
     <PackageId>Neo.Compiler.MSIL</PackageId>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
