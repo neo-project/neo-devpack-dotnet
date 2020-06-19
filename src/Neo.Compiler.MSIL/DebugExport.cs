@@ -11,7 +11,7 @@ namespace Neo.Compiler
 {
     public static class DebugExport
     {
-        private static MyJson.JsonNode_Array GetSequencePoints(IEnumerable<NeoCode> codes, IReadOnlyDictionary<string, int> docMap, IReadOnlyDictionary<int, int> addrMap)
+        private static MyJson.JsonNode_Array GetSequencePoints(IEnumerable<NeoCode> codes, IReadOnlyDictionary<string, int> docMap, IReadOnlyDictionary<int, int> addrConvTable)
         {
             var points = codes
                 .Where(code => code.sequencePoint != null)
@@ -22,7 +22,7 @@ namespace Neo.Compiler
             foreach (var (address, sequencePoint) in points)
             {
                 var value = string.Format("{0}[{1}]{2}:{3}-{4}:{5}",
-                    addrMap?[address] ?? address,
+                    addrConvTable?[address] ?? address,
                     docMap[sequencePoint.Document.Url],
                     sequencePoint.StartLine,
                     sequencePoint.StartColumn,
@@ -54,7 +54,7 @@ namespace Neo.Compiler
             return paramsJson;
         }
 
-        private static MyJson.JsonNode_Array GetMethods(NeoModule module, IReadOnlyDictionary<string, int> docMap, IReadOnlyDictionary<int, int> addrMap)
+        private static MyJson.JsonNode_Array GetMethods(NeoModule module, IReadOnlyDictionary<string, int> docMap, IReadOnlyDictionary<int, int> addrConvTable)
         {
             var outjson = new MyJson.JsonNode_Array();
 
@@ -79,7 +79,7 @@ namespace Neo.Compiler
                 methodJson.SetDictValue("params", ConvertParamList(method.paramtypes));
                 methodJson.SetDictValue("return", ConvertType(method.returntype));
                 methodJson.SetDictValue("variables", ConvertParamList(method.method.body_Variables));
-                methodJson.SetDictValue("sequence-points", GetSequencePoints(method.body_Codes.Values, docMap, addrMap));
+                methodJson.SetDictValue("sequence-points", GetSequencePoints(method.body_Codes.Values, docMap, addrConvTable));
                 outjson.Add(methodJson);
             }
             return outjson;
@@ -124,15 +124,15 @@ namespace Neo.Compiler
             return outjson;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script)
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
         {
             var docMap = GetDocumentMap(module);
 
             var outjson = new MyJson.JsonNode_Object();
             outjson.SetDictValue("hash", FuncExport.ComputeHash(script));
-            outjson.SetDictValue("entrypoint", module.mainMethod);
+            // outjson.SetDictValue("entrypoint", module.mainMethod);
             outjson.SetDictValue("documents", GetDocuments(docMap));
-            outjson.SetDictValue("methods", GetMethods(module, docMap, null));
+            outjson.SetDictValue("methods", GetMethods(module, docMap, addrConvTable));
             outjson.SetDictValue("events", GetEvents(module));
             return outjson;
         }

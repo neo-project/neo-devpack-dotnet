@@ -7,6 +7,7 @@ using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -196,7 +197,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = DebugExport.Export(module, bytes);
+                    var outjson = DebugExport.Export(module, bytes, addrConvTable);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     debugstr = sb.ToString();
@@ -263,23 +264,18 @@ namespace Neo.Compiler
                 string debugname = onlyname + ".debug.json";
                 string debugzip = onlyname + ".nefdbgnfo";
 
-                File.Delete(debugname);
-                File.WriteAllText(debugname, debugstr);
-                log.Log("write:" + debugname);
+                var tempName = Path.GetTempFileName();
+                File.Delete(tempName);
+                File.WriteAllText(tempName, debugstr);
+
+                File.Delete(debugzip);
+                using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
+                {
+                    archive.CreateEntryFromFile(tempName, Path.GetFileName(debugname));
+                }
+                File.Delete(tempName);
+                log.Log("write:" + debugzip);
                 bSucc++;
-
-                // var tempName = Path.GetTempFileName();
-                // File.Delete(tempName);
-                // File.WriteAllText(tempName, debugstr);
-
-                // File.Delete(debugzip);
-                // using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
-                // {
-                //     archive.CreateEntryFromFile(tempName, Path.GetFileName(debugname));
-                // }
-                // File.Delete(tempName);
-                // log.Log("write:" + debugzip);
-                // bSucc = true;
             }
             catch (Exception err)
             {
