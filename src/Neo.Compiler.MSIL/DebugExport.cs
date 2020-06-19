@@ -22,7 +22,7 @@ namespace Neo.Compiler
             foreach (var (address, sequencePoint) in points)
             {
                 var value = string.Format("{0}[{1}]{2}:{3}-{4}:{5}",
-                    addrConvTable?[address] ?? address,
+                    addrConvTable.TryGetValue(address, out var newAddress) ? newAddress : address,
                     docMap[sequencePoint.Document.Url],
                     sequencePoint.StartLine,
                     sequencePoint.StartColumn,
@@ -42,8 +42,9 @@ namespace Neo.Compiler
             return FuncExport.ConvType(type);
         }
 
-        private static MyJson.JsonNode_Array ConvertParamList(IList<NeoParam> @params)
+        private static MyJson.JsonNode_Array ConvertParamList(IEnumerable<NeoParam> @params)
         {
+            @params ??= Enumerable.Empty<NeoParam>();
             var paramsJson = new MyJson.JsonNode_Array();
             foreach (var param in @params)
             {
@@ -78,7 +79,7 @@ namespace Neo.Compiler
                 methodJson.SetDictValue("range", range);
                 methodJson.SetDictValue("params", ConvertParamList(method.paramtypes));
                 methodJson.SetDictValue("return", ConvertType(method.returntype));
-                methodJson.SetDictValue("variables", ConvertParamList(method.method.body_Variables));
+                methodJson.SetDictValue("variables", ConvertParamList(method.method?.body_Variables));
                 methodJson.SetDictValue("sequence-points", GetSequencePoints(method.body_Codes.Values, docMap, addrConvTable));
                 outjson.Add(methodJson);
             }
@@ -124,9 +125,10 @@ namespace Neo.Compiler
             return outjson;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, IReadOnlyDictionary<int, int> addrConvTable)
         {
             var docMap = GetDocumentMap(module);
+            addrConvTable ??= ImmutableDictionary<int, int>.Empty;
 
             var outjson = new MyJson.JsonNode_Object();
             outjson.SetDictValue("hash", FuncExport.ComputeHash(script));
