@@ -22,15 +22,79 @@ namespace Neo.Compiler.MSIL.UnitTests
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("default");
+            result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
+        }
+
+        [TestMethod]
+        public void Test_SwitchLongLong()
+        {
+            TestEngine testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchLongLong.cs", false, false);
+
+            var resulta = testengine.ExecuteTestCaseStandard("main", "a").Pop();
+            var awant = 2;
+            testengine.Reset();
+            var resultb = testengine.ExecuteTestCaseStandard("main", "b").Pop();
+            var bwant = 0;
+            testengine.Reset();
+            var resultc = testengine.ExecuteTestCaseStandard("main", "c").Pop();
+            var cwant = 2;
+            testengine.Reset();
+            var resultd = testengine.ExecuteTestCaseStandard("main", "d").Pop();
+            var dwant = -1;
+            testengine.Reset();
+            var resulte = testengine.ExecuteTestCaseStandard("main", "e").Pop();
+            var ewant = 1;
+            testengine.Reset();
+            var resultf = testengine.ExecuteTestCaseStandard("main", "f").Pop();
+            var fwant = 3;
+            testengine.Reset();
+            var resultg = testengine.ExecuteTestCaseStandard("main", "g").Pop();
+            var gwant = 3;
+
+            // Test default
+
+            Assert.AreEqual(resulta.GetBigInteger(), awant);
+            Assert.AreEqual(resultb.GetBigInteger(), bwant);
+            Assert.AreEqual(resultc.GetBigInteger(), cwant);
+            Assert.AreEqual(resultd.GetBigInteger(), dwant);
+            Assert.AreEqual(resulte.GetBigInteger(), ewant);
+            Assert.AreEqual(resultf.GetBigInteger(), fwant);
+            Assert.AreEqual(resultg.GetBigInteger(), gwant);
+        }
+
+        [TestMethod]
+        public void Test_SwitchInteger()
+        {
+            TestEngine testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_SwitchInteger.cs", false, false);
+
+            var result1 = testengine.ExecuteTestCaseStandard("main", 1).Pop();
+            var onewant = 2;
+            testengine.Reset();
+            var result2 = testengine.ExecuteTestCaseStandard("main", 2).Pop();
+            var twowant = 3;
+            testengine.Reset();
+            var result3 = testengine.ExecuteTestCaseStandard("main", 3).Pop();
+            var threewant = 6;
+            testengine.Reset();
+            var result0 = testengine.ExecuteTestCaseStandard("main", 0).Pop();
+            var zerowant = 0;
+
+            // Test default
+
+            Assert.AreEqual(result1.GetBigInteger(), onewant);
+            Assert.AreEqual(result2.GetBigInteger(), twowant);
+            Assert.AreEqual(result3.GetBigInteger(), threewant);
+            Assert.AreEqual(result0.GetBigInteger(), zerowant);
         }
 
         [TestMethod]
@@ -45,14 +109,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("default");
+            result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
 
@@ -68,14 +132,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             for (int x = 0; x <= 5; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard(x.ToString());
+                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("default");
+            result = testengine.ExecuteTestCaseStandard("main", 6.ToString());
             Assert.AreEqual(result.Pop().GetBigInteger(), 99);
         }
     }

@@ -2,6 +2,7 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.MSIL
 {
@@ -10,6 +11,8 @@ namespace Neo.Compiler.MSIL
     /// </summary>
     public partial class ModuleConverter
     {
+        static readonly Regex _funcInvokeRegex = new Regex(@"\![0-9]\sSystem\.Func\`[0-9]+\<.*\>\:\:Invoke\(.*\)");
+
         private void ConvertStLoc(OpCode src, NeoMethod to, int pos)
         {
             if (pos < 7)
@@ -38,23 +41,33 @@ namespace Neo.Compiler.MSIL
         private void ConvertLdLocA(ILMethod method, OpCode src, NeoMethod to, int pos)
         {
             // There are two cases, and we need to figure out what the reference address is for
-            var n1 = method.body_Codes[method.GetNextCodeAddr(src.addr)];
-            var n2 = method.body_Codes[method.GetNextCodeAddr(n1.addr)];
 
-            if (n1.code == CodeEx.Initobj)// Initializes the structure and must give the reference address
+            var next = method.body_Codes[method.GetNextCodeAddr(src.addr)];
+            while (next != null)
             {
-                //some initobj, need setloc after initobj.save slot first.
-                ldloca_slot = pos;
+                if (next.code == CodeEx.Initobj)
+                {
+                    ldloca_slot = pos;
+                    return;
+                }
+                else if (next.code == CodeEx.Call && next.tokenMethod.Is_ctor())
+                {
+                    //some ctor,need  setloc after ctor.save slot first.
+                    ldloca_slot = pos;
+                    return;
+                }
+                else if (next.code.ToString().IndexOf("Ld") == 0)//可以是各種Ld
+                {
+                    next = method.body_Codes[method.GetNextCodeAddr(next.addr)];
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
-            else if (n2.code == CodeEx.Call && n2.tokenMethod.Is_ctor())
-            {
-                //some ctor,need  setloc after ctor.save slot first.
-                ldloca_slot = pos;
-            }
-            else
-            {
-                ConvertLdLoc(src, to, pos);
-            }
+            ConvertLdLoc(src, to, pos);
+
         }
 
         private void ConvertCastclass(OpCode src, NeoMethod to)
@@ -63,7 +76,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var dtype = type.Resolve();
-                if (dtype.BaseType.FullName == "System.MulticastDelegate" || dtype.BaseType.FullName == "System.Delegate")
+                if (dtype.BaseType != null && (dtype.BaseType.FullName == "System.MulticastDelegate" || dtype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in dtype.Methods)
                     {
@@ -85,7 +98,7 @@ namespace Neo.Compiler.MSIL
             try
             {
                 var ptype = method.method.Parameters[pos].ParameterType.Resolve();
-                if (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate")
+                if (ptype.BaseType != null && (ptype.BaseType.FullName == "System.MulticastDelegate" || ptype.BaseType.FullName == "System.Delegate"))
                 {
                     foreach (var m in ptype.Methods)
                     {
@@ -485,6 +498,11 @@ namespace Neo.Compiler.MSIL
 
                     return 0;
                 }
+                else if (_funcInvokeRegex.IsMatch(src.tokenMethod))
+                {
+                    // call pointer
+                    calltype = 3;
+                }
                 else if (src.tokenMethod == "System.Object System.Runtime.CompilerServices.RuntimeHelpers::GetObjectValue(System.Object)")
                 {
                     //this is for vb.net
@@ -493,7 +511,6 @@ namespace Neo.Compiler.MSIL
                 else if (src.tokenMethod == "System.Void System.Diagnostics.Debugger::Break()")
                 {
                     Convert1by1(VM.OpCode.NOP, src, to);
-
                     return 0;
                 }
                 else if (src.tokenMethod.Contains("::op_Equality(") || src.tokenMethod.Contains("::Equals("))
@@ -509,7 +526,6 @@ namespace Neo.Compiler.MSIL
                     else
                     {
                         Convert1by1(VM.OpCode.EQUAL, src, to);
-
                     }
                     //if (src.tokenMethod == "System.Boolean System.String::op_Equality(System.String,System.String)")
                     //{
@@ -628,12 +644,14 @@ namespace Neo.Compiler.MSIL
                 {
                     //"System.String System.String::Concat(System.String,System.String)"
                     Convert1by1(VM.OpCode.CAT, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
                 }
 
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32,System.Int32)")
                 {
                     Convert1by1(VM.OpCode.SUBSTR, src, to);
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
 
                 }
@@ -663,6 +681,20 @@ namespace Neo.Compiler.MSIL
                     ldloca_slot = -1;
                     return 0;
                 }
+                else if (src.tokenMethod.IndexOf("System.Void System.ValueTuple`") == 0)
+                {
+                    var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
+                    var type = _type.Resolve();
+                    var count = type.DeclaringType.GenericParameters.Count;
+                    ConvertPushNumber(count, src, to);
+                    //ConvertPushI4WithConv(from, count, src, to);
+                    Insert1(VM.OpCode.PACK, null, to);
+                    Insert1(VM.OpCode.DUP, null, to);
+                    Insert1(VM.OpCode.REVERSEITEMS, null, to);
+                    ConvertStLoc(src, to, ldloca_slot);
+                    ldloca_slot = -1;
+                    return 0;
+                }
                 else if (src.tokenMethod.Contains("::op_LeftShift("))
                 {
                     Convert1by1(VM.OpCode.SHL, src, to);
@@ -672,9 +704,6 @@ namespace Neo.Compiler.MSIL
                 {
                     Convert1by1(VM.OpCode.SHR, src, to);
                     return 0;
-                }
-                else
-                {
                 }
             }
 
@@ -753,7 +782,6 @@ namespace Neo.Compiler.MSIL
                 c.srcfunc = src.tokenMethod;
                 return 0;
             }
-
             else if (calltype == 2)
             {
                 Convert1by1(callcodes[0], src, to, Helper.OpDataToBytes(calldata[0]));
@@ -802,7 +830,7 @@ namespace Neo.Compiler.MSIL
             else if (calltype == 4)
             {
                 ConvertPushDataArray(callhash, src, to);
-                Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(InteropService.Contract.Call));
+                Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }
             else if (calltype == 5)
             {
@@ -815,7 +843,7 @@ namespace Neo.Compiler.MSIL
 
                 //a syscall
                 {
-                    var bytes = BitConverter.GetBytes(InteropService.Runtime.Notify);
+                    var bytes = BitConverter.GetBytes(ApplicationEngine.System_Runtime_Notify);
                     //byte[] outbytes = new byte[bytes.Length + 1];
                     //outbytes[0] = (byte)bytes.Length;
                     //Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
@@ -827,9 +855,32 @@ namespace Neo.Compiler.MSIL
             {
                 ConvertPushNumber(callpcount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
-                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(InteropService.Contract.Call));
+                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+            }
+            else if (calltype == 3)
+            {
+                var methodRef = src.tokenUnknown as Mono.Cecil.MethodReference;
+                var parameterCount = methodRef.Parameters.Count;
+                ConvertPushNumber(parameterCount, src, to);
+                Convert1by1(VM.OpCode.ROLL, null, to);
+                Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
+        }
+
+        private List<string> GetAllConstStringAfter(ILMethod method, OpCode src)
+        {
+            List<string> strlist = new List<string>();
+            foreach (var code in method.body_Codes.Values)
+            {
+                if (code.addr < src.addr)
+                    continue;
+                if (code.code == CodeEx.Ldstr)
+                {
+                    strlist.Add(code.tokenStr);
+                }
+            }
+            return strlist;
         }
 
         private int ConvertStringSwitch(ILMethod method, OpCode src, NeoMethod to)
@@ -841,12 +892,16 @@ namespace Neo.Compiler.MSIL
             var bLdLoc = (last.code == CodeEx.Ldloc || last.code == CodeEx.Ldloc_0 || last.code == CodeEx.Ldloc_1 || last.code == CodeEx.Ldloc_2 || last.code == CodeEx.Ldloc_3 || last.code == CodeEx.Ldloc_S);
             var bLdArg = (last.code == CodeEx.Ldarg || last.code == CodeEx.Ldarg_0 || last.code == CodeEx.Ldarg_1 || last.code == CodeEx.Ldarg_2 || last.code == CodeEx.Ldarg_3 || last.code == CodeEx.Ldarg_S);
             var bStLoc = (next.code == CodeEx.Stloc || next.code == CodeEx.Stloc_0 || next.code == CodeEx.Stloc_1 || next.code == CodeEx.Stloc_2 || next.code == CodeEx.Stloc_3 || next.code == CodeEx.Stloc_S);
-            if (bLdLoc && bStLoc && last.tokenI32 != next.tokenI32)
+            if (bLdLoc && bStLoc)
             {
                 //use temp var for switch
+                //make stloc go
+                ConvertCode(method, next, to);
             }
             else if (bLdArg && bStLoc)
             {
+                //make stloc go
+                ConvertCode(method, next, to);
                 //use arg for switch
             }
             else
@@ -914,6 +969,7 @@ namespace Neo.Compiler.MSIL
 
             // handle jumpstr
             bool isjumpstr;
+            OpCode lastjmp = null;
             do
             {
                 OpCode code1 = method.body_Codes[jumptableaddr];
@@ -934,20 +990,23 @@ namespace Neo.Compiler.MSIL
                 {
                     isjumpstr = true;
 
-                    skipcount += ConvertCode(method, code1, to);
-                    skipcount += ConvertCode(method, code2, to);
-                    skipcount += ConvertCode(method, code3, to);
-                    skipcount += ConvertCode(method, code4, to);
+                    ConvertCode(method, code1, to);
+                    ConvertCode(method, code2, to);
+                    ConvertCode(method, code3, to);
+                    ConvertCode(method, code4, to);
+                    skipcount += 4;
                     //is switch ldstr
                     var code5 = method.body_Codes[method.GetNextCodeAddr(code4.addr)];
                     if (code5.code == CodeEx.Ret || code5.code == CodeEx.Br || code5.code == CodeEx.Br_S)
                     {
+                        lastjmp = code5;
                         //code5 is a jmp instruction
                         skipcount++;
                         jumptableaddr = method.GetNextCodeAddr(code5.addr);
                     }
                     else
                     {
+                        lastjmp = null;
                         jumptableaddr = code5.addr;
                     }
                 }
@@ -958,6 +1017,11 @@ namespace Neo.Compiler.MSIL
             }
             while (isjumpstr);
 
+            if (lastjmp != null)
+            {
+                ConvertCode(method, lastjmp, to);
+                //skipcount++;
+            }
             //There will be more than six jump table paragraphs after that
             //The feature is a set of three instructions
             //ldloc =last
@@ -1308,21 +1372,37 @@ namespace Neo.Compiler.MSIL
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
             {
-                return 0;//donothing;
+                return 0; // donothing;
             }
             else if (_type.DeclaringType.FullName.Contains("Exception"))
             {
+                // NeoVM `catch` instruction need one exception parameter
                 Convert1by1(VM.OpCode.NOP, src, to);
+
                 var pcount = _type.Parameters.Count;
-                for (var i = 0; i < pcount; i++)
+                //pcount must be 1
+                //if more then one, drop them.
+                //if pcount==0,add one.
+                if (pcount == 0) // If there is no parameter, insert one pararmeter
                 {
-                    Insert1(VM.OpCode.DROP, "", to);
+                    ConvertPushString("usererror", src, to);
+                }
+                else if (pcount > 1)
+                {
+                    // Keep the first exception parameter
+                    for (var i = 0; i < pcount - 1; i++)
+                    {
+                        Insert1(VM.OpCode.DROP, "", to);
+                    }
                 }
                 return 0;
             }
+            else if (_type.DeclaringType.FullName == "System.Decimal")
+            {
+                throw new Exception("unsupported type:System.Decimal.");
+            }
             var type = _type.Resolve();
-
-            //Replace the New Array operation if there is an [OpCode] on the constructor
+            // Replace the New Array operation if there is an [OpCode] on the constructor
             foreach (var m in type.DeclaringType.Methods)
             {
                 if (m.IsConstructor && m.HasCustomAttributes)

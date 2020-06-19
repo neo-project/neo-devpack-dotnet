@@ -59,6 +59,8 @@ namespace vmtool
             }
             if (_type?.Contains("[]") ?? false)
                 return "Array";
+            if (_type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
+                return "InteropInterface";
 
             return "Unknown:" + _type;
         }
@@ -86,14 +88,6 @@ namespace vmtool
             //hash
             outjson.SetDictValue("hash", ComputeHash(script));
 
-            //entrypoint
-            var entryPoint = "main";
-            var mainmethod = module.mapMethods[module.mainMethod];
-            if (mainmethod != null)
-            {
-                entryPoint = mainmethod.displayName;
-            }
-
             //functions
             var methods = new MyJson.JsonNode_Array();
             outjson["methods"] = methods;
@@ -108,21 +102,15 @@ namespace vmtool
                     continue;
 
                 var funcsign = new MyJson.JsonNode_Object();
-                if (function.Value.displayName == entryPoint)
-                {
-                    // This is the entryPoint
-                    outjson.SetDictValue("entryPoint", funcsign);
-                }
-                else
-                {
-                    methods.Add(funcsign);
-                }
+                methods.Add(funcsign);
                 funcsign.SetDictValue("name", function.Value.displayName);
                 if (names.Contains(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
                 names.Add(function.Value.displayName);
+                var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
+                funcsign.SetDictValue("offset", offset.ToString());
                 MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
