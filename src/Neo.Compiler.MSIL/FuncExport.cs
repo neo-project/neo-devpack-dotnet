@@ -59,7 +59,7 @@ namespace vmtool
             }
             if (_type?.Contains("[]") ?? false)
                 return "Array";
-            if (_type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
+            if (_type?.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator") ?? false)
                 return "InteropInterface";
 
             return "Unknown:" + _type;
