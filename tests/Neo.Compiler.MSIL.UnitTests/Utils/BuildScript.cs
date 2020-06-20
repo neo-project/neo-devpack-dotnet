@@ -1,49 +1,33 @@
+using Mono.Cecil;
 using Neo.Compiler.Optimizer;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class BuildScript
     {
-        public bool IsBuild
-        {
-            get;
-            private set;
-        }
-        public Exception Error
-        {
-            get;
-            private set;
-        }
-        public ILModule modIL
-        {
-            get;
-            private set;
-        }
-        public ModuleConverter converterIL
-        {
-            get;
-            private set;
-        }
-        public byte[] finalNEF
-        {
-            get;
-            private set;
-        }
-        public MyJson.JsonNode_Object finialABI
-        {
-            get;
-            private set;
-        }
+        public bool IsBuild { get; private set; }
+        public bool UseOptimizer { get; private set; }
+        public Exception Error { get; private set; }
+        public ILModule modIL { get; private set; }
+        public ModuleConverter converterIL { get; private set; }
+        public byte[] finalNEF { get; private set; }
+        public MyJson.JsonNode_Object finialABI { get; private set; }
+        public string finalManifest { get; private set; }
+
         public BuildScript()
         {
         }
+
         public void Build(Stream fs, Stream fspdb, bool optimizer)
         {
             this.IsBuild = false;
             this.Error = null;
+            this.UseOptimizer = optimizer;
 
             var log = new DefLogger();
             this.modIL = new ILModule(log);
@@ -59,6 +43,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             }
 
             converterIL = new ModuleConverter(log);
+            Dictionary<int, int> addrConvTable = null;
             ConvOption option = new ConvOption();
 #if NDEBUG
             try
@@ -69,7 +54,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 finalNEF = converterIL.outModule.Build();
                 if (optimizer)
                 {
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF);
+                    List<int> entryPoints = new List<int>();
+                    foreach (var f in converterIL.outModule.mapMethods.Values)
+                    {
+                        if (entryPoints.Contains(f.funcaddr) == false)
+                            entryPoints.Add(f.funcaddr);
+                    }
+                    var opbytes = NefOptimizeTool.Optimize(finalNEF, entryPoints.ToArray(), out addrConvTable);
                     float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
                     log.Log("optimization ratio = " + ratio + "%");
                     finalNEF = opbytes;
@@ -86,7 +77,31 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF);
+                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+            }
+            catch (Exception err)
+            {
+                log.Log("Gen Abi Error:" + err.ToString());
+                this.Error = err;
+                return;
+            }
+
+            try
+            {
+                var features = converterIL.outModule == null ? ContractFeatures.NoProperty : converterIL.outModule.attributes
+                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                    .FirstOrDefault();
+
+                var extraAttributes = converterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>()
+                    : converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
+
+                finalManifest =
+                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
+                    finialABI +
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":[]" + "}";
             }
             catch
             {

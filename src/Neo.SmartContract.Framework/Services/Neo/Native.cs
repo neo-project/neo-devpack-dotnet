@@ -2,13 +2,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Native
     {
-        [Appcall("0x9bde8f209c88dd0e7ca3bf0af0f476cdd8207789")]
+        [Appcall("0xde5f57d430d3dece511cf975a8d37848cb9e0525")]
         public static extern object NEO(string method, object[] arguments);
 
-        [Appcall("0x8c23f196d8a1bfd103a9dcb1f9ccf0c611377d3b")]
+        [Appcall("0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc")]
         public static extern object GAS(string method, object[] arguments);
 
-        [Appcall("0x3209d09120465bf181ced70693b897ec6ea4619a")]
+        [Appcall("0xce06595079cd69583126dbfd1d2e25cca74cffe9")]
         public static extern object Policy(string method, object[] arguments);
 
         [Appcall("0x2acbe877270a65668da64cc589e8364bca970ba9")]

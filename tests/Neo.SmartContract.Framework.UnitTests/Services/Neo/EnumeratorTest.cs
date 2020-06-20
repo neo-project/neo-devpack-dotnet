@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.SmartContract.Enumerators;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -88,6 +89,25 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetByteLength());
+        }
+
+        [TestMethod]
+        public void TestIntEnumerator()
+        {
+            _engine.Reset();
+            var enumerator = ((InteropInterface)_engine.ExecuteTestCaseStandard("testIntEnumerator").Pop()).GetInterface<IEnumerator>();
+
+            enumerator.Next();
+            var v1 = enumerator.Value();
+            Assert.AreEqual(4, v1.GetBigInteger());
+
+            enumerator.Next();
+            var v2 = enumerator.Value();
+            Assert.AreEqual(6, v2.GetBigInteger());
+
+            enumerator.Next();
+            var v3 = enumerator.Value();
+            Assert.AreEqual(8, v3.GetBigInteger());
         }
     }
 }

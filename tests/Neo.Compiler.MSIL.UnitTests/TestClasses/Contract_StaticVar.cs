@@ -4,7 +4,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
     {
         static int a1 = 1;
 
-        public static object Main(string method, object[] args)
+        public static object Main()
         {
             testadd();
             testmulti();

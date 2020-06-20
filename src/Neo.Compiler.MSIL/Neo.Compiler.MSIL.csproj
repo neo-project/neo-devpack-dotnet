@@ -25,8 +25,8 @@
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.1" />
-    <PackageReference Include="Neo" Version="3.0.0-preview2-00" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.2" />
+    <PackageReference Include="Neo" Version="3.0.0-CI00938" />
   </ItemGroup>
 
   <ItemGroup>

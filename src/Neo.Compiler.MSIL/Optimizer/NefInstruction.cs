@@ -19,6 +19,7 @@ namespace Neo.Compiler.Optimizer
         private uint DataSize => DataPrefixSize > 0 ? (uint)(Data?.Length ?? 0) : GetOperandSize(OpCode);
 
         public byte[] Data { get; private set; }
+        public int OffsetInit { get; private set; }
         public int Offset { get; private set; }
         public string[] Labels { get; private set; }
 
@@ -46,10 +47,11 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        public NefInstruction(OpCode opCode, byte[] data = null, int offset = -1)
+        public NefInstruction(OpCode opCode, byte[] data, int offset)
         {
             SetOpCode(opCode);
             SetData(data);
+            OffsetInit = offset;
             SetOffset(offset);
         }
 
@@ -78,10 +80,18 @@ namespace Neo.Compiler.Optimizer
             if (AddressSize == 0)
                 throw new Exception("this data have not Addresses");
 
-            byte[] buf = new byte[4];
-            Array.Copy(Data, AddressSize * index, buf, 0, AddressSize);
-            var addr = BitConverter.ToInt32(buf, 0);
-            return addr;
+            switch (AddressSize)
+            {
+                // 1 byte is stored as signed byte
+                case 1: return (sbyte)Data[index];
+                case 4:
+                    {
+                        byte[] buf = new byte[4];
+                        Array.Copy(Data, AddressSize * index, buf, 0, AddressSize);
+                        return BitConverter.ToInt32(buf, 0);
+                    }
+                default: throw new Exception("this data have not a valid address");
+            }
         }
 
         public void SetAddressInData(int index, int addr)
@@ -151,6 +161,7 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ_L:
                 case OpCode.JMPGE_L:
                 case OpCode.JMPGT_L:
+                case OpCode.ENDTRY_L:
                     {
                         Labels = new string[1]; // is an address
                         if (oldlabels != null && oldlabels.Length >= 1)
@@ -158,8 +169,17 @@ namespace Neo.Compiler.Optimizer
                         AddressSize = 4; // 32 bit
                         break;
                     }
-                //TODO case OpCode.TRY_L: 32 + 32 bit
-                //TODO case OpCode.TRY: 8 + 8 bit
+                case OpCode.TRY_L:
+                    {
+                        Labels = new string[2]; // is an address
+                        if (oldlabels != null && oldlabels.Length >= 2)
+                        {
+                            Labels[0] = oldlabels[0];
+                            Labels[1] = oldlabels[1];
+                        }
+                        AddressSize = 4; // 32 bit
+                        break;
+                    }
                 case OpCode.CALL:
 
                 case OpCode.JMP:
@@ -171,10 +191,22 @@ namespace Neo.Compiler.Optimizer
                 case OpCode.JMPEQ:
                 case OpCode.JMPGE:
                 case OpCode.JMPGT:
+                case OpCode.ENDTRY:
                     {
                         Labels = new string[1]; // an address
                         if (oldlabels != null && oldlabels.Length >= 1)
                             Labels[0] = oldlabels[0];
+                        AddressSize = 1; //8 bit
+                        break;
+                    }
+                case OpCode.TRY:
+                    {
+                        Labels = new string[2]; // an address
+                        if (oldlabels != null && oldlabels.Length >= 2)
+                        {
+                            Labels[0] = oldlabels[0];
+                            Labels[1] = oldlabels[1];
+                        }
                         AddressSize = 1; //8 bit
                         break;
                     }

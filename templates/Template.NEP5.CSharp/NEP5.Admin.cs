@@ -6,7 +6,7 @@ namespace Template.NEP5.CSharp
 {
     public partial class NEP5 : SmartContract
     {
-        private static bool Deploy()
+        public static bool Deploy()
         {
             if (!Runtime.CheckWitness(Owner))
             {

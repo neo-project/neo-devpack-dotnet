@@ -162,17 +162,26 @@ namespace Neo.Compiler
                 module = conv.Convert(mod, option);
                 bytes = module.Build();
                 log.Log("convert succ");
-
+                Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
-                    var optimize = NefOptimizeTool.Optimize(bytes);
+                    module.ConvertFuncAddr();
+                    List<int> entryPoints = new List<int>();
+
+                    foreach (var func in module.mapMethods)
+                    {
+                        int srcaddr = func.Value.funcaddr;
+                        if (entryPoints.Contains(srcaddr) == false)
+                            entryPoints.Add(srcaddr);
+                    }
+                    var optimize = NefOptimizeTool.Optimize(bytes, entryPoints.ToArray(), out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
                     bytes = optimize;
                 }
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(module, bytes);
+                    var outjson = vmtool.FuncExport.Export(module, bytes, addrConvTable);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();
@@ -181,8 +190,8 @@ namespace Neo.Compiler
                 catch (Exception err)
                 {
                     log.Log("gen abi Error:" + err.ToString());
+                    return -1;
                 }
-
             }
             catch (Exception err)
             {

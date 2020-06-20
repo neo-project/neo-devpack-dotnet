@@ -2,7 +2,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_shift_bigint : SmartContract.Framework.SmartContract
     {
-        public static object Main(string method, object[] args)
+        public static object Main()
         {
             System.Numerics.BigInteger v = 8;
             var v1 = v << 0;
