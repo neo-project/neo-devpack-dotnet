@@ -64,10 +64,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Json.Serialize(some);
         }
 
-        public static object TestDeserialize(string a)
+        public static object TestDeserialize(string key)
         {
             Map<string, string> some = new Map<string, string>();
-            some[a] = "testdeserialize";
+            some[key] = "testdeserialize";
             string sea = Json.Serialize(some);
             return Json.Deserialize(sea);
         }
