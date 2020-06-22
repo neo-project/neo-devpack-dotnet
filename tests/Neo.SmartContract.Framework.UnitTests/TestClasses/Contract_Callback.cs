@@ -47,5 +47,5 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             return Callback.CreateFromSyscall(method).Invoke(new object[0]);
         }
-}
+    }
 }

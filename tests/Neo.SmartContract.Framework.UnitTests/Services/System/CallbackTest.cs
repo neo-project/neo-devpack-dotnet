@@ -59,7 +59,6 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(123, item.ToBigInteger());
         }
 
-
         [TestMethod]
         public void createFromSyscallTest()
         {

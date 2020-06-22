@@ -148,6 +148,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
+        protected override void OnFault(Exception e)
+        {
+            base.OnFault(e);
+            Console.WriteLine(e.ToString());
+        }
+
         public EvaluationStack ExecuteTestCase(params StackItem[] args)
         {
             //var engine = new ExecutionEngine();
