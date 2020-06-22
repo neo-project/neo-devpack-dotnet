@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using NEOSmartContract = Neo.SmartContract;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {

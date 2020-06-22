@@ -8,6 +8,11 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly byte[] ScriptHash;
 
         /// <summary>
+        /// Notification's name
+        /// </summary>
+        public readonly string EventName;
+
+        /// <summary>
         /// Notification's state
         /// </summary>
         public readonly object[] State;
