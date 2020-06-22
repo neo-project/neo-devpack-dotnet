@@ -306,12 +306,12 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual(1, testengine.Notifications.Count);
 
-            var item = testengine.Notifications.First().State;
+            var item = testengine.Notifications.First();
 
             Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(2, ((Array)item).Count);
-            Assert.AreEqual("dummyEvent", (((Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("neo", (((Array)item)[1] as ByteString).GetString());
+            Assert.AreEqual(1, item.State.Count);
+            Assert.AreEqual("dummyEvent", item.EventName);
+            Assert.AreEqual("neo", (item.State[0] as ByteString).GetString());
         }
 
         [TestMethod]
