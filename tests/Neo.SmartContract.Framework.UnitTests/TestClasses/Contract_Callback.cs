@@ -8,9 +8,9 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static int test() { return 123; }
 
-        public static void test2(object args)
+        public static object test2(object args)
         {
-            Runtime.Notify("test2", args);
+            return 123;
         }
 
         public static object createFromMethod(byte[] hash, string method)
@@ -25,17 +25,16 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object create()
         {
-            var action = new Action<object>(test2);
+            var action = new Func<object, object>(test2);
             return Callback.Create(action);
         }
 
         public static object createAndCall()
         {
-            var action = new Action<object>(test2);
+            var action = new Func<object, object>(test2);
             var callback = Callback.Create(action);
 
-            callback.Invoke(new object[] { null });
-            return callback;
+            return callback.Invoke(new object[] { null });
         }
 
         public static object createFromSyscall(string method)

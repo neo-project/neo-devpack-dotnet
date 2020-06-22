@@ -102,12 +102,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             var result = _engine.ExecuteTestCaseStandard("createAndCall");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(1, _engine.Notifications.Count);
 
             var item = result.Pop<Integer>();
-            Assert.IsInstanceOfType(item, typeof(InteropInterface));
-
-            Assert.AreEqual("test2", _engine.Notifications.First().EventName);
+            Assert.AreEqual(123, item.ToBigInteger());
         }
     }
 }
