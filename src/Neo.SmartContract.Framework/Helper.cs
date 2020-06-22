@@ -6,6 +6,7 @@ namespace Neo.SmartContract.Framework
     public static class Helper
     {
         internal const string StackItemType_Integer = "0x21";
+        internal const string StackItemType_ByteString = "0x28";
         internal const string StackItemType_Buffer = "0x30";
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts byte[] to string. Examples: [0x68656c6c6f] -> "hello"; [] -> ""; [0x4e656f] -> "Neo"
         /// </summary>
-        [Script]
+        [OpCode(OpCode.CONVERT, StackItemType_ByteString)]
         public extern static string AsString(this byte[] source);
 
         /// <summary>

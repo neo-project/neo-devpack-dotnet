@@ -122,6 +122,11 @@ namespace Neo.Compiler.MSIL
             {
                 Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
             }
+
+            if (method.paramtypes[pos].type == "System.Byte[]")
+            {
+                Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
+            }
         }
 
         private void ConvertStArg(OpCode src, NeoMethod to, int pos)

@@ -4,10 +4,10 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Enumerator : SmartContract.Framework.SmartContract
     {
-        public static int TestNext(byte[] a)
+        public static int TestNext(int[] a)
         {
             int sum = 0;
-            var enumerator = Enumerator<byte>.Create(a);
+            var enumerator = Enumerator<int>.Create(a);
 
             while (enumerator.Next())
             {
@@ -17,11 +17,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return sum;
         }
 
-        public static int TestConcat(byte[] a, byte[] b)
+        public static int TestConcat(int[] a, int[] b)
         {
             int sum = 0;
-            var enumeratorA = Enumerator<byte>.Create(a);
-            var enumeratorB = Enumerator<byte>.Create(b);
+            var enumeratorA = Enumerator<int>.Create(a);
+            var enumeratorB = Enumerator<int>.Create(b);
             var enumeratorC = enumeratorA.Concat(enumeratorB);
 
             while (enumeratorC.Next())
