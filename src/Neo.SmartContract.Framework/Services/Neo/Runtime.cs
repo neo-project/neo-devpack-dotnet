@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern bool CheckWitness(byte[] hashOrPubkey);
 
         [Syscall("System.Runtime.Notify")]
-        public static extern void Notify(params object[] state);
+        public static extern void Notify(string eventName, params object[] state);
 
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);

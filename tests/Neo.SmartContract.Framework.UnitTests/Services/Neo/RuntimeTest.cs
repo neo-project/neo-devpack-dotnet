@@ -218,8 +218,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             notifications.Clear();
             notifications.AddRange(new NotifyEventArgs[]
             {
-                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
-                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+                new NotifyEventArgs(null, UInt160.Zero,"", new VM.Types.Array(new StackItem[]{ new Integer(0x01)})),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[]{ new Integer(0x02)}))
             });
 
             var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
@@ -245,8 +245,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             notifications.Clear();
             notifications.AddRange(new NotifyEventArgs[]
             {
-                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
-                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+                new NotifyEventArgs(null, UInt160.Zero,"", new VM.Types.Array(new StackItem[]{ new Integer(0x01)})),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[]{ new Integer(0x02)}))
             });
 
             var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));

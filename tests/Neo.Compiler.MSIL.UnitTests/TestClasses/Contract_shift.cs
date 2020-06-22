@@ -9,10 +9,10 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             var v2 = v << -1;
             var v3 = v >> 1;
             var v4 = v >> -1;
-            SmartContract.Framework.Services.Neo.Runtime.Notify(v1);
-            SmartContract.Framework.Services.Neo.Runtime.Notify(v2);
-            SmartContract.Framework.Services.Neo.Runtime.Notify(v3);
-            SmartContract.Framework.Services.Neo.Runtime.Notify(v4);
+            SmartContract.Framework.Services.Neo.Runtime.Notify("1", v1);
+            SmartContract.Framework.Services.Neo.Runtime.Notify("2", v2);
+            SmartContract.Framework.Services.Neo.Runtime.Notify("3", v3);
+            SmartContract.Framework.Services.Neo.Runtime.Notify("4", v4);
             return false;
         }
     }

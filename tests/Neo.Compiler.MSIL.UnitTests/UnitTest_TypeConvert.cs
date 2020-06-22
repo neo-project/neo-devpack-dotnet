@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testType");
 
             //test 0,1,2
-            Assert.IsTrue(result.TryPop(out Array arr));
+            var arr = result.Pop<Array>();
             Assert.IsTrue(arr[0].Type == StackItemType.Integer);
             Assert.IsTrue(arr[1].Type == StackItemType.Buffer);
             Assert.IsTrue((arr[1].ConvertTo(StackItemType.ByteString) as PrimitiveType).ToBigInteger() == (arr[0] as PrimitiveType).ToBigInteger());
