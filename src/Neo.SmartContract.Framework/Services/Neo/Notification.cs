@@ -10,6 +10,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// <summary>
         /// Notification's state
         /// </summary>
-        public readonly object State;
+        public readonly object[] State;
     }
 }
