@@ -35,7 +35,6 @@ namespace Template.NEP5.CSharp
                 Error("No authorization.");
                 return false;
             }
-
             if (AssetStorage.Get(from) < amount)
             {
                 Error("Insufficient balance.");
