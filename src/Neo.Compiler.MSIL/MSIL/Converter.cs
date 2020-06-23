@@ -148,7 +148,7 @@ namespace Neo.Compiler.MSIL
                 logger.Log("Insert _initialize().");
             }
 
-            var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type.attributes.ToArray()).FirstOrDefault();
+            var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type?.attributes.ToArray()).FirstOrDefault();
             if (attr?.Length > 0)
             {
                 outModule.attributes.AddRange(attr);
@@ -431,8 +431,8 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.NOP, src, to);
                     break;
                 case CodeEx.Ret:
-                    //return was handled outside
-                    Insert1(VM.OpCode.RET, null, to);
+                    // return was handled outside
+                    Convert1by1(VM.OpCode.RET, src, to);
                     break;
                 case CodeEx.Pop:
                     Convert1by1(VM.OpCode.DROP, src, to);
