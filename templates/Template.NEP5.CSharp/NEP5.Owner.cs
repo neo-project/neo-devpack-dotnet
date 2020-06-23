@@ -12,7 +12,6 @@ namespace Template.NEP5.CSharp
             if (!IsOwner()) throw new Exception("No authorization.");
             if (TotalSupplyStorage.Get() > 0) throw new Exception("Contract has been deployed.");
 
-
             TotalSupplyStorage.Increase(InitialSupply);
 
             OnTransfer(null, Owner, InitialSupply);
