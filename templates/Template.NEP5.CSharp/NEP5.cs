@@ -25,8 +25,6 @@ namespace Template.NEP5.CSharp
         #region Notifications
         [DisplayName("Transfer")]
         public static event Action<byte[], byte[], BigInteger> OnTransfer;
-
-        public static event Action<string> Error;
         #endregion
 
         // When this contract address is included in the transaction signature,

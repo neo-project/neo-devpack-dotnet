@@ -9,17 +9,9 @@ namespace Template.NEP5.CSharp
     {
         public static bool Deploy()
         {
-            if (!IsOwner())
-            {
-                Error("No authorization.");
-                return false;
-            }
+            if (!IsOwner()) throw new Exception("No authorization.");
+            if (TotalSupplyStorage.Get() > 0) throw new Exception("Contract has been deployed.");
 
-            if (TotalSupplyStorage.Get() > 0)
-            {
-                Error("Contract has been deployed.");
-                return false;
-            }
 
             TotalSupplyStorage.Increase(InitialSupply);
 
@@ -29,11 +21,7 @@ namespace Template.NEP5.CSharp
 
         public static bool Migrate(byte[] script, string manifest)
         {
-            if (!IsOwner())
-            {
-                Error("No authorization.");
-                return false;
-            }
+            if (!IsOwner()) throw new Exception("No authorization.");
             if (script.Length == 0 || manifest.Length == 0) return false;
             if (script != null && script.Equals(Blockchain.GetContract(ExecutionEngine.ExecutingScriptHash))) return true;
             Contract.Update(script, manifest);
@@ -42,12 +30,7 @@ namespace Template.NEP5.CSharp
 
         public static bool Destroy()
         {
-            if (!IsOwner())
-            {
-                Error("No authorization.");
-                return false;
-            }
-
+            if (!IsOwner()) throw new Exception("No authorization.");
             Contract.Destroy();
             return true;
         }

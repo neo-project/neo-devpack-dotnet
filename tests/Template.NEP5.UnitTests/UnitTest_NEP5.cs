@@ -28,7 +28,7 @@ namespace Template.NEP5.UnitTests
             engine.AddEntryScript(new string[]
             {
                 "../../../../../templates/Template.NEP5.CSharp/NEP5.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Admin.cs",
+                "../../../../../templates/Template.NEP5.CSharp/NEP5.Owner.cs",
                 "../../../../../templates/Template.NEP5.CSharp/NEP5.Crowdsale.cs",
                 "../../../../../templates/Template.NEP5.CSharp/NEP5.Helpers.cs",
                 "../../../../../templates/Template.NEP5.CSharp/NEP5.Methods.cs"

@@ -25,18 +25,10 @@ namespace Template.NEP5.CSharp
 
         public static bool Mint()
         {
-            if (Runtime.InvocationCounter != 1)
-            {
-                Error("InvocationCounter must be 1.");
-                return false;
-            }
+            if (Runtime.InvocationCounter != 1) throw new Exception("InvocationCounter must be 1.");
 
             var notifications = Runtime.GetNotifications();
-            if (notifications.Length == 0)
-            {
-                Error("Contribution transaction not found.");
-                return false;
-            }
+            if (notifications.Length == 0) throw new Exception("Contribution transaction not found.");
 
             BigInteger neo = 0;
             BigInteger gas = 0;
@@ -56,25 +48,13 @@ namespace Template.NEP5.CSharp
             }
 
             var totalSupply = TotalSupplyStorage.Get();
-            if (totalSupply <= 0)
-            {
-                Error("Contract not deployed.");
-                return false;
-            }
+            if (totalSupply <= 0) throw new Exception("Contract not deployed.");
 
             var avaliable_supply = MaxSupply - totalSupply;
 
             var contribution = (neo * TokensPerNEO) + (gas * TokensPerGAS);
-            if (contribution <= 0)
-            {
-                Error("Contribution cannot be zero.");
-                return false;
-            }
-            if (contribution > avaliable_supply)
-            {
-                Error("Insufficient supply for mint tokens.");
-                return false;
-            }
+            if (contribution <= 0) throw new Exception("Contribution cannot be zero.");
+            if (contribution > avaliable_supply) throw new Exception("Insufficient supply for mint tokens.");
 
             Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
             AssetStorage.Increase(tx.Sender, contribution);
