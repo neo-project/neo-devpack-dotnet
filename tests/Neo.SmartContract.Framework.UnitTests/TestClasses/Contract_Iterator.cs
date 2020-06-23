@@ -33,11 +33,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return sum;
         }
 
-        public static int TestConcatMap(Map<int, int> a, Map<int, int> b)
+        public static int TestConcatMap(Map<byte, byte> a, Map<byte, byte> b)
         {
             int sum = 0;
-            var iteratorA = Iterator<int, int>.Create(a);
-            var iteratorB = Iterator<int, int>.Create(b);
+            var iteratorA = Iterator<byte, byte>.Create(a);
+            var iteratorB = Iterator<byte, byte>.Create(b);
             var iteratorC = iteratorA.Concat(iteratorB);
 
             while (iteratorC.Next())
@@ -49,11 +49,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return sum;
         }
 
-        public static int TestConcatKeys(Map<int, int> a, Map<int, int> b)
+        public static int TestConcatKeys(Map<byte, byte> a, Map<byte, byte> b)
         {
             int sum = 0;
-            var iteratorA = Iterator<int, int>.Create(a);
-            var iteratorB = Iterator<int, int>.Create(b);
+            var iteratorA = Iterator<byte, byte>.Create(a);
+            var iteratorB = Iterator<byte, byte>.Create(b);
             var iteratorC = iteratorA.Concat(iteratorB);
             var enumerator = iteratorC.Keys;
 
@@ -65,11 +65,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return sum;
         }
 
-        public static int TestConcatValues(Map<int, int> a, Map<int, int> b)
+        public static int TestConcatValues(Map<byte, byte> a, Map<byte, byte> b)
         {
             int sum = 0;
-            var iteratorA = Iterator<int, int>.Create(a);
-            var iteratorB = Iterator<int, int>.Create(b);
+            var iteratorA = Iterator<byte, byte>.Create(a);
+            var iteratorB = Iterator<byte, byte>.Create(b);
             var iteratorC = iteratorA.Concat(iteratorB);
             var enumerator = iteratorC.Values;
 
