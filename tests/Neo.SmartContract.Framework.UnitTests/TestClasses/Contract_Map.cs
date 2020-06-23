@@ -17,14 +17,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static object TestByteArray2(byte[] key)
         {
             Map<string, string> some = new Map<string, string>();
-            some[key.AsString()] = "teststring2";
+            some[key.ToByteString()] = "teststring2";
             return Json.Serialize(some);
         }
 
         public static string TestByteArray3()
         {
             Map<string, string> some = new Map<string, string>();
-            string key = new byte[] { 0x01, 0x01 }.AsString();
+            string key = new byte[] { 0x01, 0x01 }.ToByteString();
             some[key] = Json.Serialize("");
             return Json.Serialize(some);
         }
