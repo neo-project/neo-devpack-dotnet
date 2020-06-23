@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Framework
         /// Converts byte[] to string. Examples: [0x68656c6c6f] -> "hello"; [] -> ""; [0x4e656f] -> "Neo"
         /// </summary>
         [OpCode(OpCode.CONVERT, StackItemType_ByteString)]
-        public extern static string AsString(this byte[] source);
+        public extern static string ToByteString(this byte[] source);
 
         /// <summary>
         /// Returns true iff a <= x && x < b. Examples: x=5 a=5 b=15 is true; x=15 a=5 b=15 is false
