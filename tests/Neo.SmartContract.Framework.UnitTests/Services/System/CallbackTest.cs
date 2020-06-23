@@ -3,6 +3,7 @@ using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
 using Neo.SmartContract;
+using Neo.SmartContract.Framework.Services.System;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -63,7 +64,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void createFromSyscallTest()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("createFromSyscall", "System.Blockchain.GetHeight");
+            var result = _engine.ExecuteTestCaseStandard("createFromSyscall", (uint)SyscallCallback.System_Blockchain_GetHeight);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -75,7 +76,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void createAndCallFromSyscallTest()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("createAndCallFromSyscall", "System.Blockchain.GetHeight");
+            var result = _engine.ExecuteTestCaseStandard("createAndCallFromSyscall", (uint)SyscallCallback.System_Blockchain_GetHeight);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

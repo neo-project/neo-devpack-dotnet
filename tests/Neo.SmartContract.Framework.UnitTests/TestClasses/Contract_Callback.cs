@@ -37,14 +37,14 @@ namespace Neo.Compiler.MSIL.TestClasses
             return callback.Invoke(new object[] { null });
         }
 
-        public static object createFromSyscall(string method)
+        public static object createFromSyscall(uint method)
         {
-            return Callback.CreateFromSyscall(method);
+            return Callback.CreateFromSyscall((SyscallCallback)method);
         }
 
-        public static object createAndCallFromSyscall(string method)
+        public static object createAndCallFromSyscall(uint method)
         {
-            return Callback.CreateFromSyscall(method).Invoke(new object[0]);
+            return Callback.CreateFromSyscall((SyscallCallback)method).Invoke(new object[0]);
         }
     }
 }

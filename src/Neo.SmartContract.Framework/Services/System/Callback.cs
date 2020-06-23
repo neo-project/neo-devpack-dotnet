@@ -17,11 +17,7 @@ namespace Neo.SmartContract.Framework.Services.System
         [Syscall("System.Callback.CreateFromMethod")]
         public static extern Callback CreateFromMethod(byte[] hash, string method);
 
-        [Syscall("Neo.Crypto.SHA256")]
-        [OpCode(OpCode.PUSH4)]
-        [OpCode(OpCode.LEFT)]
-        [OpCode(OpCode.CONVERT, Helper.StackItemType_Integer)]
         [Syscall("System.Callback.CreateFromSyscall")]
-        public static extern Callback CreateFromSyscall(string syscalls);
+        public static extern Callback CreateFromSyscall(SyscallCallback method);
     }
 }
