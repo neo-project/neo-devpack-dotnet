@@ -26,11 +26,17 @@ namespace Template.NEP5.CSharp
         public static bool Mint()
         {
             if (Runtime.InvocationCounter != 1)
-                throw new Exception();
+            {
+                Error("InvocationCounter must be 1.");
+                return false;
+            }
 
             var notifications = Runtime.GetNotifications();
             if (notifications.Length == 0)
-                throw new Exception("Contribution transaction not found");
+            {
+                Error("Contribution transaction not found.");
+                return false;
+            }
 
             BigInteger neo = 0;
             BigInteger gas = 0;
@@ -49,27 +55,32 @@ namespace Template.NEP5.CSharp
                 }
             }
 
-            StorageMap contract = Storage.CurrentContext.CreateMap(StoragePrefixContract);
-            var supply = contract.Get("totalSupply");
-            if (supply == null)
-                throw new Exception("Contract not deployed");
+            var totalSupply = TotalSupplyStorage.Get();
+            if (totalSupply <= 0)
+            {
+                Error("Contract not deployed.");
+                return false;
+            }
 
-            var current_supply = supply.ToBigInteger();
-            var avaliable_supply = MaxSupply - current_supply;
+            var avaliable_supply = MaxSupply - totalSupply;
 
             var contribution = (neo * TokensPerNEO) + (gas * TokensPerGAS);
             if (contribution <= 0)
-                throw new Exception();
+            {
+                Error("Contribution cannot be zero.");
+                return false;
+            }
             if (contribution > avaliable_supply)
-                throw new Exception();
+            {
+                Error("Insufficient supply for mint tokens.");
+                return false;
+            }
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(StoragePrefixBalance);
             Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
-            var balance = balances.Get(tx.Sender)?.ToBigInteger() ?? 0;
-            balances.Put(tx.Sender, balance + contribution);
-            contract.Put("totalSupply", current_supply + contribution);
+            AssetStorage.Increase(tx.Sender, contribution);
+            TotalSupplyStorage.Increase(contribution);
 
-            OnTransfer(null, tx.Sender, balance + contribution);
+            OnTransfer(null, tx.Sender, contribution);
             return true;
         }
     }
