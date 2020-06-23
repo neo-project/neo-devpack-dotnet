@@ -38,6 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 if (syscall.Value.Name == "Neo.Native.Tokens.GAS") continue;
                 if (syscall.Value.Name == "Neo.Native.Policy") continue;
                 if (syscall.Value.Name == "Neo.Native.Call") continue;
+                if (syscall.Value.Name == "System.Runtime.Notify") continue;
 
                 if (list.Remove(syscall.Value.Name)) continue;
 

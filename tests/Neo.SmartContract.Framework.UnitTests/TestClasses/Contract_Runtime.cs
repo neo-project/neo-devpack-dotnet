@@ -34,11 +34,6 @@ namespace Neo.Compiler.MSIL.TestClasses
             Runtime.Log(message);
         }
 
-        public static void Notify(string message)
-        {
-            Runtime.Notify(message, new object[0]);
-        }
-
         public static bool CheckWitness(byte[] hashOrPubkey)
         {
             return Runtime.CheckWitness(hashOrPubkey);

@@ -193,24 +193,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
-        public void Test_Notify()
-        {
-            var list = new List<NotifyEventArgs>();
-            var method = new EventHandler<NotifyEventArgs>((s, e) => list.Add(e));
-
-            ApplicationEngine.Notify += method;
-            var result = _engine.ExecuteTestCaseStandard("notify", new ByteString(Encoding.UTF8.GetBytes("NotifyTest")));
-            ApplicationEngine.Notify -= method;
-
-            Assert.AreEqual(1, list.Count);
-
-            var item = list[0];
-            var array = item.State;
-            Assert.AreEqual("NotifyTest", item.EventName);
-            Assert.AreEqual(0, item.State.Count);
-        }
-
-        [TestMethod]
         public void Test_GetNotificationsCount()
         {
             var notifications = ((List<NotifyEventArgs>)_engine.Notifications);
