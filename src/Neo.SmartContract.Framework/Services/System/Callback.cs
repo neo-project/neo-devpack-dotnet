@@ -9,6 +9,11 @@ namespace Neo.SmartContract.Framework.Services.System
 
         // Static
 
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.SWAP)]
+        [Syscall("System.Callback.Create")]
+        public static extern Callback Create(Action action);
+
         [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Callback.Create")]

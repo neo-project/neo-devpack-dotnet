@@ -107,5 +107,31 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             var item = result.Pop<Integer>();
             Assert.AreEqual(123, item.ToBigInteger());
         }
+
+
+        [TestMethod]
+        public void createActionTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("createAction");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(InteropInterface));
+        }
+
+        [TestMethod]
+        public void createActionAndCallTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("createActionAndCall");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            result.Pop<Null>();
+
+            Assert.AreEqual(1, _engine.Notifications.Count);
+            Assert.AreEqual("test3", _engine.Notifications[0].State[0].GetString());
+        }
     }
 }
