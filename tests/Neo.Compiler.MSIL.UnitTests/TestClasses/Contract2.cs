@@ -5,10 +5,8 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     public class Contract2 : SmartContract.Framework.SmartContract
     {
-        public delegate void mydelegate(object arg);
-
         [DisplayName("event")]
-        public static event mydelegate notify;
+        public static event Action<object> notify;
 
         public static byte UnitTest_002(object arg1, object arg2)
         {

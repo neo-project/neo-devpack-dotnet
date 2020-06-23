@@ -1,13 +1,12 @@
+using System;
 using System.ComponentModel;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_shift_bigint : SmartContract.Framework.SmartContract
     {
-        public delegate void mydelegate(System.Numerics.BigInteger arg);
-
         [DisplayName("event")]
-        public static event mydelegate notify;
+        public static event Action<System.Numerics.BigInteger> notify;
 
         public static object Main()
         {

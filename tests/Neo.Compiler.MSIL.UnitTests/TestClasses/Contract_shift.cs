@@ -1,13 +1,12 @@
+using System;
 using System.ComponentModel;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_shift : SmartContract.Framework.SmartContract
     {
-        public delegate void mydelegate(int arg);
-
         [DisplayName("event")]
-        public static event mydelegate notify;
+        public static event Action<int> notify;
 
         public static object Main()
         {
