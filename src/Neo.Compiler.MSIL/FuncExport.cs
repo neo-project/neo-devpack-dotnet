@@ -18,6 +18,7 @@ namespace vmtool
                 case "System.Boolean":
                     return "Boolean";
 
+                case "System.Char":
                 case "System.Byte":
                 case "System.SByte":
                 case "System.Int16":
@@ -61,6 +62,8 @@ namespace vmtool
                 return "Array";
             if (type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
                 return "InteropInterface";
+            if (type.Contains("System.ValueTuple`"))
+                return "Array";
 
             return "Unknown:" + type;
         }

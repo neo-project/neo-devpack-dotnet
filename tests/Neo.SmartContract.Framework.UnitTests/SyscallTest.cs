@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
-using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -19,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
             {
                 var expectedType = typeof(SyscallAttribute).FullName;
-                var module = Mono.Cecil.ModuleDefinition.ReadModule(stream);
+                var module = ModuleDefinition.ReadModule(stream);
 
                 foreach (var type in module.Types)
                 {
