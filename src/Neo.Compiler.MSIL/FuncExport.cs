@@ -8,9 +8,9 @@ namespace vmtool
 {
     public class FuncExport
     {
-        static string ConvType(string _type)
+        static string ConvType(string type)
         {
-            switch (_type)
+            switch (type)
             {
                 case "__Signature":
                     return "Signature";
@@ -57,12 +57,12 @@ namespace vmtool
                 case "System.Object":
                     return "ByteArray";
             }
-            if (_type.Contains("[]"))
+            if (type.Contains("[]"))
                 return "Array";
-            if (_type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
+            if (type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
                 return "InteropInterface";
 
-            return "Unknown:" + _type;
+            return "Unknown:" + type;
         }
 
         public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
@@ -122,6 +122,11 @@ namespace vmtool
                 }
 
                 var rtype = ConvType(mm.returntype);
+                if (rtype.StartsWith("Unknown:"))
+                {
+                    throw new Exception($"Unknown return type '{mm.returntype}' for method {function.Value.name} ");
+                }
+
                 funcsign.SetDictValue("returnType", rtype);
             }
 
