@@ -124,7 +124,7 @@ namespace vmtool
                 var rtype = ConvType(mm.returntype);
                 if (rtype.StartsWith("Unknown:"))
                 {
-                    throw new Exception($"Unknown return type '{mm.returntype}' for method {function.Value.name} ");
+                    throw new Exception($"Unknown return type '{mm.returntype}' for method '{function.Value.name}'");
                 }
 
                 funcsign.SetDictValue("returnType", rtype);
