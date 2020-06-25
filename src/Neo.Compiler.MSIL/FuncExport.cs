@@ -58,11 +58,11 @@ namespace vmtool
                 case "System.Object":
                     return "ByteArray";
             }
-            if (type.StartWith("System.Action") || type.StartWith("System.Func") || type.StartWith("System.Delegate"))
+            if (type.StartsWith("System.Action") || type.StartsWith("System.Func") || type.StartsWith("System.Delegate"))
                 return $"Unknown:Pointers are not allowed to be public '{type}'";
-            if (type.StartWith("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
+            if (type.StartsWith("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
                 return "InteropInterface";
-            if (type.StartWith("System.ValueTuple`") || type.Contains("[]"))
+            if (type.StartsWith("System.ValueTuple`") || type.Contains("[]"))
                 return "Array";
 
             return "Unknown:" + type;
