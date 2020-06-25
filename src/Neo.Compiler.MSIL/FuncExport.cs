@@ -58,11 +58,11 @@ namespace vmtool
                 case "System.Object":
                     return "ByteArray";
             }
-            if (type.Contains("[]"))
-                return "Array";
-            if (type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
+            if (type.StartWith("System.Action") || type.StartWith("System.Func"))
+                return "Unknown:" + type;
+            if (type.StartWith("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
                 return "InteropInterface";
-            if (type.Contains("System.ValueTuple`"))
+            if (type.StartWith("System.ValueTuple`") || type.Contains("[]"))
                 return "Array";
 
             return "Unknown:" + type;
