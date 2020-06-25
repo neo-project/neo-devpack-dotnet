@@ -58,8 +58,8 @@ namespace vmtool
                 case "System.Object":
                     return "ByteArray";
             }
-            if (type.StartWith("System.Action") || type.StartWith("System.Func"))
-                return "Unknown:" + type;
+            if (type.StartWith("System.Action") || type.StartWith("System.Func") || type.StartWith("System.Delegate"))
+                return $"Unknown:Pointers are not allowed to be public '{type}'";
             if (type.StartWith("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
                 return "InteropInterface";
             if (type.StartWith("System.ValueTuple`") || type.Contains("[]"))
