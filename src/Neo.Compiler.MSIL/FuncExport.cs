@@ -1,15 +1,16 @@
-using Neo.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace vmtool
+namespace Neo.Compiler
 {
     public class FuncExport
     {
-        static string ConvType(string type)
+        internal static string ConvType(string type)
         {
+            if (type == null) return "Null";
+
             switch (type)
             {
                 case "__Signature":
@@ -62,7 +63,7 @@ namespace vmtool
                 return $"Unknown:Pointers are not allowed to be public '{type}'";
             if (type.StartsWith("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
                 return "InteropInterface";
-            if (type.StartsWith("System.ValueTuple`") || type.Contains("[]"))
+            if (type.StartsWith("System.ValueTuple`") || type.StartsWith("System.Tuple`") || type.Contains("[]"))
                 return "Array";
 
             return "Unknown:" + type;
