@@ -1,3 +1,4 @@
+using Neo.Compiler.MSIL.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -5,6 +6,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -42,7 +45,21 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                if (Path.GetExtension(filename) == ".nef")
+                {
+                    var fileNameManifest = filename;
+                    BinaryReader reader = new BinaryReader(File.Open(filename, FileMode.Open));
+                    NefFile neffile = new NefFile();
+                    neffile.Deserialize(reader);
+                    fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
+                    string manifestFile = File.ReadAllText(fileNameManifest);
+                    BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
+                    scriptsAll[filename] = buildScriptNef;
+                }
+                else
+                {
+                    scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                }
             }
 
             return scriptsAll[filename];
@@ -114,6 +131,16 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
+            try
+            {
+                var entrypoint = this.ScriptEntry.finialABI.GetDictItem("entryPoint");
+                var method = entrypoint as MyJson.JsonNode_Object;
+                if (method.GetDictItem("name").ToString() == methodname)
+                    return int.Parse(method.GetDictItem("offset").ToString());
+            }
+            catch (System.Collections.Generic.KeyNotFoundException e)
+            {
+            }
             var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
             foreach (var item in methods)
             {
@@ -121,6 +148,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 if (method.GetDictItem("name").ToString() == methodname)
                     return int.Parse(method.GetDictItem("offset").ToString());
             }
+
             return -1;
         }
 
