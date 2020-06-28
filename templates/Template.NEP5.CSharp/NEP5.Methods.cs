@@ -10,7 +10,11 @@ namespace Template.NEP5.CSharp
     {
         public static BigInteger TotalSupply() => TotalSupplyStorage.Get();
 
-        public static BigInteger BalanceOf(byte[] account) => AssetStorage.Get(account);
+        public static BigInteger BalanceOf(byte[] account)
+        {
+            if (!ValidateAddress(account)) throw new Exception("The parameters account SHOULD be 20-byte addresses.");
+            return AssetStorage.Get(account);
+        }
 
         public static bool Transfer(byte[] from, byte[] to, BigInteger amount)
         {
@@ -19,7 +23,7 @@ namespace Template.NEP5.CSharp
             if (!IsPayable(to)) throw new Exception("Receiver cannot receive.");
             if (!Runtime.CheckWitness(from) && !from.Equals(ExecutionEngine.CallingScriptHash)) throw new Exception("No authorization.");
             if (AssetStorage.Get(from) < amount) throw new Exception("Insufficient balance.");
-            if (amount == 0 || from == to) return true;
+            if (from == to) return true;
 
             AssetStorage.Reduce(from, amount);
             AssetStorage.Increase(to, amount);
