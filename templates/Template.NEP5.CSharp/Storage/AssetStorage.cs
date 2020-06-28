@@ -13,9 +13,13 @@ namespace Template.NEP5.CSharp
         {
             var oldValue = Get(key);
             if (oldValue == value)
+            {
                 Remove(key);
+            }
             else
-                Put(key, Get(key) - value);
+            {
+                Put(key, oldValue - value);
+            }
         }
 
         public static void Put(byte[] key, BigInteger value) => Storage.CurrentContext.CreateMap(mapName).Put(key, value);
