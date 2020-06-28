@@ -8,11 +8,11 @@ namespace Neo.Compiler
 {
     public class FuncExport
     {
-        public static readonly TypeReference Void = null;
+        public static readonly TypeReference Void = new TypeReference("System", "Void", ModuleDefinition.ReadModule(typeof(object).Assembly.Location, new ReaderParameters(ReadingMode.Immediate)), null);
 
         internal static string ConvType(TypeReference t)
         {
-            if (t == Void) return "Void";
+            if (t == null) return "Null";
 
             var type = t.FullName;
 
@@ -58,6 +58,9 @@ namespace Neo.Compiler
 
                 case "IInteropInterface":
                     return "InteropInterface";
+
+                case "System.Void":
+                    return "Void";
 
                 case "System.Object":
                     return "ByteArray";

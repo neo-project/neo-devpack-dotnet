@@ -12,6 +12,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void ConvTypeTest()
         {
             Assert.AreEqual("Null", FuncExport.ConvType(null));
+            Assert.AreEqual("Void", FuncExport.ConvType(FuncExport.Void));
             Assert.AreEqual("String", FuncExport.ConvType(Convert(typeof(string))));
             Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(BigInteger))));
             Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(char))));
