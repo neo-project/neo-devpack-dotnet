@@ -23,7 +23,7 @@ namespace Template.NEP5.CSharp
         {
             if (!IsOwner()) throw new Exception("No authorization.");
             if (script.Length == 0 || manifest.Length == 0) return false;
-            if (script != null && script.Equals(Blockchain.GetContract(ExecutionEngine.ExecutingScriptHash))) return true;
+            if (script != null && script.Equals(Blockchain.GetContract(ExecutionEngine.ExecutingScriptHash).Script)) return true;
             Contract.Update(script, manifest);
             return true;
         }
