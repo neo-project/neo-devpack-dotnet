@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,30 @@ namespace Neo.Compiler
 {
     public class FuncExport
     {
-        internal static string ConvType(string type)
+        public static readonly TypeReference Void = null;
+
+        internal static string ConvType(TypeReference t)
         {
-            if (type == null) return "Null";
+            if (t == Void) return "Void";
+
+            var type = t.FullName;
+
+            try
+            {
+                foreach (var i in t.Resolve().Interfaces)
+                {
+                    if (i.InterfaceType.Name == "IApiInterface")
+                    {
+                        return "IInteropInterface";
+                    }
+                }
+            }
+            catch
+            {
+            }
 
             switch (type)
             {
-                case "__Signature":
-                    return "Signature";
-
                 case "System.Boolean":
                     return "Boolean";
 
@@ -31,17 +47,8 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger":
                     return "Integer";
 
-                case "__Hash160":
-                    return "Hash160";
-
-                case "__Hash256":
-                    return "Hash256";
-
                 case "System.Byte[]":
                     return "ByteArray";
-
-                case "__PublicKey":
-                    return "PublicKey";
 
                 case "System.String":
                     return "String";
@@ -49,12 +56,8 @@ namespace Neo.Compiler
                 case "System.Object[]":
                     return "Array";
 
-                case "__InteropInterface":
                 case "IInteropInterface":
                     return "InteropInterface";
-
-                case "System.Void":
-                    return "Void";
 
                 case "System.Object":
                     return "ByteArray";
@@ -116,12 +119,11 @@ namespace Neo.Compiler
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var ptype = ConvType(v.type);
                         var item = new MyJson.JsonNode_Object();
                         funcparams.Add(item);
 
                         item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ptype);
+                        item.SetDictValue("type", ConvType(v.type));
                     }
                 }
 
@@ -150,12 +152,11 @@ namespace Neo.Compiler
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var ptype = ConvType(v.type);
                         var item = new MyJson.JsonNode_Object();
                         funcparams.Add(item);
 
                         item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ptype);
+                        item.SetDictValue("type", ConvType(v.type));
                     }
                 }
                 //event do not have returntype in nep3
