@@ -38,7 +38,8 @@ namespace Neo.Compiler.MSIL.UnitTests
 
         private TypeReference Convert(Type type)
         {
-            return new TypeReference(type.Namespace, type.Name, ModuleDefinition.ReadModule(type.Assembly.Location, new ReaderParameters(ReadingMode.Immediate)), null);
+            var a = AssemblyDefinition.ReadAssembly(type.Assembly.Location);
+            return a.MainModule.ImportReference(type);
         }
     }
 }
