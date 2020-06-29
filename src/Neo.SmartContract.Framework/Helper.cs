@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts byte array to BigInteger
         /// </summary>
-        public static BigInteger AsBigInteger(this byte[] value)
+        public static BigInteger ToBigInteger(this byte[] value)
         {
             return value?.ToBigInteger() ?? 0;
         }

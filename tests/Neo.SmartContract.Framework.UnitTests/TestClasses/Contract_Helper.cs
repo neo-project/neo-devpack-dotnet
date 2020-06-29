@@ -19,9 +19,9 @@ namespace Compiler.MSIL.TestClasses
             return 5;
         }
 
-        public static BigInteger TestAsBigInteger(byte[] data)
+        public static BigInteger TestToBigInteger(byte[] data)
         {
-            return data.AsBigInteger();
+            return data.ToBigInteger();
         }
 
         public static void VoidAssertCall(bool value)

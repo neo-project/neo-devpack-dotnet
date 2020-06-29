@@ -32,12 +32,12 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestAsBigInteger()
+        public void TestToBigInteger()
         {
             // 0
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testAsBigInteger", StackItem.Null);
+            var result = _engine.ExecuteTestCaseStandard("testToBigInteger", StackItem.Null);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(0, item.GetBigInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testAsBigInteger", new ByteString(new byte[0]));
+            result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(new byte[0]));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Value
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testAsBigInteger", new ByteString(new byte[] { 123 }));
+            result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(new byte[] { 123 }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
