@@ -6,6 +6,8 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Blockchain : SmartContract.Framework.SmartContract
     {
+        public static bool IsPayable(byte[] to) => Blockchain.GetContract(to)?.IsPayable ?? true;
+
         public static uint GetHeight()
         {
             return Blockchain.GetHeight();

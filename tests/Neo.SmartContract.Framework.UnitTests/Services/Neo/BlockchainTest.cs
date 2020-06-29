@@ -339,14 +339,25 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             };
             _engine.Snapshot.Contracts.GetOrAdd(contract.ScriptHash, () => contract);
 
-            // Not found
+            // IsPayable
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(UInt160.Zero.ToArray()), new ByteString(new byte[0]));
+            var result = _engine.ExecuteTestCaseStandard("isPayable", new ByteString(UInt160.Zero.ToArray()));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.IsTrue((item as Boolean).ToBoolean());
+
+            // Not found
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(UInt160.Zero.ToArray()), new ByteString(new byte[0]));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Null));
 
             // Found + HasStorage
