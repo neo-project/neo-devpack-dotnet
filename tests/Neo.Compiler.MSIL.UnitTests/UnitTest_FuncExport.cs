@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(ulong))));
             Assert.AreEqual("Boolean", FuncExport.ConvType(Convert(typeof(bool))));
             Assert.AreEqual("ByteArray", FuncExport.ConvType(Convert(typeof(byte[]))));
-            Assert.AreEqual("ByteArray", FuncExport.ConvType(Convert(typeof(object))));
+            Assert.AreEqual("Any", FuncExport.ConvType(Convert(typeof(object))));
             Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(object[]))));
             Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(int[]))));
             Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(bool[]))));
