@@ -7,25 +7,43 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class UnitTest_Invoke
     {
+        public UnitTest_Invoke()
+        {
+            var option = new Program.Options();
+            option.File = "./TestClasses/Contract_InvokeCsNef.cs";
+            Program.Compile(option);
+        }
+
         [TestMethod]
-        public void Test_Invoke()
+        public void Test_Return_Integer()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Invoke.nef");
-            var result = testengine.GetMethod("Main").Run();
+            testengine.AddEntryScript("./Contract_InvokeCsNef.nef");
+            var result = testengine.GetMethod("returnInteger").Run();
 
             Integer wantresult = 42;
             Assert.IsTrue(wantresult.Equals(result));
         }
 
         [TestMethod]
-        public void Test_InvokeCsNef()
+        public void Test_Return_String()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_InvokeCsNef.nef");
-            var result = testengine.GetMethod("returnInteger").Run();
+            testengine.AddEntryScript("./Contract_InvokeCsNef.nef");
+            var result = testengine.GetMethod("returnString").Run();
 
-            Integer wantresult = 42;
+            ByteString wantresult = "hello world";
+            Assert.IsTrue(wantresult.Equals(result));
+        }
+
+        [TestMethod]
+        public void Test_Main()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./Contract_InvokeCsNef.nef");
+            var result = testengine.GetMethod("main").Run();
+
+            Integer wantresult = 22;
             Assert.IsTrue(wantresult.Equals(result));
         }
     }

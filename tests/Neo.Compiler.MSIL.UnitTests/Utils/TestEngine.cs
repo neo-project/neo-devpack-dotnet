@@ -48,7 +48,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 if (Path.GetExtension(filename) == ".nef")
                 {
                     var fileNameManifest = filename;
-                    BinaryReader reader = new BinaryReader(File.Open(filename, FileMode.Open));
+                    BinaryReader reader = new BinaryReader(File.OpenRead(filename));
                     NefFile neffile = new NefFile();
                     neffile.Deserialize(reader);
                     fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
@@ -131,16 +131,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            try
-            {
-                var entrypoint = this.ScriptEntry.finialABI.GetDictItem("entryPoint");
-                var method = entrypoint as MyJson.JsonNode_Object;
-                if (method.GetDictItem("name").ToString() == methodname)
-                    return int.Parse(method.GetDictItem("offset").ToString());
-            }
-            catch (System.Collections.Generic.KeyNotFoundException e)
-            {
-            }
             var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
             foreach (var item in methods)
             {

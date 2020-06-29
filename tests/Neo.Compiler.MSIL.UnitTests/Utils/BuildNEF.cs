@@ -18,7 +18,6 @@ namespace Neo.Compiler.MSIL.Utils
             var abi = manifestAbi.GetDictItem("abi") as MyJson.JsonNode_Object;
             finialABI = abi;
             finalManifest = manifestFile;
-
         }
     }
 }
