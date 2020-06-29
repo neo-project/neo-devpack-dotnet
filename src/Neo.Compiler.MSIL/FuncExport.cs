@@ -32,9 +32,7 @@ namespace Neo.Compiler
 
             switch (type)
             {
-                case "System.Boolean":
-                    return "Boolean";
-
+                case "System.Boolean": return "Boolean";
                 case "System.Char":
                 case "System.Byte":
                 case "System.SByte":
@@ -44,31 +42,16 @@ namespace Neo.Compiler
                 case "System.UInt32":
                 case "System.Int64":
                 case "System.UInt64":
-                case "System.Numerics.BigInteger":
-                    return "Integer";
-
-                case "System.Byte[]":
-                    return "ByteArray";
-
-                case "System.String":
-                    return "String";
-
-                case "System.Object[]":
-                    return "Array";
-
-                case "IInteropInterface":
-                    return "InteropInterface";
-
-                case "System.Void":
-                    return "Void";
-
-                case "System.Object":
-                    return "ByteArray";
+                case "System.Numerics.BigInteger": return "Integer";
+                case "System.Byte[]": return "ByteArray";
+                case "System.String": return "String";
+                case "System.Object[]": return "Array";
+                case "IInteropInterface": return "InteropInterface";
+                case "System.Void": return "Void";
+                case "System.Object": return "ByteArray";
             }
             if (type.StartsWith("System.Action") || type.StartsWith("System.Func") || type.StartsWith("System.Delegate"))
                 return $"Unknown:Pointers are not allowed to be public '{type}'";
-            if (type.StartsWith("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
-                return "InteropInterface";
             if (type.StartsWith("System.ValueTuple`") || type.StartsWith("System.Tuple`") || type.Contains("[]"))
                 return "Array";
 

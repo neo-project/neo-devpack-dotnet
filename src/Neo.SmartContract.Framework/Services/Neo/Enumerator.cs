@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Enumerator<TValue>
+    public class Enumerator<TValue> : IApiInterface
     {
         [Syscall("System.Enumerator.Create")]
         public static extern Enumerator<TValue> Create(IEnumerable<TValue> entry);
