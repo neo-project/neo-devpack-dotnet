@@ -32,6 +32,41 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void TestAsBigInteger()
+        {
+            // 0
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testAsBigInteger", StackItem.Null);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetBigInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testAsBigInteger", new ByteString(new byte[0]));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetBigInteger());
+
+            // Value
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testAsBigInteger", new ByteString(new byte[] { 123 }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, item.GetBigInteger());
+        }
+
+        [TestMethod]
         public void TestAssert()
         {
             // With extension

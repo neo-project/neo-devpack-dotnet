@@ -53,6 +53,14 @@ namespace Neo.SmartContract.Framework
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
 
         /// <summary>
+        /// Converts byte array to BigInteger
+        /// </summary>
+        public static BigInteger AsBigInteger(this byte[] value)
+        {
+            return value?.ToBigInteger() ?? 0;
+        }
+
+        /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
         /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
