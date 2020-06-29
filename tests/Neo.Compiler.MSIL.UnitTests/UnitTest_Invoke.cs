@@ -7,18 +7,22 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class UnitTest_Invoke
     {
-        public UnitTest_Invoke()
+        private TestEngine testengine;
+
+        [TestInitialize]
+        public void Init()
         {
             var option = new Program.Options();
-            option.File = "./TestClasses/Contract_InvokeCsNef.cs";
+            option.File = "./Contract_InvokeCsNef.cs";
             Program.Compile(option);
+            testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_InvokeCsNef.nef");
         }
 
         [TestMethod]
         public void Test_Return_Integer()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./Contract_InvokeCsNef.nef");
+            testengine.Reset();
             var result = testengine.GetMethod("returnInteger").Run();
 
             Integer wantresult = 42;
@@ -28,8 +32,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_Return_String()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./Contract_InvokeCsNef.nef");
+            testengine.Reset();
             var result = testengine.GetMethod("returnString").Run();
 
             ByteString wantresult = "hello world";
@@ -39,8 +42,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_Main()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./Contract_InvokeCsNef.nef");
+            testengine.Reset();
             var result = testengine.GetMethod("main").Run();
 
             Integer wantresult = 22;
