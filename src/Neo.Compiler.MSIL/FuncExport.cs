@@ -41,10 +41,9 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger": return "Integer";
                 case "System.Byte[]": return "ByteArray";
                 case "System.String": return "String";
-                case "System.Object[]": return "Any";
                 case "IInteropInterface": return "InteropInterface";
                 case "System.Void": return "Void";
-                case "System.Object": return "ByteArray";
+                case "System.Object": return "Any";
             }
 
             if (t.IsArray) return "Array";
