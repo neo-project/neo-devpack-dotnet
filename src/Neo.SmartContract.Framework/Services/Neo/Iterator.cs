@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class Iterator<TKey, TValue>
+    public class Iterator<TKey, TValue> : IApiInterface
     {
         [Syscall("System.Iterator.Create")]
         public static extern Iterator<TKey, TValue> Create(Map<TKey, TValue> entry);
