@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using NEOSmartContract = Neo.SmartContract;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -194,32 +193,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
-        public void Test_Notify()
-        {
-            var list = new List<NotifyEventArgs>();
-            var method = new EventHandler<NotifyEventArgs>((s, e) => list.Add(e));
-
-            ApplicationEngine.Notify += method;
-            var result = _engine.ExecuteTestCaseStandard("notify", new ByteString(Encoding.UTF8.GetBytes("NotifyTest")));
-            ApplicationEngine.Notify -= method;
-
-            Assert.AreEqual(1, list.Count);
-
-            var item = list[0];
-            var array = item.State;
-            Assert.IsInstanceOfType(array, typeof(VM.Types.Array));
-            Assert.AreEqual("NotifyTest", ((VM.Types.Array)array)[0].GetString());
-        }
-
-        [TestMethod]
         public void Test_GetNotificationsCount()
         {
             var notifications = ((List<NotifyEventArgs>)_engine.Notifications);
             notifications.Clear();
             notifications.AddRange(new NotifyEventArgs[]
             {
-                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
-                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+                new NotifyEventArgs(null, UInt160.Zero,"", new VM.Types.Array(new StackItem[] {new Integer(0x01)})),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] {new Integer(0x02)}))
             });
 
             var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
@@ -245,8 +226,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             notifications.Clear();
             notifications.AddRange(new NotifyEventArgs[]
             {
-                new NotifyEventArgs(null, UInt160.Zero, new Integer(0x01)),
-                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), new Integer(0x02))
+                new NotifyEventArgs(null, UInt160.Zero,"", new VM.Types.Array(new StackItem[] {new Integer(0x01)})),
+                new NotifyEventArgs(null, UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] {new Integer(0x02)}))
             });
 
             var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
