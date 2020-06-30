@@ -12,23 +12,19 @@ namespace Neo.Compiler
 
         internal static string ConvType(TypeReference t)
         {
-            if (t == null) return "Null";
+            if (t is null) return "Null";
 
             var type = t.FullName;
 
-            try
-            {
-                foreach (var i in t.Resolve().Interfaces)
+            TypeDefinition definition = t.Resolve();
+            if (definition != null)
+                foreach (var i in definition.Interfaces)
                 {
-                    if (i.InterfaceType.Name == "IApiInterface")
+                    if (i.InterfaceType.Name == nameof(IApiInterface))
                     {
                         return "IInteropInterface";
                     }
                 }
-            }
-            catch
-            {
-            }
 
             switch (type)
             {
@@ -45,14 +41,17 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger": return "Integer";
                 case "System.Byte[]": return "ByteArray";
                 case "System.String": return "String";
-                case "System.Object[]": return "Array";
+                case "System.Object[]": return "Any";
                 case "IInteropInterface": return "InteropInterface";
                 case "System.Void": return "Void";
                 case "System.Object": return "ByteArray";
             }
+
+            if (t.IsArray) return "Array";
+
             if (type.StartsWith("System.Action") || type.StartsWith("System.Func") || type.StartsWith("System.Delegate"))
                 return $"Unknown:Pointers are not allowed to be public '{type}'";
-            if (type.StartsWith("System.ValueTuple`") || type.StartsWith("System.Tuple`") || type.Contains("[]"))
+            if (type.StartsWith("System.ValueTuple`") || type.StartsWith("System.Tuple`"))
                 return "Array";
 
             return "Unknown:" + type;
@@ -70,9 +69,9 @@ namespace Neo.Compiler
             //hash
             StringBuilder sb = new StringBuilder();
             sb.Append("0x");
-            foreach (var b in hash.Reverse().ToArray())
+            for (int i = hash.Length - 1; i >= 0; i--)
             {
-                sb.Append(b.ToString("x02"));
+                sb.Append(hash[i].ToString("x02"));
             }
             outjson.SetDictValue("hash", sb.ToString());
 
