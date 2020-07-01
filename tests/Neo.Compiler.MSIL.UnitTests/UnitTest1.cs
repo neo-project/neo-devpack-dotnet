@@ -72,7 +72,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.GetMethod("unitTest_002").Run("hello", 1);
 
-            Assert.AreEqual(3, result.GetBigInteger());
+            Assert.AreEqual(3, result.GetInteger());
         }
     }
 }

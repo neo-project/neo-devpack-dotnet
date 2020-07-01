@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void Test_Shift()
         {
             var list = new List<BigInteger>();
-            var method = new EventHandler<NotifyEventArgs>((sender, e) => list.Add(((VM.Types.Integer)((VM.Types.Array)e.State)[0]).ToBigInteger()));
+            var method = new EventHandler<NotifyEventArgs>((sender, e) => list.Add(((VM.Types.Integer)((VM.Types.Array)e.State)[0]).GetInteger()));
             ApplicationEngine.Notify += method;
 
             var testengine = new TestEngine();
@@ -30,7 +30,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void Test_Shift_BigInteger()
         {
             var list = new List<BigInteger>();
-            var method = new EventHandler<NotifyEventArgs>((sender, e) => list.Add(((VM.Types.Integer)((VM.Types.Array)e.State)[0]).ToBigInteger()));
+            var method = new EventHandler<NotifyEventArgs>((sender, e) => list.Add(((VM.Types.Integer)((VM.Types.Array)e.State)[0]).GetInteger()));
             ApplicationEngine.Notify += method;
 
             var testengine = new TestEngine();
