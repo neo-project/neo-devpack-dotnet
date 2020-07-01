@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM.Types;
+using System.IO;
 
 namespace Neo.Compiler.MSIL.UnitTests
 {
@@ -12,11 +13,18 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestInitialize]
         public void Init()
         {
-            var option = new Program.Options();
-            option.File = "./Contract_InvokeCsNef.cs";
+            string path = Directory.GetCurrentDirectory();
+            var option = new Program.Options()
+            {
+                File = path + "/TestClasses/Contract_InvokeCsNef.cs"
+            };
             Program.Compile(option);
+
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_InvokeCsNef.nef");
+            testengine.AddEntryScript(path + "/TestClasses/Contract_InvokeCsNef.nef");
+
+            //Compile changes the path, reseting so that other UT won't break
+            Directory.SetCurrentDirectory(path);
         }
 
         [TestMethod]
