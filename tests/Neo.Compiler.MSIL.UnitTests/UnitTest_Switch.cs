@@ -23,14 +23,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 testengine.Reset();
                 result = testengine.ExecuteTestCaseStandard("main", x.ToString());
-                Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
+                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
-            Assert.AreEqual(result.Pop().GetBigInteger(), 99);
+            Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
 
         [TestMethod]
@@ -62,13 +62,13 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             // Test default
 
-            Assert.AreEqual(resulta.GetBigInteger(), awant);
-            Assert.AreEqual(resultb.GetBigInteger(), bwant);
-            Assert.AreEqual(resultc.GetBigInteger(), cwant);
-            Assert.AreEqual(resultd.GetBigInteger(), dwant);
-            Assert.AreEqual(resulte.GetBigInteger(), ewant);
-            Assert.AreEqual(resultf.GetBigInteger(), fwant);
-            Assert.AreEqual(resultg.GetBigInteger(), gwant);
+            Assert.AreEqual(resulta.GetInteger(), awant);
+            Assert.AreEqual(resultb.GetInteger(), bwant);
+            Assert.AreEqual(resultc.GetInteger(), cwant);
+            Assert.AreEqual(resultd.GetInteger(), dwant);
+            Assert.AreEqual(resulte.GetInteger(), ewant);
+            Assert.AreEqual(resultf.GetInteger(), fwant);
+            Assert.AreEqual(resultg.GetInteger(), gwant);
         }
 
         [TestMethod]
@@ -91,10 +91,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             // Test default
 
-            Assert.AreEqual(result1.GetBigInteger(), onewant);
-            Assert.AreEqual(result2.GetBigInteger(), twowant);
-            Assert.AreEqual(result3.GetBigInteger(), threewant);
-            Assert.AreEqual(result0.GetBigInteger(), zerowant);
+            Assert.AreEqual(result1.GetInteger(), onewant);
+            Assert.AreEqual(result2.GetInteger(), twowant);
+            Assert.AreEqual(result3.GetInteger(), threewant);
+            Assert.AreEqual(result0.GetInteger(), zerowant);
         }
 
         [TestMethod]
@@ -110,14 +110,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 testengine.Reset();
                 result = testengine.ExecuteTestCaseStandard("main", x.ToString());
-                Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
+                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
-            Assert.AreEqual(result.Pop().GetBigInteger(), 99);
+            Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
 
         [TestMethod]
@@ -133,14 +133,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 testengine.Reset();
                 result = testengine.ExecuteTestCaseStandard("main", x.ToString());
-                Assert.AreEqual(result.Pop().GetBigInteger(), x + 1);
+                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("main", 6.ToString());
-            Assert.AreEqual(result.Pop().GetBigInteger(), 99);
+            Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
     }
 }

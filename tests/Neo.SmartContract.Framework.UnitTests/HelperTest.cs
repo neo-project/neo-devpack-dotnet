@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteString).Span.ToHexString());
+            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteString).GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(item.GetBigInteger(), 5);
+            Assert.AreEqual(item.GetInteger(), 5);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(false));
