@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 
@@ -99,16 +100,16 @@ namespace Neo.Compiler.MSIL
     public class ILField
     {
         public bool isEvent = false;
-        public string type;
+        public TypeReference type;
         public string name;
         public string displayName;
-        public string returntype;
+        public TypeReference returntype;
         public List<NeoParam> paramtypes = new List<NeoParam>();
-        public Mono.Cecil.FieldDefinition field;
+        public FieldDefinition field;
 
-        public ILField(ILType type, Mono.Cecil.FieldDefinition field)
+        public ILField(ILType type, FieldDefinition field)
         {
-            this.type = field.FieldType.FullName;
+            this.type = field.FieldType;
             this.name = field.Name;
             this.displayName = this.name;
             this.field = field;
@@ -117,7 +118,7 @@ namespace Neo.Compiler.MSIL
                 if (ev.Name == field.Name && ev.EventType.FullName == field.FieldType.FullName)
                 {
                     this.isEvent = true;
-                    Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = ev.CustomAttributes;
+                    Mono.Collections.Generic.Collection<CustomAttribute> ca = ev.CustomAttributes;
                     foreach (var attr in ca)
                     {
                         if (attr.AttributeType.Name == "DisplayNameAttribute")
@@ -125,7 +126,7 @@ namespace Neo.Compiler.MSIL
                             this.displayName = (string)attr.ConstructorArguments[0].Value;
                         }
                     }
-                    if (!(field.FieldType is Mono.Cecil.TypeDefinition eventtype))
+                    if (!(field.FieldType is TypeDefinition eventtype))
                     {
                         try
                         {
@@ -142,47 +143,21 @@ namespace Neo.Compiler.MSIL
                         {
                             if (m.Name == "Invoke")
                             {
-                                this.returntype = m.ReturnType.FullName;
-                                try
-                                {
-                                    var _type = m.ReturnType.Resolve();
-                                    foreach (var i in _type.Interfaces)
-                                    {
-                                        if (i.InterfaceType.Name == "IApiInterface")
-                                        {
-                                            this.returntype = "IInteropInterface";
-                                        }
-                                    }
-                                }
-                                catch
-                                {
-                                }
+                                this.returntype = m.ReturnType;
                                 foreach (var src in m.Parameters)
                                 {
-                                    string paramtype = src.ParameterType.FullName;
                                     if (src.ParameterType.IsGenericParameter)
                                     {
-                                        var gtype = src.ParameterType as Mono.Cecil.GenericParameter;
+                                        var gtype = src.ParameterType as GenericParameter;
 
-                                        var srcgtype = field.FieldType as Mono.Cecil.GenericInstanceType;
+                                        var srcgtype = field.FieldType as GenericInstanceType;
                                         var rtype = srcgtype.GenericArguments[gtype.Position];
-                                        paramtype = rtype.FullName;
-                                        try
-                                        {
-                                            var _type = rtype.Resolve();
-                                            foreach (var i in _type.Interfaces)
-                                            {
-                                                if (i.InterfaceType.Name == "IApiInterface")
-                                                {
-                                                    paramtype = "IInteropInterface";
-                                                }
-                                            }
-                                        }
-                                        catch
-                                        {
-                                        }
+                                        this.paramtypes.Add(new NeoParam(src.Name, rtype));
                                     }
-                                    this.paramtypes.Add(new NeoParam(src.Name, paramtype));
+                                    else
+                                    {
+                                        this.paramtypes.Add(new NeoParam(src.Name, src.ParameterType));
+                                    }
                                 }
                             }
                         }
@@ -194,7 +169,7 @@ namespace Neo.Compiler.MSIL
 
         public override string ToString()
         {
-            return type;
+            return FuncExport.ConvType(type);
         }
     }
 
@@ -209,7 +184,7 @@ namespace Neo.Compiler.MSIL
     {
         public int addr_Try_Begin = -1;
         public int addr_Try_End = -1;
-        public int addr_Try_End_F = -1;//IL try catch，try final is 2 different Block,need to process that.   
+        public int addr_Try_End_F = -1;//IL try catch，try final is 2 different Block,need to process that.
         public Dictionary<string, ILCatchInfo> catch_Infos = new Dictionary<string, ILCatchInfo>();
         public int addr_Finally_Begin = -1;
         public int addr_Finally_End = -1;
@@ -218,8 +193,8 @@ namespace Neo.Compiler.MSIL
     public class ILMethod
     {
         public ILType type = null;
-        public Mono.Cecil.MethodDefinition method;
-        public string returntype;
+        public MethodDefinition method;
+        public TypeReference returntype;
         public List<NeoParam> paramtypes = new List<NeoParam>();
         public bool hasParam = false;
         public List<NeoParam> body_Variables = new List<NeoParam>();
@@ -227,35 +202,20 @@ namespace Neo.Compiler.MSIL
         public string fail = null;
         public List<ILTryInfo> tryInfos = new List<ILTryInfo>();
         public List<int> tryPositions = new List<int>();
-        public ILMethod(ILType type, Mono.Cecil.MethodDefinition method, ILogger logger = null)
+        public ILMethod(ILType type, MethodDefinition method, ILogger logger = null)
         {
             this.type = type;
             this.method = method;
 
             if (method != null)
             {
-                returntype = method.ReturnType.FullName;
+                returntype = method.ReturnType;
                 if (method.HasParameters)
                 {
                     hasParam = true;
                     foreach (var p in method.Parameters)
                     {
-                        string paramtype = p.ParameterType.FullName;
-                        try
-                        {
-                            var _type = p.ParameterType.Resolve();
-                            foreach (var i in _type.Interfaces)
-                            {
-                                if (i.InterfaceType.Name == "IApiInterface")
-                                {
-                                    paramtype = "IInteropInterface";
-                                }
-                            }
-                        }
-                        catch
-                        {
-                        }
-                        this.paramtypes.Add(new NeoParam(p.Name, paramtype));
+                        this.paramtypes.Add(new NeoParam(p.Name, p.ParameterType));
                     }
                 }
                 if (method.HasBody)
@@ -268,7 +228,7 @@ namespace Neo.Compiler.MSIL
                             var indexname = method.DebugInformation.TryGetName(v, out var varname)
                                 ? varname
                                 : v.VariableType.Name + ":" + v.Index;
-                            this.body_Variables.Add(new NeoParam(indexname, v.VariableType.FullName));
+                            this.body_Variables.Add(new NeoParam(indexname, v.VariableType));
                         }
                     }
                     for (int i = 0; i < bodyNative.Instructions.Count; i++)

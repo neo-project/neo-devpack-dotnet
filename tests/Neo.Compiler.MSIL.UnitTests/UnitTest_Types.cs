@@ -65,14 +65,14 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(1, ((Integer)item).GetInteger());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkBoolFalse");
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(0, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -144,7 +144,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -156,7 +156,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -168,7 +168,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -180,7 +180,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((int)'n', ((Integer)item).ToBigInteger());
+            Assert.AreEqual((int)'n', ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -241,7 +241,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -297,6 +297,21 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
             Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
         }
+
+        [TestMethod]
+        public void tuple3_Test()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            var result = testengine.ExecuteTestCaseStandard("checkTuple3");
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(2, ((Array)item).Count);
+            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+        }
+
         [TestMethod]
         public void event_Test()
         {

@@ -78,7 +78,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = vmtool.FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finialABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
             }
             catch (Exception err)
             {

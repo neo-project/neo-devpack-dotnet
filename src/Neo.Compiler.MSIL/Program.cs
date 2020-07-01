@@ -183,7 +183,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(module, bytes, addrConvTable);
+                    var outjson = FuncExport.Export(module, bytes, addrConvTable);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();

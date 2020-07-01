@@ -57,7 +57,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop<Integer>();
-            Assert.AreEqual(123, item.ToBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop<Integer>();
-            Assert.AreEqual(1234, item.ToBigInteger());
+            Assert.AreEqual(1234, item.GetInteger());
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop<Integer>();
-            Assert.AreEqual(123, item.ToBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
         }
     }
 }

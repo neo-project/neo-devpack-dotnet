@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(true, item.ToBoolean());
+            Assert.AreEqual(true, item.GetBoolean());
 
             // No standard
 
@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(false, item.ToBoolean());
+            Assert.AreEqual(false, item.GetBoolean());
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using vmtool;
 
 namespace Neo.Compiler
 {
@@ -34,21 +33,13 @@ namespace Neo.Compiler
             return outjson;
         }
 
-        private static string ConvertType(string type)
-        {
-            if (type == "System.Object")
-                return string.Empty;
-
-            return FuncExport.ConvType(type);
-        }
-
         private static MyJson.JsonNode_Array ConvertParamList(IEnumerable<NeoParam> @params)
         {
             @params ??= Enumerable.Empty<NeoParam>();
             var paramsJson = new MyJson.JsonNode_Array();
             foreach (var param in @params)
             {
-                var value = string.Format("{0},{1}", param.name, ConvertType(param.type));
+                var value = string.Format("{0},{1}", param.name, FuncExport.ConvType(param.type));
                 paramsJson.Add(new MyJson.JsonNode_ValueString(value));
             }
 
@@ -78,7 +69,7 @@ namespace Neo.Compiler
                 methodJson.SetDictValue("name", name);
                 methodJson.SetDictValue("range", range);
                 methodJson.SetDictValue("params", ConvertParamList(method.paramtypes));
-                methodJson.SetDictValue("return", ConvertType(method.returntype));
+                methodJson.SetDictValue("return", FuncExport.ConvType(method.returntype));
                 methodJson.SetDictValue("variables", ConvertParamList(method.method?.body_Variables));
                 methodJson.SetDictValue("sequence-points", GetSequencePoints(method.body_Codes.Values, docMap, addrConvTable));
                 outjson.Add(methodJson);
