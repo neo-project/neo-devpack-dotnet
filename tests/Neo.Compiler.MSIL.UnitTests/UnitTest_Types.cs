@@ -297,6 +297,21 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
             Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
         }
+
+        [TestMethod]
+        public void tuple3_Test()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            var result = testengine.ExecuteTestCaseStandard("checkTuple3");
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(2, ((Array)item).Count);
+            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+        }
+
         [TestMethod]
         public void event_Test()
         {
