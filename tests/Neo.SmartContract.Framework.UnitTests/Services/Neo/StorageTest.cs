@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var rItem = result.Pop();
 
             Assert.IsInstanceOfType(rItem, typeof(Integer));
-            Assert.AreEqual(1, ((Integer)rItem).ToBigInteger());
+            Assert.AreEqual(1, ((Integer)rItem).GetInteger());
             Assert.AreEqual(1,
                 testengine.Snapshot.Storages.GetChangeSet()
                 .Count(a =>
