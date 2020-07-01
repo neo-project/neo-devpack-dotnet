@@ -82,11 +82,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = _engine.ResultStack.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0x02, item.GetBigInteger());
+            Assert.AreEqual(0x02, item.GetInteger());
 
             item = _engine.ResultStack.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0x01, item.GetBigInteger());
+            Assert.AreEqual(0x01, item.GetInteger());
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1234, item.GetBigInteger());
+            Assert.AreEqual(1234, item.GetInteger());
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((byte)TriggerType.Application, item.GetBigInteger());
+            Assert.AreEqual((byte)TriggerType.Application, item.GetInteger());
         }
 
         [TestMethod]
@@ -146,7 +146,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(-1, item.GetBigInteger());
+            Assert.AreEqual(-1, item.GetInteger());
         }
 
         [TestMethod]
@@ -177,7 +177,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
 
             // False
 
@@ -189,7 +189,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
         }
 
         [TestMethod]
@@ -208,7 +208,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0x01, item.GetBigInteger());
+            Assert.AreEqual(0x01, item.GetInteger());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("getNotificationsCount", StackItem.Null);
@@ -216,7 +216,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0x02, item.GetBigInteger());
+            Assert.AreEqual(0x02, item.GetInteger());
         }
 
         [TestMethod]
@@ -235,7 +235,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0x02, item.GetBigInteger());
+            Assert.AreEqual(0x02, item.GetInteger());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("getAllNotifications");
@@ -243,7 +243,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0x03, item.GetBigInteger());
+            Assert.AreEqual(0x03, item.GetInteger());
         }
     }
 }
