@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(6, item.GetBigInteger());
+            Assert.AreEqual(6, item.GetInteger());
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(21, item.GetBigInteger());
+            Assert.AreEqual(21, item.GetInteger());
 
             // Only A
 
@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(6, item.GetBigInteger());
+            Assert.AreEqual(6, item.GetInteger());
 
             // Only B
 
@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(15, item.GetBigInteger());
+            Assert.AreEqual(15, item.GetInteger());
 
             // Empty
 
@@ -88,7 +88,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetByteLength());
+            Assert.AreEqual(0, item.GetSpan().Length);
         }
 
         [TestMethod]
@@ -99,15 +99,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             enumerator.Next();
             var v1 = enumerator.Value();
-            Assert.AreEqual(4, v1.GetBigInteger());
+            Assert.AreEqual(4, v1.GetInteger());
 
             enumerator.Next();
             var v2 = enumerator.Value();
-            Assert.AreEqual(6, v2.GetBigInteger());
+            Assert.AreEqual(6, v2.GetInteger());
 
             enumerator.Next();
             var v3 = enumerator.Value();
-            Assert.AreEqual(8, v3.GetBigInteger());
+            Assert.AreEqual(8, v3.GetInteger());
         }
     }
 }

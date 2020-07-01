@@ -18,8 +18,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 3);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 3);
         }
 
         [TestMethod]
@@ -33,8 +33,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 4);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 4);
         }
 
         [TestMethod]
@@ -48,8 +48,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 4);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 4);
         }
 
         [TestMethod]
@@ -63,8 +63,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 4);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 4);
         }
 
         [TestMethod]
@@ -78,8 +78,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 3);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 3);
         }
 
         [TestMethod]
@@ -104,8 +104,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 3);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 3);
         }
 
         [TestMethod]
@@ -119,8 +119,8 @@ namespace Neo.Compiler.MSIL
             var value = result.Pop();
             Console.WriteLine("result:" + value.Type + "  " + value.ToString());
             var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.ToBigInteger().ToString());
-            Assert.AreEqual(num.ToBigInteger(), 9);
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 9);
         }
     }
 }

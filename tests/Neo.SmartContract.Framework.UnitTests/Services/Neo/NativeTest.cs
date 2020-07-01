@@ -53,7 +53,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetBigInteger());
+            Assert.AreEqual(0, item.GetInteger());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("NEO_Name");
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(8, item.GetBigInteger());
+            Assert.AreEqual(8, item.GetInteger());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("GAS_Name");
@@ -97,7 +97,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1000L, item.GetBigInteger());
+            Assert.AreEqual(1000L, item.GetInteger());
         }
     }
 }
