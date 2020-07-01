@@ -27,7 +27,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
 
             // False
 
@@ -36,7 +36,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
                 var item = result.Pop() as Integer;
-                var num = item.ToBigInteger();
+                var num = item.GetInteger();
                 Assert.IsTrue(num == 123);
             }
         }
@@ -141,7 +141,7 @@ namespace Neo.Compiler.MSIL.UnitTests
                 var bts = System.Text.Encoding.ASCII.GetBytes("111");
                 var num = new System.Numerics.BigInteger(bts);
 
-                Assert.IsTrue(item.ToBigInteger() == num);
+                Assert.IsTrue(item.GetInteger() == num);
             }
         }
         [TestMethod]
@@ -154,7 +154,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
 
             // False
 
@@ -163,7 +163,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // True
 
@@ -172,7 +172,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
 
             // False
 
@@ -181,7 +181,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
         }
 
         [TestMethod]
@@ -194,7 +194,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // False
 
@@ -203,7 +203,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
 
             // True
 
@@ -212,7 +212,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // False
 
@@ -221,7 +221,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
         }
     }
 }
