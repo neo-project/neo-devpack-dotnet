@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testIntArray");
 
             //test 0,1,2
-            Assert.IsTrue(result.TryPop(out Array arr));
+            var arr = result.Pop<Array>();
             CollectionAssert.AreEqual(new int[] { 0, 1, 2 }, arr.Cast<PrimitiveType>().Select(u => (int)u.ToBigInteger()).ToArray());
         }
 
@@ -28,7 +28,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testIntArrayInit");
 
             //test 1,4,5
-            Assert.IsTrue(result.TryPop(out Array arr));
+            var arr = result.Pop<Array>();
             CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.ToBigInteger()).ToArray());
         }
 

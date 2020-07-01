@@ -10,11 +10,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
-        protected override bool PreExecuteInstruction()
-        {
-            return true;
-        }
-
         public static InteropDescriptor Native_Deploy;
 
         static TestEngine()
@@ -153,6 +148,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
+        protected override void OnFault(Exception e)
+        {
+            base.OnFault(e);
+            Console.WriteLine(e.ToString());
+        }
+
         public EvaluationStack ExecuteTestCase(params StackItem[] args)
         {
             //var engine = new ExecutionEngine();
@@ -181,7 +182,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         static Dictionary<uint, InteropDescriptor> callmethod;
 
-        protected override bool OnSysCall(uint method)
+        protected override void OnSysCall(uint method)
         {
             if (callmethod == null)
             {
@@ -191,16 +192,16 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 };
                 foreach (var m in ApplicationEngine.Services)
                 {
-                    callmethod[m] = m;
+                    callmethod[m.Key] = m.Value;
                 }
             }
             if (callmethod.ContainsKey(method) == false)
             {
-                throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
+                throw new Exception($"Syscall not found: {method:X2} (using base call)");
             }
             else
             {
-                return base.OnSysCall(method);
+                base.OnSysCall(method);
             }
         }
     }

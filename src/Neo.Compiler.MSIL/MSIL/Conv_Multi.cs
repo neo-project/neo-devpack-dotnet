@@ -839,12 +839,10 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 5)
             {
-                //var callp = Encoding.UTF8.GetBytes(callname);
-                ConvertPushString(callname, src, to);
-
                 // package the arguments into an array
-                ConvertPushNumber(pcount + 1, null, to);
+                ConvertPushNumber(pcount, null, to);
                 Convert1by1(VM.OpCode.PACK, null, to);
+                ConvertPushString(callname, src, to);
 
                 //a syscall
                 {
