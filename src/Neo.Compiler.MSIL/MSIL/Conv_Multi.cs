@@ -1427,7 +1427,8 @@ namespace Neo.Compiler.MSIL
             }
 
             //ValueTuple
-            if (type.DeclaringType.FullName.StartsWith("System.ValueTuple`"))
+            if (type.DeclaringType.FullName.StartsWith("System.ValueTuple`") ||
+                type.DeclaringType.FullName.StartsWith("System.Tuple`"))
             {
                 // Multiple returns
                 var count = type.DeclaringType.GenericParameters.Count;
