@@ -45,7 +45,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
             {
-                if (Path.GetExtension(filename) == ".nef")
+                if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
                 {
                     var fileNameManifest = filename;
                     BinaryReader reader = new BinaryReader(File.OpenRead(filename));
