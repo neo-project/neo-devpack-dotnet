@@ -56,23 +56,28 @@ namespace Neo.Compiler
             return "Unknown:" + type;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static string ComputeHash(byte[] script)
         {
             var sha256 = System.Security.Cryptography.SHA256.Create();
             byte[] hash256 = sha256.ComputeHash(script);
             var ripemd160 = new Neo.Cryptography.RIPEMD160Managed();
             var hash = ripemd160.ComputeHash(hash256);
 
-            var outjson = new MyJson.JsonNode_Object();
-
-            //hash
             StringBuilder sb = new StringBuilder();
             sb.Append("0x");
             for (int i = hash.Length - 1; i >= 0; i--)
             {
                 sb.Append(hash[i].ToString("x02"));
             }
-            outjson.SetDictValue("hash", sb.ToString());
+            return sb.ToString();
+        }
+
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        {
+            var outjson = new MyJson.JsonNode_Object();
+
+            //hash
+            outjson.SetDictValue("hash", ComputeHash(script));
 
             //functions
             var methods = new MyJson.JsonNode_Array();
