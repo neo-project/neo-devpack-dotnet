@@ -184,7 +184,7 @@ namespace Neo.Compiler.MSIL
     {
         public int addr_Try_Begin = -1;
         public int addr_Try_End = -1;
-        public int addr_Try_End_F = -1;//IL try catch，try final is 2 different Block,need to process that.   
+        public int addr_Try_End_F = -1;//IL try catch，try final is 2 different Block,need to process that.
         public Dictionary<string, ILCatchInfo> catch_Infos = new Dictionary<string, ILCatchInfo>();
         public int addr_Finally_Begin = -1;
         public int addr_Finally_End = -1;
@@ -225,7 +225,9 @@ namespace Neo.Compiler.MSIL
                     {
                         foreach (var v in bodyNative.Variables)
                         {
-                            var indexname = v.VariableType.Name + ":" + v.Index;
+                            var indexname = method.DebugInformation.TryGetName(v, out var varname)
+                                ? varname
+                                : v.VariableType.Name + ":" + v.Index;
                             this.body_Variables.Add(new NeoParam(indexname, v.VariableType));
                         }
                     }
@@ -239,10 +241,11 @@ namespace Neo.Compiler.MSIL
                         };
 
                         var sp = method.DebugInformation.GetSequencePoint(code);
-                        if (sp != null)
+                        if (sp != null && !sp.IsHidden)
                         {
                             c.debugcode = sp.Document.Url;
                             c.debugline = sp.StartLine;
+                            c.sequencePoint = sp;
                         }
                         c.InitToken(code.Operand);
                         this.body_Codes.Add(c.addr, c);
@@ -680,6 +683,7 @@ namespace Neo.Compiler.MSIL
         public CodeEx code;
         public int debugline = -1;
         public string debugcode;
+        public Mono.Cecil.Cil.SequencePoint sequencePoint;
         public object tokenUnknown;
         public int tokenAddr_Index;
         //public int tokenAddr;
