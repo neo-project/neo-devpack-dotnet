@@ -113,7 +113,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 finalManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     finialABI +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":[]" + "}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""extra"":[]" + "}";
             }
             catch
             {
