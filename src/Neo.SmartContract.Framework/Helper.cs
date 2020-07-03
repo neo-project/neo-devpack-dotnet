@@ -23,10 +23,13 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Converts byte[] to BigInteger. No guarantees are assumed regarding BigInteger working range.
+        /// If it's null it will return 0
         /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_Integer)]
-        public extern static BigInteger ToBigInteger(this byte[] source);
+        public extern static BigInteger ToBigInteger(this byte[] source)
+        {
+            return value?.ToBigInteger() ?? 0;
+        }
 
         /// <summary>
         /// Converts string to byte[]. Examples: "hello" -> [0x68656c6c6f]; "" -> []; "Neo" -> [0x4e656f]
@@ -51,14 +54,6 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [OpCode(OpCode.WITHIN)]
         public extern static bool Within(this int x, BigInteger a, BigInteger b);
-
-        /// <summary>
-        /// Converts byte array to BigInteger
-        /// </summary>
-        public static BigInteger ToBigInteger(this byte[] value)
-        {
-            return value?.ToBigInteger() ?? 0;
-        }
 
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
