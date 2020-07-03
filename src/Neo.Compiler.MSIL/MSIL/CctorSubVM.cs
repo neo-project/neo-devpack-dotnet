@@ -46,14 +46,12 @@ namespace Neo.Compiler.MSIL
         public static bool Parse(ILMethod from, NeoModule to)
         {
             bool constValue = true;
-            // If there is a syscall in cctor, we should add it into staticfieldsCctor directly.
-            // Then the initializemethod will handle it.
-            bool haveSysCall = false;
+            bool ret = false;
             calcStack = new Stack<object>();
             bool bEnd = false;
             foreach (var src in from.body_Codes.Values)
             {
-                if (bEnd || haveSysCall)
+                if (bEnd || ret)
                     break;
 
                 switch (src.code)
@@ -212,7 +210,9 @@ namespace Neo.Compiler.MSIL
                                     }
                                     if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
                                     {
-                                        haveSysCall = true;
+                                        // If there is a syscall in cctor, we should add it into staticfieldsCctor directly.
+                                        // Then the initializemethod will handle it.
+                                        ret = true;
                                         constValue = false;
                                         break;
                                     }
