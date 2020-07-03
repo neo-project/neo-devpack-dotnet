@@ -122,7 +122,7 @@ namespace Neo.Compiler
                     throw new Exception($"Unknown return type '{mm.returntype}' for method '{function.Value.name}'");
                 }
 
-                funcsign.SetDictValue("returnType", rtype);
+                funcsign.SetDictValue("returntype", rtype);
             }
 
             //events
