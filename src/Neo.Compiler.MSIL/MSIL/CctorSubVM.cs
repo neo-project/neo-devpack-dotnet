@@ -46,6 +46,8 @@ namespace Neo.Compiler.MSIL
         public static bool Parse(ILMethod from, NeoModule to)
         {
             bool constValue = true;
+            // If there is a syscall in cctor, we should add it into staticfieldsCctor directly.
+            // Then the initializemethod will handle it.
             bool haveSysCall = false;
             calcStack = new Stack<object>();
             bool bEnd = false;
