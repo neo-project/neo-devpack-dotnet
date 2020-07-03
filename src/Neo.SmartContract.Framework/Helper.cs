@@ -26,10 +26,18 @@ namespace Neo.SmartContract.Framework
         /// If it's null it will return 0
         /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
-        public static BigInteger ToBigInteger(this byte[] value)
-        {
-            return value?.ToBigInteger() ?? 0;
-        }
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ISNULL)]
+        [OpCode(OpCode.JMPIFNOT, "0x05")]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.CONVERT, StackItemType_Integer)]
+        public extern static BigInteger ToBigInteger(this byte[] source);
+        //{
+        //    if (value == null) return 0;
+        //    return value.ToBigInteger();
+        //}
 
         /// <summary>
         /// Converts string to byte[]. Examples: "hello" -> [0x68656c6c6f]; "" -> []; "Neo" -> [0x4e656f]
