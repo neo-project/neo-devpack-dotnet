@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Framework
         /// If it's null it will return 0
         /// Examples: [0x0a] -> 10; [0x80] -> -128; [] -> 0; [0xff00] -> 255
         /// </summary>
-        public static BigInteger ToBigInteger(this byte[] source)
+        public static BigInteger ToBigInteger(this byte[] value)
         {
             return value?.ToBigInteger() ?? 0;
         }
