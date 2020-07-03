@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetBigInteger());
+            Assert.AreEqual(0, item.GetInteger());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(new byte[0]));
@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetBigInteger());
+            Assert.AreEqual(0, item.GetInteger());
 
             // Value
 
@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
         }
 
         [TestMethod]
