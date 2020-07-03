@@ -1,5 +1,4 @@
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -104,20 +103,6 @@ namespace Neo.Compiler.MSIL
                     //try
                     {
                         nm.returntype = m.Value.returntype;
-                        try
-                        {
-                            var type = m.Value.method.ReturnType.Resolve();
-                            foreach (var i in type.Interfaces)
-                            {
-                                if (i.InterfaceType.Name == "IApiInterface")
-                                {
-                                    nm.returntype = "IInteropInterface";
-                                }
-                            }
-                        }
-                        catch
-                        {
-                        }
 
                         foreach (var src in m.Value.paramtypes)
                         {
@@ -173,7 +158,7 @@ namespace Neo.Compiler.MSIL
                 displayName = "_initialize",
                 inSmartContract = true
             };
-            initialize.returntype = "System.Void";
+            initialize.returntype = FuncExport.Void;
             initialize.funcaddr = 0;
             if (!FillInitializeMethod(initialize))
             {

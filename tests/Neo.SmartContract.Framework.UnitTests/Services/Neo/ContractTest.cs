@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
 
             // Destroy
 
@@ -126,7 +126,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
 
             // Call Again
 
@@ -137,7 +137,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(124, item.GetBigInteger());
+            Assert.AreEqual(124, item.GetInteger());
 
             // Check again for failures
 

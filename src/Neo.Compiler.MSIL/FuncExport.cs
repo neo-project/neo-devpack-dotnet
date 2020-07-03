@@ -1,23 +1,35 @@
-using Neo.Compiler;
+using Mono.Cecil;
+using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-namespace vmtool
+namespace Neo.Compiler
 {
     public class FuncExport
     {
-        static string ConvType(string _type)
+        public static readonly TypeReference Void = new TypeReference("System", "Void", ModuleDefinition.ReadModule(typeof(object).Assembly.Location, new ReaderParameters(ReadingMode.Immediate)), null);
+
+        internal static string ConvType(TypeReference t)
         {
-            switch (_type)
+            if (t is null) return "Null";
+
+            var type = t.FullName;
+
+            TypeDefinition definition = t.Resolve();
+            if (definition != null)
+                foreach (var i in definition.Interfaces)
+                {
+                    if (i.InterfaceType.Name == nameof(IApiInterface))
+                    {
+                        return "IInteropInterface";
+                    }
+                }
+
+            switch (type)
             {
-                case "__Signature":
-                    return "Signature";
-
-                case "System.Boolean":
-                    return "Boolean";
-
+                case "System.Boolean": return "Boolean";
+                case "System.Char":
                 case "System.Byte":
                 case "System.SByte":
                 case "System.Int16":
@@ -26,62 +38,46 @@ namespace vmtool
                 case "System.UInt32":
                 case "System.Int64":
                 case "System.UInt64":
-                case "System.Numerics.BigInteger":
-                    return "Integer";
-
-                case "__Hash160":
-                    return "Hash160";
-
-                case "__Hash256":
-                    return "Hash256";
-
-                case "System.Byte[]":
-                    return "ByteArray";
-
-                case "__PublicKey":
-                    return "PublicKey";
-
-                case "System.String":
-                    return "String";
-
-                case "System.Object[]":
-                    return "Array";
-
-                case "__InteropInterface":
-                case "IInteropInterface":
-                    return "InteropInterface";
-
-                case "System.Void":
-                    return "Void";
-
-                case "System.Object":
-                    return "ByteArray";
+                case "System.Numerics.BigInteger": return "Integer";
+                case "System.Byte[]": return "ByteArray";
+                case "System.String": return "String";
+                case "IInteropInterface": return "InteropInterface";
+                case "System.Void": return "Void";
+                case "System.Object": return "Any";
             }
-            if (_type.Contains("[]"))
-                return "Array";
-            if (_type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
-                return "InteropInterface";
 
-            return "Unknown:" + _type;
+            if (t.IsArray) return "Array";
+
+            if (type.StartsWith("System.Action") || type.StartsWith("System.Func") || type.StartsWith("System.Delegate"))
+                return $"Unknown:Pointers are not allowed to be public '{type}'";
+            if (type.StartsWith("System.ValueTuple`") || type.StartsWith("System.Tuple`"))
+                return "Array";
+
+            return "Unknown:" + type;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static string ComputeHash(byte[] script)
         {
             var sha256 = System.Security.Cryptography.SHA256.Create();
             byte[] hash256 = sha256.ComputeHash(script);
             var ripemd160 = new Neo.Cryptography.RIPEMD160Managed();
             var hash = ripemd160.ComputeHash(hash256);
 
+            StringBuilder sb = new StringBuilder();
+            sb.Append("0x");
+            for (int i = hash.Length - 1; i >= 0; i--)
+            {
+                sb.Append(hash[i].ToString("x02"));
+            }
+            return sb.ToString();
+        }
+
+        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        {
             var outjson = new MyJson.JsonNode_Object();
 
             //hash
-            StringBuilder sb = new StringBuilder();
-            sb.Append("0x");
-            foreach (var b in hash.Reverse().ToArray())
-            {
-                sb.Append(b.ToString("x02"));
-            }
-            outjson.SetDictValue("hash", sb.ToString());
+            outjson.SetDictValue("hash", ComputeHash(script));
 
             //functions
             var methods = new MyJson.JsonNode_Array();
@@ -112,16 +108,20 @@ namespace vmtool
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var ptype = ConvType(v.type);
                         var item = new MyJson.JsonNode_Object();
                         funcparams.Add(item);
 
                         item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ptype);
+                        item.SetDictValue("type", ConvType(v.type));
                     }
                 }
 
                 var rtype = ConvType(mm.returntype);
+                if (rtype.StartsWith("Unknown:"))
+                {
+                    throw new Exception($"Unknown return type '{mm.returntype}' for method '{function.Value.name}'");
+                }
+
                 funcsign.SetDictValue("returnType", rtype);
             }
 
@@ -141,12 +141,11 @@ namespace vmtool
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var ptype = ConvType(v.type);
                         var item = new MyJson.JsonNode_Object();
                         funcparams.Add(item);
 
                         item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ptype);
+                        item.SetDictValue("type", ConvType(v.type));
                     }
                 }
                 //event do not have returntype in nep3
