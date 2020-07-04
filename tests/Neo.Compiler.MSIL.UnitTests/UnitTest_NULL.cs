@@ -102,6 +102,7 @@ namespace Neo.Compiler.MSIL.UnitTests
                 Assert.IsTrue(str == "linux");
             }
         }
+
         [TestMethod]
         public void NullCollationAndCollation()
         {
@@ -115,13 +116,12 @@ namespace Neo.Compiler.MSIL.UnitTests
                     Features = ContractFeatures.HasStorage
                 }
             });
-            {
-                var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
-                var item = result.Pop() as Integer;
-                var num = item.GetInteger();
-                Assert.IsTrue(num == 123);
-            }
+
+            var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
+            var item = result.Pop() as Buffer;
+            Assert.AreEqual(123, item.GetSpan()[0]);
         }
+
         [TestMethod]
         public void NullCollationAndCollation2()
         {
@@ -135,15 +135,15 @@ namespace Neo.Compiler.MSIL.UnitTests
                     Features = ContractFeatures.HasStorage
                 }
             });
-            {
-                var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
-                var item = result.Pop() as Integer;
-                var bts = System.Text.Encoding.ASCII.GetBytes("111");
-                var num = new System.Numerics.BigInteger(bts);
 
-                Assert.IsTrue(item.GetInteger() == num);
-            }
+            var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
+            var item = result.Pop() as ByteString;
+            var bts = System.Text.Encoding.ASCII.GetBytes("111");
+            var num = new System.Numerics.BigInteger(bts);
+
+            Assert.AreEqual(num, item.GetInteger());
         }
+
         [TestMethod]
         public void EqualNull()
         {
