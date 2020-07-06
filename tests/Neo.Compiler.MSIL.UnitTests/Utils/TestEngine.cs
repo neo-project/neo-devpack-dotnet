@@ -43,13 +43,15 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
                 {
                     var fileNameManifest = filename;
-                    BinaryReader reader = new BinaryReader(File.OpenRead(filename));
-                    NefFile neffile = new NefFile();
-                    neffile.Deserialize(reader);
-                    fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
-                    string manifestFile = File.ReadAllText(fileNameManifest);
-                    BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
-                    scriptsAll[filename] = buildScriptNef;
+                    using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+                    {
+                        NefFile neffile = new NefFile();
+                        neffile.Deserialize(reader);
+                        fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
+                        string manifestFile = File.ReadAllText(fileNameManifest);
+                        BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
+                        scriptsAll[filename] = buildScriptNef;
+                    }
                 }
                 else
                 {
