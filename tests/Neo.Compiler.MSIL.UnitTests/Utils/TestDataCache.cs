@@ -28,7 +28,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             dic.Add(key, value);
         }
 
-        protected override IEnumerable<(TKey Key, TValue Value)> FindInternal(byte[] key_prefix)
+        protected override IEnumerable<(TKey Key, TValue Value)> SeekInternal(byte[] keyOrPrefix, SeekDirection direction)
         {
             return dic.Select(u => (u.Key, u.Value));
         }

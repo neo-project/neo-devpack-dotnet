@@ -7,6 +7,7 @@ using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -152,6 +153,7 @@ namespace Neo.Compiler
             byte[] bytes;
             int bSucc = 0;
             string jsonstr = null;
+            string debugstr = null;
             NeoModule module = null;
 
             // Convert and build
@@ -181,7 +183,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = vmtool.FuncExport.Export(module, bytes, addrConvTable);
+                    var outjson = FuncExport.Export(module, bytes, addrConvTable);
                     StringBuilder sb = new StringBuilder();
                     outjson.ConvertToStringWithFormat(sb, 0);
                     jsonstr = sb.ToString();
@@ -191,6 +193,19 @@ namespace Neo.Compiler
                 {
                     log.Log("gen abi Error:" + err.ToString());
                     return -1;
+                }
+
+                try
+                {
+                    var outjson = DebugExport.Export(module, bytes, addrConvTable);
+                    StringBuilder sb = new StringBuilder();
+                    outjson.ConvertToStringWithFormat(sb, 0);
+                    debugstr = sb.ToString();
+                    log.Log("gen debug succ");
+                }
+                catch (Exception err)
+                {
+                    log.Log("gen debug Error:" + err.ToString());
                 }
             }
             catch (Exception err)
@@ -246,6 +261,30 @@ namespace Neo.Compiler
 
             try
             {
+                string debugname = onlyname + ".debug.json";
+                string debugzip = onlyname + ".nefdbgnfo";
+
+                var tempName = Path.GetTempFileName();
+                File.Delete(tempName);
+                File.WriteAllText(tempName, debugstr);
+
+                File.Delete(debugzip);
+                using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
+                {
+                    archive.CreateEntryFromFile(tempName, Path.GetFileName(debugname));
+                }
+                File.Delete(tempName);
+                log.Log("write:" + debugzip);
+                bSucc++;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write debug Error:" + err.ToString());
+                return -1;
+            }
+
+            try
+            {
                 var features = module == null ? ContractFeatures.NoProperty : module.attributes
                     .Where(u => u.AttributeType.Name == "FeaturesAttribute")
                     .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
@@ -261,7 +300,7 @@ namespace Neo.Compiler
                 string defManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":" + extra + "}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""extra"":" + extra + "}";
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -284,7 +323,7 @@ namespace Neo.Compiler
             {
             }
 
-            if (bSucc == 3)
+            if (bSucc == 4)
             {
                 log.Log("SUCC");
                 return 0;

@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Index, item.GetBigInteger());
+            Assert.AreEqual(_block.Index, item.GetInteger());
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.MinusOne, item.GetBigInteger());
+            Assert.AreEqual(BigInteger.MinusOne, item.GetInteger());
 
             // Found
 
@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Index, item.GetBigInteger());
+            Assert.AreEqual(_block.Index, item.GetInteger());
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.NetworkFee, item.GetBigInteger());
+            Assert.AreEqual(tx.NetworkFee, item.GetInteger());
 
             // Nonce
 
@@ -150,7 +150,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.Nonce, item.GetBigInteger());
+            Assert.AreEqual(tx.Nonce, item.GetInteger());
 
             // SystemFee
 
@@ -161,7 +161,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.SystemFee, item.GetBigInteger());
+            Assert.AreEqual(tx.SystemFee, item.GetInteger());
 
             // ValidUntilBlock
 
@@ -172,7 +172,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.ValidUntilBlock, item.GetBigInteger());
+            Assert.AreEqual(tx.ValidUntilBlock, item.GetInteger());
 
             // Version
 
@@ -183,7 +183,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.Version, item.GetBigInteger());
+            Assert.AreEqual(tx.Version, item.GetInteger());
 
             // Script
 
@@ -251,7 +251,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Index, item.GetBigInteger());
+            Assert.AreEqual(_block.Index, item.GetInteger());
 
             // MerkleRoot
 
@@ -295,7 +295,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Timestamp, item.GetBigInteger());
+            Assert.AreEqual(_block.Timestamp, item.GetInteger());
 
             // TransactionsCount
 
@@ -306,7 +306,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Transactions.Length, item.GetBigInteger());
+            Assert.AreEqual(_block.Transactions.Length, item.GetInteger());
 
             // Version
 
@@ -317,7 +317,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Version, item.GetBigInteger());
+            Assert.AreEqual(_block.Version, item.GetInteger());
 
             // Uknown property
 
@@ -358,7 +358,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.AreEqual(contract.HasStorage, item.ToBoolean());
+            Assert.AreEqual(contract.HasStorage, item.GetBoolean());
 
             // Found + IsPayable
 
@@ -369,7 +369,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
-            Assert.AreEqual(contract.Payable, item.ToBoolean());
+            Assert.AreEqual(contract.Payable, item.GetBoolean());
 
             // Found + IsPayable
 

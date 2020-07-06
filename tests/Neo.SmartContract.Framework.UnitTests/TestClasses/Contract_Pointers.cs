@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Pointers : SmartContract.Framework.SmartContract
     {
-        public static Func<int> CreateFuncPointer()
+        public static object CreateFuncPointer()
         {
             return new Func<int>(MyMethod);
         }
@@ -19,11 +19,11 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static int CallFuncPointer()
         {
-            var pointer = CreateFuncPointer();
+            var pointer = new Func<int>(MyMethod);
             return pointer.Invoke();
         }
 
-        public static Func<byte[], BigInteger> CreateFuncPointerWithArg()
+        public static object CreateFuncPointerWithArg()
         {
             return new Func<byte[], BigInteger>(MyMethodWithArg);
         }
@@ -35,7 +35,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static BigInteger CallFuncPointerWithArg()
         {
-            var pointer = CreateFuncPointerWithArg();
+            var pointer = new Func<byte[], BigInteger>(MyMethodWithArg);
 
             return pointer.Invoke(new byte[] { 11, 22, 33 });
         }

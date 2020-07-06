@@ -1,6 +1,6 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public class StorageContext
+    public class StorageContext : IApiInterface
     {
         /// <summary>
         /// Returns current StorageContext as ReadOnly
