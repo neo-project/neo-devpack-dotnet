@@ -43,26 +43,27 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         public static object[] checkArrayObj() { return new object[] { "neo" }; }
         public static BigInteger checkBigInteger() { return (BigInteger)5; }
         public static byte[] checkByteArray() { return new byte[] { 1, 2, 3 }; }
-        public static EDummy checkEnum() { return EDummy.test; }
-        public static enumDel checkDelegate()
+        public static object checkEnum() { return EDummy.test; }
+        private static EDummy icheckEnum() { return EDummy.test; }
+        public static object checkDelegate()
         {
-            return new enumDel(checkEnum);
+            return new enumDel(icheckEnum);
         }
-        public static Func<EDummy> checkLambda()
+        public static object checkLambda()
         {
-            return checkEnum;
+            return new Func<EDummy>(icheckEnum);
         }
         public static void checkEvent()
         {
             dummyEvent("neo");
         }
-        public static DummyClass checkClass()
+        public static object checkClass()
         {
             var ret = new DummyClass();
             ret.Value = "neo";
             return ret;
         }
-        public static DummyStruct checkStruct()
+        public static object checkStruct()
         {
             var ret = new DummyStruct();
             ret.Value = "neo";
@@ -76,6 +77,10 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             var tuple = ("neo", "smart economy");
             return tuple;
+        }
+        public static Tuple<string, string> checkTuple3()
+        {
+            return new Tuple<string, string>("neo", "smart economy");
         }
     }
 }

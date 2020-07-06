@@ -28,7 +28,42 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteString).Span.ToHexString());
+            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteString).GetSpan().ToHexString());
+        }
+
+        [TestMethod]
+        public void TestToBigInteger()
+        {
+            // 0
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testToBigInteger", StackItem.Null);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(new byte[0]));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            // Value
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(new byte[] { 123 }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, item.GetInteger());
         }
 
         [TestMethod]
@@ -41,7 +76,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(item.GetBigInteger(), 5);
+            Assert.AreEqual(item.GetInteger(), 5);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(false));

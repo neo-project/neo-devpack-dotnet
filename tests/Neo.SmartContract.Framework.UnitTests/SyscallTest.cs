@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
-using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -19,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
             {
                 var expectedType = typeof(SyscallAttribute).FullName;
-                var module = Mono.Cecil.ModuleDefinition.ReadModule(stream);
+                var module = ModuleDefinition.ReadModule(stream);
 
                 foreach (var type in module.Types)
                 {
@@ -33,15 +32,16 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             foreach (var syscall in ApplicationEngine.Services)
             {
-                if (syscall.Name == "Neo.Native.Deploy") continue;
-                if (syscall.Name == "Neo.Native.Tokens.NEO") continue;
-                if (syscall.Name == "Neo.Native.Tokens.GAS") continue;
-                if (syscall.Name == "Neo.Native.Policy") continue;
-                if (syscall.Name == "Neo.Native.Call") continue;
+                if (syscall.Value.Name == "Neo.Native.Deploy") continue;
+                if (syscall.Value.Name == "Neo.Native.Tokens.NEO") continue;
+                if (syscall.Value.Name == "Neo.Native.Tokens.GAS") continue;
+                if (syscall.Value.Name == "Neo.Native.Policy") continue;
+                if (syscall.Value.Name == "Neo.Native.Call") continue;
+                if (syscall.Value.Name == "System.Runtime.Notify") continue;
 
-                if (list.Remove(syscall.Name)) continue;
+                if (list.Remove(syscall.Value.Name)) continue;
 
-                notFound.Add(syscall.Name);
+                notFound.Add(syscall.Value.Name);
             }
 
             if (list.Count > 0)

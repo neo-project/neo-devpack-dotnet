@@ -43,7 +43,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             Assert.AreEqual(1, result.Count);
 
-            Assert.IsTrue(result.TryPop(out Integer r1));
+            var r1 = result.Pop<Integer>();
             Assert.AreEqual(-3, r1);
         }
     }

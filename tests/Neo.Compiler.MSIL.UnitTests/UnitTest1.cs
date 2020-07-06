@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.VM;
 using Neo.VM.Types;
 using System;
 
@@ -70,10 +71,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract2.cs");
 
             var result = testengine.GetMethod("unitTest_002").Run("hello", 1);
-            StackItem wantresult = 3;
 
-            var bequal = wantresult.Equals(result);
-            Assert.IsTrue(bequal);
+            Assert.AreEqual(3, result.GetInteger());
         }
     }
 }
