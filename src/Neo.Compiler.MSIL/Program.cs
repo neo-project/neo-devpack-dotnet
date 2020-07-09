@@ -1,6 +1,5 @@
 using CommandLine;
 using Mono.Cecil;
-using Mono.Collections.Generic;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
 using Neo.SmartContract;
