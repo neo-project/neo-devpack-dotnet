@@ -909,7 +909,8 @@ namespace Neo.Compiler.MSIL
                         // If readdonly, pull a const value
                         if (
                             ((d.Attributes & Mono.Cecil.FieldAttributes.InitOnly) > 0) &&
-                            ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0)
+                            ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0) &&
+                            (!d.FieldType.FullName.Contains("Neo.SmartContract.Framework.Services"))
                             )
                         {
                             var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;

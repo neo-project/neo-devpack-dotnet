@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL.TestClasses
     [Features(ContractFeatures.HasStorage)]
     class Contract_StaticStorageMap : SmartContract.Framework.SmartContract
     {
-        private static StorageMap Data = Storage.CurrentContext.CreateMap("data");
+        private static readonly StorageMap Data = Storage.CurrentContext.CreateMap("data");
 
         public static void Put(string message)
         {
