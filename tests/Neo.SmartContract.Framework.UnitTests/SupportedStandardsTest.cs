@@ -18,6 +18,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             };
             Program.Compile(option);
 
+            //Compile changes the path, reseting so that other UT won't break
+            Directory.SetCurrentDirectory(path);
+
             var jobj = JObject.Parse(File.ReadAllText(path + "/TestClasses/Contract_SupportedStandards.manifest.json"));
             Assert.AreEqual(jobj["supportedstandards"].ToString(), @"[""NEP10"",""NEP5""]");
         }
