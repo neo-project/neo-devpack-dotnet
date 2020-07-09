@@ -1,5 +1,6 @@
 using CommandLine;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
 using Neo.SmartContract;
@@ -291,8 +292,10 @@ namespace Neo.Compiler
                     .FirstOrDefault();
 
                 var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+                var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
 
                 var extra = BuildExtraAttributes(extraAttributes);
+                var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
                 var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
                 var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
@@ -300,7 +303,7 @@ namespace Neo.Compiler
                 string defManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""extra"":" + extra + "}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -330,6 +333,25 @@ namespace Neo.Compiler
             }
 
             return -1;
+        }
+
+        private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
+        {
+            if (supportedStandardsAttribute.Count == 0)
+            {
+                return "[]";
+            }
+
+            var entry = supportedStandardsAttribute.First();
+            string extra = "[";
+            foreach (var item in entry.Value as CustomAttributeArgument[])
+            {
+                extra += ($"\"{item.Value}\",");
+            }
+            extra = extra.Substring(0, extra.Length - 1);
+            extra += "]";
+
+            return extra;
         }
 
         private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
