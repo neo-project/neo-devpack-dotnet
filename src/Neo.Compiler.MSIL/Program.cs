@@ -345,9 +345,9 @@ namespace Neo.Compiler
             string extra = "[";
             foreach (var item in entry.Value as CustomAttributeArgument[])
             {
-                extra += ($"\"{item.Value}\",");
+                extra += ($"\"{ScapeJson(item.Value.ToString())}\",");
             }
-            extra = extra.Substring(0, extra.Length - 1);
+            extra = extra[0..^1];
             extra += "]";
 
             return extra;
@@ -363,14 +363,19 @@ namespace Neo.Compiler
             string extra = "{";
             foreach (var extraAttribute in extraAttributes)
             {
-                var key = extraAttribute[0].Value;
-                var value = extraAttribute[1].Value;
+                var key = ScapeJson(extraAttribute[0].Value.ToString());
+                var value = ScapeJson(extraAttribute[1].Value.ToString());
                 extra += ($"\"{key}\":\"{value}\",");
             }
-            extra = extra.Substring(0, extra.Length - 1);
+            extra = extra[0..^1];
             extra += "}";
 
             return extra;
+        }
+
+        private static string ScapeJson(string value)
+        {
+            return value.Replace("\"", "");
         }
     }
 }
