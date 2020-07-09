@@ -336,7 +336,7 @@ namespace Neo.Compiler
 
         private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
         {
-            if (supportedStandardsAttribute.Count == 0)
+            if (supportedStandardsAttribute == null || supportedStandardsAttribute.Count == 0)
             {
                 return "[]";
             }
@@ -355,7 +355,7 @@ namespace Neo.Compiler
 
         private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
         {
-            if (extraAttributes.Count == 0)
+            if (extraAttributes == null || extraAttributes.Count == 0)
             {
                 return "null";
             }
