@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.UnitTests
     public class SupportedStandardsTest
     {
         [TestMethod]
-        public void TestAllSyscalls()
+        public void TestAttribute()
         {
             string path = Directory.GetCurrentDirectory();
             var option = new Program.Options()
