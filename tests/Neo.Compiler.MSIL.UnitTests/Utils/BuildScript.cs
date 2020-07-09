@@ -10,14 +10,14 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class BuildScript
     {
-        public bool IsBuild { get; private set; }
-        public bool UseOptimizer { get; private set; }
-        public Exception Error { get; private set; }
+        public bool IsBuild { get; protected set; }
+        public bool UseOptimizer { get; protected set; }
+        public Exception Error { get; protected set; }
         public ILModule modIL { get; private set; }
         public ModuleConverter converterIL { get; private set; }
-        public byte[] finalNEF { get; private set; }
-        public MyJson.JsonNode_Object finialABI { get; private set; }
-        public string finalManifest { get; private set; }
+        public byte[] finalNEF { get; protected set; }
+        public MyJson.JsonNode_Object finialABI { get; protected set; }
+        public string finalManifest { get; protected set; }
         public MyJson.JsonNode_Object debugInfo { get; private set; }
 
         public BuildScript()
