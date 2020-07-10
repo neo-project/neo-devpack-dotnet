@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("get2", "a");
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(2, result.Pop());
+            Assert.AreEqual(3, result.Pop());
         }
 
         [TestMethod]
@@ -58,6 +58,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var result = _engine.ExecuteTestCaseStandard("get", "a");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Pop());
+
+            _engine.Reset();
+            _engine.ExecuteTestCaseStandard("putReadonly", "a");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getReadonly", "a");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(2, result.Pop());
         }
     }
 }
