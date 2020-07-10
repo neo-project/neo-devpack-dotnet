@@ -1,3 +1,4 @@
+using Neo.Compiler.MSIL.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -5,6 +6,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -37,7 +40,23 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
+                {
+                    var fileNameManifest = filename;
+                    using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+                    {
+                        NefFile neffile = new NefFile();
+                        neffile.Deserialize(reader);
+                        fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
+                        string manifestFile = File.ReadAllText(fileNameManifest);
+                        BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
+                        scriptsAll[filename] = buildScriptNef;
+                    }
+                }
+                else
+                {
+                    scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                }
             }
 
             return scriptsAll[filename];
@@ -116,6 +135,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 if (method.GetDictItem("name").ToString() == methodname)
                     return int.Parse(method.GetDictItem("offset").ToString());
             }
+
             return -1;
         }
 
