@@ -360,7 +360,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Null));
 
-            // Found + HasStorage
+            // Found + Manifest
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("Manifest")));
