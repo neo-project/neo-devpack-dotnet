@@ -291,8 +291,10 @@ namespace Neo.Compiler
                     .FirstOrDefault();
 
                 var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+                var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
 
                 var extra = BuildExtraAttributes(extraAttributes);
+                var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
                 var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
                 var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
@@ -300,7 +302,7 @@ namespace Neo.Compiler
                 string defManifest =
                     @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
                     jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""extra"":" + extra + "}";
+                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -332,9 +334,28 @@ namespace Neo.Compiler
             return -1;
         }
 
+        private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
+        {
+            if (supportedStandardsAttribute == null || supportedStandardsAttribute.Count == 0)
+            {
+                return "[]";
+            }
+
+            var entry = supportedStandardsAttribute.First();
+            string extra = "[";
+            foreach (var item in entry.Value as CustomAttributeArgument[])
+            {
+                extra += ($"\"{ScapeJson(item.Value.ToString())}\",");
+            }
+            extra = extra[0..^1];
+            extra += "]";
+
+            return extra;
+        }
+
         private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
         {
-            if (extraAttributes.Count == 0)
+            if (extraAttributes == null || extraAttributes.Count == 0)
             {
                 return "null";
             }
@@ -342,14 +363,19 @@ namespace Neo.Compiler
             string extra = "{";
             foreach (var extraAttribute in extraAttributes)
             {
-                var key = extraAttribute[0].Value;
-                var value = extraAttribute[1].Value;
+                var key = ScapeJson(extraAttribute[0].Value.ToString());
+                var value = ScapeJson(extraAttribute[1].Value.ToString());
                 extra += ($"\"{key}\":\"{value}\",");
             }
-            extra = extra.Substring(0, extra.Length - 1);
+            extra = extra[0..^1];
             extra += "}";
 
             return extra;
+        }
+
+        private static string ScapeJson(string value)
+        {
+            return value.Replace("\"", "");
         }
     }
 }
