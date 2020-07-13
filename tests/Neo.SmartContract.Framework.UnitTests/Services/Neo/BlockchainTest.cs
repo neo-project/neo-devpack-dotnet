@@ -334,7 +334,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Script = new byte[] { 0x01, 0x02, 0x03 },
                 Manifest = new Manifest.ContractManifest()
                 {
-                    Features = Manifest.ContractFeatures.HasStorage
+                    Features = Manifest.ContractFeatures.HasStorage,
+                    SupportedStandards = new string[0],
+                    Groups = new Manifest.ContractGroup[0],
+                    Trusts = Manifest.WildcardContainer<UInt160>.Create(),
+                    Permissions = new Manifest.ContractPermission[0],
+                    SafeMethods = Manifest.WildcardContainer<string>.Create(),
+                    Abi = new Manifest.ContractAbi()
+                    {
+                        Methods = new Manifest.ContractMethodDescriptor[0],
+                        Events = new Manifest.ContractEventDescriptor[0],
+                        Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash()
+                    },
                 }
             };
             _engine.Snapshot.Contracts.GetOrAdd(contract.ScriptHash, () => contract);
@@ -342,7 +353,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Not found
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(UInt160.Zero.ToArray()), new ByteString(new byte[0]));
+            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(UInt160.Zero.ToArray()), new ByteString(new byte[20]));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -352,12 +363,23 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + HasStorage
 
             _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("Manifest")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual(contract.Manifest.ToString(), item.GetString());
+
+            // Found + HasStorage
+
+            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("HasStorage")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
+            Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.AreEqual(contract.HasStorage, item.GetBoolean());
 
             // Found + IsPayable
@@ -368,7 +390,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Boolean));
+            Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.AreEqual(contract.Payable, item.GetBoolean());
 
             // Found + IsPayable
@@ -379,7 +401,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             CollectionAssert.AreEqual(contract.Script, item.GetSpan().ToArray());
 
             // Found + Uknown property

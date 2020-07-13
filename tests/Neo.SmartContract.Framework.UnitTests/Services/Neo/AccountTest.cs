@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(VM.VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
 
-            // Standard
+            // No standard
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteString(new byte[20]));
@@ -46,9 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(true, item.GetBoolean());
-
-            // No standard
+            Assert.AreEqual(false, item.GetBoolean());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("accountIsStandard", new ByteString(noStandard));
