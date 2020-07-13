@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             {
                 Attributes = new TransactionAttribute[0],
                 Script = new byte[0],
-                Sender = UInt160.Zero,
+                Signers = new Signer[] { new Signer() { Account = UInt160.Zero } },
                 Witnesses = new Witness[0],
                 NetworkFee = 1,
                 Nonce = 2,
