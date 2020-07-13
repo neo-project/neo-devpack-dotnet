@@ -334,7 +334,7 @@ namespace Neo.Compiler
             return -1;
         }
 
-        private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
+        internal static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
         {
             if (supportedStandardsAttribute == null || supportedStandardsAttribute.Count == 0)
             {
@@ -353,7 +353,7 @@ namespace Neo.Compiler
             return extra;
         }
 
-        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
+        internal static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
         {
             if (extraAttributes == null || extraAttributes.Count == 0)
             {
