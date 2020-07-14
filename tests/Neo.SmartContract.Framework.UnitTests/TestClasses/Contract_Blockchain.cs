@@ -100,6 +100,7 @@ namespace Neo.Compiler.MSIL.TestClasses
                 return null;
             }
 
+            if (whatReturn == "Manifest") return contract.Manifest;
             if (whatReturn == "HasStorage") return contract.HasStorage;
             if (whatReturn == "IsPayable") return contract.IsPayable;
             if (whatReturn == "Script") return contract.Script;

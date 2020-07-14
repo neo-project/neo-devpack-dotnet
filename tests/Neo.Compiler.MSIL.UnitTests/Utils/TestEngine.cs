@@ -7,7 +7,6 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -128,7 +127,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finalABI.GetDictItem("methods") as MyJson.JsonNode_Array;
             foreach (var item in methods)
             {
                 var method = item as MyJson.JsonNode_Object;
@@ -200,7 +199,18 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
+        public void SendNotification(UInt160 hash, string eventName, VM.Types.Array state)
+        {
+            typeof(ApplicationEngine).GetMethod("SendNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .Invoke(this, new object[] { hash, eventName, state });
+        }
+
         static Dictionary<uint, InteropDescriptor> callmethod;
+
+        public void ClearNotifications()
+        {
+            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, null);
+        }
 
         protected override void OnSysCall(uint method)
         {

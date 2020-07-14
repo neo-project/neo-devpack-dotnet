@@ -152,7 +152,7 @@ namespace Neo.Compiler
             }
             byte[] bytes;
             int bSucc = 0;
-            string jsonstr = null;
+            MyJson.JsonNode_Object abi = null;
             string debugstr = null;
             NeoModule module = null;
 
@@ -183,10 +183,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = FuncExport.Export(module, bytes, addrConvTable);
-                    StringBuilder sb = new StringBuilder();
-                    outjson.ConvertToStringWithFormat(sb, 0);
-                    jsonstr = sb.ToString();
+                    abi = FuncExport.Export(module, bytes, addrConvTable);
                     log.Log("gen abi succ");
                 }
                 catch (Exception err)
@@ -246,10 +243,12 @@ namespace Neo.Compiler
 
             try
             {
+                StringBuilder sbABI = new StringBuilder();
+                abi.ConvertToStringWithFormat(sbABI, 0);
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);
-                File.WriteAllText(abiname, jsonstr);
+                File.WriteAllText(abiname, sbABI.ToString());
                 log.Log("write:" + abiname);
                 bSucc++;
             }
@@ -267,7 +266,6 @@ namespace Neo.Compiler
                 var tempName = Path.GetTempFileName();
                 File.Delete(tempName);
                 File.WriteAllText(tempName, debugstr);
-
                 File.Delete(debugzip);
                 using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
                 {
@@ -285,24 +283,8 @@ namespace Neo.Compiler
 
             try
             {
-                var features = module == null ? ContractFeatures.NoProperty : module.attributes
-                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
-                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                    .FirstOrDefault();
-
-                var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
-                var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
-
-                var extra = BuildExtraAttributes(extraAttributes);
-                var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
-                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
-                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
-
                 string manifest = onlyname + ".manifest.json";
-                string defManifest =
-                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                    jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                var defManifest = FuncExport.GenerateManifest(abi, module);
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -332,50 +314,6 @@ namespace Neo.Compiler
             }
 
             return -1;
-        }
-
-        private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
-        {
-            if (supportedStandardsAttribute == null || supportedStandardsAttribute.Count == 0)
-            {
-                return "[]";
-            }
-
-            var entry = supportedStandardsAttribute.First();
-            string extra = "[";
-            foreach (var item in entry.Value as CustomAttributeArgument[])
-            {
-                extra += ($"\"{ScapeJson(item.Value.ToString())}\",");
-            }
-            extra = extra[0..^1];
-            extra += "]";
-
-            return extra;
-        }
-
-        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
-        {
-            if (extraAttributes == null || extraAttributes.Count == 0)
-            {
-                return "null";
-            }
-
-            string extra = "{";
-            foreach (var extraAttribute in extraAttributes)
-            {
-                var key = ScapeJson(extraAttribute[0].Value.ToString());
-                var value = ScapeJson(extraAttribute[1].Value.ToString());
-                extra += ($"\"{key}\":\"{value}\",");
-            }
-            extra = extra[0..^1];
-            extra += "}";
-
-            return extra;
-        }
-
-        private static string ScapeJson(string value)
-        {
-            return value.Replace("\"", "");
         }
     }
 }
