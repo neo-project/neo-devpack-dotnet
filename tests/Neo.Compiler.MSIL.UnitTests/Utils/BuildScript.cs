@@ -1,10 +1,7 @@
-using Mono.Cecil;
 using Neo.Compiler.Optimizer;
-using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -16,7 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public ILModule modIL { get; private set; }
         public ModuleConverter converterIL { get; private set; }
         public byte[] finalNEF { get; protected set; }
-        public MyJson.JsonNode_Object finialABI { get; protected set; }
+        public MyJson.JsonNode_Object finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
         public MyJson.JsonNode_Object debugInfo { get; private set; }
 
@@ -78,7 +75,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finalABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
             }
             catch (Exception err)
             {
@@ -100,27 +97,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                var module = converterIL.outModule;
-                var features = module == null ? ContractFeatures.NoProperty : module.attributes
-                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
-                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                    .FirstOrDefault();
-
-                var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
-                var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
-
-                var extra = Program.BuildExtraAttributes(extraAttributes);
-                var supportedStandards = Program.BuildSupportedStandards(supportedStandardsAttribute);
-                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
-                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
-
-                finalManifest =
-                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                    finialABI +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                finalManifest = FuncExport.GenerateManifest(finalABI, converterIL.outModule);
             }
-            catch
+            catch (Exception err)
             {
+                log.Log("Gen Manifest Error:" + err.ToString());
+                this.Error = err;
+                return;
             }
         }
 

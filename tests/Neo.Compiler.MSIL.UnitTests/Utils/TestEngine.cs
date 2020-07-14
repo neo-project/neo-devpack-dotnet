@@ -127,7 +127,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finalABI.GetDictItem("methods") as MyJson.JsonNode_Array;
             foreach (var item in methods)
             {
                 var method = item as MyJson.JsonNode_Object;
