@@ -1,3 +1,4 @@
+using Neo.Compiler.MSIL.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -5,6 +6,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -37,7 +39,23 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
+                {
+                    var fileNameManifest = filename;
+                    using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+                    {
+                        NefFile neffile = new NefFile();
+                        neffile.Deserialize(reader);
+                        fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
+                        string manifestFile = File.ReadAllText(fileNameManifest);
+                        BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
+                        scriptsAll[filename] = buildScriptNef;
+                    }
+                }
+                else
+                {
+                    scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                }
             }
 
             return scriptsAll[filename];
@@ -109,13 +127,14 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finalABI.GetDictItem("methods") as MyJson.JsonNode_Array;
             foreach (var item in methods)
             {
                 var method = item as MyJson.JsonNode_Object;
                 if (method.GetDictItem("name").ToString() == methodname)
                     return int.Parse(method.GetDictItem("offset").ToString());
             }
+
             return -1;
         }
 
@@ -180,7 +199,18 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
+        public void SendNotification(UInt160 hash, string eventName, VM.Types.Array state)
+        {
+            typeof(ApplicationEngine).GetMethod("SendNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .Invoke(this, new object[] { hash, eventName, state });
+        }
+
         static Dictionary<uint, InteropDescriptor> callmethod;
+
+        public void ClearNotifications()
+        {
+            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, null);
+        }
 
         protected override void OnSysCall(uint method)
         {

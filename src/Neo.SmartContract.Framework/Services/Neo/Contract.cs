@@ -8,6 +8,11 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly byte[] Script;
 
         /// <summary>
+        /// Manifest
+        /// </summary>
+        public readonly string Manifest;
+
+        /// <summary>
         /// Has storage
         /// </summary>
         public readonly bool HasStorage;
