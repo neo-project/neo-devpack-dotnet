@@ -1,23 +1,21 @@
-using Mono.Cecil;
 using Neo.Compiler.Optimizer;
-using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class BuildScript
     {
-        public bool IsBuild { get; private set; }
-        public bool UseOptimizer { get; private set; }
-        public Exception Error { get; private set; }
+        public bool IsBuild { get; protected set; }
+        public bool UseOptimizer { get; protected set; }
+        public Exception Error { get; protected set; }
         public ILModule modIL { get; private set; }
         public ModuleConverter converterIL { get; private set; }
-        public byte[] finalNEF { get; private set; }
-        public MyJson.JsonNode_Object finialABI { get; private set; }
-        public string finalManifest { get; private set; }
+        public byte[] finalNEF { get; protected set; }
+        public MyJson.JsonNode_Object finalABI { get; protected set; }
+        public string finalManifest { get; protected set; }
+        public MyJson.JsonNode_Object debugInfo { get; private set; }
 
         public BuildScript()
         {
@@ -77,7 +75,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finialABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finalABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
             }
             catch (Exception err)
             {
@@ -88,23 +86,24 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                var features = converterIL.outModule == null ? ContractFeatures.NoProperty : converterIL.outModule.attributes
-                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
-                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                    .FirstOrDefault();
-
-                var extraAttributes = converterIL.outModule == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>()
-                    : converterIL.outModule.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
-                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
-                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
-
-                finalManifest =
-                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                    finialABI +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":[]" + "}";
+                debugInfo = DebugExport.Export(converterIL.outModule, finalNEF, addrConvTable);
             }
-            catch
+            catch (Exception err)
             {
+                log.Log("Gen debugInfo Error:" + err.ToString());
+                this.Error = err;
+                return;
+            }
+
+            try
+            {
+                finalManifest = FuncExport.GenerateManifest(finalABI, converterIL.outModule);
+            }
+            catch (Exception err)
+            {
+                log.Log("Gen Manifest Error:" + err.ToString());
+                this.Error = err;
+                return;
             }
         }
 

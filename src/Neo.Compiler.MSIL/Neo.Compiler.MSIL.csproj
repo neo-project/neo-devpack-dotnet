@@ -5,10 +5,8 @@
     <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
     <Version>3.0.0-preview2</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFrameworks>netcoreapp3.1;netstandard2.1</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <AssemblyName>neon</AssemblyName>
-    <PackageId>Neo.Compiler.MSIL</PackageId>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,12 +19,30 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <!--
+    https://johan-v-r.github.io/2018/09/05/NET-Core-Global-Tools-Configuration/
+      `dotnet pack` to build .NET Core 3.1 global tool
+      `dotnet pack /p:SharedLibrary=true` to build .NET Standard 2.0 library package
+  -->
+
+  <PropertyGroup Condition="'$(SharedLibrary)' != true">
+    <OutputType>Exe</OutputType>
+    <PackageId>Neo.Neon</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SharedLibrary)' == true">
+    <PackageId>Neo.Compiler.MSIL</PackageId>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.2" />
-    <PackageReference Include="Neo" Version="3.0.0-CI00959" />
+    <PackageReference Include="Neo" Version="3.0.0-CI00971" />
   </ItemGroup>
 
   <ItemGroup>
