@@ -906,10 +906,13 @@ namespace Neo.Compiler.MSIL
                     {
                         Convert1by1(VM.OpCode.NOP, src, to);
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
-                        // If readdonly, pull a const value
+                        // If readonly, pull a const value
                         if (
                             ((d.Attributes & Mono.Cecil.FieldAttributes.InitOnly) > 0) &&
-                            ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0)
+                            ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0) &&
+                            // For a readonly Framework.Services, it can't be a const value,
+                            // we should handle in initializemethod.
+                            (!d.FieldType.FullName.Contains("Neo.SmartContract.Framework.Services"))
                             )
                         {
                             var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;
