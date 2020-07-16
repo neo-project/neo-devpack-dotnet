@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL.Utils
             finalNEF = nefFile.Script;
             MyJson.JsonNode_Object manifestAbi = MyJson.Parse(manifestFile) as MyJson.JsonNode_Object;
             var abi = manifestAbi.GetDictItem("abi") as MyJson.JsonNode_Object;
-            finialABI = abi;
+            finalABI = abi;
             finalManifest = manifestFile;
         }
     }
