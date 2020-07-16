@@ -122,11 +122,6 @@ namespace Neo.Compiler.MSIL
             {
                 Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
             }
-
-            if (method.paramtypes[pos].type.FullName == "System.Byte[]")
-            {
-                Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Buffer });
-            }
         }
 
         private void ConvertStArg(OpCode src, NeoMethod to, int pos)
@@ -1404,6 +1399,8 @@ namespace Neo.Compiler.MSIL
             {
                 throw new Exception("unsupported type:System.Decimal.");
             }
+            if (_type.FullName.Contains("Neo.SmartContract.Framework.Map") && _type.FullName.Contains("<System.Byte[]"))
+                throw new Exception("The Key of Map cannot be Byte[], it should be PrimitiveType.");
             var type = _type.Resolve();
             // Replace the New Array operation if there is an [OpCode] on the constructor
             foreach (var m in type.DeclaringType.Methods)

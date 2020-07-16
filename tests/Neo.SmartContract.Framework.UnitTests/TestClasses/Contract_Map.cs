@@ -7,21 +7,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Map : SmartContract
     {
-        public static string TestByteArray()
-        {
-            Map<byte[], string> some = new Map<byte[], string>();
-            some[new byte[] { 0x01, 0x01 }] = Json.Serialize("");
-            return Json.Serialize(some);
-        }
-
-        public static object TestByteArray2(byte[] key)
+        public static object TestByteArray(byte[] key)
         {
             Map<string, string> some = new Map<string, string>();
             some[key.ToByteString()] = "teststring2";
             return Json.Serialize(some);
         }
 
-        public static string TestByteArray3()
+        public static string TestByteArray2()
         {
             Map<string, string> some = new Map<string, string>();
             string key = new byte[] { 0x01, 0x01 }.ToByteString();

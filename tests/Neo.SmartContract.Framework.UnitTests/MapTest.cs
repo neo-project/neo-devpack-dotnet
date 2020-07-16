@@ -18,19 +18,17 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestByteArray()
+        public void TestByteArrayMap()
         {
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("testByteArray");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<System.Exception>(() => _engine.AddEntryScript("./TestClasses/Contract_MapException.cs"));
         }
 
         [TestMethod]
-        public void TestByteArray2()
+        public void TestByteArray()
         {
             _engine.Reset();
             StackItem key = System.Text.Encoding.ASCII.GetBytes("a");
-            var result = _engine.ExecuteTestCaseStandard("testByteArray2", key);
+            var result = _engine.ExecuteTestCaseStandard("testByteArray", key);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -41,10 +39,10 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestByteArray3()
+        public void TestByteArray2()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testByteArray3");
+            var result = _engine.ExecuteTestCaseStandard("testByteArray2");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
