@@ -9,46 +9,46 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("NEO_Decimals")]
         public static int NEO_Decimals()
         {
-            return (int)NEO.decimals();
+            return (int)NEO.Decimals();
         }
 
         [DisplayName("NEO_Name")]
         public static string NEO_Name()
         {
-            return NEO.name();
+            return NEO.Name();
         }
 
         [DisplayName("NEO_BalanceOf")]
         public static BigInteger NEO_BalanceOf(byte[] account)
         {
-            return NEO.balanceOf(account);
+            return NEO.BalanceOf(account);
         }       
 
         [DisplayName("GAS_Decimals")]
         public static int GAS_Decimals()
         {
-            return (int)GAS.decimals();
+            return (int)GAS.Decimals();
         }
 
         [DisplayName("GAS_Name")]
         public static string GAS_Name()
         {
-            return GAS.name();
+            return GAS.Name();
         }
 
         public static BigInteger Policy_GetFeePerByte()
         {
-            return Policy.getFeePerByte();
+            return Policy.GetFeePerByte();
         }
 
         public static bool Policy_SetMaxTransactionsPerBlock(uint value)
         {
-            return Policy.setMaxTransactionsPerBlock(value);
+            return Policy.SetMaxTransactionsPerBlock(value);
         }
 
         public static uint Policy_GetMaxTransactionsPerBlock()
         {
-            return Policy.getMaxTransactionsPerBlock();
+            return Policy.GetMaxTransactionsPerBlock();
         }
     }
 }

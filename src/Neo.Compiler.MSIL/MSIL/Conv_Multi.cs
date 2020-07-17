@@ -836,9 +836,9 @@ namespace Neo.Compiler.MSIL
                 ConvertPushNumber(pcount, null, to);
                 Convert1by1(VM.OpCode.PACK, null, to);
 
-                // Push call method name.
+                // Push call method name, the first letter should be lowercase.
                 var methodName = defs.Body.Method.Name;
-                ConvertPushString(methodName, src, to);
+                ConvertPushString(methodName[..1].ToLowerInvariant() + methodName[1..], src, to);
 
                 // Push contract hash.
                 ConvertPushDataArray(callhash, src, to);
