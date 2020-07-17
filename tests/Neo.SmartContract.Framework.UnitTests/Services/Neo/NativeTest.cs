@@ -63,6 +63,16 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("NEO", item.GetString());
+
+            _engine.Reset();
+            var account = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+            result = _engine.ExecuteTestCaseStandard("NEO_BalanceOf", account);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetInteger());
         }
 
         [TestMethod]
@@ -98,6 +108,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(1000L, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("policy_GetMaxTransactionsPerBlock");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(512, item.GetInteger());
         }
     }
 }
