@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("NEO_Name")]
         public static string NEO_Name()
         {
-            return (string)NEO.name();
+            return NEO.name();
         }
 
         [DisplayName("NEO_BalanceOf")]
@@ -33,12 +33,12 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("GAS_Name")]
         public static string GAS_Name()
         {
-            return (string)GAS.name();
+            return GAS.name();
         }
 
         public static BigInteger Policy_GetFeePerByte()
         {
-            return (BigInteger)Policy.getFeePerByte();
+            return Policy.getFeePerByte();
         }
 
         public static bool Policy_SetMaxTransactionsPerBlock(uint value)
