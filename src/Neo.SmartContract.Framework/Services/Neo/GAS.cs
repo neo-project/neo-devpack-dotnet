@@ -1,3 +1,5 @@
+#pragma warning disable CS0626
+
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
