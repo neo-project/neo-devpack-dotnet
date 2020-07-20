@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Cryptography.ECC;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -9,15 +10,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     public class NativeTest
     {
         private TestEngine _engine;
+        private readonly byte[] pubKey = NeonTestTool.HexString2Bytes("03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa");
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine();
-
             // Deploy native contracts
-
-            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Network.P2P.Payloads.Block()
+            var block = new Network.P2P.Payloads.Block()
             {
                 Index = 0,
                 ConsensusData = new Network.P2P.Payloads.ConsensusData(),
@@ -25,12 +24,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Witness = new Network.P2P.Payloads.Witness()
                 {
                     InvocationScript = new byte[0],
-                    VerificationScript = new byte[0]
+                    VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
                 },
                 NextConsensus = UInt160.Zero,
                 MerkleRoot = UInt256.Zero,
                 PrevHash = UInt256.Zero
-            });
+            };
+
+            _engine = new TestEngine(TriggerType.Application, block);
+            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(block);
 
             using (var script = new ScriptBuilder())
             {
@@ -73,6 +75,45 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetInteger());
+
+
+            // Before RegisterCandidate
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("NEO_GetCandidates");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(21, ((Array)item).Count);
+
+            // RegisterCandidate
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("NEO_RegisterCandidate", pubKey);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.AreEqual(true, item.GetBoolean());
+
+            // After RegisterCandidate
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("NEO_GetCandidates");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(22, ((Array)item).Count);
+            var candidate = ((Array)item)[21];
+            Assert.IsInstanceOfType(candidate, typeof(Struct));
+            var candidatePubKey = ((Struct)candidate)[0];
+            var candidateVotes = ((Struct)candidate)[1];
+            Assert.IsInstanceOfType(candidatePubKey, typeof(ByteString));
+            Assert.AreEqual(true, candidatePubKey.Equals((ByteString)pubKey));
+            Assert.IsInstanceOfType(candidateVotes, typeof(Integer));
+            Assert.AreEqual(0, candidateVotes.GetInteger());
         }
 
         [TestMethod]
@@ -117,6 +158,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(512, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("policy_GetBlockedAccounts");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(0, ((Array)item).Count);
         }
     }
 }

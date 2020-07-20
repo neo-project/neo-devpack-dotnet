@@ -1,5 +1,6 @@
 #pragma warning disable CS0626
 
+using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
@@ -9,7 +10,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static extern string Name();
         public static extern string Symbol();
-        public static extern byte Decimals();
+        public static extern BigInteger Decimals();
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(byte[] account);
 
@@ -18,9 +19,9 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern bool RegisterCandidate(byte[] pubkey);
         public static extern bool UnRegisterCandidate(byte[] pubkey);
         public static extern bool Vote(byte[] account, byte[] voteTo);
-        public static extern object GetCandidates();
-        public static extern object GetValidators();
-        public static extern object GetCommittee();
-        public static extern object GetNextBlockValidators();
+        public static extern (string, BigInteger)[] GetCandidates();
+        public static extern string[] GetValidators();
+        public static extern string[] GetCommittee();
+        public static extern string[] GetNextBlockValidators();
     }
 }

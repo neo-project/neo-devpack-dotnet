@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
-    internal static class NeonTestTool
+    public static class NeonTestTool
     {
         /// <summary>
         /// Is not the official script hash, just a unique hash related to the script used for unit test purpose
