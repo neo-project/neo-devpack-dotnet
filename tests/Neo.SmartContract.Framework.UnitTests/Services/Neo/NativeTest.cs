@@ -76,7 +76,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetInteger());
 
-
             // Before RegisterCandidate
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("NEO_GetCandidates");
