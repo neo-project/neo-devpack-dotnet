@@ -171,7 +171,6 @@ namespace Neo.Compiler
                     HashSet<int> entryPoints = new HashSet<int>();
                     foreach (var func in module.mapMethods)
                     {
-                        int srcaddr = func.Value.funcaddr;
                         entryPoints.Add(func.Value.funcaddr);
                     }
                     var optimize = NefOptimizeTool.Optimize(bytes, entryPoints.ToArray(), out addrConvTable);
