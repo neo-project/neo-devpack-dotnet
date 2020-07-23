@@ -152,9 +152,9 @@ namespace Neo.Compiler
             }
             byte[] bytes;
             int bSucc = 0;
-            MyJson.JsonNode_Object abi = null;
             string debugstr = null;
-            NeoModule module = null;
+            NeoModule module;
+            MyJson.JsonNode_Object abi;
 
             // Convert and build
             try
@@ -168,13 +168,11 @@ namespace Neo.Compiler
                 if (options.Optimize)
                 {
                     module.ConvertFuncAddr();
-                    List<int> entryPoints = new List<int>();
-
+                    HashSet<int> entryPoints = new HashSet<int>();
                     foreach (var func in module.mapMethods)
                     {
                         int srcaddr = func.Value.funcaddr;
-                        if (entryPoints.Contains(srcaddr) == false)
-                            entryPoints.Add(srcaddr);
+                        entryPoints.Add(func.Value.funcaddr);
                     }
                     var optimize = NefOptimizeTool.Optimize(bytes, entryPoints.ToArray(), out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
