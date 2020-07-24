@@ -5,7 +5,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Iterator : SmartContract.Framework.SmartContract
     {
-        public static int TestNextArray(byte[] a)
+        public static int TestNextByteArray(byte[] a)
         {
             int sum = 0;
             var iterator = Iterator<byte, byte>.Create(a);
@@ -18,11 +18,39 @@ namespace Neo.Compiler.MSIL.TestClasses
             return sum;
         }
 
-        public static int TestConcatArray(byte[] a, byte[] b)
+        public static int TestNextIntArray(int[] a)
+        {
+            int sum = 0;
+            var iterator = Iterator<int, int>.Create(a);
+
+            while (iterator.Next())
+            {
+                sum += iterator.Value;
+            }
+
+            return sum;
+        }
+
+        public static int TestConcatByteArray(byte[] a, byte[] b)
         {
             int sum = 0;
             var iteratorA = Iterator<byte, byte>.Create(a);
             var iteratorB = Iterator<byte, byte>.Create(b);
+            var iteratorC = iteratorA.Concat(iteratorB);
+
+            while (iteratorC.Next())
+            {
+                sum += iteratorC.Value;
+            }
+
+            return sum;
+        }
+
+        public static int TestConcatIntArray(int[] a, int[] b)
+        {
+            int sum = 0;
+            var iteratorA = Iterator<int, int>.Create(a);
+            var iteratorB = Iterator<int, int>.Create(b);
             var iteratorC = iteratorA.Concat(iteratorB);
 
             while (iteratorC.Next())
