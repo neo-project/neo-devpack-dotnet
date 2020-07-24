@@ -8,6 +8,7 @@ namespace Template.NEP5.CSharp
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a NEP5 example")]
+    [SupportedStandards("NEP5", "NEP10")]
     [Features(ContractFeatures.HasStorage | ContractFeatures.Payable)]
     public partial class NEP5 : SmartContract
     {
@@ -35,7 +36,5 @@ namespace Template.NEP5.CSharp
         public static string Symbol() => "TokenSymbol";
 
         public static ulong Decimals() => 8;
-
-        public static string[] SupportedStandards() => new string[] { "NEP-5", "NEP-10" };
     }
 }
