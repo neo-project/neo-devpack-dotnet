@@ -84,7 +84,7 @@ namespace Neo.Compiler
             var methods = new MyJson.JsonNode_Array();
             outjson["methods"] = methods;
 
-            List<string> names = new List<string>();
+            HashSet<string> names = new HashSet<string>();
             foreach (var function in module.mapMethods)
             {
                 var mm = function.Value;
@@ -96,11 +96,10 @@ namespace Neo.Compiler
                 var funcsign = new MyJson.JsonNode_Object();
                 methods.Add(funcsign);
                 funcsign.SetDictValue("name", function.Value.displayName);
-                if (names.Contains(function.Value.displayName))
+                if (!names.Add(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
-                names.Add(function.Value.displayName);
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign.SetDictValue("offset", offset.ToString());
                 MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
