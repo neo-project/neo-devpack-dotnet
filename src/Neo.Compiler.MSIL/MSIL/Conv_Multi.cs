@@ -1409,9 +1409,8 @@ namespace Neo.Compiler.MSIL
                 {
                     foreach (var attr in m.CustomAttributes)
                     {
-                        if (attr.AttributeType.Name == "OpCodeAttribute")
+                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute")
                         {
-                            //object[] op = method.method.Annotations[0] as object[];
                             var opcode = (VM.OpCode)attr.ConstructorArguments[0].Value;
                             var opdata = Helper.OpDataToBytes((string)attr.ConstructorArguments[1].Value);
                             VM.OpCode v = (VM.OpCode)opcode;
