@@ -1,12 +1,14 @@
 using Neo.VM;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
+[assembly: InternalsVisibleTo("Neo.SmartContract.Framework.UnitTests")]
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
-    public static class NeonTestTool
+    internal static class NeonTestTool
     {
         /// <summary>
         /// Is not the official script hash, just a unique hash related to the script used for unit test purpose
