@@ -957,14 +957,14 @@ namespace Neo.Compiler.MSIL
                         {
                             foreach (var ev in d.DeclaringType.Events)
                             {
-                                if (ev.Name == d.Name && ev.EventType.FullName == d.FieldType.FullName)
+                                if (ev.FullName == d.FullName && ev.EventType.FullName == d.FieldType.FullName)
                                 {
 
                                     Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = ev.CustomAttributes;
                                     to.lastsfieldname = d.Name;
                                     foreach (var attr in ca)
                                     {
-                                        if (attr.AttributeType.Name == "DisplayNameAttribute")
+                                        if (attr.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                                         {
                                             to.lastsfieldname = (string)attr.ConstructorArguments[0].Value;
                                         }
