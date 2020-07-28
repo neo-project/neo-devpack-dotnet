@@ -156,7 +156,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var method = new EventHandler<LogEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Log += method;
-            var result = _engine.ExecuteTestCaseStandard("log", new ByteString(Encoding.UTF8.GetBytes("LogTest")));
+            var result = _engine.ExecuteTestCaseStandard("log", new ByteString(Utility.StrictUTF8.GetBytes("LogTest")));
             ApplicationEngine.Log -= method;
 
             Assert.AreEqual(1, list.Count);
