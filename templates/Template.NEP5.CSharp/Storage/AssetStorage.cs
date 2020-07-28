@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System.Numerics;
 
@@ -20,7 +21,7 @@ namespace Template.NEP5.CSharp
 
         public static void Put(byte[] key, BigInteger value) => Storage.CurrentContext.CreateMap(mapName).Put(key, value);
 
-        public static BigInteger Get(byte[] key) => Storage.CurrentContext.CreateMap(mapName).Get(key).TryToBigInteger();
+        public static BigInteger Get(byte[] key) => Storage.CurrentContext.CreateMap(mapName).Get(key).ToBigInteger();
 
         public static void Remove(byte[] key) => Storage.CurrentContext.CreateMap(mapName).Delete(key);
     }
