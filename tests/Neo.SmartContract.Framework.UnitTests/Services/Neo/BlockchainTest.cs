@@ -122,7 +122,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Hash
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("Hash"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Hash"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -133,7 +133,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // NetworkFee
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("NetworkFee"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("NetworkFee"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -144,7 +144,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Nonce
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("Nonce"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Nonce"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -155,7 +155,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // SystemFee
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("SystemFee"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("SystemFee"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -166,7 +166,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // ValidUntilBlock
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("ValidUntilBlock"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("ValidUntilBlock"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -177,7 +177,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Version
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("Version"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Version"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -188,7 +188,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Script
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("Script"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Script"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -199,7 +199,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Sender
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Encoding.UTF8.GetBytes("Sender"))));
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Sender"))));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -234,7 +234,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Hash
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("Hash")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Hash")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -245,7 +245,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Index
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("Index")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Index")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -256,7 +256,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // MerkleRoot
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("MerkleRoot")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("MerkleRoot")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -267,7 +267,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // NextConsensus
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("NextConsensus")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("NextConsensus")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -278,7 +278,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // PrevHash
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("PrevHash")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("PrevHash")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -289,7 +289,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Timestamp
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("Timestamp")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Timestamp")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -300,7 +300,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // TransactionsCount
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("TransactionsCount")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("TransactionsCount")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -311,7 +311,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Version
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("Version")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Version")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -322,7 +322,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Uknown property
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Encoding.UTF8.GetBytes("ASD")));
+            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("ASD")));
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
 
@@ -363,7 +363,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + Manifest
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("Manifest")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("Manifest")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -374,7 +374,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + HasStorage
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("HasStorage")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("HasStorage")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -385,7 +385,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + IsPayable
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("IsPayable")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("IsPayable")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -396,7 +396,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + IsPayable
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("Script")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("Script")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -407,7 +407,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + Uknown property
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Encoding.UTF8.GetBytes("ASD")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.ScriptHash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("ASD")));
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
     }

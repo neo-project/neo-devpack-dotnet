@@ -801,7 +801,7 @@ namespace Neo.Compiler.MSIL
                             }
                             else
                             {
-                                bytes = System.Text.Encoding.UTF8.GetBytes(callname);
+                                bytes = System.Text.Utility.StrictUTF8.GetBytes(callname);
                                 if (bytes.Length > 252) throw new Exception("string is to long");
                             }
                             byte[] outbytes = new byte[bytes.Length + 1];
