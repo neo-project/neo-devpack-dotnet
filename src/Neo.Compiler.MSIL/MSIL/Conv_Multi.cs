@@ -301,7 +301,7 @@ namespace Neo.Compiler.MSIL
                     i++;
                 }
 
-                if (attr.AttributeType.Name == "System.Runtime.CompilerServices.ExtensionAttribute")
+                if (attr.AttributeType.FullName == "System.Runtime.CompilerServices.ExtensionAttribute")
                     ext++;
             }
 
