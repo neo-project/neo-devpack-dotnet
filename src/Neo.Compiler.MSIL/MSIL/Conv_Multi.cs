@@ -301,7 +301,7 @@ namespace Neo.Compiler.MSIL
                     i++;
                 }
 
-                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.ExtensionAttribute")
+                if (attr.AttributeType.Name == "System.Runtime.CompilerServices.ExtensionAttribute")
                     ext++;
             }
 
