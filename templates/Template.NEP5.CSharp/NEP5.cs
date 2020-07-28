@@ -29,6 +29,7 @@ namespace Template.NEP5.CSharp
 
         // When this contract address is included in the transaction signature,
         // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
+        // For example, this method needs to be called when withdrawing token from the contract.
         public static bool Verify() => IsOwner();
 
         public static string Name() => "Token Name";
