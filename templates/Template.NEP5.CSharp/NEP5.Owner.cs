@@ -22,7 +22,12 @@ namespace Template.NEP5.CSharp
         public static bool Update(byte[] script, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
+            // Check empty
             if (script.Length == 0 && manifest.Length == 0) return false;
+            // Check equals
+            var contract = Blockchain.GetContract(ExecutionEngine.ExecutingScriptHash);
+            if (script != null && script.Equals(contract.Script) && manifest == contract.Manifest)
+                return true;
             Contract.Update(script, manifest);
             return true;
         }
