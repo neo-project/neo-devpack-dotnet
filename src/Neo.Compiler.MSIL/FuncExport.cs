@@ -2,6 +2,7 @@ using Mono.Cecil;
 using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Neo.Compiler
@@ -83,7 +84,7 @@ namespace Neo.Compiler
             var methods = new MyJson.JsonNode_Array();
             outjson["methods"] = methods;
 
-            List<string> names = new List<string>();
+            HashSet<string> names = new HashSet<string>();
             foreach (var function in module.mapMethods)
             {
                 var mm = function.Value;
@@ -95,11 +96,10 @@ namespace Neo.Compiler
                 var funcsign = new MyJson.JsonNode_Object();
                 methods.Add(funcsign);
                 funcsign.SetDictValue("name", function.Value.displayName);
-                if (names.Contains(function.Value.displayName))
+                if (!names.Add(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
-                names.Add(function.Value.displayName);
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign.SetDictValue("offset", offset.ToString());
                 MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
@@ -122,7 +122,7 @@ namespace Neo.Compiler
                     throw new Exception($"Unknown return type '{mm.returntype}' for method '{function.Value.name}'");
                 }
 
-                funcsign.SetDictValue("returnType", rtype);
+                funcsign.SetDictValue("returntype", rtype);
             }
 
             //events
@@ -154,6 +154,74 @@ namespace Neo.Compiler
             }
 
             return outjson;
+        }
+
+        private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
+        {
+            if (supportedStandardsAttribute == null || supportedStandardsAttribute.Count == 0)
+            {
+                return "[]";
+            }
+
+            var entry = supportedStandardsAttribute.First();
+            string extra = "[";
+            foreach (var item in entry.Value as CustomAttributeArgument[])
+            {
+                extra += ($"\"{ScapeJson(item.Value.ToString())}\",");
+            }
+            extra = extra[0..^1];
+            extra += "]";
+
+            return extra;
+        }
+
+        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
+        {
+            if (extraAttributes == null || extraAttributes.Count == 0)
+            {
+                return "null";
+            }
+
+            string extra = "{";
+            foreach (var extraAttribute in extraAttributes)
+            {
+                var key = ScapeJson(extraAttribute[0].Value.ToString());
+                var value = ScapeJson(extraAttribute[1].Value.ToString());
+                extra += ($"\"{key}\":\"{value}\",");
+            }
+            extra = extra[0..^1];
+            extra += "}";
+
+            return extra;
+        }
+
+        private static string ScapeJson(string value)
+        {
+            return value.Replace("\"", "");
+        }
+
+        public static string GenerateManifest(MyJson.JsonNode_Object abi, NeoModule module)
+        {
+            StringBuilder sbABI = new StringBuilder();
+            abi.ConvertToStringWithFormat(sbABI, 0);
+
+            var features = module == null ? ContractFeatures.NoProperty : module.attributes
+                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                .FirstOrDefault();
+
+            var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+            var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
+
+            var extra = BuildExtraAttributes(extraAttributes);
+            var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
+            var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+            var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
+
+            return
+                @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
+                sbABI.ToString() +
+                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }

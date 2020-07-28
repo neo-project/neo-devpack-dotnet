@@ -13,29 +13,23 @@ namespace Neo.Compiler.MSIL
         {
             if (src.GetType() == typeof(byte[]))
             {
-                byte[] _src = (byte[])src;
-                return _src;
+                return (byte[])src;
             }
             else if (src.GetType() == typeof(int))
             {
-                int v = (int)src;
-                return v;
+                return (int)src;
             }
             else if (src.GetType() == typeof(string))
             {
-                string v = (string)src;
-                string v2 = v;
-                return v2;
+                return (string)src;
             }
             else if (src.GetType() == typeof(Boolean))
             {
-                Boolean v = (Boolean)src;
-                return v;
+                return (bool)src;
             }
             else if (src.GetType() == typeof(string[]))
             {
-                string[] strArrays = (string[])src;
-                return strArrays;
+                return (string[])src;
             }
             else // TODO support more types
             {
@@ -46,11 +40,12 @@ namespace Neo.Compiler.MSIL
         public static bool Parse(ILMethod from, NeoModule to)
         {
             bool constValue = true;
+            bool ret = false;
             calcStack = new Stack<object>();
             bool bEnd = false;
             foreach (var src in from.body_Codes.Values)
             {
-                if (bEnd)
+                if (bEnd || ret)
                     break;
 
                 switch (src.code)
@@ -206,6 +201,14 @@ namespace Neo.Compiler.MSIL
                                             var n = System.Numerics.BigInteger.Parse(text);
                                             calcStack.Push(n);
                                         }
+                                    }
+                                    if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
+                                    {
+                                        // If there is a syscall in cctor, we should add it into staticfieldsCctor directly.
+                                        // Then the initializemethod will handle it.
+                                        ret = true;
+                                        constValue = false;
+                                        break;
                                     }
                                 }
                             }

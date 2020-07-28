@@ -152,9 +152,9 @@ namespace Neo.Compiler
             }
             byte[] bytes;
             int bSucc = 0;
-            string jsonstr = null;
             string debugstr = null;
-            NeoModule module = null;
+            NeoModule module;
+            MyJson.JsonNode_Object abi;
 
             // Convert and build
             try
@@ -168,13 +168,10 @@ namespace Neo.Compiler
                 if (options.Optimize)
                 {
                     module.ConvertFuncAddr();
-                    List<int> entryPoints = new List<int>();
-
+                    HashSet<int> entryPoints = new HashSet<int>();
                     foreach (var func in module.mapMethods)
                     {
-                        int srcaddr = func.Value.funcaddr;
-                        if (entryPoints.Contains(srcaddr) == false)
-                            entryPoints.Add(srcaddr);
+                        entryPoints.Add(func.Value.funcaddr);
                     }
                     var optimize = NefOptimizeTool.Optimize(bytes, entryPoints.ToArray(), out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
@@ -183,10 +180,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    var outjson = FuncExport.Export(module, bytes, addrConvTable);
-                    StringBuilder sb = new StringBuilder();
-                    outjson.ConvertToStringWithFormat(sb, 0);
-                    jsonstr = sb.ToString();
+                    abi = FuncExport.Export(module, bytes, addrConvTable);
                     log.Log("gen abi succ");
                 }
                 catch (Exception err)
@@ -246,10 +240,12 @@ namespace Neo.Compiler
 
             try
             {
+                StringBuilder sbABI = new StringBuilder();
+                abi.ConvertToStringWithFormat(sbABI, 0);
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);
-                File.WriteAllText(abiname, jsonstr);
+                File.WriteAllText(abiname, sbABI.ToString());
                 log.Log("write:" + abiname);
                 bSucc++;
             }
@@ -267,7 +263,6 @@ namespace Neo.Compiler
                 var tempName = Path.GetTempFileName();
                 File.Delete(tempName);
                 File.WriteAllText(tempName, debugstr);
-
                 File.Delete(debugzip);
                 using (var archive = ZipFile.Open(debugzip, ZipArchiveMode.Create))
                 {
@@ -285,22 +280,8 @@ namespace Neo.Compiler
 
             try
             {
-                var features = module == null ? ContractFeatures.NoProperty : module.attributes
-                    .Where(u => u.AttributeType.Name == "FeaturesAttribute")
-                    .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                    .FirstOrDefault();
-
-                var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
-
-                var extra = BuildExtraAttributes(extraAttributes);
-                var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
-                var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
-
                 string manifest = onlyname + ".manifest.json";
-                string defManifest =
-                    @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                    jsonstr +
-                    @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safeMethods"":[],""extra"":" + extra + "}";
+                var defManifest = FuncExport.GenerateManifest(abi, module);
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
@@ -330,26 +311,6 @@ namespace Neo.Compiler
             }
 
             return -1;
-        }
-
-        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
-        {
-            if (extraAttributes.Count == 0)
-            {
-                return "null";
-            }
-
-            string extra = "{";
-            foreach (var extraAttribute in extraAttributes)
-            {
-                var key = extraAttribute[0].Value;
-                var value = extraAttribute[1].Value;
-                extra += ($"\"{key}\":\"{value}\",");
-            }
-            extra = extra.Substring(0, extra.Length - 1);
-            extra += "}";
-
-            return extra;
         }
     }
 }
