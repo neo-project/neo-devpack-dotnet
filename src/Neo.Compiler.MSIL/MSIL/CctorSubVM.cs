@@ -13,29 +13,23 @@ namespace Neo.Compiler.MSIL
         {
             if (src.GetType() == typeof(byte[]))
             {
-                byte[] _src = (byte[])src;
-                return _src;
+                return (byte[])src;
             }
             else if (src.GetType() == typeof(int))
             {
-                int v = (int)src;
-                return v;
+                return (int)src;
             }
             else if (src.GetType() == typeof(string))
             {
-                string v = (string)src;
-                string v2 = v;
-                return v2;
+                return (string)src;
             }
             else if (src.GetType() == typeof(Boolean))
             {
-                Boolean v = (Boolean)src;
-                return v;
+                return (bool)src;
             }
             else if (src.GetType() == typeof(string[]))
             {
-                string[] strArrays = (string[])src;
-                return strArrays;
+                return (string[])src;
             }
             else // TODO support more types
             {
