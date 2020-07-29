@@ -146,7 +146,7 @@ namespace Neo.Compiler.MSIL
                     }
                     foreach (var attr in defs.CustomAttributes)
                     {
-                        if (attr.AttributeType.Name == "SyscallAttribute")
+                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
                         {
                             var type = attr.ConstructorArguments[0].Type;
                             var value = (string)attr.ConstructorArguments[0].Value;
@@ -172,7 +172,7 @@ namespace Neo.Compiler.MSIL
 
             foreach (var attr in defs.DeclaringType.CustomAttributes)
             {
-                if (attr.AttributeType.Name == "ContractAttribute")
+                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.ContractAttribute")
                 {
                     var type = attr.ConstructorArguments[0].Type;
                     var a = attr.ConstructorArguments[0];
@@ -222,15 +222,15 @@ namespace Neo.Compiler.MSIL
             }
             foreach (var attr in defs.CustomAttributes)
             {
-                if (attr.AttributeType.Name == "NonemitAttribute")
+                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.NonemitAttribute")
                 {
                     return true;
                 }
-                if (attr.AttributeType.Name == "NonemitWithConvertAttribute")
+                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.NonemitWithConvertAttribute")
                 {
                     throw new Exception("NonemitWithConvert func only used for readonly static field.");
                 }
-                if (attr.AttributeType.Name == "ScriptAttribute")
+                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.ScriptAttribute")
                 {
                     var strv = attr.ConstructorArguments[0].Value as string;
                     if (string.IsNullOrEmpty(strv))
@@ -257,9 +257,9 @@ namespace Neo.Compiler.MSIL
 
             foreach (var attr in defs.CustomAttributes)
             {
-                if ((attr.AttributeType.Name == "OpCodeAttribute") ||
-                    (attr.AttributeType.Name == "SyscallAttribute") ||
-                    (attr.AttributeType.Name == "ScriptAttribute"))
+                if ((attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute") ||
+                    (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute") ||
+                    (attr.AttributeType.FullName == "Neo.SmartContract.Framework.ScriptAttribute"))
                     count_attrs++;
             }
 
@@ -273,14 +273,14 @@ namespace Neo.Compiler.MSIL
 
             foreach (var attr in defs.CustomAttributes)
             {
-                if (attr.AttributeType.Name == "OpCodeAttribute")
+                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute")
                 {
                     opcodes[i] = (VM.OpCode)attr.ConstructorArguments[0].Value;
                     opdata[i] = (string)attr.ConstructorArguments[1].Value;
 
                     i++;
                 }
-                else if (attr.AttributeType.Name == "SyscallAttribute")
+                else if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
                 {
                     //var type = attr.ConstructorArguments[0].Type;
                     var val = (string)attr.ConstructorArguments[0].Value;
@@ -290,7 +290,7 @@ namespace Neo.Compiler.MSIL
 
                     i++;
                 }
-                else if (attr.AttributeType.Name == "ScriptAttribute")
+                else if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.ScriptAttribute")
                 {
                     //var type = attr.ConstructorArguments[0].Type;
                     var val = (string)attr.ConstructorArguments[0].Value;
@@ -301,7 +301,7 @@ namespace Neo.Compiler.MSIL
                     i++;
                 }
 
-                if (attr.AttributeType.Name == "ExtensionAttribute")
+                if (attr.AttributeType.FullName == "System.Runtime.CompilerServices.ExtensionAttribute")
                     ext++;
             }
 
@@ -328,7 +328,7 @@ namespace Neo.Compiler.MSIL
 
                     foreach (var attr in defs.CustomAttributes)
                     {
-                        if (attr.AttributeType.Name == "OpCodeAttribute")
+                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute")
                         {
 
                             var type = attr.ConstructorArguments[0].Type;
@@ -1425,9 +1425,8 @@ namespace Neo.Compiler.MSIL
                 {
                     foreach (var attr in m.CustomAttributes)
                     {
-                        if (attr.AttributeType.Name == "OpCodeAttribute")
+                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute")
                         {
-                            //object[] op = method.method.Annotations[0] as object[];
                             var opcode = (VM.OpCode)attr.ConstructorArguments[0].Value;
                             var opdata = Helper.OpDataToBytes((string)attr.ConstructorArguments[1].Value);
                             VM.OpCode v = (VM.OpCode)opcode;

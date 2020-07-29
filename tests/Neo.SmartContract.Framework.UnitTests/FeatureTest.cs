@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Check that was the SmartContract Feature
 
             Assert.AreEqual(ContractFeatures.Payable, testengine.ScriptEntry.converterIL.outModule.attributes
-                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault());
         }
