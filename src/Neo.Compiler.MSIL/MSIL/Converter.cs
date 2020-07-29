@@ -109,7 +109,7 @@ namespace Neo.Compiler.MSIL
                             nm.paramtypes.Add(new NeoParam(src.name, src.type));
                         }
 
-                        if (IsAppCall(m.Value.method, out byte[] outcall))
+                        if (IsContractCall(m.Value.method, out byte[] outcall))
                             continue;
                         if (IsNonCall(m.Value.method))
                             continue;

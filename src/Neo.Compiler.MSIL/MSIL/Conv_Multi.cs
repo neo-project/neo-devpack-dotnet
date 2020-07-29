@@ -162,7 +162,7 @@ namespace Neo.Compiler.MSIL
                 }
         */
 
-        public bool IsAppCall(Mono.Cecil.MethodDefinition defs, out byte[] hash)
+        public bool IsContractCall(Mono.Cecil.MethodDefinition defs, out byte[] hash)
         {
             if (defs == null)
             {
@@ -170,9 +170,9 @@ namespace Neo.Compiler.MSIL
                 return false;
             }
 
-            foreach (var attr in defs.CustomAttributes)
+            foreach (var attr in defs.DeclaringType.CustomAttributes)
             {
-                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.AppcallAttribute")
+                if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.ContractAttribute")
                 {
                     var type = attr.ConstructorArguments[0].Type;
                     var a = attr.ConstructorArguments[0];
@@ -462,16 +462,18 @@ namespace Neo.Compiler.MSIL
                     calltype = 2;
                 }
             }
-            else if (IsAppCall(defs, out callhash))
+            else if (IsContractCall(defs, out callhash))
             {
                 calltype = 4;
             }
             else if (this.outModule.mapMethods.ContainsKey(src.tokenMethod))
-            {//this is a call
+            {
+                //this is a call
                 calltype = 1;
             }
             else
-            {//maybe a syscall // or other
+            {
+                //maybe a syscall // or other
                 if (src.tokenMethod.Contains("::op_Explicit(") || src.tokenMethod.Contains("::op_Implicit("))
                 {
                     //All types of display implicit conversion are ignored
@@ -738,7 +740,8 @@ namespace Neo.Compiler.MSIL
                 //opcode call
             }
             else
-            {// reverse the arguments order
+            {
+                // reverse the arguments order
 
                 //this become very diffcult
 
@@ -829,8 +832,21 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 4)
             {
+                // Package the arguments into an array.
+                ConvertPushNumber(pcount, null, to);
+                Convert1by1(VM.OpCode.PACK, null, to);
+
+                // Push call method name, the first letter should be lowercase.
+                var methodName = defs.Body.Method.Name;
+                ConvertPushString(methodName[..1].ToLowerInvariant() + methodName[1..], src, to);
+
+                // Push contract hash.
                 ConvertPushDataArray(callhash, src, to);
                 Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+
+                // If the return type is void, insert a DROP.
+                if (defs.ReturnType.FullName is "System.Void")
+                    Insert1(VM.OpCode.DROP, "", to);
             }
             else if (calltype == 5)
             {
