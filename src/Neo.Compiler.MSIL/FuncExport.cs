@@ -206,12 +206,12 @@ namespace Neo.Compiler
             abi.ConvertToStringWithFormat(sbABI, 0);
 
             var features = module == null ? ContractFeatures.NoProperty : module.attributes
-                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault();
 
-            var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
-            var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
+            var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+            var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
 
             var extra = BuildExtraAttributes(extraAttributes);
             var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
