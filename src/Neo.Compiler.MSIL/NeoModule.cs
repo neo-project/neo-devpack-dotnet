@@ -134,7 +134,7 @@ namespace Neo.Compiler
             _namespace = method.method.DeclaringType.FullName;
             name = method.method.FullName;
             displayName = method.method.Name[..1].ToLowerInvariant() + method.method.Name[1..];
-            inSmartContract = method.method.DeclaringType.BaseType.Name == "SmartContract";
+            inSmartContract = method.method.DeclaringType.BaseType.FullName == "Neo.SmartContract.Framework.SmartContract";
             isPublic = method.method.IsPublic;
 
             foreach (var attr in method.method.CustomAttributes)
