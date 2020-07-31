@@ -11,7 +11,7 @@ namespace $safeprojectname$
     [Features(ContractFeatures.HasStorage)]
     public class Contract1 : SmartContract
     {
-        public static bool Main(string operation, object[] args)
+        public static bool Main()
         {
             Storage.Put("Hello", "World");
             return true;
