@@ -12,7 +12,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: $(TargetPath)" Importance="high">
     </Message>
-    <Exec Command="dotnet $(SolutionDir)src\Neo.Compiler.MSIL\bin\$(ConfigurationName)\netcoreapp3.1\neon.dll -f &quot;$(TargetPath)&quot; -o" />
+    <Exec Command="neon -f &quot;$(TargetPath)&quot; -o" />
   </Target>
 
 </Project>
