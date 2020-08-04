@@ -94,7 +94,7 @@ namespace Neo.Compiler
                 if (mm.isPublic == false)
                     continue;
 
-                if (names.Contains(function.Value.displayName))
+                if (!names.Add(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
