@@ -94,12 +94,12 @@ namespace Neo.Compiler
                 if (mm.isPublic == false)
                     continue;
 
-                var funcsign = new JObject();
-                methods.Add(funcsign);
                 if (names.Contains(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
+                var funcsign = new JObject();
+                methods.Add(funcsign);
                 funcsign["name"] = function.Value.displayName;
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["offset"] = offset.ToString();
