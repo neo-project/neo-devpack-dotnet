@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Compiler.Optimizer;
 using Neo.VM;
 using System;
@@ -10,6 +11,16 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest_NefOptimizer
     {
+        [TestMethod]
+        public void Test_OptimizerNopEntryPoint()
+        {
+            var testengine = new TestEngine();
+            var build = testengine.Build("./TestClasses/Contract_OptimizationTest.cs", false, true);
+
+            Assert.AreEqual(build.finalABI["methods"].AsList()[0].asDict()["name"].AsString(), "verify");
+            Assert.AreEqual(build.finalABI["methods"].AsList()[0].asDict()["offset"].AsString(), "0");
+        }
+
         [TestMethod]
         public void Test_Optimize_RemoveNOPS()
         {
