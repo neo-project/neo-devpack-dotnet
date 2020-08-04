@@ -167,7 +167,6 @@ namespace Neo.Compiler
                 Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
-                    module.ConvertFuncAddr();
                     HashSet<int> entryPoints = new HashSet<int>();
                     foreach (var func in module.mapMethods)
                     {
