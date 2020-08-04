@@ -96,11 +96,11 @@ namespace Neo.Compiler
 
                 var funcsign = new JObject();
                 methods.Add(funcsign);
-                funcsign["name"] = function.Value.displayName;
                 if (names.Contains(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
+                funcsign["name"] = function.Value.displayName;
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["offset"] = offset.ToString();
                 JArray funcparams = new JArray();
