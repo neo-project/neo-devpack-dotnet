@@ -1,8 +1,6 @@
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.IO.Json;
 using Neo.SmartContract;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Neo.Compiler.MSIL.Utils
 {
@@ -14,8 +12,8 @@ namespace Neo.Compiler.MSIL.Utils
             UseOptimizer = false;
             Error = null;
             finalNEF = nefFile.Script;
-            MyJson.JsonNode_Object manifestAbi = MyJson.Parse(manifestFile) as MyJson.JsonNode_Object;
-            var abi = manifestAbi.GetDictItem("abi") as MyJson.JsonNode_Object;
+            JObject manifestAbi = JObject.Parse(manifestFile);
+            var abi = manifestAbi["abi"] as JObject;
             finalABI = abi;
             finalManifest = manifestFile;
         }
