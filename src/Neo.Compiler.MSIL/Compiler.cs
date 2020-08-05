@@ -162,7 +162,7 @@ namespace Neo.Compiler
             var tree = filenames.Select(u => VisualBasicSyntaxTree.ParseText(
                             File.ReadAllText(u),
                             path: u,
-                            encoding: System.Text.Encoding.UTF8)).ToArray();
+                            encoding: Utility.StrictUTF8)).ToArray();
             var op = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
             return Assembly.Create(VisualBasicCompilation.Create("SmartContract", tree, CreateReferences(references), op));
         }
@@ -179,7 +179,7 @@ namespace Neo.Compiler
             var tree = filenames.Select(u => CSharpSyntaxTree.ParseText(
                             File.ReadAllText(u),
                             path: u,
-                            encoding: System.Text.Encoding.UTF8)).ToArray();
+                            encoding: Utility.StrictUTF8)).ToArray();
             var op = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: releaseMode ? OptimizationLevel.Release : OptimizationLevel.Debug);
             return Assembly.Create(CSharpCompilation.Create("SmartContract", tree, CreateReferences(references), op));
         }
