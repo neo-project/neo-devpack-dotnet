@@ -1,4 +1,5 @@
 using Neo.Compiler.MSIL.Utils;
+using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -127,12 +128,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finalABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
             foreach (var item in methods)
             {
-                var method = item as MyJson.JsonNode_Object;
-                if (method.GetDictItem("name").ToString() == methodname)
-                    return int.Parse(method.GetDictItem("offset").ToString());
+                var method = item as JObject;
+                if (method["name"].AsString() == methodname)
+                    return int.Parse(method["offset"].AsString());
             }
 
             return -1;
