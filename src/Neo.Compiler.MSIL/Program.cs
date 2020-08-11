@@ -2,6 +2,7 @@ using CommandLine;
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
+using Neo.IO.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
@@ -150,11 +151,11 @@ namespace Neo.Compiler
                 log.Log("LoadModule Error:" + err.ToString());
                 return -1;
             }
+            JObject abi;
             byte[] bytes;
             int bSucc = 0;
             string debugstr = null;
             NeoModule module;
-            MyJson.JsonNode_Object abi;
 
             // Convert and build
             try
@@ -191,9 +192,7 @@ namespace Neo.Compiler
                 try
                 {
                     var outjson = DebugExport.Export(module, bytes, addrConvTable);
-                    StringBuilder sb = new StringBuilder();
-                    outjson.ConvertToStringWithFormat(sb, 0);
-                    debugstr = sb.ToString();
+                    debugstr = outjson.ToString(false);
                     log.Log("gen debug succ");
                 }
                 catch (Exception err)
@@ -239,8 +238,7 @@ namespace Neo.Compiler
 
             try
             {
-                StringBuilder sbABI = new StringBuilder();
-                abi.ConvertToStringWithFormat(sbABI, 0);
+                var sbABI = abi.ToString(false);
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);

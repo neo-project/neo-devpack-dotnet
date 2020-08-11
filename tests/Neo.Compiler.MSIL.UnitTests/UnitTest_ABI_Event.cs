@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.IO.Json;
 using System;
 
 namespace Neo.Compiler.MSIL.UnitTests
@@ -14,7 +15,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
             var abi = testengine.ScriptEntry.finalABI;
             Console.WriteLine("abi=" + abi.ToString());
-            var events = abi["events"].AsList()[0].ToString();
+            var events = (abi["events"] as JArray)[0].ToString();
             Console.WriteLine("event abi info =" + events);
 
             string expecteventabi = @"{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}";

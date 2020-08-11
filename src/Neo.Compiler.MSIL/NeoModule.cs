@@ -1,5 +1,6 @@
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
+using Neo.IO.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -37,11 +38,11 @@ namespace Neo.Compiler
 
         public string GenJson()
         {
-            MyJson.JsonNode_Object json = new MyJson.JsonNode_Object();
-            json["__name__"] = new MyJson.JsonNode_ValueString("neomodule.");
+            JObject json = new JObject();
+            json["__name__"] = "neomodule.";
 
             //code
-            var jsoncode = new MyJson.JsonNode_Array();
+            var jsoncode = new JArray();
             json["code"] = jsoncode;
             foreach (var c in this.totalCodes.Values)
             {
@@ -54,19 +55,17 @@ namespace Neo.Compiler
             {
                 codestr += c.ToString("X02");
             }
-            json.SetDictValue("codebin", codestr);
+            json["codebin"] = codestr;
 
             //calls
-            MyJson.JsonNode_Object methodinfo = new MyJson.JsonNode_Object();
+            JObject methodinfo = new JObject();
             json["call"] = methodinfo;
             foreach (var m in this.mapMethods)
             {
                 methodinfo[m.Key] = m.Value.GenJson();
             }
 
-            StringBuilder sb = new StringBuilder();
-            json.ConvertToStringWithFormat(sb, 4);
-            return sb.ToString();
+            return json.ToString(true);
         }
     }
 
@@ -91,19 +90,19 @@ namespace Neo.Compiler
         public SortedDictionary<int, NeoCode> body_Codes = new SortedDictionary<int, NeoCode>(); // Temporary records and will be merged later
         public int funcaddr;
 
-        public MyJson.JsonNode_Object GenJson()
+        public JObject GenJson()
         {
-            MyJson.JsonNode_Object json = new MyJson.JsonNode_Object();
-            json.SetDictValue("name", this.name);
-            json.SetDictValue("returntype", FuncExport.ConvType(this.returntype));
-            json.SetDictValue("paramcount", this.paramtypes.Count);
-            MyJson.JsonNode_Array jsonparams = new MyJson.JsonNode_Array();
-            json.SetDictValue("params", jsonparams);
+            JObject json = new JObject();
+            json["name"] = this.name;
+            json["returntype"] = FuncExport.ConvType(this.returntype);
+            json["paramcount"] = this.paramtypes.Count;
+            JArray jsonparams = new JArray();
+            json["params"] = jsonparams;
             for (var i = 0; i < this.paramtypes.Count; i++)
             {
-                MyJson.JsonNode_Object item = new MyJson.JsonNode_Object();
-                item.SetDictValue("name", this.paramtypes[i].name);
-                item.SetDictValue("type", FuncExport.ConvType(this.paramtypes[i].type));
+                JObject item = new JObject();
+                item["name"] = this.paramtypes[i].name;
+                item["type"] = FuncExport.ConvType(this.paramtypes[i].type);
                 jsonparams.Add(item);
             }
             return json;
@@ -202,7 +201,7 @@ namespace Neo.Compiler
             return info;
         }
 
-        public MyJson.JsonNode_ValueString GenJson()
+        public string GenJson()
         {
             string info = "" + addr.ToString("X04") + " " + code.ToString();
             for (var j = 0; j < 16 - code.ToString().Length; j++)
@@ -227,7 +226,7 @@ namespace Neo.Compiler
             {
                 info += "//" + debugcode + "(" + debugline + ")";
             }
-            return new MyJson.JsonNode_ValueString(info);
+            return info;
         }
     }
 
