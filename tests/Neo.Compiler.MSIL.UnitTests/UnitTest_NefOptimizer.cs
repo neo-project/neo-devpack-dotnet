@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Compiler.Optimizer;
+using Neo.IO.Json;
 using Neo.VM;
 using System;
 using System.Buffers.Binary;
@@ -17,8 +18,8 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             var build = testengine.Build("./TestClasses/Contract_OptimizationTest.cs", false, true);
 
-            Assert.AreEqual(build.finalABI["methods"].AsList()[0].asDict()["name"].AsString(), "verify");
-            Assert.AreEqual(build.finalABI["methods"].AsList()[0].asDict()["offset"].AsString(), "0");
+            Assert.AreEqual((build.finalABI["methods"] as JArray)[0]["name"].AsString(), "verify");
+            Assert.AreEqual((build.finalABI["methods"] as JArray)[0]["offset"].AsString(), "0");
         }
 
         [TestMethod]
