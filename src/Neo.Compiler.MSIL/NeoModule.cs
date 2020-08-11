@@ -67,21 +67,6 @@ namespace Neo.Compiler
 
             return json.ToString(true);
         }
-
-        internal void ConvertFuncAddr()
-        {
-            foreach (var method in this.mapMethods.Values)
-            {
-                foreach (var code in method.body_Codes.Values)
-                {
-                    if (code.code != VM.OpCode.NOP)
-                    {
-                        method.funcaddr = code.addr;
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     public class NeoMethod

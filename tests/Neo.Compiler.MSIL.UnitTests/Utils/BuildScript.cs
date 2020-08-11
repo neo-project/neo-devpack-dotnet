@@ -56,7 +56,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                     List<int> entryPoints = new List<int>();
                     foreach (var f in converterIL.outModule.mapMethods.Values)
                     {
-                        if (entryPoints.Contains(f.funcaddr) == false)
+                        if (!entryPoints.Contains(f.funcaddr))
                             entryPoints.Add(f.funcaddr);
                     }
                     var opbytes = NefOptimizeTool.Optimize(finalNEF, entryPoints.ToArray(), out addrConvTable);
