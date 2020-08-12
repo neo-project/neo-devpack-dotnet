@@ -6,6 +6,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Oracle
     {
         public static extern byte[][] GetOracleNodes();
-        public static extern void Request(string url, string filter, string callback, object userData, long gasForRepsonse);
+        public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
     }
 }
