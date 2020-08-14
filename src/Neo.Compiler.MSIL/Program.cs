@@ -31,11 +31,11 @@ namespace Neo.Compiler
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Compile(o));
         }
 
-        public static int Compile(Options options)
+        public static int Compile(Options options, ILogger log = null)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
-            var log = new DefLogger();
+            log ??= new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
             var fileInfo = new FileInfo(options.File);
