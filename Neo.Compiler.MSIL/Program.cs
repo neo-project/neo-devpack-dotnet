@@ -65,8 +65,8 @@ namespace Neo.Compiler
 
         public static int Compile(string file, bool bCompatible, ILogger log = null)
         {
-            log ??= new DefLogger();
-            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
+            log = log == null ? new DefLogger() : log;
+            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
 
             FileInfo fileInfo = new FileInfo(file);
 
