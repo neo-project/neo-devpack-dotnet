@@ -36,7 +36,7 @@ namespace Neo.Compiler
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
             log ??= new DefLogger();
-            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
+            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
 
             var fileInfo = new FileInfo(options.File);
 
@@ -214,7 +214,7 @@ namespace Neo.Compiler
                 var nef = new NefFile
                 {
                     Compiler = "neon",
-                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
                     Script = bytes,
                     ScriptHash = bytes.ToScriptHash()
