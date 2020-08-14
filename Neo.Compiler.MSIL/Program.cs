@@ -25,6 +25,7 @@ namespace Neo.Compiler
             // Check argmuents
             if (args.Length == 0)
             {
+                log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
                 log.Log("You need a parameter to specify the DLL or the file name of the project.");
                 log.Log("Examples: ");
                 log.Log("  neon mySmartContract.dll");
@@ -54,7 +55,7 @@ namespace Neo.Compiler
 
             if (file == null)
             {
-                log.Log("Need one param for filename (DLL or source)");
+log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);                log.Log("Need one param for filename (DLL or source)");
                 log.Log("[--compatible] disable nep8 function and disable SyscallInteropHash");
                 log.Log("Example:neon abc.dll --compatible");
                 return 0;
