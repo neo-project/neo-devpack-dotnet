@@ -66,7 +66,7 @@ log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)
 
         public static int Compile(string file, bool bCompatible, ILogger log = null)
         {
-            log = log == null ? new DefLogger() : log;
+            log ??= new DefLogger();
             log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
 
             FileInfo fileInfo = new FileInfo(file);
