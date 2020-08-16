@@ -21,11 +21,11 @@ namespace Neo.Compiler
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
             var log = new DefLogger();
-            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
 
             // Check argmuents
             if (args.Length == 0)
             {
+                log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
                 log.Log("You need a parameter to specify the DLL or the file name of the project.");
                 log.Log("Examples: ");
                 log.Log("  neon mySmartContract.dll");
@@ -35,7 +35,7 @@ namespace Neo.Compiler
             }
 
             bool bCompatible = false;
-            FileInfo fileInfo = null;
+            string file = null;
             for (var i = 0; i < args.Length; i++)
             {
                 if (args[i][0] == '-')
@@ -49,17 +49,28 @@ namespace Neo.Compiler
                 }
                 else
                 {
-                    fileInfo = new FileInfo(args[i]);
+                    file = args[i];
                 }
             }
 
-            if (fileInfo == null)
+            if (file == null)
             {
+                log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
                 log.Log("Need one param for filename (DLL or source)");
                 log.Log("[--compatible] disable nep8 function and disable SyscallInteropHash");
                 log.Log("Example:neon abc.dll --compatible");
                 return 0;
             }
+
+            return Compile(file, bCompatible, log);
+        }
+
+        public static int Compile(string file, bool bCompatible, ILogger log = null)
+        {
+            log ??= new DefLogger();
+            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
+
+            FileInfo fileInfo = new FileInfo(file);
 
             // Set current directory
 
