@@ -7,6 +7,5 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             var nb = new byte[] { 1, 2, 3, 4 };
             return nb;
         }
-
     }
 }
