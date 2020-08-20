@@ -1,4 +1,5 @@
 using Mono.Cecil;
+using Neo.IO.Json;
 using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
@@ -73,15 +74,15 @@ namespace Neo.Compiler
             return sb.ToString();
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static JObject Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
         {
-            var outjson = new MyJson.JsonNode_Object();
+            var outjson = new JObject();
 
             //hash
-            outjson.SetDictValue("hash", ComputeHash(script));
+            outjson["hash"] = ComputeHash(script);
 
             //functions
-            var methods = new MyJson.JsonNode_Array();
+            var methods = new JArray();
             outjson["methods"] = methods;
 
             HashSet<string> names = new HashSet<string>();
@@ -93,26 +94,26 @@ namespace Neo.Compiler
                 if (mm.isPublic == false)
                     continue;
 
-                var funcsign = new MyJson.JsonNode_Object();
-                methods.Add(funcsign);
-                funcsign.SetDictValue("name", function.Value.displayName);
                 if (!names.Add(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
+                var funcsign = new JObject();
+                methods.Add(funcsign);
+                funcsign["name"] = function.Value.displayName;
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
-                funcsign.SetDictValue("offset", offset.ToString());
-                MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
+                funcsign["offset"] = offset.ToString();
+                JArray funcparams = new JArray();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var item = new MyJson.JsonNode_Object();
+                        var item = new JObject();
                         funcparams.Add(item);
 
-                        item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ConvType(v.type));
+                        item["name"] = v.name;
+                        item["type"] = ConvType(v.type);
                     }
                 }
 
@@ -122,35 +123,35 @@ namespace Neo.Compiler
                     throw new Exception($"Unknown return type '{mm.returntype}' for method '{function.Value.name}'");
                 }
 
-                funcsign.SetDictValue("returntype", rtype);
+                funcsign["returntype"] = rtype;
             }
 
             //events
-            var eventsigns = new MyJson.JsonNode_Array();
+            var eventsigns = new JArray();
             outjson["events"] = eventsigns;
             foreach (var events in module.mapEvents)
             {
                 var mm = events.Value;
-                var funcsign = new MyJson.JsonNode_Object();
+                var funcsign = new JObject();
                 eventsigns.Add(funcsign);
 
-                funcsign.SetDictValue("name", events.Value.displayName);
-                MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
+                funcsign["name"] = events.Value.displayName;
+                JArray funcparams = new JArray();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var item = new MyJson.JsonNode_Object();
+                        var item = new JObject();
                         funcparams.Add(item);
 
-                        item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ConvType(v.type));
+                        item["name"] = v.name;
+                        item["type"] = ConvType(v.type);
                     }
                 }
                 //event do not have returntype in nep3
                 //var rtype = ConvType(mm.returntype);
-                //funcsign.SetDictValue("returntype", rtype);
+                //funcsign["returntype", rtype);
             }
 
             return outjson;
@@ -200,18 +201,17 @@ namespace Neo.Compiler
             return value.Replace("\"", "");
         }
 
-        public static string GenerateManifest(MyJson.JsonNode_Object abi, NeoModule module)
+        public static string GenerateManifest(JObject abi, NeoModule module)
         {
-            StringBuilder sbABI = new StringBuilder();
-            abi.ConvertToStringWithFormat(sbABI, 0);
+            var sbABI = abi.ToString(false);
 
             var features = module == null ? ContractFeatures.NoProperty : module.attributes
-                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault();
 
-            var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.Name == "ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
-            var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.Name == "SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
+            var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+            var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
 
             var extra = BuildExtraAttributes(extraAttributes);
             var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
@@ -220,7 +220,7 @@ namespace Neo.Compiler
 
             return
                 @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                sbABI.ToString() +
+                sbABI +
                 @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }

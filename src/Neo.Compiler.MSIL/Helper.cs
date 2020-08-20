@@ -67,7 +67,7 @@ namespace Neo.Compiler
             }
             catch
             {
-                return Encoding.UTF8.GetBytes(opdata);
+                return Utility.StrictUTF8.GetBytes(opdata);
             }
         }
     }

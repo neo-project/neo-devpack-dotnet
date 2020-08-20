@@ -142,7 +142,7 @@ namespace Neo.Compiler.MSIL
 
         private void ConvertPushString(string str, OpCode src, NeoMethod to)
         {
-            var data = Encoding.UTF8.GetBytes(str);
+            var data = Utility.StrictUTF8.GetBytes(str);
             ConvertPushDataArray(data, src, to);
         }
 

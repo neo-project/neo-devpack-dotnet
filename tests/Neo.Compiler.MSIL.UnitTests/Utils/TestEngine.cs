@@ -1,4 +1,5 @@
 using Neo.Compiler.MSIL.Utils;
+using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -12,6 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
+        public const long TestGas = 2000_000_000;
         public static InteropDescriptor Native_Deploy;
 
         static TestEngine()
@@ -28,7 +30,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), 0, true)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
@@ -127,12 +129,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finalABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
             foreach (var item in methods)
             {
-                var method = item as MyJson.JsonNode_Object;
-                if (method.GetDictItem("name").ToString() == methodname)
-                    return int.Parse(method.GetDictItem("offset").ToString());
+                var method = item as JObject;
+                if (method["name"].AsString() == methodname)
+                    return int.Parse(method["offset"].AsString());
             }
 
             return -1;
@@ -147,12 +149,15 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, params StackItem[] args)
         {
-            this.InvocationStack.Peek().InstructionPointer = offset;
+            var context = InvocationStack.Pop();
+            LoadContext(context.Clone(offset));
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
             if (initializeOffset != -1)
-                this.LoadClonedContext(initializeOffset);
+            {
+                LoadContext(CurrentContext.Clone(initializeOffset));
+            }
             while (true)
             {
                 var bfault = (this.State & VMState.FAULT) > 0;
@@ -175,8 +180,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public EvaluationStack ExecuteTestCase(params StackItem[] args)
         {
-            //var engine = new ExecutionEngine();
-            this.InvocationStack.Peek().InstructionPointer = 0;
+            if (CurrentContext.InstructionPointer != 0)
+            {
+                var context = InvocationStack.Pop();
+                LoadContext(context.Clone(0));
+            }
             if (args != null)
             {
                 for (var i = args.Length - 1; i >= 0; i--)
@@ -199,7 +207,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
-        public void SendNotification(UInt160 hash, string eventName, VM.Types.Array state)
+        public void SendTestNotification(UInt160 hash, string eventName, VM.Types.Array state)
         {
             typeof(ApplicationEngine).GetMethod("SendNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .Invoke(this, new object[] { hash, eventName, state });

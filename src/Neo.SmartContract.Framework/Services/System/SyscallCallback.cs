@@ -6,6 +6,8 @@ namespace Neo.SmartContract.Framework.Services.System
         System_Binary_Deserialize = 0xdfd07c52,
         System_Binary_Base64Encode = 0x7653bfac,
         System_Binary_Base64Decode = 0xc384a3db,
+        System_Binary_Base58Encode = 0x67b0573f,
+        System_Binary_Base58Decode = 0x3792f76d,
         System_Blockchain_GetHeight = 0x1f72f57e,
         System_Blockchain_GetBlock = 0x2d924783,
         System_Blockchain_GetTransaction = 0x488d55e6,

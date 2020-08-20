@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using System;
+using Neo.IO.Json;
 using System.Linq;
 
 namespace Neo.Compiler.MSIL
@@ -14,20 +14,20 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
             var debugInfo = testengine.ScriptEntry.debugInfo;
-            Assert.IsTrue(debugInfo.HaveDictItem("hash"));
-            Assert.AreEqual(debugInfo["hash"].type, MyJson.JsonType.Value_String);
-            Assert.IsTrue(debugInfo.HaveDictItem("documents"));
-            Assert.AreEqual(debugInfo["documents"].type, MyJson.JsonType.Array);
-            Assert.IsTrue(debugInfo["documents"].AsList().Count == 1);
-            Assert.IsTrue(debugInfo["documents"].AsList().All(n => n.type == MyJson.JsonType.Value_String));
-            Assert.IsTrue(debugInfo.HaveDictItem("methods"));
-            Assert.AreEqual(debugInfo["methods"].type, MyJson.JsonType.Array);
-            Assert.AreEqual(debugInfo["methods"].AsList().Count, 1);
-            Assert.AreEqual(debugInfo["methods"].AsList()[0].asDict()["name"].AsString(), "Neo.Compiler.MSIL.UnitTests.TestClasses.Contract_Event,main");
-            Assert.IsTrue(debugInfo.HaveDictItem("events"));
-            Assert.AreEqual(debugInfo["events"].type, MyJson.JsonType.Array);
-            Assert.AreEqual(debugInfo["events"].AsList().Count, 1);
-            Assert.AreEqual(debugInfo["events"].AsList()[0].asDict()["name"].AsString(), "Neo.Compiler.MSIL.UnitTests.TestClasses.Contract_Event,transfer");
+            Assert.IsTrue(debugInfo.ContainsProperty("hash"));
+            Assert.IsInstanceOfType(debugInfo["hash"], typeof(JString));
+            Assert.IsTrue(debugInfo.ContainsProperty("documents"));
+            Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
+            Assert.AreEqual((debugInfo["documents"] as JArray).Count, 1);
+            Assert.IsTrue((debugInfo["documents"] as JArray).All(n => n is JString));
+            Assert.IsTrue(debugInfo.ContainsProperty("methods"));
+            Assert.IsInstanceOfType(debugInfo["methods"], typeof(JArray));
+            Assert.AreEqual((debugInfo["methods"] as JArray).Count, 1);
+            Assert.AreEqual((debugInfo["methods"] as JArray)[0]["name"].AsString(), "Neo.Compiler.MSIL.UnitTests.TestClasses.Contract_Event,main");
+            Assert.IsTrue(debugInfo.ContainsProperty("events"));
+            Assert.IsInstanceOfType(debugInfo["events"], typeof(JArray));
+            Assert.AreEqual((debugInfo["events"] as JArray).Count, 1);
+            Assert.AreEqual((debugInfo["events"] as JArray)[0]["name"].AsString(), "Neo.Compiler.MSIL.UnitTests.TestClasses.Contract_Event,transfer");
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestUnicode()
         {
             _engine.Reset();
-            StackItem key = System.Text.Encoding.UTF8.GetBytes("中");
+            StackItem key = Utility.StrictUTF8.GetBytes("中");
             var result = _engine.ExecuteTestCaseStandard("testUnicode", key);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -71,7 +71,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestUnicodeValue()
         {
             _engine.Reset();
-            StackItem value = System.Text.Encoding.UTF8.GetBytes("文");
+            StackItem value = Utility.StrictUTF8.GetBytes("文");
             var result = _engine.ExecuteTestCaseStandard("testUnicodeValue", value);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -86,8 +86,8 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestUnicodeKeyValue()
         {
             _engine.Reset();
-            StackItem key = System.Text.Encoding.UTF8.GetBytes("中");
-            StackItem value = System.Text.Encoding.UTF8.GetBytes("文");
+            StackItem key = Utility.StrictUTF8.GetBytes("中");
+            StackItem value = Utility.StrictUTF8.GetBytes("文");
             var result = _engine.ExecuteTestCaseStandard("testUnicodeKeyValue", key, value);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
