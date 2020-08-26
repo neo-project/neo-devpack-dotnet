@@ -953,13 +953,14 @@ namespace Neo.Compiler.MSIL
                         }
 
                         //If this code was called by event, just find its name
+                        var findEventFlag = false;
                         if (d.DeclaringType.HasEvents)
                         {
                             foreach (var ev in d.DeclaringType.Events)
                             {
                                 if (ev.FullName == d.FullName && ev.EventType.FullName == d.FieldType.FullName)
                                 {
-
+                                    findEventFlag = true;
                                     Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = ev.CustomAttributes;
                                     to.lastsfieldname = d.Name;
                                     foreach (var attr in ca)
@@ -973,7 +974,7 @@ namespace Neo.Compiler.MSIL
                                 }
                             }
                         }
-                        else
+                        if (!findEventFlag)
                         {
                             var field = this.outModule.mapFields[d.FullName];
                             Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index });
