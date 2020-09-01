@@ -251,4 +251,3 @@ paket-files/
 .idea/
 *.sln.iml
 /src/Neo.Compiler.MSIL/Properties/launchSettings.json
-/src/Neo.Compiler.MSIL/Neo - Backup.Compiler.MSIL.csproj

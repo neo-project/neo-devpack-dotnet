@@ -26,8 +26,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.CSharp", "tem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.UnitTests", "tests\Template.NEP5.UnitTests\Template.NEP5.UnitTests.csproj", "{780141EE-D6E9-4591-8470-8F91B12027CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "neo-vm", "..\..\..\NEO-VM\master\neo-vm\src\neo-vm\neo-vm.csproj", "{A5B56535-F2F0-430A-AEF3-E3112F391E33}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,10 +68,6 @@ Global
 		{780141EE-D6E9-4591-8470-8F91B12027CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{780141EE-D6E9-4591-8470-8F91B12027CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{780141EE-D6E9-4591-8470-8F91B12027CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5B56535-F2F0-430A-AEF3-E3112F391E33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5B56535-F2F0-430A-AEF3-E3112F391E33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5B56535-F2F0-430A-AEF3-E3112F391E33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5B56535-F2F0-430A-AEF3-E3112F391E33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
