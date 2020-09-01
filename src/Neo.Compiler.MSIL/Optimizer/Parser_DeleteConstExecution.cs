@@ -60,7 +60,7 @@ namespace Neo.Compiler.Optimizer
                         {
                             if (items[x - 1] is NefInstruction p1)
                             {
-                                if (p1.IsPush(out _) || (p1.OpCode == OpCode.PUSHNULL))
+                                if (p1.IsPushOrNull(out _))
                                 {
                                     items.RemoveRange(x - 1, 2);
                                     OptimizedCount++;
@@ -230,6 +230,30 @@ namespace Neo.Compiler.Optimizer
                                 x -= 2;
 
                                 ins.UpdateForPush(v2 % v1);
+                            }
+                            break;
+                        }
+
+                    // Three stack items
+
+                    case OpCode.ROT:
+                        {
+                            if (x >= 3 &&
+                                items[x - 1] is NefInstruction p1 &&
+                                items[x - 2] is NefInstruction p2 &&
+                                items[x - 3] is NefInstruction p3 &&
+                                p1.IsPushOrNull(out _) &&
+                                p2.IsPushOrNull(out _) &&
+                                p3.IsPushOrNull(out _)
+                                )
+                            {
+                                items[x - 3] = p2;
+                                items[x - 2] = p1;
+                                items[x - 1] = p3;
+
+                                items.RemoveRange(x, 1);
+                                OptimizedCount++;
+                                x -= 3;
                             }
                             break;
                         }

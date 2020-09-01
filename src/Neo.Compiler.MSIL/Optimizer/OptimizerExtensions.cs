@@ -31,6 +31,19 @@ namespace Neo.Compiler.Optimizer
             return true;
         }
 
+        public static bool IsPushOrNull(this NefInstruction ins, out BigInteger? value)
+        {
+            if (ins.OpCode == OpCode.PUSHNULL)
+            {
+                value = null;
+                return true;
+            }
+
+            var ret = IsPush(ins, out var retval);
+            value = retval;
+            return ret;
+        }
+
         public static bool IsPush(this NefInstruction ins, out BigInteger value)
         {
             switch (ins.OpCode)
