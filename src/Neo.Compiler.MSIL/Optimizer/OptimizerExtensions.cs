@@ -95,5 +95,22 @@ namespace Neo.Compiler.Optimizer
             value = 0;
             return false;
         }
+
+        public static bool IsPushData(this NefInstruction ins, out byte[] value)
+        {
+            switch (ins.OpCode)
+            {
+                case OpCode.PUSHDATA1:
+                case OpCode.PUSHDATA2:
+                case OpCode.PUSHDATA4:
+                    {
+                        value = ins.Data;
+                        return true;
+                    }
+            }
+
+            value = null;
+            return false;
+        }
     }
 }

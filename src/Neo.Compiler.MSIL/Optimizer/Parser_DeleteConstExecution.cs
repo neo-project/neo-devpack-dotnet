@@ -242,9 +242,9 @@ namespace Neo.Compiler.Optimizer
                                 items[x - 1] is NefInstruction p1 &&
                                 items[x - 2] is NefInstruction p2 &&
                                 items[x - 3] is NefInstruction p3 &&
-                                p1.IsPushOrNull(out _) &&
-                                p2.IsPushOrNull(out _) &&
-                                p3.IsPushOrNull(out _)
+                                (p1.IsPushOrNull(out _) || p1.IsPushData(out _)) &&
+                                (p2.IsPushOrNull(out _) || p2.IsPushData(out _)) &&
+                                (p3.IsPushOrNull(out _) || p3.IsPushData(out _))
                                 )
                             {
                                 items[x - 3] = p2;
