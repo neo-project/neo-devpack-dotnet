@@ -160,6 +160,84 @@ namespace Neo.SmartContract.Framework
             return (byte)(source + 0);
         }
 
+        public static UInt160 HexStringToUInt160(this string value)
+        {
+            var hexString = value;
+            if (value.Length == 42 && value.Substring(0, 2) == "0x")
+                hexString = value.Substring(2, 40);
+            if (hexString.Length != 40)
+                throw new Exception();
+            byte[] result = new byte[20];
+            for (int i = 0; i < 20; i++)
+            {
+                var str = hexString.Substring(i * 2, 2);
+                var byte1 = str.Substring(0, 1).StringToByte();
+                var byte2 = str.Substring(1, 1).StringToByte();
+                var byte3 = byte1 << 4;
+                var res =  (byte)(byte3 + byte2);
+                result[i] = res;
+            }
+            return new UInt160(result.Reverse());
+        }
+
+        public static UInt256 HexStringToUInt256(this string value)
+        {
+            var hexString = value;
+            if (value.Length == 66 && value.Substring(0, 2) == "0x")
+                hexString = value.Substring(2, 64);
+            if (hexString.Length != 64)
+                throw new Exception();
+            byte[] result = new byte[32];
+            for (int i = 0; i < 32; i++)
+            {
+                var str = hexString.Substring(i * 2, 2);
+                var byte1 = str.Substring(0, 1).StringToByte();
+                var byte2 = str.Substring(1, 1).StringToByte();
+                var byte3 = byte1 << 4;
+                var res = (byte)(byte3 + byte2);
+                result[i] = res;
+            }
+            return new UInt256(result.Reverse());
+        }
+
+        public static byte StringToByte(this string str)
+        {
+            if (str == "0")
+                return 0;
+            else if (str == "1")
+                return 1;
+            else if (str == "2")
+                return 2;
+            else if (str == "3")
+                return 3;
+            else if (str == "4")
+                return 4;
+            else if (str == "5")
+                return 5;
+            else if (str == "6")
+                return 6;
+            else if (str == "7")
+                return 7;
+            else if (str == "8")
+                return 8;
+            else if (str == "9")
+                return 9;
+            else if (str == "a" || str == "A")
+                return 10;
+            else if (str == "b" || str == "B")
+                return 11;
+            else if (str == "c" || str == "C")
+                return 12;
+            else if (str == "d" || str == "D")
+                return 13;
+            else if (str == "e" || str == "E")
+                return 14;
+            else if (str == "f" || str == "F")
+                return 15;
+            else
+                throw new Exception();
+        }
+
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, byte[] second);
 

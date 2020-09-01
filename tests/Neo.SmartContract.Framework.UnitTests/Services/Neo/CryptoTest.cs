@@ -8,6 +8,7 @@ using Neo.VM.Types;
 using Neo.Wallets;
 using System.Linq;
 using System.Security.Cryptography;
+using NeoUInt160 = Neo.UInt160;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -24,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             {
                 Attributes = new TransactionAttribute[0],
                 Script = new byte[0],
-                Signers = new Signer[] { new Signer() { Account = UInt160.Zero } },
+                Signers = new Signer[] { new Signer() { Account = NeoUInt160.Zero } },
                 Witnesses = new Witness[0],
                 NetworkFee = 1,
                 Nonce = 2,

@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.VM.Types;
+using NeoUInt160 = Neo.UInt160;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -26,7 +27,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
                   };
 
-            _engine.Snapshot.Contracts.Add(new UInt160(noStandard), new ContractState()
+            _engine.Snapshot.Contracts.Add(new NeoUInt160(noStandard), new ContractState()
             {
                 Script = new byte[0] { }
             });

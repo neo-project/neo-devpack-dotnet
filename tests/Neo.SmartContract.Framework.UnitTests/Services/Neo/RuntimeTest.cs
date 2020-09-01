@@ -10,7 +10,8 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using NeoUInt160 = Neo.UInt160;
+using NeoUInt256 = Neo.UInt256;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -27,11 +28,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             public void DeserializeUnsigned(BinaryReader reader) { }
 
-            public UInt160[] GetScriptHashesForVerifying(StoreView snapshot)
+            public NeoUInt160[] GetScriptHashesForVerifying(StoreView snapshot)
             {
-                return new UInt160[]
+                return new NeoUInt160[]
                 {
-                    UInt160.Parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+                    NeoUInt160.Parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
                 };
             }
 
@@ -103,9 +104,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     InvocationScript = new byte[0],
                     VerificationScript = new byte[0]
                 },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
-                PrevHash = UInt256.Zero
+                NextConsensus = NeoUInt160.Zero,
+                MerkleRoot = NeoUInt256.Zero,
+                PrevHash = NeoUInt256.Zero
             });
 
             var result = _engine.ExecuteTestCaseStandard("getTime");
@@ -196,10 +197,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_GetNotificationsCount()
         {
             _engine.ClearNotifications();
-            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
-            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
+            _engine.SendTestNotification(NeoUInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
+            _engine.SendTestNotification(NeoUInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
 
-            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(NeoUInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -219,10 +220,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_GetNotifications()
         {
             _engine.ClearNotifications();
-            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
-            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
+            _engine.SendTestNotification(NeoUInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
+            _engine.SendTestNotification(NeoUInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
 
-            var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(NeoUInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();

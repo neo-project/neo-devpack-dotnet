@@ -3,6 +3,8 @@ using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Cryptography.ECC;
 using Neo.VM;
 using Neo.VM.Types;
+using NeoUInt160 = Neo.UInt160;
+using NeoUInt256 = Neo.UInt256;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -26,9 +28,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     InvocationScript = new byte[0],
                     VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
                 },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
-                PrevHash = UInt256.Zero
+                NextConsensus = NeoUInt160.Zero,
+                MerkleRoot = NeoUInt256.Zero,
+                PrevHash = NeoUInt256.Zero
             };
 
             _engine = new TestEngine(TriggerType.Application, block);

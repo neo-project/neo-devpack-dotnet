@@ -1,4 +1,5 @@
 using Neo.SmartContract;
+using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -653,7 +654,7 @@ namespace Neo.Compiler.MSIL
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32,System.Int32)")
                 {
                     Convert1by1(VM.OpCode.SUBSTR, src, to);
-                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                    Convert1by1(VM.OpCode.CONVERT, src, to, new byte[] { (byte)StackItemType.ByteString });
                     return 0;
 
                 }
@@ -1387,6 +1388,10 @@ namespace Neo.Compiler.MSIL
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
             {
                 return 0; // donothing;
+            }
+            else if (_type.FullName.Contains("Framework.UInt160") || _type.FullName.Contains("Framework.UInt256"))
+            {
+                return 0;
             }
             else if (_type.DeclaringType.FullName.Contains("Exception"))
             {

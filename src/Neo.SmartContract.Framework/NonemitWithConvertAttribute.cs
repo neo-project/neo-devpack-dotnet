@@ -7,6 +7,7 @@ namespace Neo.SmartContract.Framework
         HexToBytes,
         ToScriptHash,
         ToBigInteger,
+        ToUInt160,
     }
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor)]

@@ -6,7 +6,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
-using System.Text;
+using NeoUInt160 = Neo.UInt160;
+using NeoUInt256 = Neo.UInt256;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -46,7 +47,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Not found
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getTransactionHeight", new ByteString(UInt256.Zero.ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getTransactionHeight", new ByteString(NeoUInt256.Zero.ToArray()));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -69,14 +70,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_GetBlockByHash()
         {
-            Test_GetBlock("getBlockByHash", new ByteString(_block.Hash.ToArray()), new ByteString(UInt256.Parse("0x0000000000000000000000000000000000000000000000000000000000000001").ToArray()));
+            Test_GetBlock("getBlockByHash", new ByteString(_block.Hash.ToArray()), new ByteString(NeoUInt256.Parse("0x0000000000000000000000000000000000000000000000000000000000000001").ToArray()));
         }
 
         [TestMethod]
         public void Test_GetTxByHash()
         {
             Test_GetTransaction("getTxByHash", new StackItem[] { new ByteString(_block.Transactions[0].Hash.ToArray()) },
-                new StackItem[] { new ByteString(UInt256.Zero.ToArray()) },
+                new StackItem[] { new ByteString(NeoUInt256.Zero.ToArray()) },
                 true);
         }
 
@@ -337,7 +338,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     Features = Manifest.ContractFeatures.HasStorage,
                     SupportedStandards = new string[0],
                     Groups = new Manifest.ContractGroup[0],
-                    Trusts = Manifest.WildcardContainer<UInt160>.Create(),
+                    Trusts = Manifest.WildcardContainer<NeoUInt160>.Create(),
                     Permissions = new Manifest.ContractPermission[0],
                     SafeMethods = Manifest.WildcardContainer<string>.Create(),
                     Abi = new Manifest.ContractAbi()
@@ -353,7 +354,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Not found
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(UInt160.Zero.ToArray()), new ByteString(new byte[20]));
+            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(NeoUInt160.Zero.ToArray()), new ByteString(new byte[0]));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
