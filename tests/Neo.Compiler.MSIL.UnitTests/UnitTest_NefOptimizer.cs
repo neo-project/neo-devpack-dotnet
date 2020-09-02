@@ -652,6 +652,20 @@ namespace Neo.Compiler.MSIL
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
             }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH5);
+                scriptBefore.Emit(VM.OpCode.PUSH4);
+                scriptBefore.EmitJump(VM.OpCode.JMP, 3);
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSH3);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+            }
         }
 
         [TestMethod]
