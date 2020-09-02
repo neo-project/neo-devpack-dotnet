@@ -174,7 +174,7 @@ namespace Neo.SmartContract.Framework
                 var byte1 = str.Substring(0, 1).StringToByte();
                 var byte2 = str.Substring(1, 1).StringToByte();
                 var byte3 = byte1 << 4;
-                var res =  (byte)(byte3 + byte2);
+                var res = (byte)(byte3 + byte2);
                 result[i] = res;
             }
             return new UInt160(result.Reverse());
