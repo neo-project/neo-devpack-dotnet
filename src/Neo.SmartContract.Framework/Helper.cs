@@ -242,7 +242,7 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Concat(this byte[] first, byte[] second);
 
         [NonemitWithConvert(ConvertMethod.HexToBytes)]
-        public extern static byte[] HexToBytes(this string hex);
+        public extern static byte[] HexToBytes(this string hex, bool reverse = false);
 
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
