@@ -15,7 +15,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("nEOName");
 
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(1, result.Count);
 
             var entry = result.Pop();
 
@@ -31,7 +31,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("gASName");
 
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(1, result.Count);
 
             var entry = result.Pop();
 
