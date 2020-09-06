@@ -16,5 +16,15 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return Neo.SmartContract.Framework.Services.Neo.GAS.Name();
         }
+
+        public static string OracleName()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.Oracle.Name();
+        }
+
+        public static byte[][] getOracleNodes()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.Oracle.GetOracleNodes();
+        }
     }
 }
