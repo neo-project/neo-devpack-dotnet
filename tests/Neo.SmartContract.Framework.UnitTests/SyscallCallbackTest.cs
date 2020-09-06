@@ -28,20 +28,20 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 if (!current.TryGetValue(en.ToString(), out var val))
                 {
-                    Assert.Fail($"`{en.ToString()}` Syscall is not defined in SyscallCallback");
+                    Assert.Fail($"`{en}` Syscall is not defined in SyscallCallback");
                 }
 
                 current.Remove(en.ToString());
 
                 if (val != (uint)en)
                 {
-                    Assert.Fail($"`{en.ToString()}` Syscall has a different hash, expected {(uint)en}, found: {val}");
+                    Assert.Fail($"`{en}` Syscall has a different hash, found {((uint)en):x2}, expected: {val:x2}");
                 }
             }
 
             if (current.Count > 0)
             {
-                Assert.Fail($"Not implemented syscalls: {string.Join("\n-", current.Values)}");
+                Assert.Fail($"Not implemented syscalls: {string.Join("\n-", current.Keys)}");
             }
         }
     }

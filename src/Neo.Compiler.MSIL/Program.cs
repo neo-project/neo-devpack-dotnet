@@ -31,12 +31,12 @@ namespace Neo.Compiler
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Compile(o));
         }
 
-        public static int Compile(Options options)
+        public static int Compile(Options options, ILogger log = null)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
-            var log = new DefLogger();
-            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
+            log ??= new DefLogger();
+            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
 
             var fileInfo = new FileInfo(options.File);
 
@@ -214,7 +214,7 @@ namespace Neo.Compiler
                 var nef = new NefFile
                 {
                     Compiler = "neon",
-                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
                     Script = bytes,
                     ScriptHash = bytes.ToScriptHash()

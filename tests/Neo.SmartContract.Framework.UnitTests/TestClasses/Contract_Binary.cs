@@ -4,7 +4,7 @@ using System;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
-    public class Contract_Base64 : SmartContract.Framework.SmartContract
+    public class Contract_Binary : SmartContract.Framework.SmartContract
     {
         public static byte[] base64Decode(string input)
         {
@@ -14,6 +14,16 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static string base64Encode(byte[] input)
         {
             return Binary.Base64Encode(input);
+        }
+
+        public static byte[] base58Decode(string input)
+        {
+            return Binary.Base58Decode(input);
+        }
+
+        public static string base58Encode(byte[] input)
+        {
+            return Binary.Base58Encode(input);
         }
     }
 }
