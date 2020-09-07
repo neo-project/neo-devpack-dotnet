@@ -615,6 +615,60 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void Test_Optimize_ConstExecution_ROT()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSH3);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH2);
+                    scriptAfter.Emit(VM.OpCode.PUSH3);
+                    scriptAfter.Emit(VM.OpCode.PUSH1);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSHNULL);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH2);
+                    scriptAfter.Emit(VM.OpCode.PUSHNULL);
+                    scriptAfter.Emit(VM.OpCode.PUSH1);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH5);
+                scriptBefore.Emit(VM.OpCode.PUSH4);
+                scriptBefore.EmitJump(VM.OpCode.JMP, 3);
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSH3);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
         public void Test_Optimize_Recalculate_BoolEqualTrue()
         {
             using var scriptBefore = new ScriptBuilder();
