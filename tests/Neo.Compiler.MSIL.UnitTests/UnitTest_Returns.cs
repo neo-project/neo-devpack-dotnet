@@ -46,5 +46,23 @@ namespace Neo.Compiler.MSIL.UnitTests
             var r1 = result.Pop<Integer>();
             Assert.AreEqual(-3, r1);
         }
+
+        [TestMethod]
+        public void Test_ReturnBool()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
+
+            var result = testengine.GetMethod("bool").RunEx(1, 1);
+            Assert.AreEqual(1, result.Count);
+            var r1 = result.Pop<Boolean>();
+            Assert.AreEqual(false, r1);
+
+            testengine.Reset();
+            result = testengine.GetMethod("bool").RunEx(0, 1);
+            Assert.AreEqual(1, result.Count);
+            r1 = result.Pop<Boolean>();
+            Assert.AreEqual(true, r1);
+        }
     }
 }

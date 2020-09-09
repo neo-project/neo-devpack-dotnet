@@ -255,7 +255,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    //Need clear arguments before return
+                    // Need clear arguments before return
                     if (src.code == CodeEx.Ret)//before return
                     {
                         if (!withReturn) break;
@@ -416,6 +416,10 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.NOP, src, to);
                     break;
                 case CodeEx.Ret:
+                    // Add a Convert to ensure that the return value is of type Bool.
+                    // Because IL uses 1 and 0 for 'True' and 'False'.
+                    if (method.returntype.FullName == "System.Boolean")
+                        Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Boolean });
                     // return was handled outside
                     Convert1by1(VM.OpCode.RET, src, to);
                     break;

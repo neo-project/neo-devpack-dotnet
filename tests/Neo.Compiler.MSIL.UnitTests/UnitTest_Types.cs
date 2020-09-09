@@ -64,15 +64,15 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1, ((Integer)item).GetInteger());
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.AreEqual(true, item.GetBoolean());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkBoolFalse");
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, ((Integer)item).GetInteger());
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.AreEqual(false, item.GetBoolean());
         }
 
         [TestMethod]

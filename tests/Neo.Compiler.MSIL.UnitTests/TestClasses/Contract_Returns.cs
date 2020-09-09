@@ -32,5 +32,11 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
             return Subtract(c, d);
         }
+
+        public static bool Bool(int i, int j)
+        {
+            var k = i != j && (i > 0 || j < 2);
+            return k;
+        }
     }
 }
