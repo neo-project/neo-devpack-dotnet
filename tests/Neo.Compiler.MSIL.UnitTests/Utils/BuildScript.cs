@@ -1,4 +1,5 @@
 using Neo.Compiler.Optimizer;
+using Neo.IO.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +14,9 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public ILModule modIL { get; private set; }
         public ModuleConverter converterIL { get; private set; }
         public byte[] finalNEF { get; protected set; }
-        public MyJson.JsonNode_Object finalABI { get; protected set; }
+        public JObject finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
-        public MyJson.JsonNode_Object debugInfo { get; private set; }
+        public JObject debugInfo { get; private set; }
 
         public BuildScript()
         {
@@ -55,7 +56,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                     List<int> entryPoints = new List<int>();
                     foreach (var f in converterIL.outModule.mapMethods.Values)
                     {
-                        if (entryPoints.Contains(f.funcaddr) == false)
+                        if (!entryPoints.Contains(f.funcaddr))
                             entryPoints.Add(f.funcaddr);
                     }
                     var opbytes = NefOptimizeTool.Optimize(finalNEF, entryPoints.ToArray(), out addrConvTable);

@@ -1,3 +1,4 @@
+using Neo.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -173,7 +174,6 @@ namespace Neo.Compiler.MSIL
                                 {
                                     if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.NonemitWithConvertAttribute")
                                     {
-                                        var text = (string)calcStack.Pop();
                                         var value = (int)attr.ConstructorArguments[0].Value;
                                         var type = attr.ConstructorArguments[0].Type.Resolve();
                                         string attrname = "";
@@ -187,17 +187,22 @@ namespace Neo.Compiler.MSIL
                                         }
                                         if (attrname == "ToScriptHash")//AddressString2ScriptHashBytes to bytes
                                         {
-                                            var bytes = NEO.AllianceOfThinWallet.Cryptography.Base58.Decode(text);
+                                            var text = (string)calcStack.Pop();
+                                            var bytes = Base58.Decode(text);
                                             var hash = bytes.Skip(1).Take(20).ToArray();
                                             calcStack.Push(hash);
                                         }
                                         else if (attrname == "HexToBytes")//HexString2Bytes to bytes[]
                                         {
+                                            var reverse = (int)calcStack.Pop() != 0;
+                                            var text = (string)calcStack.Pop();
                                             var hex = text.HexString2Bytes();
+                                            if (reverse) hex = hex.Reverse().ToArray();
                                             calcStack.Push(hex);
                                         }
                                         else if (attrname == "ToBigInteger")
                                         {
+                                            var text = (string)calcStack.Pop();
                                             var n = System.Numerics.BigInteger.Parse(text);
                                             calcStack.Push(n);
                                         }

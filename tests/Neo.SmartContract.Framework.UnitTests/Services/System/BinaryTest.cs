@@ -10,7 +10,7 @@ using Neo.VM.Types;
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 {
     [TestClass]
-    public class Base64Test
+    public class BinaryTest
     {
         private TestEngine _engine;
         private UInt160 scriptHash;
@@ -23,7 +23,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             snapshot.BlockHashIndex.Get().Index = 1234;
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
-            _engine.AddEntryScript("./TestClasses/Contract_Base64.cs");
+            _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
             scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash();
 
             snapshot.Contracts.Add(scriptHash, new ContractState()
@@ -55,6 +55,30 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             var item = result.Pop<ByteString>();
             Assert.AreEqual("dGVzdA==", item.GetString());
+        }
+
+        [TestMethod]
+        public void base58DecodeTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("base58Decode", "3yZe7d");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<ByteString>();
+            Assert.AreEqual("test", item.GetString());
+        }
+
+        [TestMethod]
+        public void base58EncodeTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("base58Encode", "test");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<ByteString>();
+            Assert.AreEqual("3yZe7d", item.GetString());
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(21, ((Array)item).Count);
+            Assert.AreEqual(0, ((Array)item).Count);
 
             // RegisterCandidate
             _engine.Reset();
@@ -104,8 +104,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(22, ((Array)item).Count);
-            var candidate = ((Array)item)[21];
+            Assert.AreEqual(1, ((Array)item).Count);
+            var candidate = ((Array)item)[0];
             Assert.IsInstanceOfType(candidate, typeof(Struct));
             var candidatePubKey = ((Struct)candidate)[0];
             var candidateVotes = ((Struct)candidate)[1];

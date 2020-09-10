@@ -2,6 +2,7 @@ using CommandLine;
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
+using Neo.IO.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
@@ -30,12 +31,12 @@ namespace Neo.Compiler
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => Environment.ExitCode = Compile(o));
         }
 
-        public static int Compile(Options options)
+        public static int Compile(Options options, ILogger log = null)
         {
             // Set console
             Console.OutputEncoding = Encoding.UTF8;
-            var log = new DefLogger();
-            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetEntryAssembly().GetName().Version);
+            log ??= new DefLogger();
+            log.Log("Neo.Compiler.MSIL console app v" + Assembly.GetAssembly(typeof(Program)).GetName().Version);
 
             var fileInfo = new FileInfo(options.File);
 
@@ -150,11 +151,11 @@ namespace Neo.Compiler
                 log.Log("LoadModule Error:" + err.ToString());
                 return -1;
             }
+            JObject abi;
             byte[] bytes;
             int bSucc = 0;
             string debugstr = null;
             NeoModule module;
-            MyJson.JsonNode_Object abi;
 
             // Convert and build
             try
@@ -167,7 +168,6 @@ namespace Neo.Compiler
                 Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
-                    module.ConvertFuncAddr();
                     HashSet<int> entryPoints = new HashSet<int>();
                     foreach (var func in module.mapMethods)
                     {
@@ -192,9 +192,7 @@ namespace Neo.Compiler
                 try
                 {
                     var outjson = DebugExport.Export(module, bytes, addrConvTable);
-                    StringBuilder sb = new StringBuilder();
-                    outjson.ConvertToStringWithFormat(sb, 0);
-                    debugstr = sb.ToString();
+                    debugstr = outjson.ToString(false);
                     log.Log("gen debug succ");
                 }
                 catch (Exception err)
@@ -216,7 +214,7 @@ namespace Neo.Compiler
                 var nef = new NefFile
                 {
                     Compiler = "neon",
-                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
                     Script = bytes,
                     ScriptHash = bytes.ToScriptHash()
@@ -240,8 +238,7 @@ namespace Neo.Compiler
 
             try
             {
-                StringBuilder sbABI = new StringBuilder();
-                abi.ConvertToStringWithFormat(sbABI, 0);
+                var sbABI = abi.ToString(false);
                 string abiname = onlyname + ".abi.json";
 
                 File.Delete(abiname);

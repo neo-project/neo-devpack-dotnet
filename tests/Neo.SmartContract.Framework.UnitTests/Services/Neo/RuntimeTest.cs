@@ -146,7 +146,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(-1, item.GetInteger());
+            Assert.AreEqual(TestEngine.TestGas - 1200, item.GetInteger());
         }
 
         [TestMethod]
@@ -156,7 +156,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var method = new EventHandler<LogEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Log += method;
-            var result = _engine.ExecuteTestCaseStandard("log", new ByteString(Encoding.UTF8.GetBytes("LogTest")));
+            var result = _engine.ExecuteTestCaseStandard("log", new ByteString(Utility.StrictUTF8.GetBytes("LogTest")));
             ApplicationEngine.Log -= method;
 
             Assert.AreEqual(1, list.Count);
@@ -196,8 +196,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_GetNotificationsCount()
         {
             _engine.ClearNotifications();
-            _engine.SendNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
-            _engine.SendNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
+            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
+            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
 
             var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
@@ -219,8 +219,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_GetNotifications()
         {
             _engine.ClearNotifications();
-            _engine.SendNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
-            _engine.SendNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
+            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
+            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
 
             var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
