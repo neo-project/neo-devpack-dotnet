@@ -11,22 +11,21 @@ namespace $safeprojectname$
     [Features(ContractFeatures.HasStorage)]
     public class Contract1 : SmartContract
     {
+        //Replace it with your own address.
         static readonly byte[] Owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+
+        private static bool IsOwner() => Runtime.CheckWitness(Owner);
+
+        // When this contract address is included in the transaction signature,
+        // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
+        // For example, this method needs to be called when withdrawing token from the contract.
+        public static bool Verify() => IsOwner();
 
         public static bool Main()
         {
             Storage.Put("Hello", "World");
             return true;
         }
-
-        public static bool Destroy()
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Destroy();
-            return true;
-        }
-
-        private static bool IsOwner() => Runtime.CheckWitness(Owner);
 
         public static bool Update(byte[] script, string manifest)
         {
@@ -37,9 +36,11 @@ namespace $safeprojectname$
             return true;
         }
 
-        // When this contract address is included in the transaction signature,
-        // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
-        // For example, this method needs to be called when withdrawing token from the contract.
-        public static bool Verify() => IsOwner();   
+        public static bool Destroy()
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            Contract.Destroy();
+            return true;
+        }
     }
 }
