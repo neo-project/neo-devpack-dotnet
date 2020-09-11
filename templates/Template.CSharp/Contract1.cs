@@ -1,7 +1,6 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System;
-using System.Diagnostics.Contracts;
 using System.Numerics;
 
 namespace $safeprojectname$
