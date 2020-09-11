@@ -11,7 +11,7 @@ namespace $safeprojectname$
     [Features(ContractFeatures.HasStorage)]
     public class Contract1 : SmartContract
     {
-        //Replace it with your own address.
+        //TODO: Replace it with your own address.
         static readonly byte[] Owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
 
         private static bool IsOwner() => Runtime.CheckWitness(Owner);
