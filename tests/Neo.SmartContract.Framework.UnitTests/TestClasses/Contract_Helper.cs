@@ -1,4 +1,5 @@
 using Neo.SmartContract.Framework;
+using System.Numerics;
 
 namespace Compiler.MSIL.TestClasses
 {
@@ -16,6 +17,11 @@ namespace Compiler.MSIL.TestClasses
         {
             Assert(value == true);
             return 5;
+        }
+
+        public static BigInteger TestToBigInteger(byte[] data)
+        {
+            return data.ToBigInteger();
         }
 
         public static void VoidAssertCall(bool value)

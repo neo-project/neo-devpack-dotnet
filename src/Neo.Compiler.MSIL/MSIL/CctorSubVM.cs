@@ -1,3 +1,4 @@
+using Neo.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,29 +14,23 @@ namespace Neo.Compiler.MSIL
         {
             if (src.GetType() == typeof(byte[]))
             {
-                byte[] _src = (byte[])src;
-                return _src;
+                return (byte[])src;
             }
             else if (src.GetType() == typeof(int))
             {
-                int v = (int)src;
-                return v;
+                return (int)src;
             }
             else if (src.GetType() == typeof(string))
             {
-                string v = (string)src;
-                string v2 = v;
-                return v2;
+                return (string)src;
             }
             else if (src.GetType() == typeof(Boolean))
             {
-                Boolean v = (Boolean)src;
-                return v;
+                return (bool)src;
             }
             else if (src.GetType() == typeof(string[]))
             {
-                string[] strArrays = (string[])src;
-                return strArrays;
+                return (string[])src;
             }
             else // TODO support more types
             {
@@ -46,11 +41,12 @@ namespace Neo.Compiler.MSIL
         public static bool Parse(ILMethod from, NeoModule to)
         {
             bool constValue = true;
+            bool ret = false;
             calcStack = new Stack<object>();
             bool bEnd = false;
             foreach (var src in from.body_Codes.Values)
             {
-                if (bEnd)
+                if (bEnd || ret)
                     break;
 
                 switch (src.code)
@@ -178,7 +174,6 @@ namespace Neo.Compiler.MSIL
                                 {
                                     if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.NonemitWithConvertAttribute")
                                     {
-                                        var text = (string)calcStack.Pop();
                                         var value = (int)attr.ConstructorArguments[0].Value;
                                         var type = attr.ConstructorArguments[0].Type.Resolve();
                                         string attrname = "";
@@ -192,20 +187,33 @@ namespace Neo.Compiler.MSIL
                                         }
                                         if (attrname == "ToScriptHash")//AddressString2ScriptHashBytes to bytes
                                         {
-                                            var bytes = NEO.AllianceOfThinWallet.Cryptography.Base58.Decode(text);
+                                            var text = (string)calcStack.Pop();
+                                            var bytes = Base58.Decode(text);
                                             var hash = bytes.Skip(1).Take(20).ToArray();
                                             calcStack.Push(hash);
                                         }
                                         else if (attrname == "HexToBytes")//HexString2Bytes to bytes[]
                                         {
+                                            var reverse = (int)calcStack.Pop() != 0;
+                                            var text = (string)calcStack.Pop();
                                             var hex = text.HexString2Bytes();
+                                            if (reverse) hex = hex.Reverse().ToArray();
                                             calcStack.Push(hex);
                                         }
                                         else if (attrname == "ToBigInteger")
                                         {
+                                            var text = (string)calcStack.Pop();
                                             var n = System.Numerics.BigInteger.Parse(text);
                                             calcStack.Push(n);
                                         }
+                                    }
+                                    if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
+                                    {
+                                        // If there is a syscall in cctor, we should add it into staticfieldsCctor directly.
+                                        // Then the initializemethod will handle it.
+                                        ret = true;
+                                        constValue = false;
+                                        break;
                                     }
                                 }
                             }

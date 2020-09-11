@@ -47,8 +47,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
             Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
-            Assert.AreEqual(false, itemArray[1]); // HasStorage
-            Assert.AreEqual(false, itemArray[2]); // Payable
+            Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
+            Assert.AreEqual(false, itemArray[2]); // HasStorage
+            Assert.AreEqual(false, itemArray[3]); // Payable
 
             // Call
 
@@ -59,7 +60,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
 
             // Destroy
 
@@ -109,8 +110,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
             Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
-            Assert.AreEqual(false, itemArray[1]); // HasStorage
-            Assert.AreEqual(false, itemArray[2]); // Payable
+            Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
+            Assert.AreEqual(false, itemArray[2]); // HasStorage
+            Assert.AreEqual(false, itemArray[3]); // Payable
 
             // Call & Update
 
@@ -126,7 +128,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetBigInteger());
+            Assert.AreEqual(123, item.GetInteger());
 
             // Call Again
 
@@ -137,7 +139,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(124, item.GetBigInteger());
+            Assert.AreEqual(124, item.GetInteger());
 
             // Check again for failures
 

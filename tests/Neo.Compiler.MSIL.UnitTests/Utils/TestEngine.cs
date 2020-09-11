@@ -1,3 +1,5 @@
+using Neo.Compiler.MSIL.Utils;
+using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -5,16 +7,13 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     public class TestEngine : ApplicationEngine
     {
-        protected override bool PreExecuteInstruction()
-        {
-            return true;
-        }
-
+        public const long TestGas = 2000_000_000;
         public static InteropDescriptor Native_Deploy;
 
         static TestEngine()
@@ -31,7 +30,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), 0, true)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
@@ -42,7 +41,23 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
             {
-                scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
+                {
+                    var fileNameManifest = filename;
+                    using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+                    {
+                        NefFile neffile = new NefFile();
+                        neffile.Deserialize(reader);
+                        fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
+                        string manifestFile = File.ReadAllText(fileNameManifest);
+                        BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
+                        scriptsAll[filename] = buildScriptNef;
+                    }
+                }
+                else
+                {
+                    scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
+                }
             }
 
             return scriptsAll[filename];
@@ -114,13 +129,14 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public int GetMethodEntryOffset(string methodname)
         {
             if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finialABI.GetDictItem("methods") as MyJson.JsonNode_Array;
+            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
             foreach (var item in methods)
             {
-                var method = item as MyJson.JsonNode_Object;
-                if (method.GetDictItem("name").ToString() == methodname)
-                    return int.Parse(method.GetDictItem("offset").ToString());
+                var method = item as JObject;
+                if (method["name"].AsString() == methodname)
+                    return int.Parse(method["offset"].AsString());
             }
+
             return -1;
         }
 
@@ -133,12 +149,15 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, params StackItem[] args)
         {
-            this.InvocationStack.Peek().InstructionPointer = offset;
+            var context = InvocationStack.Pop();
+            LoadContext(context.Clone(offset));
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
             if (initializeOffset != -1)
-                this.LoadClonedContext(initializeOffset);
+            {
+                LoadContext(CurrentContext.Clone(initializeOffset));
+            }
             while (true)
             {
                 var bfault = (this.State & VMState.FAULT) > 0;
@@ -153,10 +172,19 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
+        protected override void OnFault(Exception e)
+        {
+            base.OnFault(e);
+            Console.WriteLine(e.ToString());
+        }
+
         public EvaluationStack ExecuteTestCase(params StackItem[] args)
         {
-            //var engine = new ExecutionEngine();
-            this.InvocationStack.Peek().InstructionPointer = 0;
+            if (CurrentContext.InstructionPointer != 0)
+            {
+                var context = InvocationStack.Pop();
+                LoadContext(context.Clone(0));
+            }
             if (args != null)
             {
                 for (var i = args.Length - 1; i >= 0; i--)
@@ -179,9 +207,20 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return this.ResultStack;
         }
 
+        public void SendTestNotification(UInt160 hash, string eventName, VM.Types.Array state)
+        {
+            typeof(ApplicationEngine).GetMethod("SendNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .Invoke(this, new object[] { hash, eventName, state });
+        }
+
         static Dictionary<uint, InteropDescriptor> callmethod;
 
-        protected override bool OnSysCall(uint method)
+        public void ClearNotifications()
+        {
+            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, null);
+        }
+
+        protected override void OnSysCall(uint method)
         {
             if (callmethod == null)
             {
@@ -191,16 +230,16 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 };
                 foreach (var m in ApplicationEngine.Services)
                 {
-                    callmethod[m] = m;
+                    callmethod[m.Key] = m.Value;
                 }
             }
             if (callmethod.ContainsKey(method) == false)
             {
-                throw new Exception($"Syscall not found: {method.ToString("X2")} (using base call)");
+                throw new Exception($"Syscall not found: {method:X2} (using base call)");
             }
             else
             {
-                return base.OnSysCall(method);
+                base.OnSysCall(method);
             }
         }
     }

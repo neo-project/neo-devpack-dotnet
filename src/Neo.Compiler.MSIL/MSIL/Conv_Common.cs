@@ -78,6 +78,7 @@ namespace Neo.Compiler.MSIL
                 _code.debugline = src.debugline;
                 _code.debugILAddr = src.addr;
                 _code.debugILCode = src.code.ToString();
+                _code.sequencePoint = src.sequencePoint;
             }
 
             addr++;
@@ -141,7 +142,7 @@ namespace Neo.Compiler.MSIL
 
         private void ConvertPushString(string str, OpCode src, NeoMethod to)
         {
-            var data = Encoding.UTF8.GetBytes(str);
+            var data = Utility.StrictUTF8.GetBytes(str);
             ConvertPushDataArray(data, src, to);
         }
 

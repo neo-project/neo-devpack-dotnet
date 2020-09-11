@@ -8,29 +8,27 @@ namespace Template.NEP5.CSharp
 {
     public partial class NEP5 : SmartContract
     {
-        private static BigInteger GetTransactionAmount(object state)
+        private static BigInteger GetTransactionAmount(Notification notification)
         {
-            var notification = (object[])state;
-            // Checks notification format
-            if (notification.Length != 4) return 0;
             // Only allow Transfer notifications
-            if ((string)notification[0] != "Transfer") return 0;
+            if (notification.EventName != "Transfer") return 0;
+            var state = notification.State;
+            // Checks notification format
+            if (state.Length != 3) return 0;
             // Check dest
-            if ((byte[])notification[2] != ExecutionEngine.ExecutingScriptHash) return 0;
+            if ((byte[])state[1] != ExecutionEngine.ExecutingScriptHash) return 0;
             // Amount
-            var amount = (BigInteger)notification[3];
+            var amount = (BigInteger)state[2];
             if (amount < 0) return 0;
             return amount;
         }
 
         public static bool Mint()
         {
-            if (Runtime.InvocationCounter != 1)
-                throw new Exception();
+            if (Runtime.InvocationCounter != 1) throw new Exception("InvocationCounter must be 1.");
 
             var notifications = Runtime.GetNotifications();
-            if (notifications.Length == 0)
-                throw new Exception("Contribution transaction not found");
+            if (notifications.Length == 0) throw new Exception("Contribution transaction not found.");
 
             BigInteger neo = 0;
             BigInteger gas = 0;
@@ -41,35 +39,28 @@ namespace Template.NEP5.CSharp
 
                 if (notification.ScriptHash == NeoToken)
                 {
-                    neo += GetTransactionAmount(notification.State);
+                    neo += GetTransactionAmount(notification);
                 }
                 else if (notification.ScriptHash == GasToken)
                 {
-                    gas += GetTransactionAmount(notification.State);
+                    gas += GetTransactionAmount(notification);
                 }
             }
 
-            StorageMap contract = Storage.CurrentContext.CreateMap(StoragePrefixContract);
-            var supply = contract.Get("totalSupply");
-            if (supply == null)
-                throw new Exception("Contract not deployed");
+            var totalSupply = TotalSupplyStorage.Get();
+            if (totalSupply <= 0) throw new Exception("Contract not deployed.");
 
-            var current_supply = supply.ToBigInteger();
-            var avaliable_supply = MaxSupply - current_supply;
+            var avaliable_supply = MaxSupply - totalSupply;
 
             var contribution = (neo * TokensPerNEO) + (gas * TokensPerGAS);
-            if (contribution <= 0)
-                throw new Exception();
-            if (contribution > avaliable_supply)
-                throw new Exception();
+            if (contribution <= 0) throw new Exception("Contribution cannot be zero.");
+            if (contribution > avaliable_supply) throw new Exception("Insufficient supply for mint tokens.");
 
-            StorageMap balances = Storage.CurrentContext.CreateMap(StoragePrefixBalance);
             Transaction tx = (Transaction)ExecutionEngine.ScriptContainer;
-            var balance = balances.Get(tx.Sender)?.ToBigInteger() ?? 0;
-            balances.Put(tx.Sender, balance + contribution);
-            contract.Put("totalSupply", current_supply + contribution);
+            AssetStorage.Increase(tx.Sender, contribution);
+            TotalSupplyStorage.Increase(contribution);
 
-            OnTransfer(null, tx.Sender, balance + contribution);
+            OnTransfer(null, tx.Sender, contribution);
             return true;
         }
     }

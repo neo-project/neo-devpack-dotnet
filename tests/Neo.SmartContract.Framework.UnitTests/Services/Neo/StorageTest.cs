@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var rItem = result.Pop();
 
             Assert.IsInstanceOfType(rItem, typeof(Integer));
-            Assert.AreEqual(1, ((Integer)rItem).ToBigInteger());
+            Assert.AreEqual(1, ((Integer)rItem).GetInteger());
             Assert.AreEqual(1,
                 testengine.Snapshot.Storages.GetChangeSet()
                 .Count(a =>
@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             testengine = new TestEngine(snapshot: snapshot.Clone());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
             Assert.AreEqual(ContractFeatures.HasStorage, testengine.ScriptEntry.converterIL.outModule.attributes
-                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault());
 

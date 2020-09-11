@@ -1,23 +1,37 @@
-using Neo.Compiler;
+using Mono.Cecil;
+using Neo.IO.Json;
+using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace vmtool
+namespace Neo.Compiler
 {
     public class FuncExport
     {
-        static string ConvType(string _type)
+        public static readonly TypeReference Void = new TypeReference("System", "Void", ModuleDefinition.ReadModule(typeof(object).Assembly.Location, new ReaderParameters(ReadingMode.Immediate)), null);
+
+        internal static string ConvType(TypeReference t)
         {
-            switch (_type)
+            if (t is null) return "Null";
+
+            var type = t.FullName;
+
+            TypeDefinition definition = t.Resolve();
+            if (definition != null)
+                foreach (var i in definition.Interfaces)
+                {
+                    if (i.InterfaceType.Name == nameof(IApiInterface))
+                    {
+                        return "IInteropInterface";
+                    }
+                }
+
+            switch (type)
             {
-                case "__Signature":
-                    return "Signature";
-
-                case "System.Boolean":
-                    return "Boolean";
-
+                case "System.Boolean": return "Boolean";
+                case "System.Char":
                 case "System.Byte":
                 case "System.SByte":
                 case "System.Int16":
@@ -26,68 +40,52 @@ namespace vmtool
                 case "System.UInt32":
                 case "System.Int64":
                 case "System.UInt64":
-                case "System.Numerics.BigInteger":
-                    return "Integer";
-
-                case "__Hash160":
-                    return "Hash160";
-
-                case "__Hash256":
-                    return "Hash256";
-
-                case "System.Byte[]":
-                    return "ByteArray";
-
-                case "__PublicKey":
-                    return "PublicKey";
-
-                case "System.String":
-                    return "String";
-
-                case "System.Object[]":
-                    return "Array";
-
-                case "__InteropInterface":
-                case "IInteropInterface":
-                    return "InteropInterface";
-
-                case "System.Void":
-                    return "Void";
-
-                case "System.Object":
-                    return "ByteArray";
+                case "System.Numerics.BigInteger": return "Integer";
+                case "System.Byte[]": return "ByteArray";
+                case "System.String": return "String";
+                case "IInteropInterface": return "InteropInterface";
+                case "System.Void": return "Void";
+                case "System.Object": return "Any";
             }
-            if (_type.Contains("[]"))
-                return "Array";
-            if (_type.Contains("Neo.SmartContract.Framework.Services.Neo.Enumerator"))
-                return "InteropInterface";
 
-            return "Unknown:" + _type;
+            if (t.IsArray) return "Array";
+
+            if (type.StartsWith("System.Action") || type.StartsWith("System.Func") || type.StartsWith("System.Delegate"))
+                return $"Unknown:Pointers are not allowed to be public '{type}'";
+            if (type.StartsWith("System.ValueTuple`") || type.StartsWith("System.Tuple`"))
+                return "Array";
+
+            return "Unknown:" + type;
         }
 
-        public static MyJson.JsonNode_Object Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static string ComputeHash(byte[] script)
         {
             var sha256 = System.Security.Cryptography.SHA256.Create();
             byte[] hash256 = sha256.ComputeHash(script);
             var ripemd160 = new Neo.Cryptography.RIPEMD160Managed();
             var hash = ripemd160.ComputeHash(hash256);
 
-            var outjson = new MyJson.JsonNode_Object();
-
-            //hash
             StringBuilder sb = new StringBuilder();
             sb.Append("0x");
-            foreach (var b in hash.Reverse().ToArray())
+            for (int i = hash.Length - 1; i >= 0; i--)
             {
-                sb.Append(b.ToString("x02"));
+                sb.Append(hash[i].ToString("x02"));
             }
-            outjson.SetDictValue("hash", sb.ToString());
+            return sb.ToString();
+        }
+
+        public static JObject Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        {
+            var outjson = new JObject();
+
+            //hash
+            outjson["hash"] = ComputeHash(script);
 
             //functions
-            var methods = new MyJson.JsonNode_Array();
+            var methods = new JArray();
             outjson["methods"] = methods;
 
-            List<string> names = new List<string>();
+            HashSet<string> names = new HashSet<string>();
             foreach (var function in module.mapMethods)
             {
                 var mm = function.Value;
@@ -96,65 +94,134 @@ namespace vmtool
                 if (mm.isPublic == false)
                     continue;
 
-                var funcsign = new MyJson.JsonNode_Object();
-                methods.Add(funcsign);
-                funcsign.SetDictValue("name", function.Value.displayName);
-                if (names.Contains(function.Value.displayName))
+                if (!names.Add(function.Value.displayName))
                 {
                     throw new Exception("abi not allow same name functions");
                 }
-                names.Add(function.Value.displayName);
+                var funcsign = new JObject();
+                methods.Add(funcsign);
+                funcsign["name"] = function.Value.displayName;
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
-                funcsign.SetDictValue("offset", offset.ToString());
-                MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
+                funcsign["offset"] = offset.ToString();
+                JArray funcparams = new JArray();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var ptype = ConvType(v.type);
-                        var item = new MyJson.JsonNode_Object();
+                        var item = new JObject();
                         funcparams.Add(item);
 
-                        item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ptype);
+                        item["name"] = v.name;
+                        item["type"] = ConvType(v.type);
                     }
                 }
 
                 var rtype = ConvType(mm.returntype);
-                funcsign.SetDictValue("returnType", rtype);
+                if (rtype.StartsWith("Unknown:"))
+                {
+                    throw new Exception($"Unknown return type '{mm.returntype}' for method '{function.Value.name}'");
+                }
+
+                funcsign["returntype"] = rtype;
             }
 
             //events
-            var eventsigns = new MyJson.JsonNode_Array();
+            var eventsigns = new JArray();
             outjson["events"] = eventsigns;
             foreach (var events in module.mapEvents)
             {
                 var mm = events.Value;
-                var funcsign = new MyJson.JsonNode_Object();
+                var funcsign = new JObject();
                 eventsigns.Add(funcsign);
 
-                funcsign.SetDictValue("name", events.Value.displayName);
-                MyJson.JsonNode_Array funcparams = new MyJson.JsonNode_Array();
+                funcsign["name"] = events.Value.displayName;
+                JArray funcparams = new JArray();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var ptype = ConvType(v.type);
-                        var item = new MyJson.JsonNode_Object();
+                        var item = new JObject();
                         funcparams.Add(item);
 
-                        item.SetDictValue("name", v.name);
-                        item.SetDictValue("type", ptype);
+                        item["name"] = v.name;
+                        item["type"] = ConvType(v.type);
                     }
                 }
                 //event do not have returntype in nep3
                 //var rtype = ConvType(mm.returntype);
-                //funcsign.SetDictValue("returntype", rtype);
+                //funcsign["returntype", rtype);
             }
 
             return outjson;
+        }
+
+        private static object BuildSupportedStandards(Mono.Collections.Generic.Collection<CustomAttributeArgument> supportedStandardsAttribute)
+        {
+            if (supportedStandardsAttribute == null || supportedStandardsAttribute.Count == 0)
+            {
+                return "[]";
+            }
+
+            var entry = supportedStandardsAttribute.First();
+            string extra = "[";
+            foreach (var item in entry.Value as CustomAttributeArgument[])
+            {
+                extra += ($"\"{ScapeJson(item.Value.ToString())}\",");
+            }
+            extra = extra[0..^1];
+            extra += "]";
+
+            return extra;
+        }
+
+        private static string BuildExtraAttributes(List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
+        {
+            if (extraAttributes == null || extraAttributes.Count == 0)
+            {
+                return "null";
+            }
+
+            string extra = "{";
+            foreach (var extraAttribute in extraAttributes)
+            {
+                var key = ScapeJson(extraAttribute[0].Value.ToString());
+                var value = ScapeJson(extraAttribute[1].Value.ToString());
+                extra += ($"\"{key}\":\"{value}\",");
+            }
+            extra = extra[0..^1];
+            extra += "}";
+
+            return extra;
+        }
+
+        private static string ScapeJson(string value)
+        {
+            return value.Replace("\"", "");
+        }
+
+        public static string GenerateManifest(JObject abi, NeoModule module)
+        {
+            var sbABI = abi.ToString(false);
+
+            var features = module == null ? ContractFeatures.NoProperty : module.attributes
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
+                .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
+                .FirstOrDefault();
+
+            var extraAttributes = module == null ? new List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+            var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
+
+            var extra = BuildExtraAttributes(extraAttributes);
+            var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
+            var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
+            var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
+
+            return
+                @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
+                sbABI +
+                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }

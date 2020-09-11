@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Compiler.Optimizer;
+using Neo.IO.Json;
 using Neo.VM;
 using System;
 using System.Buffers.Binary;
@@ -10,6 +12,16 @@ namespace Neo.Compiler.MSIL
     [TestClass]
     public class UnitTest_NefOptimizer
     {
+        [TestMethod]
+        public void Test_OptimizerNopEntryPoint()
+        {
+            var testengine = new TestEngine();
+            var build = testengine.Build("./TestClasses/Contract_OptimizationTest.cs", false, true);
+
+            Assert.AreEqual((build.finalABI["methods"] as JArray)[0]["name"].AsString(), "verify");
+            Assert.AreEqual((build.finalABI["methods"] as JArray)[0]["offset"].AsString(), "0");
+        }
+
         [TestMethod]
         public void Test_Optimize_RemoveNOPS()
         {
@@ -599,6 +611,60 @@ namespace Neo.Compiler.MSIL
                     var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
                     CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
                 }
+            }
+        }
+
+        [TestMethod]
+        public void Test_Optimize_ConstExecution_ROT()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSH3);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH2);
+                    scriptAfter.Emit(VM.OpCode.PUSH3);
+                    scriptAfter.Emit(VM.OpCode.PUSH1);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSHNULL);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.PUSH2);
+                    scriptAfter.Emit(VM.OpCode.PUSHNULL);
+                    scriptAfter.Emit(VM.OpCode.PUSH1);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.PUSH5);
+                scriptBefore.Emit(VM.OpCode.PUSH4);
+                scriptBefore.EmitJump(VM.OpCode.JMP, 3);
+                scriptBefore.Emit(VM.OpCode.PUSH1);
+                scriptBefore.Emit(VM.OpCode.PUSH2);
+                scriptBefore.Emit(VM.OpCode.PUSH3);
+                scriptBefore.Emit(VM.OpCode.ROT);
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.DELETE_CONST_EXECUTION);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
             }
         }
 

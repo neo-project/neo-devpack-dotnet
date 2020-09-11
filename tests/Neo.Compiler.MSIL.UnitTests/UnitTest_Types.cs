@@ -52,7 +52,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkNull");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Null));
         }
 
@@ -63,16 +63,16 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(1, ((Integer)item).GetInteger());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkBoolFalse");
 
-            Assert.IsTrue(result.TryPop(out item));
+            item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(0, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -82,9 +82,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkSbyte");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -94,9 +94,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkByte");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -106,9 +106,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkShort");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -118,9 +118,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUshort");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -130,9 +130,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkInt");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -142,9 +142,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUint");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -154,9 +154,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkLong");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -166,9 +166,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUlong");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -178,9 +178,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkBigInteger");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -190,7 +190,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkByteArray");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Buffer));
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, ((Buffer)item).GetSpan().ToArray());
         }
@@ -202,9 +202,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkChar");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((int)'n', ((Integer)item).ToBigInteger());
+            Assert.AreEqual((int)'n', ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -214,7 +214,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkString");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("neo", ((ByteString)item).GetString());
         }
@@ -226,7 +226,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkArrayObj");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
@@ -239,9 +239,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkEnum");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).ToBigInteger());
+            Assert.AreEqual(5, ((Integer)item).GetInteger());
         }
 
         [TestMethod]
@@ -251,7 +251,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkClass");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
@@ -264,7 +264,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkStruct");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Struct));
             Assert.AreEqual(1, ((Struct)item).Count);
             Assert.AreEqual("neo", (((Struct)item)[0] as ByteString).GetString());
@@ -277,7 +277,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(2, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
@@ -291,12 +291,27 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple2");
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(2, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
             Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
         }
+
+        [TestMethod]
+        public void tuple3_Test()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            var result = testengine.ExecuteTestCaseStandard("checkTuple3");
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(2, ((Array)item).Count);
+            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+        }
+
         [TestMethod]
         public void event_Test()
         {
@@ -306,12 +321,11 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual(1, testengine.Notifications.Count);
 
-            var item = testengine.Notifications.First().State;
+            var item = testengine.Notifications.First();
 
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(2, ((Array)item).Count);
-            Assert.AreEqual("dummyEvent", (((Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("neo", (((Array)item)[1] as ByteString).GetString());
+            Assert.AreEqual(1, item.State.Count);
+            Assert.AreEqual("dummyEvent", item.EventName);
+            Assert.AreEqual("neo", (item.State[0] as ByteString).GetString());
         }
 
         [TestMethod]
@@ -322,7 +336,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkLambda");
             Assert.AreEqual(1, result.Count);
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
         }
 
@@ -334,7 +348,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkDelegate");
             Assert.AreEqual(1, result.Count);
 
-            Assert.IsTrue(result.TryPop(out StackItem item));
+            var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
         }
     }

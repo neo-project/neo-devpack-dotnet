@@ -1,5 +1,4 @@
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -104,27 +103,13 @@ namespace Neo.Compiler.MSIL
                     //try
                     {
                         nm.returntype = m.Value.returntype;
-                        try
-                        {
-                            var type = m.Value.method.ReturnType.Resolve();
-                            foreach (var i in type.Interfaces)
-                            {
-                                if (i.InterfaceType.Name == "IApiInterface")
-                                {
-                                    nm.returntype = "IInteropInterface";
-                                }
-                            }
-                        }
-                        catch
-                        {
-                        }
 
                         foreach (var src in m.Value.paramtypes)
                         {
                             nm.paramtypes.Add(new NeoParam(src.name, src.type));
                         }
 
-                        if (IsAppCall(m.Value.method, out byte[] outcall))
+                        if (IsContractCall(m.Value.method, out byte[] outcall))
                             continue;
                         if (IsNonCall(m.Value.method))
                             continue;
@@ -148,7 +133,7 @@ namespace Neo.Compiler.MSIL
                 logger.Log("Insert _initialize().");
             }
 
-            var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type.attributes.ToArray()).FirstOrDefault();
+            var attr = outModule.mapMethods.Values.Where(u => u.inSmartContract).Select(u => u.type?.attributes.ToArray()).FirstOrDefault();
             if (attr?.Length > 0)
             {
                 outModule.attributes.AddRange(attr);
@@ -173,7 +158,7 @@ namespace Neo.Compiler.MSIL
                 displayName = "_initialize",
                 inSmartContract = true
             };
-            initialize.returntype = "System.Void";
+            initialize.returntype = FuncExport.Void;
             initialize.funcaddr = 0;
             if (!FillInitializeMethod(initialize))
             {
@@ -431,8 +416,8 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.NOP, src, to);
                     break;
                 case CodeEx.Ret:
-                    //return was handled outside
-                    Insert1(VM.OpCode.RET, null, to);
+                    // return was handled outside
+                    Convert1by1(VM.OpCode.RET, src, to);
                     break;
                 case CodeEx.Pop:
                     Convert1by1(VM.OpCode.DROP, src, to);
@@ -921,10 +906,13 @@ namespace Neo.Compiler.MSIL
                     {
                         Convert1by1(VM.OpCode.NOP, src, to);
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
-                        // If readdonly, pull a const value
+                        // If readonly, pull a const value
                         if (
                             ((d.Attributes & Mono.Cecil.FieldAttributes.InitOnly) > 0) &&
-                            ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0)
+                            ((d.Attributes & Mono.Cecil.FieldAttributes.Static) > 0) &&
+                            // For a readonly Framework.Services, it can't be a const value,
+                            // we should handle in initializemethod.
+                            (!d.FieldType.FullName.Contains("Neo.SmartContract.Framework.Services"))
                             )
                         {
                             var fname = d.FullName;// d.DeclaringType.FullName + "::" + d.Name;
@@ -965,18 +953,19 @@ namespace Neo.Compiler.MSIL
                         }
 
                         //If this code was called by event, just find its name
+                        var findEventFlag = false;
                         if (d.DeclaringType.HasEvents)
                         {
                             foreach (var ev in d.DeclaringType.Events)
                             {
-                                if (ev.Name == d.Name && ev.EventType.FullName == d.FieldType.FullName)
+                                if (ev.FullName == d.FullName && ev.EventType.FullName == d.FieldType.FullName)
                                 {
-
+                                    findEventFlag = true;
                                     Mono.Collections.Generic.Collection<Mono.Cecil.CustomAttribute> ca = ev.CustomAttributes;
                                     to.lastsfieldname = d.Name;
                                     foreach (var attr in ca)
                                     {
-                                        if (attr.AttributeType.Name == "DisplayNameAttribute")
+                                        if (attr.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                                         {
                                             to.lastsfieldname = (string)attr.ConstructorArguments[0].Value;
                                         }
@@ -985,7 +974,7 @@ namespace Neo.Compiler.MSIL
                                 }
                             }
                         }
-                        else
+                        if (!findEventFlag)
                         {
                             var field = this.outModule.mapFields[d.FullName];
                             Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index });

@@ -1,5 +1,6 @@
 using Neo.VM;
 using System.Collections.Generic;
+
 namespace Neo.Compiler.Optimizer
 {
     class Parser_DeleteDeadCode : IOptimizeParser
@@ -16,9 +17,8 @@ namespace Neo.Compiler.Optimizer
 
         public void Parse(List<INefItem> items)
         {
-            List<int> reachableAddrs = new List<int>();
+            var reachableAddrs = new HashSet<int>();
             Touch(items, reachableAddrs, 0);
-            reachableAddrs.Sort();
 
             // Remove useless instructions like JPMIF false xxx
             // If the previous instruction of JMPIF is PUSH, we can tell whether JMPIF is useful in advance
@@ -35,7 +35,7 @@ namespace Neo.Compiler.Optimizer
             }
         }
 
-        private static void Touch(List<INefItem> items, List<int> reachableAddrs, int beginAddr)
+        private static void Touch(List<INefItem> items, HashSet<int> reachableAddrs, int beginAddr)
         {
             for (int i = 0; i < items.Count; i++)
             {
@@ -43,10 +43,7 @@ namespace Neo.Compiler.Optimizer
                 if (inst.Offset < beginAddr) continue;
                 if (inst.OpCode == OpCode.NOP) continue; // NOP never touch
 
-                if (!reachableAddrs.Contains(inst.Offset))
-                {
-                    reachableAddrs.Add(inst.Offset);
-                }
+                reachableAddrs.Add(inst.Offset);
 
                 // Try is not linear. If encounter a try, skip to the catch and finally segments to scan.
                 // If encounter endtry, will also skip to finally segment to scan
@@ -56,9 +53,8 @@ namespace Neo.Compiler.Optimizer
                     for (var j = 0; j < inst.AddressCountInData; j++)
                     {
                         var addr = inst.GetAddressInData(j) + inst.Offset;
-                        if (!reachableAddrs.Contains(addr))
+                        if (reachableAddrs.Add(addr))
                         {
-                            reachableAddrs.Add(addr);
                             Touch(items, reachableAddrs, addr); // goto the JMP/call/... new address
                         }
                     }

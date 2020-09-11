@@ -1,9 +1,11 @@
 using Neo.VM;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
+[assembly: InternalsVisibleTo("Neo.SmartContract.Framework.UnitTests")]
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     internal static class NeonTestTool

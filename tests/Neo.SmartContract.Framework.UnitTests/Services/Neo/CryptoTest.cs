@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             {
                 Attributes = new TransactionAttribute[0],
                 Script = new byte[0],
-                Sender = UInt160.Zero,
+                Signers = new Signer[] { new Signer() { Account = UInt160.Zero } },
                 Witnesses = new Witness[0],
                 NetworkFee = 1,
                 Nonce = 2,
@@ -49,15 +49,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_SHA256()
         {
-            var data = _engine.ScriptContainer.GetHashData();
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("SHA256", data);
+            var result = _engine.ExecuteTestCaseStandard("SHA256", "asd");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("293ba9cd0c05e23da15e39d29bcb8edfa5b2eeb29163a325c3229e81feed3d11", item.GetSpan().ToArray().ToHexString());
+            Assert.AreEqual("688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6", item.GetSpan().ToArray().ToHexString());
         }
 
         [TestMethod]
@@ -118,7 +117,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // True
 
@@ -130,7 +129,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
         }
 
         [TestMethod]
@@ -150,7 +149,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // True
 
@@ -163,7 +162,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
         }
 
         [TestMethod]
@@ -184,7 +183,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // True
 
@@ -198,7 +197,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
         }
 
         [TestMethod]
@@ -218,7 +217,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.ToBoolean());
+            Assert.IsFalse(item.GetBoolean());
 
             // True
 
@@ -231,7 +230,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.ToBoolean());
+            Assert.IsTrue(item.GetBoolean());
         }
     }
 }

@@ -19,25 +19,38 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
-        public void TestNext()
+        public void TestNextIntArray()
         {
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testNext", new Array(new StackItem[] { 1, 2, 3 }));
+            var result = _engine.ExecuteTestCaseStandard("testNextIntArray", new Array(new StackItem[] { 1, 2, 3 }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(6, item.GetBigInteger());
+            Assert.AreEqual(6, item.GetInteger());
         }
 
         [TestMethod]
-        public void TestConcat()
+        public void TestNextByteArray()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testNextByteArray", new byte[] { 1, 2, 3 });
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(6, item.GetInteger());
+        }
+
+        [TestMethod]
+        public void TestConcatIntArray()
         {
             // A and B
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testConcat",
+            var result = _engine.ExecuteTestCaseStandard("testConcatIntArray",
                 new Array(new StackItem[] { 1, 2, 3 }),
                 new Array(new StackItem[] { 4, 5, 6 })
                 );
@@ -46,12 +59,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(21, item.GetBigInteger());
+            Assert.AreEqual(21, item.GetInteger());
 
             // Only A
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testConcat",
+            result = _engine.ExecuteTestCaseStandard("testConcatIntArray",
                new Array(new StackItem[] { 1, 2, 3 }),
                new Array()
                );
@@ -60,12 +73,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(6, item.GetBigInteger());
+            Assert.AreEqual(6, item.GetInteger());
 
             // Only B
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testConcat",
+            result = _engine.ExecuteTestCaseStandard("testConcatIntArray",
                new Array(),
                new Array(new StackItem[] { 4, 5, 6 })
                );
@@ -74,12 +87,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(15, item.GetBigInteger());
+            Assert.AreEqual(15, item.GetInteger());
 
             // Empty
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testConcat",
+            result = _engine.ExecuteTestCaseStandard("testConcatIntArray",
                new Array(),
                new Array()
                );
@@ -88,7 +101,67 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetByteLength());
+            Assert.AreEqual(0, item.GetSpan().Length);
+        }
+
+        [TestMethod]
+        public void TestConcatByteArray()
+        {
+            // A and B
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testConcatByteArray",
+                new byte[] { 1, 2, 3 },
+                new byte[] { 4, 5, 6 }
+                );
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(21, item.GetInteger());
+
+            // Only A
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testConcatByteArray",
+               new byte[] { 1, 2, 3 },
+               new byte[] { }
+               );
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(6, item.GetInteger());
+
+            // Only B
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testConcatByteArray",
+               new byte[] { },
+               new byte[] { 4, 5, 6 }
+               );
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(15, item.GetInteger());
+
+            // Empty
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testConcatByteArray",
+               new byte[] { },
+               new byte[] { }
+               );
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetSpan().Length);
         }
 
         [TestMethod]
@@ -99,15 +172,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             enumerator.Next();
             var v1 = enumerator.Value();
-            Assert.AreEqual(4, v1.GetBigInteger());
+            Assert.AreEqual(4, v1.GetInteger());
 
             enumerator.Next();
             var v2 = enumerator.Value();
-            Assert.AreEqual(6, v2.GetBigInteger());
+            Assert.AreEqual(6, v2.GetInteger());
 
             enumerator.Next();
             var v3 = enumerator.Value();
-            Assert.AreEqual(8, v3.GetBigInteger());
+            Assert.AreEqual(8, v3.GetInteger());
         }
     }
 }
