@@ -1,6 +1,8 @@
+using Mono.Cecil;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -837,8 +839,7 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.PACK, null, to);
 
                 // Push call method name, the first letter should be lowercase.
-                var methodName = defs.Body.Method.Name;
-                ConvertPushString(methodName[..1].ToLowerInvariant() + methodName[1..], src, to);
+                ConvertPushString(GetMethodName(defs.Body.Method), src, to);
 
                 // Push contract hash.
                 ConvertPushDataArray(callhash, src, to);
@@ -880,6 +881,21 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
+        }
+
+        private string GetMethodName(MethodDefinition method)
+        {
+            foreach (var attr in method.CustomAttributes)
+            {
+                if (attr.AttributeType.Name == nameof(DisplayNameAttribute))
+                {
+                    return (string)attr.ConstructorArguments[0].Value;
+                }
+            }
+
+            var methodName = method.Name;
+            methodName = methodName[..1].ToLowerInvariant() + methodName[1..];
+            return methodName;
         }
 
         private List<string> GetAllConstStringAfter(ILMethod method, OpCode src)

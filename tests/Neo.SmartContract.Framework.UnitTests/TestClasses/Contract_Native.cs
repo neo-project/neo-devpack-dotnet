@@ -10,13 +10,13 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("NEO_Decimals")]
         public static int NEO_Decimals()
         {
-            return (int)NEO.Decimals();
+            return NEO.Decimals;
         }
 
         [DisplayName("NEO_Name")]
         public static string NEO_Name()
         {
-            return NEO.Name();
+            return NEO.Name;
         }
 
         [DisplayName("NEO_BalanceOf")]
@@ -46,13 +46,13 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("GAS_Decimals")]
         public static int GAS_Decimals()
         {
-            return (int)GAS.Decimals();
+            return GAS.Decimals;
         }
 
         [DisplayName("GAS_Name")]
         public static string GAS_Name()
         {
-            return GAS.Name();
+            return GAS.Name;
         }
 
         public static BigInteger Policy_GetFeePerByte()
