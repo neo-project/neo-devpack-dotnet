@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
@@ -645,9 +646,9 @@ namespace Neo.Compiler.MSIL
                 else if (src.tokenMethod.Contains("::Concat("))
                 {
                     //"System.String System.String::Concat(System.String,System.String)"
-
                     if (src.tokenUnknown is MethodReference mref)
                     {
+                        //Concat can have more than two arguments
                         for (int x = 0; x < mref.Parameters.Count - 1; x++)
                         {
                             Convert1by1(VM.OpCode.CAT, src, to);
