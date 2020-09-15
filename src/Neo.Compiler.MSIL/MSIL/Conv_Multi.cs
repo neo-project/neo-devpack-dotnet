@@ -645,7 +645,18 @@ namespace Neo.Compiler.MSIL
                 else if (src.tokenMethod.Contains("::Concat("))
                 {
                     //"System.String System.String::Concat(System.String,System.String)"
-                    Convert1by1(VM.OpCode.CAT, src, to);
+
+                    if (src.tokenUnknown is MethodReference mref)
+                    {
+                        for (int x = 0; x < mref.Parameters.Count - 1; x++)
+                        {
+                            Convert1by1(VM.OpCode.CAT, src, to);
+                        }
+                    }
+                    else
+                    {
+                        Convert1by1(VM.OpCode.CAT, src, to);
+                    }
                     Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
                 }
