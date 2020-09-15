@@ -21,6 +21,7 @@ namespace $safeprojectname$
         // For example, this method needs to be called when withdrawing token from the contract.
         public static bool Verify() => IsOwner();
 
+        // TODO: Replace it with your methods.
         public static bool MyMethod()
         {
             Storage.Put("Hello", "World");
