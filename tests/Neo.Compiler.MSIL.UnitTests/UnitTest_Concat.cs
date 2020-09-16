@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            _engine.AddEntryScript("./TestClasses/Contract_Concat.cs",false,false);
+            _engine.AddEntryScript("./TestClasses/Contract_Concat.cs", false, false);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             _engine.ScriptEntry.DumpNEF();
 
 
-             var result = method.Run("a", "b", "c","d").ConvertTo(StackItemType.ByteString);
+            var result = method.Run("a", "b", "c", "d").ConvertTo(StackItemType.ByteString);
             Assert.AreEqual(VMState.HALT, _engine.State);
             var str = result.GetString();
             Assert.AreEqual("abcdhello", str);
