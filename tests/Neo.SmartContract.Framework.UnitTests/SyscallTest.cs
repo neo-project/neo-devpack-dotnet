@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
-using System.Collections.Generic;
 using System.IO;
+using SCG = System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Current syscalls
 
-            var list = new List<string>();
+            var list = new SCG.List<string>();
 
             using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
             {
@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Neo syscalls
 
-            var notFound = new List<string>();
+            var notFound = new SCG.List<string>();
 
             foreach (var syscall in ApplicationEngine.Services)
             {
@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
         }
 
-        private void CheckType(TypeDefinition type, string expectedType, List<string> list)
+        private void CheckType(TypeDefinition type, string expectedType, SCG.List<string> list)
         {
             foreach (var nested in type.NestedTypes)
             {

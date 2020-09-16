@@ -3,8 +3,8 @@ using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.VM.Types;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using SCG = System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private byte[] Concat(byte[] prefix, params byte[] key)
         {
-            var l = new List<byte>(prefix);
+            var l = new SCG.List<byte>(prefix);
             l.AddRange(key);
 
             return l.ToArray();
