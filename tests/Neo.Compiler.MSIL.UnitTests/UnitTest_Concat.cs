@@ -43,6 +43,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual("abchello", result.GetString());
         }
+
         [TestMethod]
         public void TestStringAdd4()
         {
