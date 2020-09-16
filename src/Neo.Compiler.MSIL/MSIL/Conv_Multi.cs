@@ -645,19 +645,50 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod.Contains("::Concat("))
                 {
-                    //"System.String System.String::Concat(System.String,System.String)"
-                    if (src.tokenUnknown is MethodReference mref)
-                    {
-                        //Concat can have more than two arguments
-                        for (int x = 0; x < mref.Parameters.Count - 1; x++)
-                        {
-                            Convert1by1(VM.OpCode.CAT, src, to);
-                        }
-                    }
-                    else
+                    //String::Concat has many overload,we can only support part of them.
+                    if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String)")
                     {
                         Convert1by1(VM.OpCode.CAT, src, to);
                     }
+                    else if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String,System.String)")
+                    {
+                        Convert1by1(VM.OpCode.CAT, src, to);
+                        Insert1(VM.OpCode.CAT, "", to);
+                    }
+                    else if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String,System.String,System.String)")
+                    {
+                        Convert1by1(VM.OpCode.CAT, src, to);
+                        Insert1(VM.OpCode.CAT, "", to);
+                        Insert1(VM.OpCode.CAT, "", to);
+                    }
+                    else if (src.tokenMethod == "System.String System.String::Concat(System.String[])")
+                    {
+                        //unpack array
+                        Convert1by1(VM.OpCode.UNPACK, src, to);
+
+                        //loops
+                        var loopaddr = this.addr;
+                        Insert1(VM.OpCode.DUP, "", to); //+1
+                        Insert1(VM.OpCode.PUSH1, "", to);//+1
+                        Insert1(VM.OpCode.JMPLE_L, "", to, BitConverter.GetBytes((int)5 + 9));//+5 to end
+                        Insert1(VM.OpCode.DEC, "", to);//+1
+                        Insert1(VM.OpCode.REVERSE3, "", to);//+1
+                        Insert1(VM.OpCode.CAT, "", to);//+1
+                        Insert1(VM.OpCode.SWAP, "", to);//+1
+                        var addrreset = loopaddr - this.addr;
+
+
+                        Insert1(VM.OpCode.JMP_L, "", to, BitConverter.GetBytes((int)addrreset));//+5 to loops 
+
+                        //:endpos
+
+                        Insert1(VM.OpCode.DROP, "", to);
+                    }
+                    else
+                    {
+                        throw new Exception("not support this overload:" + src.tokenMethod);
+                    }
+
                     Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
                 }
