@@ -691,7 +691,6 @@ namespace Neo.Compiler.MSIL
                     Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
                 }
-
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32,System.Int32)")
                 {
                     Convert1by1(VM.OpCode.SUBSTR, src, to);
