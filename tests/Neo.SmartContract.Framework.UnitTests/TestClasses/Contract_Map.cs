@@ -25,6 +25,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Json.Serialize(some);
         }
 
+        public static object TestClear(byte[] key)
+        {
+            Map<string, string> some = new Map<string, string>();
+            some[key.ToByteString()] = "teststring2";
+            some.Clear();
+            return Json.Serialize(some);
+        }
+
         public static string TestByteArray2()
         {
             Map<string, string> some = new Map<string, string>();

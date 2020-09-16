@@ -19,6 +19,9 @@ namespace Neo.SmartContract.Framework
             set;
         }
 
+        [OpCode(OpCode.CLEARITEMS)]
+        public extern void Clear();
+
         public extern TKey[] Keys
         {
             [OpCode(OpCode.KEYS)]
