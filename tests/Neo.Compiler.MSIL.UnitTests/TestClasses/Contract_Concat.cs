@@ -19,7 +19,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return a + b + c + "hello";
         }
 
-        public static string TestStringAdd4(string a, string b, string c,string d)
+        public static string TestStringAdd4(string a, string b, string c, string d)
         {
             return a + b + c + d + "hello";
         }

@@ -47,14 +47,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestStringAdd4()
         {
             _engine.Reset();
-            var method = _engine.GetMethod("testStringAdd4");
-            _engine.ScriptEntry.DumpNEF();
-
-
-            var result = method.Run("a", "b", "c", "d").ConvertTo(StackItemType.ByteString);
+            var result = _engine.GetMethod("testStringAdd4").Run("a", "b", "c", "d").ConvertTo(StackItemType.ByteString);
             Assert.AreEqual(VMState.HALT, _engine.State);
-            var str = result.GetString();
-            Assert.AreEqual("abcdhello", str);
+            Assert.AreEqual("abcdhello", result.GetString());
         }
     }
 }

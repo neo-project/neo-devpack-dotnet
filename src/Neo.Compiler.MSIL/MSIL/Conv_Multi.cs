@@ -645,7 +645,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod.Contains("::Concat("))
                 {
-                    //String::Concat has many overload,we can only support part of them.
+                    //String::Concat has many overload, we can only support part of them.
                     if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String)")
                     {
                         Convert1by1(VM.OpCode.CAT, src, to);
@@ -676,7 +676,6 @@ namespace Neo.Compiler.MSIL
                         Insert1(VM.OpCode.CAT, "", to);//+1
                         Insert1(VM.OpCode.SWAP, "", to);//+1
                         var addrreset = loopaddr - this.addr;
-
 
                         Insert1(VM.OpCode.JMP_L, "", to, BitConverter.GetBytes((int)addrreset));//+5 to loops 
 
