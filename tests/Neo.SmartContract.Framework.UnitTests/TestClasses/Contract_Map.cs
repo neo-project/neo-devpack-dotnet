@@ -7,6 +7,17 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Map : SmartContract
     {
+        public static int TestCount(int count)
+        {
+            Map<int, int> some = new Map<int, int>();
+            for (int i = 0; i < count; i++)
+            {
+                some[i] = i;
+            }
+
+            return some.Count;
+        }
+        
         public static object TestByteArray(byte[] key)
         {
             Map<string, string> some = new Map<string, string>();

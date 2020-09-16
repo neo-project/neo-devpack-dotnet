@@ -18,6 +18,19 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void TestCount()
+        {
+            _engine.Reset();
+            StackItem count = 4;
+            var result = _engine.ExecuteTestCaseStandard("testCount", count);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(4, (item as Integer).GetInteger());
+        }
+
+        [TestMethod]
         public void TestByteArrayMap()
         {
             Assert.ThrowsException<System.Exception>(() => _engine.AddEntryScript("./TestClasses/Contract_MapException.cs"));
