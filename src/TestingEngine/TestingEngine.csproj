@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Copyright>2015-2020 The Neo Project</Copyright>
+    <AssemblyTitle>Neo.TestEngine</AssemblyTitle>
+    <Version>3.0.0-preview3</Version>
+    <Authors>The Neo Project</Authors>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
+    <RootNamespace>Neo.TestEngine</RootNamespace>
+    <Company>The Neo Project</Company>
+    <Product>TestingEngine</Product>
+    <Description>TestingEngine</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\tests\Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj" />
+  </ItemGroup>
+
+</Project>

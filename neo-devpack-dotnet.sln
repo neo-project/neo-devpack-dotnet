@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.CSharp", "tem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.UnitTests", "tests\Template.NEP5.UnitTests\Template.NEP5.UnitTests.csproj", "{780141EE-D6E9-4591-8470-8F91B12027CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEngineExe", "src\TestEngineExe\TestEngineExe.csproj", "{39347E90-FC12-4018-8F22-828F0F1B2F7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestingEngine", "src\TestingEngine\TestingEngine.csproj", "{39347E90-FC12-4018-8F22-828F0F1B2F7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

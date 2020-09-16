@@ -41,5 +41,16 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             this.GetType().GetProperty("PersistingBlock").SetValue(this, block);
         }
+
+        /// <summary>
+        /// Clear the storage for unit test
+        /// </summary>
+        public void ClearStorage()
+        {
+            foreach (var pair in this.Storages.Seek())
+            {
+                ((TestDataCache<StorageKey, StorageItem>)this._Storages).Delete(pair.Key);
+            }
+        }
     }
 }
