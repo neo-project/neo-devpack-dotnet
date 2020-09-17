@@ -88,6 +88,25 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(0, jarray.Count);
         }
 
+        [TestMethod]
+        public void TestArrayConvert()
+        {
+            _engine.Reset();
+            StackItem count = 4;
+            var result = _engine.ExecuteTestCaseStandard("testArrayConvert", count);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is Array);
+            var array = (Array)item;
+            Assert.AreEqual(4, array.Count);
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.IsTrue(array[i] is Integer);
+                Assert.AreEqual(i, array[i].GetInteger());
+            }
+        }
+
         static JObject ParseJson(StackItem item)
         {
             Assert.IsInstanceOfType(item, typeof(ByteString));

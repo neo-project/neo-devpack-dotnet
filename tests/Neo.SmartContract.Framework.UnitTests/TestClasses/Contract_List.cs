@@ -51,5 +51,16 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             some.Clear();
             return Json.Serialize(some);
         }
+
+        public static int[] TestArrayConvert(int count)
+        {
+            List<int> some = new List<int>();
+            for (int i = 0; i < count; i++)
+            {
+                some.Add(i);
+            }
+
+            return some;
+        }
     }
 }
