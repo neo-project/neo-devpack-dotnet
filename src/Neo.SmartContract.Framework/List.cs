@@ -28,10 +28,7 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CLEARITEMS)]
         public extern void Clear();
 
-        public extern T[] Values
-        {
-            [OpCode(OpCode.VALUES)]
-            get;
-        }
+        [OpCode(OpCode.VALUES)]
+        public extern List<T> Clone();
     }
 }
