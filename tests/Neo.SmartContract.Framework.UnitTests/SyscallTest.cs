@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
+using System.Collections.Generic;
 using System.IO;
-using SCG = System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Current syscalls
 
-            var list = new SCG.List<string>();
+            var list = new HashSet<string>();
 
             using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
             {
@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Neo syscalls
 
-            var notFound = new SCG.List<string>();
+            var notFound = new System.Collections.Generic.List<string>();
 
             foreach (var syscall in ApplicationEngine.Services)
             {
@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
         }
 
-        private void CheckType(TypeDefinition type, string expectedType, SCG.List<string> list)
+        private void CheckType(TypeDefinition type, string expectedType, HashSet<string> list)
         {
             foreach (var nested in type.NestedTypes)
             {
@@ -69,7 +69,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                     if (attr.AttributeType.FullName == expectedType)
                     {
                         var syscall = attr.ConstructorArguments[0].Value.ToString();
-                        if (!list.Contains(syscall)) list.Add(syscall);
+                        list.Add(syscall);
                     }
                 }
             }
