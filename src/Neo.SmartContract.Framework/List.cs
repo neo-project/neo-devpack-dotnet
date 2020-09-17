@@ -30,5 +30,11 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.VALUES)]
         public extern List<T> Clone();
+
+        [Script]
+        public static extern implicit operator List<T>(T[] array);
+
+        [Script]
+        public static extern implicit operator T[](List<T> array);
     }
 }
