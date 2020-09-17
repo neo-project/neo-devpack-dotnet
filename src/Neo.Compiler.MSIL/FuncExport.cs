@@ -2,9 +2,9 @@ using Mono.Cecil;
 using Neo.IO.Json;
 using Neo.SmartContract.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SCG = System.Collections.Generic;
 
 namespace Neo.Compiler
 {
@@ -74,7 +74,7 @@ namespace Neo.Compiler
             return sb.ToString();
         }
 
-        public static JObject Export(NeoModule module, byte[] script, SCG.Dictionary<int, int> addrConvTable)
+        public static JObject Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
         {
             var outjson = new JObject();
 
@@ -85,7 +85,7 @@ namespace Neo.Compiler
             var methods = new JArray();
             outjson["methods"] = methods;
 
-            SCG.HashSet<string> names = new SCG.HashSet<string>();
+            HashSet<string> names = new HashSet<string>();
             foreach (var function in module.mapMethods)
             {
                 var mm = function.Value;
@@ -176,7 +176,7 @@ namespace Neo.Compiler
             return extra;
         }
 
-        private static string BuildExtraAttributes(SCG.List<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
+        private static string BuildExtraAttributes(ICollection<Mono.Collections.Generic.Collection<CustomAttributeArgument>> extraAttributes)
         {
             if (extraAttributes == null || extraAttributes.Count == 0)
             {
@@ -210,7 +210,7 @@ namespace Neo.Compiler
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
                 .FirstOrDefault();
 
-            var extraAttributes = module == null ? new SCG.List<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToList();
+            var extraAttributes = module == null ? Array.Empty<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToArray();
             var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
 
             var extra = BuildExtraAttributes(extraAttributes);
