@@ -4,7 +4,6 @@ using Neo.Ledger;
 using Neo.VM.Types;
 using System;
 using System.Linq;
-using SCG = System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -49,12 +48,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
         }
 
-        private byte[] Concat(byte[] prefix, params byte[] key)
+        private byte[] Concat(byte[] prefix, byte[] key)
         {
-            var l = new SCG.List<byte>(prefix);
-            l.AddRange(key);
-
-            return l.ToArray();
+            return global::Neo.Helper.Concat(prefix, key);
         }
 
         private TestEngine testengine;
