@@ -3,7 +3,6 @@ using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.VM.Types;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
@@ -49,12 +48,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
         }
 
-        private byte[] Concat(byte[] prefix, params byte[] key)
+        private byte[] Concat(byte[] prefix, byte[] key)
         {
-            var l = new List<byte>(prefix);
-            l.AddRange(key);
-
-            return l.ToArray();
+            return global::Neo.Helper.Concat(prefix, key);
         }
 
         private TestEngine testengine;
