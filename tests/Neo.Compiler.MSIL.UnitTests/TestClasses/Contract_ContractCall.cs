@@ -5,7 +5,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
     [Contract("0102030405060708090A0102030405060708090A")]
     public class Contract1
     {
-        public static extern byte[] testArgs(byte a);
+        public static extern byte[] testArgs1(byte a);
         public static extern void testVoid();
     }
 
@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
     {
         public static byte[] testContractCall()
         {
-            return Contract1.testArgs((byte)4);
+            return Contract1.testArgs1((byte)4);
         }
 
         public static void testContractCallVoid()
