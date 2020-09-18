@@ -41,6 +41,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern byte GetCallFlags();
 
         [Syscall("System.Contract.CreateStandardAccount")]
-        public static extern byte[] CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);
+        public static extern UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);
     }
 }
