@@ -49,6 +49,9 @@ namespace Neo.Compiler
                 case "IInteropInterface": return "InteropInterface";
                 case "System.Void": return "Void";
                 case "System.Object": return "Any";
+                case "Neo.UInt160": return "Hash160";
+                case "Neo.UInt256": return "Hash256";
+                case "Neo.Cryptography.ECC.ECPoint": return "PublicKey";
             }
 
             if (t.IsArray) return "Array";
