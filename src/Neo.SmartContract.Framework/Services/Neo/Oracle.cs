@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Oracle
     {
         public static extern string Name();
-        public static extern byte[][] GetOracleNodes();
+        public static extern Cryptography.ECC.ECPoint[] GetOracleNodes();
         public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
     }
 }

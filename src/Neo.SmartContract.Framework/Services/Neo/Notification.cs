@@ -5,7 +5,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// <summary>
         /// Sender script hash
         /// </summary>
-        public readonly byte[] ScriptHash;
+        public readonly UInt160 ScriptHash;
 
         /// <summary>
         /// Notification's name
