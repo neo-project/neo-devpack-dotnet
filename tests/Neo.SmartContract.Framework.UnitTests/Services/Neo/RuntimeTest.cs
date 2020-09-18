@@ -8,9 +8,7 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -152,7 +150,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_Log()
         {
-            var list = new List<LogEventArgs>();
+            var list = new System.Collections.Generic.List<LogEventArgs>();
             var method = new EventHandler<LogEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Log += method;

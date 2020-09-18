@@ -13,11 +13,16 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             var nb = new byte[] { 1, 2, 3, 4 };
         }
 
-        public static byte[] testArgs(byte a)
+        public static byte[] testArgs1(byte a)
         {
             var nb = new byte[] { 1, 2, 3, 3 };
             nb[3] = a;
             return nb;
+        }
+
+        public static object testArgs2(byte[] a)
+        {
+            return a;
         }
     }
 }
