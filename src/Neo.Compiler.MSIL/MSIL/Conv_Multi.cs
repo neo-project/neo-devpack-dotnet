@@ -826,21 +826,29 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 4)
             {
-                // Package the arguments into an array.
-                ConvertPushNumber(pcount, null, to);
-                Convert1by1(VM.OpCode.PACK, null, to);
+                if (defs.IsGetter 
+                    && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.NativeContractHashAttribute"))
+                {
+                    ConvertPushDataArray(callhash.ToArray(), src, to);
+                }
+                else
+                {
+                    // Package the arguments into an array.
+                    ConvertPushNumber(pcount, null, to);
+                    Convert1by1(VM.OpCode.PACK, null, to);
 
-                // Push call method name, the first letter should be lowercase.
-                var methodName = defs.Body.Method.Name;
-                ConvertPushString(methodName[..1].ToLowerInvariant() + methodName[1..], src, to);
+                    // Push call method name, the first letter should be lowercase.
+                    var methodName = defs.Body.Method.Name;
+                    ConvertPushString(methodName[..1].ToLowerInvariant() + methodName[1..], src, to);
 
-                // Push contract hash.
-                ConvertPushDataArray(callhash.ToArray(), src, to);
-                Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                    // Push contract hash.
+                    ConvertPushDataArray(callhash.ToArray(), src, to);
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
 
-                // If the return type is void, insert a DROP.
-                if (defs.ReturnType.FullName is "System.Void")
-                    Insert1(VM.OpCode.DROP, "", to);
+                    // If the return type is void, insert a DROP.
+                    if (defs.ReturnType.FullName is "System.Void")
+                        Insert1(VM.OpCode.DROP, "", to);
+                }
             }
             else if (calltype == 5)
             {

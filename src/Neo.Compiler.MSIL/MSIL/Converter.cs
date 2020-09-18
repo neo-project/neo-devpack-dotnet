@@ -109,11 +109,11 @@ namespace Neo.Compiler.MSIL
                             nm.paramtypes.Add(new NeoParam(src.name, src.type));
                         }
 
-                        if (IsContractCall(m.Value.method, out UInt160 outcall))
+                        if (IsContractCall(m.Value.method, out _))
                             continue;
                         if (IsNonCall(m.Value.method))
                             continue;
-                        if (IsMixAttribute(m.Value.method, out VM.OpCode[] opcodes, out string[] opdata))
+                        if (IsMixAttribute(m.Value.method, out _, out _))
                             continue;
 
                         if (m.Key.Contains("::Main("))
