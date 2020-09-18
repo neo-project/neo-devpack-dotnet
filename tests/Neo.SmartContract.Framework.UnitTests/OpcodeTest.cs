@@ -1,7 +1,9 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
-using FrameworkOpCode = Neo.SmartContract.Framework.OpCode;
+using FrameworkOpCode = scfx.Neo.SmartContract.Framework.OpCode;
 using VMOpCode = Neo.VM.OpCode;
 
 namespace Neo.SmartContract.Framework.UnitTests
