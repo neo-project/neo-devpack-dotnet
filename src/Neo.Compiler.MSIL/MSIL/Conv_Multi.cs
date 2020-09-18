@@ -1386,6 +1386,18 @@ namespace Neo.Compiler.MSIL
         private int ConvertNewObj(ILMethod from, OpCode src, NeoMethod to)
         {
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
+            if (_type.FullName == "System.Void Neo.UInt160::.ctor()")
+            {
+                ConvertPushDataArray(new byte[UInt160.Length], src, to); 
+                return 0;
+            }
+            
+            if (_type.FullName == "System.Void Neo.UInt256::.ctor()")
+            {
+                ConvertPushDataArray(new byte[UInt256.Length], src, to); 
+                return 0;
+            }
+
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
             {
                 return 0; // donothing;
