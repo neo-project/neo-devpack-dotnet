@@ -11,5 +11,8 @@ namespace Neo
         public UInt256(byte[] _)
         {
         }
+
+        [SmartContract.Framework.Script]
+        public static extern implicit operator byte[](UInt256 value);
     }
 }

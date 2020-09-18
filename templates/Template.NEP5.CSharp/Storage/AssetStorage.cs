@@ -1,3 +1,4 @@
+using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System.Numerics;
@@ -8,9 +9,9 @@ namespace Template.NEP5.CSharp
     {
         public static readonly string mapName = "asset";
 
-        public static void Increase(byte[] key, BigInteger value) => Put(key, Get(key) + value);
+        public static void Increase(UInt160 key, BigInteger value) => Put(key, Get(key) + value);
 
-        public static void Reduce(byte[] key, BigInteger value)
+        public static void Reduce(UInt160 key, BigInteger value)
         {
             var oldValue = Get(key);
             if (oldValue == value)
@@ -19,10 +20,10 @@ namespace Template.NEP5.CSharp
                 Put(key, oldValue - value);
         }
 
-        public static void Put(byte[] key, BigInteger value) => Storage.CurrentContext.CreateMap(mapName).Put(key, value);
+        public static void Put(UInt160 key, BigInteger value) => Storage.CurrentContext.CreateMap(mapName).Put(key, value);
 
-        public static BigInteger Get(byte[] key) => Storage.CurrentContext.CreateMap(mapName).Get(key).ToBigInteger();
+        public static BigInteger Get(UInt160 key) => Storage.CurrentContext.CreateMap(mapName).Get(key).ToBigInteger();
 
-        public static void Remove(byte[] key) => Storage.CurrentContext.CreateMap(mapName).Delete(key);
+        public static void Remove(UInt160 key) => Storage.CurrentContext.CreateMap(mapName).Delete(key);
     }
 }

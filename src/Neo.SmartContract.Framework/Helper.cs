@@ -197,7 +197,7 @@ namespace Neo.SmartContract.Framework
         /// Example: "AFsCjUGzicZmXQtWpwVt6hNeJTBwSipJMS".ToScriptHash() generates 0102030405060708090a0b0c0d0e0faabbccddee
         /// </summary>
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
-        public extern static byte[] ToScriptHash(this string address);
+        public extern static UInt160 ToScriptHash(this string address);
 
         [NonemitWithConvert(ConvertMethod.ToBigInteger)]
         public extern static BigInteger ToBigInteger(this string text);

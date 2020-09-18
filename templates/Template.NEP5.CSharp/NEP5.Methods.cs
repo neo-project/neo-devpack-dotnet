@@ -1,3 +1,4 @@
+using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework.Services.System;
@@ -10,13 +11,13 @@ namespace Template.NEP5.CSharp
     {
         public static BigInteger TotalSupply() => TotalSupplyStorage.Get();
 
-        public static BigInteger BalanceOf(byte[] account)
+        public static BigInteger BalanceOf(UInt160 account)
         {
             if (!ValidateAddress(account)) throw new Exception("The parameters account SHOULD be 20-byte addresses.");
             return AssetStorage.Get(account);
         }
 
-        public static bool Transfer(byte[] from, byte[] to, BigInteger amount)
+        public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
         {
             if (!ValidateAddress(from) || !ValidateAddress(to)) throw new Exception("The parameters from and to SHOULD be 20-byte addresses.");
             if (amount <= 0) throw new Exception("The parameter amount MUST be greater than 0.");
