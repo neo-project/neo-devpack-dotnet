@@ -18,6 +18,19 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void TestCount()
+        {
+            _engine.Reset();
+            StackItem count = 4;
+            var result = _engine.ExecuteTestCaseStandard("testCount", count);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(4, (item as Integer).GetInteger());
+        }
+
+        [TestMethod]
         public void TestByteArrayMap()
         {
             Assert.ThrowsException<System.Exception>(() => _engine.AddEntryScript("./TestClasses/Contract_MapException.cs"));
@@ -37,6 +50,22 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Except: {"a":"teststring2"}
             Assert.AreEqual("7b2261223a2274657374737472696e6732227d", (item as ByteString).GetSpan().ToHexString());
         }
+
+        [TestMethod]
+        public void TestClear()
+        {
+            _engine.Reset();
+            StackItem key = System.Text.Encoding.ASCII.GetBytes("a");
+            var result = _engine.ExecuteTestCaseStandard("testClear", key);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            // Except: {}
+            Assert.AreEqual("7b7d", (item as ByteString).GetSpan().ToHexString());
+        }
+
 
         [TestMethod]
         public void TestByteArray2()
