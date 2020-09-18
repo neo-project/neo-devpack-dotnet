@@ -1,10 +1,13 @@
+extern alias scfx;
+
 using Mono.Cecil;
 using Neo.IO.Json;
-using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using IApiInterface = scfx.Neo.SmartContract.Framework.IApiInterface;
+using ContractFeatures = scfx.Neo.SmartContract.Framework.ContractFeatures;
 
 namespace Neo.Compiler
 {
