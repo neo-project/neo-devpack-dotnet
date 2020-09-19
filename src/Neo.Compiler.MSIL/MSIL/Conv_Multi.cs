@@ -826,7 +826,7 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 4)
             {
-                if (defs.IsGetter 
+                if (defs.IsGetter
                     && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.NativeContractHashAttribute"))
                 {
                     ConvertPushDataArray(callhash.ToArray(), src, to);
@@ -1398,10 +1398,10 @@ namespace Neo.Compiler.MSIL
         private int ConvertNewObj(ILMethod from, OpCode src, NeoMethod to)
         {
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
-            
+
             if (_type.FullName == "System.Void Neo.UInt160::.ctor()")
             {
-                ConvertPushDataArray(new byte[UInt160.Length], src, to); 
+                ConvertPushDataArray(new byte[UInt160.Length], src, to);
                 return 0;
             }
 
@@ -1413,7 +1413,7 @@ namespace Neo.Compiler.MSIL
 
             if (_type.FullName == "System.Void Neo.UInt256::.ctor()")
             {
-                ConvertPushDataArray(new byte[UInt256.Length], src, to); 
+                ConvertPushDataArray(new byte[UInt256.Length], src, to);
                 return 0;
             }
 
