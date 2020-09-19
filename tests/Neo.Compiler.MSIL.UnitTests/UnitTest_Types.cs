@@ -395,17 +395,17 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
             Assert.IsFalse(item.GetBoolean());
 
-            // testengine.Reset();
-            // result = testengine.ExecuteTestCaseStandard("checkZeroStatic", zero.ToArray());
-            // Assert.AreEqual(1, result.Count);
-            // item = result.Pop();
-            // Assert.IsTrue(item.GetBoolean());
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkZeroStatic", zero.ToArray());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item.GetBoolean());
 
-            // testengine.Reset();
-            // result = testengine.ExecuteTestCaseStandard("checkZeroStatic", notZero.ToArray());
-            // Assert.AreEqual(1, result.Count);
-            // item = result.Pop();
-            // Assert.IsFalse(item.GetBoolean());
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkZeroStatic", notZero.ToArray());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
         }
     }
 }

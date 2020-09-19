@@ -8,7 +8,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static bool checkZeroLocal(UInt160 owner) { return owner == new UInt160(); }
 
-        // public static bool checkZeroStatic(UInt160 owner) { return owner == UInt160.Zero; }
-
+        public static bool checkZeroStatic(UInt160 owner) { return owner == UInt160.Zero; }
     }
 }

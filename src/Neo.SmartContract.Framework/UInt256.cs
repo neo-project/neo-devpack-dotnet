@@ -1,8 +1,10 @@
+using Neo.SmartContract.Framework;
+
 namespace Neo
 {
     public class UInt256
     {
-        public static readonly UInt256 Zero = new UInt256();
+        public static extern UInt256 Zero { [OpCode(OpCode.PUSHDATA1, "200000000000000000000000000000000000000000000000000000000000000000")] get; }
 
         public UInt256()
         {
