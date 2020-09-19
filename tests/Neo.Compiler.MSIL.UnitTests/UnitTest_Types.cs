@@ -414,7 +414,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
 
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs", optimizer: false);
+            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
 
             var result = testengine.ExecuteTestCaseStandard("constructUInt160", notZero.ToArray());
             Assert.AreEqual(1, result.Count);
