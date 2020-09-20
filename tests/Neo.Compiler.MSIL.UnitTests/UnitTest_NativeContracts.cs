@@ -82,6 +82,16 @@ namespace Neo.Compiler.MSIL.UnitTests
             var entry = result.Pop();
 
             Assert.AreEqual("NEO", entry.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nEOSymbol");
+
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            entry = result.Pop();
+
+            Assert.AreEqual("neo", entry.GetString());
         }
 
         [TestMethod]
@@ -98,6 +108,16 @@ namespace Neo.Compiler.MSIL.UnitTests
             var entry = result.Pop();
 
             Assert.AreEqual("GAS", entry.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("gASSymbol");
+
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            entry = result.Pop();
+
+            Assert.AreEqual("gas", entry.GetString());
         }
     }
 }
