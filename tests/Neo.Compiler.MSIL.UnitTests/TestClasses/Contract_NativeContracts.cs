@@ -9,17 +9,27 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
     {
         public static string NEOName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.NEO.Name();
+            return Neo.SmartContract.Framework.Services.Neo.NEO.Name;
         }
 
         public static string GASName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.GAS.Name();
+            return Neo.SmartContract.Framework.Services.Neo.GAS.Name;
         }
 
         public static string OracleName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Oracle.Name();
+            return Neo.SmartContract.Framework.Services.Neo.Oracle.Name;
+        }
+
+        public static string NEOSymbol()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.NEO.Symbol;
+        }
+
+        public static string GASSymbol()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.GAS.Symbol;
         }
 
         public static Cryptography.ECC.ECPoint[] getOracleNodes()

@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Oracle
     {
         public static extern UInt160 Hash { [NativeContractHash] get; }
-        public static extern string Name();
+        public static extern string Name { get; }
         public static extern Cryptography.ECC.ECPoint[] GetOracleNodes();
         public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
     }
