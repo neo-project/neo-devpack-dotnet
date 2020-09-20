@@ -893,9 +893,20 @@ namespace Neo.Compiler.MSIL
                 }
             }
 
-            var methodName = method.Name;
-            methodName = methodName[..1].ToLowerInvariant() + methodName[1..];
-            return methodName;
+            string methodName = null;
+            if (method.SemanticsAttributes.HasFlag(MethodSemanticsAttributes.Getter))
+            {
+                foreach (PropertyDefinition property in method.DeclaringType.Properties)
+                {
+                    if (property.GetMethod == method)
+                    {
+                        methodName = property.Name;
+                        break;
+                    }
+                }
+            }
+            if (methodName is null) methodName = method.Name;
+            return methodName[..1].ToLowerInvariant() + methodName[1..];
         }
 
         private List<string> GetAllConstStringAfter(ILMethod method, OpCode src)
