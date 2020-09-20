@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL
             var methods = (build.finalABI["methods"] as JArray);
 
             Assert.AreEqual(1, methods.Count);
-            Assert.AreEqual(methods[0]["name"].AsString(), "_ondeploy");
+            Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
             Assert.AreEqual(methods[0]["offset"].AsString(), "0");
             Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
 
