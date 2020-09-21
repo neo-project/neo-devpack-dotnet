@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             if (whatReturn == "NextConsensus") return block.NextConsensus;
             if (whatReturn == "PrevHash") return block.PrevHash;
             if (whatReturn == "Timestamp") return block.Timestamp;
-            if (whatReturn == "TransactionsCount") return block.TransactionsCount;
+            if (whatReturn == "TransactionsCount") return block.Transactions.Length;
             if (whatReturn == "Version") return block.Version;
 
             throw new Exception("Uknown property");
@@ -54,6 +54,13 @@ namespace Neo.Compiler.MSIL.TestClasses
             return GetTxInfo(tx, whatReturn);
         }
 
+        public static object GetTxFromBlock(uint blockIndex, int txIndex, string whatReturn)
+        {
+            var block = Blockchain.GetBlock(blockIndex);
+            var tx = block.Transactions[txIndex];
+            return GetTxInfo(tx, whatReturn);
+        }
+
         public static object GetTxByBlockHash(byte[] blockHash, int txIndex, string whatReturn)
         {
             var tx = Blockchain.GetTransactionFromBlock(blockHash, txIndex);
@@ -62,6 +69,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object GetTxByBlockIndex(uint blockIndex, int txIndex, string whatReturn)
         {
+            var block = Blockchain.GetBlock(blockIndex);
             var tx = Blockchain.GetTransactionFromBlock(blockIndex, txIndex);
             return GetTxInfo(tx, whatReturn);
         }

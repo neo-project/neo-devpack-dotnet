@@ -98,6 +98,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 false);
         }
 
+        [TestMethod]
+        public void Test_GetTxFromBlock()
+        {
+            Test_GetTransaction("getTxFromBlock", new StackItem[] {
+                new Integer(_block.Index), new Integer(0) },
+                new StackItem[] { new Integer(_block.Index), new Integer(_block.Transactions.Length + 1) },
+                false);
+        }
+
         public void Test_GetTransaction(string method, StackItem[] foundArgs, StackItem[] notFoundArgs, bool expectedNullAsNotFound)
         {
             // Not found
