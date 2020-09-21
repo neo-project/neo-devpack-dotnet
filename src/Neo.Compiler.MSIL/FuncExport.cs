@@ -103,7 +103,7 @@ namespace Neo.Compiler
                 funcsign["name"] = function.Value.displayName;
                 if (methods.Any(u => u["name"].AsString() == funcsign["name"].AsString()))
                 {
-                    throw new Exception($"The method '{funcsign["name"]}' it's duplicated");
+                    throw new Exception($"The method '{funcsign["name"].AsString()}' it's duplicated");
                 }
                 methods.Add(funcsign);
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
