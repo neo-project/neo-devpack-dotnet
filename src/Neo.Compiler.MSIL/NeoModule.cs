@@ -131,6 +131,11 @@ namespace Neo.Compiler
         {
             switch (attr.AttributeType.Name)
             {
+                case nameof(SmartContract.Framework.OnDeploymentAttribute):
+                    {
+                        displayName = "_deploy";
+                        break;
+                    }
                 case nameof(DisplayNameAttribute):
                     {
                         displayName = (string)attr.ConstructorArguments[0].Value;

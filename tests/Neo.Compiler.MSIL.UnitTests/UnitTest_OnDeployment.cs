@@ -5,13 +5,13 @@ using Neo.IO.Json;
 namespace Neo.Compiler.MSIL
 {
     [TestClass]
-    public class UnitTest_OnDeploy
+    public class UnitTest_OnDeployment
     {
         [TestMethod]
-        public void Test_OnDeploy()
+        public void Test_OnDeployment()
         {
             var testengine = new TestEngine();
-            var build = testengine.Build("./TestClasses/Contract_OnDeploy.cs", false, true);
+            var build = testengine.Build("./TestClasses/Contract_OnDeployment.cs", false, true);
 
             var methods = (build.finalABI["methods"] as JArray);
 

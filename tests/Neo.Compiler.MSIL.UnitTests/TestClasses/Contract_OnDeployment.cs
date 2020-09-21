@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
-    class Contract_OnDeploy : SmartContract.Framework.SmartContract
+    class Contract_OnDeployment : SmartContract.Framework.SmartContract
     {
-        public static void _deploy(bool update)
+        [OnDeployment]
+        public static void MyDeployMethod(bool update)
         {
             
         }

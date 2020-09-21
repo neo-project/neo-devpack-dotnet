@@ -927,6 +927,10 @@ namespace Neo.Compiler.MSIL
         {
             foreach (var attr in method.CustomAttributes)
             {
+                if (attr.AttributeType.Name == nameof(SmartContract.Framework.OnDeploymentAttribute))
+                {
+                    return "_deploy";
+                }
                 if (attr.AttributeType.Name == nameof(DisplayNameAttribute))
                 {
                     return (string)attr.ConstructorArguments[0].Value;
