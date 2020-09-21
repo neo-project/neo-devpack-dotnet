@@ -47,10 +47,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         /// </summary>
         public void ClearStorage()
         {
-            foreach (var pair in this.Storages.Seek())
-            {
-                ((TestDataCache<StorageKey, StorageItem>)this._Storages).Delete(pair.Key);
-            }
+            ((TestDataCache<StorageKey, StorageItem>)this._Storages).Clear();
         }
     }
 }

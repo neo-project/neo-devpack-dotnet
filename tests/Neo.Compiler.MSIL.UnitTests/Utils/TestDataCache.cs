@@ -54,5 +54,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             dic[key] = value;
         }
+
+        /// <summary>
+        /// Clear the storage for unit test
+        /// </summary>
+        public void Clear()
+        {
+            dic.Clear();
+        }
     }
 }
