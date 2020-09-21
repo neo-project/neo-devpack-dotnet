@@ -929,7 +929,7 @@ namespace Neo.Compiler.MSIL
             {
                 if (attr.AttributeType.Name == nameof(SmartContract.Framework.OnDeploymentAttribute))
                 {
-                    return "_deploy";
+                    return SmartContract.Framework.OnDeploymentAttribute.MethodName;
                 }
                 if (attr.AttributeType.Name == nameof(DisplayNameAttribute))
                 {

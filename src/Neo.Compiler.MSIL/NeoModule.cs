@@ -125,6 +125,22 @@ namespace Neo.Compiler
             {
                 ProcessAttribute(attr);
             }
+
+            // Ensure method definition
+
+            switch (displayName)
+            {
+                case SmartContract.Framework.OnDeploymentAttribute.MethodName:
+                    {
+                        if (method.paramtypes.Count != 1 ||
+                            method.returntype.FullName != FuncExport.Void.FullName ||
+                            method.paramtypes[0].type.FullName != FuncExport.Boolean.FullName)
+                        {
+                            throw new Exception("_deploy must be: void _deploy (bool update);");
+                        }
+                        break;
+                    }
+            }
         }
 
         private void ProcessAttribute(CustomAttribute attr)
@@ -133,7 +149,7 @@ namespace Neo.Compiler
             {
                 case nameof(SmartContract.Framework.OnDeploymentAttribute):
                     {
-                        displayName = "_deploy";
+                        displayName = SmartContract.Framework.OnDeploymentAttribute.MethodName;
                         break;
                     }
                 case nameof(DisplayNameAttribute):
