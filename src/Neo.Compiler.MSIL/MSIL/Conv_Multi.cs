@@ -1450,45 +1450,9 @@ namespace Neo.Compiler.MSIL
             return 0;
         }
 
-        private void PushCheckSize(int size, OpCode src, NeoMethod to)
-        {
-            Insert1(VM.OpCode.DUP, "dup the byte array", to);
-            Insert1(VM.OpCode.SIZE, "get byte array size", to);
-            ConvertPushNumber(size, src, to);
-            var addroff = BitConverter.GetBytes((int)28);
-            Insert1(VM.OpCode.JMPEQ_L, "jmp over throw if equal", to, addroff);
-            ConvertPushString("invalid array length", null, to);
-            Insert1(VM.OpCode.THROW, "", to);
-            Insert1(VM.OpCode.NOP, "", to);
-        }
-
         private int ConvertNewObj(ILMethod from, OpCode src, NeoMethod to)
         {
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
-
-            if (_type.FullName == "System.Void Neo.UInt160::.ctor()")
-            {
-                ConvertPushDataArray(new byte[UInt160.Length], src, to);
-                return 0;
-            }
-
-            if (_type.FullName == "System.Void Neo.UInt160::.ctor(System.Byte[])")
-            {
-                PushCheckSize(UInt160.Length, src, to);
-                return 0;
-            }
-
-            if (_type.FullName == "System.Void Neo.UInt256::.ctor()")
-            {
-                ConvertPushDataArray(new byte[UInt256.Length], src, to);
-                return 0;
-            }
-
-            if (_type.FullName == "System.Void Neo.UInt256::.ctor(System.Byte[])")
-            {
-                PushCheckSize(UInt256.Length, src, to);
-                return 0;
-            }
 
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
             {
