@@ -1,6 +1,5 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
-using Neo.SmartContract.Framework.Services.System;
 using System;
 
 namespace Template.NEP5.CSharp
