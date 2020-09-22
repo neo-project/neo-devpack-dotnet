@@ -6,8 +6,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static bool checkOwner(UInt160 owner) { return owner == Owner; }
 
-        public static bool checkZeroLocal(UInt160 owner) { return owner == new UInt160(); }
-
         public static bool checkZeroStatic(UInt160 owner) { return owner == UInt160.Zero; }
 
         public static UInt160 constructUInt160(byte[] bytes) { return new UInt160(bytes); }

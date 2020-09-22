@@ -6,15 +6,11 @@ namespace Neo
     {
         public static extern UInt256 Zero { [OpCode(OpCode.PUSHDATA1, "200000000000000000000000000000000000000000000000000000000000000000")] get; }
 
-        public UInt256()
-        {
-        }
-
         public UInt256(byte[] _)
         {
         }
 
-        [SmartContract.Framework.Script]
+        [Script]
         public static extern implicit operator byte[](UInt256 value);
     }
 }
