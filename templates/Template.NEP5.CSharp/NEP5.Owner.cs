@@ -18,20 +18,16 @@ namespace Template.NEP5.CSharp
             return true;
         }
 
-        public static bool Update(byte[] script, string manifest)
+        public static void Update(byte[] script, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            // Check empty
-            if (script.Length == 0 && manifest.Length == 0) return false;
             Contract.Update(script, manifest);
-            return true;
         }
 
-        public static bool Destroy()
+        public static void Destroy()
         {
             if (!IsOwner()) throw new Exception("No authorization.");
             Contract.Destroy();
-            return true;
         }
 
         private static bool IsOwner() => Runtime.CheckWitness(Owner);
