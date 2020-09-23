@@ -22,6 +22,11 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return Neo.SmartContract.Framework.Services.Neo.Oracle.Name;
         }
 
+        public static string DesignateName()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.Designate.Name;
+        }
+
         public static string NEOSymbol()
         {
             return Neo.SmartContract.Framework.Services.Neo.NEO.Symbol;
@@ -34,7 +39,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static byte[][] getOracleNodes()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Oracle.GetOracleNodes();
+            return Neo.SmartContract.Framework.Services.Neo.Designate.GetDesignatedByRole(DesignateRole.Oracle);
         }
     }
 }
