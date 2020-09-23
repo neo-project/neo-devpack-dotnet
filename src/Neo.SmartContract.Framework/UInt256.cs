@@ -8,7 +8,7 @@ namespace Neo
 
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
-        [OpCode(OpCode.PUSHDATA1, "0120")] // 0x01 == 1 byte data length, 0x20 == 32 bytes expected array size
+        [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
         [OpCode(OpCode.NUMEQUAL)]
         [OpCode(OpCode.ASSERT)]
         public static extern explicit operator UInt256(byte[] value);

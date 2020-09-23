@@ -6,7 +6,7 @@ namespace Neo.Cryptography.ECC
     {
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
-        [OpCode(OpCode.PUSHDATA1, "0121")] // 0x01 == 1 byte data length, 0x21 == 33 bytes expected array size
+        [OpCode(OpCode.PUSHINT8, "21")] // 0x21 == 33 bytes expected array size
         [OpCode(OpCode.NUMEQUAL)]
         [OpCode(OpCode.ASSERT)]
         public static extern explicit operator ECPoint(byte[] value);
