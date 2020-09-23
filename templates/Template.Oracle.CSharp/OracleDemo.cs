@@ -10,7 +10,7 @@ namespace Template.OracleDemo.CSharp
             string url = "http://127.0.0.1:8080/test";
             string filter = "$.value";  // JSONPath, { "value": "hello world" }
             string callback = "callback";
-            object userdata =  "userdata";  // arbitrary type
+            object userdata = "userdata"; // arbitrary type
             long gasForResponse = 10000000; // minimum fee 
 
             Oracle.Request(url, filter, callback, userdata, gasForResponse);
