@@ -869,7 +869,7 @@ namespace Neo.Compiler.MSIL
             else if (calltype == 4)
             {
                 if (defs.IsGetter
-                    && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.NativeContractHashAttribute"))
+                    && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.ContractHashAttribute"))
                 {
                     ConvertPushDataArray(callhash.ToArray(), src, to);
                 }

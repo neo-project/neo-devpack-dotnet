@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     [Contract("0xce06595079cd69583126dbfd1d2e25cca74cffe9")]
     public class Policy
     {
-        public static extern UInt160 Hash { [NativeContractHash] get; }
+        public static extern UInt160 Hash { [ContractHash] get; }
         public static extern string Name();
         public static extern uint GetMaxTransactionsPerBlock();
         public static extern uint GetMaxBlockSize();
