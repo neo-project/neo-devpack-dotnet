@@ -1,6 +1,6 @@
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    public enum DesignateRole : byte
+    public enum DesignationRole : byte
     {
         StateValidator = 4,
         Oracle = 8

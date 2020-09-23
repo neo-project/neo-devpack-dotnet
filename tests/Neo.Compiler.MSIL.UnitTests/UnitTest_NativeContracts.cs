@@ -33,7 +33,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc");
+            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x763afecf3ebba0a67568a2c8be06e8f068c62666");
             Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x3c05b488bf4cf699d0631bf80190896ebbf38c3b");
             Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xde5f57d430d3dece511cf975a8d37848cb9e0525");
             Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc");
@@ -58,14 +58,14 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
-        public void Test_Designate()
+        public void Test_Designation()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
 
             // Name
 
-            var result = testengine.ExecuteTestCaseStandard("designateName");
+            var result = testengine.ExecuteTestCaseStandard("designationName");
 
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);

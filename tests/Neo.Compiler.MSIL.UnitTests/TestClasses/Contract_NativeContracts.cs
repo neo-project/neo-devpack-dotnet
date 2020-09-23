@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
+using Neo.SmartContract.Framework.Services.Neo;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
@@ -9,37 +10,37 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
     {
         public static string NEOName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.NEO.Name;
+            return NEO.Name;
         }
 
         public static string GASName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.GAS.Name;
+            return GAS.Name;
         }
 
         public static string OracleName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Oracle.Name;
+            return Oracle.Name;
         }
 
-        public static string DesignateName()
+        public static string DesignationName()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Designate.Name;
+            return Designation.Name;
         }
 
         public static string NEOSymbol()
         {
-            return Neo.SmartContract.Framework.Services.Neo.NEO.Symbol;
+            return NEO.Symbol;
         }
 
         public static string GASSymbol()
         {
-            return Neo.SmartContract.Framework.Services.Neo.GAS.Symbol;
+            return GAS.Symbol;
         }
 
         public static byte[][] getOracleNodes()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Designate.GetDesignatedByRole(DesignateRole.Oracle);
+            return Designation.GetDesignatedByRole(DesignationRole.Oracle);
         }
     }
 }
