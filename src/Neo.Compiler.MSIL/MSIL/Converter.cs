@@ -185,7 +185,7 @@ namespace Neo.Compiler.MSIL
             return true;
         }
 
-        private int PriorityMethod(string name)
+        private int MethodPriority(string name)
         {
             if (name == "verify") return 0;
             if (name == "_initialize") return 1;
@@ -197,7 +197,7 @@ namespace Neo.Compiler.MSIL
             this.outModule.totalCodes.Clear();
             int addr = 0;
 
-            foreach (var m in this.outModule.mapMethods.OrderBy(u => PriorityMethod(u.Value.displayName)))
+            foreach (var m in this.outModule.mapMethods.OrderBy(u => MethodPriority(u.Value.displayName)))
             {
                 m.Value.funcaddr = addr;
 
