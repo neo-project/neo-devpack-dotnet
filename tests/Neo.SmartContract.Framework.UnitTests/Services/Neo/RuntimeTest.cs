@@ -50,18 +50,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_InvocationCounter()
         {
-            // Build script
-
-            _engine.Reset();
+            // We need a new TestEngine because invocationCounter it's shared between them
 
             var contract = _engine.EntryScriptHash;
-            _engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
+            var engine = new TestEngine(TriggerType.Application, new DummyVerificable());
+            engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
             {
                 Script = _engine.InvocationStack.Peek().Script,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract_Runtime.cs").finalManifest)),
             });
-
-            _engine.InvocationStack.Clear();
 
             using (ScriptBuilder sb = new ScriptBuilder())
             {
@@ -70,19 +67,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 // Second
                 sb.EmitAppCall(contract, "getInvocationCounter");
 
-                _engine.LoadScript(sb.ToArray());
+                engine.LoadScript(sb.ToArray());
             }
 
             // Check
 
-            Assert.AreEqual(VMState.HALT, _engine.Execute());
-            Assert.AreEqual(2, _engine.ResultStack.Count);
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(2, engine.ResultStack.Count);
 
-            var item = _engine.ResultStack.Pop();
+            var item = engine.ResultStack.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0x02, item.GetInteger());
 
-            item = _engine.ResultStack.Pop();
+            item = engine.ResultStack.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0x01, item.GetInteger());
         }

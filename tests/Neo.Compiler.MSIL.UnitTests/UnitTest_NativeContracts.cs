@@ -9,7 +9,7 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class Contract_NativeContracts
     {
-        private TestSnapshot snapshot = new TestSnapshot();
+        private readonly TestSnapshot snapshot = new TestSnapshot();
 
         [TestInitialize]
         public void Test_Init()
@@ -33,6 +33,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
+            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x763afecf3ebba0a67568a2c8be06e8f068c62666");
             Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x3c05b488bf4cf699d0631bf80190896ebbf38c3b");
             Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xde5f57d430d3dece511cf975a8d37848cb9e0525");
             Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc");
@@ -54,6 +55,24 @@ namespace Neo.Compiler.MSIL.UnitTests
             var entry = result.Pop();
 
             Assert.AreEqual("Oracle", entry.GetString());
+        }
+
+        [TestMethod]
+        public void Test_Designation()
+        {
+            var testengine = new TestEngine(TriggerType.Application, null, snapshot);
+            testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
+
+            // Name
+
+            var result = testengine.ExecuteTestCaseStandard("designationName");
+
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var entry = result.Pop();
+
+            Assert.AreEqual("Designation", entry.GetString());
 
             // getOracleNodes
 
