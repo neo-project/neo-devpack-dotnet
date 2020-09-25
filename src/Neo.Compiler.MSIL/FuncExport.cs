@@ -100,12 +100,8 @@ namespace Neo.Compiler
                     throw new Exception("abi not allow same name functions");
                 }
                 var funcsign = new JObject();
-                funcsign["name"] = function.Value.displayName;
-                if (methods.Any(u => u["name"].AsString() == funcsign["name"].AsString()))
-                {
-                    throw new Exception($"The method '{funcsign["name"].AsString()}' it's duplicated");
-                }
                 methods.Add(funcsign);
+                funcsign["name"] = function.Value.displayName;
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["offset"] = offset.ToString();
                 JArray funcparams = new JArray();
