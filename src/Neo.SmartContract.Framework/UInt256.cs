@@ -6,6 +6,7 @@ namespace Neo
     {
         public static extern UInt256 Zero { [OpCode(OpCode.PUSHDATA1, "200000000000000000000000000000000000000000000000000000000000000000")] get; }
 
+        [OpCode(OpCode.CONVERT, Helper.StackItemType_ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
