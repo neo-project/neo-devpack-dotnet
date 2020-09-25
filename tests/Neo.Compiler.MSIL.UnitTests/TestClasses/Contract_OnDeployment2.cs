@@ -6,12 +6,11 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
-    class Contract_OnDeployment : SmartContract.Framework.SmartContract
+    class Contract_OnDeployment2 : SmartContract.Framework.SmartContract
     {
-        [OnDeployment]
-        public static void MyDeployMethod(bool update)
+        public static void _deploy(bool update)
         {
-            
+
         }
     }
 }

@@ -22,10 +22,17 @@ namespace $safeprojectname$
         public static bool Verify() => IsOwner();
 
         // TODO: Replace it with your methods.
-        public static bool MyMethod()
+        public static byte[] MyMethod()
         {
+            return Storage.Get("Hello");
+        }
+
+        private static void _deploy(bool update)
+        {
+            if (update) return;
+            
+            // It will be executed during deploy
             Storage.Put("Hello", "World");
-            return true;
         }
 
         public static void Update(byte[] script, string manifest)
