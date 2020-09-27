@@ -130,13 +130,21 @@ namespace Neo.Compiler
 
             switch (displayName)
             {
+                case SmartContract.Framework.OnVerifyAttribute.MethodName:
+                    {
+                        if (method.returntype.FullName != FuncExport.Boolean.FullName)
+                        {
+                            throw new Exception("_deploy must be: bool verify(?);");
+                        }
+                        break;
+                    }
                 case SmartContract.Framework.OnDeploymentAttribute.MethodName:
                     {
                         if (method.paramtypes.Count != 1 ||
                             method.returntype.FullName != FuncExport.Void.FullName ||
                             method.paramtypes[0].type.FullName != FuncExport.Boolean.FullName)
                         {
-                            throw new Exception("_deploy must be: void _deploy (bool update);");
+                            throw new Exception("_deploy must be: void _deploy(bool update);");
                         }
                         break;
                     }
@@ -150,6 +158,11 @@ namespace Neo.Compiler
                 case nameof(SmartContract.Framework.OnDeploymentAttribute):
                     {
                         displayName = SmartContract.Framework.OnDeploymentAttribute.MethodName;
+                        break;
+                    }
+                case nameof(SmartContract.Framework.OnVerifyAttribute):
+                    {
+                        displayName = SmartContract.Framework.OnVerifyAttribute.MethodName;
                         break;
                     }
                 case nameof(DisplayNameAttribute):

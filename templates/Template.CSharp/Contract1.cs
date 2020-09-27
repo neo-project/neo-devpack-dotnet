@@ -19,6 +19,7 @@ namespace $safeprojectname$
         // When this contract address is included in the transaction signature,
         // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
         // For example, this method needs to be called when withdrawing token from the contract.
+        [OnVerify]
         public static bool Verify() => IsOwner();
 
         // TODO: Replace it with your methods.
@@ -27,7 +28,8 @@ namespace $safeprojectname$
             return Storage.Get("Hello");
         }
 
-        public static void _deploy(bool update)
+        [OnDeployment]
+        public static void Deploy(bool update)
         {
             if (update) return;
             
