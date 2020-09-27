@@ -130,7 +130,7 @@ namespace Neo.Compiler
 
             switch (displayName)
             {
-                case SmartContract.Framework.OnVerifyAttribute.MethodName:
+                case StandardMethods.Verify:
                     {
                         if (method.returntype.FullName != FuncExport.Boolean.FullName)
                         {
@@ -138,7 +138,7 @@ namespace Neo.Compiler
                         }
                         break;
                     }
-                case SmartContract.Framework.OnDeploymentAttribute.MethodName:
+                case StandardMethods.Deploy:
                     {
                         if (method.paramtypes.Count != 1 ||
                             method.returntype.FullName != FuncExport.Void.FullName ||
@@ -155,16 +155,6 @@ namespace Neo.Compiler
         {
             switch (attr.AttributeType.Name)
             {
-                case nameof(SmartContract.Framework.OnDeploymentAttribute):
-                    {
-                        displayName = SmartContract.Framework.OnDeploymentAttribute.MethodName;
-                        break;
-                    }
-                case nameof(SmartContract.Framework.OnVerifyAttribute):
-                    {
-                        displayName = SmartContract.Framework.OnVerifyAttribute.MethodName;
-                        break;
-                    }
                 case nameof(DisplayNameAttribute):
                     {
                         displayName = (string)attr.ConstructorArguments[0].Value;

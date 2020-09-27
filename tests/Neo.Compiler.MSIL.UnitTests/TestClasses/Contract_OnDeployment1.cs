@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -8,7 +9,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_OnDeployment1 : SmartContract.Framework.SmartContract
     {
-        [OnDeployment]
+        [DisplayName("_deploy")]
         public static void MyDeployMethod(bool update)
         {
             
