@@ -134,7 +134,7 @@ namespace Neo.Compiler
                     {
                         if (method.returntype.FullName != FuncExport.Boolean.FullName)
                         {
-                            throw new Exception("_deploy must be: bool verify(?);");
+                            throw new Exception("verify must be: bool verify(...);");
                         }
                         break;
                     }
