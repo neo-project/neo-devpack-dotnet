@@ -125,6 +125,30 @@ namespace Neo.Compiler
             {
                 ProcessAttribute(attr);
             }
+
+            // Ensure method definition
+
+            switch (displayName)
+            {
+                case StandardMethods.Verify:
+                    {
+                        if (method.returntype.FullName != FuncExport.Boolean.FullName)
+                        {
+                            throw new Exception("verify must be: bool verify(...);");
+                        }
+                        break;
+                    }
+                case StandardMethods.Deploy:
+                    {
+                        if (method.paramtypes.Count != 1 ||
+                            method.returntype.FullName != FuncExport.Void.FullName ||
+                            method.paramtypes[0].type.FullName != FuncExport.Boolean.FullName)
+                        {
+                            throw new Exception("_deploy must be: void _deploy(bool update);");
+                        }
+                        break;
+                    }
+            }
         }
 
         private void ProcessAttribute(CustomAttribute attr)

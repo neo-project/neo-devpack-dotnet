@@ -14,6 +14,7 @@ namespace Neo.Compiler
     public class FuncExport
     {
         public static readonly TypeReference Void = new TypeReference("System", "Void", ModuleDefinition.ReadModule(typeof(object).Assembly.Location, new ReaderParameters(ReadingMode.Immediate)), null);
+        public static readonly TypeReference Boolean = new TypeReference("System", "Boolean", ModuleDefinition.ReadModule(typeof(object).Assembly.Location, new ReaderParameters(ReadingMode.Immediate)), null);
 
         internal static string ConvType(TypeReference t)
         {
