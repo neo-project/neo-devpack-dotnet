@@ -1,4 +1,3 @@
-using Neo.Compiler.MSIL.Utils;
 using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
