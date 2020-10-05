@@ -5,6 +5,12 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.NEWMAP)]
         public extern Map();
 
+        public extern int Count
+        {
+            [OpCode(OpCode.SIZE)]
+            get;
+        }
+
         public extern TValue this[TKey key]
         {
             [OpCode(OpCode.PICKITEM)]
@@ -12,6 +18,9 @@ namespace Neo.SmartContract.Framework
             [OpCode(OpCode.SETITEM)]
             set;
         }
+
+        [OpCode(OpCode.CLEARITEMS)]
+        public extern void Clear();
 
         public extern TKey[] Keys
         {

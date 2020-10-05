@@ -1,6 +1,8 @@
+using Mono.Cecil;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -644,12 +646,52 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod.Contains("::Concat("))
                 {
-                    //"System.String System.String::Concat(System.String,System.String)"
-                    Convert1by1(VM.OpCode.CAT, src, to);
+                    //String::Concat has many overload, we can only support part of them.
+                    if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String)")
+                    {
+                        Convert1by1(VM.OpCode.CAT, src, to);
+                    }
+                    else if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String,System.String)")
+                    {
+                        Convert1by1(VM.OpCode.CAT, src, to);
+                        Insert1(VM.OpCode.CAT, "", to);
+                    }
+                    else if (src.tokenMethod == "System.String System.String::Concat(System.String,System.String,System.String,System.String)")
+                    {
+                        Convert1by1(VM.OpCode.CAT, src, to);
+                        Insert1(VM.OpCode.CAT, "", to);
+                        Insert1(VM.OpCode.CAT, "", to);
+                    }
+                    else if (src.tokenMethod == "System.String System.String::Concat(System.String[])")
+                    {
+                        //unpack array
+                        Convert1by1(VM.OpCode.UNPACK, src, to);
+
+                        //loops
+                        var loopaddr = this.addr;
+                        Insert1(VM.OpCode.DUP, "", to); //+1
+                        Insert1(VM.OpCode.PUSH1, "", to);//+1
+                        Insert1(VM.OpCode.JMPLE_L, "", to, BitConverter.GetBytes((int)5 + 9));//+5 to end
+                        Insert1(VM.OpCode.DEC, "", to);//+1
+                        Insert1(VM.OpCode.REVERSE3, "", to);//+1
+                        Insert1(VM.OpCode.CAT, "", to);//+1
+                        Insert1(VM.OpCode.SWAP, "", to);//+1
+                        var addrreset = loopaddr - this.addr;
+
+                        Insert1(VM.OpCode.JMP_L, "", to, BitConverter.GetBytes((int)addrreset));//+5 to loops 
+
+                        //:endpos
+
+                        Insert1(VM.OpCode.DROP, "", to);
+                    }
+                    else
+                    {
+                        throw new Exception("not support this overload:" + src.tokenMethod);
+                    }
+
                     Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
                     return 0;
                 }
-
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32,System.Int32)")
                 {
                     Convert1by1(VM.OpCode.SUBSTR, src, to);
@@ -837,8 +879,7 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.PACK, null, to);
 
                 // Push call method name, the first letter should be lowercase.
-                var methodName = defs.Body.Method.Name;
-                ConvertPushString(methodName[..1].ToLowerInvariant() + methodName[1..], src, to);
+                ConvertPushString(GetMethodName(defs.Body.Method), src, to);
 
                 // Push contract hash.
                 ConvertPushDataArray(callhash, src, to);
@@ -880,6 +921,32 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
+        }
+
+        private string GetMethodName(MethodDefinition method)
+        {
+            foreach (var attr in method.CustomAttributes)
+            {
+                if (attr.AttributeType.Name == nameof(DisplayNameAttribute))
+                {
+                    return (string)attr.ConstructorArguments[0].Value;
+                }
+            }
+
+            string methodName = null;
+            if (method.SemanticsAttributes.HasFlag(MethodSemanticsAttributes.Getter))
+            {
+                foreach (PropertyDefinition property in method.DeclaringType.Properties)
+                {
+                    if (property.GetMethod == method)
+                    {
+                        methodName = property.Name;
+                        break;
+                    }
+                }
+            }
+            if (methodName is null) methodName = method.Name;
+            return methodName[..1].ToLowerInvariant() + methodName[1..];
         }
 
         private List<string> GetAllConstStringAfter(ILMethod method, OpCode src)
