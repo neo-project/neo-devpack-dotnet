@@ -1,8 +1,7 @@
-using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO.Json;
 using Neo.SmartContract;
 
-namespace Neo.Compiler.MSIL.Utils
+namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
     class BuildNEF : BuildScript
     {

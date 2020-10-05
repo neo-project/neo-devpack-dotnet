@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\tests\Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj" />
+    <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
   </ItemGroup>
 
 </Project>

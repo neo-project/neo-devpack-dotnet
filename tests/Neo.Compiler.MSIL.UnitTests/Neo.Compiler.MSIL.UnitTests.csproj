@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
     <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+    <ProjectReference Include="..\..\src\TestEngine\TestEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
