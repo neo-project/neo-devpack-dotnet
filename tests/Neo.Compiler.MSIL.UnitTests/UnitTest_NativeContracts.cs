@@ -66,7 +66,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             entry = result.Pop();
 
-            Assert.AreEqual(0_60000000u, entry.GetInteger());
+            Assert.AreEqual(0_10000000u, entry.GetInteger());
         }
 
         [TestMethod]
