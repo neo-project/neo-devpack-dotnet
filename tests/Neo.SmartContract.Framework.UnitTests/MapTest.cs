@@ -46,9 +46,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             // Except: {"a":"teststring2"}
-            Assert.AreEqual("7b2261223a2274657374737472696e6732227d", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b2261223a2274657374737472696e6732227d", (item as VM.Types.ByteString).GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -61,9 +61,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             // Except: {}
-            Assert.AreEqual("7b7d", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b7d", (item as VM.Types.ByteString).GetSpan().ToHexString());
         }
 
 
@@ -76,9 +76,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             // Except: {"\u0001\u0001":"\u0022\u0022"}
-            Assert.AreEqual("7b225c75303030315c7530303031223a225c75303032325c7530303232227d", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b225c75303030315c7530303031223a225c75303032325c7530303232227d", (item as VM.Types.ByteString).GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -91,9 +91,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             // Except: {"\u4E2D":"129840test10022939"}
-            Assert.AreEqual("7b225c7534453244223a22313239383430746573743130303232393339227d", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b225c7534453244223a22313239383430746573743130303232393339227d", (item as VM.Types.ByteString).GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -106,9 +106,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             // Except: {"ab":"\u6587"}
-            Assert.AreEqual("7b226162223a225c7536353837227d", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b226162223a225c7536353837227d", (item as VM.Types.ByteString).GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -122,9 +122,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             // Except: {"\u4E2D":"\u6587"}
-            Assert.AreEqual("7b225c7534453244223a225c7536353837227d", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b225c7534453244223a225c7536353837227d", (item as VM.Types.ByteString).GetSpan().ToHexString());
         }
 
         [TestMethod]
@@ -160,7 +160,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var map = item as Map;
             Assert.AreEqual(1, map.Count);
             Assert.IsTrue(map.ContainsKey("a"));
-            Assert.AreEqual((ByteString)"testdeserialize", map["a"]);
+            Assert.AreEqual((VM.Types.ByteString)"testdeserialize", map["a"]);
         }
     }
 }
