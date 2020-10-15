@@ -169,7 +169,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.ByteString);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.ByteString);
             Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
 
             // Good pubKey (uncompressed)
@@ -180,7 +180,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.ByteString);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.ByteString);
             Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
         }
 
