@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.VM;
 using Neo.VM.Types;
 using System;
 
@@ -56,12 +55,38 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
 
-
             var result = testengine.GetMethod("unitTest_001").Run().ConvertTo(StackItemType.ByteString);
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
 
             var bequal = wantresult.Equals(result);
             Assert.IsTrue(bequal);
+        }
+
+        [TestMethod]
+        public void Test_testArgs1()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
+            var result = testengine.ExecuteTestCaseStandard("testArgs1", 4).Pop();
+            Assert.AreEqual(new byte[] { 1, 2, 3, 4 }.ToHexString(), result.GetSpan().ToHexString());
+        }
+
+        [TestMethod]
+        public void Test_testArgs2()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
+            var result = testengine.ExecuteTestCaseStandard("testArgs2", new byte[] { 1, 2, 3 }).Pop();
+            Assert.AreEqual(new byte[] { 1, 2, 3 }.ToHexString(), result.GetSpan().ToHexString());
+        }
+
+        [TestMethod]
+        public void Test_testVoid()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
+            var result = testengine.ExecuteTestCaseStandard("testVoid");
+            Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]

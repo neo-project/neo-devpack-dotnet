@@ -1,6 +1,7 @@
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 /// <summary>
 /// This file is responsible for the parsing of the IL DLL. The core parsing is using mono.cecil, which is prearranged to make it easier to use
@@ -121,7 +122,7 @@ namespace Neo.Compiler.MSIL
                     Mono.Collections.Generic.Collection<CustomAttribute> ca = ev.CustomAttributes;
                     foreach (var attr in ca)
                     {
-                        if (attr.AttributeType.Name == "DisplayNameAttribute")
+                        if (attr.AttributeType.Name == nameof(DisplayNameAttribute))
                         {
                             this.displayName = (string)attr.ConstructorArguments[0].Value;
                         }

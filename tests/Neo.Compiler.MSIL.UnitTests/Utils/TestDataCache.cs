@@ -18,6 +18,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             dic.Add(key, value);
         }
+
+        protected override bool ContainsInternal(TKey key)
+        {
+            return dic.ContainsKey(key);
+        }
+
         protected override void DeleteInternal(TKey key)
         {
             dic.Remove(key);
