@@ -9,9 +9,19 @@ using System.Linq;
 
 namespace Neo.TestingEngine
 {
-    class Program
+    public class Program
     {
         static int Main(string[] args)
+        {
+            JObject result = Run(args);
+            if (!result.ContainsProperty("vm_state"))
+            {
+                return -1;
+            }
+            return 0;
+        }
+
+        public static JObject Run(string[] args)
         {
             JObject result;
             if (args.Length >= 2)
@@ -23,12 +33,7 @@ namespace Neo.TestingEngine
                 result = BuildJsonException("One or more arguments are missing");
             }
 
-            Console.WriteLine(result);
-            if (!result.ContainsProperty("vm_state"))
-            {
-                return -1;
-            }
-            return 0;
+            return result;
         }
 
         /// <summary>
@@ -112,7 +117,11 @@ namespace Neo.TestingEngine
                         items.Add(ContractParameter.FromJson(param).ToStackItem());
                         success = true;
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        // if something went wrong while reading the json, log the error
+                        Console.WriteLine(e);
+                    }
                 }
 
                 if (!success)

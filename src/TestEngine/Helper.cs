@@ -17,7 +17,7 @@ namespace Neo.TestingEngine
             var json = new JObject();
 
             json["vm_state"] = testEngine.State.ToString();
-            json["gas_consumed"] = (new BigDecimal(testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
+            json["gasconsumed"] = (new BigDecimal(testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
             json["result_stack"] = testEngine.ResultStack.ToJson();
             json["storage"] = testEngine.Snapshot.Storages.ToJson();
             json["notifications"] = new JArray(testEngine.Notifications.Select(n => n.ToJson()));
