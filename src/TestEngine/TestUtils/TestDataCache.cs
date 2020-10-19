@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Neo.Compiler.MSIL.UnitTests.Utils
+namespace Neo.TestingEngine
 {
     public class TestDataCache<TKey, TValue> : DataCache<TKey, TValue>
         where TKey : IEquatable<TKey>, ISerializable

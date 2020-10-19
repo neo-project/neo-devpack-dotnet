@@ -1,4 +1,4 @@
-namespace Neo.Compiler.MSIL.UnitTests.Utils
+namespace Neo.TestingEngine
 {
     class TestStorageContext
     {

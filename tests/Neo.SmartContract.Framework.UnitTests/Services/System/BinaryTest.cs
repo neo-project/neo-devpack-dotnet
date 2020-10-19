@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.TestingEngine;
 using Neo.Ledger;
 using Neo.SmartContract;
 using Neo.SmartContract.Framework.UnitTests;

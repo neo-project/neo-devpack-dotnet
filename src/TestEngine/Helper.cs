@@ -1,5 +1,3 @@
-using Neo;
-using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO.Caching;
 using Neo.IO.Json;
 using Neo.Ledger;
@@ -10,7 +8,7 @@ using Neo.VM.Types;
 using System;
 using System.Linq;
 
-namespace TestingEngine
+namespace Neo.TestingEngine
 {
     public static class Helper
     {

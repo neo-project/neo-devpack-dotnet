@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace TestingEngine
+namespace Neo.TestingEngine
 {
     class Program
     {

@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.VM;
+using Neo.TestingEngine;
 using Neo.VM.Types;
 using System.Linq;
 

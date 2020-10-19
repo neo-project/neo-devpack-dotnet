@@ -1,7 +1,7 @@
 using Neo.IO;
 using Neo.IO.Caching;
 
-namespace Neo.Compiler.MSIL.UnitTests.Utils
+namespace Neo.TestingEngine
 {
     public class TestMetaDataCache<T> : MetaDataCache<T> where T : class, ICloneable<T>, ISerializable, new()
     {

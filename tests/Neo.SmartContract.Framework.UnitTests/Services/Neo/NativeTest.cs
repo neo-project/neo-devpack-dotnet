@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.TestingEngine;
 using Neo.Cryptography.ECC;
 using Neo.VM;
 using Neo.VM.Types;

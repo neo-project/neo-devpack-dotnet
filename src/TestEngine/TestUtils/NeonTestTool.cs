@@ -1,12 +1,10 @@
 using Neo.VM;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
-[assembly: InternalsVisibleTo("Neo.SmartContract.Framework.UnitTests")]
-namespace Neo.Compiler.MSIL.UnitTests.Utils
+namespace Neo.TestingEngine
 {
     public static class NeonTestTool
     {
@@ -69,8 +67,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             var ext = System.IO.Path.GetExtension(filenames.First());
             var comp = (ext.ToLowerInvariant()) switch
             {
-                ".cs" => Compiler.CompileCSFiles(filenames, new string[0] { }, releaseMode),
-                ".vb" => Compiler.CompileVBFiles(filenames, new string[0] { }, releaseMode),
+                ".cs" => Compiler.Compiler.CompileCSFiles(filenames, new string[0] { }, releaseMode),
+                ".vb" => Compiler.Compiler.CompileVBFiles(filenames, new string[0] { }, releaseMode),
                 _ => throw new System.Exception("do not support extname = " + ext),
             };
 

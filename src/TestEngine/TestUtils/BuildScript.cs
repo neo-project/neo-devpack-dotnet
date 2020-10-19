@@ -1,10 +1,12 @@
+using Neo.Compiler;
+using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
 using Neo.IO.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Neo.Compiler.MSIL.UnitTests.Utils
+namespace Neo.TestingEngine
 {
     public class BuildScript
     {

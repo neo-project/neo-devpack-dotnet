@@ -1,5 +1,3 @@
-using Neo;
-using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Cryptography.ECC;
 using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
@@ -8,7 +6,7 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 
-namespace TestingEngine
+namespace Neo.TestingEngine
 {
     public class Engine
     {
