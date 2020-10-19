@@ -26,7 +26,16 @@ namespace Neo.TestingEngine
             JObject result;
             if (args.Length >= 2)
             {
-                result = RunWithMethodName(args[0], args[1], string.Join(" ", args.Skip(2)));
+                string arg2 = "";
+                if (args.Length == 3)
+                {
+                    arg2 = args[2];
+                }
+                else if (args.Length > 3)
+                {
+                    arg2 = $"[{string.Join(",", args.Skip(2))}]";
+                }
+                result = RunWithMethodName(args[0], args[1], arg2);
             }
             else
             {

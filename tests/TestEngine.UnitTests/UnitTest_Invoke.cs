@@ -98,7 +98,7 @@ namespace TestEngine.UnitTests
             var args = new string[] {
                 "./TestClasses/Contract1.nef",
                 "testArgs1",
-                arguments.ToJson().ToString()
+                arguments.ToParameter().ToJson().ToString()
             };
             var result = Program.Run(args);
 
@@ -122,7 +122,7 @@ namespace TestEngine.UnitTests
         }
 
         [TestMethod]
-        public void Test_Method_With_Parameters_Missing()
+        public void Test_Method_With_Misstyped_Parameters()
         {
             var args = new string[] {
                 "./TestClasses/Contract1.nef",
@@ -130,7 +130,7 @@ namespace TestEngine.UnitTests
             };
             var result = Program.Run(args);
 
-            // mustn have an error
+            // mustn't have an error
             Assert.IsTrue(result.ContainsProperty("error"));
             Assert.IsNotNull(result["error"]);
 
@@ -144,6 +144,49 @@ namespace TestEngine.UnitTests
 
             var resultStack = result["result_stack"] as JArray;
             Assert.IsTrue(resultStack.Count == 0);
+        }
+
+        [TestMethod]
+        public void Test_Method_With_Parameters_Missing()
+        {
+            StackItem arguments = 16;
+            var jsonArgument = arguments.ToParameter().ToJson().ToString();
+            var args = new string[] {
+                "./TestClasses/Contract1.nef",
+                "testArgs1",
+                $"{jsonArgument} {jsonArgument}"
+            };
+            var result = Program.Run(args);
+
+            Assert.IsTrue(result.ContainsProperty("error"));
+            Assert.IsNotNull(result["error"]);
+            Assert.AreEqual(result.Properties.Count, 1);
+        }
+
+        [TestMethod]
+        public void Test_File_Does_Not_Exist()
+        {
+            var args = new string[] {
+                "./TestClasses/Contract0.nef",
+                "testArgs1",
+            };
+            var result = Program.Run(args);
+
+            Assert.IsTrue(result.ContainsProperty("error"));
+            Assert.AreEqual(result["error"].AsString(), "File doesn't exists");
+        }
+
+        [TestMethod]
+        public void Test_Invalid_File()
+        {
+            var args = new string[] {
+                "./TestClasses/Contract1.cs",
+                "testArgs1",
+            };
+            var result = Program.Run(args);
+
+            Assert.IsTrue(result.ContainsProperty("error"));
+            Assert.AreEqual(result["error"].AsString(), "Invalid file. A .nef file required.");
         }
     }
 }
