@@ -118,7 +118,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             Assert.AreEqual("NEO", item.GetString());
         }
 
@@ -151,7 +151,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var method = new EventHandler<LogEventArgs>((s, e) => list.Add(e));
 
             ApplicationEngine.Log += method;
-            var result = _engine.ExecuteTestCaseStandard("log", new ByteString(Utility.StrictUTF8.GetBytes("LogTest")));
+            var result = _engine.ExecuteTestCaseStandard("log", new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("LogTest")));
             ApplicationEngine.Log -= method;
 
             Assert.AreEqual(1, list.Count);
@@ -165,7 +165,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // True
 
-            var result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteString(
+            var result = _engine.ExecuteTestCaseStandard("checkWitness", new VM.Types.ByteString(
                 new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
                 ));
             Assert.AreEqual(1, result.Count);
@@ -177,7 +177,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // False
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("checkWitness", new ByteString(
+            result = _engine.ExecuteTestCaseStandard("checkWitness", new VM.Types.ByteString(
                 new byte[] { 0xFA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, }
                 ));
             Assert.AreEqual(1, result.Count);
@@ -194,7 +194,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
             _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
 
-            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new VM.Types.ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -217,7 +217,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
             _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
 
-            var result = _engine.ExecuteTestCaseStandard("getNotifications", new ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
+            var result = _engine.ExecuteTestCaseStandard("getNotifications", new VM.Types.ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();

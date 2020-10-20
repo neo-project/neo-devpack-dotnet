@@ -4,7 +4,7 @@ namespace Neo.Cryptography.ECC
 {
     public class ECPoint
     {
-        [OpCode(OpCode.CONVERT, Helper.StackItemType_ByteString)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "21")] // 0x21 == 33 bytes expected array size

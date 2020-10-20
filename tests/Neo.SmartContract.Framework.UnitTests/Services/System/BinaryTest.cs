@@ -41,7 +41,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<ByteString>();
+            var item = result.Pop<VM.Types.ByteString>();
             Assert.AreEqual("test", item.GetString());
         }
 
@@ -53,7 +53,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<ByteString>();
+            var item = result.Pop<VM.Types.ByteString>();
             Assert.AreEqual("dGVzdA==", item.GetString());
         }
 
@@ -65,7 +65,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<ByteString>();
+            var item = result.Pop<VM.Types.ByteString>();
             Assert.AreEqual("test", item.GetString());
         }
 
@@ -77,7 +77,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<ByteString>();
+            var item = result.Pop<VM.Types.ByteString>();
             Assert.AreEqual("3yZe7d", item.GetString());
         }
     }

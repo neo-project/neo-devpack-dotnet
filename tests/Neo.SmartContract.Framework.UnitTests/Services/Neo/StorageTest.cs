@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     {
         private void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteString(key), new ByteString(value));
+            var result = testengine.ExecuteTestCaseStandard(method, key, value);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             var rItem = result.Pop();
 
@@ -32,12 +32,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteString(key));
+            var result = testengine.ExecuteTestCaseStandard(method, key);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
-            Assert.IsInstanceOfType(rItem, typeof(ByteString));
-            ReadOnlySpan<byte> data = rItem as ByteString;
+            Assert.IsInstanceOfType(rItem, typeof(VM.Types.ByteString));
+            ReadOnlySpan<byte> data = rItem as VM.Types.ByteString;
 
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
             return data.ToArray();
@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
         private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
-            var result = testengine.ExecuteTestCaseStandard(method, new ByteString(key));
+            var result = testengine.ExecuteTestCaseStandard(method, new VM.Types.ByteString(key));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual(0, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
@@ -135,10 +135,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
-            ByteString bs = result.Pop() as ByteString;
+            VM.Types.ByteString bs = result.Pop() as VM.Types.ByteString;
             var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
 
-            Assert.AreEqual(new ByteString(value), bs);
+            Assert.AreEqual(new VM.Types.ByteString(value), bs);
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Put
 
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new ByteString(key), new ByteString(value));
+            var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new VM.Types.ByteString(key), new VM.Types.ByteString(value));
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(0, result.Count);
         }
