@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             Assert.AreEqual("NEO", item.GetString());
 
             _engine.Reset();
@@ -109,8 +109,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(candidate, typeof(Struct));
             var candidatePubKey = ((Struct)candidate)[0];
             var candidateVotes = ((Struct)candidate)[1];
-            Assert.IsInstanceOfType(candidatePubKey, typeof(ByteString));
-            Assert.AreEqual(true, candidatePubKey.Equals((ByteString)pubKey));
+            Assert.IsInstanceOfType(candidatePubKey, typeof(VM.Types.ByteString));
+            Assert.AreEqual(true, candidatePubKey.Equals((VM.Types.ByteString)pubKey));
             Assert.IsInstanceOfType(candidateVotes, typeof(Integer));
             Assert.AreEqual(0, candidateVotes.GetInteger());
         }
@@ -133,7 +133,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             Assert.AreEqual("GAS", item.GetString());
         }
 
