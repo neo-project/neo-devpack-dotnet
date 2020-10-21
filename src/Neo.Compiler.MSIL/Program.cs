@@ -157,6 +157,7 @@ namespace Neo.Compiler
             int bSucc = 0;
             string debugstr = null;
             NeoModule module;
+            Dictionary<int, int> addrConvTable = null;
 
             // Convert and build
             try
@@ -166,7 +167,6 @@ namespace Neo.Compiler
                 module = conv.Convert(mod, option);
                 bytes = module.Build();
                 log.Log("convert succ");
-                Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
                     HashSet<int> entryPoints = new HashSet<int>();
@@ -188,17 +188,6 @@ namespace Neo.Compiler
                 {
                     log.Log("gen abi Error:" + err.ToString());
                     return -1;
-                }
-
-                try
-                {
-                    var outjson = DebugExport.Export(module, bytes, addrConvTable);
-                    debugstr = outjson.ToString(false);
-                    log.Log("gen debug succ");
-                }
-                catch (Exception err)
-                {
-                    log.Log("gen debug Error:" + err.ToString());
                 }
             }
             catch (Exception err)
@@ -232,6 +221,17 @@ namespace Neo.Compiler
                 }
                 log.Log("write:" + bytesname);
                 bSucc++;
+
+                try
+                {
+                    var outjson = DebugExport.Export(module, hash, addrConvTable);
+                    debugstr = outjson.ToString(false);
+                    log.Log("gen debug succ");
+                }
+                catch (Exception err)
+                {
+                    log.Log("gen debug Error:" + err.ToString());
+                }
             }
             catch (Exception err)
             {

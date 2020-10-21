@@ -101,9 +101,10 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                 return;
             }
 
+            UInt160 hash;
             try
             {
-                debugInfo = DebugExport.Export(converterIL.outModule, finalNEFScript, addrConvTable);
+                hash = GetNef().ToArray().ToScriptHash();
             }
             catch (Exception err)
             {
@@ -114,7 +115,17 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                var hash = GetNef().ToArray().ToScriptHash();
+                debugInfo = DebugExport.Export(converterIL.outModule, hash, addrConvTable);
+            }
+            catch (Exception err)
+            {
+                log.Log("Gen debugInfo Error:" + err.ToString());
+                this.Error = err;
+                return;
+            }
+
+            try
+            {
                 finalManifest = FuncExport.GenerateManifest(hash, converterIL.outModule);
             }
             catch (Exception err)

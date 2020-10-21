@@ -1,6 +1,6 @@
 namespace Neo.SmartContract.Framework
 {
-    public class List<T>
+    public class List<T> : IApiInterface
     {
         [OpCode(OpCode.NEWARRAY0)]
         public extern List();

@@ -114,13 +114,13 @@ namespace Neo.Compiler
             return outjson;
         }
 
-        public static JObject Export(NeoModule module, byte[] script, IReadOnlyDictionary<int, int> addrConvTable)
+        public static JObject Export(NeoModule module, UInt160 hash, IReadOnlyDictionary<int, int> addrConvTable)
         {
             var docMap = GetDocumentMap(module);
             addrConvTable ??= ImmutableDictionary<int, int>.Empty;
 
             var outjson = new JObject();
-            outjson["hash"] = FuncExport.ComputeHash(script);
+            outjson["hash"] = hash.ToString();
             // outjson["entrypoint"]= module.mainMethod;
             outjson["documents"] = GetDocuments(docMap);
             outjson["methods"] = GetMethods(module, docMap, addrConvTable);

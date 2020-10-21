@@ -12,9 +12,7 @@ namespace Neo.Compiler.MSIL.Utils
             UseOptimizer = false;
             Error = null;
             finalNEFScript = nefFile.Script;
-            JObject manifestAbi = JObject.Parse(manifestFile);
-            var abi = manifestAbi["abi"] as JObject;
-            finalABI = abi;
+            finalABI = nefFile.Abi.ToJson();
             finalManifest = manifestFile;
         }
     }

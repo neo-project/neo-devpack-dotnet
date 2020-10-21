@@ -1,6 +1,6 @@
 namespace Neo.SmartContract.Framework
 {
-    public class Map<TKey, TValue>
+    public class Map<TKey, TValue> : IApiInterface
     {
         [OpCode(OpCode.NEWMAP)]
         public extern Map();
