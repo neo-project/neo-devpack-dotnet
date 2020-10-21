@@ -28,6 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var script = _engine.Build("./TestClasses/Contract_Create.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
+            var abi = ContractAbi.FromJson(script.finalABI);
 
             // Check first
 
@@ -39,17 +40,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            var nefdata = script.GetNef().ToArray();
+            result = _engine.ExecuteTestCaseStandard("create", nefdata, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
-            Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
-            Assert.AreEqual(false, itemArray[2]); // HasStorage
-            Assert.AreEqual(false, itemArray[3]); // Payable
+            Assert.AreEqual(nefdata.ToScriptHash().ToArray(), itemArray[0]); // ScriptHash
+            Assert.AreEqual(script.finalNEFScript, itemArray[1]); // Script
+            Assert.AreEqual(abi.ToString(), itemArray[2].GetString()); // Abi
+            Assert.AreEqual(manifest.ToString(), itemArray[3].GetString()); // Manifest
+            Assert.AreEqual(false, itemArray[4]); // HasStorage
+            Assert.AreEqual(false, itemArray[5]); // Payable
 
             // Call
 
@@ -84,6 +88,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
+            var abi = ContractAbi.FromJson(script.finalABI);
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
@@ -102,24 +107,27 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            var nefdata = script.GetNef().ToArray();
+            result = _engine.ExecuteTestCaseStandard("create", nefdata, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
-            Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
-            Assert.AreEqual(false, itemArray[2]); // HasStorage
-            Assert.AreEqual(false, itemArray[3]); // Payable
+            Assert.AreEqual(nefdata.ToScriptHash().ToArray(), itemArray[0]); // ScriptHash
+            Assert.AreEqual(script.finalNEFScript, itemArray[1]); // Script
+            Assert.AreEqual(abi.ToString(), itemArray[2].GetString()); // Abi
+            Assert.AreEqual(manifest.ToString(), itemArray[3].GetString()); // Manifest
+            Assert.AreEqual(false, itemArray[4]); // HasStorage
+            Assert.AreEqual(false, itemArray[5]); // Payable
 
             // Call & Update
 
             _engine.Reset();
             var args = new Array
             {
-                scriptUpdate.finalNEF,
+                scriptUpdate.GetNef().ToArray(),
                 manifestUpdate.ToJson().ToString()
             };
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", args);

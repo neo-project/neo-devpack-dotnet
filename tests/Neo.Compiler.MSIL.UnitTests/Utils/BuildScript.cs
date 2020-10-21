@@ -1,8 +1,12 @@
 using Neo.Compiler.Optimizer;
+using Neo.IO;
 using Neo.IO.Json;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -13,13 +17,25 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public Exception Error { get; protected set; }
         public ILModule modIL { get; private set; }
         public ModuleConverter converterIL { get; private set; }
-        public byte[] finalNEF { get; protected set; }
+        public byte[] finalNEFScript { get; protected set; }
         public JObject finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
         public JObject debugInfo { get; private set; }
 
         public BuildScript()
         {
+        }
+
+        public NefFile GetNef()
+        {
+            return new NefFile
+            {
+                Compiler = "neon",
+                Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
+                Script = finalNEFScript,
+                Abi = ContractAbi.FromJson(finalABI)
+            };
         }
 
         public void Build(Stream fs, Stream fspdb, bool optimizer)
@@ -50,7 +66,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             {
                 converterIL.Convert(modIL, option);
-                finalNEF = converterIL.outModule.Build();
+                finalNEFScript = converterIL.outModule.Build();
                 if (optimizer)
                 {
                     List<int> entryPoints = new List<int>();
@@ -59,10 +75,10 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                         if (!entryPoints.Contains(f.funcaddr))
                             entryPoints.Add(f.funcaddr);
                     }
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF, entryPoints.ToArray(), out addrConvTable);
-                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
+                    var opbytes = NefOptimizeTool.Optimize(finalNEFScript, entryPoints.ToArray(), out addrConvTable);
+                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEFScript.Length;
                     log.Log("optimization ratio = " + ratio + "%");
-                    finalNEF = opbytes;
+                    finalNEFScript = opbytes;
                 }
                 IsBuild = true;
             }
@@ -76,7 +92,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finalABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finalABI = FuncExport.Export(converterIL.outModule, addrConvTable);
             }
             catch (Exception err)
             {
@@ -87,7 +103,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                debugInfo = DebugExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                debugInfo = DebugExport.Export(converterIL.outModule, finalNEFScript, addrConvTable);
             }
             catch (Exception err)
             {
@@ -98,7 +114,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                finalManifest = FuncExport.GenerateManifest(finalABI, converterIL.outModule);
+                var hash = GetNef().ToArray().ToScriptHash();
+                finalManifest = FuncExport.GenerateManifest(hash, converterIL.outModule);
             }
             catch (Exception err)
             {
@@ -214,6 +231,5 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             }
             return bytes.ToArray();
         }
-
     }
 }

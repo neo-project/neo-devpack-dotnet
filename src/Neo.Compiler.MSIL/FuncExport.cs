@@ -1,5 +1,7 @@
 using Mono.Cecil;
+using Neo.IO;
 using Neo.IO.Json;
+using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
@@ -75,12 +77,9 @@ namespace Neo.Compiler
             return sb.ToString();
         }
 
-        public static JObject Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static JObject Export(NeoModule module, Dictionary<int, int> addrConvTable)
         {
             var outjson = new JObject();
-
-            //hash
-            outjson["hash"] = ComputeHash(script);
 
             //functions
             var methods = new JArray();
@@ -202,10 +201,8 @@ namespace Neo.Compiler
             return value.Replace("\"", "");
         }
 
-        public static string GenerateManifest(JObject abi, NeoModule module)
+        public static string GenerateManifest(UInt160 hash, NeoModule module)
         {
-            var sbABI = abi.ToString(false);
-
             var features = module == null ? ContractFeatures.NoProperty : module.attributes
                 .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
                 .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
@@ -220,9 +217,8 @@ namespace Neo.Compiler
             var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
             return
-                @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
-                sbABI +
-                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""hash"":""" + hash.ToString() +
+                @""",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }

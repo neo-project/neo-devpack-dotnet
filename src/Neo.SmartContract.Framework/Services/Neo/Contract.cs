@@ -3,9 +3,19 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Contract
     {
         /// <summary>
+        /// Script Hash
+        /// </summary>
+        public readonly byte[] ScriptHash;
+
+        /// <summary>
         /// Script
         /// </summary>
         public readonly byte[] Script;
+
+        /// <summary>
+        /// Abi
+        /// </summary>
+        public readonly string Abi;
 
         /// <summary>
         /// Manifest

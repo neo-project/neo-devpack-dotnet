@@ -332,6 +332,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var contract = new ContractState()
             {
                 Script = new byte[] { 0x01, 0x02, 0x03 },
+                ScriptHash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
                 Manifest = new Manifest.ContractManifest()
                 {
                     Features = Manifest.ContractFeatures.HasStorage,
@@ -340,12 +341,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     Trusts = Manifest.WildcardContainer<UInt160>.Create(),
                     Permissions = new Manifest.ContractPermission[0],
                     SafeMethods = Manifest.WildcardContainer<string>.Create(),
-                    Abi = new Manifest.ContractAbi()
-                    {
-                        Methods = new Manifest.ContractMethodDescriptor[0],
-                        Events = new Manifest.ContractEventDescriptor[0],
-                        Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash()
-                    },
+                    Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash()
+                },
+                Abi = new Manifest.ContractAbi()
+                {
+                    Methods = new Manifest.ContractMethodDescriptor[0],
+                    Events = new Manifest.ContractEventDescriptor[0]
                 }
             };
             _engine.Snapshot.Contracts.GetOrAdd(contract.ScriptHash, () => contract);

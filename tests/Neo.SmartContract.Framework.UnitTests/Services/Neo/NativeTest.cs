@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Cryptography.ECC;
+using Neo.IO;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -159,13 +160,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(512, item.GetInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("policy_GetBlockedAccounts");
+            result = _engine.ExecuteTestCaseStandard("policy_IsBlocked", UInt160.Zero.ToArray());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(0, ((Array)item).Count);
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.AreEqual(false, item.GetBoolean());
         }
     }
 }

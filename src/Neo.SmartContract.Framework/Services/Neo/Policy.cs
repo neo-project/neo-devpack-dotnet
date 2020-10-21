@@ -1,6 +1,5 @@
 #pragma warning disable CS0626
 
-using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
@@ -13,7 +12,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern uint GetMaxBlockSize();
         public static extern long GetMaxBlockSystemFee();
         public static extern BigInteger GetFeePerByte();
-        public static extern string[] GetBlockedAccounts();
+        public static extern bool IsBlocked(byte[] account);
         public static extern bool SetMaxBlockSize(uint value);
         public static extern bool SetMaxTransactionsPerBlock(uint value);
         public static extern bool SetMaxBlockSystemFee(long value);

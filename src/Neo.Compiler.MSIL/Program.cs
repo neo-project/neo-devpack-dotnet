@@ -2,6 +2,7 @@ using CommandLine;
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
+using Neo.IO;
 using Neo.IO.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -180,7 +181,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    abi = FuncExport.Export(module, bytes, addrConvTable);
+                    abi = FuncExport.Export(module, addrConvTable);
                     log.Log("gen abi succ");
                 }
                 catch (Exception err)
@@ -206,7 +207,27 @@ namespace Neo.Compiler
                 return -1;
             }
 
+            // Write abi
+
+            try
+            {
+                string sbABI = abi.ToString(false);
+                string abiname = onlyname + ".abi.json";
+
+                File.Delete(abiname);
+                File.WriteAllText(abiname, sbABI.ToString());
+                log.Log("write:" + abiname);
+                bSucc++;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write abi Error:" + err.ToString());
+                return -1;
+            }
+
             // Write bytes
+
+            UInt160 hash;
 
             try
             {
@@ -217,9 +238,9 @@ namespace Neo.Compiler
                     Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
                     Script = bytes,
-                    ScriptHash = bytes.ToScriptHash()
+                    Abi = ContractAbi.FromJson(abi)
                 };
-                nef.CheckSum = NefFile.ComputeChecksum(nef);
+                hash = nef.ToArray().ToScriptHash();
 
                 File.Delete(bytesname);
                 using (var stream = File.OpenWrite(bytesname))
@@ -233,22 +254,6 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Write Bytes Error:" + err.ToString());
-                return -1;
-            }
-
-            try
-            {
-                var sbABI = abi.ToString(false);
-                string abiname = onlyname + ".abi.json";
-
-                File.Delete(abiname);
-                File.WriteAllText(abiname, sbABI.ToString());
-                log.Log("write:" + abiname);
-                bSucc++;
-            }
-            catch (Exception err)
-            {
-                log.Log("Write abi Error:" + err.ToString());
                 return -1;
             }
 
@@ -278,7 +283,7 @@ namespace Neo.Compiler
             try
             {
                 string manifest = onlyname + ".manifest.json";
-                var defManifest = FuncExport.GenerateManifest(abi, module);
+                var defManifest = FuncExport.GenerateManifest(hash, module);
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);

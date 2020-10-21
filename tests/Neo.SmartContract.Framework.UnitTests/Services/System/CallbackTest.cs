@@ -27,12 +27,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Callback.cs");
-            scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash();
+            scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
             snapshot.Contracts.Add(scriptHash, new ContractState()
             {
-                Script = _engine.ScriptEntry.finalNEF,
-                Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
+                Script = _engine.ScriptEntry.finalNEFScript,
+                ScriptHash = scriptHash,
+                Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest),
+                Abi = ContractAbi.FromJson(_engine.ScriptEntry.finalABI)
             });
         }
 

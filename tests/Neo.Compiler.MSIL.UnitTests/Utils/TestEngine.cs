@@ -96,7 +96,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 this.ResultStack.Pop();
             }
-            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEF);
+            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEFScript);
         }
 
         public class ContractMethod
@@ -150,13 +150,13 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public EvaluationStack ExecuteTestCaseStandard(int offset, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            LoadContext(context.Clone(offset));
+            LoadClonedContext(context, offset, false);
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
             if (initializeOffset != -1)
             {
-                LoadContext(CurrentContext.Clone(initializeOffset));
+                LoadClonedContext(CurrentContext, initializeOffset, false);
             }
             while (true)
             {

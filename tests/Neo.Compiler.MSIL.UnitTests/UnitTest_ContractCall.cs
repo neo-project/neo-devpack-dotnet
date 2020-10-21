@@ -17,10 +17,14 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
             _engine = new TestEngine();
+
+            var build = _engine.Build("./TestClasses/Contract1.cs");
             _engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
             {
-                Script = _engine.Build("./TestClasses/Contract1.cs").finalNEF,
-                Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract1.cs").finalManifest)),
+                Script = build.finalNEFScript,
+                ScriptHash = hash,
+                Manifest = ContractManifest.FromJson(JObject.Parse(build.finalManifest)),
+                Abi = ContractAbi.FromJson(build.finalABI)
             });
 
             //will ContractCall 0102030405060708090A0102030405060708090A

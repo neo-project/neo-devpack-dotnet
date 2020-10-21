@@ -75,9 +75,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Policy.BlockAccount(account);
         }
 
-        public static object[] Policy_GetBlockedAccounts()
+        public static bool Policy_IsBlocked(byte[] account)
         {
-            return Policy.GetBlockedAccounts();
+            return Policy.IsBlocked(account);
         }
     }
 }
