@@ -207,24 +207,6 @@ namespace Neo.Compiler
                 return -1;
             }
 
-            // Write abi
-
-            try
-            {
-                string sbABI = abi.ToString(false);
-                string abiname = onlyname + ".abi.json";
-
-                File.Delete(abiname);
-                File.WriteAllText(abiname, sbABI.ToString());
-                log.Log("write:" + abiname);
-                bSucc++;
-            }
-            catch (Exception err)
-            {
-                log.Log("Write abi Error:" + err.ToString());
-                return -1;
-            }
-
             // Write bytes
 
             UInt160 hash;
@@ -254,6 +236,24 @@ namespace Neo.Compiler
             catch (Exception err)
             {
                 log.Log("Write Bytes Error:" + err.ToString());
+                return -1;
+            }
+
+            // Write abi
+
+            try
+            {
+                string sbABI = abi.ToString(false);
+                string abiname = onlyname + ".abi.json";
+
+                File.Delete(abiname);
+                File.WriteAllText(abiname, sbABI.ToString());
+                log.Log("write:" + abiname);
+                bSucc++;
+            }
+            catch (Exception err)
+            {
+                log.Log("Write abi Error:" + err.ToString());
                 return -1;
             }
 
