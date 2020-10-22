@@ -19,16 +19,28 @@ namespace Neo.Compiler.MSIL.TestClasses
             return NEO.Name;
         }
 
+        [DisplayName("NEO_Transfer")]
+        public static bool NEO_Transfer(byte[] from, byte[] to, BigInteger amount)
+        {
+            return NEO.Transfer(from, to, amount);
+        }
+
         [DisplayName("NEO_BalanceOf")]
         public static BigInteger NEO_BalanceOf(byte[] account)
         {
             return NEO.BalanceOf(account);
         }
 
-        [DisplayName("NEO_GetValidators")]
-        public static string[] NEO_GetValidators()
+        [DisplayName("NEO_GetGasPerBlock")]
+        public static BigInteger NEO_GetGasPerBlock()
         {
-            return NEO.GetValidators();
+            return NEO.GetGasPerBlock();
+        }
+
+        [DisplayName("NEO_UnclaimedGas")]
+        public static BigInteger NEO_UnclaimedGas(byte[] account, uint end)
+        {
+            return NEO.UnclaimedGas(account, end);
         }
 
         [DisplayName("NEO_RegisterCandidate")]
@@ -55,24 +67,16 @@ namespace Neo.Compiler.MSIL.TestClasses
             return GAS.Name;
         }
 
+        [DisplayName("Policy_GetFeePerByte")]
         public static BigInteger Policy_GetFeePerByte()
         {
             return Policy.GetFeePerByte();
         }
 
-        public static bool Policy_SetMaxTransactionsPerBlock(uint value)
-        {
-            return Policy.SetMaxTransactionsPerBlock(value);
-        }
-
+        [DisplayName("Policy_GetMaxTransactionsPerBlock")]
         public static uint Policy_GetMaxTransactionsPerBlock()
         {
             return Policy.GetMaxTransactionsPerBlock();
-        }
-
-        public static bool Policy_BlockAccount(byte[] account)
-        {
-            return Policy.BlockAccount(account);
         }
 
         public static bool Policy_IsBlocked(byte[] account)
