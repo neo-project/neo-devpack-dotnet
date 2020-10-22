@@ -1,6 +1,7 @@
 #pragma warning disable CS0626
 
 using System.Numerics;
+using Neo.Cryptography.ECC;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
@@ -12,16 +13,16 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern string Symbol { get; }
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
-        public static extern BigInteger BalanceOf(byte[] account);
+        public static extern BigInteger BalanceOf(UInt160 account);
 
-        public static extern BigInteger UnclaimedGas(byte[] account, uint end);
+        public static extern BigInteger UnclaimedGas(UInt160 account, uint end);
 
-        public static extern bool RegisterCandidate(byte[] pubkey);
-        public static extern bool UnRegisterCandidate(byte[] pubkey);
-        public static extern bool Vote(byte[] account, byte[] voteTo);
-        public static extern (string, BigInteger)[] GetCandidates();
-        public static extern string[] GetValidators();
-        public static extern string[] GetCommittee();
-        public static extern string[] GetNextBlockValidators();
+        public static extern bool RegisterCandidate(ECPoint pubkey);
+        public static extern bool UnRegisterCandidate(ECPoint pubkey);
+        public static extern bool Vote(UInt160 account, ECPoint voteTo);
+        public static extern (ECPoint, BigInteger)[] GetCandidates();
+        public static extern ECPoint[] ComputeNextBlockValidators();
+        public static extern ECPoint[] GetCommittee();
+        public static extern ECPoint[] GetNextBlockValidators();
     }
 }
