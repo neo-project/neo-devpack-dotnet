@@ -1528,7 +1528,34 @@ namespace Neo.Compiler.MSIL
             {
                 Insert1(VM.OpCode.NEWARRAY, null, to);
             }
+            Stack<TypeDefinition> definitionStack = new Stack<TypeDefinition>();
+            definitionStack.Push(type.DeclaringType);
+            initialize(type.DeclaringType, src, to, definitionStack);
+            definitionStack.Pop();
             return 0;
+        }
+
+        private void initialize(TypeDefinition root, OpCode src, NeoMethod to, Stack<TypeDefinition> definitionStack)
+        {
+            for (int i = 0; i < root.Fields.Count; i++)
+            {
+                if (root.Fields[i].FieldType.IsArray) continue;
+                TypeDefinition child = root.Fields[i].FieldType.Resolve();
+                if (child.IsValueType) continue;
+                if (definitionStack.Contains(child)) throw new Exception("Loop definition");
+                definitionStack.Push(child);
+                Insert1(VM.OpCode.DUP, null, to);
+                ConvertPushNumber(i, null, to);
+                ConvertPushNumber(child.Fields.Count, null, to);
+                Insert1(VM.OpCode.NEWARRAY, null, to);
+                Convert1by1(VM.OpCode.SETITEM, null, to);
+                Insert1(VM.OpCode.DUP, null, to);
+                ConvertPushNumber(i, src, to);
+                Convert1by1(VM.OpCode.PICKITEM, null, to);
+                initialize(child, src, to, definitionStack);
+                definitionStack.Pop();
+                Insert1(VM.OpCode.DROP, "", to);
+            }
         }
 
         private int ConvertStfld(OpCode src, NeoMethod to)
