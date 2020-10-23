@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern uint GetMaxBlockSize();
         public static extern long GetMaxBlockSystemFee();
         public static extern BigInteger GetFeePerByte();
-        // public static extern string[] GetBlockedAccounts();
+        public static extern string[] IsBlocked(UInt160 account);
         public static extern bool SetMaxBlockSize(uint value);
         public static extern bool SetMaxTransactionsPerBlock(uint value);
         public static extern bool SetMaxBlockSystemFee(long value);
