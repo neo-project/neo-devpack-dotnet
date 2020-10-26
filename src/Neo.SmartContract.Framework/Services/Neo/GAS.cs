@@ -12,5 +12,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(byte[] account);
+        public static extern bool Transfer(byte[] from, byte[] to, BigInteger amount);
     }
 }

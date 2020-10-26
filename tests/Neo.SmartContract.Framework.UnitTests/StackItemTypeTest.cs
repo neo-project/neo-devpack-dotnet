@@ -9,8 +9,8 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestValues()
         {
-            Assert.AreEqual(((byte)StackItemType.Buffer).ToString("x2"), Helper.StackItemType_Buffer.Substring(2));
-            Assert.AreEqual(((byte)StackItemType.Integer).ToString("x2"), Helper.StackItemType_Integer.Substring(2));
+            Assert.AreEqual(((byte)VM.Types.StackItemType.Buffer).ToString("x2"), StackItemType.Buffer.Substring(2));
+            Assert.AreEqual(((byte)VM.Types.StackItemType.Integer).ToString("x2"), StackItemType.Integer.Substring(2));
         }
     }
 }
