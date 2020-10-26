@@ -89,7 +89,8 @@ namespace Neo.TestingEngine
                     }
                 }
 
-                return Run(path, methodName, parameters);
+                var smartContractTestCase = new SmartContractTest(path, methodName, parameters);
+                return Run(smartContractTestCase);
             }
             catch (Exception e)
             {
@@ -126,7 +127,13 @@ namespace Neo.TestingEngine
                 var methodName = json["method"].AsString();
                 var parameters = (JArray)json["arguments"];
 
-                return Run(path, methodName, parameters);
+                var smartContractTestCase = new SmartContractTest(path, methodName, parameters);
+
+                if (json.ContainsProperty("storage"))
+                {
+                    smartContractTestCase.storage = GetStorageFromJson(json["storage"]);
+                }
+                return Run(smartContractTestCase);
             }
             catch (Exception e)
             {
@@ -141,27 +148,67 @@ namespace Neo.TestingEngine
         /// <param name="method">The name of the targeted method</param>
         /// <param name="parameters">Arguments of the method</param>
         /// <returns>Returns a json with the engine state after executing the script</returns>
-        public static JObject Run(string path, string method, JArray parameters)
+        public static JObject Run(SmartContractTest smartContractTest)
         {
-            if (!File.Exists(path))
+            if (!File.Exists(smartContractTest.nefPath))
             {
                 return BuildJsonException("File doesn't exists");
             }
-            if (Path.GetExtension(path).ToLowerInvariant() != ".nef")
+            if (Path.GetExtension(smartContractTest.nefPath).ToLowerInvariant() != ".nef")
             {
                 return BuildJsonException("Invalid file. A .nef file required.");
             }
 
             try
             {
-                Engine.Instance.SetTestEngine(path);
-                var stackParams = GetStackItemParameters(parameters);
-                return Engine.Instance.Run(method, stackParams);
+                Engine.Instance.SetTestEngine(smartContractTest.nefPath);
+
+                if (smartContractTest.storage.Count > 0)
+                {
+                    Engine.Instance.SetStorage(smartContractTest.storage);
+                }
+
+                var stackParams = GetStackItemParameters(smartContractTest.methodParameters);
+                return Engine.Instance.Run(smartContractTest.methodName, stackParams);
             }
             catch (Exception e)
             {
                 return BuildJsonException(e.Message);
             }
+        }
+
+        /// <summary>
+        /// Converts the data in a json array to a dictionary of StackItem
+        /// </summary>
+        /// <param name="jsonStorage">json array with the map values to be converted</param>
+        /// <returns>Returns the built StackItem dictionary</returns>
+        private static Dictionary<PrimitiveType, StackItem> GetStorageFromJson(JObject jsonStorage)
+        {
+            if (!(jsonStorage is JArray storage))
+            {
+                throw new Exception("Expecting an array object in 'storage'");
+            }
+
+            var missingFieldMessage = "Missing field '{0}'";
+            var items = new Dictionary<PrimitiveType, StackItem>();
+            foreach (var pair in storage)
+            {
+                if (!pair.ContainsProperty("key"))
+                {
+                    throw new Exception(string.Format(missingFieldMessage, "key"));
+                }
+
+                if (!pair.ContainsProperty("value"))
+                {
+                    throw new Exception(string.Format(missingFieldMessage, "value"));
+                }
+
+                var key = (PrimitiveType)ContractParameter.FromJson(pair["key"]).ToStackItem();
+                var value = ContractParameter.FromJson(pair["value"]).ToStackItem();
+                items[key] = value;
+            }
+
+            return items;
         }
 
         /// <summary>
