@@ -36,6 +36,9 @@ namespace Neo.Compiler.Optimizer
         [OptimizeParser(typeof(Parser_DeleteConstExecution))]
         DELETE_CONST_EXECUTION = 0x20,
 
-        ALL = DELETE_DEAD_CODE | DELETE_USELESS_JMP | USE_SHORT_ADDRESS | DELETE_USELESS_EQUAL | DELETE_CONST_EXECUTION,
+        [OptimizeParser(typeof(Parser_OptimizeOpcode))]
+        OPTIMIZE_OPCODE = 0x40,
+
+        ALL = OPTIMIZE_OPCODE | DELETE_DEAD_CODE | DELETE_USELESS_JMP | USE_SHORT_ADDRESS | DELETE_USELESS_EQUAL | DELETE_CONST_EXECUTION,
     }
 }

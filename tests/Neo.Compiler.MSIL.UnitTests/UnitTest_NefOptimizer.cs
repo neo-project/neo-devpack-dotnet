@@ -23,6 +23,166 @@ namespace Neo.Compiler.MSIL
         }
 
         [TestMethod]
+        public void Test_Optimize_Opcodes_STARG()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.STARG, new byte[] { 0 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.STARG0);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.STARG, new byte[] { 6 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.STARG6);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            // Equal
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.STARG, new byte[] { 7 });
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Opcodes_STLOC()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.STLOC, new byte[] { 0 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.STLOC0);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.STLOC, new byte[] { 6 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.STLOC6);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            // Equal
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.STLOC, new byte[] { 7 });
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Opcodes_LDARG()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.LDARG, new byte[] { 0 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.LDARG0);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.LDARG, new byte[] { 6 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.LDARG6);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            // Equal
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.LDARG, new byte[] { 7 });
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Optimize_Opcodes_LDLOC()
+        {
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.LDLOC, new byte[] { 0 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.LDLOC0);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.LDLOC, new byte[] { 6 });
+
+                using (var scriptAfter = new ScriptBuilder())
+                {
+                    scriptAfter.Emit(VM.OpCode.LDLOC6);
+
+                    var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                    CollectionAssert.AreEqual(scriptAfter.ToArray(), optimized);
+                }
+            }
+
+            // Equal
+
+            using (var scriptBefore = new ScriptBuilder())
+            {
+                scriptBefore.Emit(VM.OpCode.LDLOC, new byte[] { 7 });
+
+                var optimized = NefOptimizeTool.Optimize(scriptBefore.ToArray(), Array.Empty<int>(), OptimizeParserType.OPTIMIZE_OPCODE);
+                CollectionAssert.AreEqual(scriptBefore.ToArray(), optimized);
+            }
+        }
+
+        [TestMethod]
         public void Test_Optimize_RemoveNOPS()
         {
             using var scriptBefore = new ScriptBuilder();
