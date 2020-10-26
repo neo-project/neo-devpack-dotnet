@@ -35,7 +35,10 @@ namespace TestEngine.UnitTests
             var result = Program.Run(args);
 
             Assert.IsTrue(result.ContainsProperty("error"));
-            Assert.AreEqual(result["error"].AsString(), "One or more arguments are missing");
+            Assert.AreEqual(
+                "One or more arguments are missing\nExpected arguments: <nef path> <method name> <method arguments as json>",
+                result["error"].AsString()
+            );
         }
 
         [TestMethod]
@@ -201,7 +204,7 @@ namespace TestEngine.UnitTests
             var result = Program.Run(args);
 
             Assert.IsTrue(result.ContainsProperty("error"));
-            Assert.AreEqual(result["error"].AsString(), "One or more arguments are missing");
+            Assert.AreEqual("Missing field: 'method'", result["error"].AsString());
         }
 
         [TestMethod]
@@ -243,7 +246,7 @@ namespace TestEngine.UnitTests
             var json = new JObject();
             json["path"] = "./TestClasses/Contract1.nef";
             json["method"] = "testArgs1";
-            json["arguments"] = arguments.ToParameter().ToJson().ToString();
+            json["arguments"] = new JArray() { arguments.ToParameter().ToJson() };
 
             var args = new string[] {
                 json.AsString()
