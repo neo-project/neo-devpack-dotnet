@@ -12,7 +12,6 @@ namespace Neo.Cryptography.ECC
         [OpCode(OpCode.ASSERT)]
         public static extern explicit operator ECPoint(byte[] value);
 
-
         [Script]
         public static extern implicit operator byte[](ECPoint value);
     }
