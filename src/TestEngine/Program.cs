@@ -24,6 +24,21 @@ namespace Neo.TestingEngine
 
         public static JObject Run(string[] args)
         {
+            if (args.Length == 1)
+            {
+                // verifies if the parameter is a json string
+                try
+                {
+                    var input = JObject.Parse(args[0]);
+                    return RunWithJson(input);
+                }
+                catch
+                {
+                    // if the first input is not a json, verifies if the arguments are: nef path, method name, method args
+                }
+
+            }
+
             JObject result;
             if (args.Length >= 2)
             {
@@ -40,7 +55,10 @@ namespace Neo.TestingEngine
             }
             else
             {
-                result = BuildJsonException("One or more arguments are missing");
+                result = BuildJsonException(
+                    "One or more arguments are missing\n" +
+                    "Expected arguments: <nef path> <method name> <method arguments as json>"
+                );
             }
 
             return result;
@@ -50,8 +68,8 @@ namespace Neo.TestingEngine
         /// Runs a nef script given a method name and its arguments
         /// </summary>
         /// <param name="path">Absolute path of the script</param>
-        /// <param name="method">The name of the targeted method</param>
-        /// <param name="parameters">Json string representing the arguments of the method</param>
+        /// <param name="methodName">The name of the targeted method</param>
+        /// <param name="jsonParams">Json string representing the arguments of the method</param>
         /// <returns>Returns a json with the engine state after executing the script</returns>
         public static JObject RunWithMethodName(string path, string methodName, string jsonParams)
         {
@@ -70,6 +88,43 @@ namespace Neo.TestingEngine
                         parameters.Insert(0, json);
                     }
                 }
+
+                return Run(path, methodName, parameters);
+            }
+            catch (Exception e)
+            {
+                return BuildJsonException(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Runs a nef script given a json with test engine fake values for testing.
+        /// </summary>
+        /// <param name="json">json object with fake values and execution arguments</param>
+        /// <returns>Returns a json with the engine state after executing the script</returns>
+        public static JObject RunWithJson(JObject json)
+        {
+            var missigFieldMessage = "Missing field: '{0}'";
+            if (!json.ContainsProperty("path"))
+            {
+                return BuildJsonException(string.Format(missigFieldMessage, "path"));
+            }
+
+            if (!json.ContainsProperty("method"))
+            {
+                return BuildJsonException(string.Format(missigFieldMessage, "method"));
+            }
+
+            if (!json.ContainsProperty("arguments"))
+            {
+                json["arguments"] = new JArray();
+            }
+
+            try
+            {
+                var path = json["path"].AsString();
+                var methodName = json["method"].AsString();
+                var parameters = (JArray)json["arguments"];
 
                 return Run(path, methodName, parameters);
             }

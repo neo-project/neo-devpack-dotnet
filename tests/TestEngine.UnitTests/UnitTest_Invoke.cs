@@ -35,7 +35,10 @@ namespace TestEngine.UnitTests
             var result = Program.Run(args);
 
             Assert.IsTrue(result.ContainsProperty("error"));
-            Assert.AreEqual(result["error"].AsString(), "One or more arguments are missing");
+            Assert.AreEqual(
+                "One or more arguments are missing\nExpected arguments: <nef path> <method name> <method arguments as json>",
+                result["error"].AsString()
+            );
         }
 
         [TestMethod]
@@ -187,6 +190,86 @@ namespace TestEngine.UnitTests
 
             Assert.IsTrue(result.ContainsProperty("error"));
             Assert.AreEqual(result["error"].AsString(), "Invalid file. A .nef file required.");
+        }
+
+        [TestMethod]
+        public void Test_Json_Missing_Fields()
+        {
+            var json = new JObject();
+            json["path"] = "./TestClasses/Contract1.nef";
+
+            var args = new string[] {
+                json.AsString()
+            };
+            var result = Program.Run(args);
+
+            Assert.IsTrue(result.ContainsProperty("error"));
+            Assert.AreEqual("Missing field: 'method'", result["error"].AsString());
+        }
+
+        [TestMethod]
+        public void Test_Json()
+        {
+            var json = new JObject();
+            json["path"] = "./TestClasses/Contract1.nef";
+            json["method"] = "unitTest_001";
+
+            var args = new string[] {
+                json.AsString()
+            };
+            var result = Program.Run(args);
+
+            // mustn't have errors
+            Assert.IsTrue(result.ContainsProperty("error"));
+            Assert.IsNull(result["error"]);
+
+            // test state
+            Assert.IsTrue(result.ContainsProperty("vm_state"));
+            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+
+            // test result
+            StackItem wantresult = new byte[] { 1, 2, 3, 4 };
+            Assert.IsTrue(result.ContainsProperty("result_stack"));
+            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+
+            var resultStack = result["result_stack"] as JArray;
+            Assert.IsTrue(resultStack.Count == 1);
+            Assert.IsTrue(resultStack[0].ContainsProperty("value"));
+            Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
+        }
+
+        [TestMethod]
+        public void Test_Json_With_Parameters()
+        {
+            StackItem arguments = 16;
+
+            var json = new JObject();
+            json["path"] = "./TestClasses/Contract1.nef";
+            json["method"] = "testArgs1";
+            json["arguments"] = new JArray() { arguments.ToParameter().ToJson() };
+
+            var args = new string[] {
+                json.AsString()
+            };
+            var result = Program.Run(args);
+
+            // mustn't have errors
+            Assert.IsTrue(result.ContainsProperty("error"));
+            Assert.IsNull(result["error"]);
+
+            // test state
+            Assert.IsTrue(result.ContainsProperty("vm_state"));
+            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+
+            // test result
+            StackItem wantresult = new byte[] { 1, 2, 3, 16 };
+            Assert.IsTrue(result.ContainsProperty("result_stack"));
+            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+
+            var resultStack = result["result_stack"] as JArray;
+            Assert.IsTrue(resultStack.Count == 1);
+            Assert.IsTrue(resultStack[0].ContainsProperty("value"));
+            Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
         }
     }
 }
