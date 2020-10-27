@@ -55,6 +55,18 @@ namespace Neo.Compiler.MSIL.UnitTests
             var entry = result.Pop();
 
             Assert.AreEqual("Oracle", entry.GetString());
+
+            // Minimum Response Fee
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("oracleMinimumResponseFee");
+
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            entry = result.Pop();
+
+            Assert.AreEqual(0_10000000u, entry.GetInteger());
         }
 
         [TestMethod]
