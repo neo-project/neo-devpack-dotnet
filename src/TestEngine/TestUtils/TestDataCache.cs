@@ -62,5 +62,13 @@ namespace Neo.TestingEngine
         {
             dic.Clear();
         }
+
+        /// <summary>
+        /// Include a new value to the storage for unit test
+        /// </summary>
+        public void AddForTest(TKey key, TValue value)
+        {
+            AddInternal(key, value);
+        }
     }
 }

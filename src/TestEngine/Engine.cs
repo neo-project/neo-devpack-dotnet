@@ -1,10 +1,12 @@
 using Neo.Cryptography.ECC;
 using Neo.IO.Json;
+using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections.Generic;
 
 namespace Neo.TestingEngine
 {
@@ -46,6 +48,22 @@ namespace Neo.TestingEngine
                 Script = engine.ScriptEntry.finalNEF,
                 Manifest = manifest,
             });
+        }
+
+        public void SetStorage(Dictionary<PrimitiveType, StackItem> storage)
+        {
+            foreach (var data in storage)
+            {
+                var key = new StorageKey()
+                {
+                    Key = data.Key.GetSpan().ToArray()
+                };
+                var value = new StorageItem()
+                {
+                    Value = data.Value.GetSpan().ToArray()
+                };
+                ((TestDataCache<StorageKey, StorageItem>)engine.Snapshot.Storages).AddForTest(key, value);
+            }
         }
 
         public JObject Run(string method, StackItem[] args)

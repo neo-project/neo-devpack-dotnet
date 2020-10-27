@@ -3,6 +3,7 @@ using Neo.IO.Json;
 using Neo.TestingEngine;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections.Generic;
 using System.IO;
 using Compiler = Neo.Compiler.Program;
 
@@ -270,6 +271,48 @@ namespace TestEngine.UnitTests
             Assert.IsTrue(resultStack.Count == 1);
             Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
+        }
+
+        [TestMethod]
+        public void Test_Json_With_Storage()
+        {
+            StackItem arguments = 16;
+            PrimitiveType key = "example";
+            StackItem value = 123;
+
+            Map storage = new Map()
+            {
+                [key] = value
+            };
+
+            var json = new JObject();
+            json["path"] = "./TestClasses/Contract1.nef";
+            json["method"] = "testArgs1";
+            json["arguments"] = new JArray() { arguments.ToParameter().ToJson() };
+            json["storage"] = storage.ToParameter().ToJson()["value"];
+
+            var args = new string[] {
+                json.AsString()
+            };
+            var result = Program.Run(args);
+
+            // search in the storage
+            Assert.IsTrue(result.ContainsProperty("storage"));
+            Assert.IsInstanceOfType(result["storage"], typeof(JArray));
+
+            storage[key] = value.GetSpan().ToArray();
+            var storageArray = result["storage"] as JArray;
+
+            var contains = false;
+            foreach (var pair in storageArray)
+            {
+                if (pair.AsString() == storage.ToJson()["value"].AsString())
+                {
+                    contains = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(contains);
         }
     }
 }
