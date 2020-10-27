@@ -11,7 +11,7 @@ namespace Template.OracleDemo.CSharp
             string filter = "$.value";  // JSONPath, { "value": "hello world" }
             string callback = "callback";
             object userdata = "userdata"; // arbitrary type
-            long gasForResponse = 10000000; // minimum fee 
+            long gasForResponse = Oracle.MinimumResponseFee;
 
             Oracle.Request(url, filter, callback, userdata, gasForResponse);
         }
