@@ -1298,7 +1298,14 @@ namespace Neo.Compiler.MSIL
             {
                 var code = to.body_Codes.Last().Value;
 
-                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT) // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
+                if (code.code == VM.OpCode.SIZE)
+                {
+                    // return new byte["hello".Length];
+                    Insert1(VM.OpCode.NEWARRAY, null, to);
+                    return 0;
+                }
+                // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
+                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT)
                     throw new Exception("_ConvertNewArr::not support var lens for new byte[?].");
 
                 if (code.code == VM.OpCode.CONVERT) // number = PUSHDATA[1,2,4] CONVERT(Integer)
