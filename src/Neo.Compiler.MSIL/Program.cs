@@ -211,14 +211,11 @@ namespace Neo.Compiler
                     Script = bytes,
                     Abi = ContractAbi.FromJson(abi)
                 };
-                hash = nef.ToArray().ToScriptHash();
+                var nefData = nef.ToArray();
+                hash = nefData.ToScriptHash();
 
                 File.Delete(bytesname);
-                using (var stream = File.OpenWrite(bytesname))
-                using (var writer = new BinaryWriter(stream))
-                {
-                    nef.Serialize(writer);
-                }
+                File.WriteAllBytes(bytesname, nefData);
                 log.Log("write:" + bytesname);
                 bSucc++;
 
