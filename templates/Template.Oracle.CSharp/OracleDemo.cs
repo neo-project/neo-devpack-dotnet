@@ -20,7 +20,7 @@ namespace Template.OracleDemo.CSharp
         {
             if (code != (int)OracleResponseCode.Success)
             {
-                Runtime.Log("oracle response failure with code " + code);
+                Runtime.Log("oracle response failure");
                 return;
             }
 
