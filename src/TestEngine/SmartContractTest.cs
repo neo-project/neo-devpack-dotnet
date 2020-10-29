@@ -10,6 +10,7 @@ namespace Neo.TestingEngine
         public string methodName;
         public JArray methodParameters;
         public Dictionary<PrimitiveType, StackItem> storage = new Dictionary<PrimitiveType, StackItem>();
+        public List<TestContract> contracts = new List<TestContract>();
 
         public SmartContractTest(string path, string method, JArray parameters)
         {
@@ -17,6 +18,7 @@ namespace Neo.TestingEngine
             methodName = method;
             methodParameters = parameters;
             storage.Clear();
+            contracts.Clear();
         }
     }
 }
