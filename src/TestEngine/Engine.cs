@@ -50,6 +50,19 @@ namespace Neo.TestingEngine
             });
         }
 
+        public void AddSmartContract(string path)
+        {
+            var builtScript = engine.Build(path);
+            if (UInt160.TryParse(builtScript.finalABI["hash"].AsString(), out var hash))
+            {
+                engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
+                {
+                    Script = builtScript.finalNEF,
+                    Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
+                });
+            }
+        }
+
         public void SetStorage(Dictionary<PrimitiveType, StackItem> storage)
         {
             foreach (var data in storage)

@@ -133,6 +133,11 @@ namespace Neo.TestingEngine
                 {
                     smartContractTestCase.storage = GetStorageFromJson(json["storage"]);
                 }
+
+                if (json.ContainsProperty("contracts"))
+                {
+                    smartContractTestCase.contracts = GetContractsFromJson(json["contracts"]);
+                }
                 return Run(smartContractTestCase);
             }
             catch (Exception e)
@@ -150,22 +155,19 @@ namespace Neo.TestingEngine
         /// <returns>Returns a json with the engine state after executing the script</returns>
         public static JObject Run(SmartContractTest smartContractTest)
         {
-            if (!File.Exists(smartContractTest.nefPath))
-            {
-                return BuildJsonException("File doesn't exists");
-            }
-            if (Path.GetExtension(smartContractTest.nefPath).ToLowerInvariant() != ".nef")
-            {
-                return BuildJsonException("Invalid file. A .nef file required.");
-            }
-
             try
             {
+                IsValidNefPath(smartContractTest.nefPath);
+
                 Engine.Instance.SetTestEngine(smartContractTest.nefPath);
 
                 if (smartContractTest.storage.Count > 0)
                 {
                     Engine.Instance.SetStorage(smartContractTest.storage);
+                }
+                foreach (var contract in smartContractTest.contracts)
+                {
+                    Engine.Instance.AddSmartContract(contract.nefPath);
                 }
 
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);
@@ -212,6 +214,34 @@ namespace Neo.TestingEngine
         }
 
         /// <summary>
+        /// Converts the data in a json array to a list of test smart contracts
+        /// </summary>
+        /// <param name="jsonContracts">json array with the contracts' paths to be converted</param>
+        /// <returns>Returns a list of smart contracts for test</returns>
+        private static List<TestContract> GetContractsFromJson(JObject jsonContracts)
+        {
+            if (!(jsonContracts is JArray contracts))
+            {
+                throw new Exception("Expecting an array object in 'contracts'");
+            }
+
+            var items = new List<TestContract>();
+            foreach (var pair in contracts)
+            {
+                if (!pair.ContainsProperty("nef"))
+                {
+                    throw new Exception("Missing field 'nef'");
+                }
+
+                var path = pair["nef"].AsString();
+                IsValidNefPath(path);
+                items.Add(new TestContract(path));
+            }
+
+            return items;
+        }
+
+        /// <summary>
         /// Converts the data in a json array to an array of StackItem
         /// </summary>
         /// <param name="parameters">json array to be converted</param>
@@ -243,6 +273,21 @@ namespace Neo.TestingEngine
                 }
             }
             return items.ToArray();
+        }
+
+        private static bool IsValidNefPath(string path)
+        {
+            if (!File.Exists(path))
+            {
+                throw new Exception("File doesn't exists");
+            }
+
+            if (Path.GetExtension(path).ToLowerInvariant() != ".nef")
+            {
+                throw new Exception("Invalid file. A .nef file required.");
+            }
+
+            return true;
         }
 
         private static JObject BuildJsonException(string message)

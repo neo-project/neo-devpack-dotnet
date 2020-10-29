@@ -3,7 +3,6 @@ using Neo.IO.Json;
 using Neo.TestingEngine;
 using Neo.VM;
 using Neo.VM.Types;
-using System.Collections.Generic;
 using System.IO;
 using Compiler = Neo.Compiler.Program;
 

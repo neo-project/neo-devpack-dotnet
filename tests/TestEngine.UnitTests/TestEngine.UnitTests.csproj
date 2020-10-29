@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Remove="TestClasses\Contract1.cs" />
     <Compile Remove="TestClasses\Contract2.cs" />
+    <Compile Remove="TestClasses\Contract_ContractCall.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +17,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestClasses\Contract2.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestClasses\Contract_ContractCall.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
