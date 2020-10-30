@@ -104,14 +104,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testDynamicArrayStringInit", "hello");
 
-            var arr = (Array)result.Pop().ConvertTo(StackItemType.Array);
+            var arr = (Buffer)result.Pop().ConvertTo(StackItemType.Buffer);
 
-            Assert.AreEqual(5, arr.Count);
-            Assert.AreEqual(StackItem.Null, arr[0]);
-            Assert.AreEqual(StackItem.Null, arr[1]);
-            Assert.AreEqual(StackItem.Null, arr[2]);
-            Assert.AreEqual(StackItem.Null, arr[3]);
-            Assert.AreEqual(StackItem.Null, arr[4]);
+            Assert.AreEqual(5, arr.Size);
+            Assert.AreEqual(0, arr.InnerBuffer[0]);
+            Assert.AreEqual(0, arr.InnerBuffer[1]);
+            Assert.AreEqual(0, arr.InnerBuffer[2]);
+            Assert.AreEqual(0, arr.InnerBuffer[3]);
+            Assert.AreEqual(0, arr.InnerBuffer[4]);
         }
 
         [TestMethod]

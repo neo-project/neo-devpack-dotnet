@@ -1301,7 +1301,7 @@ namespace Neo.Compiler.MSIL
                 if (code.code == VM.OpCode.SIZE)
                 {
                     // return new byte["hello".Length];
-                    Insert1(VM.OpCode.NEWARRAY, null, to);
+                    Insert1(VM.OpCode.NEWBUFFER, null, to);
                     return 0;
                 }
                 // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
