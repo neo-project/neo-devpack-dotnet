@@ -55,8 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            var s = item.GetString();
-            Assert.AreEqual("Neo3", s);
+            Assert.AreEqual("Neo3", item.GetString());
         }
     }
 }
