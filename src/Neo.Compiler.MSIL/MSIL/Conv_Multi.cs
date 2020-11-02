@@ -749,6 +749,11 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.SHR, src, to);
                     return 0;
                 }
+                else if (src.tokenMethod.Contains("System.Int32::ToString()"))
+                {
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                    return 0;
+                }
             }
 
             if (calltype == 0)
