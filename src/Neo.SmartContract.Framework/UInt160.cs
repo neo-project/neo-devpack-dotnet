@@ -6,7 +6,7 @@ namespace Neo
     {
         public static extern UInt160 Zero { [OpCode(OpCode.PUSHDATA1, "140000000000000000000000000000000000000000")] get; }
 
-        public extern bool IsEmpty
+        public extern bool IsZero
         {
             [OpCode(OpCode.CONVERT, StackItemType.Integer)]
             [OpCode(OpCode.PUSH0)]

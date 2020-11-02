@@ -19,19 +19,19 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestStringAdd()
         {
-            var result = _engine.ExecuteTestCaseStandard("isEmptyUInt256", UInt256.Zero.ToArray());
+            var result = _engine.ExecuteTestCaseStandard("isZeroUInt256", UInt256.Zero.ToArray());
             Assert.IsTrue(result.Pop().GetBoolean());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("isEmptyUInt160", UInt160.Zero.ToArray());
+            result = _engine.ExecuteTestCaseStandard("isZeroUInt160", UInt160.Zero.ToArray());
             Assert.IsTrue(result.Pop().GetBoolean());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("isEmptyUInt256", UInt256.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff01").ToArray());
+            result = _engine.ExecuteTestCaseStandard("isZeroUInt256", UInt256.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff01").ToArray());
             Assert.IsFalse(result.Pop().GetBoolean());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("isEmptyUInt160", UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4").ToArray());
+            result = _engine.ExecuteTestCaseStandard("isZeroUInt160", UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4").ToArray());
             Assert.IsFalse(result.Pop().GetBoolean());
         }
     }
