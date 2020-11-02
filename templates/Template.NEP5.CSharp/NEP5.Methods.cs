@@ -13,11 +13,13 @@ namespace Template.NEP5.CSharp
 
         public static BigInteger BalanceOf(UInt160 account)
         {
+            if (!ValidateAddress(account)) throw new Exception("The parameters account SHOULD be a 20-byte non-zero address.");
             return AssetStorage.Get(account);
         }
 
         public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
         {
+            if (!ValidateAddress(from) || !ValidateAddress(to)) throw new Exception("The parameters from and to SHOULD be 20-byte non-zero addresses.");
             if (amount <= 0) throw new Exception("The parameter amount MUST be greater than 0.");
             if (!IsPayable(to)) throw new Exception("Receiver cannot receive.");
             if (!Runtime.CheckWitness(from) && !from.Equals(ExecutionEngine.CallingScriptHash)) throw new Exception("No authorization.");
