@@ -38,13 +38,10 @@ namespace Neo.Compiler.Optimizer
                     case OpCode.STARG:
                     case OpCode.LDARG:
                         {
-                            if (items[x] is NefInstruction p1 && p1.Data.Length == 1)
+                            if (ins.Data.Length == 1 && ins.Data[0] >= 0 && ins.Data[0] <= 6)
                             {
-                                if (p1.Data[0] >= 0 && p1.Data[0] <= 6)
-                                {
-                                    p1.SetOpCode((OpCode)(ins.OpCode - 7 + p1.Data[0]));
-                                    p1.SetData(Array.Empty<byte>());
-                                }
+                                ins.SetOpCode((OpCode)(ins.OpCode - 7 + ins.Data[0]));
+                                ins.SetData(Array.Empty<byte>());
                             }
                             break;
                         }
