@@ -6,6 +6,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Designation
     {
         public static extern string Name { get; }
-        public static extern byte[][] GetDesignatedByRole(DesignationRole role);
+        public static extern byte[][] GetDesignatedByRole(DesignationRole role, uint index);
     }
 }
