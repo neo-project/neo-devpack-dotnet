@@ -5,10 +5,6 @@ namespace Neo.SmartContract.Framework
 {
     public static class Helper
     {
-        internal const string StackItemType_Integer = "0x21";
-        internal const string StackItemType_ByteString = "0x28";
-        internal const string StackItemType_Buffer = "0x30";
-
         /// <summary>
         /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
         /// </summary>
@@ -19,7 +15,7 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts sbyte to byte[].
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
+        [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public extern static byte[] ToByteArray(this sbyte source);
 
         /// <summary>
@@ -33,7 +29,7 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.CONVERT, StackItemType_Integer)]
+        [OpCode(OpCode.CONVERT, StackItemType.Integer)]
         public extern static BigInteger ToBigInteger(this byte[] source);
         //{
         //    if (value == null) return 0;
@@ -43,13 +39,13 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts string to byte[]. Examples: "hello" -> [0x68656c6c6f]; "" -> []; "Neo" -> [0x4e656f]
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_Buffer)]
+        [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public extern static byte[] ToByteArray(this string source);
 
         /// <summary>
         /// Converts byte[] to string. Examples: [0x68656c6c6f] -> "hello"; [] -> ""; [0x4e656f] -> "Neo"
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType_ByteString)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string ToByteString(this byte[] source);
 
         /// <summary>

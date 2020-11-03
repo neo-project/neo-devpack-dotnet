@@ -12,14 +12,16 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(byte[] account);
+        public static extern bool Transfer(byte[] from, byte[] to, BigInteger amount);
 
+        public static extern bool SetGasPerBlock(BigInteger gasPerBlock);
+        public static extern BigInteger GetGasPerBlock();
         public static extern BigInteger UnclaimedGas(byte[] account, uint end);
 
         public static extern bool RegisterCandidate(byte[] pubkey);
         public static extern bool UnRegisterCandidate(byte[] pubkey);
         public static extern bool Vote(byte[] account, byte[] voteTo);
         public static extern (string, BigInteger)[] GetCandidates();
-        public static extern string[] GetValidators();
         public static extern string[] GetCommittee();
         public static extern string[] GetNextBlockValidators();
     }
