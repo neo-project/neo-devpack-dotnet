@@ -138,6 +138,11 @@ namespace Neo.TestingEngine
                 {
                     smartContractTestCase.contracts = GetContractsFromJson(json["contracts"]);
                 }
+
+                if (json.ContainsProperty("height"))
+                {
+                    smartContractTestCase.currentHeight = uint.Parse(json["height"].AsString());
+                }
                 return Run(smartContractTestCase);
             }
             catch (Exception e)
@@ -149,9 +154,7 @@ namespace Neo.TestingEngine
         /// <summary>
         /// Runs the given method from a nef script
         /// </summary>
-        /// <param name="path">Absolute path of the script</param>
-        /// <param name="method">The name of the targeted method</param>
-        /// <param name="parameters">Arguments of the method</param>
+        /// <param name="smartContractTest">Object with the informations about the test case</param>
         /// <returns>Returns a json with the engine state after executing the script</returns>
         public static JObject Run(SmartContractTest smartContractTest)
         {
@@ -165,9 +168,15 @@ namespace Neo.TestingEngine
                 {
                     Engine.Instance.SetStorage(smartContractTest.storage);
                 }
+
                 foreach (var contract in smartContractTest.contracts)
                 {
                     Engine.Instance.AddSmartContract(contract.nefPath);
+                }
+
+                if (smartContractTest.currentHeight > 0)
+                {
+                    Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
                 }
 
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);

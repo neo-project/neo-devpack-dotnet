@@ -11,6 +11,7 @@ namespace Neo.TestingEngine
         public JArray methodParameters;
         public Dictionary<PrimitiveType, StackItem> storage = new Dictionary<PrimitiveType, StackItem>();
         public List<TestContract> contracts = new List<TestContract>();
+        public uint currentHeight = 0;
 
         public SmartContractTest(string path, string method, JArray parameters)
         {

@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.UnitTests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEngine", "src\TestEngine\TestEngine.csproj", "{39347E90-FC12-4018-8F22-828F0F1B2F7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEngine.UnitTests", "tests\TestEngine.UnitTests\TestEngine.UnitTests.csproj", "{FFDC189F-2F72-4542-B28B-8EFA0F28E3CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestEngine.UnitTests", "tests\TestEngine.UnitTests\TestEngine.UnitTests.csproj", "{FFDC189F-2F72-4542-B28B-8EFA0F28E3CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

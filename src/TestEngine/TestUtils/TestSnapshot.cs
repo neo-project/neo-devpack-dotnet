@@ -49,5 +49,25 @@ namespace Neo.TestingEngine
         {
             ((TestDataCache<StorageKey, StorageItem>)this._Storages).Clear();
         }
+
+        public void SetCurrentBlockHash(uint index, UInt256 hash)
+        {
+            if (hash != null && Blocks is TestDataCache<UInt256, TrimmedBlock> blocks)
+            {
+                var blocksCount = blocks.Count();
+
+                if (index > blocksCount)
+                {
+                    index = (uint)blocksCount;
+                }
+
+                var hashIndex = new HashIndexState()
+                {
+                    Hash = hash,
+                    Index = index
+                };
+                ((TestMetaDataCache<HashIndexState>)BlockHashIndex).Update(hashIndex);
+            }
+        }
     }
 }

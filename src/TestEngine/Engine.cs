@@ -6,6 +6,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 
 namespace Neo.TestingEngine
@@ -32,6 +33,8 @@ namespace Neo.TestingEngine
         {
             Reset();
         }
+
+        public int BlockCount => ((TestDataCache<UInt256, TrimmedBlock>)engine.Snapshot.Blocks).Count();
 
         public void Reset()
         {
@@ -63,6 +66,34 @@ namespace Neo.TestingEngine
             }
         }
 
+        public void IncreaseBlockCount(uint newHeight)
+        {
+            var snapshot = (TestSnapshot)engine.Snapshot;
+            var blocks = (TestDataCache<UInt256, TrimmedBlock>)snapshot.Blocks;
+            Block newBlock;
+            Block lastBlock = null;
+            if (blocks.Count() == 0)
+            {
+                newBlock = Blockchain.GenesisBlock;
+            }
+            else
+            {
+                newBlock = CreateBlock();
+            }
+
+            while (blocks.Count() < newHeight)
+            {
+                var hash = newBlock.Hash;
+                var trim = newBlock.Trim();
+                blocks.AddForTest(hash, trim);
+                lastBlock = newBlock;
+                newBlock = CreateBlock();
+            }
+
+            var index = (uint)(blocks.Count() - 1);
+            snapshot.SetCurrentBlockHash(index, lastBlock.Hash);
+        }
+
         public void SetStorage(Dictionary<PrimitiveType, StackItem> storage)
         {
             foreach (var data in storage)
@@ -87,21 +118,8 @@ namespace Neo.TestingEngine
 
         private TestEngine SetupNativeContracts()
         {
-            var block = new Block()
-            {
-                Index = 0,
-                ConsensusData = new ConsensusData(),
-                Transactions = new Transaction[0],
-                Witness = new Witness()
-                {
-                    InvocationScript = new byte[0],
-                    VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(PubKey, ECCurve.Secp256k1))
-                },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
-                PrevHash = UInt256.Zero
-            };
-
+            SetConsensus();
+            var block = Blockchain.GenesisBlock;
             TestEngine engine = new TestEngine(TriggerType.Application, block);
             ((TestSnapshot)engine.Snapshot).SetPersistingBlock(block);
 
@@ -115,6 +133,42 @@ namespace Neo.TestingEngine
             ((TestSnapshot)engine.Snapshot).ClearStorage();
 
             return engine;
+        }
+
+        private void SetConsensus()
+        {
+            var _ = TestBlockchain.TheNeoSystem;
+            var store = Blockchain.Singleton.Store;
+            var block = Blockchain.GenesisBlock;
+        }
+
+        private Block CreateBlock()
+        {
+            var blocks = engine.Snapshot.Blocks.Seek().GetEnumerator();
+            while (blocks.MoveNext())
+            { }
+
+            var (blockHash, trimmedBlock) = blocks.Current;
+            if (blockHash == null)
+            {
+                (blockHash, trimmedBlock) = (Blockchain.GenesisBlock.Hash, Blockchain.GenesisBlock.Trim());
+            }
+
+            return new Block()
+            {
+                Index = trimmedBlock.Index + 1,
+                Timestamp = trimmedBlock.Timestamp + Blockchain.MillisecondsPerBlock,
+                ConsensusData = new ConsensusData(),
+                Transactions = new Transaction[0],
+                Witness = new Witness()
+                {
+                    InvocationScript = new byte[0],
+                    VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(PubKey, ECCurve.Secp256k1))
+                },
+                NextConsensus = trimmedBlock.NextConsensus,
+                MerkleRoot = trimmedBlock.MerkleRoot,
+                PrevHash = blockHash
+            };
         }
 
         private static byte[] HexString2Bytes(string str)
