@@ -22,7 +22,6 @@ namespace Neo
         [OpCode(OpCode.ASSERT)]
         public static extern explicit operator UInt160(byte[] value);
 
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "14")] // 0x14 == 20 bytes expected array size
