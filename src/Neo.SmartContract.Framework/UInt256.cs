@@ -8,7 +8,6 @@ namespace Neo
 
         public extern bool IsZero
         {
-            [OpCode(OpCode.CONVERT, StackItemType.Integer)]
             [OpCode(OpCode.PUSH0)]
             [OpCode(OpCode.NUMEQUAL)]
             get;
