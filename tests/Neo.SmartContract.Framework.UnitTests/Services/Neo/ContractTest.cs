@@ -39,14 +39,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("create", script.finalNEFScript, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
+            Assert.AreEqual(script.finalNEFScript, itemArray[0]); // Script
             Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
             Assert.AreEqual(false, itemArray[2]); // HasStorage
             Assert.AreEqual(false, itemArray[3]); // Payable
@@ -102,14 +102,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("create", script.finalNEFScript, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
+            Assert.AreEqual(script.finalNEFScript, itemArray[0]); // Script
             Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
             Assert.AreEqual(false, itemArray[2]); // HasStorage
             Assert.AreEqual(false, itemArray[3]); // Payable
@@ -119,7 +119,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             var args = new Array
             {
-                scriptUpdate.finalNEF,
+                scriptUpdate.finalNEFScript,
                 manifestUpdate.ToJson().ToString()
             };
             result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", args);

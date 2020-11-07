@@ -2,6 +2,7 @@ using CommandLine;
 using Mono.Cecil;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
+using Neo.IO;
 using Neo.IO.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -156,6 +157,8 @@ namespace Neo.Compiler
             int bSucc = 0;
             string debugstr = null;
             NeoModule module;
+            UInt160 hash;
+            Dictionary<int, int> addrConvTable = null;
 
             // Convert and build
             try
@@ -165,7 +168,6 @@ namespace Neo.Compiler
                 module = conv.Convert(mod, option);
                 bytes = module.Build();
                 log.Log("convert succ");
-                Dictionary<int, int> addrConvTable = null;
                 if (options.Optimize)
                 {
                     HashSet<int> entryPoints = new HashSet<int>();
@@ -176,28 +178,6 @@ namespace Neo.Compiler
                     var optimize = NefOptimizeTool.Optimize(bytes, entryPoints.ToArray(), out addrConvTable);
                     log.Log("optimization succ " + (((bytes.Length / (optimize.Length + 0.0)) * 100.0) - 100).ToString("0.00 '%'"));
                     bytes = optimize;
-                }
-
-                try
-                {
-                    abi = FuncExport.Export(module, bytes, addrConvTable);
-                    log.Log("gen abi succ");
-                }
-                catch (Exception err)
-                {
-                    log.Log("gen abi Error:" + err.ToString());
-                    return -1;
-                }
-
-                try
-                {
-                    var outjson = DebugExport.Export(module, bytes, addrConvTable);
-                    debugstr = outjson.ToString(false);
-                    log.Log("gen debug succ");
-                }
-                catch (Exception err)
-                {
-                    log.Log("gen debug Error:" + err.ToString());
                 }
             }
             catch (Exception err)
@@ -220,6 +200,7 @@ namespace Neo.Compiler
                     ScriptHash = bytes.ToScriptHash()
                 };
                 nef.CheckSum = NefFile.ComputeChecksum(nef);
+                hash = nef.ToArray().ToScriptHash();
 
                 File.Delete(bytesname);
                 using (var stream = File.OpenWrite(bytesname))
@@ -234,6 +215,28 @@ namespace Neo.Compiler
             {
                 log.Log("Write Bytes Error:" + err.ToString());
                 return -1;
+            }
+
+            try
+            {
+                abi = FuncExport.Export(module, hash, addrConvTable);
+                log.Log("gen abi succ");
+            }
+            catch (Exception err)
+            {
+                log.Log("gen abi Error:" + err.ToString());
+                return -1;
+            }
+
+            try
+            {
+                var outjson = DebugExport.Export(module, hash, addrConvTable);
+                debugstr = outjson.ToString(false);
+                log.Log("gen debug succ");
+            }
+            catch (Exception err)
+            {
+                log.Log("gen debug Error:" + err.ToString());
             }
 
             try

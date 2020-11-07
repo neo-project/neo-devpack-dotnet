@@ -4,7 +4,6 @@ using Neo.SmartContract.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Neo.Compiler
 {
@@ -59,28 +58,12 @@ namespace Neo.Compiler
             return "Unknown:" + type;
         }
 
-        public static string ComputeHash(byte[] script)
-        {
-            var sha256 = System.Security.Cryptography.SHA256.Create();
-            byte[] hash256 = sha256.ComputeHash(script);
-            var ripemd160 = new Neo.Cryptography.RIPEMD160Managed();
-            var hash = ripemd160.ComputeHash(hash256);
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append("0x");
-            for (int i = hash.Length - 1; i >= 0; i--)
-            {
-                sb.Append(hash[i].ToString("x02"));
-            }
-            return sb.ToString();
-        }
-
-        public static JObject Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static JObject Export(NeoModule module, UInt160 hash, Dictionary<int, int> addrConvTable)
         {
             var outjson = new JObject();
 
             //hash
-            outjson["hash"] = ComputeHash(script);
+            outjson["hash"] = hash.ToString();
 
             //functions
             var methods = new JArray();
