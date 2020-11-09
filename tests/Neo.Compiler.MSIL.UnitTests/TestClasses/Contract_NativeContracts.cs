@@ -45,7 +45,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static byte[][] getOracleNodes()
         {
-            return Designation.GetDesignatedByRole(DesignationRole.Oracle);
+            return Designation.GetDesignatedByRole(DesignationRole.Oracle, 0);
         }
     }
 }
