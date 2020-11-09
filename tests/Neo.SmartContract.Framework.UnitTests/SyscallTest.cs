@@ -38,6 +38,8 @@ namespace Neo.SmartContract.Framework.UnitTests
                 if (syscall.Value.Name == "Neo.Native.Policy") continue;
                 if (syscall.Value.Name == "Neo.Native.Call") continue;
                 if (syscall.Value.Name == "System.Runtime.Notify") continue;
+                if (syscall.Value.Name == "System.Binary.Itoa") continue;
+                if (syscall.Value.Name == "System.Binary.Atoi") continue;
 
                 if (list.Remove(syscall.Value.Name)) continue;
 
