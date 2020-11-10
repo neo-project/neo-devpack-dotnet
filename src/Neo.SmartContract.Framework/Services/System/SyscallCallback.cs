@@ -34,6 +34,8 @@ namespace Neo.SmartContract.Framework.Services.System
         System_Runtime_CheckWitness = 0x8cec27f8,
         System_Runtime_GetInvocationCounter = 0x43112784,
         System_Runtime_GetNotifications = 0xf1354327,
-        System_Runtime_GasLeft = 0xced88814
+        System_Runtime_GasLeft = 0xced88814,
+        System_Binary_Itoa = 2109399931,
+        System_Binary_Atoi = 3946854428,
     }
 }
