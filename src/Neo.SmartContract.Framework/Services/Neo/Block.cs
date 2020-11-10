@@ -2,13 +2,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public class Block
     {
-        public readonly byte[] Hash;
+        public readonly UInt256 Hash;
         public readonly uint Version;
-        public readonly byte[] PrevHash;
-        public readonly byte[] MerkleRoot;
+        public readonly UInt256 PrevHash;
+        public readonly UInt256 MerkleRoot;
         public readonly ulong Timestamp;
         public readonly uint Index;
-        public readonly byte[] NextConsensus;
+        public readonly UInt160 NextConsensus;
         public readonly int TransactionsCount;
     }
 }
