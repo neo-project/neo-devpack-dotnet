@@ -40,10 +40,13 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// The stackitem 'State' can be of any kind (a number, a string, an array, ...), so it's up to the developer perform the expected cast here
         /// </summary>
         [Syscall("System.Runtime.GetNotifications")]
-        public static extern Notification[] GetNotifications(byte[] hash = null);
+        public static extern Notification[] GetNotifications(UInt160 hash = null);
 
         [Syscall("System.Runtime.CheckWitness")]
-        public static extern bool CheckWitness(byte[] hashOrPubkey);
+        public static extern bool CheckWitness(UInt160 hash);
+
+        [Syscall("System.Runtime.CheckWitness")]
+        public static extern bool CheckWitness(Cryptography.ECC.ECPoint pubkey);
 
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);

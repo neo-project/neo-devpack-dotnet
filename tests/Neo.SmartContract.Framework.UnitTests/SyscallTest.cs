@@ -1,7 +1,11 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.IO;
+using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
+using scfxSmartContract = scfx.Neo.SmartContract.Framework.SmartContract;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -15,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var list = new HashSet<string>();
 
-            using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
+            using (var stream = File.OpenRead(typeof(scfxSmartContract).Assembly.Location))
             {
                 var expectedType = typeof(SyscallAttribute).FullName;
                 var module = ModuleDefinition.ReadModule(stream);

@@ -21,19 +21,19 @@ namespace Neo.SmartContract.Framework.Services.Neo
             public static class Secp256r1
             {
                 [Syscall("Neo.Crypto.VerifyWithECDsaSecp256r1")]
-                public extern static bool Verify(byte[] message, byte[] pubkey, byte[] signature);
+                public extern static bool Verify(byte[] message, Cryptography.ECC.ECPoint pubkey, byte[] signature);
 
                 [Syscall("Neo.Crypto.CheckMultisigWithECDsaSecp256r1")]
-                public extern static bool CheckMultiSig(byte[] message, byte[][] pubkey, byte[][] signature);
+                public extern static bool CheckMultiSig(byte[] message, Cryptography.ECC.ECPoint[] pubkey, byte[][] signature);
             }
 
             public static class Secp256k1
             {
                 [Syscall("Neo.Crypto.VerifyWithECDsaSecp256k1")]
-                public extern static bool Verify(byte[] message, byte[] pubkey, byte[] signature);
+                public extern static bool Verify(byte[] message, Cryptography.ECC.ECPoint pubkey, byte[] signature);
 
                 [Syscall("Neo.Crypto.CheckMultisigWithECDsaSecp256k1")]
-                public extern static bool CheckMultiSig(byte[] message, byte[][] pubkey, byte[][] signature);
+                public extern static bool CheckMultiSig(byte[] message, Cryptography.ECC.ECPoint[] pubkey, byte[][] signature);
             }
         }
     }
