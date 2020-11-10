@@ -73,7 +73,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             //test by this way is bad idea? how to sure got a fix hash always?
             var gothash = item.GetSpan().ToHexString();
             Assert.AreEqual(scriptHash, gothash);
@@ -88,7 +88,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             //test by this way is bad idea? how to sure got a fix hash always? 
             var gothash = item.GetSpan().ToHexString();
             Assert.AreEqual(scriptHash, gothash);
