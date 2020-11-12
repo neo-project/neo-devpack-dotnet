@@ -1,4 +1,5 @@
 extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
 using System.Collections.Generic;
