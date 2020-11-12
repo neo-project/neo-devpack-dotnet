@@ -4,9 +4,9 @@ using Neo.SmartContract.Framework.Services.System;
 using System;
 using System.Numerics;
 
-namespace Template.NEP5.CSharp
+namespace Template.NEP17.CSharp
 {
-    public partial class NEP5 : SmartContract
+    public partial class NEP17 : SmartContract
     {
         private static BigInteger GetTransactionAmount(Notification notification)
         {

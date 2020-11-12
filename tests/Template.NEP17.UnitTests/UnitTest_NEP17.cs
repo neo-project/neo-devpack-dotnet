@@ -5,7 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace Template.NEP5.UnitTests
+namespace Template.NEP17.UnitTests
 {
     [TestClass]
     public class UnitTest_NEP5
@@ -26,13 +26,13 @@ namespace Template.NEP5.UnitTests
             var engine = new TestEngine();
             engine.AddEntryScript(new string[]
             {
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.cs",
-                "../../../../../templates/Template.NEP5.CSharp/Storage/TotalSupplyStorage.cs",
-                "../../../../../templates/Template.NEP5.CSharp/Storage/AssetStorage.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Owner.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Crowdsale.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Helpers.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Methods.cs"
+                "../../../../../templates/Template.NEP17.CSharp/NEP5.cs",
+                "../../../../../templates/Template.NEP17.CSharp/Storage/TotalSupplyStorage.cs",
+                "../../../../../templates/Template.NEP17.CSharp/Storage/AssetStorage.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP5.Owner.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP5.Crowdsale.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP5.Helpers.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP5.Methods.cs"
             });
 
             return engine;

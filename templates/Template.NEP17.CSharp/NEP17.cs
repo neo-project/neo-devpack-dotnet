@@ -4,14 +4,14 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Template.NEP5.CSharp
+namespace Template.NEP17.CSharp
 {
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a NEP5 example")]
-    [SupportedStandards("NEP5", "NEP10")]
+    [SupportedStandards("NEP17", "NEP10")]
     [Features(ContractFeatures.HasStorage | ContractFeatures.Payable)]
-    public partial class NEP5 : SmartContract
+    public partial class NEP17 : SmartContract
     {
         #region Token Settings
         static readonly ulong MaxSupply = 10_000_000_000_000_000;

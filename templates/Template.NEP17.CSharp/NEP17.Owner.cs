@@ -3,9 +3,9 @@ using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework.Services.System;
 using System;
 
-namespace Template.NEP5.CSharp
+namespace Template.NEP17.CSharp
 {
-    public partial class NEP5 : SmartContract
+    public partial class NEP17 : SmartContract
     {
         public static bool Deploy()
         {
