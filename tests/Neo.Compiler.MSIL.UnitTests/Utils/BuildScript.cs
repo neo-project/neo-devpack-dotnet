@@ -87,7 +87,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                debugInfo = DebugExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                debugInfo = DebugExport.Export(converterIL.outModule, addrConvTable);
             }
             catch (Exception err)
             {
