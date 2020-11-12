@@ -1,11 +1,10 @@
 extern alias scfx;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.IO;
-using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
 using scfxSmartContract = scfx.Neo.SmartContract.Framework.SmartContract;
+using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -32,7 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Neo syscalls
 
-            var notFound = new System.Collections.Generic.List<string>();
+            var notFound = new List<string>();
 
             foreach (var syscall in ApplicationEngine.Services)
             {
@@ -42,8 +41,6 @@ namespace Neo.SmartContract.Framework.UnitTests
                 if (syscall.Value.Name == "Neo.Native.Policy") continue;
                 if (syscall.Value.Name == "Neo.Native.Call") continue;
                 if (syscall.Value.Name == "System.Runtime.Notify") continue;
-                if (syscall.Value.Name == "System.Binary.Itoa") continue;
-                if (syscall.Value.Name == "System.Binary.Atoi") continue;
 
                 if (list.Remove(syscall.Value.Name)) continue;
 
