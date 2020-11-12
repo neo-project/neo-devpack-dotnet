@@ -95,7 +95,7 @@ namespace Neo.SmartContract.Framework.Services.System
         public static extern Callback Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> func);
 
         [Syscall("System.Callback.CreateFromMethod")]
-        public static extern Callback CreateFromMethod(byte[] hash, string method);
+        public static extern Callback CreateFromMethod(UInt160 hash, string method);
 
         [Syscall("System.Callback.CreateFromSyscall")]
         public static extern Callback CreateFromSyscall(SyscallCallback method);
