@@ -1,7 +1,11 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.IO;
+using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
+using scfxSmartContract = scfx.Neo.SmartContract.Framework.SmartContract;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -15,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var list = new HashSet<string>();
 
-            using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
+            using (var stream = File.OpenRead(typeof(scfxSmartContract).Assembly.Location))
             {
                 var expectedType = typeof(SyscallAttribute).FullName;
                 var module = ModuleDefinition.ReadModule(stream);
@@ -38,6 +42,8 @@ namespace Neo.SmartContract.Framework.UnitTests
                 if (syscall.Value.Name == "Neo.Native.Policy") continue;
                 if (syscall.Value.Name == "Neo.Native.Call") continue;
                 if (syscall.Value.Name == "System.Runtime.Notify") continue;
+                if (syscall.Value.Name == "System.Binary.Itoa") continue;
+                if (syscall.Value.Name == "System.Binary.Atoi") continue;
 
                 if (list.Remove(syscall.Value.Name)) continue;
 

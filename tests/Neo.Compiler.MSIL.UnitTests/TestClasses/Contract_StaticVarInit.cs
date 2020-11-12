@@ -5,7 +5,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
     class Contract_staticvar : SmartContract.Framework.SmartContract
     {
         //define and staticvar and initit with a runtime code.
-        static byte[] callscript = ExecutionEngine.EntryScriptHash;
+        static byte[] callscript = (byte[])ExecutionEngine.EntryScriptHash;
 
         public static object StaticInit()
         {

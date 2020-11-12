@@ -1,6 +1,9 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using System.Linq;
+using ContractFeatures = scfx.Neo.SmartContract.Framework.ContractFeatures;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
