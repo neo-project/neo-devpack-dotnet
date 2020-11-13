@@ -6,11 +6,11 @@ using System.Numerics;
 
 namespace Template.NEP17.CSharp
 {
+    [ManifestName("Token Name")]
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a NEP5 example")]
     [SupportedStandards("NEP17", "NEP10")]
-    [Features(ContractFeatures.HasStorage | ContractFeatures.Payable)]
     public partial class NEP17 : SmartContract
     {
         #region Token Settings

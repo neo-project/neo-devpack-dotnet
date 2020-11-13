@@ -81,9 +81,6 @@ namespace Template.NEP17.UnitTests
             snapshot.Contracts.Add(hash, new Neo.Ledger.ContractState()
             {
                 Manifest = new Neo.SmartContract.Manifest.ContractManifest()
-                {
-                    Features = Neo.SmartContract.Manifest.ContractFeatures.HasStorage
-                }
             });
 
             snapshot.Storages.Add(new Neo.Ledger.StorageKey()
@@ -115,9 +112,6 @@ namespace Template.NEP17.UnitTests
             snapshot.Contracts.Add(hash, new Neo.Ledger.ContractState()
             {
                 Manifest = new Neo.SmartContract.Manifest.ContractManifest()
-                {
-                    Features = Neo.SmartContract.Manifest.ContractFeatures.HasStorage
-                }
             });
 
             var result = engine.ExecuteTestCaseStandard("totalSupply");
@@ -139,9 +133,6 @@ namespace Template.NEP17.UnitTests
             snapshot.Contracts.Add(hash, new Neo.Ledger.ContractState()
             {
                 Manifest = new Neo.SmartContract.Manifest.ContractManifest()
-                {
-                    Features = Neo.SmartContract.Manifest.ContractFeatures.HasStorage
-                }
             });
 
             snapshot.Storages.Add(new Neo.Ledger.StorageKey()
@@ -174,9 +165,6 @@ namespace Template.NEP17.UnitTests
             snapshot.Contracts.Add(hash, new Neo.Ledger.ContractState()
             {
                 Manifest = new Neo.SmartContract.Manifest.ContractManifest()
-                {
-                    Features = Neo.SmartContract.Manifest.ContractFeatures.HasStorage
-                }
             });
 
             var result = engine.ExecuteTestCaseStandard("balanceOf", address);

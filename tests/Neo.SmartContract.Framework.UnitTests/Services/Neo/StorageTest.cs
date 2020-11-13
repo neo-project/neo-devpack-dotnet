@@ -6,7 +6,6 @@ using Neo.Ledger;
 using Neo.VM.Types;
 using System;
 using System.Linq;
-using ContractFeatures = scfx.Neo.SmartContract.Framework.ContractFeatures;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -66,18 +65,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             testengine = new TestEngine(snapshot: snapshot.Clone());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            Assert.AreEqual(ContractFeatures.HasStorage, testengine.ScriptEntry.converterIL.outModule.attributes
-                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
-                .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                .FirstOrDefault());
-
             testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
             {
                 Script = testengine.EntryContext.Script,
                 Manifest = new Manifest.ContractManifest()
-                {
-                    Features = Manifest.ContractFeatures.HasStorage
-                }
             });
         }
 
