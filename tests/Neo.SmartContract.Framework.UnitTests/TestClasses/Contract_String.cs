@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services.System;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
@@ -21,6 +22,11 @@ namespace Neo.Compiler.MSIL.TestClasses
                 a = 5;
             }
             return a;
+        }
+
+        public static string TestStringAddInt(string s, int i)
+        {
+            return s + Binary.Itoa(i, 10);
         }
     }
 }
