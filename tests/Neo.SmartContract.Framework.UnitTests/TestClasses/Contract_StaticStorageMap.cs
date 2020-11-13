@@ -4,7 +4,6 @@ using System.Numerics;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
-    [Features(ContractFeatures.HasStorage)]
     class Contract_StaticStorageMap : SmartContract.Framework.SmartContract
     {
         private static StorageMap Data = Storage.CurrentContext.CreateMap("data");
