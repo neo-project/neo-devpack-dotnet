@@ -21,7 +21,6 @@ namespace Template.NEP17.CSharp
         {
             if (!ValidateAddress(from) || !ValidateAddress(to)) throw new Exception("The parameters from and to SHOULD be 20-byte non-zero addresses.");
             if (amount <= 0) throw new Exception("The parameter amount MUST be greater than 0.");
-            if (!IsPayable(to)) throw new Exception("Receiver cannot receive.");
             if (!Runtime.CheckWitness(from) && !from.Equals(ExecutionEngine.CallingScriptHash)) throw new Exception("No authorization.");
             if (AssetStorage.Get(from) < amount) throw new Exception("Insufficient balance.");
             if (from == to) return true;
@@ -30,6 +29,9 @@ namespace Template.NEP17.CSharp
             AssetStorage.Increase(to, amount);
 
             OnTransfer(from, to, amount);
+
+            // Validate payable
+            if (IsContract(to)) Contract.Call(to, "onPayment", new object[] { amount });
             return true;
         }
     }

@@ -69,6 +69,12 @@ namespace Neo.Compiler
         {
             var outjson = new JObject();
 
+            //name
+            outjson["name"] = module.attributes
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestNameAttribute")
+                .Select(u => (string)u.ConstructorArguments.FirstOrDefault().Value)
+                .FirstOrDefault() ?? "";
+
             //functions
             var methods = new JArray();
             outjson["methods"] = methods;

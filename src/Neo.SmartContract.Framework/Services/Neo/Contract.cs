@@ -28,9 +28,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Contract.CallEx")]
         public static extern object CallEx(UInt160 scriptHash, string method, object[] arguments, CallFlags flag);
 
-        [Syscall("System.Contract.MethodExists")]
-        public static extern bool MethodExists(UInt160 script_hash, string method);
-
         [Syscall("System.Contract.Create")]
         public static extern Contract Create(byte[] script, string manifest);
 
