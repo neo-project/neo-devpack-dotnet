@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using IApiInterface = scfx.Neo.SmartContract.Framework.IApiInterface;
-using ContractFeatures = scfx.Neo.SmartContract.Framework.ContractFeatures;
 
 namespace Neo.Compiler
 {
@@ -212,21 +211,14 @@ namespace Neo.Compiler
         {
             var sbABI = abi.ToString(false);
 
-            var features = module == null ? ContractFeatures.NoProperty : module.attributes
-                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.FeaturesAttribute")
-                .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                .FirstOrDefault();
-
             var extraAttributes = module == null ? Array.Empty<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToArray();
             var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
 
             var extra = BuildExtraAttributes(extraAttributes);
             var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
-            var storage = features.HasFlag(ContractFeatures.HasStorage).ToString().ToLowerInvariant();
-            var payable = features.HasFlag(ContractFeatures.Payable).ToString().ToLowerInvariant();
 
             return
-                @"{""groups"":[],""features"":{""storage"":" + storage + @",""payable"":" + payable + @"},""abi"":" +
+                @"{""groups"":[],""abi"":" +
                 sbABI +
                 @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
