@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static string TestStringAddInt(string s, int i)
         {
-            return s + Binary.Itoa(i, 10);
+            return s + i;
         }
     }
 }

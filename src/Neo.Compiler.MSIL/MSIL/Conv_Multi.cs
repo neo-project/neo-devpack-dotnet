@@ -743,6 +743,19 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.SHR, src, to);
                     return 0;
                 }
+                else if (
+                    src.tokenMethod.Contains("System.Numerics.BigInteger::ToString()") || src.tokenMethod.Contains("System.Numerics.BigInteger::ToString()") ||
+                    src.tokenMethod.Contains("System.Int64::ToString()") || src.tokenMethod.Contains("System.UInt64::ToString()") ||
+                    src.tokenMethod.Contains("System.Int32::ToString()") || src.tokenMethod.Contains("System.UInt32::ToString()") ||
+                    src.tokenMethod.Contains("System.Int16::ToString()") || src.tokenMethod.Contains("System.UInt16::ToString()") ||
+                    src.tokenMethod.Contains("System.Byte::ToString()") || src.tokenMethod.Contains("System.SByte::ToString()")
+                    )
+                {
+                    ConvertPushNumber(10, null, to);        // Push Base
+                    Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
+                    return 0;
+                }
             }
 
             if (calltype == 0)
