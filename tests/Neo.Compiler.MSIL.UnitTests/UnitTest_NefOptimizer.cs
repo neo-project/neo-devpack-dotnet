@@ -19,12 +19,12 @@ namespace Neo.Compiler.MSIL
             var build = testengine.Build("./TestClasses/Contract_OptimizationTest.cs", false, true);
             var methods = (build.finalABI["methods"] as JArray);
 
-            Assert.AreEqual(methods[0]["name"].AsString(), "verify");
+            Assert.AreEqual(methods[0]["name"].AsString(), "_initialize");
             Assert.AreEqual(methods[0]["offset"].AsString(), "0");
-            Assert.AreEqual(methods[1]["name"].AsString(), "_initialize");
-            Assert.AreEqual(methods[1]["offset"].AsString(), "13");
-            Assert.AreEqual(methods[2]["name"].AsString(), "dummyMethod");
-            Assert.AreEqual(methods[2]["offset"].AsString(), "39");
+            Assert.AreEqual(methods[1]["name"].AsString(), "dummyMethod");
+            Assert.AreEqual(methods[1]["offset"].AsString(), "26");
+            Assert.AreEqual(methods[2]["name"].AsString(), "verify");
+            Assert.AreEqual(methods[2]["offset"].AsString(), "33");
         }
 
         [TestMethod]
