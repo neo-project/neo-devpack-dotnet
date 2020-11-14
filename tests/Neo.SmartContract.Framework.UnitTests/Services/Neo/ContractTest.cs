@@ -29,17 +29,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var script = _engine.Build("./TestClasses/Contract_Create.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
 
-            // Check first
-
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
-
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            var result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -48,8 +41,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var itemArray = item as Array;
             Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
             Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
-            Assert.AreEqual(false, itemArray[2]); // HasStorage
-            Assert.AreEqual(false, itemArray[3]); // Payable
 
             // Call
 
@@ -88,21 +79,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
 
-            // Check first
-
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
-
-            _engine.Reset();
-            _ = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), "newContract", new Array());
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-
             // Create
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            var result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -111,8 +91,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var itemArray = item as Array;
             Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
             Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
-            Assert.AreEqual(false, itemArray[2]); // HasStorage
-            Assert.AreEqual(false, itemArray[3]); // Payable
 
             // Call & Update
 
@@ -169,7 +147,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.ByteString);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.ByteString);
             Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
 
             // Good pubKey (uncompressed)
@@ -180,7 +158,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.ByteString);
+            Assert.IsTrue(item.Type == VM.Types.StackItemType.ByteString);
             Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
         }
 

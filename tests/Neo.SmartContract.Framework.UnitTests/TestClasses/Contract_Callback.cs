@@ -15,12 +15,12 @@ namespace Neo.Compiler.MSIL.TestClasses
             return 123;
         }
 
-        public static object createFromMethod(byte[] hash, string method)
+        public static object createFromMethod(UInt160 hash, string method)
         {
             return Callback.CreateFromMethod(hash, method);
         }
 
-        public static object createAndCallFromMethod(byte[] hash, string method)
+        public static object createAndCallFromMethod(UInt160 hash, string method)
         {
             return Callback.CreateFromMethod(hash, method).Invoke(new object[0]);
         }

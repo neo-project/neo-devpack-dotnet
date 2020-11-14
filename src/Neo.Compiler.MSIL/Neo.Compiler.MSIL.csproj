@@ -42,10 +42,18 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.2" />
-    <PackageReference Include="Neo" Version="3.0.0-CI01036" />
+    <PackageReference Include="Neo" Version="3.0.0-CI01068" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+      <!--
+        The unified Neo domain model defines types with the same fully namespace qualified name
+        in different assemblies. Specifying a reference alias allows us to disambiguate types with
+        colliding names.
+        Official docs: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/extern-alias
+        -->
+      <Aliases>scfx</Aliases>
+    </ProjectReference>
   </ItemGroup>
 </Project>

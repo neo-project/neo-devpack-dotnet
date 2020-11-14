@@ -16,7 +16,7 @@ namespace Template.NEP5.CSharp
             // Checks notification format
             if (state.Length != 3) return 0;
             // Check dest
-            if ((byte[])state[1] != ExecutionEngine.ExecutingScriptHash) return 0;
+            if ((Neo.UInt160)state[1] != ExecutionEngine.ExecutingScriptHash) return 0;
             // Amount
             var amount = (BigInteger)state[2];
             if (amount < 0) return 0;
@@ -37,11 +37,11 @@ namespace Template.NEP5.CSharp
             {
                 var notification = notifications[i];
 
-                if (notification.ScriptHash == NeoToken)
+                if (notification.ScriptHash == NEO.Hash)
                 {
                     neo += GetTransactionAmount(notification);
                 }
-                else if (notification.ScriptHash == GasToken)
+                else if (notification.ScriptHash == GAS.Hash)
                 {
                     gas += GetTransactionAmount(notification);
                 }

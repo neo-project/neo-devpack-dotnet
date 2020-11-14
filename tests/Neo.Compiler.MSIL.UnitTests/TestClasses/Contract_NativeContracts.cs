@@ -23,6 +23,11 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return Oracle.Name;
         }
 
+        public static uint OracleMinimumResponseFee()
+        {
+            return Oracle.MinimumResponseFee;
+        }
+
         public static string DesignationName()
         {
             return Designation.Name;
@@ -38,9 +43,14 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return GAS.Symbol;
         }
 
-        public static byte[][] getOracleNodes()
+        public static Cryptography.ECC.ECPoint[] getOracleNodes()
         {
-            return Designation.GetDesignatedByRole(DesignationRole.Oracle);
+            return Designation.GetDesignatedByRole(DesignationRole.Oracle, 0);
+        }
+
+        public static UInt160 NEOHash()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.NEO.Hash;
         }
     }
 }

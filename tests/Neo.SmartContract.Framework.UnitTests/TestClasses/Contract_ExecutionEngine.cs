@@ -6,17 +6,17 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static byte[] CallingScriptHash()
         {
-            return ExecutionEngine.CallingScriptHash;
+            return (byte[])ExecutionEngine.CallingScriptHash;
         }
 
         public static byte[] EntryScriptHash()
         {
-            return ExecutionEngine.EntryScriptHash;
+            return (byte[])ExecutionEngine.EntryScriptHash;
         }
 
         public static byte[] ExecutingScriptHash()
         {
-            return ExecutionEngine.ExecutingScriptHash;
+            return (byte[])ExecutionEngine.ExecutingScriptHash;
         }
 
         public static object ScriptContainer()

@@ -109,7 +109,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         static JObject ParseJson(StackItem item)
         {
-            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             var json = System.Text.Encoding.UTF8.GetString(item.GetSpan());
             return JObject.Parse(json);
         }
