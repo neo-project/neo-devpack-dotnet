@@ -1,4 +1,5 @@
 using Mono.Cecil;
+using Neo.IO;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
@@ -164,7 +165,7 @@ namespace Neo.Compiler.MSIL
                 }
         */
 
-        public bool IsContractCall(Mono.Cecil.MethodDefinition defs, out byte[] hash)
+        public bool IsContractCall(Mono.Cecil.MethodDefinition defs, out UInt160 hash)
         {
             if (defs == null)
             {
@@ -181,19 +182,12 @@ namespace Neo.Compiler.MSIL
                     if (a.Type.FullName == "System.String")
                     {
                         string hashstr = (string)a.Value;
-
-                        try
+                        if (UInt160.TryParse(hashstr, out hash))
                         {
-                            hash = hashstr.HexString2Bytes();
-                            if (hash.Length != 20) throw new Exception("Wrong hash:" + hashstr);
-
-                            hash = hash.Reverse().ToArray();
                             return true;
                         }
-                        catch
-                        {
-                            throw new Exception("hex format error:" + hashstr);
-                        }
+
+                        throw new Exception("hex format error:" + hashstr);
                     }
                     else
                     {
@@ -202,12 +196,12 @@ namespace Neo.Compiler.MSIL
                         {
                             throw new Exception("hash too short.");
                         }
-                        hash = new byte[20];
+                        var buffer = new byte[20];
                         for (var i = 0; i < 20; i++)
                         {
-                            hash[i] = (byte)list[i].Value;
+                            buffer[i] = (byte)list[i].Value;
                         }
-                        hash = hash.Reverse().ToArray();
+                        hash = new UInt160(buffer);
                         return true;
                     }
                 }
@@ -401,7 +395,7 @@ namespace Neo.Compiler.MSIL
             int calltype = 0;
             string callname;
             int callpcount = 0;
-            byte[] callhash = null;
+            UInt160 callhash = null;
             VM.OpCode[] callcodes = null;
             string[] calldata = null;
 
@@ -874,20 +868,28 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 4)
             {
-                // Package the arguments into an array.
-                ConvertPushNumber(pcount, null, to);
-                Convert1by1(VM.OpCode.PACK, null, to);
+                if (defs.IsGetter
+                    && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.ContractHashAttribute"))
+                {
+                    ConvertPushDataArray(callhash.ToArray(), src, to);
+                }
+                else
+                {
+                    // Package the arguments into an array.
+                    ConvertPushNumber(pcount, null, to);
+                    Convert1by1(VM.OpCode.PACK, null, to);
 
-                // Push call method name, the first letter should be lowercase.
-                ConvertPushString(GetMethodName(defs.Body.Method), src, to);
+                    // Push call method name, the first letter should be lowercase.
+                    ConvertPushString(GetMethodName(defs.Body.Method), src, to);
 
-                // Push contract hash.
-                ConvertPushDataArray(callhash, src, to);
-                Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                    // Push contract hash.
+                    ConvertPushDataArray(callhash.ToArray(), src, to);
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
 
-                // If the return type is void, insert a DROP.
-                if (defs.ReturnType.FullName is "System.Void")
-                    Insert1(VM.OpCode.DROP, "", to);
+                    // If the return type is void, insert a DROP.
+                    if (defs.ReturnType.FullName is "System.Void")
+                        Insert1(VM.OpCode.DROP, "", to);
+                }
             }
             else if (calltype == 5)
             {
@@ -1458,6 +1460,7 @@ namespace Neo.Compiler.MSIL
         private int ConvertNewObj(ILMethod from, OpCode src, NeoMethod to)
         {
             var _type = (src.tokenUnknown as Mono.Cecil.MethodReference);
+
             if (_type.FullName == "System.Void System.Numerics.BigInteger::.ctor(System.Byte[])")
             {
                 return 0; // donothing;
