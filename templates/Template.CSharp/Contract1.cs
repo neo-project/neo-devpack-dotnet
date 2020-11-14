@@ -8,7 +8,6 @@ namespace $safeprojectname$
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a contract example")]
-    [Features(ContractFeatures.HasStorage)]
     public class Contract1 : SmartContract
     {
         //TODO: Replace it with your own address.

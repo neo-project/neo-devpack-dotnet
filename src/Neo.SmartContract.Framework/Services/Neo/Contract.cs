@@ -23,10 +23,10 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly bool IsPayable;
 
         [Syscall("System.Contract.Call")]
-        public static extern object Call(byte[] scriptHash, string method, object[] arguments);
+        public static extern object Call(UInt160 scriptHash, string method, object[] arguments);
 
         [Syscall("System.Contract.CallEx")]
-        public static extern object CallEx(byte[] scriptHash, string method, object[] arguments, CallFlags flag);
+        public static extern object CallEx(UInt160 scriptHash, string method, object[] arguments, CallFlags flag);
 
         [Syscall("System.Contract.Create")]
         public static extern Contract Create(byte[] script, string manifest);
@@ -41,6 +41,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern byte GetCallFlags();
 
         [Syscall("System.Contract.CreateStandardAccount")]
-        public static extern byte[] CreateStandardAccount(byte[] pubKey);
+        public static extern UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);
     }
 }

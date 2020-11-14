@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.IO;
 using Neo.VM;
 using Neo.VM.Types;
+using Neo.Wallets;
 using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests
@@ -350,6 +352,63 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
+        }
+
+        [TestMethod]
+        public void UInt160_equals_test()
+        {
+            var owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+            var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("checkOwner", owner.ToArray());
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkOwner", notOwner.ToArray());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void UInt160_equals_zero_test()
+        {
+            var zero = UInt160.Zero;
+            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+            var result = testengine.ExecuteTestCaseStandard("checkZeroStatic", zero.ToArray());
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkZeroStatic", notZero.ToArray());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void UInt160_byte_array_construct()
+        {
+            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("constructUInt160", notZero.ToArray());
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is ByteString);
+            var received = new UInt160(((ByteString)item).GetSpan());
+            Assert.AreEqual(received, notZero);
         }
     }
 }
