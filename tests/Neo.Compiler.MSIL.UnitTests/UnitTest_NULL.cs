@@ -112,9 +112,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 Script = testengine.EntryContext.Script,
                 Manifest = new ContractManifest()
-                {
-                    Features = ContractFeatures.HasStorage
-                }
             });
 
             var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
@@ -131,9 +128,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             {
                 Script = testengine.EntryContext.Script,
                 Manifest = new ContractManifest()
-                {
-                    Features = ContractFeatures.HasStorage
-                }
             });
 
             var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");

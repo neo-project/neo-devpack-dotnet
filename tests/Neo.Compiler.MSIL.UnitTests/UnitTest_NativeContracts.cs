@@ -114,6 +114,8 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             Assert.AreEqual("NEO", entry.GetString());
 
+            // NeoSymbol
+
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("nEOSymbol");
 
@@ -121,8 +123,20 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(1, result.Count);
 
             entry = result.Pop();
-
             Assert.AreEqual("neo", entry.GetString());
+
+            // NeoHash
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nEOHash");
+
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+
+            entry = result.Pop();
+            Assert.IsTrue(entry is VM.Types.ByteString);
+            var hash = new UInt160((VM.Types.ByteString)entry);
+            Assert.AreEqual(NativeContract.NEO.Hash, hash);
         }
 
         [TestMethod]

@@ -1,14 +1,16 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.IO;
 using Neo.Ledger;
 using Neo.SmartContract;
-using Neo.SmartContract.Framework.Services.System;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
+using SyscallCallback = scfx.Neo.SmartContract.Framework.Services.System.SyscallCallback;
 
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 {

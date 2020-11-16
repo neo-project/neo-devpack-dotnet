@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.VM.Types;
+using System;
 
 namespace Neo.Compiler.MSIL.UnitTests
 {
@@ -23,7 +24,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_StaticVarInit()
         {
-            ByteString var1;
+            Neo.VM.Types.Buffer var1;
             ByteString var2;
             {
                 var testengine = new TestEngine();
@@ -32,7 +33,7 @@ namespace Neo.Compiler.MSIL.UnitTests
                 // static byte[] callscript = ExecutionEngine.EntryScriptHash;
                 // ...
                 // return callscript
-                var1 = (result.Pop() as ByteString);
+                var1 = (result.Pop() as Neo.VM.Types.Buffer);
             }
             {
                 var testengine = new TestEngine();
@@ -42,7 +43,7 @@ namespace Neo.Compiler.MSIL.UnitTests
                 var2 = (result.Pop() as ByteString);
             }
             Assert.IsNotNull(var1);
-            Assert.AreEqual(var1, var2);
+            Assert.IsTrue(var1.GetSpan().SequenceEqual(var2.GetSpan()));
         }
     }
 }
