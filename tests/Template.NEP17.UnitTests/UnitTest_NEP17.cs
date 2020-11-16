@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.IO.Json;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
@@ -47,7 +48,7 @@ namespace Template.NEP17.UnitTests
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("Token Name", item.GetString());
-            Assert.AreEqual("Token Name", _engine.ScriptEntry.finalABI["name"].AsString());
+            Assert.AreEqual("Token Name", JObject.Parse(_engine.ScriptEntry.finalManifest)["name"].AsString());
         }
 
         [TestMethod]

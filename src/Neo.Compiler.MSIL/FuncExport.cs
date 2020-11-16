@@ -64,15 +64,9 @@ namespace Neo.Compiler
             return "Unknown:" + type;
         }
 
-        public static JObject Export(NeoModule module, byte[] script, Dictionary<int, int> addrConvTable)
+        public static JObject GenerateAbi(NeoModule module, Dictionary<int, int> addrConvTable)
         {
             var outjson = new JObject();
-
-            //name
-            outjson["name"] = module.attributes
-                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestNameAttribute")
-                .Select(u => (string)u.ConstructorArguments.FirstOrDefault().Value)
-                .FirstOrDefault() ?? "";
 
             //functions
             var methods = new JArray();
@@ -204,10 +198,16 @@ namespace Neo.Compiler
             var extra = BuildExtraAttributes(extraAttributes);
             var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
 
+            var name = module.attributes
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestNameAttribute")
+                .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
+                .FirstOrDefault() ?? "";
+
             return
                 @"{""groups"":[],""abi"":" +
                 sbABI +
-                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""name"":""" + name +
+                @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }

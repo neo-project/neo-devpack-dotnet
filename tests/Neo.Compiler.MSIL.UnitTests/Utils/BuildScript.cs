@@ -76,7 +76,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finalABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finalABI = FuncExport.GenerateAbi(converterIL.outModule, addrConvTable);
             }
             catch (Exception err)
             {

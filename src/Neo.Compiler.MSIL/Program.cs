@@ -180,7 +180,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    abi = FuncExport.Export(module, bytes, addrConvTable);
+                    abi = FuncExport.GenerateAbi(module, addrConvTable);
                     log.Log("gen abi succ");
                 }
                 catch (Exception err)
