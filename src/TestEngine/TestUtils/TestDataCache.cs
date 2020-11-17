@@ -64,6 +64,14 @@ namespace Neo.TestingEngine
         }
 
         /// <summary>
+        /// Gets the size of the storage for unit test
+        /// </summary>
+        public int Count()
+        {
+            return dic.Count;
+        }
+
+        /// <summary>
         /// Include a new value to the storage for unit test
         /// </summary>
         public void AddForTest(TKey key, TValue value)

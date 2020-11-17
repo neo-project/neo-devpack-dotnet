@@ -5,6 +5,7 @@ namespace Neo.TestingEngine
 {
     public class TestMetaDataCache<T> : MetaDataCache<T> where T : class, ICloneable<T>, ISerializable, new()
     {
+        private T metadata = null;
         public TestMetaDataCache()
             : base(null)
         {
@@ -16,11 +17,17 @@ namespace Neo.TestingEngine
 
         protected override T TryGetInternal()
         {
-            return null;
+            return metadata;
         }
 
         protected override void UpdateInternal(T item)
         {
+            metadata = item;
+        }
+
+        public void Update(T item)
+        {
+            UpdateInternal(item);
         }
     }
 }

@@ -1,6 +1,6 @@
 using Neo.Ledger;
 
-namespace Neo.SmartContract.Framework.UnitTests
+namespace Neo.TestingEngine
 {
     public static class TestBlockchain
     {
