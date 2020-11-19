@@ -53,7 +53,7 @@ jobs:
     - name: Pack with dotnet
       run: |
         git rev-list --count HEAD | xargs printf "CI%05d" | xargs dotnet pack src/Neo.SmartContract.Framework -c Debug -o out --include-source --version-suffix
-        git rev-list --count HEAD | xargs printf "CI%05d" | xargs dotnet pack src/Neo.Compiler.MSIL -c Release -o out --include-source --version-suffix
+        git rev-list --count HEAD | xargs printf "CI%05d" | xargs dotnet pack src/Neo.Compiler.MSIL -c Debug -o out --include-source --version-suffix
     - name: Publish to Github Packages
       run: |
         nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/neo-project/index.json" -UserName neo-project -Password ${GITHUB_TOKEN}
