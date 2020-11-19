@@ -3,7 +3,8 @@
   <PropertyGroup>
     <Copyright>2015-2020 The Neo Project</Copyright>
     <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
-    <Version>3.0.0-preview3</Version>
+    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionSuffix>preview3</VersionSuffix>
     <Authors>The Neo Project</Authors>
     <OutputType>Exe</OutputType>
     <AssemblyName>neon</AssemblyName>
