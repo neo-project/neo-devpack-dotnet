@@ -83,6 +83,38 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void Test_DynamicArrayInit()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testDynamicArrayInit", 3);
+
+            var arr = (Array)result.Pop().ConvertTo(StackItemType.Array);
+
+            Assert.AreEqual(3, arr.Count);
+            Assert.AreEqual(0, arr[0]);
+            Assert.AreEqual(1, arr[1]);
+            Assert.AreEqual(2, arr[2]);
+        }
+
+        [TestMethod]
+        public void Test_DynamicArrayStringInit()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testDynamicArrayStringInit", "hello");
+
+            var arr = (Buffer)result.Pop().ConvertTo(StackItemType.Buffer);
+
+            Assert.AreEqual(5, arr.Size);
+            Assert.AreEqual(0, arr.InnerBuffer[0]);
+            Assert.AreEqual(0, arr.InnerBuffer[1]);
+            Assert.AreEqual(0, arr.InnerBuffer[2]);
+            Assert.AreEqual(0, arr.InnerBuffer[3]);
+            Assert.AreEqual(0, arr.InnerBuffer[4]);
+        }
+
+        [TestMethod]
         public void Test_ByteArrayOwnerCall()
         {
             var testengine = new TestEngine();
