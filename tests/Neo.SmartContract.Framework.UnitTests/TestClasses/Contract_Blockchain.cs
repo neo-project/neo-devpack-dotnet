@@ -100,6 +100,9 @@ namespace Neo.Compiler.MSIL.TestClasses
                 return null;
             }
 
+            if (whatReturn == "Id") return contract.Id;
+            if (whatReturn == "UpdateCounter") return contract.UpdateCounter;
+            if (whatReturn == "Hash") return contract.Hash;
             if (whatReturn == "Manifest") return contract.Manifest;
             if (whatReturn == "Script") return contract.Script;
 

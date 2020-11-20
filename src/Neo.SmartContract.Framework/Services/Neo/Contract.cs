@@ -8,9 +8,14 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly int Id;
 
         /// <summary>
-        /// Version
+        /// UpdateCounter
         /// </summary>
-        public readonly int Version;
+        public readonly ushort UpdateCounter;
+
+        /// <summary>
+        /// Hash
+        /// </summary>
+        public readonly UInt160 Hash;
 
         /// <summary>
         /// Script

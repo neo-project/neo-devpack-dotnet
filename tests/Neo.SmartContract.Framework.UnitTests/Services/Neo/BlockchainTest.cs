@@ -330,7 +330,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             var contract = new ContractState()
             {
-                Hash = UInt160.Zero,
+                Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
                 Script = new byte[] { 0x01, 0x02, 0x03 },
                 Manifest = new Manifest.ContractManifest()
                 {
@@ -368,6 +368,39 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             Assert.AreEqual(contract.Manifest.ToString(), item.GetString());
+
+            // Found + UpdateCounter
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("UpdateCounter")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            // Found + Id
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Id")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            // Found + Hash
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Hash")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            CollectionAssert.AreEqual(contract.Hash.ToArray(), item.GetSpan().ToArray());
 
             // Found + Uknown property
 
