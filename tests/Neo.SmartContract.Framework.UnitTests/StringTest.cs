@@ -45,5 +45,17 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, item);
         }
+
+        [TestMethod]
+        public void TestStringAddInt()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testStringAddInt", "Neo", 3);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.AreEqual("Neo3", item.GetString());
+        }
     }
 }
