@@ -6,7 +6,6 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -331,6 +330,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             var contract = new ContractState()
             {
+                Hash = UInt160.Zero,
                 Script = new byte[] { 0x01, 0x02, 0x03 },
                 Manifest = new Manifest.ContractManifest()
                 {
@@ -343,11 +343,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     {
                         Methods = new Manifest.ContractMethodDescriptor[0],
                         Events = new Manifest.ContractEventDescriptor[0],
-                        Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash()
                     },
                 }
             };
-            _engine.Snapshot.Contracts.GetOrAdd(contract.ScriptHash, () => contract);
+            _engine.Snapshot.Contracts.GetOrAdd(contract.Hash, () => contract);
 
             // Not found
 
@@ -362,7 +361,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + Manifest
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.ScriptHash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Manifest")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Manifest")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -373,7 +372,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + Uknown property
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.ScriptHash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("ASD")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("ASD")));
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
     }

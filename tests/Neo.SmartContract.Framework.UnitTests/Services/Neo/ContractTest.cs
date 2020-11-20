@@ -28,6 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var script = _engine.Build("./TestClasses/Contract_Create.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
+            var hash = UInt160.Zero;
 
             // Create
 
@@ -45,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -63,7 +64,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Check again for failures
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray());
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray());
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
         }
@@ -75,6 +76,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
+            var hash = UInt160.Zero;
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
@@ -100,7 +102,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 scriptUpdate.finalNEF,
                 manifestUpdate.ToJson().ToString()
             };
-            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", args);
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", args);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -111,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call Again
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", manifestUpdate.Hash.ToArray(), "newContract", new Array());
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "newContract", new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -122,7 +124,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Check again for failures
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", manifest.Hash.ToArray(), "oldContract", new Array());
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", new Array());
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
         }
