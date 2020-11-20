@@ -9,7 +9,7 @@ namespace Template.NEP17.CSharp
     [ManifestName("Token Name")]
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
-    [ManifestExtra("Description", "This is a NEP5 example")]
+    [ManifestExtra("Description", "This is a NEP17 example")]
     [SupportedStandards("NEP17", "NEP10")]
     public partial class NEP17 : SmartContract
     {
