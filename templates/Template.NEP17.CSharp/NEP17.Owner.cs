@@ -19,10 +19,10 @@ namespace Template.NEP17.CSharp
             return true;
         }
 
-        public static void Update(byte[] script, string manifest)
+        public static void Update(byte[] nefFile, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Update(script, manifest);
+            Contract.Update(nefFile, manifest);
         }
 
         public static void Destroy()
