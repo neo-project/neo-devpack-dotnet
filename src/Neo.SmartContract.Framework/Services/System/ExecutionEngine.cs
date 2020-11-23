@@ -8,19 +8,19 @@ namespace Neo.SmartContract.Framework.Services.System
             get;
         }
 
-        public static extern byte[] ExecutingScriptHash
+        public static extern UInt160 ExecutingScriptHash
         {
             [Syscall("System.Runtime.GetExecutingScriptHash")]
             get;
         }
 
-        public static extern byte[] CallingScriptHash
+        public static extern UInt160 CallingScriptHash
         {
             [Syscall("System.Runtime.GetCallingScriptHash")]
             get;
         }
 
-        public static extern byte[] EntryScriptHash
+        public static extern UInt160 EntryScriptHash
         {
             [Syscall("System.Runtime.GetEntryScriptHash")]
             get;

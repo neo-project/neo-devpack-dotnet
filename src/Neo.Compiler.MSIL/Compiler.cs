@@ -1,3 +1,5 @@
+extern alias scfx;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.VisualBasic;
@@ -7,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using scfxSmartContract = scfx.Neo.SmartContract.Framework.SmartContract;
 
 namespace Neo.Compiler
 {
@@ -200,7 +203,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.Numerics.dll")),
                 MetadataReference.CreateFromFile(typeof(System.ComponentModel.DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(SmartContract.Framework.SmartContract).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(scfxSmartContract).Assembly.Location),
             });
             refs.AddRange(references.Where(u => u != "Neo.SmartContract.Framework.dll").Select(u => MetadataReference.CreateFromFile(u)));
             return refs.ToArray();

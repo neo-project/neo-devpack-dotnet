@@ -22,5 +22,10 @@ namespace Neo.Compiler.MSIL.TestClasses
             }
             return a;
         }
+
+        public static string TestStringAddInt(string s, int i)
+        {
+            return s + i;
+        }
     }
 }

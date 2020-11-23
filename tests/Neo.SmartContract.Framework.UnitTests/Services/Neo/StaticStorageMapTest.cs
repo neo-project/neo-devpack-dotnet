@@ -1,3 +1,5 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
@@ -19,18 +21,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine = new TestEngine(snapshot: snapshot.Clone());
             _engine.AddEntryScript("./TestClasses/Contract_StaticStorageMap.cs");
-            Assert.AreEqual(ContractFeatures.HasStorage, _engine.ScriptEntry.converterIL.outModule.attributes
-                .Where(u => u.AttributeType.Name == "FeaturesAttribute")
-                .Select(u => (ContractFeatures)u.ConstructorArguments.FirstOrDefault().Value)
-                .FirstOrDefault());
-
             _engine.Snapshot.Contracts.Add(_engine.EntryScriptHash, new ContractState()
             {
                 Script = _engine.EntryContext.Script,
                 Manifest = new Manifest.ContractManifest()
-                {
-                    Features = Manifest.ContractFeatures.HasStorage
-                }
             });
         }
 
