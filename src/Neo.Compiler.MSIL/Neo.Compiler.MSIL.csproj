@@ -30,12 +30,10 @@
     <OutputType>Exe</OutputType>
     <PackageId>Neo.Neon</PackageId>
     <PackAsTool>true</PackAsTool>
-    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(SharedLibrary)' == true">
     <PackageId>Neo.Compiler.MSIL</PackageId>
-    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
