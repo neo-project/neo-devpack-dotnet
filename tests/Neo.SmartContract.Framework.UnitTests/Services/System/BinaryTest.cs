@@ -34,6 +34,30 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         }
 
         [TestMethod]
+        public void atoiTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("atoi", "-1", 10);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<VM.Types.Integer>();
+            Assert.AreEqual(-1, item.GetInteger());
+        }
+
+        [TestMethod]
+        public void itoaTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("itoa", -1, 10);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<VM.Types.ByteString>();
+            Assert.AreEqual("-1", item.GetString());
+        }
+
+        [TestMethod]
         public void base64DecodeTest()
         {
             _engine.Reset();

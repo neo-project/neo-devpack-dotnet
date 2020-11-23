@@ -743,6 +743,19 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.SHR, src, to);
                     return 0;
                 }
+                else if (
+                    src.tokenMethod.Contains("System.Numerics.BigInteger::ToString()") || src.tokenMethod.Contains("System.Numerics.BigInteger::ToString()") ||
+                    src.tokenMethod.Contains("System.Int64::ToString()") || src.tokenMethod.Contains("System.UInt64::ToString()") ||
+                    src.tokenMethod.Contains("System.Int32::ToString()") || src.tokenMethod.Contains("System.UInt32::ToString()") ||
+                    src.tokenMethod.Contains("System.Int16::ToString()") || src.tokenMethod.Contains("System.UInt16::ToString()") ||
+                    src.tokenMethod.Contains("System.Byte::ToString()") || src.tokenMethod.Contains("System.SByte::ToString()")
+                    )
+                {
+                    ConvertPushNumber(10, null, to);        // Push Base
+                    Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
+                    return 0;
+                }
             }
 
             if (calltype == 0)
@@ -1300,7 +1313,14 @@ namespace Neo.Compiler.MSIL
             {
                 var code = to.body_Codes.Last().Value;
 
-                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT) // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
+                if (code.code == VM.OpCode.SIZE)
+                {
+                    // return new byte["hello".Length];
+                    Insert1(VM.OpCode.NEWBUFFER, null, to);
+                    return 0;
+                }
+                // we need a number, two cases: number = PUSH1- PUSH16, number = PUSHDATA[1,2,4] CONVERT(Integer)
+                if (code.code > VM.OpCode.PUSH16 && code.code != VM.OpCode.CONVERT)
                     throw new Exception("_ConvertNewArr::not support var lens for new byte[?].");
 
                 if (code.code == VM.OpCode.CONVERT) // number = PUSHDATA[1,2,4] CONVERT(Integer)
