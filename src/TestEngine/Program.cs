@@ -143,6 +143,11 @@ namespace Neo.TestingEngine
                 {
                     smartContractTestCase.currentHeight = uint.Parse(json["height"].AsString());
                 }
+
+                if (json.ContainsProperty("signerAccounts") && json["signerAccounts"] is JArray accounts)
+                {
+                    smartContractTestCase.signers = accounts.Select(p => UInt160.Parse(p.AsString())).ToArray();
+                }
                 return Run(smartContractTestCase);
             }
             catch (Exception e)
@@ -169,15 +174,17 @@ namespace Neo.TestingEngine
                     Engine.Instance.SetStorage(smartContractTest.storage);
                 }
 
+                if (smartContractTest.currentHeight > 0)
+                {
+                    Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
+                }
+
                 foreach (var contract in smartContractTest.contracts)
                 {
                     Engine.Instance.AddSmartContract(contract.nefPath);
                 }
 
-                if (smartContractTest.currentHeight > 0)
-                {
-                    Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
-                }
+                Engine.Instance.SetSigners(smartContractTest.signers);
 
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);
                 return Engine.Instance.Run(smartContractTest.methodName, stackParams);
