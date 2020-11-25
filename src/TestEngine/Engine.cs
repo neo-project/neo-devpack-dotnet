@@ -8,6 +8,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.TestingEngine
 {
@@ -27,6 +28,7 @@ namespace Neo.TestingEngine
         }
 
         private TestEngine engine = null;
+        private Transaction currentTx = null;
         private byte[] PubKey => HexString2Bytes("03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa");
 
         private Engine()
@@ -110,6 +112,11 @@ namespace Neo.TestingEngine
             }
         }
 
+        public void SetSigners(UInt160[] signerAccounts)
+        {
+            currentTx.Signers = signerAccounts.Select(p => new Signer() { Account = p, Scopes = WitnessScope.CalledByEntry }).ToArray();
+        }
+
         public JObject Run(string method, StackItem[] args)
         {
             engine.GetMethod(method).RunEx(args);
@@ -119,9 +126,20 @@ namespace Neo.TestingEngine
         private TestEngine SetupNativeContracts()
         {
             SetConsensus();
-            var block = Blockchain.GenesisBlock;
-            TestEngine engine = new TestEngine(TriggerType.Application, block);
-            ((TestSnapshot)engine.Snapshot).SetPersistingBlock(block);
+            currentTx = new Transaction()
+            {
+                Attributes = new TransactionAttribute[0],
+                Script = new byte[0],
+                Signers = new Signer[] { new Signer() { Account = UInt160.Zero } },
+                Witnesses = new Witness[0],
+                NetworkFee = 1,
+                Nonce = 2,
+                SystemFee = 3,
+                ValidUntilBlock = 4,
+                Version = 5
+            };
+            TestEngine engine = new TestEngine(TriggerType.Application, currentTx);
+            ((TestSnapshot)engine.Snapshot).SetPersistingBlock(Blockchain.GenesisBlock);
 
             using (var script = new ScriptBuilder())
             {

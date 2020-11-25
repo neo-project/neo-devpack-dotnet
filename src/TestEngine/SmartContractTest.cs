@@ -9,17 +9,19 @@ namespace Neo.TestingEngine
         public string nefPath;
         public string methodName;
         public JArray methodParameters;
-        public Dictionary<PrimitiveType, StackItem> storage = new Dictionary<PrimitiveType, StackItem>();
-        public List<TestContract> contracts = new List<TestContract>();
+        public Dictionary<PrimitiveType, StackItem> storage;
+        public List<TestContract> contracts;
         public uint currentHeight = 0;
+        public UInt160[] signers;
 
         public SmartContractTest(string path, string method, JArray parameters)
         {
             nefPath = path;
             methodName = method;
             methodParameters = parameters;
-            storage.Clear();
-            contracts.Clear();
+            storage = new Dictionary<PrimitiveType, StackItem>();
+            contracts = new List<TestContract>();
+            signers = new UInt160[] { };
         }
     }
 }
