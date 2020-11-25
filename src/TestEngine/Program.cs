@@ -174,16 +174,12 @@ namespace Neo.TestingEngine
                     Engine.Instance.SetStorage(smartContractTest.storage);
                 }
 
-                if (smartContractTest.currentHeight > 0)
-                {
-                    Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
-                }
-
                 foreach (var contract in smartContractTest.contracts)
                 {
                     Engine.Instance.AddSmartContract(contract.nefPath);
                 }
 
+                Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
                 Engine.Instance.SetSigners(smartContractTest.signers);
 
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);

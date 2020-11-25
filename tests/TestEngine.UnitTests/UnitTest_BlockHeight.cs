@@ -29,7 +29,7 @@ namespace TestEngine.UnitTests
         [TestMethod]
         public void Test_Json()
         {
-            var height = 16;
+            uint height = 16;
 
             var json = new JObject();
             json["path"] = "./TestClasses/Contract1.nef";
@@ -49,7 +49,7 @@ namespace TestEngine.UnitTests
             Assert.IsTrue(result.ContainsProperty("vm_state"));
             Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
 
-            Assert.AreEqual(height, Engine.Instance.BlockCount);
+            Assert.AreEqual(height, Engine.Instance.Height);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Neo.TestingEngine
             Reset();
         }
 
-        public int BlockCount => ((TestDataCache<UInt256, TrimmedBlock>)engine.Snapshot.Blocks).Count();
+        public uint Height => engine.Snapshot.Height;
 
         public void Reset()
         {
@@ -83,7 +83,7 @@ namespace Neo.TestingEngine
                 newBlock = CreateBlock();
             }
 
-            while (blocks.Count() < newHeight)
+            while (blocks.Count() <= newHeight)
             {
                 var hash = newBlock.Hash;
                 var trim = newBlock.Trim();
