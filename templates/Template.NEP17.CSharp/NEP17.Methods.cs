@@ -31,7 +31,7 @@ namespace Template.NEP17.CSharp
             OnTransfer(from, to, amount);
 
             // Validate payable
-            if (IsContract(to)) Contract.Call(to, "onPayment", new object[] { amount });
+            if (IsContract(to)) Contract.Call(to, "onPayment", new object[] { from, amount });
             return true;
         }
     }
