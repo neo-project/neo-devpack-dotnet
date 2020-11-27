@@ -31,8 +31,6 @@ namespace Template.NEP17.CSharp
         // For example, this method needs to be called when withdrawing token from the contract.
         public static bool Verify() => IsOwner();
 
-        public static string Name() => "Token Name";
-
         public static string Symbol() => "TokenSymbol";
 
         public static ulong Decimals() => 8;
