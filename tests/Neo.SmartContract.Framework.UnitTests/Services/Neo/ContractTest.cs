@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.IO.Json;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
@@ -17,7 +18,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine();
+            _engine = new TestEngine(verificable: new Transaction()
+            {
+                Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
+            });
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
         }
 
@@ -28,20 +32,25 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var script = _engine.Build("./TestClasses/Contract_Create.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
-            var hash = UInt160.Zero;
+            var nef = new NefFile() { Script = script.finalNEFScript, Compiler = "unit-test", Version = "1.0" };
+            var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.Script);
+            nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             // Create
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            var result = _engine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
-            Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
+            Assert.AreEqual(0, itemArray[0].GetInteger()); // Id
+            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
+            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
+            Assert.AreEqual(script.finalNEFScript, itemArray[3]); // Script
+            Assert.AreEqual(manifest.ToString(), itemArray[4].GetString()); // Manifest
 
             // Call
 
@@ -76,7 +85,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
-            var hash = UInt160.Zero;
+            var nef = new NefFile() { Script = script.finalNEFScript, Compiler = "unit-test", Version = "1.0" };
+            var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.Script);
+            nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
@@ -84,22 +95,27 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Create
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("create", script.finalNEF, manifest.ToJson().ToString());
+            var result = _engine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(script.finalNEF, itemArray[0]); // Script
-            Assert.AreEqual(manifest.ToString(), itemArray[1].GetString()); // Manifest
+            Assert.AreEqual(0, itemArray[0].GetInteger()); // Id
+            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
+            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
+            Assert.AreEqual(script.finalNEFScript, itemArray[3]); // Script
+            Assert.AreEqual(manifest.ToString(), itemArray[4].GetString()); // Manifest
 
             // Call & Update
 
             _engine.Reset();
+            nef.Script = scriptUpdate.finalNEFScript;
+            nef.CheckSum = NefFile.ComputeChecksum(nef);
             var args = new Array
             {
-                scriptUpdate.finalNEF,
+                nef.ToArray(),
                 manifestUpdate.ToJson().ToString()
             };
             result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", args);

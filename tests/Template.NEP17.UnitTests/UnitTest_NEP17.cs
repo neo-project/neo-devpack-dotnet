@@ -42,12 +42,6 @@ namespace Template.NEP17.UnitTests
         [TestMethod]
         public void Test_name()
         {
-            var result = _engine.ExecuteTestCaseStandard("name");
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("Token Name", item.GetString());
             Assert.AreEqual("Token Name", JObject.Parse(_engine.ScriptEntry.finalManifest)["name"].AsString());
         }
 

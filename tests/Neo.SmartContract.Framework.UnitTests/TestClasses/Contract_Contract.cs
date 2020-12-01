@@ -9,14 +9,14 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Contract.Call(scriptHash, method, arguments);
         }
 
-        public static object Create(byte[] script, string manifest)
+        public static object Create(byte[] nef, string manifest)
         {
-            return Contract.Create(script, manifest);
+            return Contract.Create(nef, manifest);
         }
 
-        public static void Update(byte[] script, string manifest)
+        public static void Update(byte[] nef, string manifest)
         {
-            Contract.Update(script, manifest);
+            Contract.Update(nef, manifest);
         }
 
         public static void Destroy()
