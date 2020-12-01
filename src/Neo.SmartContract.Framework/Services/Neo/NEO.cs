@@ -5,7 +5,7 @@ using Neo.Cryptography.ECC;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xde5f57d430d3dece511cf975a8d37848cb9e0525")]
+    [Contract("0xe22f9134cef8b03e53f71b3f960a20a65cddc972")]
     public class NEO
     {
         public static extern UInt160 Hash { [ContractHash] get; }

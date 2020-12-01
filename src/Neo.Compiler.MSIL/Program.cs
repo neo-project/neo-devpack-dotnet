@@ -215,9 +215,8 @@ namespace Neo.Compiler
                 {
                     Compiler = "neon",
                     Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
-                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
-                    Script = bytes,
-                    ScriptHash = bytes.ToScriptHash()
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
+                    Script = bytes
                 };
                 nef.CheckSum = NefFile.ComputeChecksum(nef);
 

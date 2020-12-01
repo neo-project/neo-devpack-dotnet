@@ -33,10 +33,10 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x763afecf3ebba0a67568a2c8be06e8f068c62666");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x3c05b488bf4cf699d0631bf80190896ebbf38c3b");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xde5f57d430d3dece511cf975a8d37848cb9e0525");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc");
+            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x7062149f9377e3a110a343f811b9e406f8ef7824");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x35e4fc2e69a4d04d1db4d755c4150c50aff2e9a9");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xe22f9134cef8b03e53f71b3f960a20a65cddc972");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x36a019d836d964c438c573f78badf79b9e7eebdd");
         }
 
         [TestMethod]
@@ -49,12 +49,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("oracleName");
 
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
+            Assert.AreEqual(0, result.Count);
 
-            var entry = result.Pop();
-
-            Assert.AreEqual("Oracle", entry.GetString());
+            Assert.AreEqual("Oracle", NativeContract.Oracle.Name);
 
             // Minimum Response Fee
 
@@ -64,7 +62,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
-            entry = result.Pop();
+            var entry = result.Pop();
 
             Assert.AreEqual(0_10000000u, entry.GetInteger());
         }
@@ -79,12 +77,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("designationName");
 
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
+            Assert.AreEqual(0, result.Count);
 
-            var entry = result.Pop();
-
-            Assert.AreEqual("Designation", entry.GetString());
+            Assert.AreEqual("Designation", NativeContract.Designate.Name);
 
             // getOracleNodes
 
@@ -94,7 +90,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
-            entry = result.Pop();
+            var entry = result.Pop();
 
             Assert.AreEqual(0, (entry as VM.Types.Array).Count);
         }
@@ -107,12 +103,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("nEOName");
 
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
+            Assert.AreEqual(0, result.Count);
 
-            var entry = result.Pop();
-
-            Assert.AreEqual("NEO", entry.GetString());
+            Assert.AreEqual("NEO", NativeContract.NEO.Name);
 
             // NeoSymbol
 
@@ -122,7 +116,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
-            entry = result.Pop();
+            var entry = result.Pop();
             Assert.AreEqual("neo", entry.GetString());
 
             // NeoHash
@@ -147,12 +141,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("gASName");
 
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
+            Assert.AreEqual(0, result.Count);
 
-            var entry = result.Pop();
-
-            Assert.AreEqual("GAS", entry.GetString());
+            Assert.AreEqual("GAS", NativeContract.GAS.Name);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("gASSymbol");
@@ -160,7 +152,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
-            entry = result.Pop();
+            var entry = result.Pop();
 
             Assert.AreEqual("gas", entry.GetString());
         }
