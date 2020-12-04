@@ -28,7 +28,6 @@ namespace Template.NEP17.CSharp
 
         public static BigInteger Get(UInt160 key) => Storage.CurrentContext.CreateMap(mapName).Get((byte[])key).ToBigInteger();
 
-
         public static bool GetPaymentStatus()
         {
             if (Storage.CurrentContext.CreateMap(mapName).Get("enable").ToBigInteger().Equals(1))
