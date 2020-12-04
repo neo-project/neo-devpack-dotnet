@@ -1,6 +1,7 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System;
+
 namespace Template.NEP17.CSharp
 {
     public partial class NEP17 : SmartContract
