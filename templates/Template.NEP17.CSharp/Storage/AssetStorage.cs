@@ -30,7 +30,7 @@ namespace Template.NEP17.CSharp
 
         public static bool GetPaymentStatus()
         {
-            return Storage.CurrentContext.CreateMap(mapName).Get("enable").ToBigInteger().Equals(1));
+            return Storage.CurrentContext.CreateMap(mapName).Get("enable").ToBigInteger().Equals(1);
         }
 
         public static void Remove(UInt160 key) => Storage.CurrentContext.CreateMap(mapName).Delete((byte[])key);
