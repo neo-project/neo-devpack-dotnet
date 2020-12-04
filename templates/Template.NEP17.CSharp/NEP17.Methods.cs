@@ -28,11 +28,24 @@ namespace Template.NEP17.CSharp
             AssetStorage.Reduce(from, amount);
             AssetStorage.Increase(to, amount);
 
-            OnTransfer(from, to, amount, data);
+            OnTransfer(from, to, amount);
 
             // Validate payable
             if (IsContract(to)) Contract.Call(to, "onPayment", new object[] { from, amount, data });
             return true;
         }
+
+        public static void OnPayment(UInt160 from, BigInteger amount, object data)
+        {
+            if (AssetStorage.GetPaymentStatus())
+            {
+                Payment(from, amount);
+            } else
+            {
+                throw new Exception("Payment is disable on this contract!");
+            }
+            
+        }
+
     }
 }
