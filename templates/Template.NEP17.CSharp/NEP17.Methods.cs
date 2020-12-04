@@ -40,7 +40,8 @@ namespace Template.NEP17.CSharp
             if (AssetStorage.GetPaymentStatus())
             {
                 Payment(from, amount);
-            } else
+            }
+            else
             {
                 throw new Exception("Payment is disable on this contract!");
             }
