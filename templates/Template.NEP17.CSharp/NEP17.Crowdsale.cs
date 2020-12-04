@@ -60,7 +60,7 @@ namespace Template.NEP17.CSharp
             AssetStorage.Increase(tx.Sender, contribution);
             TotalSupplyStorage.Increase(contribution);
 
-            OnTransfer(null, tx.Sender, contribution);
+            OnTransfer(null, tx.Sender, contribution, null);
             return true;
         }
     }

@@ -28,7 +28,7 @@ namespace Template.NEP17.CSharp
             AssetStorage.Reduce(from, amount);
             AssetStorage.Increase(to, amount);
 
-            OnTransfer(from, to, amount);
+            OnTransfer(from, to, amount, data);
 
             // Validate payable
             if (IsContract(to)) Contract.Call(to, "onPayment", new object[] { from, amount, data });

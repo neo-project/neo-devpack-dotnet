@@ -15,7 +15,7 @@ namespace Template.NEP17.CSharp
             TotalSupplyStorage.Increase(InitialSupply);
             AssetStorage.Increase(Owner, InitialSupply);
 
-            OnTransfer(null, Owner, InitialSupply);
+            OnTransfer(null, Owner, InitialSupply, null);
             return true;
         }
 
