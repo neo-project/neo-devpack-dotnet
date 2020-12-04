@@ -26,7 +26,7 @@ namespace Template.NEP17.CSharp
         public static event Action<UInt160, UInt160, BigInteger> OnTransfer;
 
         [DisplayName("Payment")]
-        public static event Action<UInt160, BigInteger, object> Payment;
+        public static event Action<UInt160, BigInteger> Payment;
         #endregion
 
         // When this contract address is included in the transaction signature,
