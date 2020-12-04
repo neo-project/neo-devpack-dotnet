@@ -34,7 +34,7 @@ namespace Template.NEP17.CSharp
             if (Storage.CurrentContext.CreateMap(mapName).Get("enable").ToBigInteger().Equals(1))
             {
                 return true;
-            } else
+            }else
             {
                 return false;
             }
