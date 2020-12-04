@@ -1,6 +1,5 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
-using Neo.SmartContract.Framework.Services.System;
 using System;
 
 namespace Template.NEP17.CSharp
@@ -29,6 +28,18 @@ namespace Template.NEP17.CSharp
         {
             if (!IsOwner()) throw new Exception("No authorization.");
             Contract.Destroy();
+        }
+
+        public static void EnablePayment()
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            AssetStorage.Enable();
+        }
+
+        public static void DisablePayment()
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            AssetStorage.Disable();
         }
 
         private static bool IsOwner() => Runtime.CheckWitness(Owner);

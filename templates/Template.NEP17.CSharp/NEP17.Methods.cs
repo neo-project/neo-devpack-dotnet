@@ -34,5 +34,17 @@ namespace Template.NEP17.CSharp
             if (IsContract(to)) Contract.Call(to, "onPayment", new object[] { from, amount, data });
             return true;
         }
+
+        public static void OnPayment(UInt160 from, BigInteger amount, object data)
+        {
+            if (AssetStorage.GetPaymentStatus())
+            {
+                Payment(from, amount, data);
+            }
+            else
+            {
+                throw new Exception("Payment is disable on this contract!");
+            }
+        }
     }
 }
