@@ -199,7 +199,7 @@ namespace Neo.Compiler
             var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
 
             var name = module.attributes
-                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestNameAttribute")
+                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractNameAttribute")
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
                 .FirstOrDefault() ?? "";
 

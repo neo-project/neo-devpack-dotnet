@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Template.NEP17.CSharp
 {
-    [ManifestName("Token Name")]
+    [ContractName("Token Name")]
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a NEP17 example")]

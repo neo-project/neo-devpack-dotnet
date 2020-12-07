@@ -25,10 +25,9 @@ namespace Template.NEP17.CSharp
 
         public static bool Mint()
         {
-            if (Runtime.InvocationCounter != 1) throw new Exception("InvocationCounter must be 1.");
-
             var notifications = Runtime.GetNotifications();
             if (notifications.Length == 0) throw new Exception("Contribution transaction not found.");
+            if (Runtime.InvocationCounter != 2) throw new Exception("InvocationCounter must be 2.");
 
             BigInteger neo = 0;
             BigInteger gas = 0;
