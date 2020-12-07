@@ -19,18 +19,6 @@ namespace Template.NEP5.CSharp
             return true;
         }
 
-        public static void Update(byte[] script, string manifest)
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Update(script, manifest);
-        }
-
-        public static void Destroy()
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Destroy();
-        }
-
         private static bool IsOwner() => Runtime.CheckWitness(Owner);
     }
 }

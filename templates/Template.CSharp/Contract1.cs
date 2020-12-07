@@ -34,17 +34,5 @@ namespace $safeprojectname$
             // It will be executed during deploy
             Storage.Put("Hello", "World");
         }
-
-        public static void Update(byte[] script, string manifest)
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Update(script, manifest);
-        }
-
-        public static void Destroy()
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Destroy();
-        }
     }
 }
