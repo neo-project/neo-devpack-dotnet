@@ -19,6 +19,18 @@ namespace Template.NEP5.CSharp
             return true;
         }
 
+        public static void Update(byte[] nefFile, string manifest)
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            Contract.Call(ManagementContract.Hash, "update", nefFile, manifest);
+        }
+
+        public static void Destroy()
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            Contract.Call(ManagementContract.Hash, "destroy");
+        }
+
         private static bool IsOwner() => Runtime.CheckWitness(Owner);
     }
 }
