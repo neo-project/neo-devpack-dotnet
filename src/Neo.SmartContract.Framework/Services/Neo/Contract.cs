@@ -28,9 +28,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Contract.CallEx")]
         public static extern object CallEx(UInt160 scriptHash, string method, object[] arguments, CallFlags flag);
 
-        [Syscall("System.Contract.CallNative")]
-        public static extern object CallNative(string name);
-
         [Syscall("System.Contract.GetCallFlags")]
         public static extern byte GetCallFlags();
 
