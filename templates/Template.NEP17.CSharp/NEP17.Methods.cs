@@ -39,8 +39,8 @@ namespace Template.NEP17.CSharp
         {
             if (AssetStorage.GetPaymentStatus())
             {
-                bool isNeo = ExecutionEngine.CallingScriptHash != NEO.Hash;
-                bool isGas = ExecutionEngine.CallingScriptHash != GAS.Hash;
+                bool isNeo = ExecutionEngine.CallingScriptHash == NEO.Hash;
+                bool isGas = ExecutionEngine.CallingScriptHash == GAS.Hash;
 
                 if (!isNeo && !isGas) throw new Exception("Wrong calling script hash");
 
