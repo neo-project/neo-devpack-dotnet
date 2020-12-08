@@ -39,7 +39,15 @@ namespace Template.NEP17.CSharp
         {
             if (AssetStorage.GetPaymentStatus())
             {
-                Mint(from);
+                bool isNeo = ExecutionEngine.CallingScriptHash != NEO.Hash;
+                bool isGas = ExecutionEngine.CallingScriptHash != GAS.Hash;
+
+                if (!isNeo && !isGas) throw new Exception("Wrong calling script hash");
+
+                BigInteger neo = isNeo ? amount : 0;
+                BigInteger gas = isGas ? amount : 0;
+
+                _mint(neo, gas);
             }
             else
             {

@@ -24,29 +24,8 @@ namespace Template.NEP17.CSharp
             return amount;
         }
 
-        private static bool Mint(UInt160 token)
+        private static bool _mint(BigInteger neo, BigInteger gas)
         {
-            var notifications = Runtime.GetNotifications(token);
-            if (notifications.Length == 0) throw new Exception("Contribution transaction not found.");
-            if (Runtime.InvocationCounter != 2) throw new Exception("InvocationCounter must be 2.");
-
-            BigInteger neo = 0;
-            BigInteger gas = 0;
-
-            for (int i = 0; i < notifications.Length; i++)
-            {
-                var notification = notifications[i];
-
-                if (notification.ScriptHash == NEO.Hash)
-                {
-                    neo += GetTransactionAmount(notification);
-                }
-                else if (notification.ScriptHash == GAS.Hash)
-                {
-                    gas += GetTransactionAmount(notification);
-                }
-            }
-
             var totalSupply = TotalSupplyStorage.Get();
             if (totalSupply <= 0) throw new Exception("Contract not deployed.");
 
