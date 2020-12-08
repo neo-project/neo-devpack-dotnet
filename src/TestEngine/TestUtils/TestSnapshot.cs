@@ -56,18 +56,29 @@ namespace Neo.TestingEngine
             {
                 var blocksCount = blocks.Count();
 
-                if (index > blocksCount)
+                if (index >= blocksCount)
                 {
-                    index = (uint)blocksCount;
+                    index = (uint)blocksCount - 1;
                 }
 
-                var hashIndex = new HashIndexState()
-                {
-                    Hash = hash,
-                    Index = index
-                };
-                ((TestMetaDataCache<HashIndexState>)BlockHashIndex).Update(hashIndex);
+                var blockHashIndex = BlockHashIndex.Get();
+                blockHashIndex.Index = index;
+                blockHashIndex.Hash = hash;
             }
+        }
+
+        public Block GetBlock(uint index)
+        {
+            var blocks = Blocks.Seek().GetEnumerator();
+            do {
+                var (hash, block) = blocks.Current;
+                if (block != null && block.Index == index)
+                {
+                    return block.GetBlock(Transactions);
+                }
+            } while (blocks.MoveNext());
+
+            return null;
         }
     }
 }

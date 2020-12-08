@@ -1,6 +1,7 @@
 using Neo.IO.Caching;
 using Neo.IO.Json;
 using Neo.Ledger;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
@@ -19,6 +20,12 @@ namespace Neo.TestingEngine
             json["vm_state"] = testEngine.State.ToString();
             json["gasconsumed"] = (new BigDecimal(testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
             json["result_stack"] = testEngine.ResultStack.ToJson();
+
+            if (testEngine.ScriptContainer is Transaction tx)
+            {
+                json["transaction"] = tx.ToSimpleJson();
+            }
+
             json["storage"] = testEngine.Snapshot.Storages.ToJson();
             json["notifications"] = new JArray(testEngine.Notifications.Select(n => n.ToJson()));
             json["error"] = testEngine.State.HasFlag(VMState.FAULT) ? GetExceptionMessage(testEngine.FaultException) : null;
@@ -50,6 +57,18 @@ namespace Neo.TestingEngine
                 storageMap[key] = value;
             }
             return storageMap.ToJson()["value"];
+        }
+
+        public static JObject ToSimpleJson(this Transaction tx)
+        {
+            JObject json = new JObject();
+            json["hash"] = tx.Hash.ToString();
+            json["size"] = tx.Size;
+            json["signers"] = tx.Signers.Select(p => p.ToJson()).ToArray();
+            json["attributes"] = tx.Attributes.Select(p => p.ToJson()).ToArray();
+            json["script"] = Convert.ToBase64String(tx.Script);
+            json["witnesses"] = tx.Witnesses.Select(p => p.ToJson()).ToArray();
+            return json;
         }
 
         private static string GetExceptionMessage(Exception exception)

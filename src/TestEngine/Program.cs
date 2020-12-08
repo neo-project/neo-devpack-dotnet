@@ -1,4 +1,5 @@
 using Neo.IO.Json;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
@@ -139,6 +140,11 @@ namespace Neo.TestingEngine
                     smartContractTestCase.contracts = GetContractsFromJson(json["contracts"]);
                 }
 
+                if (json.ContainsProperty("blocks") && json["blocks"] is JArray blocks)
+                {
+                    smartContractTestCase.blocks = blocks.Select(b => BlockFromJson(b)).ToArray();
+                }
+
                 if (json.ContainsProperty("height"))
                 {
                     smartContractTestCase.currentHeight = uint.Parse(json["height"].AsString());
@@ -177,6 +183,11 @@ namespace Neo.TestingEngine
                 foreach (var contract in smartContractTest.contracts)
                 {
                     Engine.Instance.AddSmartContract(contract.nefPath);
+                }
+
+                foreach (var block in smartContractTest.blocks.OrderBy(b => b.Index))
+                {
+                    Engine.Instance.AddBlock(block);
                 }
 
                 Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
@@ -258,9 +269,9 @@ namespace Neo.TestingEngine
         /// </summary>
         /// <param name="parameters">json array to be converted</param>
         /// <returns>Returns the built StackItem array</returns>
-        private static StackItem[] GetStackItemParameters(JArray parameters)
+        private static ContractParameter[] GetStackItemParameters(JArray parameters)
         {
-            var items = new List<StackItem>();
+            var items = new List<ContractParameter>();
             foreach (JObject param in parameters)
             {
                 var success = false;
@@ -268,7 +279,7 @@ namespace Neo.TestingEngine
                 {
                     try
                     {
-                        items.Add(ContractParameter.FromJson(param).ToStackItem());
+                        items.Add(ContractParameter.FromJson(param));
                         success = true;
                     }
                     catch (Exception e)
@@ -281,10 +292,64 @@ namespace Neo.TestingEngine
                 if (!success)
                 {
                     // if something went wrong while reading the json, inserts null in this argument position
-                    items.Add(StackItem.Null);
+                    items.Add(new ContractParameter()
+                    {
+                        Type = ContractParameterType.Any,
+                        Value = null
+                    });
                 }
             }
             return items.ToArray();
+        }
+
+        private static Block BlockFromJson(JObject blockJson)
+        {
+            var transactions = blockJson["transactions"] as JArray;
+            return new Block()
+            {
+                Index = uint.Parse(blockJson["index"].AsString()),
+                Timestamp = ulong.Parse(blockJson["timestamp"].AsString()),
+                Transactions = transactions.Select(b => TxFromJson(b)).ToArray()
+            };
+        }
+
+        private static Transaction TxFromJson(JObject txJson)
+        {
+            Signer[] accounts;
+            Witness[] witnesses;
+
+            if (txJson.ContainsProperty("signers") && txJson["signers"] is JArray signersJson)
+            {
+                accounts = signersJson.Select(p => new Signer()
+                {
+                    Account = UInt160.Parse(p.AsString()),
+                    Scopes = WitnessScope.CalledByEntry
+                }).ToArray();
+            }
+            else
+            {
+                accounts = new Signer[0];
+            }
+
+            if (txJson.ContainsProperty("witnesses") && txJson["witnesses"] is JArray witnessesJson)
+            {
+                witnesses = witnessesJson.Select(w => new Witness()
+                {
+                    InvocationScript = Convert.FromBase64String(w["invocation"].AsString()),
+                    VerificationScript = Convert.FromBase64String(w["verification"].AsString())
+                }).ToArray();
+            }
+            else
+            {
+                witnesses = new Witness[0];
+            }
+
+            return new Transaction()
+            {
+                Script = txJson["script"].ToByteArray(false),
+                Signers = accounts,
+                Witnesses = witnesses
+            };
         }
 
         private static bool IsValidNefPath(string path)
