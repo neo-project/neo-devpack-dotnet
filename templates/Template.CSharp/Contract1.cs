@@ -38,7 +38,7 @@ public class Contract1 : SmartContract
     public static void Update(byte[] nefFile, string manifest)
     {
         if (!IsOwner()) throw new Exception("No authorization.");
-        Contract.Call(ManagementContract.Hash, "update", nefFile, manifest);
+        Contract.Call(ManagementContract.Hash, "update", new object[] { nefFile, manifest });
     }
 
     public static void Destroy()
