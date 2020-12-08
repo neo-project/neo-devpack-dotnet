@@ -1,3 +1,4 @@
+using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework.Services.System;
@@ -23,9 +24,9 @@ namespace Template.NEP17.CSharp
             return amount;
         }
 
-        public static bool Mint()
+        private static bool Mint(UInt160 token)
         {
-            var notifications = Runtime.GetNotifications();
+            var notifications = Runtime.GetNotifications(token);
             if (notifications.Length == 0) throw new Exception("Contribution transaction not found.");
             if (Runtime.InvocationCounter != 2) throw new Exception("InvocationCounter must be 2.");
 

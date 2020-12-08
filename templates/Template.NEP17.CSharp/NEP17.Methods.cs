@@ -39,7 +39,7 @@ namespace Template.NEP17.CSharp
         {
             if (AssetStorage.GetPaymentStatus())
             {
-                Payment(from, amount);
+                Mint(from);
             }
             else
             {
