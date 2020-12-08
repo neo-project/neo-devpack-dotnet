@@ -44,7 +44,7 @@ public class Contract1 : SmartContract
     public static void Destroy()
     {
         if (!IsOwner()) throw new Exception("No authorization.");
-        Contract.Call(ManagementContract.Hash, "destroy");
+        Contract.Call(ManagementContract.Hash, "destroy", new object[] {});
     }
 }
 }
