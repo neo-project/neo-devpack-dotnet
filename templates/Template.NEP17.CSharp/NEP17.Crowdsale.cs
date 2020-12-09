@@ -26,21 +26,6 @@ namespace Template.NEP17.CSharp
             }
         }
 
-        private static BigInteger GetTransactionAmount(Notification notification)
-        {
-            // Only allow Transfer notifications
-            if (notification.EventName != "Transfer") return 0;
-            var state = notification.State;
-            // Checks notification format
-            if (state.Length != 3) return 0;
-            // Check dest
-            if ((Neo.UInt160)state[1] != ExecutionEngine.ExecutingScriptHash) return 0;
-            // Amount
-            var amount = (BigInteger)state[2];
-            if (amount < 0) return 0;
-            return amount;
-        }
-
         private static bool Mint(BigInteger amount)
         {
             var totalSupply = TotalSupplyStorage.Get();
