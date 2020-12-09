@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static int OldContract(byte[] nefFile, string manifest)
         {
             Contract.Update(script, manifest);
-            Contract.Call(ManagementContract.Hash, "update", nefFile, manifest);
+            Contract.Call(ManagementContract.Hash, "update", new object[] { nefFile, manifest });
             return 123;
         }
     }
