@@ -15,7 +15,7 @@ namespace Template.NEP17.CSharp
             {
                 if (ExecutionEngine.CallingScriptHash == NEO.Hash)
                     Mint(amount * TokensPerNEO);
-                else if (ExecutionEngine.CallingScriptHash == GAS.Hash)
+                else if (ExecutionEngine.CallingScriptHash == GAS.Hash && from != null)
                     Mint(amount * TokensPerGAS);
                 else
                     throw new Exception("Wrong calling script hash");
