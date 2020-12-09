@@ -5,7 +5,7 @@ using System.Text;
 namespace Neo.SmartContract.Framework.Services.Neo
 {
     [Contract("0xdf18cb2476964c241558ed1e2e8881dcd2d50bde")]
-    class ManagementContract
+    public class ManagementContract
     {
         public static extern UInt160 Hash { [ContractHash] get; }
         public static extern string Name { get; }
