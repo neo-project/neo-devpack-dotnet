@@ -13,6 +13,26 @@ namespace Neo
             get;
         }
 
+        public extern int Size
+        {
+            [OpCode(OpCode.SIZE)]
+            get;
+        }
+
+        public extern bool IsValid
+        {
+            [OpCode(OpCode.DUP)]
+            [OpCode(OpCode.ISNULL)]
+            [OpCode(OpCode.JMPIF, "0x08")]
+            [OpCode(OpCode.SIZE)]
+            [OpCode(OpCode.PUSHINT8, "14")] // 0x14 == 20 bytes expected array size
+            [OpCode(OpCode.NUMEQUAL)]
+            [OpCode(OpCode.JMP, "0x04")]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.PUSH0)]
+            get;
+        }
+
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
