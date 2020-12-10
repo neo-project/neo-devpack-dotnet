@@ -5,8 +5,10 @@ using Neo.IO;
 using Neo.Ledger;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -53,9 +55,25 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 VMState = VMState.HALT
             });
 
+            // Fake header_index
+
+            var header_index = (List<UInt256>)Blockchain.Singleton.GetType()
+                .GetField("header_index", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(Blockchain.Singleton);
+            header_index.Add(_block.Hash);
 
             _engine = new TestEngine(snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
+        }
+
+        [TestCleanup]
+        public void Clean()
+        {
+            // Revert header_index
+            var header_index = (List<UInt256>)Blockchain.Singleton.GetType()
+                .GetField("header_index", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(Blockchain.Singleton);
+            header_index.RemoveAt(1);
         }
 
         [TestMethod]
