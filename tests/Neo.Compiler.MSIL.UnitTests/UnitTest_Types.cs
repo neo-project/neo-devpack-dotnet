@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
+using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
 using System.Linq;
@@ -390,10 +391,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.IsFalse(item.GetBoolean());
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", StackItem.Null);
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
+            testengine.ExecuteTestCaseStandard("validateAddress", StackItem.Null);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("validateAddress", new VM.Types.Array());
