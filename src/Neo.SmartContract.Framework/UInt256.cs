@@ -16,14 +16,12 @@ namespace Neo
         public extern bool IsValid
         {
             [OpCode(OpCode.DUP)]
-            [OpCode(OpCode.ISNULL)]
-            [OpCode(OpCode.JMPIF, "0x08")]
+            [OpCode(OpCode.ISTYPE, "0x28")] //ByteString
+            [OpCode(OpCode.SWAP)]
             [OpCode(OpCode.SIZE)]
             [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
             [OpCode(OpCode.NUMEQUAL)]
-            [OpCode(OpCode.JMP, "0x04")]
-            [OpCode(OpCode.DROP)]
-            [OpCode(OpCode.PUSH0)]
+            [OpCode(OpCode.BOOLAND)]
             get;
         }
 
