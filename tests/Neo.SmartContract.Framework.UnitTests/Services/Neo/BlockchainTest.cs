@@ -338,7 +338,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     Groups = new Manifest.ContractGroup[0],
                     Trusts = Manifest.WildcardContainer<UInt160>.Create(),
                     Permissions = new Manifest.ContractPermission[0],
-                    SafeMethods = Manifest.WildcardContainer<string>.Create(),
                     Abi = new Manifest.ContractAbi()
                     {
                         Methods = new Manifest.ContractMethodDescriptor[0],
