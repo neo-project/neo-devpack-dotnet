@@ -127,7 +127,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var _testengine = new TestEngine();
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
-            ((TestSnapshot)_testengine.Snapshot).ContractAdd(new ContractState()
+            _testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
                 Script = testengine.EntryContext.Script,
