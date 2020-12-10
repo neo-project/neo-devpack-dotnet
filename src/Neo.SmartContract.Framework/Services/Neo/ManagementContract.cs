@@ -11,6 +11,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern Contract Deploy(byte[] nefFile, string manifest);
         public static extern void Update(byte[] nefFile, string manifest);
         public static extern void Destroy();
-
     }
 }
