@@ -1,8 +1,10 @@
 using Neo.Cryptography.ECC;
 using Neo.IO;
+using Neo.IO.Caching;
 using Neo.IO.Json;
 using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
@@ -38,6 +40,8 @@ namespace Neo.TestingEngine
         }
 
         public uint Height => engine.Snapshot.Height;
+
+        public StoreView Snaptshot => engine.Snapshot;
 
         public void Reset()
         {
@@ -131,10 +135,11 @@ namespace Neo.TestingEngine
                     IncreaseBlockCount(block.Index);
                 }
 
-                var currentBlock = snapshot.GetBlock(block.Index);
+                var currentBlock = snapshot.TryGetBlock(block.Index);
 
                 if (currentBlock != null)
                 {
+                    var hash = currentBlock.Hash;
                     currentBlock.Timestamp = block.Timestamp;
 
                     if (currentBlock.Transactions.Length > 0)
@@ -147,10 +152,16 @@ namespace Neo.TestingEngine
                     {
                         currentBlock.Transactions = block.Transactions;
                     }
+                    snapshot.AddTransactions(block.Transactions);
 
                     foreach (var tx in block.Transactions)
                     {
                         tx.ValidUntilBlock = block.Index + Transaction.MaxValidUntilBlockIncrement;
+                    }
+
+                    if (snapshot.Blocks is TestDataCache<UInt256, TrimmedBlock> blocks)
+                    {
+                        blocks.UpdateChangingKey(hash, currentBlock.Hash, currentBlock.Trim());
                     }
                 }
             }
@@ -158,6 +169,13 @@ namespace Neo.TestingEngine
 
         public JObject Run(string method, ContractParameter[] args)
         {
+            if (engine.Snapshot is TestSnapshot snapshot)
+            {
+                var persistingBlock = snapshot.TryGetBlock(snapshot.Height);
+                snapshot.SetPersistingBlock(persistingBlock ?? Blockchain.GenesisBlock);
+                currentTx.ValidUntilBlock = snapshot.Height;
+            }
+
             using (ScriptBuilder scriptBuilder = new ScriptBuilder())
             {
                 scriptBuilder.EmitAppCall(engine.EntryScriptHash, method, args);
@@ -193,11 +211,6 @@ namespace Neo.TestingEngine
                 Version = 4
             };
             TestEngine engine = new TestEngine(TriggerType.Application, currentTx);
-            if (engine.Snapshot is TestSnapshot snapshot)
-            {
-                snapshot.SetPersistingBlock(Blockchain.GenesisBlock);
-                currentTx.ValidUntilBlock = snapshot.Height;
-            }
 
             using (var script = new ScriptBuilder())
             {

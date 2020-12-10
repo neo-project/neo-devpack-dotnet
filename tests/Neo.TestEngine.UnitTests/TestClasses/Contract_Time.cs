@@ -9,5 +9,10 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return Runtime.Time;
         }
+
+        public static object getBlock(uint blockIndex)
+        {
+            return Blockchain.GetTransactionFromBlock(blockIndex, 0);
+        }
     }
 }

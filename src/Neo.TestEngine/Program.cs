@@ -322,7 +322,7 @@ namespace Neo.TestingEngine
             {
                 accounts = signersJson.Select(p => new Signer()
                 {
-                    Account = UInt160.Parse(p.AsString()),
+                    Account = UInt160.Parse(p["account"].AsString()),
                     Scopes = WitnessScope.CalledByEntry
                 }).ToArray();
             }
@@ -348,7 +348,8 @@ namespace Neo.TestingEngine
             {
                 Script = txJson["script"].ToByteArray(false),
                 Signers = accounts,
-                Witnesses = witnesses
+                Witnesses = witnesses,
+                Attributes = new TransactionAttribute[0]
             };
         }
 

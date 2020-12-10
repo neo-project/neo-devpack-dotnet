@@ -67,18 +67,53 @@ namespace Neo.TestingEngine
             }
         }
 
-        public Block GetBlock(uint index)
+        public Block TryGetBlock(uint index)
         {
-            var blocks = Blocks.Seek().GetEnumerator();
-            do {
-                var (hash, block) = blocks.Current;
-                if (block != null && block.Index == index)
+            try
+            {
+                var blocks = Blocks.Seek().GetEnumerator();
+                do
                 {
-                    return block.GetBlock(Transactions);
-                }
-            } while (blocks.MoveNext());
+                    var (hash, block) = blocks.Current;
+                    if (block != null && block.Index == index)
+                    {
+                        return block.GetBlock(Transactions);
+                    }
+                } while (blocks.MoveNext());
 
-            return null;
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void AddTransactions(Transaction[] txs, int blockIndex = -1)
+        {
+            uint index = blockIndex >= 0 ? (uint)blockIndex : Height;
+            if (Transactions is TestDataCache<UInt256, TransactionState> transactions)
+            {
+                foreach (var tx in txs)
+                {
+                    if (transactions.Contains(tx.Hash))
+                    {
+                        var state = transactions.TryGet(tx.Hash);
+                        state.BlockIndex = index;
+                        state.Transaction = tx;
+                    }
+                    else
+                    {
+                        var state = new TransactionState()
+                        {
+                            BlockIndex = index,
+                            Transaction = tx,
+                            VMState = VM.VMState.HALT
+                        };
+                        transactions.AddForTest(tx.Hash, state);
+                    }
+                }
+            }
         }
     }
 }
