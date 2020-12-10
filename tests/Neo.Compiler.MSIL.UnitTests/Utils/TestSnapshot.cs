@@ -1,9 +1,7 @@
 using Neo.IO;
 using Neo.IO.Caching;
 using Neo.Ledger;
-using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -27,14 +25,5 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public override MetaDataCache<HashIndexState> BlockHashIndex => _BlockHashIndex;
 
         public override MetaDataCache<HashIndexState> HeaderHashIndex => _HeaderHashIndex;
-
-        /// <summary>
-        /// Set Persisting block for unit test
-        /// </summary>
-        /// <param name="block">Block</param>
-        public void SetPersistingBlock(Block block)
-        {
-            this.GetType().GetProperty("PersistingBlock").SetValue(this, block);
-        }
     }
 }
