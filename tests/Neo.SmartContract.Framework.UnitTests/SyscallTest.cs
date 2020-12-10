@@ -36,7 +36,6 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             foreach (var syscall in ApplicationEngine.Services)
             {
-                if (syscall.Value.Name == "Neo.Native.Deploy") continue;
                 if (syscall.Value.Name == "Neo.Native.Tokens.NEO") continue;
                 if (syscall.Value.Name == "Neo.Native.Tokens.GAS") continue;
                 if (syscall.Value.Name == "Neo.Native.Policy") continue;

@@ -216,11 +216,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             if (callmethod == null)
             {
-                callmethod = new Dictionary<uint, InteropDescriptor>()
-                {
-                    { Native_Deploy.Hash , Native_Deploy }
-                };
-                foreach (var m in ApplicationEngine.Services)
+                callmethod = new Dictionary<uint, InteropDescriptor>();
+                foreach (var m in Services)
                 {
                     callmethod[m.Key] = m.Value;
                 }

@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -14,30 +15,20 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestInitialize]
         public void Test_Init()
         {
-            byte[] script;
-            using (ScriptBuilder sb = new ScriptBuilder())
-            {
-                sb.EmitSysCall(ApplicationEngine.Neo_Native_Deploy);
-                script = sb.ToArray();
-            }
-
             // Fake native deploy
-
-            typeof(TestSnapshot).GetProperty("PersistingBlock").SetValue(snapshot, new Network.P2P.Payloads.Block() { Index = 0 });
-            var testengine = new TestEngine(TriggerType.System, null, snapshot);
-            testengine.LoadScript(script);
-            Assert.AreEqual(VMState.HALT, testengine.Execute());
+            snapshot.SetPersistingBlock(new Network.P2P.Payloads.Block() { Index = 0 });
+            snapshot.DeployNativeContracts();
         }
 
         [TestMethod]
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x7062149f9377e3a110a343f811b9e406f8ef7824");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x35e4fc2e69a4d04d1db4d755c4150c50aff2e9a9");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xe22f9134cef8b03e53f71b3f960a20a65cddc972");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x36a019d836d964c438c573f78badf79b9e7eebdd");
-            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0x1ca594b36b6b6b3f05efce8b106c824053d18713");
+            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x7ab39c37afd995f2f947a7ecbf40e91307058595");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x479f134275b36d64f31fdbdc557cd2aa2f32d8d1");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x74c21a1ca66b7a190bf2a65db83ba6fe550cea64");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xb399c051778cf37a1e4ef88509b2e054d0420a32");
+            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xe8ff1989c19526f4d8102f226e2c6c993b63efe9");
         }
 
         [TestMethod]

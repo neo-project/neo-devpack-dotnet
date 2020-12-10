@@ -1,6 +1,7 @@
 extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.VM;

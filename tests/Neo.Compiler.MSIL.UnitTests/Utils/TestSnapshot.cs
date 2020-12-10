@@ -36,11 +36,5 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             this.GetType().GetProperty("PersistingBlock").SetValue(this, block);
         }
-
-        public void ContractAdd(ContractState contract)
-        {
-            var key = new KeyBuilder(0, 8).Add(contract.Hash);
-            Storages.Add(key, new StorageItem(contract));
-        }
     }
 }

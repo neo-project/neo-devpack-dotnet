@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM.Types;
 
@@ -25,7 +26,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
                   };
 
-            ((TestSnapshot)_engine.Snapshot).ContractAdd(new ContractState()
+            _engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = new UInt160(noStandard),
                 Script = new byte[0] { }

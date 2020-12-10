@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.IO.Json;
@@ -54,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var contract = _engine.EntryScriptHash;
             var engine = new TestEngine(TriggerType.Application, new DummyVerificable());
-            ((TestSnapshot)engine.Snapshot).ContractAdd(new ContractState()
+            engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
                 Script = _engine.InvocationStack.Peek().Script,

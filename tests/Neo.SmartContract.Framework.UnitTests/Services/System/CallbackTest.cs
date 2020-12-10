@@ -1,6 +1,7 @@
 extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
@@ -24,7 +25,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = (TestSnapshot)Blockchain.Singleton.GetSnapshot().Clone();
+            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
             snapshot.BlockHashIndex.Get().Index = 1234;
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);

@@ -1,6 +1,7 @@
 extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.VM.Types;
@@ -65,7 +66,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             testengine = new TestEngine(snapshot: snapshot.Clone());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            ((TestSnapshot)testengine.Snapshot).ContractAdd(new ContractState()
+            testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
                 Script = testengine.EntryContext.Script,

@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
@@ -345,7 +346,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     },
                 }
             };
-            ((TestSnapshot)_engine.Snapshot).ContractAdd(contract);
+            _engine.Snapshot.ContractAdd(contract);
 
             // Not found
 
