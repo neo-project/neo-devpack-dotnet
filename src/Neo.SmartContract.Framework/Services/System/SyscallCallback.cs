@@ -13,7 +13,6 @@ namespace Neo.SmartContract.Framework.Services.System
         System_Blockchain_GetTransaction = 0x488d55e6,
         System_Blockchain_GetTransactionHeight = 0xb188324a,
         System_Blockchain_GetTransactionFromBlock = 0x69fd567e,
-        System_Blockchain_GetContract = 0x414bc5a9,
         System_Contract_IsStandard = 0x859d6bd7,
         System_Contract_CreateStandardAccount = 0x28799cf,
         Neo_Crypto_RIPEMD160 = 0xd2d6d126,
