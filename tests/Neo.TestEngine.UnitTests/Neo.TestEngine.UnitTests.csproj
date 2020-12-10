@@ -11,6 +11,7 @@
     <Compile Remove="TestClasses\Contract2.cs" />
     <Compile Remove="TestClasses\Contract_CheckWitness.cs" />
     <Compile Remove="TestClasses\Contract_ContractCall.cs" />
+    <Compile Remove="TestClasses\Contract_Time.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +22,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestClasses\Contract2.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestClasses\Contract_Time.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestClasses\Contract_ContractCall.cs">
@@ -36,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TestEngine\TestEngine.csproj" />
+    <ProjectReference Include="..\..\src\Neo.TestEngine\Neo.TestEngine.csproj" />
   </ItemGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">

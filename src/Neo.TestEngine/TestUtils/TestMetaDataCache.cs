@@ -24,10 +24,5 @@ namespace Neo.TestingEngine
         {
             metadata = item;
         }
-
-        public void Update(T item)
-        {
-            UpdateInternal(item);
-        }
     }
 }

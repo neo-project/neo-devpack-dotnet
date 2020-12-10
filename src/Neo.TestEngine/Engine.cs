@@ -1,12 +1,15 @@
 using Neo.Cryptography.ECC;
+using Neo.IO;
+using Neo.IO.Caching;
 using Neo.IO.Json;
 using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,9 +41,12 @@ namespace Neo.TestingEngine
 
         public uint Height => engine.Snapshot.Height;
 
+        public StoreView Snaptshot => engine.Snapshot;
+
         public void Reset()
         {
             engine = SetupNativeContracts();
+            IncreaseBlockCount(0);
         }
 
         public void SetTestEngine(string path)
@@ -93,7 +99,7 @@ namespace Neo.TestingEngine
             }
 
             var index = (uint)(blocks.Count() - 1);
-            snapshot.SetCurrentBlockHash(index, lastBlock.Hash);
+            snapshot.SetCurrentBlockHash(index, lastBlock?.Hash ?? newBlock.Hash);
         }
 
         public void SetStorage(Dictionary<PrimitiveType, StackItem> storage)
@@ -114,12 +120,79 @@ namespace Neo.TestingEngine
 
         public void SetSigners(UInt160[] signerAccounts)
         {
-            currentTx.Signers = signerAccounts.Select(p => new Signer() { Account = p, Scopes = WitnessScope.CalledByEntry }).ToArray();
+            if (signerAccounts.Length > 0)
+            {
+                currentTx.Signers = signerAccounts.Select(p => new Signer() { Account = p, Scopes = WitnessScope.CalledByEntry }).ToArray();
+            }
         }
 
-        public JObject Run(string method, StackItem[] args)
+        public void AddBlock(Block block)
         {
-            engine.GetMethod(method).RunEx(args);
+            if (engine.Snapshot is TestSnapshot snapshot)
+            {
+                if (snapshot.Height < block.Index)
+                {
+                    IncreaseBlockCount(block.Index);
+                }
+
+                var currentBlock = snapshot.TryGetBlock(block.Index);
+
+                if (currentBlock != null)
+                {
+                    var hash = currentBlock.Hash;
+                    currentBlock.Timestamp = block.Timestamp;
+
+                    if (currentBlock.Transactions.Length > 0)
+                    {
+                        var tx = currentBlock.Transactions.ToList();
+                        tx.AddRange(block.Transactions);
+                        currentBlock.Transactions = tx.ToArray();
+                    }
+                    else
+                    {
+                        currentBlock.Transactions = block.Transactions;
+                    }
+                    snapshot.AddTransactions(block.Transactions);
+
+                    foreach (var tx in block.Transactions)
+                    {
+                        tx.ValidUntilBlock = block.Index + Transaction.MaxValidUntilBlockIncrement;
+                    }
+
+                    if (snapshot.Blocks is TestDataCache<UInt256, TrimmedBlock> blocks)
+                    {
+                        blocks.UpdateChangingKey(hash, currentBlock.Hash, currentBlock.Trim());
+                    }
+                }
+            }
+        }
+
+        public JObject Run(string method, ContractParameter[] args)
+        {
+            if (engine.Snapshot is TestSnapshot snapshot)
+            {
+                var persistingBlock = snapshot.TryGetBlock(snapshot.Height);
+                snapshot.SetPersistingBlock(persistingBlock ?? Blockchain.GenesisBlock);
+                currentTx.ValidUntilBlock = snapshot.Height;
+            }
+
+            using (ScriptBuilder scriptBuilder = new ScriptBuilder())
+            {
+                scriptBuilder.EmitAppCall(engine.EntryScriptHash, method, args);
+                currentTx.Script = scriptBuilder.ToArray();
+            }
+
+            var stackItemsArgs = args.Select(a => a.ToStackItem()).ToArray();
+            engine.GetMethod(method).RunEx(stackItemsArgs);
+
+            currentTx.ValidUntilBlock = engine.Snapshot.Height + Transaction.MaxValidUntilBlockIncrement;
+            currentTx.SystemFee = engine.GasConsumed;
+            UInt160[] hashes = currentTx.GetScriptHashesForVerifying(engine.Snapshot);
+
+            // base size for transaction: includes const_header + signers + attributes + script + hashes
+            int size = Transaction.HeaderSize + currentTx.Signers.GetVarSize() + currentTx.Attributes.GetVarSize() + currentTx.Script.GetVarSize() + IO.Helper.GetVarSize(hashes.Length);
+            currentTx.NetworkFee += size * NativeContract.Policy.GetFeePerByte(engine.Snapshot);
+
             return engine.ToJson();
         }
 
@@ -135,11 +208,9 @@ namespace Neo.TestingEngine
                 NetworkFee = 1,
                 Nonce = 2,
                 SystemFee = 3,
-                ValidUntilBlock = 4,
-                Version = 5
+                Version = 4
             };
             TestEngine engine = new TestEngine(TriggerType.Application, currentTx);
-            ((TestSnapshot)engine.Snapshot).SetPersistingBlock(Blockchain.GenesisBlock);
 
             using (var script = new ScriptBuilder())
             {

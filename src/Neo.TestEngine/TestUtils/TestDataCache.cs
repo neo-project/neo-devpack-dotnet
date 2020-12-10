@@ -78,5 +78,14 @@ namespace Neo.TestingEngine
         {
             AddInternal(key, value);
         }
+
+        public void UpdateChangingKey(TKey oldKey, TKey newKey, TValue value)
+        {
+            if (ContainsInternal(oldKey))
+            {
+                DeleteInternal(oldKey);
+                AddInternal(newKey, value);
+            }
+        }
     }
 }
