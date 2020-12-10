@@ -13,12 +13,6 @@ namespace Neo
             get;
         }
 
-        public extern int Size
-        {
-            [OpCode(OpCode.SIZE)]
-            get;
-        }
-
         public extern bool IsValid
         {
             [OpCode(OpCode.DUP)]
