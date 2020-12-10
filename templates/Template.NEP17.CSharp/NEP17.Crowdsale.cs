@@ -14,11 +14,17 @@ namespace Template.NEP17.CSharp
             if (AssetStorage.GetPaymentStatus())
             {
                 if (ExecutionEngine.CallingScriptHash == NEO.Hash)
+                {
                     Mint(amount * TokensPerNEO);
-                else if (ExecutionEngine.CallingScriptHash == GAS.Hash && from != null)
-                    Mint(amount * TokensPerGAS);
+                }
+                else if (ExecutionEngine.CallingScriptHash == GAS.Hash)
+                {
+                    if (from != null) Mint(amount * TokensPerGAS);
+                }
                 else
+                {
                     throw new Exception("Wrong calling script hash");
+                }
             }
             else
             {
@@ -26,7 +32,7 @@ namespace Template.NEP17.CSharp
             }
         }
 
-        private static bool Mint(BigInteger amount)
+        private static void Mint(BigInteger amount)
         {
             var totalSupply = TotalSupplyStorage.Get();
             if (totalSupply <= 0) throw new Exception("Contract not deployed.");
@@ -41,7 +47,6 @@ namespace Template.NEP17.CSharp
             TotalSupplyStorage.Increase(amount);
 
             OnTransfer(null, tx.Sender, amount);
-            return true;
         }
     }
 }
