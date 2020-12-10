@@ -14,6 +14,9 @@ namespace Neo.Compiler.MSIL
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
             var debugInfo = testengine.ScriptEntry.debugInfo;
+            Assert.IsTrue(debugInfo.ContainsProperty("hash"));
+            Assert.IsInstanceOfType(debugInfo["hash"], typeof(JString));
+            Neo.UInt160.Parse(debugInfo["hash"].AsString());
             Assert.IsTrue(debugInfo.ContainsProperty("documents"));
             Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
             Assert.AreEqual((debugInfo["documents"] as JArray).Count, 1);
