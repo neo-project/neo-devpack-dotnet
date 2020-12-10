@@ -54,9 +54,9 @@ namespace Neo.TestingEngine
             engine.AddEntryScript(path);
             var manifest = ContractManifest.FromJson(JObject.Parse(engine.ScriptEntry.finalManifest));
 
-            engine.Snapshot.Contracts.Add(manifest.Hash, new Neo.Ledger.ContractState()
+            engine.Snapshot.Contracts.Add(engine.ScriptEntry.finalNEFScript.ToScriptHash(), new Neo.Ledger.ContractState()
             {
-                Script = engine.ScriptEntry.finalNEF,
+                Script = engine.ScriptEntry.finalNEFScript,
                 Manifest = manifest,
             });
         }
@@ -64,14 +64,13 @@ namespace Neo.TestingEngine
         public void AddSmartContract(string path)
         {
             var builtScript = engine.Build(path);
-            if (UInt160.TryParse(builtScript.finalABI["hash"].AsString(), out var hash))
+            var hash = builtScript.finalNEFScript.ToScriptHash();
+
+            engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
             {
-                engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
-                {
-                    Script = builtScript.finalNEF,
-                    Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
-                });
-            }
+                Script = builtScript.finalNEFScript,
+                Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
+            });
         }
 
         public void IncreaseBlockCount(uint newHeight)
@@ -233,11 +232,7 @@ namespace Neo.TestingEngine
 
         private Block CreateBlock()
         {
-            var blocks = engine.Snapshot.Blocks.Seek().GetEnumerator();
-            while (blocks.MoveNext())
-            { }
-
-            var (blockHash, trimmedBlock) = blocks.Current;
+            var (blockHash, trimmedBlock) = engine.Snapshot.Blocks.Seek().Last();
             if (blockHash == null)
             {
                 (blockHash, trimmedBlock) = (Blockchain.GenesisBlock.Hash, Blockchain.GenesisBlock.Trim());

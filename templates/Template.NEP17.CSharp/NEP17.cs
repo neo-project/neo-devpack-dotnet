@@ -4,13 +4,14 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Template.NEP5.CSharp
+namespace Template.NEP17.CSharp
 {
+    [DisplayName("Token Name")]
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
-    [ManifestExtra("Description", "This is a NEP5 example")]
-    [SupportedStandards("NEP5", "NEP10")]
-    public partial class NEP5 : SmartContract
+    [ManifestExtra("Description", "This is a NEP17 example")]
+    [SupportedStandards("NEP17", "NEP10")]
+    public partial class NEP17 : SmartContract
     {
         #region Token Settings
         static readonly ulong MaxSupply = 10_000_000_000_000_000;
@@ -29,8 +30,6 @@ namespace Template.NEP5.CSharp
         // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
         // For example, this method needs to be called when withdrawing token from the contract.
         public static bool Verify() => IsOwner();
-
-        public static string Name() => "Token Name";
 
         public static string Symbol() => "TokenSymbol";
 

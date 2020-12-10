@@ -22,7 +22,7 @@ namespace Neo.TestingEngine
             this.Block = block;
         }
 
-        public Block CreateBlock()
+        public new Block CreateBlock()
         {
             EnsureHeader();
             Contract contract = Contract.CreateMultiSigContract(M, Validators);
@@ -35,6 +35,5 @@ namespace Neo.TestingEngine
             Block.Transactions = TransactionHashes.Select(p => Transactions[p]).ToArray();
             return Block;
         }
-
     }
 }

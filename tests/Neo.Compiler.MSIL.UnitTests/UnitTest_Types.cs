@@ -4,6 +4,8 @@ using Neo.IO;
 using Neo.VM.Types;
 using Neo.Wallets;
 using System.Linq;
+using System.Numerics;
+using Neo.VM;
 
 namespace Neo.Compiler.MSIL.UnitTests
 {
@@ -192,8 +194,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkByteArray");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Buffer));
-            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, ((Buffer)item).GetSpan().ToArray());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, ((VM.Types.Buffer)item).GetSpan().ToArray());
         }
 
         [TestMethod]
@@ -228,9 +230,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkArrayObj");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(1, ((Array)item).Count);
-            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
+            Assert.AreEqual(1, ((VM.Types.Array)item).Count);
+            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
         }
 
         [TestMethod]
@@ -253,9 +255,9 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkClass");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(1, ((Array)item).Count);
-            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
+            Assert.AreEqual(1, ((VM.Types.Array)item).Count);
+            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
         }
 
         [TestMethod]
@@ -279,10 +281,10 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkTuple");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(2, ((Array)item).Count);
-            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
+            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
+            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
         }
 
         [TestMethod]
@@ -293,10 +295,10 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkTuple2");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(2, ((Array)item).Count);
-            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
+            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
+            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
         }
 
         [TestMethod]
@@ -307,10 +309,10 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkTuple3");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(2, ((Array)item).Count);
-            Assert.AreEqual("neo", (((Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((Array)item)[1] as ByteString).GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
+            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
+            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
+            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
         }
 
         [TestMethod]
@@ -351,6 +353,70 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
+        }
+
+        [TestMethod]
+        public void UInt160_ValidateAddress()
+        {
+            var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+
+            // True
+
+            var result = testengine.ExecuteTestCaseStandard("validateAddress", address.ToArray());
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", new ByteString(address.ToArray()));
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item.GetBoolean());
+
+            // False
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", new byte[1] { 1 }.Concat(address.ToArray()).ToArray());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", BigInteger.One);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            testengine.ExecuteTestCaseStandard("validateAddress", StackItem.Null);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", new VM.Types.Array());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", new Struct());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", new Map());
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("validateAddress", new VM.Types.Boolean(true));
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsFalse(item.GetBoolean());
         }
 
         [TestMethod]

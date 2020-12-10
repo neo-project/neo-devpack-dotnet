@@ -3,6 +3,21 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Contract
     {
         /// <summary>
+        /// Id
+        /// </summary>
+        public readonly int Id;
+
+        /// <summary>
+        /// UpdateCounter
+        /// </summary>
+        public readonly ushort UpdateCounter;
+
+        /// <summary>
+        /// Hash
+        /// </summary>
+        public readonly UInt160 Hash;
+
+        /// <summary>
         /// Script
         /// </summary>
         public readonly byte[] Script;
@@ -11,16 +26,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// Manifest
         /// </summary>
         public readonly string Manifest;
-
-        /// <summary>
-        /// Has storage
-        /// </summary>
-        public readonly bool HasStorage;
-
-        /// <summary>
-        /// Is payable
-        /// </summary>
-        public readonly bool IsPayable;
 
         [Syscall("System.Contract.Call")]
         public static extern object Call(UInt160 scriptHash, string method, object[] arguments);

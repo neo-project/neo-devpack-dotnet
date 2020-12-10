@@ -10,7 +10,7 @@ namespace Neo.TestingEngine
             IsBuild = true;
             UseOptimizer = false;
             Error = null;
-            finalNEF = nefFile.Script;
+            finalNEFScript = nefFile.Script;
             JObject manifestAbi = JObject.Parse(manifestFile);
             var abi = manifestAbi["abi"] as JObject;
             finalABI = abi;

@@ -19,7 +19,8 @@ namespace Neo.Compiler.MSIL.UnitTests
             _engine = new TestEngine();
             _engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
             {
-                Script = _engine.Build("./TestClasses/Contract1.cs").finalNEF,
+                Hash = UInt160.Zero,
+                Script = _engine.Build("./TestClasses/Contract1.cs").finalNEFScript,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract1.cs").finalManifest)),
             });
 

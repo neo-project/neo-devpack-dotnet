@@ -14,16 +14,10 @@ namespace Neo.Compiler.MSIL.TestClasses
             return NEO.Decimals;
         }
 
-        [DisplayName("NEO_Name")]
-        public static string NEO_Name()
-        {
-            return NEO.Name;
-        }
-
         [DisplayName("NEO_Transfer")]
         public static bool NEO_Transfer(UInt160 from, UInt160 to, BigInteger amount)
         {
-            return NEO.Transfer(from, to, amount);
+            return NEO.Transfer(from, to, amount, null);
         }
 
         [DisplayName("NEO_BalanceOf")]
@@ -60,12 +54,6 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static int GAS_Decimals()
         {
             return GAS.Decimals;
-        }
-
-        [DisplayName("GAS_Name")]
-        public static string GAS_Name()
-        {
-            return GAS.Name;
         }
 
         [DisplayName("Policy_GetFeePerByte")]

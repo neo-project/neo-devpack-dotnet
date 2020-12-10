@@ -59,15 +59,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, item.GetInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_Name");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual("NEO", item.GetString());
-
-            _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("NEO_BalanceOf", account);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -153,15 +144,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(8, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GAS_Name");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual("GAS", item.GetString());
         }
 
         [TestMethod]
