@@ -3,6 +3,7 @@ using Neo.IO.Caching;
 using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -34,6 +35,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public void SetPersistingBlock(Block block)
         {
             this.GetType().GetProperty("PersistingBlock").SetValue(this, block);
+        }
+
+        public void ContractAdd(ContractState contract)
+        {
+            var key = new KeyBuilder(0, 8).Add(contract.Hash);
+            Storages.Add(key, new StorageItem(contract));
         }
     }
 }

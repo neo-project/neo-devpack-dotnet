@@ -345,7 +345,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     },
                 }
             };
-            _engine.Snapshot.Contracts.GetOrAdd(contract.Hash, () => contract);
+            ((TestSnapshot)_engine.Snapshot).ContractAdd(contract);
 
             // Not found
 

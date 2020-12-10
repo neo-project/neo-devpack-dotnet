@@ -54,11 +54,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var contract = _engine.EntryScriptHash;
             var engine = new TestEngine(TriggerType.Application, new DummyVerificable());
-            engine.Snapshot.Contracts.Add(contract, new Ledger.ContractState()
+            ((TestSnapshot)engine.Snapshot).ContractAdd(new ContractState()
             {
+                Hash = contract,
                 Script = _engine.InvocationStack.Peek().Script,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract_Runtime.cs").finalManifest)),
-                Hash = UInt160.Zero
             });
 
             using (ScriptBuilder sb = new ScriptBuilder())

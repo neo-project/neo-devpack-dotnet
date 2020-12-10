@@ -5,7 +5,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
-using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 {
@@ -19,15 +18,16 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
+            var snapshot = (TestSnapshot)Blockchain.Singleton.GetSnapshot().Clone();
             snapshot.BlockHashIndex.Get().Index = 1234;
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            snapshot.Contracts.Add(scriptHash, new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
+                Hash = scriptHash,
                 Script = _engine.ScriptEntry.finalNEFScript,
                 Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
             });

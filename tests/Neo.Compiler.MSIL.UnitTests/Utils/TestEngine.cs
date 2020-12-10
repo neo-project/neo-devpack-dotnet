@@ -14,14 +14,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
     public class TestEngine : ApplicationEngine
     {
         public const long TestGas = 2000_000_000;
-        public static InteropDescriptor Native_Deploy;
-
-        static TestEngine()
-        {
-            // Extract Native deploy syscall
-
-            Native_Deploy = Neo_Native_Deploy;
-        }
 
         static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
