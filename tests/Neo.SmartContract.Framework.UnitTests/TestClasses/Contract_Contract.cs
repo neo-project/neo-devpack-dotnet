@@ -9,6 +9,21 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Contract.Call(scriptHash, method, arguments);
         }
 
+        public static object Create(byte[] nef, string manifest)
+        {
+            return Contract.Create(nef, manifest);
+        }
+
+        public static void Update(byte[] nef, string manifest)
+        {
+            Contract.Update(nef, manifest);
+        }
+
+        public static void Destroy()
+        {
+            Contract.Destroy();
+        }
+
         public static int GetCallFlags()
         {
             return Contract.GetCallFlags();

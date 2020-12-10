@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public Exception Error { get; protected set; }
         public ILModule modIL { get; private set; }
         public ModuleConverter converterIL { get; private set; }
-        public byte[] finalNEF { get; protected set; }
+        public byte[] finalNEFScript { get; protected set; }
         public JObject finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
         public JObject debugInfo { get; private set; }
@@ -50,7 +50,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             {
                 converterIL.Convert(modIL, option);
-                finalNEF = converterIL.outModule.Build();
+                finalNEFScript = converterIL.outModule.Build();
                 if (optimizer)
                 {
                     List<int> entryPoints = new List<int>();
@@ -59,10 +59,10 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                         if (!entryPoints.Contains(f.funcaddr))
                             entryPoints.Add(f.funcaddr);
                     }
-                    var opbytes = NefOptimizeTool.Optimize(finalNEF, entryPoints.ToArray(), out addrConvTable);
-                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEF.Length;
+                    var opbytes = NefOptimizeTool.Optimize(finalNEFScript, entryPoints.ToArray(), out addrConvTable);
+                    float ratio = (opbytes.Length * 100.0f) / (float)finalNEFScript.Length;
                     log.Log("optimization ratio = " + ratio + "%");
-                    finalNEF = opbytes;
+                    finalNEFScript = opbytes;
                 }
                 IsBuild = true;
             }
@@ -76,7 +76,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 #endif
             try
             {
-                finalABI = FuncExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                finalABI = FuncExport.GenerateAbi(converterIL.outModule, addrConvTable);
             }
             catch (Exception err)
             {
@@ -87,7 +87,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
             try
             {
-                debugInfo = DebugExport.Export(converterIL.outModule, finalNEF, addrConvTable);
+                debugInfo = DebugExport.Export(converterIL.outModule, addrConvTable);
             }
             catch (Exception err)
             {
