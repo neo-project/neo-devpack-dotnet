@@ -9,5 +9,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         public static bool checkZeroStatic(UInt160 owner) { return owner == UInt160.Zero; }
 
         public static UInt160 constructUInt160(byte[] bytes) { return (UInt160)bytes; }
+
+        public static bool validateAddress(UInt160 address) => address.IsValid && !address.IsZero;
     }
 }

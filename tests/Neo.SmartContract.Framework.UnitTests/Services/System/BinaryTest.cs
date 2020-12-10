@@ -24,13 +24,37 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
-            scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash();
+            scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
             snapshot.Contracts.Add(scriptHash, new ContractState()
             {
-                Script = _engine.ScriptEntry.finalNEF,
+                Script = _engine.ScriptEntry.finalNEFScript,
                 Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
             });
+        }
+
+        [TestMethod]
+        public void atoiTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("atoi", "-1", 10);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<VM.Types.Integer>();
+            Assert.AreEqual(-1, item.GetInteger());
+        }
+
+        [TestMethod]
+        public void itoaTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("itoa", -1, 10);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<VM.Types.ByteString>();
+            Assert.AreEqual("-1", item.GetString());
         }
 
         [TestMethod]
