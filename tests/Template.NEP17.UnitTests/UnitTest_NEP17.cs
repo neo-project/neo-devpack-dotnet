@@ -1,11 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.IO.Json;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace Template.NEP5.UnitTests
+namespace Template.NEP17.UnitTests
 {
     [TestClass]
     public class UnitTest_NEP5
@@ -26,13 +27,13 @@ namespace Template.NEP5.UnitTests
             var engine = new TestEngine();
             engine.AddEntryScript(new string[]
             {
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.cs",
-                "../../../../../templates/Template.NEP5.CSharp/Storage/TotalSupplyStorage.cs",
-                "../../../../../templates/Template.NEP5.CSharp/Storage/AssetStorage.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Owner.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Crowdsale.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Helpers.cs",
-                "../../../../../templates/Template.NEP5.CSharp/NEP5.Methods.cs"
+                "../../../../../templates/Template.NEP17.CSharp/NEP17.cs",
+                "../../../../../templates/Template.NEP17.CSharp/Storage/TotalSupplyStorage.cs",
+                "../../../../../templates/Template.NEP17.CSharp/Storage/AssetStorage.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP17.Owner.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP17.Crowdsale.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP17.Helpers.cs",
+                "../../../../../templates/Template.NEP17.CSharp/NEP17.Methods.cs"
             });
 
             return engine;
@@ -41,12 +42,7 @@ namespace Template.NEP5.UnitTests
         [TestMethod]
         public void Test_name()
         {
-            var result = _engine.ExecuteTestCaseStandard("name");
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("Token Name", item.GetString());
+            Assert.AreEqual("Token Name", JObject.Parse(_engine.ScriptEntry.finalManifest)["name"].AsString());
         }
 
         [TestMethod]

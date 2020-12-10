@@ -96,7 +96,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 this.ResultStack.Pop();
             }
-            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEF);
+            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEFScript);
         }
 
         public class ContractMethod
