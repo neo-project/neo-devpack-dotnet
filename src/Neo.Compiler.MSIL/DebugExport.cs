@@ -117,17 +117,33 @@ namespace Neo.Compiler
             return outjson;
         }
 
-        public static JObject Export(NeoModule module, IReadOnlyDictionary<int, int> addrConvTable)
+        public static JObject Export(NeoModule module, byte[] script, IReadOnlyDictionary<int, int> addrConvTable)
         {
             var docMap = GetDocumentMap(module);
             addrConvTable ??= ImmutableDictionary<int, int>.Empty;
 
             var outjson = new JObject();
-            // outjson["entrypoint"]= module.mainMethod;
+            outjson["hash"] = ComputeHash(script);
             outjson["documents"] = GetDocuments(docMap);
             outjson["methods"] = GetMethods(module, docMap, addrConvTable);
             outjson["events"] = GetEvents(module);
             return outjson;
+        }
+
+        static string ComputeHash(byte[] script)
+        {
+            var sha256 = System.Security.Cryptography.SHA256.Create();
+            byte[] hash256 = sha256.ComputeHash(script);
+            var ripemd160 = new Neo.Cryptography.RIPEMD160Managed();
+            var hash = ripemd160.ComputeHash(hash256);
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("0x");
+            for (int i = hash.Length - 1; i >= 0; i--)
+            {
+                sb.Append(hash[i].ToString("x02"));
+            }
+            return sb.ToString();
         }
     }
 }

@@ -89,7 +89,7 @@ namespace Neo.TestingEngine
 
             try
             {
-                debugInfo = DebugExport.Export(converterIL.outModule, addrConvTable);
+                debugInfo = DebugExport.Export(converterIL.outModule, finalNEFScript, addrConvTable);
             }
             catch (Exception err)
             {
