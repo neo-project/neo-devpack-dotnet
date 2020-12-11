@@ -53,9 +53,11 @@ namespace Neo.TestingEngine
         {
             engine.AddEntryScript(path);
             var manifest = ContractManifest.FromJson(JObject.Parse(engine.ScriptEntry.finalManifest));
+            var hash = engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            engine.Snapshot.Contracts.Add(engine.ScriptEntry.finalNEFScript.ToScriptHash(), new Neo.Ledger.ContractState()
+            engine.Snapshot.Contracts.Add(hash, new Neo.Ledger.ContractState()
             {
+                Hash = hash,
                 Script = engine.ScriptEntry.finalNEFScript,
                 Manifest = manifest,
             });
@@ -68,6 +70,7 @@ namespace Neo.TestingEngine
 
             engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
             {
+                Hash = hash,
                 Script = builtScript.finalNEFScript,
                 Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
             });
