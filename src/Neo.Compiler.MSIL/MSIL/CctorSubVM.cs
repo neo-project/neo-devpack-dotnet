@@ -309,7 +309,6 @@ namespace Neo.Compiler.MSIL
                         break;
                     default:
                         throw new Exception("not support opcode " + src + " in cctor.");
-                        //break;
                 }
             }
             if (constValue == false)
