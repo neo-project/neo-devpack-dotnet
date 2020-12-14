@@ -62,6 +62,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
                 Assert.IsNotNull(var1);
                 Assert.IsTrue(var1.GetInteger() == 4);
+                Assert.Fail("should throw a error \"not support opcode xxx\" in this case.");
             }
             catch (Exception err)
             {
