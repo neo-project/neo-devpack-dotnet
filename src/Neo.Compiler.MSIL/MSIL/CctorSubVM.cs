@@ -43,6 +43,7 @@ namespace Neo.Compiler.MSIL
             bool constValue = true;
             bool ret = false;
             calcStack = new Stack<object>();
+            Dictionary<int, object> location = new System.Collections.Generic.Dictionary<int, object>();
             bool bEnd = false;
             foreach (var src in from.body_Codes.Values)
             {
@@ -51,6 +52,52 @@ namespace Neo.Compiler.MSIL
 
                 switch (src.code)
                 {
+                    case CodeEx.Add:
+                        //add two numbers is easy,but this will make code more complex.
+                        //need to find a safe we to process all kind of calc.
+                        throw new Exception("not support opcode [Add] in cctor.");
+                    case CodeEx.Nop:
+                        continue;
+                    case CodeEx.Stloc:
+                        location[src.tokenI32] = calcStack.Pop();
+                        break;
+                    case CodeEx.Stloc_0:
+                        location[0] = calcStack.Pop();
+                        break;
+                    case CodeEx.Stloc_1:
+                        location[0] = calcStack.Pop();
+                        break;
+                    case CodeEx.Stloc_2:
+                        location[0] = calcStack.Pop();
+                        break;
+                    case CodeEx.Stloc_3:
+                        location[0] = calcStack.Pop();
+                        break;
+                    case CodeEx.Ldloc:
+                        calcStack.Push(location[src.tokenI32]);
+                        break;
+                    case CodeEx.Ldloc_0:
+                        calcStack.Push(location[0]);
+                        break;
+                    case CodeEx.Ldloc_1:
+                        calcStack.Push(location[1]);
+                        break;
+                    case CodeEx.Ldloc_2:
+                        calcStack.Push(location[2]);
+                        break;
+                    case CodeEx.Ldloc_3:
+                        calcStack.Push(location[3]);
+                        break;
+                    case CodeEx.Conv_I1:
+                    case CodeEx.Conv_I2:
+                    case CodeEx.Conv_I4:
+                    case CodeEx.Conv_I8:
+                    case CodeEx.Conv_U1:
+                    case CodeEx.Conv_U2:
+                    case CodeEx.Conv_U4:
+                    case CodeEx.Conv_U8:
+                        continue;
+
                     case CodeEx.Ret:
                         bEnd = true;
                         break;
@@ -261,7 +308,8 @@ namespace Neo.Compiler.MSIL
                         }
                         break;
                     default:
-                        break;
+                        throw new Exception("not support opcode " + src + " in cctor.");
+                        //break;
                 }
             }
             if (constValue == false)

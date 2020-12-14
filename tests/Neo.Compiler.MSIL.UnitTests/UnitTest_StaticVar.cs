@@ -35,6 +35,7 @@ namespace Neo.Compiler.MSIL.UnitTests
                 // return callscript
                 var1 = (result.Pop() as Neo.VM.Types.Buffer);
             }
+            Console.WriteLine("test Direct.");
             {
                 var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
@@ -44,6 +45,35 @@ namespace Neo.Compiler.MSIL.UnitTests
             }
             Assert.IsNotNull(var1);
             Assert.IsTrue(var1.GetSpan().SequenceEqual(var2.GetSpan()));
+        }
+
+        [TestMethod]
+        public void Test_StaticConsturct()
+        {
+            StackItem var1;
+            try
+            {
+                {
+                    var testengine = new TestEngine();
+                    testengine.AddEntryScript("./TestClasses/Contract_StaticConstruct.cs");
+                    var result = testengine.ExecuteTestCaseStandard("testStatic");
+                    // static byte[] callscript = ExecutionEngine.EntryScriptHash;
+                    // ...
+                    // return callscript
+                    var1 = (result.Pop());
+                }
+
+                Assert.IsNotNull(var1);
+                Assert.IsTrue(var1.GetInteger() == 4);
+            }
+            catch (Exception err)
+            {
+
+                Console.WriteLine("error message:" + err.Message);
+                //need throw a error.
+                Assert.IsTrue(err.Message.Contains("not support opcode"));
+            }
+
         }
     }
 }
