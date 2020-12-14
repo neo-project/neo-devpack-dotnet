@@ -24,11 +24,11 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x7ab39c37afd995f2f947a7ecbf40e91307058595");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x479f134275b36d64f31fdbdc557cd2aa2f32d8d1");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x74c21a1ca66b7a190bf2a65db83ba6fe550cea64");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xb399c051778cf37a1e4ef88509b2e054d0420a32");
-            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xe8ff1989c19526f4d8102f226e2c6c993b63efe9");
+            Assert.AreEqual(NativeContract.Designation.Hash.ToString(), "0xc0073f4c7069bf38995780c9da065f9b3949ea7a");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xb1c37d5847c2ae36bdde31d0cc833a7ad9667f8f");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x0a46e2e37c9987f570b4af253fb77e7eef0f72b6");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xa6a6c15dcdc9b997dac448b6926522d22efeedfb");
+            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xdde31084c0fdbebc7f5ed5f53a38905305ccee14");
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var entry = result.Pop();
-            Assert.AreEqual("neo", entry.GetString());
+            Assert.AreEqual("NEO", entry.GetString());
 
             // NeoHash
 
@@ -110,7 +110,7 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var entry = result.Pop();
 
-            Assert.AreEqual("gas", entry.GetString());
+            Assert.AreEqual("GAS", entry.GetString());
         }
     }
 }
