@@ -7,8 +7,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static extern UInt160 Hash { [ContractHash] get; }
         public const uint MinimumResponseFee = 0_10000000;
-        public static extern int Id { get; }
-        public static extern uint ActiveBlockIndex { get; }
         public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
     }
 }

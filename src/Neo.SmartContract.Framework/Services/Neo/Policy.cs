@@ -8,8 +8,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class Policy
     {
         public static extern UInt160 Hash { [ContractHash] get; }
-        public static extern int Id { get; }
-        public static extern uint ActiveBlockIndex { get; }
         public static extern uint GetMaxTransactionsPerBlock();
         public static extern uint GetMaxBlockSize();
         public static extern long GetMaxBlockSystemFee();

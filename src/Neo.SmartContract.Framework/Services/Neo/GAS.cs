@@ -8,8 +8,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class GAS
     {
         public static extern UInt160 Hash { [ContractHash] get; }
-        public static extern int Id { get; }
-        public static extern uint ActiveBlockIndex { get; }
         public static extern string Symbol { get; }
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
