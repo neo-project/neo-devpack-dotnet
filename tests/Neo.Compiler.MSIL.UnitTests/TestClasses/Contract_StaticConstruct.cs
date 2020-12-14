@@ -9,7 +9,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         static Contract_staticconstruct()
         {
             int b = 3;
-            int a = b + 1;
+            a = b + 1;
         }
 
         public static object TestStatic()
