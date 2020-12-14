@@ -54,7 +54,7 @@ namespace Neo.Compiler.MSIL
                 {
                     case CodeEx.Add:
                         //add two numbers is easy,but this will make code more complex.
-                        //need to find a safe we to process all kind of calc.
+                        //need to find a safe way to process all kind of calc.
                         throw new Exception("not support opcode [Add] in cctor.");
                     case CodeEx.Nop:
                         continue;
