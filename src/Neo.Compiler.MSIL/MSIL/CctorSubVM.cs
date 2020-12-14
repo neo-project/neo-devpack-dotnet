@@ -65,13 +65,13 @@ namespace Neo.Compiler.MSIL
                         location[0] = calcStack.Pop();
                         break;
                     case CodeEx.Stloc_1:
-                        location[0] = calcStack.Pop();
+                        location[1] = calcStack.Pop();
                         break;
                     case CodeEx.Stloc_2:
-                        location[0] = calcStack.Pop();
+                        location[2] = calcStack.Pop();
                         break;
                     case CodeEx.Stloc_3:
-                        location[0] = calcStack.Pop();
+                        location[3] = calcStack.Pop();
                         break;
                     case CodeEx.Ldloc:
                         calcStack.Push(location[src.tokenI32]);
