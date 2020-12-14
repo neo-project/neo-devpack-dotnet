@@ -92,6 +92,11 @@ namespace Neo.TestingEngine
         public void AddTransactions(Transaction[] txs, int blockIndex = -1)
         {
             uint index = blockIndex >= 0 ? (uint)blockIndex : Height;
+            AddTransactions(txs, index);
+        }
+
+        public void AddTransactions(Transaction[] txs, uint index)
+        {
             if (Transactions is TestDataCache<UInt256, TransactionState> transactions)
             {
                 foreach (var tx in txs)

@@ -85,6 +85,7 @@ namespace Neo.TestingEngine
             if (blocks.Count() == 0)
             {
                 newBlock = Blockchain.GenesisBlock;
+                snapshot.AddTransactions(newBlock.Transactions, newBlock.Index);
             }
             else
             {
