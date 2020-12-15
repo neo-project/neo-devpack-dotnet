@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
-            Assert.AreEqual(optimized ? 6 : 8, ((Pointer)item).Position);
+            Assert.AreEqual(optimized ? 37 : 47, ((Pointer)item).Position);
 
             // Test pointer
 

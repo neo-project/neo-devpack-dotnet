@@ -73,7 +73,7 @@ namespace Neo.Compiler
             outjson["methods"] = methods;
 
             HashSet<string> names = new HashSet<string>();
-            foreach (var function in module.mapMethods)
+            foreach (var function in module.mapMethods.OrderBy(u => u.Value.funcaddr))
             {
                 var mm = function.Value;
                 if (mm.inSmartContract == false)
