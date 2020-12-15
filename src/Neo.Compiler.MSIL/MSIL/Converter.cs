@@ -190,7 +190,7 @@ namespace Neo.Compiler.MSIL
             this.outModule.totalCodes.Clear();
             int addr = 0;
 
-            foreach (var m in this.outModule.mapMethods)
+            foreach (var m in this.outModule.mapMethods.OrderBy(u => u.Value.displayName))
             {
                 m.Value.funcaddr = addr;
 
