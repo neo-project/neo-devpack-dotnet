@@ -7,8 +7,8 @@ namespace Neo.TestingEngine
 {
     public class SmartContractTest
     {
-        public string nefPath;
-        public string methodName;
+        public readonly string nefPath;
+        public readonly string methodName;
         public JArray methodParameters;
         public Dictionary<PrimitiveType, StackItem> storage;
         public List<TestContract> contracts;

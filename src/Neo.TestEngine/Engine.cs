@@ -68,12 +68,17 @@ namespace Neo.TestingEngine
             var builtScript = engine.Build(path);
             var hash = builtScript.finalNEFScript.ToScriptHash();
 
-            engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
+            var snapshot = engine.Snapshot.Contracts;
+
+            if (!snapshot.Contains(hash))
             {
-                Hash = hash,
-                Script = builtScript.finalNEFScript,
-                Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
-            });
+                snapshot.Add(hash, new ContractState()
+                {
+                    Hash = hash,
+                    Script = builtScript.finalNEFScript,
+                    Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
+                });
+            }
         }
 
         public void IncreaseBlockCount(uint newHeight)

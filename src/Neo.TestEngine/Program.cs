@@ -33,9 +33,9 @@ namespace Neo.TestingEngine
                     var input = JObject.Parse(args[0]);
                     return RunWithJson(input);
                 }
-                catch
+                catch (Exception e)
                 {
-                    // if the first input is not a json, verifies if the arguments are: nef path, method name, method args
+                    return BuildJsonException(e.Message);
                 }
 
             }
