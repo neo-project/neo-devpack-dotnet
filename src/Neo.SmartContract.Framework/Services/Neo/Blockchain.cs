@@ -24,8 +24,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Blockchain.GetTransactionHeight")]
         public static extern BigInteger GetTransactionHeight(UInt256 hash);
-
-        [Syscall("System.Blockchain.GetContract")]
-        public static extern Contract GetContract(UInt160 script_hash);
     }
 }

@@ -21,13 +21,13 @@ namespace Template.NEP17.CSharp
         public static void Update(byte[] nefFile, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Update(nefFile, manifest);
+            ManagementContract.Update(nefFile, manifest);
         }
 
         public static void Destroy()
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Destroy();
+            ManagementContract.Destroy();
         }
 
         public static void EnablePayment()

@@ -21,6 +21,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             }
             return a;
         }
+
         public static int UnitTest_003()
         {
             int c = UnitTest_002() + s;

@@ -4,9 +4,9 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_CreateAndUpdate : SmartContract.Framework.SmartContract
     {
-        public static int OldContract(byte[] script, string manifest)
+        public static int OldContract(byte[] nefFile, string manifest)
         {
-            Contract.Update(script, manifest);
+            ManagementContract.Update(nefFile, manifest);
             return 123;
         }
     }

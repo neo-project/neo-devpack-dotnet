@@ -36,11 +36,9 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             foreach (var syscall in ApplicationEngine.Services)
             {
-                if (syscall.Value.Name == "Neo.Native.Deploy") continue;
-                if (syscall.Value.Name == "Neo.Native.Tokens.NEO") continue;
-                if (syscall.Value.Name == "Neo.Native.Tokens.GAS") continue;
-                if (syscall.Value.Name == "Neo.Native.Policy") continue;
-                if (syscall.Value.Name == "Neo.Native.Call") continue;
+                if (syscall.Value.Name == "System.Contract.NativeOnPersist") continue;
+                if (syscall.Value.Name == "System.Contract.NativePostPersist") continue;
+                if (syscall.Value.Name == "System.Contract.CallNative") continue;
                 if (syscall.Value.Name == "System.Runtime.Notify") continue;
 
                 if (list.Remove(syscall.Value.Name)) continue;
