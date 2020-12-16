@@ -1,3 +1,5 @@
+#pragma warning disable CS0626
+
 namespace Neo.SmartContract.Framework.Services.Neo
 {
     [Contract("0xcd97b70d82d69adfcd9165374109419fade8d6ab")]
