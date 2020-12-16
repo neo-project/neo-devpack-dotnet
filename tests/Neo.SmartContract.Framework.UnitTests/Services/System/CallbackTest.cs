@@ -5,7 +5,6 @@ using Neo.TestingEngine;
 using Neo.IO;
 using Neo.Ledger;
 using Neo.SmartContract;
-using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
@@ -31,7 +30,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             _engine.AddEntryScript("./TestClasses/Contract_Callback.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            snapshot.Contracts.Add(scriptHash, new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
                 Script = _engine.ScriptEntry.finalNEFScript,

@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.Ledger;
 using Neo.VM;
-using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -17,12 +16,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot();
+            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
 
-            _engine = new TestEngine(snapshot: snapshot.Clone());
+            _engine = new TestEngine(snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_StaticStorageMap.cs");
-            _engine.Snapshot.Contracts.Add(_engine.EntryScriptHash, new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
+                Hash = _engine.EntryScriptHash,
                 Script = _engine.EntryContext.Script,
                 Manifest = new Manifest.ContractManifest()
             });

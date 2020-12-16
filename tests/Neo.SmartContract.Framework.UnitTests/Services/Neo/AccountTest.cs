@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
-using Neo.Ledger;
 using Neo.VM.Types;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
@@ -26,8 +25,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
                   };
 
-            _engine.Snapshot.Contracts.Add(new UInt160(noStandard), new ContractState()
+            _engine.Snapshot.ContractAdd(new ContractState()
             {
+                Hash = new UInt160(noStandard),
                 Script = new byte[0] { }
             });
 

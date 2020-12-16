@@ -1,6 +1,5 @@
 using Neo.Cryptography.ECC;
 using Neo.IO;
-using Neo.IO.Caching;
 using Neo.IO.Json;
 using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
@@ -55,7 +54,7 @@ namespace Neo.TestingEngine
             var manifest = ContractManifest.FromJson(JObject.Parse(engine.ScriptEntry.finalManifest));
             var hash = engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            engine.Snapshot.Contracts.Add(hash, new Neo.Ledger.ContractState()
+            engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
                 Script = engine.ScriptEntry.finalNEFScript,
@@ -68,11 +67,11 @@ namespace Neo.TestingEngine
             var builtScript = engine.Build(path);
             var hash = builtScript.finalNEFScript.ToScriptHash();
 
-            var snapshot = engine.Snapshot.Contracts;
+            var snapshot = engine.Snapshot;
 
-            if (!snapshot.Contains(hash))
+            if (!snapshot.ContainsContract(hash))
             {
-                snapshot.Add(hash, new ContractState()
+                snapshot.ContractAdd(new ContractState()
                 {
                     Hash = hash,
                     Script = builtScript.finalNEFScript,
@@ -160,7 +159,6 @@ namespace Neo.TestingEngine
                     {
                         currentBlock.Transactions = block.Transactions;
                     }
-                    snapshot.AddTransactions(block.Transactions);
 
                     foreach (var tx in block.Transactions)
                     {
@@ -171,6 +169,7 @@ namespace Neo.TestingEngine
                     {
                         blocks.UpdateChangingKey(hash, currentBlock.Hash, currentBlock.Trim());
                     }
+                    snapshot.AddTransactions(block.Transactions);
                 }
             }
         }
@@ -206,7 +205,6 @@ namespace Neo.TestingEngine
 
         private TestEngine SetupNativeContracts()
         {
-            SetConsensus();
             currentTx = new Transaction()
             {
                 Attributes = new TransactionAttribute[0],
@@ -220,23 +218,17 @@ namespace Neo.TestingEngine
             };
             TestEngine engine = new TestEngine(TriggerType.Application, currentTx);
 
-            using (var script = new ScriptBuilder())
-            {
-                script.EmitSysCall(TestEngine.Native_Deploy);
-                engine.LoadScript(script.ToArray());
-                engine.Execute();
-            }
+            SetNative(engine);
             engine.ClearNotifications();
             ((TestSnapshot)engine.Snapshot).ClearStorage();
 
             return engine;
         }
 
-        private void SetConsensus()
+        private void SetNative(TestEngine engine)
         {
-            var _ = TestBlockchain.TheNeoSystem;
-            var store = Blockchain.Singleton.Store;
-            var block = Blockchain.GenesisBlock;
+            engine.Snapshot.SetPersistingBlock(new Block() { Index = 0 });
+            engine.Snapshot.DeployNativeContracts();
         }
 
         private Block CreateBlock()

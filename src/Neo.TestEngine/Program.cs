@@ -27,17 +27,22 @@ namespace Neo.TestingEngine
         {
             if (args.Length == 1)
             {
-                // verifies if the parameter is a json string
+                JObject input;
                 try
                 {
-                    var input = JObject.Parse(args[0]);
-                    return RunWithJson(input);
+                    // verifies if the parameter is a json string
+                    input = JObject.Parse(args[0]);
                 }
-                catch (Exception e)
+                catch
                 {
-                    return BuildJsonException(e.Message);
+                    // if it isn't, at least one argument is missing
+                    return BuildJsonException(
+                        "One or more arguments are missing\n" +
+                        "Expected arguments: <nef path> <method name> <method arguments as json>"
+                    );
                 }
 
+                return RunWithJson(input);
             }
 
             JObject result;

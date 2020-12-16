@@ -13,14 +13,6 @@ namespace Neo.TestingEngine
     public class TestEngine : ApplicationEngine
     {
         public const long TestGas = 2000_000_000;
-        public static InteropDescriptor Native_Deploy;
-
-        static TestEngine()
-        {
-            // Extract Native deploy syscall
-
-            Native_Deploy = Neo_Native_Deploy;
-        }
 
         static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
@@ -223,11 +215,8 @@ namespace Neo.TestingEngine
         {
             if (callmethod == null)
             {
-                callmethod = new Dictionary<uint, InteropDescriptor>()
-                {
-                    { Native_Deploy.Hash , Native_Deploy }
-                };
-                foreach (var m in ApplicationEngine.Services)
+                callmethod = new Dictionary<uint, InteropDescriptor>();
+                foreach (var m in Services)
                 {
                     callmethod[m.Key] = m.Value;
                 }

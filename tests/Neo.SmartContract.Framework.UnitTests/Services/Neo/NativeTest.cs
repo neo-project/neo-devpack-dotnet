@@ -34,13 +34,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine = new TestEngine(TriggerType.Application, block);
             ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(block);
-
-            using (var script = new ScriptBuilder())
-            {
-                script.EmitSysCall(TestEngine.Native_Deploy);
-                _engine.LoadScript(script.ToArray());
-                Assert.AreEqual(VMState.HALT, _engine.Execute());
-            }
+            _engine.Snapshot.DeployNativeContracts();
 
             _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");

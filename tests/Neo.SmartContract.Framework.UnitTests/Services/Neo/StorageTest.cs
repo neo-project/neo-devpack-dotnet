@@ -65,8 +65,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             testengine = new TestEngine(snapshot: snapshot.Clone());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
+            testengine.Snapshot.ContractAdd(new ContractState()
             {
+                Hash = testengine.EntryScriptHash,
                 Script = testengine.EntryContext.Script,
                 Manifest = new Manifest.ContractManifest()
             });

@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.IO;
 using Neo.IO.Json;
+using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -23,6 +24,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
             });
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
+            _engine.Snapshot.SetPersistingBlock(Blockchain.GenesisBlock);
+            _engine.Snapshot.DeployNativeContracts();
         }
 
         [TestMethod]
@@ -46,7 +49,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(0, itemArray[0].GetInteger()); // Id
+            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
             Assert.AreEqual(script.finalNEFScript, itemArray[3]); // Script
@@ -102,7 +105,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             var itemArray = item as Array;
-            Assert.AreEqual(0, itemArray[0].GetInteger()); // Id
+            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
             Assert.AreEqual(script.finalNEFScript, itemArray[3]); // Script
