@@ -1,6 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO.Json;
+using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
@@ -17,9 +19,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
             _engine = new TestEngine();
-            _engine.Snapshot.Contracts.Add(hash, new Ledger.ContractState()
+            _engine.Snapshot.ContractAdd(new ContractState()
             {
-                Hash = UInt160.Zero,
+                Hash = hash,
                 Script = _engine.Build("./TestClasses/Contract1.cs").finalNEFScript,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract1.cs").finalManifest)),
             });

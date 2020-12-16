@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 
@@ -108,8 +110,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var _testengine = new TestEngine();
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
-            _testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
+            _testengine.Snapshot.ContractAdd(new ContractState()
             {
+                Hash = testengine.EntryScriptHash,
                 Script = testengine.EntryContext.Script,
                 Manifest = new ContractManifest()
             });
@@ -124,8 +127,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var _testengine = new TestEngine();
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
-            _testengine.Snapshot.Contracts.Add(testengine.EntryScriptHash, new Ledger.ContractState()
+            _testengine.Snapshot.ContractAdd(new ContractState()
             {
+                Hash = testengine.EntryScriptHash,
                 Script = testengine.EntryContext.Script,
                 Manifest = new ContractManifest()
             });

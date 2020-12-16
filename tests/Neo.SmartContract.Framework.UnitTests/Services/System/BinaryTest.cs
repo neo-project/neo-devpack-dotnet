@@ -1,11 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.SmartContract;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
-using Neo.VM.Types;
 
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 {
@@ -26,8 +26,9 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            snapshot.Contracts.Add(scriptHash, new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
+                Hash = scriptHash,
                 Script = _engine.ScriptEntry.finalNEFScript,
                 Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
             });

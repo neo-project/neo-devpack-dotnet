@@ -90,6 +90,7 @@ namespace Neo.Compiler
                 funcsign["name"] = function.Value.displayName;
                 var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["offset"] = offset.ToString();
+                funcsign["safe"] = function.Value.method?.method.CustomAttributes.Any(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SafeAttribute") == true;
                 JArray funcparams = new JArray();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
@@ -206,8 +207,7 @@ namespace Neo.Compiler
             return
                 @"{""groups"":[],""abi"":" +
                 sbABI +
-                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""safemethods"":[],""name"":""" + name +
-                @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }

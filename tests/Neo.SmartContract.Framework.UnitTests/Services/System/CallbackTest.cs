@@ -1,6 +1,7 @@
 extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
@@ -31,7 +32,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             _engine.AddEntryScript("./TestClasses/Contract_Callback.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            snapshot.Contracts.Add(scriptHash, new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
                 Script = _engine.ScriptEntry.finalNEFScript,

@@ -30,21 +30,21 @@ namespace $safeprojectname$
         public static void _deploy(bool update)
         {
             if (update) return;
-            
+
             // It will be executed during deploy
             Storage.Put("Hello", "World");
         }
 
-        public static void Update(byte[] script, string manifest)
+        public static void Update(byte[] nefFile, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Update(script, manifest);
+            ManagementContract.Update(nefFile, manifest);
         }
 
         public static void Destroy()
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Destroy();
+            ManagementContract.Destroy();
         }
     }
 }
