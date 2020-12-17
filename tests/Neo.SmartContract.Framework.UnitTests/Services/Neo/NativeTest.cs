@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Cryptography.ECC;
 using Neo.VM;
@@ -34,13 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine = new TestEngine(TriggerType.Application, block);
             ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(block);
-
-            using (var script = new ScriptBuilder())
-            {
-                script.EmitSysCall(TestEngine.Native_Deploy);
-                _engine.LoadScript(script.ToArray());
-                Assert.AreEqual(VMState.HALT, _engine.Execute());
-            }
+            _engine.Snapshot.DeployNativeContracts();
 
             _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
@@ -57,15 +52,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_Name");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual("NEO", item.GetString());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("NEO_BalanceOf", account);
@@ -153,15 +139,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(8, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("GAS_Name");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual("GAS", item.GetString());
         }
 
         [TestMethod]

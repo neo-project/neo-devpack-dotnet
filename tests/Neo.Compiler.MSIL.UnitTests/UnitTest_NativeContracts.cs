@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -14,29 +15,20 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestInitialize]
         public void Test_Init()
         {
-            byte[] script;
-            using (ScriptBuilder sb = new ScriptBuilder())
-            {
-                sb.EmitSysCall(ApplicationEngine.Neo_Native_Deploy);
-                script = sb.ToArray();
-            }
-
             // Fake native deploy
-
-            typeof(TestSnapshot).GetProperty("PersistingBlock").SetValue(snapshot, new Network.P2P.Payloads.Block() { Index = 0 });
-            var testengine = new TestEngine(TriggerType.System, null, snapshot);
-            testengine.LoadScript(script);
-            Assert.AreEqual(VMState.HALT, testengine.Execute());
+            snapshot.SetPersistingBlock(new Network.P2P.Payloads.Block() { Index = 0 });
+            snapshot.DeployNativeContracts();
         }
 
         [TestMethod]
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.Designate.Hash.ToString(), "0x763afecf3ebba0a67568a2c8be06e8f068c62666");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x3c05b488bf4cf699d0631bf80190896ebbf38c3b");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xde5f57d430d3dece511cf975a8d37848cb9e0525");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x668e0c1f9d7b70a99dd9e06eadd4c784d641afbc");
+            Assert.AreEqual(NativeContract.Designation.Hash.ToString(), "0xc0073f4c7069bf38995780c9da065f9b3949ea7a");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xb1c37d5847c2ae36bdde31d0cc833a7ad9667f8f");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x0a46e2e37c9987f570b4af253fb77e7eef0f72b6");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xa6a6c15dcdc9b997dac448b6926522d22efeedfb");
+            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xdde31084c0fdbebc7f5ed5f53a38905305ccee14");
         }
 
         [TestMethod]
@@ -45,26 +37,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
 
-            // Name
+            // Minimum Response Fee
 
-            var result = testengine.ExecuteTestCaseStandard("oracleName");
+            var result = testengine.ExecuteTestCaseStandard("oracleMinimumResponseFee");
 
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
             var entry = result.Pop();
-
-            Assert.AreEqual("Oracle", entry.GetString());
-
-            // Minimum Response Fee
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("oracleMinimumResponseFee");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
 
             Assert.AreEqual(0_10000000u, entry.GetInteger());
         }
@@ -75,26 +55,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
 
-            // Name
+            // getOracleNodes
 
-            var result = testengine.ExecuteTestCaseStandard("designationName");
+            var result = testengine.ExecuteTestCaseStandard("getOracleNodes");
 
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
             var entry = result.Pop();
-
-            Assert.AreEqual("Designation", entry.GetString());
-
-            // getOracleNodes
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("getOracleNodes");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
 
             Assert.AreEqual(0, (entry as VM.Types.Array).Count);
         }
@@ -105,25 +73,15 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
 
-            var result = testengine.ExecuteTestCaseStandard("nEOName");
+            // NeoSymbol
+
+            var result = testengine.ExecuteTestCaseStandard("nEOSymbol");
 
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
             var entry = result.Pop();
-
             Assert.AreEqual("NEO", entry.GetString());
-
-            // NeoSymbol
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nEOSymbol");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
-            Assert.AreEqual("neo", entry.GetString());
 
             // NeoHash
 
@@ -145,7 +103,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
 
-            var result = testengine.ExecuteTestCaseStandard("gASName");
+            var result = testengine.ExecuteTestCaseStandard("gASSymbol");
 
             Assert.AreEqual(VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
@@ -153,16 +111,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             var entry = result.Pop();
 
             Assert.AreEqual("GAS", entry.GetString());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("gASSymbol");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
-
-            Assert.AreEqual("gas", entry.GetString());
         }
     }
 }

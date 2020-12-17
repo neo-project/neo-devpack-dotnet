@@ -2,11 +2,10 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x763afecf3ebba0a67568a2c8be06e8f068c62666")]
+    [Contract("0xc0073f4c7069bf38995780c9da065f9b3949ea7a")]
     public class Designation
     {
         public static extern UInt160 Hash { [ContractHash] get; }
-        public static extern string Name { get; }
         public static extern Cryptography.ECC.ECPoint[] GetDesignatedByRole(DesignationRole role, uint index);
     }
 }

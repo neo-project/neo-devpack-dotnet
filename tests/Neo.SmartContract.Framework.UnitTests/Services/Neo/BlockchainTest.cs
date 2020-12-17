@@ -1,12 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
+using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -20,11 +22,58 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot();
+            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
 
-            _block = Blockchain.GenesisBlock;
-            _engine = new TestEngine(snapshot: snapshot.Clone());
+            _block = new Network.P2P.Payloads.Block()
+            {
+                ConsensusData = new Network.P2P.Payloads.ConsensusData(),
+                Index = 1,
+                PrevHash = Blockchain.GenesisBlock.Hash,
+                Witness = new Network.P2P.Payloads.Witness() { InvocationScript = new byte[0], VerificationScript = new byte[0] },
+                NextConsensus = UInt160.Zero,
+                MerkleRoot = UInt256.Zero,
+                Transactions = new Network.P2P.Payloads.Transaction[]
+                {
+                     new Network.P2P.Payloads.Transaction()
+                     {
+                          Attributes = new Network.P2P.Payloads.TransactionAttribute[0],
+                          Signers = new Network.P2P.Payloads.Signer[]{ new Network.P2P.Payloads.Signer() { Account = UInt160.Zero } },
+                          Witnesses = new Network.P2P.Payloads.Witness[]{ },
+                          Script = new byte[0]
+                     }
+                }
+            };
+
+            snapshot.SetPersistingBlock(_block);
+            snapshot.BlockHashIndex.GetAndChange().Index = _block.Index;
+            snapshot.BlockHashIndex.GetAndChange().Hash = _block.Hash;
+            snapshot.Blocks.Add(_block.Hash, _block.Trim());
+            snapshot.Transactions.Add(_block.Transactions[0].Hash, new TransactionState()
+            {
+                BlockIndex = _block.Index,
+                Transaction = _block.Transactions[0],
+                VMState = VMState.HALT
+            });
+
+            // Fake header_index
+
+            var header_index = (List<UInt256>)Blockchain.Singleton.GetType()
+                .GetField("header_index", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(Blockchain.Singleton);
+            header_index.Add(_block.Hash);
+
+            _engine = new TestEngine(snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
+        }
+
+        [TestCleanup]
+        public void Clean()
+        {
+            // Revert header_index
+            var header_index = (List<UInt256>)Blockchain.Singleton.GetType()
+                .GetField("header_index", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(Blockchain.Singleton);
+            header_index.RemoveAt(1);
         }
 
         [TestMethod]
@@ -331,6 +380,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             var contract = new ContractState()
             {
+                Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
                 Script = new byte[] { 0x01, 0x02, 0x03 },
                 Manifest = new Manifest.ContractManifest()
                 {
@@ -338,16 +388,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     Groups = new Manifest.ContractGroup[0],
                     Trusts = Manifest.WildcardContainer<UInt160>.Create(),
                     Permissions = new Manifest.ContractPermission[0],
-                    SafeMethods = Manifest.WildcardContainer<string>.Create(),
                     Abi = new Manifest.ContractAbi()
                     {
                         Methods = new Manifest.ContractMethodDescriptor[0],
                         Events = new Manifest.ContractEventDescriptor[0],
-                        Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash()
                     },
                 }
             };
-            _engine.Snapshot.Contracts.GetOrAdd(contract.ScriptHash, () => contract);
+            _engine.Snapshot.ContractAdd(contract);
 
             // Not found
 
@@ -362,7 +410,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Found + Manifest
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.ScriptHash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Manifest")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Manifest")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -370,10 +418,43 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             Assert.AreEqual(contract.Manifest.ToString(), item.GetString());
 
+            // Found + UpdateCounter
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("UpdateCounter")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            // Found + Id
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Id")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            // Found + Hash
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("Hash")));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            CollectionAssert.AreEqual(contract.Hash.ToArray(), item.GetSpan().ToArray());
+
             // Found + Uknown property
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.ScriptHash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("ASD")));
+            result = _engine.ExecuteTestCaseStandard("getContract", new VM.Types.ByteString(contract.Hash.ToArray()), new VM.Types.ByteString(Utility.StrictUTF8.GetBytes("ASD")));
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
     }

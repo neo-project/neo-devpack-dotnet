@@ -1,15 +1,13 @@
 #pragma warning disable CS0626
 
-using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xce06595079cd69583126dbfd1d2e25cca74cffe9")]
+    [Contract("0xdde31084c0fdbebc7f5ed5f53a38905305ccee14")]
     public class Policy
     {
         public static extern UInt160 Hash { [ContractHash] get; }
-        public static extern string Name();
         public static extern uint GetMaxTransactionsPerBlock();
         public static extern uint GetMaxBlockSize();
         public static extern long GetMaxBlockSystemFee();

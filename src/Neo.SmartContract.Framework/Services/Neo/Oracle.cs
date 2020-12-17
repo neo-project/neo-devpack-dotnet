@@ -2,12 +2,11 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x3c05b488bf4cf699d0631bf80190896ebbf38c3b")]
+    [Contract("0xb1c37d5847c2ae36bdde31d0cc833a7ad9667f8f")]
     public class Oracle
     {
         public static extern UInt160 Hash { [ContractHash] get; }
         public const uint MinimumResponseFee = 0_10000000;
-        public static extern string Name { get; }
         public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
     }
 }
