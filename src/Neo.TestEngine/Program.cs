@@ -1,4 +1,5 @@
 using Neo.IO.Json;
+using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.VM;
@@ -211,8 +212,8 @@ namespace Neo.TestingEngine
         /// Converts the data in a json array to a dictionary of StackItem
         /// </summary>
         /// <param name="jsonStorage">json array with the map values to be converted</param>
-        /// <returns>Returns the built StackItem dictionary</returns>
-        private static Dictionary<PrimitiveType, StackItem> GetStorageFromJson(JObject jsonStorage)
+        /// <returns>Returns the built dictionary</returns>
+        private static Dictionary<StorageKey, StorageItem> GetStorageFromJson(JObject jsonStorage)
         {
             if (!(jsonStorage is JArray storage))
             {
@@ -220,10 +221,15 @@ namespace Neo.TestingEngine
             }
 
             var missingFieldMessage = "Missing field '{0}'";
-            var items = new Dictionary<PrimitiveType, StackItem>();
+            var items = new Dictionary<StorageKey, StorageItem>();
             foreach (var pair in storage)
             {
                 if (!pair.ContainsProperty("key"))
+                {
+                    throw new Exception(string.Format(missingFieldMessage, "key"));
+                }
+                var jsonKey = pair["key"];
+                if (!jsonKey.ContainsProperty("id") || !jsonKey.ContainsProperty("key"))
                 {
                     throw new Exception(string.Format(missingFieldMessage, "key"));
                 }
@@ -232,10 +238,22 @@ namespace Neo.TestingEngine
                 {
                     throw new Exception(string.Format(missingFieldMessage, "value"));
                 }
+                var jsonValue = pair["value"];
+                if (!jsonValue.ContainsProperty("isconstant") || !jsonValue.ContainsProperty("value"))
+                {
+                    throw new Exception(string.Format(missingFieldMessage, "value"));
+                }
 
-                var key = (PrimitiveType)ContractParameter.FromJson(pair["key"]).ToStackItem();
-                var value = ContractParameter.FromJson(pair["value"]).ToStackItem();
-                items[key] = value;
+                var key = (PrimitiveType)ContractParameter.FromJson(jsonKey["key"]).ToStackItem();
+                var value = ContractParameter.FromJson(jsonValue["value"]).ToStackItem();
+
+                var storageKey = new StorageKey()
+                {
+                    Id = int.Parse(jsonKey["id"].AsString()),
+                    Key = key.GetSpan().ToArray()
+                };
+                var storageItem = new StorageItem(value.GetSpan().ToArray(), jsonValue["isconstant"].AsBoolean());
+                items[storageKey] = storageItem;
             }
 
             return items;

@@ -56,14 +56,27 @@ namespace Neo.TestingEngine
 
         public static JObject ToJson(this DataCache<StorageKey, StorageItem> storage)
         {
-            var storageMap = new Map();
+            var jsonStorage = new JArray();
             foreach (var storagePair in storage.Seek())
             {
                 var key = new ByteString(storagePair.Key.Key);
                 var value = new ByteString(storagePair.Value.Value);
-                storageMap[key] = value;
+
+                var jsonKey = new JObject();
+                jsonKey["id"] = storagePair.Key.Id;
+                jsonKey["key"] = key.ToJson();
+
+                var jsonValue = new JObject();
+                jsonValue["isconstant"] = storagePair.Value.IsConstant;
+                jsonValue["value"] = value.ToJson();
+
+                var storageItem = new JObject();
+                storageItem["key"] = jsonKey;
+                storageItem["value"] = jsonValue;
+
+                jsonStorage.Add(storageItem);
             }
-            return storageMap.ToJson()["value"];
+            return jsonStorage;
         }
 
         public static JObject ToSimpleJson(this Transaction tx)

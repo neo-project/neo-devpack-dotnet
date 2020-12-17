@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\neo\src\neo\neo.csproj" />
     <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
   </ItemGroup>
 

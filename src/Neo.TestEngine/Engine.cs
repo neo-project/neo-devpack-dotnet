@@ -109,18 +109,10 @@ namespace Neo.TestingEngine
             snapshot.SetCurrentBlockHash(index, lastBlock?.Hash ?? newBlock.Hash);
         }
 
-        public void SetStorage(Dictionary<PrimitiveType, StackItem> storage)
+        public void SetStorage(Dictionary<StorageKey, StorageItem> storage)
         {
-            foreach (var data in storage)
+            foreach (var (key, value) in storage)
             {
-                var key = new StorageKey()
-                {
-                    Key = data.Key.GetSpan().ToArray()
-                };
-                var value = new StorageItem()
-                {
-                    Value = data.Value.GetSpan().ToArray()
-                };
                 ((TestDataCache<StorageKey, StorageItem>)engine.Snapshot.Storages).AddForTest(key, value);
             }
         }
