@@ -88,7 +88,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object GetContract(UInt160 hash, string whatReturn)
         {
-            var contract = ManagementContract.GetContract(hash);
+            var contract = ContractManagement.GetContract(hash);
             return GetContractInfo(contract, whatReturn);
         }
 
