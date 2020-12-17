@@ -6,8 +6,9 @@ namespace Template.NEP17.CSharp
 {
     public partial class NEP17 : SmartContract
     {
-        public static bool Deploy()
+        public static void _deploy(bool update)
         {
+            if (update) return;
             if (!IsOwner()) throw new Exception("No authorization.");
             if (TotalSupplyStorage.Get() > 0) throw new Exception("Contract has been deployed.");
 
@@ -15,7 +16,6 @@ namespace Template.NEP17.CSharp
             AssetStorage.Increase(Owner, InitialSupply);
 
             OnTransfer(null, Owner, InitialSupply);
-            return true;
         }
 
         public static void Update(byte[] nefFile, string manifest)
