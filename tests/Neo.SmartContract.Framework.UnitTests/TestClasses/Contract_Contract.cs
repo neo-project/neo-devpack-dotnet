@@ -11,17 +11,17 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object Create(byte[] nef, string manifest)
         {
-            return ManagementContract.Deploy(nef, manifest);
+            return ContractManagement.Deploy(nef, manifest);
         }
 
         public static void Update(byte[] nef, string manifest)
         {
-            ManagementContract.Update(nef, manifest);
+            ContractManagement.Update(nef, manifest);
         }
 
         public static void Destroy()
         {
-            ManagementContract.Destroy();
+            ContractManagement.Destroy();
         }
 
         public static int GetCallFlags()
