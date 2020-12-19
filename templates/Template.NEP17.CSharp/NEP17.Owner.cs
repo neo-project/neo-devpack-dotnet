@@ -9,7 +9,6 @@ namespace Template.NEP17.CSharp
         public static void _deploy(bool update)
         {
             if (update) return;
-            if (!IsOwner()) throw new Exception("No authorization.");
             if (TotalSupplyStorage.Get() > 0) throw new Exception("Contract has been deployed.");
 
             TotalSupplyStorage.Increase(InitialSupply);
