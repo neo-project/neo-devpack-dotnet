@@ -1,5 +1,6 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services.System;
 
 namespace Template.OracleDemo.CSharp
 {
@@ -20,7 +21,7 @@ namespace Template.OracleDemo.CSharp
         {
             if (code != (int)OracleResponseCode.Success)
             {
-                Runtime.Log("oracle response failure");
+                Runtime.Log("Oracle response failure with code " + Binary.Itoa(code));
                 return;
             }
 
