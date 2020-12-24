@@ -38,13 +38,13 @@ namespace $safeprojectname$
         public static void Update(byte[] nefFile, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            ManagementContract.Update(nefFile, manifest);
+            ContractManagement.Update(nefFile, manifest);
         }
 
         public static void Destroy()
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            ManagementContract.Destroy();
+            ContractManagement.Destroy();
         }
     }
 }
