@@ -180,7 +180,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    abi = FuncExport.Export(module, bytes, addrConvTable);
+                    abi = FuncExport.GenerateAbi(module, addrConvTable);
                     log.Log("gen abi succ");
                 }
                 catch (Exception err)
@@ -215,9 +215,8 @@ namespace Neo.Compiler
                 {
                     Compiler = "neon",
                     Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
-                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version),
-                    Script = bytes,
-                    ScriptHash = bytes.ToScriptHash()
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
+                    Script = bytes
                 };
                 nef.CheckSum = NefFile.ComputeChecksum(nef);
 

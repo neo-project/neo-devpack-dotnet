@@ -2,6 +2,7 @@ using Neo.SmartContract.Framework.Services.Neo;
 using System.ComponentModel;
 using System.Numerics;
 using System;
+using Neo.Cryptography.ECC;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
@@ -13,20 +14,14 @@ namespace Neo.Compiler.MSIL.TestClasses
             return NEO.Decimals;
         }
 
-        [DisplayName("NEO_Name")]
-        public static string NEO_Name()
-        {
-            return NEO.Name;
-        }
-
         [DisplayName("NEO_Transfer")]
-        public static bool NEO_Transfer(byte[] from, byte[] to, BigInteger amount)
+        public static bool NEO_Transfer(UInt160 from, UInt160 to, BigInteger amount)
         {
-            return NEO.Transfer(from, to, amount);
+            return NEO.Transfer(from, to, amount, null);
         }
 
         [DisplayName("NEO_BalanceOf")]
-        public static BigInteger NEO_BalanceOf(byte[] account)
+        public static BigInteger NEO_BalanceOf(UInt160 account)
         {
             return NEO.BalanceOf(account);
         }
@@ -38,19 +33,19 @@ namespace Neo.Compiler.MSIL.TestClasses
         }
 
         [DisplayName("NEO_UnclaimedGas")]
-        public static BigInteger NEO_UnclaimedGas(byte[] account, uint end)
+        public static BigInteger NEO_UnclaimedGas(UInt160 account, uint end)
         {
             return NEO.UnclaimedGas(account, end);
         }
 
         [DisplayName("NEO_RegisterCandidate")]
-        public static bool NEO_RegisterCandidate(byte[] pubkey)
+        public static bool NEO_RegisterCandidate(ECPoint pubkey)
         {
             return NEO.RegisterCandidate(pubkey);
         }
 
         [DisplayName("NEO_GetCandidates")]
-        public static (string, BigInteger)[] NEO_GetCandidates()
+        public static (ECPoint, BigInteger)[] NEO_GetCandidates()
         {
             return NEO.GetCandidates();
         }
@@ -59,12 +54,6 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static int GAS_Decimals()
         {
             return GAS.Decimals;
-        }
-
-        [DisplayName("GAS_Name")]
-        public static string GAS_Name()
-        {
-            return GAS.Name;
         }
 
         [DisplayName("Policy_GetFeePerByte")]
@@ -80,7 +69,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         }
 
         [DisplayName("Policy_IsBlocked")]
-        public static object[] Policy_IsBlocked(byte[] account)
+        public static object[] Policy_IsBlocked(UInt160 account)
         {
             return Policy.IsBlocked(account);
         }

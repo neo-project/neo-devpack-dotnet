@@ -38,6 +38,18 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return arrobj;
         }
 
+        public static int[] TestDynamicArrayInit(int length)
+        {
+            var arrobj = new int[length];
+            for (int x = 0; x < length; x++) arrobj[x] = x;
+            return arrobj;
+        }
+
+        public static byte[] TestDynamicArrayStringInit(string input)
+        {
+            return new byte[input.Length];
+        }
+
         public static object TestStructArray()
         {
             var s = new State();

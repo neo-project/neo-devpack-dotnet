@@ -13,7 +13,6 @@ namespace Neo.SmartContract.Framework.Services.System
         System_Blockchain_GetTransaction = 0x488d55e6,
         System_Blockchain_GetTransactionHeight = 0xb188324a,
         System_Blockchain_GetTransactionFromBlock = 0x69fd567e,
-        System_Blockchain_GetContract = 0x414bc5a9,
         System_Contract_IsStandard = 0x859d6bd7,
         System_Contract_CreateStandardAccount = 0x28799cf,
         Neo_Crypto_RIPEMD160 = 0xd2d6d126,
@@ -34,6 +33,8 @@ namespace Neo.SmartContract.Framework.Services.System
         System_Runtime_CheckWitness = 0x8cec27f8,
         System_Runtime_GetInvocationCounter = 0x43112784,
         System_Runtime_GetNotifications = 0xf1354327,
-        System_Runtime_GasLeft = 0xced88814
+        System_Runtime_GasLeft = 0xced88814,
+        System_Binary_Itoa = 2109399931,
+        System_Binary_Atoi = 3946854428,
     }
 }

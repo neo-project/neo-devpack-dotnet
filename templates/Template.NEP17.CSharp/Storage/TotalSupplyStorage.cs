@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System.Numerics;
 
-namespace Template.NEP5.CSharp
+namespace Template.NEP17.CSharp
 {
     public static class TotalSupplyStorage
     {

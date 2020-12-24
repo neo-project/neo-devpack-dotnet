@@ -1,14 +1,17 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
 using Neo.SmartContract;
-using Neo.SmartContract.Framework.Services.System;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
+using SyscallCallback = scfx.Neo.SmartContract.Framework.Services.System.SyscallCallback;
 
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 {
@@ -27,11 +30,12 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Callback.cs");
-            scriptHash = _engine.ScriptEntry.finalNEF.ToScriptHash();
+            scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            snapshot.Contracts.Add(scriptHash, new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
-                Script = _engine.ScriptEntry.finalNEF,
+                Hash = scriptHash,
+                Script = _engine.ScriptEntry.finalNEFScript,
                 Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
             });
         }

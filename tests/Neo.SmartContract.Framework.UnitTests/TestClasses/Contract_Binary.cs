@@ -25,5 +25,15 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             return Binary.Base58Encode(input);
         }
+
+        public static object atoi(string value, int @base)
+        {
+            return Binary.Atoi(value, @base);
+        }
+
+        public static string itoa(int value, int @base)
+        {
+            return Binary.Itoa(value, @base);
+        }
     }
 }

@@ -22,12 +22,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D5266066-0AFD-44D5-A83E-2F73668A63C8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.CSharp", "templates\Template.NEP5.CSharp\Template.NEP5.CSharp.csproj", "{ADD05222-DC45-4FDC-A41A-30A97BACC95F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP17.CSharp", "templates\Template.NEP17.CSharp\Template.NEP17.CSharp.csproj", "{ADD05222-DC45-4FDC-A41A-30A97BACC95F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{42C0FF0F-0A7C-4166-A773-1F944642C209} = {42C0FF0F-0A7C-4166-A773-1F944642C209}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP5.UnitTests", "tests\Template.NEP5.UnitTests\Template.NEP5.UnitTests.csproj", "{780141EE-D6E9-4591-8470-8F91B12027CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.NEP17.UnitTests", "tests\Template.NEP17.UnitTests\Template.NEP17.UnitTests.csproj", "{780141EE-D6E9-4591-8470-8F91B12027CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Oracle.CSharp", "templates\Template.Oracle.CSharp\Template.Oracle.CSharp.csproj", "{170C2437-75C4-48B2-A5A2-4DACAD092914}"
 EndProject

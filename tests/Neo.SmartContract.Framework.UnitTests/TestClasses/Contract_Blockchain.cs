@@ -11,12 +11,12 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Blockchain.GetHeight();
         }
 
-        public static BigInteger GetTransactionHeight(byte[] hash)
+        public static BigInteger GetTransactionHeight(UInt256 hash)
         {
             return Blockchain.GetTransactionHeight(hash);
         }
 
-        public static object GetBlockByHash(byte[] hash, string whatReturn)
+        public static object GetBlockByHash(UInt256 hash, string whatReturn)
         {
             var block = Blockchain.GetBlock(hash);
             return GetBlockInfo(block, whatReturn);
@@ -48,13 +48,13 @@ namespace Neo.Compiler.MSIL.TestClasses
             throw new Exception("Uknown property");
         }
 
-        public static object GetTxByHash(byte[] hash, string whatReturn)
+        public static object GetTxByHash(UInt256 hash, string whatReturn)
         {
             var tx = Blockchain.GetTransaction(hash);
             return GetTxInfo(tx, whatReturn);
         }
 
-        public static object GetTxByBlockHash(byte[] blockHash, int txIndex, string whatReturn)
+        public static object GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
         {
             var tx = Blockchain.GetTransactionFromBlock(blockHash, txIndex);
             return GetTxInfo(tx, whatReturn);
@@ -86,9 +86,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             throw new Exception("Uknown property");
         }
 
-        public static object GetContract(byte[] hash, string whatReturn)
+        public static object GetContract(UInt160 hash, string whatReturn)
         {
-            var contract = Blockchain.GetContract(hash);
+            var contract = ContractManagement.GetContract(hash);
             return GetContractInfo(contract, whatReturn);
         }
 
@@ -100,9 +100,10 @@ namespace Neo.Compiler.MSIL.TestClasses
                 return null;
             }
 
+            if (whatReturn == "Id") return contract.Id;
+            if (whatReturn == "UpdateCounter") return contract.UpdateCounter;
+            if (whatReturn == "Hash") return contract.Hash;
             if (whatReturn == "Manifest") return contract.Manifest;
-            if (whatReturn == "HasStorage") return contract.HasStorage;
-            if (whatReturn == "IsPayable") return contract.IsPayable;
             if (whatReturn == "Script") return contract.Script;
 
             throw new Exception("Uknown property");

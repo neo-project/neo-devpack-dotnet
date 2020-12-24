@@ -1,7 +1,11 @@
+extern alias scfx;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.IO;
+using scfxSmartContract = scfx.Neo.SmartContract.Framework.SmartContract;
+using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -15,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var list = new HashSet<string>();
 
-            using (var stream = File.OpenRead(typeof(SmartContract).Assembly.Location))
+            using (var stream = File.OpenRead(typeof(scfxSmartContract).Assembly.Location))
             {
                 var expectedType = typeof(SyscallAttribute).FullName;
                 var module = ModuleDefinition.ReadModule(stream);
@@ -28,15 +32,13 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Neo syscalls
 
-            var notFound = new System.Collections.Generic.List<string>();
+            var notFound = new List<string>();
 
             foreach (var syscall in ApplicationEngine.Services)
             {
-                if (syscall.Value.Name == "Neo.Native.Deploy") continue;
-                if (syscall.Value.Name == "Neo.Native.Tokens.NEO") continue;
-                if (syscall.Value.Name == "Neo.Native.Tokens.GAS") continue;
-                if (syscall.Value.Name == "Neo.Native.Policy") continue;
-                if (syscall.Value.Name == "Neo.Native.Call") continue;
+                if (syscall.Value.Name == "System.Contract.NativeOnPersist") continue;
+                if (syscall.Value.Name == "System.Contract.NativePostPersist") continue;
+                if (syscall.Value.Name == "System.Contract.CallNative") continue;
                 if (syscall.Value.Name == "System.Runtime.Notify") continue;
 
                 if (list.Remove(syscall.Value.Name)) continue;

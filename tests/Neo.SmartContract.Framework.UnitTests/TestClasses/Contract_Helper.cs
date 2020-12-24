@@ -5,8 +5,8 @@ namespace Compiler.MSIL.TestClasses
 {
     public class Contract_Helper : SmartContract
     {
-        static readonly byte[] data = "0a0b0c0d0E0F".HexToBytes();
-        static readonly byte[] hashResult = "AFsCjUGzicZmXQtWpwVt6hNeJTBwSipJMS".ToScriptHash();
+        static readonly byte[] data = (byte[])"0a0b0c0d0E0F".HexToBytes();
+        static readonly byte[] hashResult = (byte[])"AFsCjUGzicZmXQtWpwVt6hNeJTBwSipJMS".ToScriptHash();
 
         public static byte[] TestHexToBytes()
         {

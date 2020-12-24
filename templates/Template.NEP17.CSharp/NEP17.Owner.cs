@@ -2,32 +2,43 @@ using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System;
 
-namespace Template.NEP5.CSharp
+namespace Template.NEP17.CSharp
 {
-    public partial class NEP5 : SmartContract
+    public partial class NEP17 : SmartContract
     {
-        public static bool Deploy()
+        public static void _deploy(bool update)
         {
-            if (!IsOwner()) throw new Exception("No authorization.");
+            if (update) return;
             if (TotalSupplyStorage.Get() > 0) throw new Exception("Contract has been deployed.");
 
             TotalSupplyStorage.Increase(InitialSupply);
             AssetStorage.Increase(Owner, InitialSupply);
 
             OnTransfer(null, Owner, InitialSupply);
-            return true;
         }
 
-        public static void Update(byte[] script, string manifest)
+        public static void Update(byte[] nefFile, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Update(script, manifest);
+            ContractManagement.Update(nefFile, manifest);
         }
 
         public static void Destroy()
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            Contract.Destroy();
+            ContractManagement.Destroy();
+        }
+
+        public static void EnablePayment()
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            AssetStorage.Enable();
+        }
+
+        public static void DisablePayment()
+        {
+            if (!IsOwner()) throw new Exception("No authorization.");
+            AssetStorage.Disable();
         }
 
         private static bool IsOwner() => Runtime.CheckWitness(Owner);

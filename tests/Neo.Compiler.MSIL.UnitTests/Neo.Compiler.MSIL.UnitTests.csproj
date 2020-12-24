@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <RootNamespace>Neo.Compiler.MSIL</RootNamespace>
     <Optimize>false</Optimize>
@@ -19,7 +18,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
-    <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+    <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+          <Aliases>scfx</Aliases>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

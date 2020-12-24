@@ -4,24 +4,24 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Contract : SmartContract.Framework.SmartContract
     {
-        public static object Call(byte[] scriptHash, string method, object[] arguments)
+        public static object Call(UInt160 scriptHash, string method, object[] arguments)
         {
             return Contract.Call(scriptHash, method, arguments);
         }
 
-        public static object Create(byte[] script, string manifest)
+        public static object Create(byte[] nef, string manifest)
         {
-            return Contract.Create(script, manifest);
+            return ContractManagement.Deploy(nef, manifest);
         }
 
-        public static void Update(byte[] script, string manifest)
+        public static void Update(byte[] nef, string manifest)
         {
-            Contract.Update(script, manifest);
+            ContractManagement.Update(nef, manifest);
         }
 
         public static void Destroy()
         {
-            Contract.Destroy();
+            ContractManagement.Destroy();
         }
 
         public static int GetCallFlags()
@@ -29,7 +29,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Contract.GetCallFlags();
         }
 
-        public static byte[] CreateStandardAccount(byte[] pubKey)
+        public static UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey)
         {
             return Contract.CreateStandardAccount(pubKey);
         }
