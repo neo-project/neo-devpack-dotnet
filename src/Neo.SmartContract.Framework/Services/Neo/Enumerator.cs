@@ -7,9 +7,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Enumerator.Create")]
         public static extern Enumerator<TValue> Create(IEnumerable<TValue> entry);
 
-        [Syscall("System.Enumerator.Concat")]
-        public extern Enumerator<TValue> Concat(Enumerator<TValue> value);
-
         [Syscall("System.Enumerator.Next")]
         public extern bool Next();
 

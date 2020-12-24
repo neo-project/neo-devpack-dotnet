@@ -879,7 +879,7 @@ namespace Neo.Compiler.MSIL
                 }
                 return 0;
             }
-            else if (calltype == 4)
+            else if (calltype == 4) // is sdk contract call
             {
                 if (defs.IsGetter
                     && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.ContractHashAttribute"))
@@ -892,12 +892,16 @@ namespace Neo.Compiler.MSIL
                     ConvertPushNumber(pcount, null, to);
                     Convert1by1(VM.OpCode.PACK, null, to);
 
+                    // Push CallFlag.All to the tail of stack
+                    ConvertPushNumber((int)CallFlags.All, null, to);
+                    Convert1by1(VM.OpCode.SWAP, null, to);
+
                     // Push call method name, the first letter should be lowercase.
                     ConvertPushString(GetMethodName(defs.Body.Method), src, to);
 
                     // Push contract hash.
                     ConvertPushDataArray(callhash.ToArray(), src, to);
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_CallEx));
 
                     // If the return type is void, insert a DROP.
                     if (defs.ReturnType.FullName is "System.Void")
@@ -925,7 +929,10 @@ namespace Neo.Compiler.MSIL
             {
                 ConvertPushNumber(callpcount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
-                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                Convert1by1(VM.OpCode.REVERSE3, null, to);
+                ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
+                Convert1by1(VM.OpCode.REVERSE4, null, to);
+                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_CallEx));
             }
             else if (calltype == 3)
             {
