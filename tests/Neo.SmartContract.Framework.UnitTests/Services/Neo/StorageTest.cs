@@ -3,10 +3,10 @@ extern alias scfx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.Ledger;
 using Neo.VM.Types;
 using System;
 using System.Linq;
+using Blockchain = Neo.Ledger.Blockchain;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -170,6 +170,26 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new VM.Types.ByteString(key), new VM.Types.ByteString(value));
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_Find()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testFind");
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(new ByteString(new byte[] { 0x01 }), result.Pop());
+        }
+
+        [TestMethod]
+        public void Test_FindKeys()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testFindKeys");
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(System.Text.Encoding.Default.GetBytes("ey1"), result.Pop());
         }
     }
 }
