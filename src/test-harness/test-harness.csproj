@@ -7,7 +7,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\bctklib-3\bctklib-3.csproj" />
+    <PackageReference Include="Neo.BlockchainToolkit3" Version="0.4.67-preview" />
   </ItemGroup>
 
 </Project>
