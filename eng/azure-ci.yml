@@ -40,7 +40,6 @@ stages:
         packagesToPack: 'src/**/*.csproj'
         includesymbols: true
         versioningScheme: 'off'
-        arguments:  -c $(buildConfiguration)
     - publish: '$(Build.ArtifactStagingDirectory)'
       displayName: 'publish build artifact'
       artifact: NugetPackage
