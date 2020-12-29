@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>neo-test-harness</AssemblyName>
+    <PackageId>Neo.Test.Harness</PackageId>
+    <RootNamespace>Neo.Test.Harness</RootNamespace>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\bctklib-3\bctklib-3.csproj" />
+  </ItemGroup>
+
+</Project>
