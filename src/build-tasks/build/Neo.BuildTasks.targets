@@ -25,7 +25,6 @@
 
   <Target Name="GenerateNeoContractInterface" 
     AfterTargets="ResolveProjectReferences" 
-    DependsOnTarget="EnsureContractsBuilt"
     Condition="'@(ContractUnderTestOutputs->Count())' &gt; 0">
 
     <ItemGroup>

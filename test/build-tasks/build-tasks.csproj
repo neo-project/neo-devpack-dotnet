@@ -7,16 +7,21 @@
 
   <ItemGroup>
     <PackageReference Include="Neo.Assertions" Version="0.4.6-preview" />
-    <PackageReference Include="Neo.BuildTasks" Version="0.0.0-*" PrivateAssets="All" />
     <PackageReference Include="Neo.Test.Harness" Version="0.4.6-preview" />
   </ItemGroup>
 
-  <Target Name="TestNeoContractInterface" BeforeTargets="PrepareForBuild">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\build-tasks\build-tasks.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
 
-    <NeoContractInterface
-      ManifestFile="Apoc.manifest.json"
-      OutputFile="$(IntermediateOutputPath)\Apoc.contract-interface.cs"
-      RootNamespace="TestContract"/>
+  <UsingTask AssemblyFile="C:\Users\harry\Source\neo\seattle\neo-test\src\build-tasks\bin\Debug\netstandard2.0\neo-build-tasks.dll" TaskName="Neo.BuildTasks.NeoContractInterface"/>
+
+  <Target Name="TestNeoContractInterface" AfterTargets="PrepareForBuild">
+
+
+    <NeoContractInterface ManifestFile="Apoc.manifest.json" OutputFile="$(IntermediateOutputPath)\Apoc.contract-interface.cs" RootNamespace="TestContract" />
 
     <ItemGroup>
       <Compile Include="$(IntermediateOutputPath)\Apoc.contract-interface.cs" />

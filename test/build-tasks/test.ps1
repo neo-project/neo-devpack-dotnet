@@ -10,8 +10,7 @@ function exec($_cmd) {
     }
 }
 
-exec dotnet restore ../../src/build-tasks/
-exec dotnet pack -c Release ../../src/build-tasks/
+exec dotnet build ..\..\src\build-tasks\
 exec dotnet restore 
 exec dotnet msbuild /nologo /bl
 
