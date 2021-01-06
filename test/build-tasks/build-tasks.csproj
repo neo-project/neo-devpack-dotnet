@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo.Assertions" Version="0.4.6-preview" />
+    <PackageReference Include="Neo.BuildTasks" Version="0.0.0-*" PrivateAssets="All" />
+    <PackageReference Include="Neo.Test.Harness" Version="0.4.6-preview" />
+  </ItemGroup>
+
+  <Target Name="TestNeoContractInterface" BeforeTargets="PrepareForBuild">
+
+    <NeoContractInterface
+      ManifestFile="Apoc.manifest.json"
+      OutputFile="$(IntermediateOutputPath)\Apoc.contract-interface.cs"
+      RootNamespace="TestContract"/>
+
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)\Apoc.contract-interface.cs" />
+    </ItemGroup>
+
+  </Target>
+
+</Project>

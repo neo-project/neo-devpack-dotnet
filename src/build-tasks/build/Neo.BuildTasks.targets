@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="NeoBuildTasksFolder;NeoBuildTasksAssembly">
+
+  <PropertyGroup>
+    <NeoBuildTasksFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netstandard2.0</TaskFolder>
+    <NeoBuildTasksFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</TaskFolder>
+    <NeoBuildTasksAssembly>$(MSBuildThisFileDirectory)..\tasks\$(NeoBuildTasksFolder)\neo-build-tasks.dll</TaskAssembly>
+  </PropertyGroup>
+
+  <UsingTask AssemblyFile="$(NeoBuildTasksAssembly)" TaskName="Neo.BuildTasks.NeoContractInterface"/>
+
+  <Target Name="EnsureContractsBuilt" BeforeTargets="PrepareForBuild" Condition="'@(ContractUnderTest->Count())' &gt; 0">
+    <ItemGroup>
+      <!-- ensure contract is built before tests are built and run -->
+      <ProjectReference Include="@(ContractUnderTest)">
+        <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      </ProjectReference>
+    </ItemGroup>
+
+    <!-- retrieve outputs of contracts under test-->
+    <MSBuild Projects="@(ContractUnderTest)" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="ContractUnderTestOutputs" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="GenerateNeoContractInterface" 
+    AfterTargets="ResolveProjectReferences" 
+    DependsOnTarget="EnsureContractsBuilt"
+    Condition="'@(ContractUnderTestOutputs->Count())' &gt; 0">
+
+    <ItemGroup>
+      <ContractManifest Include="@(ContractUnderTestOutputs->'%(RootDir)%(Directory)%(Filename).manifest.json')" >
+        <OutputFile>@(ContractUnderTestOutputs->'$(IntermediateOutputPath)/%(Filename).contract-interface.cs')</OutputFile>
+      </ContractManifest>
+    </ItemGroup>
+
+    <NeoContractInterface
+
+      ManifestFile="@(ContractManifest)"
+      OutputFile="@(ContractManifest->Metadata('OutputFile'))"
+      RootNamespace="DevHawk.RegistrarTests"/>
+
+    <ItemGroup>
+      <_CompileWithGeneratedManifests Include="@(ContractManifest->Metadata('OutputFile'));@(Compile)" />
+      <Compile Remove="@(Compile)" />
+      <Compile Include="@(_CompileWithGeneratedManifests)" />
+      <_CompileWithGeneratedManifests Remove="@(_CompileWithGeneratedManifests)" />
+    </ItemGroup>
+ 
+   </Target>
+
+</Project>
