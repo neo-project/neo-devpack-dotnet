@@ -9,7 +9,7 @@
 
   <UsingTask AssemblyFile="$(NeoBuildTasksAssembly)" TaskName="Neo.BuildTasks.NeoContractInterface"/>
 
-  <Target Name="EnsureContractsBuilt" BeforeTargets="PrepareForBuild" Condition="'@(ContractUnderTest->Count())' &gt; 0">
+  <Target Name="EnsureContractsBuilt" BeforeTargets="ResolveProjectReferences" Condition="'@(ContractUnderTest->Count())' &gt; 0">
     <ItemGroup>
       <!-- ensure contract is built before tests are built and run -->
       <ProjectReference Include="@(ContractUnderTest)">
@@ -21,10 +21,12 @@
     <MSBuild Projects="@(ContractUnderTest)" Targets="GetTargetPath">
       <Output TaskParameter="TargetOutputs" ItemName="ContractUnderTestOutputs" />
     </MSBuild>
+
   </Target>
 
-  <Target Name="GenerateNeoContractInterface" 
-    AfterTargets="ResolveProjectReferences" 
+  <Target Name="GenerateNeoContractInterface"
+    DependsOnTargets="EnsureContractsBuilt"
+    BeforeTargets="ResolveProjectReferences" 
     Condition="'@(ContractUnderTestOutputs->Count())' &gt; 0">
 
     <ItemGroup>
@@ -34,18 +36,14 @@
     </ItemGroup>
 
     <NeoContractInterface
-
       ManifestFile="@(ContractManifest)"
       OutputFile="@(ContractManifest->Metadata('OutputFile'))"
       RootNamespace="DevHawk.RegistrarTests"/>
 
     <ItemGroup>
-      <_CompileWithGeneratedManifests Include="@(ContractManifest->Metadata('OutputFile'));@(Compile)" />
-      <Compile Remove="@(Compile)" />
-      <Compile Include="@(_CompileWithGeneratedManifests)" />
-      <_CompileWithGeneratedManifests Remove="@(_CompileWithGeneratedManifests)" />
+      <Compile Include="@(ContractManifest->Metadata('OutputFile'))" />
     </ItemGroup>
- 
+
    </Target>
 
 </Project>

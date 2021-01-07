@@ -16,10 +16,9 @@
     </ProjectReference>
   </ItemGroup>
 
-  <UsingTask AssemblyFile="C:\Users\harry\Source\neo\seattle\neo-test\src\build-tasks\bin\Debug\netstandard2.0\neo-build-tasks.dll" TaskName="Neo.BuildTasks.NeoContractInterface"/>
+  <UsingTask AssemblyFile="..\..\src\build-tasks\bin\Debug\netstandard2.0\neo-build-tasks.dll   " TaskName="Neo.BuildTasks.NeoContractInterface"/>
 
   <Target Name="TestNeoContractInterface" AfterTargets="PrepareForBuild">
-
 
     <NeoContractInterface ManifestFile="Apoc.manifest.json" OutputFile="$(IntermediateOutputPath)\Apoc.contract-interface.cs" RootNamespace="TestContract" />
 

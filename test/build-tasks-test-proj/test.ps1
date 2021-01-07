@@ -1,6 +1,6 @@
 Remove-Item ../../artifacts/ -Recurse -ErrorAction Ignore
-Remove-Item ../../src\build-tasks\obj\ -Recurse -ErrorAction Ignore
-Remove-Item ../../test\build-tasks\obj\ -Recurse -ErrorAction Ignore
+Remove-Item ../../src/build-tasks/obj/ -Recurse -ErrorAction Ignore
+Remove-Item ./obj/ -Recurse -ErrorAction Ignore
 
 function exec($_cmd) {
     write-host " > $_cmd $args" -ForegroundColor cyan
