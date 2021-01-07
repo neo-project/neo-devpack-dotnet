@@ -163,7 +163,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            LoadContext(context.Clone(offset, (ushort)args.Length, rvcount));
+            context = CreateContext(context.Script, (ushort)args.Length, rvcount, offset);
+            LoadContext(context);
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
