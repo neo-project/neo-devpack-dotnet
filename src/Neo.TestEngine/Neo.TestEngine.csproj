@@ -6,7 +6,6 @@
     <Version>3.0.0-preview3</Version>
     <Authors>The Neo Project</Authors>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -19,11 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-CI01105" />
+    <PackageReference Include="Neo" Version="3.0.0-CI01119" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\neo\src\neo\neo.csproj" />
     <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
   </ItemGroup>
 

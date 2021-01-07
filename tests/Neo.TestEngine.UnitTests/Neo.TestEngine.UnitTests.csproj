@@ -1,36 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="TestClasses\Contract1.cs" />
-    <Compile Remove="TestClasses\Contract2.cs" />
-    <Compile Remove="TestClasses\Contract_CheckWitness.cs" />
-    <Compile Remove="TestClasses\Contract_ContractCall.cs" />
-    <Compile Remove="TestClasses\Contract_Time.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="TestClasses\Contract_CheckWitness.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestClasses\Contract1.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestClasses\Contract2.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestClasses\Contract_Time.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestClasses\Contract_ContractCall.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
@@ -57,5 +29,12 @@
       </ReferencePath>
     </ItemGroup>
   </Target>
+
+  <ItemGroup>
+    <Compile Remove="TestClasses\*.cs" />
+    <None Include="TestClasses\*.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

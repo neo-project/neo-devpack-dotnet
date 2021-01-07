@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  DOTNET_VERSION: 3.1.100
+  DOTNET_VERSION: 5.0.100
 
 jobs:
 
@@ -21,16 +21,14 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Check format
       run: |
-        dotnet tool install --version 3.2.111002 --tool-path ./ dotnet-format --add-source https://dotnet.myget.org/F/format/api/v3/index.json
-        ./dotnet-format --check --dry-run -v diagnostic
+        dotnet tool install --version 5.0.142902 --tool-path ./ dotnet-format --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
+        ./dotnet-format . --check -v diagnostic
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.MSIL.UnitTests
       run: dotnet test tests/Neo.Compiler.MSIL.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ /p:Exclude=\"[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: dotnet test tests/Neo.SmartContract.Framework.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude=\"[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*\" /p:CoverletOutputFormat=lcov
-    - name: Test Template.NEP5.UnitTests
-      run: dotnet test tests/Template.NEP17.UnitTests  /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude=\"[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*\" /p:CoverletOutputFormat=lcov
     - name: Test Neo.TestEngine.UnitTests
       run: dotnet test tests/Neo.TestEngine.UnitTests  /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude=\"[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*\" /p:CoverletOutputFormat=lcov
     - name: Coveralls

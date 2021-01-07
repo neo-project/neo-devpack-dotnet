@@ -23,7 +23,8 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.Designation.Hash.ToString(), "0xc0073f4c7069bf38995780c9da065f9b3949ea7a");
+            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0x081514120c7894779309255b7fb18b376cec731a");
+            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x136ec44854ad9a714901eb7d714714f1791203f2");
             Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xb1c37d5847c2ae36bdde31d0cc833a7ad9667f8f");
             Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x0a46e2e37c9987f570b4af253fb77e7eef0f72b6");
             Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xa6a6c15dcdc9b997dac448b6926522d22efeedfb");
