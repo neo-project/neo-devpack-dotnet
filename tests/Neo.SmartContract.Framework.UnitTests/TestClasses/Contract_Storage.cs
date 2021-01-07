@@ -117,11 +117,11 @@ namespace Neo.Compiler.MSIL.TestClasses
             return iterator.Value;
         }
 
-        public static string TestFindKeys()
+        public static string TestFindKeys(FindOptions options)
         {
             Storage.Put("key1", new byte[] { 0x01 });
             Storage.Put("key2", new byte[] { 0x02 });
-            Enumerator<string> enumerator = Storage.FindKeys("key", 0x01);
+            Enumerator<string> enumerator = Storage.FindKeys("key", options);
             enumerator.Next();
             return enumerator.Value;
         }

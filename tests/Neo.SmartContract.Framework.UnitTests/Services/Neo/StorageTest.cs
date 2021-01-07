@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM.Types;
+using scfx::Neo.SmartContract.Framework.Services.Neo;
 using System;
 using System.Linq;
 using Blockchain = Neo.Ledger.Blockchain;
@@ -186,10 +187,16 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Test_FindKeys()
         {
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testFindKeys");
+            var result = testengine.ExecuteTestCaseStandard("testFindKeys", (byte)FindOptions.None);
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(System.Text.Encoding.Default.GetBytes("ey1"), result.Pop());
+            Assert.AreEqual("key1", result.Pop().GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testFindKeys", (byte)FindOptions.RemovePrefix);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual("key1", result.Pop().GetString());
         }
     }
 }
