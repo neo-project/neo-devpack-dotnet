@@ -906,10 +906,6 @@ namespace Neo.Compiler.MSIL
                     // Push contract hash.
                     ConvertPushDataArray(callhash.ToArray(), src, to);
                     Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
-
-                    // If the return type is void, insert a DROP.
-                    //if (defs.ReturnType.FullName is "System.Void")
-                        //Insert1(VM.OpCode.DROP, "", to);
                 }
             }
             else if (calltype == 5)
