@@ -888,24 +888,28 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    // Package the arguments into an array.
+                    // Push pcount
                     ConvertPushNumber(pcount, null, to);
-                    Convert1by1(VM.OpCode.PACK, null, to);
+
+                    // Push hasReturnValue
+                    if (defs.ReturnType.FullName is "System.Void")
+                        ConvertPushBoolean(false, null, to);
+                    else
+                        ConvertPushBoolean(true, null, to);
 
                     // Push CallFlag.All to the tail of stack
                     ConvertPushNumber((int)CallFlags.All, null, to);
-                    Convert1by1(VM.OpCode.SWAP, null, to);
 
                     // Push call method name, the first letter should be lowercase.
                     ConvertPushString(GetMethodName(defs.Body.Method), src, to);
 
                     // Push contract hash.
                     ConvertPushDataArray(callhash.ToArray(), src, to);
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_CallEx));
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
 
                     // If the return type is void, insert a DROP.
-                    if (defs.ReturnType.FullName is "System.Void")
-                        Insert1(VM.OpCode.DROP, "", to);
+                    //if (defs.ReturnType.FullName is "System.Void")
+                        //Insert1(VM.OpCode.DROP, "", to);
                 }
             }
             else if (calltype == 5)
@@ -932,7 +936,7 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.REVERSE3, null, to);
                 ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
                 Convert1by1(VM.OpCode.REVERSE4, null, to);
-                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_CallEx));
+                Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }
             else if (calltype == 3)
             {

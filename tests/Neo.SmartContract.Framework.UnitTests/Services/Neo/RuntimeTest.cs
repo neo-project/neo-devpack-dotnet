@@ -65,9 +65,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             using (ScriptBuilder sb = new ScriptBuilder())
             {
                 // First
-                sb.EmitAppCall(contract, "getInvocationCounter");
+                sb.EmitDynamicCall(contract, "getInvocationCounter", true);
                 // Second
-                sb.EmitAppCall(contract, "getInvocationCounter");
+                sb.EmitDynamicCall(contract, "getInvocationCounter", true);
 
                 engine.LoadScript(sb.ToArray());
             }

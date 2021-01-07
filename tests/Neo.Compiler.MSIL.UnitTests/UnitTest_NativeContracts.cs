@@ -24,12 +24,12 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0x081514120c7894779309255b7fb18b376cec731a");
-            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x136ec44854ad9a714901eb7d714714f1791203f2");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xb1c37d5847c2ae36bdde31d0cc833a7ad9667f8f");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x0a46e2e37c9987f570b4af253fb77e7eef0f72b6");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xa6a6c15dcdc9b997dac448b6926522d22efeedfb");
-            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xdde31084c0fdbebc7f5ed5f53a38905305ccee14");
+            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xc530c494119164a1374a755aa54b1016749dc339");
+            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x35fa4a901392076619a3269626b6580c0b2afdf9");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xfe723d2bf2e9eace4a21ac7a93d9598710cb0e68");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x0e1b9bfaa44e60311f6f3c96cfcd6d12c2fc3add");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x149a7f61eb3b4763b9655836ec7e75ddafdd1717");
+            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0x6916fc60a2007a76f02abaee6c7bbd12af548453");
         }
 
         [TestMethod]
