@@ -35,6 +35,7 @@ namespace Neo.TestingEngine
 
         private Engine()
         {
+            var _ = TestBlockchain.TheNeoSystem;
             Reset();
         }
 

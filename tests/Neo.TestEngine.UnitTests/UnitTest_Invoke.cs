@@ -275,20 +275,28 @@ namespace TestEngine.UnitTests
         [TestMethod]
         public void Test_Json_With_Storage()
         {
-            StackItem arguments = 16;
             PrimitiveType key = "example";
-            StackItem value = 123;
+            key = new ByteString(key.GetSpan().ToArray());
+            var storageKey = new JObject();
+            storageKey["id"] = 0;
+            storageKey["key"] = key.ToParameter().ToJson();
 
-            Map storage = new Map()
-            {
-                [key] = value
-            };
+            StackItem value = "123";
+            value = new ByteString(value.GetSpan().ToArray());
+            var storageValue = new JObject();
+            storageValue["isconstant"] = false;
+            storageValue["value"] = value.ToParameter().ToJson();
 
+            var storageItem = new JObject();
+            storageItem["key"] = storageKey;
+            storageItem["value"] = storageValue;
+
+            StackItem arguments = 16;
             var json = new JObject();
             json["path"] = "./TestClasses/Contract1.nef";
             json["method"] = "testArgs1";
             json["arguments"] = new JArray() { arguments.ToParameter().ToJson() };
-            json["storage"] = storage.ToParameter().ToJson()["value"];
+            json["storage"] = new JArray() { storageItem };
 
             var args = new string[] {
                 json.AsString()
@@ -299,13 +307,14 @@ namespace TestEngine.UnitTests
             Assert.IsTrue(result.ContainsProperty("storage"));
             Assert.IsInstanceOfType(result["storage"], typeof(JArray));
 
-            storage[key] = value.GetSpan().ToArray();
+            storageKey["key"] = key.ToJson();
+            storageValue["value"] = value.ToJson();
             var storageArray = result["storage"] as JArray;
 
             var contains = false;
             foreach (var pair in storageArray)
             {
-                if (pair.AsString() == storage.ToJson()["value"].AsString())
+                if (pair.AsString() == storageItem.AsString())
                 {
                     contains = true;
                     break;
