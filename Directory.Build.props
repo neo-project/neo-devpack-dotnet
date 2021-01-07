@@ -12,4 +12,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Neo" Version="3.0.0-CI01119" />
+  </ItemGroup>
 </Project>

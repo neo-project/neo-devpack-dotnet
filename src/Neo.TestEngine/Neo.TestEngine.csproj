@@ -18,10 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-CI01119" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
   </ItemGroup>
 
