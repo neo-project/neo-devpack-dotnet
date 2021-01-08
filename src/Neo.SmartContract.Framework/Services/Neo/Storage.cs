@@ -219,31 +219,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Storage.GetContext")]
         [Syscall("System.Storage.Find")]
         public static extern Iterator<string, byte[]> Find(string prefix, byte findOptions);
-
-        ///// <summary>
-        ///// Returns a key string enumerator for a byte[] prefix on current Storage context
-        ///// </summary>
-        //[Syscall("System.Storage.GetContext")]
-        //[Syscall("System.Storage.FindKeys")]
-        //public static extern Enumerator<byte[]> FindKeys(byte[] prefix, FindOptions options);
-
-        ///// <summary>
-        ///// Returns a key string enumerator for a string prefix on current Storage context
-        ///// </summary>
-        //[Syscall("System.Storage.GetContext")]
-        //[Syscall("System.Storage.FindKeys")]
-        //public static extern Enumerator<string> FindKeys(string prefix, FindOptions options);
-
-        ///// <summary>
-        ///// Returns a key string enumerator for a byte[] prefix on current Storage context
-        ///// </summary>
-        //[Syscall("System.Storage.FindKeys")]
-        //public static extern Enumerator<byte[]> FindKeys(StorageContext context, byte[] prefix, FindOptions options);
-
-    //    /// <summary>
-    //    /// Returns a key string enumerator for a string prefix on current Storage context
-    //    /// </summary>
-    //    [Syscall("System.Storage.FindKeys")]
-    //    public static extern Enumerator<string> FindKeys(StorageContext context, string prefix, FindOptions options);
     }
 }

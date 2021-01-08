@@ -45,7 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\NEO\master\src\neo\neo.csproj" />
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <!--
         The unified Neo domain model defines types with the same fully namespace qualified name
