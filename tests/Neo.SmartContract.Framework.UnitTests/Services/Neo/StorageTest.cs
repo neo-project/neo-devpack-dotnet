@@ -70,7 +70,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Script = testengine.EntryContext.Script,
+                Nef = testengine.ScriptEntry.nefFile,
                 Manifest = new Manifest.ContractManifest()
             });
         }
@@ -181,22 +181,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(new ByteString(new byte[] { 0x01 }), result.Pop());
-        }
-
-        [TestMethod]
-        public void Test_FindKeys()
-        {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testFindKeys", (byte)FindOptions.None);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual("key1", result.Pop().GetString());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testFindKeys", (byte)FindOptions.RemovePrefix);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual("key1", result.Pop().GetString());
         }
     }
 }

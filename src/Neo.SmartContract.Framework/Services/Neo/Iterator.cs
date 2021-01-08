@@ -10,30 +10,12 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Iterator.Create")]
         public static extern Iterator<TKey, TValue> Create(IEnumerable<TValue> entry);
 
-        [Syscall("System.Enumerator.Next")]
+        [Syscall("System.Iterator.Next")]
         public extern bool Next();
-
-        public extern TKey Key
-        {
-            [Syscall("System.Iterator.Key")]
-            get;
-        }
 
         public extern TValue Value
         {
-            [Syscall("System.Enumerator.Value")]
-            get;
-        }
-
-        public extern Enumerator<TKey> Keys
-        {
-            [Syscall("System.Iterator.Keys")]
-            get;
-        }
-
-        public extern Enumerator<TValue> Values
-        {
-            [Syscall("System.Iterator.Values")]
+            [Syscall("System.Iterator.Value")]
             get;
         }
     }

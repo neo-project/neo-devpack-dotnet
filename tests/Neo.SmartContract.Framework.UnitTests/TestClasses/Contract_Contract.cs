@@ -4,9 +4,9 @@ namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Contract : SmartContract.Framework.SmartContract
     {
-        public static object Call(UInt160 scriptHash, string method, object[] arguments)
+        public static object Call(UInt160 scriptHash, string method, byte flag, bool hasReturnValue, ushort pcount)
         {
-            return Contract.Call(scriptHash, method, arguments);
+            return Contract.Call(scriptHash, method, flag, hasReturnValue, pcount);
         }
 
         public static object Create(byte[] nef, string manifest)

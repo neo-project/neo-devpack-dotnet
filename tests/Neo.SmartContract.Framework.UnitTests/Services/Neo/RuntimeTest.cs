@@ -58,7 +58,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
-                Script = _engine.InvocationStack.Peek().Script,
+                Nef = _engine.ScriptEntry.nefFile,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract_Runtime.cs").finalManifest)),
             });
 

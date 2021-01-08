@@ -5,6 +5,7 @@ using Neo.IO;
 using Neo.Ledger;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -381,7 +382,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var contract = new ContractState()
             {
                 Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
-                Script = new byte[] { 0x01, 0x02, 0x03 },
+                Nef = new NefFile() {
+                    Script = new byte[] { 0x01, 0x02, 0x03 },
+                    Compiler = "neon",
+                    Version = "test",
+                    Tokens = System.Array.Empty<MethodToken>()
+                },
                 Manifest = new Manifest.ContractManifest()
                 {
                     SupportedStandards = new string[0],

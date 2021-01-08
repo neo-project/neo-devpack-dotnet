@@ -113,7 +113,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             _testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Script = testengine.EntryContext.Script,
+                Nef = testengine.ScriptEntry.nefFile,
                 Manifest = new ContractManifest()
             });
 
@@ -130,7 +130,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             _testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Script = testengine.EntryContext.Script,
+                Nef = testengine.ScriptEntry.nefFile,
                 Manifest = new ContractManifest()
             });
 

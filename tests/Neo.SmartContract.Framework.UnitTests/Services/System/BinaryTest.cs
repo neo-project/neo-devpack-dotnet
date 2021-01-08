@@ -29,7 +29,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
-                Script = _engine.ScriptEntry.finalNEFScript,
+                Nef = _engine.ScriptEntry.nefFile,
                 Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
             });
         }
