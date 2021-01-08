@@ -382,7 +382,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var contract = new ContractState()
             {
                 Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
-                Nef = new NefFile() {
+                Nef = new NefFile()
+                {
                     Script = new byte[] { 0x01, 0x02, 0x03 },
                     Compiler = "neon",
                     Version = "test",

@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = new UInt160(noStandard),
-                Nef = new NefFile() { Script = System.Array.Empty<byte>() }        
+                Nef = new NefFile() { Script = System.Array.Empty<byte>() }
             });
 
             // Empty
