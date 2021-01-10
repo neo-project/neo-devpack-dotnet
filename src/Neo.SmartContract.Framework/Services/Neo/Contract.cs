@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// <summary>
         /// Script
         /// </summary>
-        public readonly byte[] Script;
+        public readonly byte[] NefFile;
 
         /// <summary>
         /// Manifest

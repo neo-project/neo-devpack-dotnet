@@ -2,7 +2,7 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xfe723d2bf2e9eace4a21ac7a93d9598710cb0e68")]
+    [Contract("0x8cd3889136056b3304ec59f6d424b8767710ed79")]
     public class Oracle
     {
         public static extern UInt160 Hash { [ContractHash] get; }

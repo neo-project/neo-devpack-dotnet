@@ -21,8 +21,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public BuildScript ScriptEntry { get; private set; }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), TestGas)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null, Block persistingBlock = null)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), persistingBlock, TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }

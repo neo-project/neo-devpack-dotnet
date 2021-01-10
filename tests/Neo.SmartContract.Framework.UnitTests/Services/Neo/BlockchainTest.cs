@@ -45,7 +45,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 }
             };
 
-            snapshot.SetPersistingBlock(_block);
             snapshot.BlockHashIndex.GetAndChange().Index = _block.Index;
             snapshot.BlockHashIndex.GetAndChange().Hash = _block.Hash;
             snapshot.Blocks.Add(_block.Hash, _block.Trim());
@@ -63,7 +62,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 .GetValue(Blockchain.Singleton);
             header_index.Add(_block.Hash);
 
-            _engine = new TestEngine(snapshot: snapshot);
+            _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
         }
 

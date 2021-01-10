@@ -2,7 +2,7 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xc530c494119164a1374a755aa54b1016749dc339")]
+    [Contract("0xbee421fdbb3e791265d2104cb34934f53fcc0e45")]
     public class ContractManagement
     {
         public static extern UInt160 Hash { [ContractHash] get; }

@@ -44,7 +44,21 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(TriggerType.Application, new DummyVerificable());
+            _engine = new TestEngine(TriggerType.Application, new DummyVerificable(), persistingBlock: new Block()
+            {
+                Index = 123,
+                Timestamp = 1234,
+                ConsensusData = new ConsensusData(),
+                Transactions = new Transaction[0],
+                Witness = new Witness()
+                {
+                    InvocationScript = new byte[0],
+                    VerificationScript = new byte[0]
+                },
+                NextConsensus = UInt160.Zero,
+                MerkleRoot = UInt256.Zero,
+                PrevHash = UInt256.Zero
+            });
             _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
         }
 
@@ -89,22 +103,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_Time()
         {
-            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(new Block()
-            {
-                Index = 123,
-                Timestamp = 1234,
-                ConsensusData = new ConsensusData(),
-                Transactions = new Transaction[0],
-                Witness = new Witness()
-                {
-                    InvocationScript = new byte[0],
-                    VerificationScript = new byte[0]
-                },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
-                PrevHash = UInt256.Zero
-            });
-
             var result = _engine.ExecuteTestCaseStandard("getTime");
             Assert.AreEqual(1, result.Count);
 
