@@ -10,7 +10,7 @@ namespace Neo.Compiler.MSIL.Extensions
     {
         public static void ContractAdd(this StoreView snapshot, ContractState contract)
         {
-            var key = new KeyBuilder(0, 8).Add(contract.Hash);
+            var key = new KeyBuilder(-1, 8).Add(contract.Hash);
             snapshot.Storages.Add(key, new StorageItem(contract));
         }
 
