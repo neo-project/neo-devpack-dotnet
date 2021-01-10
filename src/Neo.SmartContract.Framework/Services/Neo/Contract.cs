@@ -18,9 +18,9 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly UInt160 Hash;
 
         /// <summary>
-        /// Script
+        /// Nef
         /// </summary>
-        public readonly byte[] NefFile;
+        public readonly byte[] Nef;
 
         /// <summary>
         /// Manifest

@@ -927,6 +927,7 @@ namespace Neo.Compiler.MSIL
             else if (calltype == 6)
             {
                 ConvertPushNumber(callpcount, src, to);
+                Convert1by1(VM.OpCode.PACK, null, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
                 Convert1by1(VM.OpCode.REVERSE3, null, to);
                 ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag

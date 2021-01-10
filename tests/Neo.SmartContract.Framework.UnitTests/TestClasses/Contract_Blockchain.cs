@@ -104,7 +104,7 @@ namespace Neo.Compiler.MSIL.TestClasses
             if (whatReturn == "UpdateCounter") return contract.UpdateCounter;
             if (whatReturn == "Hash") return contract.Hash;
             if (whatReturn == "Manifest") return contract.Manifest;
-            if (whatReturn == "Script") return contract.Script;
+            if (whatReturn == "Nef") return contract.Nef;
 
             throw new Exception("Uknown property");
         }
