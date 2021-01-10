@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM.Types;
-using scfx::Neo.SmartContract.Framework.Services.Neo;
 using System;
 using System.Linq;
 using Blockchain = Neo.Ledger.Blockchain;

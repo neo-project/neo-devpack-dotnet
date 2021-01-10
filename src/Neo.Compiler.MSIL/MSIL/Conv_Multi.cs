@@ -888,14 +888,9 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    // Push pcount
+                    // Push args
                     ConvertPushNumber(pcount, null, to);
-
-                    // Push hasReturnValue
-                    if (defs.ReturnType.FullName is "System.Void")
-                        ConvertPushBoolean(false, null, to);
-                    else
-                        ConvertPushBoolean(true, null, to);
+                    Insert1(VM.OpCode.PACK, "", to);
 
                     // Push CallFlag.All to the tail of stack
                     ConvertPushNumber((int)CallFlags.All, null, to);
