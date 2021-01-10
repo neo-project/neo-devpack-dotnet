@@ -86,13 +86,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         /// Returns a byte[] to byte[] iterator for a byte[] prefix on a given Storage context (faster: generates opcode directly)
         /// </summary>
         [Syscall("System.Storage.Find")]
-        public static extern Iterator<byte[], byte[]> Find(StorageContext context, byte[] prefix);
-
-        /// <summary>
-        /// Returns a string to byte[] iterator for a string prefix on a given Storage context (faster: generates opcode directly)
-        /// </summary>
-        [Syscall("System.Storage.Find")]
-        public static extern Iterator<string, byte[]> Find(StorageContext context, string prefix);
+        public static extern Iterator Find(StorageContext context, ByteString prefix, FindOptions options = FindOptions.None);
 
         /// <summary>
         /// Returns the byte[] value corresponding to given byte[] key for current Storage context
@@ -205,19 +199,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
         [Syscall("System.Storage.GetContext")]
         [Syscall("System.Storage.Delete")]
         public static extern void Delete(string key);
-
-        /// <summary>
-        /// Returns a byte[] to byte[] iterator for a byte[] prefix on current Storage context
-        /// </summary>
-        [Syscall("System.Storage.GetContext")]
-        [Syscall("System.Storage.Find")]
-        public static extern Iterator<byte[], byte[]> Find(byte[] prefix, byte findOptions);
-
-        /// <summary>
-        /// Returns a string to byte[] iterator for a string prefix on current Storage context
-        /// </summary>
-        [Syscall("System.Storage.GetContext")]
-        [Syscall("System.Storage.Find")]
-        public static extern Iterator<string, byte[]> Find(string prefix, byte findOptions);
     }
 }
