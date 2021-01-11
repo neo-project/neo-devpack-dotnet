@@ -8,7 +8,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static int TestNextByteArray(byte[] a)
         {
             int sum = 0;
-            var iterator = Iterator<byte, byte>.Create(a);
+            var iterator = Iterator.Create<byte>(a);
 
             while (iterator.Next())
             {
@@ -21,7 +21,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static int TestNextIntArray(int[] a)
         {
             int sum = 0;
-            var iterator = Iterator<int, int>.Create(a);
+            var iterator = Iterator.Create<int>(a);
 
             while (iterator.Next())
             {

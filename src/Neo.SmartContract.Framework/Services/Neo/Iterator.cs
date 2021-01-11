@@ -13,9 +13,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Iterator.Create")]
         public static extern Iterator<byte> Create(ByteString buffer);
-
-        [Syscall("System.Iterator.Next")]
-        public extern bool Next();
     }
 
     public class Iterator<T> : IApiInterface
@@ -25,5 +22,8 @@ namespace Neo.SmartContract.Framework.Services.Neo
             [Syscall("System.Iterator.Value")]
             get;
         }
+
+        [Syscall("System.Iterator.Next")]
+        public extern bool Next();
     }
 }
