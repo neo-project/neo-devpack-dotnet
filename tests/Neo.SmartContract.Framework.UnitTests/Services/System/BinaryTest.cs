@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-          snapshot.ContractAdd(new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
                 Nef = _engine.ScriptEntry.nefFile,

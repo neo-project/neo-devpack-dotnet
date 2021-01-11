@@ -58,7 +58,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All, true, 0);
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All, new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -116,8 +116,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine.Reset();
             nef.Script = scriptUpdate.finalNEFScript;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All, true, 2,
-                nef.ToArray(), manifestUpdate.ToJson().ToString());
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All,
+                new Array(new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
@@ -128,7 +128,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Call Again
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "newContract", (byte)CallFlags.All, true, 0);
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "newContract", (byte)CallFlags.All, new Array());
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
