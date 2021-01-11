@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework.Services.System;
 using System;
@@ -8,22 +9,22 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static byte[] base64Decode(string input)
         {
-            return Binary.Base64Decode(input);
+            return (byte[])Binary.Base64Decode(input);
         }
 
         public static string base64Encode(byte[] input)
         {
-            return Binary.Base64Encode(input);
+            return Binary.Base64Encode((ByteString)input);
         }
 
         public static byte[] base58Decode(string input)
         {
-            return Binary.Base58Decode(input);
+            return (byte[])Binary.Base58Decode(input);
         }
 
         public static string base58Encode(byte[] input)
         {
-            return Binary.Base58Encode(input);
+            return Binary.Base58Encode((ByteString)input);
         }
 
         public static object atoi(string value, int @base)

@@ -118,7 +118,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             });
 
             var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
-            var item = result.Pop() as Buffer;
+            var item = result.Pop() as ByteString;
             Assert.AreEqual(123, item.GetSpan()[0]);
         }
 

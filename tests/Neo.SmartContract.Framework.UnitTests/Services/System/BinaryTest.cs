@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
-            snapshot.ContractAdd(new ContractState()
+          snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
                 Nef = _engine.ScriptEntry.nefFile,
@@ -66,7 +66,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<VM.Types.ByteString>();
+            var item = result.Pop<VM.Types.Buffer>();
             Assert.AreEqual("test", item.GetString());
         }
 
@@ -90,7 +90,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<VM.Types.ByteString>();
+            var item = result.Pop<VM.Types.Buffer>();
             Assert.AreEqual("test", item.GetString());
         }
 
