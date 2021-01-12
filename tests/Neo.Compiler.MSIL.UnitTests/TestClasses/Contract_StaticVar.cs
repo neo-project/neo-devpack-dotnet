@@ -1,8 +1,11 @@
+using System.Numerics;
+
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_staticvar : SmartContract.Framework.SmartContract
     {
         static int a1 = 1;
+        static readonly BigInteger a2 = BigInteger.Parse("123");
 
         public static object Main()
         {
@@ -15,9 +18,15 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             a1 += 5;
         }
+
         static void testmulti()
         {
             a1 *= 7;
+        }
+
+        public static BigInteger testBigIntegerParse()
+        {
+            return a2;
         }
     }
 }

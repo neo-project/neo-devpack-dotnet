@@ -47,6 +47,16 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void Test_testBigIntegerParse()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
+            var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse");
+            var var1 = result.Pop() as Neo.VM.Types.ByteString;
+            Assert.AreEqual(123, var1.GetInteger());
+        }
+
+        [TestMethod]
         public void Test_StaticConsturct()
         {
             StackItem var1;
