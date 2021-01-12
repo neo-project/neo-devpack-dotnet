@@ -199,7 +199,7 @@ namespace Neo.SmartContract.Framework
         public extern static UInt160 ToScriptHash(this string address);
 
         [NonemitWithConvert(ConvertMethod.ToBigInteger)]
-        public extern static BigInteger ToBigInteger(this string text);
+        public extern static BigInteger Parse(this string text);
 
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
