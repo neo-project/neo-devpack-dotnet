@@ -30,5 +30,10 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return a2 + a3;
         }
+
+        public static BigInteger testBigIntegerParse2(string text)
+        {
+            return BigInteger.Parse(text);
+        }
     }
 }

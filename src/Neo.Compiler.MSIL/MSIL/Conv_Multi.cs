@@ -757,6 +757,13 @@ namespace Neo.Compiler.MSIL
                     Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
                     return 0;
                 }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Parse(System.String)")
+                {
+                    ConvertPushNumber(10, null, to);        // Push Base
+                    Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Atoi));
+                    return 0;
+                }
             }
 
             if (calltype == 0)
