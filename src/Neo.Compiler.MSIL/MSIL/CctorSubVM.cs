@@ -228,10 +228,11 @@ namespace Neo.Compiler.MSIL
                                                 if (p is string pstr)
                                                 {
                                                     p = System.Numerics.BigInteger.Parse(pstr);
+                                                    calcStack.Push(p);
+                                                    break;
                                                 }
 
-                                                calcStack.Push(p);
-                                                break;
+                                                throw new InvalidOperationException("Unsupported call to BigInteger.Parse");
                                             }
                                         case 2:
                                             {
