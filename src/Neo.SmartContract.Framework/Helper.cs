@@ -201,15 +201,6 @@ namespace Neo.SmartContract.Framework
         [NonemitWithConvert(ConvertMethod.ToBigInteger)]
         public extern static BigInteger Parse(this string text);
 
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.ISNULL)]
-        [OpCode(OpCode.JMPIFNOT, "0x05")]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern static BigInteger ToBigInteger(this ByteString text);
-
         [Syscall("System.Binary.Serialize")]
         public extern static byte[] Serialize(this object source);
 
