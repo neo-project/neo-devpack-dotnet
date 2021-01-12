@@ -1,6 +1,7 @@
 using Neo.Cryptography;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Neo.Compiler.MSIL
@@ -219,13 +220,43 @@ namespace Neo.Compiler.MSIL
                                 }
                                 else if (m.Name == "Parse")
                                 {
-                                    var p = calcStack.Pop();
-                                    if (p is string pstr)
+                                    switch (calcStack.Count)
                                     {
-                                        p = System.Numerics.BigInteger.Parse(pstr);
-                                    }
+                                        case 1:
+                                            {
+                                                var p = calcStack.Pop();
+                                                if (p is string pstr)
+                                                {
+                                                    p = System.Numerics.BigInteger.Parse(pstr);
+                                                }
 
-                                    calcStack.Push(p);
+                                                calcStack.Push(p);
+                                                break;
+                                            }
+                                        case 2:
+                                            {
+                                                var s = calcStack.Pop();
+                                                var p = calcStack.Pop();
+                                                if (p is string pstr)
+                                                {
+                                                    if (s is int)
+                                                    {
+                                                        p = System.Numerics.BigInteger.Parse(pstr, (NumberStyles)s);
+                                                        calcStack.Push(p);
+                                                        break;
+                                                    }
+                                                    else if (s is IFormatProvider)
+                                                    {
+                                                        p = System.Numerics.BigInteger.Parse(pstr, (IFormatProvider)s);
+                                                        calcStack.Push(p);
+                                                        break;
+                                                    }
+                                                }
+
+                                                throw new InvalidOperationException("Unsupported call to BigInteger.Parse");
+                                            }
+                                        default: throw new InvalidOperationException("Unsupported call to BigInteger.Parse");
+                                    }
                                 }
                             }
                             else
