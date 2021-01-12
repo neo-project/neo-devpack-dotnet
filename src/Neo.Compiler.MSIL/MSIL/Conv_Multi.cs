@@ -888,7 +888,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    // Push args
+                    // Package the arguments into an array.
                     ConvertPushNumber(pcount, null, to);
                     Convert1by1(VM.OpCode.PACK, null, to);
 
