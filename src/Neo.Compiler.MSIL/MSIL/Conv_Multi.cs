@@ -926,11 +926,9 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 6)
             {
-                ConvertPushNumber(callpcount, src, to);
-                Convert1by1(VM.OpCode.PACK, null, to);
-                Convert1by1(VM.OpCode.ROLL, null, to);
-                Convert1by1(VM.OpCode.REVERSE3, null, to);
                 ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
+                ConvertPushNumber(callpcount, src, to);
+                Convert1by1(VM.OpCode.ROLL, null, to);
                 Convert1by1(VM.OpCode.REVERSE4, null, to);
                 Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }

@@ -14,5 +14,11 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return a + b;
         }
+
+        public static string testDynamicCall(byte[] token, string method)
+        {
+            var result = ((Func<string, object[], string>)token.ToDelegate())(method, new object[0]);
+            return result;
+        }
     }
 }
