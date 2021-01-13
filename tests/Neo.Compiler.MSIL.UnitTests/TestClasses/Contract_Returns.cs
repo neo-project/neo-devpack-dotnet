@@ -7,6 +7,17 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_Returns : SmartContract.Framework.SmartContract
     {
+        public delegate void delOnSum(int total);
+        public static event delOnSum OnSum;
+
+        /// <summary>
+        /// No return
+        /// </summary>
+        public static void Sum(int a, int b)
+        {
+            OnSum(a + b);
+        }
+
         /// <summary>
         /// One return
         /// </summary>

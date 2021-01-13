@@ -22,7 +22,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             _engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
-                Script = _engine.Build("./TestClasses/Contract1.cs").finalNEFScript,
+                Nef = _engine.Build("./TestClasses/Contract1.cs").nefFile,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract1.cs").finalManifest)),
             });
 

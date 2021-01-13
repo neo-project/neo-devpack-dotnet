@@ -7,12 +7,19 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class UnitTest_Returns
     {
+        private TestEngine testengine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
+        }
+
         [TestMethod]
         public void Test_OneReturn()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
-
+            testengine.Reset();
             var result = testengine.GetMethod("subtract").Run(5, 9);
 
             Integer wantresult = -4;
@@ -22,9 +29,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_DoubleReturnA()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
-
+            testengine.Reset();
             var result = testengine.GetMethod("div").RunEx(9, 5);
 
             Assert.AreEqual(1, result.Count);
@@ -34,11 +39,21 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void Test_VoidReturn()
+        {
+            testengine.Reset();
+            var result = testengine.GetMethod("sum").RunEx(9, 5);
+
+            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(1, testengine.Notifications.Count);
+            Assert.AreEqual("OnSum", testengine.Notifications[0].EventName);
+            Assert.AreEqual(14, testengine.Notifications[0].State[0].GetInteger());
+        }
+
+        [TestMethod]
         public void Test_DoubleReturnB()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Returns.cs");
-
+            testengine.Reset();
             var result = testengine.GetMethod("mix").RunEx(9, 5);
 
             Assert.AreEqual(1, result.Count);

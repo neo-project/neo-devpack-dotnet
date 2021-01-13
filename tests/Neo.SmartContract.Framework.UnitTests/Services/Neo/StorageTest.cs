@@ -3,10 +3,10 @@ extern alias scfx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.Ledger;
 using Neo.VM.Types;
 using System;
 using System.Linq;
+using Blockchain = Neo.Ledger.Blockchain;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -36,9 +36,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
             var rItem = result.Pop();
-            Assert.IsInstanceOfType(rItem, typeof(VM.Types.ByteString));
-            ReadOnlySpan<byte> data = rItem as VM.Types.ByteString;
-
+            Assert.IsInstanceOfType(rItem, typeof(VM.Types.Buffer));
+            ReadOnlySpan<byte> data = rItem.GetSpan();
             Assert.AreEqual(1, testengine.Snapshot.Storages.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
             return data.ToArray();
         }
@@ -69,7 +68,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Script = testengine.EntryContext.Script,
+                Nef = testengine.ScriptEntry.nefFile,
                 Manifest = new Manifest.ContractManifest()
             });
         }
@@ -128,10 +127,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(1, result.Count);
 
-            VM.Types.ByteString bs = result.Pop() as VM.Types.ByteString;
+            var bs = result.Pop().GetSpan().ToArray();
             var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
 
-            Assert.AreEqual(new VM.Types.ByteString(value), bs);
+            CollectionAssert.AreEqual(value, bs);
         }
 
         [TestMethod]
@@ -170,6 +169,16 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new VM.Types.ByteString(key), new VM.Types.ByteString(value));
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_Find()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testFind");
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(new ByteString(new byte[] { 0x01 }), result.Pop());
         }
     }
 }

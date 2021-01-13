@@ -9,6 +9,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly long SystemFee;
         public readonly long NetworkFee;
         public readonly uint ValidUntilBlock;
-        public readonly byte[] Script;
+        public readonly ByteString Script;
     }
 }

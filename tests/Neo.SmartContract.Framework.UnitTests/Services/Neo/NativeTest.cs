@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Transactions = new Network.P2P.Payloads.Transaction[0],
                 Witness = new Network.P2P.Payloads.Witness()
                 {
-                    InvocationScript = new byte[0],
+                    InvocationScript = System.Array.Empty<byte>(),
                     VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
                 },
                 NextConsensus = UInt160.Zero,
@@ -34,8 +34,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             };
 
             _engine = new TestEngine(TriggerType.Application, block);
-            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(block);
-            _engine.Snapshot.DeployNativeContracts();
+            _engine.Snapshot.DeployNativeContracts(block);
 
             _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");

@@ -18,9 +18,9 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly UInt160 Hash;
 
         /// <summary>
-        /// Script
+        /// Nef
         /// </summary>
-        public readonly byte[] Script;
+        public readonly ByteString Nef;
 
         /// <summary>
         /// Manifest
@@ -28,10 +28,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly string Manifest;
 
         [Syscall("System.Contract.Call")]
-        public static extern object Call(UInt160 scriptHash, string method, object[] arguments);
-
-        [Syscall("System.Contract.CallEx")]
-        public static extern object CallEx(UInt160 scriptHash, string method, object[] arguments, CallFlags flag);
+        public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[] args);
 
         [Syscall("System.Contract.GetCallFlags")]
         public static extern byte GetCallFlags();
