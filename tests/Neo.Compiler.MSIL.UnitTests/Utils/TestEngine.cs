@@ -88,7 +88,16 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 this.ResultStack.Pop();
             }
-            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEFScript);
+            if (ScriptEntry != null)
+            {
+                this.LoadScript(ScriptEntry.finalNEFScript);
+                // Mock contract
+                var contextState = CurrentContext.GetState<ExecutionContextState>();
+                contextState.Contract ??= new ContractState()
+                {
+                    Nef = ScriptEntry.nefFile
+                };
+            }
         }
 
         public class ContractMethod
@@ -165,6 +174,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             var context = InvocationStack.Pop();
             context = CreateContext(context.Script, (ushort)args.Length, rvcount, offset);
             LoadContext(context);
+            // Mock contract
+            var contextState = CurrentContext.GetState<ExecutionContextState>();
+            contextState.Contract ??= new ContractState()
+            {
+                Nef = ScriptEntry.nefFile
+            };
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
