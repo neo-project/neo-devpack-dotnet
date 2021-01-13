@@ -389,9 +389,9 @@ namespace Neo.Compiler.MSIL
             return false;
         }
 
-        private int ConvertCall(OpCode src, NeoMethod to)
+        private int ConvertCall(OpCode src, NeoMethod to, List<MethodToken> methodTokens)
         {
-            Mono.Cecil.MethodReference refs = src.tokenUnknown as Mono.Cecil.MethodReference;
+            MethodReference refs = src.tokenUnknown as MethodReference;
 
             int calltype = 0;
             string callname;
@@ -896,22 +896,11 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    // Package the arguments into an array.
-                    ConvertPushNumber(pcount, null, to);
-                    Convert1by1(VM.OpCode.PACK, null, to);
-
-                    // Push CallFlag.All to the tail of stack
-                    ConvertPushNumber((int)CallFlags.All, null, to);
-
-                    // Push call method name, the first letter should be lowercase.
-                    ConvertPushString(GetMethodName(defs.Body.Method), src, to);
-
-                    // Push contract hash.
-                    ConvertPushDataArray(callhash.ToArray(), src, to);
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                    ushort methodId = AddMethodToken(methodTokens, callhash, defs.Body.Method, CallFlags.All);
+                    Insert1(VM.OpCode.CALLT, "", to, BitConverter.GetBytes(methodId));
 
                     // If the return type is void, insert a DROP.
-                    if (defs.ReturnType.FullName is "System.Void")
+                    if (defs.ReturnType.FullName == FuncExport.Void.FullName)
                         Insert1(VM.OpCode.DROP, "", to);
                 }
             }
@@ -949,6 +938,41 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
+        }
+
+        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, MethodDefinition method, CallFlags flags)
+        {
+            var mt = new MethodToken()
+            {
+                Hash = hash,
+                Method = GetMethodName(method),
+                CallFlags = flags,
+                ParametersCount = (ushort)method.Parameters.Count,
+                HasReturnValue = method.ReturnType.FullName != FuncExport.Void.FullName
+            };
+
+            ushort ix = 0;
+            foreach (var entry in methodTokens)
+            {
+                // Check equal
+
+                if (entry.Hash == mt.Hash &&
+                    entry.Method == mt.Method &&
+                    entry.HasReturnValue == mt.HasReturnValue &&
+                    entry.ParametersCount == mt.ParametersCount &&
+                    entry.CallFlags == mt.CallFlags
+                   )
+                {
+                    return ix;
+                }
+
+                ix++;
+            }
+
+            // Append
+
+            methodTokens.Add(mt);
+            return (ushort)(methodTokens.Count - 1);
         }
 
         private string GetMethodName(MethodDefinition method)

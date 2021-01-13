@@ -1,3 +1,4 @@
+using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +36,12 @@ namespace Neo.Compiler.MSIL
         public NeoModule outModule;
         private ILModule inModule;
         public Dictionary<ILMethod, NeoMethod> methodLink = new Dictionary<ILMethod, NeoMethod>();
+        public List<MethodToken> methodTokens = new List<MethodToken>();
 
         public NeoModule Convert(ILModule _in, ConvOption option = null)
         {
             this.inModule = _in;
+            this.methodTokens.Clear();
             this.outModule = new NeoModule(this.logger)
             {
                 option = option ?? ConvOption.Default
@@ -790,7 +793,7 @@ namespace Neo.Compiler.MSIL
                         }
                         else
                         {
-                            ConvertCall(src, to);
+                            ConvertCall(src, to, methodTokens);
                         }
                     }
                     break;
