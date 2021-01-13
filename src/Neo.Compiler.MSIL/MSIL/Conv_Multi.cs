@@ -898,10 +898,6 @@ namespace Neo.Compiler.MSIL
                 {
                     ushort methodId = AddMethodToken(methodTokens, callhash, defs.Body.Method, CallFlags.All);
                     Insert1(VM.OpCode.CALLT, "", to, BitConverter.GetBytes(methodId));
-
-                    // If the return type is void, insert a DROP.
-                    if (defs.ReturnType.FullName == FuncExport.Void.FullName)
-                        Insert1(VM.OpCode.DROP, "", to);
                 }
             }
             else if (calltype == 5)
