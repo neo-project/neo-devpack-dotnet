@@ -5,6 +5,7 @@ using Neo.IO;
 using Neo.Ledger;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -44,7 +45,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 }
             };
 
-            snapshot.SetPersistingBlock(_block);
             snapshot.BlockHashIndex.GetAndChange().Index = _block.Index;
             snapshot.BlockHashIndex.GetAndChange().Hash = _block.Hash;
             snapshot.Blocks.Add(_block.Hash, _block.Trim());
@@ -62,7 +62,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 .GetValue(Blockchain.Singleton);
             header_index.Add(_block.Hash);
 
-            _engine = new TestEngine(snapshot: snapshot);
+            _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
         }
 
@@ -381,7 +381,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var contract = new ContractState()
             {
                 Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
-                Script = new byte[] { 0x01, 0x02, 0x03 },
+                Nef = new NefFile()
+                {
+                    Script = new byte[] { 0x01, 0x02, 0x03 },
+                    Compiler = "neon",
+                    Version = "test",
+                    Tokens = System.Array.Empty<MethodToken>()
+                },
                 Manifest = new Manifest.ContractManifest()
                 {
                     SupportedStandards = new string[0],

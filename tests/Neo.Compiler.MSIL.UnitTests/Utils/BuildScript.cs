@@ -1,8 +1,10 @@
 using Neo.Compiler.Optimizer;
 using Neo.IO.Json;
+using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -17,6 +19,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public JObject finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
         public JObject debugInfo { get; private set; }
+        public NefFile nefFile { get; private set; }
 
         public BuildScript()
         {
@@ -104,6 +107,24 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 log.Log("Gen Manifest Error:" + err.ToString());
                 this.Error = err;
+                return;
+            }
+
+            try
+            {
+                nefFile = new NefFile
+                {
+                    Compiler = "neon",
+                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
+                    Tokens = Array.Empty<MethodToken>(),
+                    Script = finalNEFScript
+                };
+                nefFile.CheckSum = NefFile.ComputeChecksum(nefFile);
+            }
+            catch (Exception err)
+            {
+                log.Log("Write Bytes Error:" + err.ToString());
                 return;
             }
         }

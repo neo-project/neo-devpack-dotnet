@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xdde31084c0fdbebc7f5ed5f53a38905305ccee14")]
+    [Contract("0xc939a4af1c762e5edca36d4b61c06ba82c4c6ff5")]
     public class Policy
     {
         public static extern UInt160 Hash { [ContractHash] get; }

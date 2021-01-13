@@ -21,8 +21,8 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         public BuildScript ScriptEntry { get; private set; }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), TestGas)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null, Block persistingBlock = null)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), persistingBlock, TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
@@ -132,17 +132,39 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             return -1;
         }
 
+        public int GetMethodReturnCount(string methodname)
+        {
+            if (this.ScriptEntry is null) return -1;
+            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
+            foreach (var item in methods)
+            {
+                var method = item as JObject;
+                if (method["name"].AsString() == methodname)
+                {
+                    var returntype = method["returntype"].AsString();
+                    if (returntype == "Null" || returntype == "Void")
+                        return 0;
+                    else
+                        return 1;
+                }
+            }
+            return -1;
+        }
+
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
-            return ExecuteTestCaseStandard(offset, args);
+            var rvcount = GetMethodReturnCount(methodname);
+            if (rvcount == -1) throw new Exception("Can't find method return count : " + methodname);
+            return ExecuteTestCaseStandard(offset, (ushort)rvcount, args);
         }
 
-        public EvaluationStack ExecuteTestCaseStandard(int offset, params StackItem[] args)
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            LoadContext(context.Clone(offset));
+            context = CreateContext(context.Script, (ushort)args.Length, rvcount, offset);
+            LoadContext(context);
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");

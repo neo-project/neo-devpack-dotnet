@@ -1,22 +1,24 @@
+using Neo.SmartContract;
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
     public class Contract_Contract : SmartContract.Framework.SmartContract
     {
-        public static object Call(UInt160 scriptHash, string method, object[] arguments)
+        public static object Call(UInt160 scriptHash, string method, CallFlags flag, object[] args)
         {
-            return Contract.Call(scriptHash, method, arguments);
+            return Contract.Call(scriptHash, method, flag, args);
         }
 
         public static object Create(byte[] nef, string manifest)
         {
-            return ContractManagement.Deploy(nef, manifest);
+            return ContractManagement.Deploy((ByteString)nef, manifest);
         }
 
         public static void Update(byte[] nef, string manifest)
         {
-            ContractManagement.Update(nef, manifest);
+            ContractManagement.Update((ByteString)nef, manifest);
         }
 
         public static void Destroy()

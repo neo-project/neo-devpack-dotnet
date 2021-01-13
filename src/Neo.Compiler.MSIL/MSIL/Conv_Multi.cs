@@ -4,6 +4,7 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -756,6 +757,13 @@ namespace Neo.Compiler.MSIL
                     Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
                     return 0;
                 }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Parse(System.String)")
+                {
+                    ConvertPushNumber(10, null, to);        // Push Base
+                    Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Atoi));
+                    return 0;
+                }
             }
 
             if (calltype == 0)
@@ -879,7 +887,7 @@ namespace Neo.Compiler.MSIL
                 }
                 return 0;
             }
-            else if (calltype == 4)
+            else if (calltype == 4) // is sdk contract call
             {
                 if (defs.IsGetter
                     && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.ContractHashAttribute"))
@@ -891,6 +899,9 @@ namespace Neo.Compiler.MSIL
                     // Package the arguments into an array.
                     ConvertPushNumber(pcount, null, to);
                     Convert1by1(VM.OpCode.PACK, null, to);
+
+                    // Push CallFlag.All to the tail of stack
+                    ConvertPushNumber((int)CallFlags.All, null, to);
 
                     // Push call method name, the first letter should be lowercase.
                     ConvertPushString(GetMethodName(defs.Body.Method), src, to);
@@ -923,8 +934,10 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 6)
             {
+                ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
                 ConvertPushNumber(callpcount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
+                Convert1by1(VM.OpCode.REVERSE4, null, to);
                 Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }
             else if (calltype == 3)
