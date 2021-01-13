@@ -14,10 +14,10 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(UInt160 owner);
-        public static extern UInt160 OwnerOf(byte[] tokenId);
-        public static extern ByteString Properties(byte[] tokenId);
-        public static extern Iterator<byte[]> TokensOf(UInt160 owner);
-        public static extern bool Transfer(UInt160 from, UInt160 to, byte[] tokenId);
+        public static extern UInt160 OwnerOf(string name);
+        public static extern string Properties(string name);
+        public static extern Iterator<string> TokensOf(UInt160 owner);
+        public static extern bool Transfer(UInt160 from, UInt160 to, string name);
 
         // NNS
 
