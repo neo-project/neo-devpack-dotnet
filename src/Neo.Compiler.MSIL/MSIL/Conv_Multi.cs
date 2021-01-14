@@ -132,11 +132,11 @@ namespace Neo.Compiler.MSIL
         {
             if (pos < 7)
             {
-                Convert1by1(VM.OpCode.STLOC0 + (byte)pos, src, to);
+                Convert1by1(VM.OpCode.STARG0 + (byte)pos, src, to);
             }
             else
             {
-                Convert1by1(VM.OpCode.STLOC, src, to, new byte[] { (byte)pos });
+                Convert1by1(VM.OpCode.STARG, src, to, new byte[] { (byte)pos });
             }
         }
 

@@ -24,5 +24,16 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return a;
         }
+
+        public static void testArgs3(int a, int b)
+        {
+            a = a + 2;
+        }
+
+        public static int testArgs4(int a, int b)
+        {
+            a = a + 2;
+            return a + b;
+        }
     }
 }
