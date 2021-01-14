@@ -56,6 +56,18 @@ namespace Neo.Compiler.MSIL.TestClasses
             return GAS.Decimals;
         }
 
+        [DisplayName("NNS_Decimals")]
+        public static int NNS_Decimals()
+        {
+            return NameService.Decimals;
+        }
+
+        [DisplayName("NNS_Symbol")]
+        public static string NNS_Symbol()
+        {
+            return NameService.Symbol;
+        }
+
         [DisplayName("Policy_GetFeePerByte")]
         public static BigInteger Policy_GetFeePerByte()
         {
