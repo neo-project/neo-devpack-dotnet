@@ -41,7 +41,6 @@ namespace Neo.Compiler.MSIL
         public NeoModule Convert(ILModule _in, ConvOption option = null)
         {
             this.inModule = _in;
-            this.methodTokens.Clear();
             this.outModule = new NeoModule(this.logger)
             {
                 option = option ?? ConvOption.Default
