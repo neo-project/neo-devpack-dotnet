@@ -29,8 +29,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern string GetRecord(string name, RecordType type);
         public static extern void DeleteRecord(string name, RecordType type);
         public static extern string Resolve(string name, RecordType type);
-        public static extern void AddRoot(string root);
         public static extern long GetPrice();
-        public static extern void SetPrice(long price);
     }
 }
