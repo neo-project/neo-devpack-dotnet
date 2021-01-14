@@ -16,10 +16,10 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var methodsABI = abi["methods"] as JArray;
             Assert.AreEqual("0", methodsABI[0]["offset"].AsString());
-            Assert.AreEqual("5", methodsABI[1]["offset"].AsString());
-            Assert.AreEqual("11", methodsABI[2]["offset"].AsString());
+            Assert.AreEqual("7", methodsABI[1]["offset"].AsString());
+            Assert.AreEqual("13", methodsABI[2]["offset"].AsString());
             // _initialize()
-            Assert.AreEqual("43", methodsABI[3]["offset"].AsString());
+            Assert.AreEqual("45", methodsABI[3]["offset"].AsString());
         }
 
         [TestMethod]
