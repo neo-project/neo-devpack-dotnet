@@ -27,7 +27,7 @@ namespace $safeprojectname$
             return Storage.Get("Hello");
         }
 
-        public static void _deploy(bool update, object data)
+        public static void _deploy(object data, bool update)
         {
             if (update) return;
 
