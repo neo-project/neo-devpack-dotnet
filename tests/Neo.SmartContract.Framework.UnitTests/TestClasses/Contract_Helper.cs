@@ -24,6 +24,16 @@ namespace Compiler.MSIL.TestClasses
             return data.ToBigInteger();
         }
 
+        public static BigInteger TestBigIntegerCast(byte[] data)
+        {
+            return (BigInteger)(ByteString)data;
+        }
+
+        public static BigInteger TestBigIntegerParseHexString(byte[] data)
+        {
+            return BigInteger.Parse((ByteString)data);
+        }
+
         public static void VoidAssertCall(bool value)
         {
             Assert(value == true);

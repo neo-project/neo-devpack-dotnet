@@ -67,6 +67,28 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void TestBigIntegerParseandCast()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testBigIntegerCast", new VM.Types.ByteString(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(2000000000000000, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testBigIntegerParseHexString", new VM.Types.ByteString(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(2000000000000000, item.GetInteger());
+        }
+
+        [TestMethod]
         public void TestAssert()
         {
             // With extension
