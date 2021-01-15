@@ -115,8 +115,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
             {
                 nefFile = new NefFile
                 {
-                    Compiler = "neon",
-                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
+                    Compiler = "neon-" + Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
                     Tokens = converterIL.methodTokens.ToArray(),
                     Script = finalNEFScript
