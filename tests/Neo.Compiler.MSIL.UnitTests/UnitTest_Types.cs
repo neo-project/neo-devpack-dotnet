@@ -83,6 +83,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types_BigInteger.cs");
+
+            // static vars
+
             var result = testengine.ExecuteTestCaseStandard("zero");
             var item = result.Pop();
 
@@ -100,6 +103,14 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(BigInteger.MinusOne, ((Integer)item).GetInteger());
+
+            // Parse
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("parse", "456");
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(456, item.GetInteger());
         }
 
         [TestMethod]
