@@ -7,7 +7,7 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static int OldContract(byte[] nefFile, string manifest)
         {
-            ContractManagement.Update((ByteString)nefFile, manifest);
+            ContractManagement.Update((ByteString)nefFile, manifest, null);
             return 123;
         }
     }
