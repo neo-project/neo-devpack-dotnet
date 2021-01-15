@@ -4,6 +4,7 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
@@ -117,7 +118,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
                     Compiler = "neon",
                     Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
-                    Tokens = Array.Empty<MethodToken>(),
+                    Tokens = converterIL.methodTokens.ToArray(),
                     Script = finalNEFScript
                 };
                 nefFile.CheckSum = NefFile.ComputeChecksum(nefFile);
