@@ -25,7 +25,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static Cryptography.ECC.ECPoint[] getOracleNodes()
         {
-            return RoleManagement.GetDesignatedByRole(DesignationRole.Oracle, 0);
+            return RoleManagement.GetDesignatedByRole(Role.Oracle, 0);
         }
 
         public static UInt160 NEOHash()
