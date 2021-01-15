@@ -96,7 +96,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Script = script.finalNEFScript,
                 Compiler = "unit-test",
                 Version = "1.0",
-                Tokens = entryScript.nefFile.Tokens
+                Tokens = script.nefFile.Tokens
             };
             var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.Script);
             nef.CheckSum = NefFile.ComputeChecksum(nef);
