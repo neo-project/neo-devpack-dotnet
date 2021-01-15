@@ -182,7 +182,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            context = CreateContext(context.Script, (ushort)args.Length, rvcount, offset);
+            context = CreateContext(context.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
