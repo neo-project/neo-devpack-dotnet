@@ -8,7 +8,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_OnDeployment2 : SmartContract.Framework.SmartContract
     {
-        public static void _deploy(bool update)
+        public static void _deploy(object data, bool update)
         {
 
         }
