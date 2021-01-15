@@ -6,6 +6,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class RoleManagement
     {
         public static extern UInt160 Hash { [ContractHash] get; }
-        public static extern Cryptography.ECC.ECPoint[] GetDesignatedByRole(DesignationRole role, uint index);
+        public static extern Cryptography.ECC.ECPoint[] GetDesignatedByRole(Role role, uint index);
     }
 }
