@@ -140,11 +140,11 @@ namespace Neo.Compiler
                     }
                 case StandardMethods.Deploy:
                     {
-                        if (method.paramtypes.Count != 1 ||
+                        if (method.paramtypes.Count != 2 ||
                             method.returntype.FullName != FuncExport.Void.FullName ||
-                            method.paramtypes[0].type.FullName != FuncExport.Boolean.FullName)
+                            method.paramtypes[1].type.FullName != FuncExport.Boolean.FullName)
                         {
-                            throw new Exception("_deploy must be: void _deploy(bool update);");
+                            throw new Exception("_deploy must be: void _deploy(object data,bool update);");
                         }
                         break;
                     }
