@@ -88,7 +88,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // Create
 
-            var entryScript = _engine.ScriptEntry;
             var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
             var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
             var nef = new NefFile()
