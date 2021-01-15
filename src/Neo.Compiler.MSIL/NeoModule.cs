@@ -144,7 +144,7 @@ namespace Neo.Compiler
                             method.returntype.FullName != FuncExport.Void.FullName ||
                             method.paramtypes[1].type.FullName != FuncExport.Boolean.FullName)
                         {
-                            throw new Exception("_deploy must be: void _deploy(object data,bool update);");
+                            throw new Exception("_deploy must be: void _deploy(object data, bool update);");
                         }
                         break;
                     }
