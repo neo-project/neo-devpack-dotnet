@@ -22,9 +22,11 @@ namespace Neo.Compiler.MSIL
 
             var args = (methods[0]["parameters"] as JArray);
 
-            Assert.AreEqual(1, args.Count);
-            Assert.AreEqual(args[0]["name"].AsString(), "update");
-            Assert.AreEqual(args[0]["type"].AsString(), "Boolean");
+            Assert.AreEqual(2, args.Count);
+            Assert.AreEqual(args[0]["name"].AsString(), "data");
+            Assert.AreEqual(args[0]["type"].AsString(), "Any");
+            Assert.AreEqual(args[1]["name"].AsString(), "update");
+            Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
         }
 
         [TestMethod]
@@ -42,9 +44,11 @@ namespace Neo.Compiler.MSIL
 
             var args = (methods[0]["parameters"] as JArray);
 
-            Assert.AreEqual(1, args.Count);
-            Assert.AreEqual(args[0]["name"].AsString(), "update");
-            Assert.AreEqual(args[0]["type"].AsString(), "Boolean");
+            Assert.AreEqual(2, args.Count);
+            Assert.AreEqual(args[0]["name"].AsString(), "data");
+            Assert.AreEqual(args[0]["type"].AsString(), "Any");
+            Assert.AreEqual(args[1]["name"].AsString(), "update");
+            Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
         }
     }
 }
