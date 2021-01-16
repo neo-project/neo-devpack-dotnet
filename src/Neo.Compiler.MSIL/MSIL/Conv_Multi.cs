@@ -764,6 +764,21 @@ namespace Neo.Compiler.MSIL
                     Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Atoi));
                     return 0;
                 }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_One()")
+                {
+                    ConvertPushNumber(1, null, to);
+                    return 0;
+                }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_MinusOne()")
+                {
+                    ConvertPushNumber(-1, null, to);
+                    return 0;
+                }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_Zero()")
+                {
+                    ConvertPushNumber(0, null, to);
+                    return 0;
+                }
             }
 
             if (calltype == 0)
