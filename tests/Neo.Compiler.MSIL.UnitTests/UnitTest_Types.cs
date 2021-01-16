@@ -79,6 +79,41 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void bigInteer_Test()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types_BigInteger.cs");
+
+            // static vars
+
+            var result = testengine.ExecuteTestCaseStandard("zero");
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(BigInteger.Zero, ((Integer)item).GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("one");
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(BigInteger.One, ((Integer)item).GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("minusOne");
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(BigInteger.MinusOne, ((Integer)item).GetInteger());
+
+            // Parse
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("parse", "456");
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(456, item.GetInteger());
+        }
+
+        [TestMethod]
         public void sbyte_Test()
         {
             var testengine = new TestEngine();
