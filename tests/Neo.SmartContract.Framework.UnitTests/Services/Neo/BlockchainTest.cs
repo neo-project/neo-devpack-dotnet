@@ -384,8 +384,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Nef = new NefFile()
                 {
                     Script = new byte[] { 0x01, 0x02, 0x03 },
-                    Compiler = "neon",
-                    Version = "test",
+                    Compiler = "neon-test",
                     Tokens = System.Array.Empty<MethodToken>()
                 },
                 Manifest = new Manifest.ContractManifest()

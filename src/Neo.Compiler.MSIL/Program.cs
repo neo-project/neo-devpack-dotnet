@@ -213,8 +213,7 @@ namespace Neo.Compiler
                 string bytesname = onlyname + ".nef";
                 var nef = new NefFile
                 {
-                    Compiler = "neon",
-                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
+                    Compiler = "neon-" + Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
                     Tokens = conv.methodTokens.ToArray(),
                     Script = bytes

@@ -13,12 +13,12 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object Create(byte[] nef, string manifest)
         {
-            return ContractManagement.Deploy((ByteString)nef, manifest);
+            return ContractManagement.Deploy((ByteString)nef, manifest, null);
         }
 
         public static void Update(byte[] nef, string manifest)
         {
-            ContractManagement.Update((ByteString)nef, manifest);
+            ContractManagement.Update((ByteString)nef, manifest, null);
         }
 
         public static void Destroy()
