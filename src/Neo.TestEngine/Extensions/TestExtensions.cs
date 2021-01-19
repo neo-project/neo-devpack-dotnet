@@ -32,5 +32,16 @@ namespace Neo.TestingEngine
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
         }
+        public static bool TryContractAdd(this StoreView snapshot, ContractState contract)
+        {
+            var key = new KeyBuilder(-1, 8).Add(contract.Hash);
+            if (snapshot.Storages.Contains(key))
+            {
+                return false;
+            }
+
+            snapshot.Storages.Add(key, new StorageItem(contract));
+            return true;
+        }
     }
 }

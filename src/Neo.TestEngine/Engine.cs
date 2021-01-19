@@ -72,7 +72,7 @@ namespace Neo.TestingEngine
 
             if (!snapshot.ContainsContract(hash))
             {
-                snapshot.ContractAdd(new ContractState()
+                snapshot.TryContractAdd(new ContractState()
                 {
                     Hash = hash,
                     Nef = builtScript.nefFile,
