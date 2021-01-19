@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.TestingEngine;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -32,7 +33,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void TestDelegateCall()
         {
-            var token = UInt160.Parse("0x4961bf0ab79370b23dc45cde29f568d0e0fa6e93"); // NEO token
+            var token = NativeContract.NEO.Hash; // NEO token
 
             testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard("testDynamicCall", token.ToArray(), "symbol");
