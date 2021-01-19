@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
@@ -22,14 +23,13 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void TestHashes()
         {
-            // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xbee421fdbb3e791265d2104cb34934f53fcc0e45");
-            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0xf4bbd95569e8dda2cb84eb609a1488ddd0d9fa91");
-            Assert.AreEqual(NativeContract.NameService.Hash.ToString(), "0xa92fbe5bf164170a624474841485b20b45a26047");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x8cd3889136056b3304ec59f6d424b8767710ed79");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x4961bf0ab79370b23dc45cde29f568d0e0fa6e93");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x9ac04cf223f646de5f7faccafe34e30e5d4382a2");
-            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xc939a4af1c762e5edca36d4b61c06ba82c4c6ff5");
+            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xa501d7d7d10983673b61b7a2d3a813b36f9f0e43");
+            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x69b1909aaa14143b0624ba0d61d5cd3b8b67529d");
+            Assert.AreEqual(NativeContract.NameService.Hash.ToString(), "0x1bda60bf76671280ab2ab80d78f7ba95434751b5");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xb82bbf650f963dbf71577d10ea4077e711a13e7b");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xf617baca689d1abddedda7c3b80675c4ac21e932");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x75844530eb44f4715a42950bb59b4d7ace0b2f3d");
+            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xe21a28cfc1e662e152f668c86198141cc17b6c37");
         }
 
         [TestMethod]
