@@ -8,13 +8,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Linq;
-using Neo.Cryptography.ECC;
 using Neo.IO;
 using System.Collections.Generic;
-using System.Numerics;
-using Array = Neo.VM.Types.Array;
-using Boolean = Neo.VM.Types.Boolean;
-using Buffer = Neo.VM.Types.Buffer;
 
 namespace Neo.TestingEngine
 {
@@ -60,7 +55,16 @@ namespace Neo.TestingEngine
             foreach (var storagePair in storage.Seek())
             {
                 var key = new ByteString(storagePair.Key.Key);
-                var value = new ByteString(storagePair.Value.Value);
+                StackItem value;
+                try
+                {
+                    value = new ByteString(storagePair.Value.Value);
+                }
+                catch
+                {
+                    value = StackItem.Null;
+                }
+
 
                 var jsonKey = new JObject();
                 jsonKey["id"] = storagePair.Key.Id;
@@ -112,7 +116,7 @@ namespace Neo.TestingEngine
             sb.Emit(OpCode.PACK);
             sb.EmitPush(operation);
             sb.EmitPush(scriptHash);
-            sb.EmitSysCall(ApplicationEngine.System_Contract_CallEx);
+            sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
             return sb;
         }
 

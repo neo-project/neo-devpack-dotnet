@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Transactions = new Network.P2P.Payloads.Transaction[0],
                 Witness = new Network.P2P.Payloads.Witness()
                 {
-                    InvocationScript = new byte[0],
+                    InvocationScript = System.Array.Empty<byte>(),
                     VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
                 },
                 NextConsensus = UInt160.Zero,
@@ -33,8 +33,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             };
 
             _engine = new TestEngine(TriggerType.Application, block);
-            ((TestSnapshot)_engine.Snapshot).SetPersistingBlock(block);
-            _engine.Snapshot.DeployNativeContracts();
+            _engine.Snapshot.DeployNativeContracts(block);
 
             _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
@@ -138,6 +137,28 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(8, item.GetInteger());
+        }
+
+        [TestMethod]
+        public void Test_NNS()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("NNS_Decimals");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(0, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("NNS_Symbol");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("NNS", item.GetString());
         }
 
         [TestMethod]

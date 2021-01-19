@@ -58,7 +58,7 @@ namespace Neo.TestingEngine
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
-                Script = engine.ScriptEntry.finalNEFScript,
+                Nef = engine.ScriptEntry.nefFile,
                 Manifest = manifest,
             });
         }
@@ -75,7 +75,7 @@ namespace Neo.TestingEngine
                 snapshot.ContractAdd(new ContractState()
                 {
                     Hash = hash,
-                    Script = builtScript.finalNEFScript,
+                    Nef = builtScript.nefFile,
                     Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
                 });
             }
@@ -171,8 +171,17 @@ namespace Neo.TestingEngine
         {
             if (engine.Snapshot is TestSnapshot snapshot)
             {
-                var persistingBlock = snapshot.TryGetBlock(snapshot.Height);
-                snapshot.SetPersistingBlock(persistingBlock ?? Blockchain.GenesisBlock);
+                var lastBlock = snapshot.TryGetBlock(snapshot.Height);
+
+                engine.PersistingBlock.Index = lastBlock.Index;
+                engine.PersistingBlock.Timestamp = lastBlock.Timestamp;
+                engine.PersistingBlock.PrevHash = lastBlock.PrevHash;
+                engine.PersistingBlock.ConsensusData = lastBlock.ConsensusData;
+                engine.PersistingBlock.Transactions = lastBlock.Transactions;
+                engine.PersistingBlock.Witness = lastBlock.Witness;
+                engine.PersistingBlock.NextConsensus = lastBlock.NextConsensus;
+                engine.PersistingBlock.MerkleRoot = lastBlock.MerkleRoot;
+
                 currentTx.ValidUntilBlock = snapshot.Height;
             }
 
@@ -209,7 +218,7 @@ namespace Neo.TestingEngine
                 SystemFee = 3,
                 Version = 4
             };
-            TestEngine engine = new TestEngine(TriggerType.Application, currentTx);
+            TestEngine engine = new TestEngine(TriggerType.Application, currentTx, persistingBlock: new Block() { Index = 0 });
 
             SetNative(engine);
             engine.ClearNotifications();
@@ -220,7 +229,6 @@ namespace Neo.TestingEngine
 
         private void SetNative(TestEngine engine)
         {
-            engine.Snapshot.SetPersistingBlock(new Block() { Index = 0 });
             engine.Snapshot.DeployNativeContracts();
         }
 

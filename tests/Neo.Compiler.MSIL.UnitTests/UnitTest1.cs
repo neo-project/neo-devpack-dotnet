@@ -81,6 +81,26 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
+        public void Test_testArgs3()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
+            var result = testengine.ExecuteTestCaseStandard("testArgs3", 1, 2);
+            Assert.AreEqual(testengine.State, VM.VMState.HALT);
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_testArgs4()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
+            var result = testengine.ExecuteTestCaseStandard("testArgs4", 1, 2).Pop();
+            Assert.AreEqual(testengine.State, VM.VMState.HALT);
+            Assert.AreEqual(5, result.GetInteger());
+        }
+
+        [TestMethod]
         public void Test_testVoid()
         {
             var testengine = new TestEngine();

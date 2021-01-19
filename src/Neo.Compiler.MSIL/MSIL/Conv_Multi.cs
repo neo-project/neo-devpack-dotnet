@@ -4,6 +4,7 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -131,11 +132,11 @@ namespace Neo.Compiler.MSIL
         {
             if (pos < 7)
             {
-                Convert1by1(VM.OpCode.STLOC0 + (byte)pos, src, to);
+                Convert1by1(VM.OpCode.STARG0 + (byte)pos, src, to);
             }
             else
             {
-                Convert1by1(VM.OpCode.STLOC, src, to, new byte[] { (byte)pos });
+                Convert1by1(VM.OpCode.STARG, src, to, new byte[] { (byte)pos });
             }
         }
 
@@ -388,9 +389,9 @@ namespace Neo.Compiler.MSIL
             return false;
         }
 
-        private int ConvertCall(OpCode src, NeoMethod to)
+        private int ConvertCall(OpCode src, NeoMethod to, List<MethodToken> methodTokens)
         {
-            Mono.Cecil.MethodReference refs = src.tokenUnknown as Mono.Cecil.MethodReference;
+            MethodReference refs = src.tokenUnknown as MethodReference;
 
             int calltype = 0;
             string callname;
@@ -756,6 +757,28 @@ namespace Neo.Compiler.MSIL
                     Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
                     return 0;
                 }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Parse(System.String)")
+                {
+                    ConvertPushNumber(10, null, to);        // Push Base
+                    Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
+                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Atoi));
+                    return 0;
+                }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_One()")
+                {
+                    ConvertPushNumber(1, null, to);
+                    return 0;
+                }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_MinusOne()")
+                {
+                    ConvertPushNumber(-1, null, to);
+                    return 0;
+                }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_Zero()")
+                {
+                    ConvertPushNumber(0, null, to);
+                    return 0;
+                }
             }
 
             if (calltype == 0)
@@ -879,7 +902,7 @@ namespace Neo.Compiler.MSIL
                 }
                 return 0;
             }
-            else if (calltype == 4)
+            else if (calltype == 4) // is sdk contract call
             {
                 if (defs.IsGetter
                     && defs.CustomAttributes.Any(a => a.AttributeType.FullName == "Neo.SmartContract.Framework.ContractHashAttribute"))
@@ -888,20 +911,8 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    // Package the arguments into an array.
-                    ConvertPushNumber(pcount, null, to);
-                    Convert1by1(VM.OpCode.PACK, null, to);
-
-                    // Push call method name, the first letter should be lowercase.
-                    ConvertPushString(GetMethodName(defs.Body.Method), src, to);
-
-                    // Push contract hash.
-                    ConvertPushDataArray(callhash.ToArray(), src, to);
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
-
-                    // If the return type is void, insert a DROP.
-                    if (defs.ReturnType.FullName is "System.Void")
-                        Insert1(VM.OpCode.DROP, "", to);
+                    ushort methodId = AddMethodToken(methodTokens, callhash, defs.Body.Method, CallFlags.All);
+                    Insert1(VM.OpCode.CALLT, "", to, BitConverter.GetBytes(methodId));
                 }
             }
             else if (calltype == 5)
@@ -923,8 +934,10 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 6)
             {
+                ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
                 ConvertPushNumber(callpcount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
+                Convert1by1(VM.OpCode.REVERSE4, null, to);
                 Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
             }
             else if (calltype == 3)
@@ -936,6 +949,41 @@ namespace Neo.Compiler.MSIL
                 Convert1by1(VM.OpCode.CALLA, null, to);
             }
             return 0;
+        }
+
+        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, MethodDefinition method, CallFlags flags)
+        {
+            var mt = new MethodToken()
+            {
+                Hash = hash,
+                Method = GetMethodName(method),
+                CallFlags = flags,
+                ParametersCount = (ushort)method.Parameters.Count,
+                HasReturnValue = method.ReturnType.FullName != FuncExport.Void.FullName
+            };
+
+            ushort ix = 0;
+            foreach (var entry in methodTokens)
+            {
+                // Check equal
+
+                if (entry.Hash == mt.Hash &&
+                    entry.Method == mt.Method &&
+                    entry.HasReturnValue == mt.HasReturnValue &&
+                    entry.ParametersCount == mt.ParametersCount &&
+                    entry.CallFlags == mt.CallFlags
+                   )
+                {
+                    return ix;
+                }
+
+                ix++;
+            }
+
+            // Append
+
+            methodTokens.Add(mt);
+            return (ushort)(methodTokens.Count - 1);
         }
 
         private string GetMethodName(MethodDefinition method)

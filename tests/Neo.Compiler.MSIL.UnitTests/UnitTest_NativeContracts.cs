@@ -15,7 +15,6 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void Test_Init()
         {
             // Fake native deploy
-            snapshot.SetPersistingBlock(new Network.P2P.Payloads.Block() { Index = 0 });
             snapshot.DeployNativeContracts();
         }
 
@@ -23,12 +22,13 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void TestHashes()
         {
             // var attr = typeof(Oracle).GetCustomAttribute<ContractAttribute>();
-            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0x081514120c7894779309255b7fb18b376cec731a");
-            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x136ec44854ad9a714901eb7d714714f1791203f2");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xb1c37d5847c2ae36bdde31d0cc833a7ad9667f8f");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x0a46e2e37c9987f570b4af253fb77e7eef0f72b6");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xa6a6c15dcdc9b997dac448b6926522d22efeedfb");
-            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xdde31084c0fdbebc7f5ed5f53a38905305ccee14");
+            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xbee421fdbb3e791265d2104cb34934f53fcc0e45");
+            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0xf4bbd95569e8dda2cb84eb609a1488ddd0d9fa91");
+            Assert.AreEqual(NativeContract.NameService.Hash.ToString(), "0xa92fbe5bf164170a624474841485b20b45a26047");
+            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0x8cd3889136056b3304ec59f6d424b8767710ed79");
+            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0x4961bf0ab79370b23dc45cde29f568d0e0fa6e93");
+            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0x9ac04cf223f646de5f7faccafe34e30e5d4382a2");
+            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xc939a4af1c762e5edca36d4b61c06ba82c4c6ff5");
         }
 
         [TestMethod]

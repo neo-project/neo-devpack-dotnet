@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = _engine.EntryScriptHash,
-                Script = _engine.EntryContext.Script,
+                Nef = _engine.ScriptEntry.nefFile,
                 Manifest = new Manifest.ContractManifest()
             });
         }

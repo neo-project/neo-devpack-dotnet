@@ -5,7 +5,7 @@ namespace Neo.TestingEngine
 {
     class BuildNEF : BuildScript
     {
-        public BuildNEF(NefFile nefFile, string manifestFile) : base()
+        public BuildNEF(NefFile nefFile, string manifestFile) : base(nefFile)
         {
             IsBuild = true;
             UseOptimizer = false;

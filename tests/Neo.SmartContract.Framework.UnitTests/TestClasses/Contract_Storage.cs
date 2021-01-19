@@ -12,31 +12,30 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static bool TestPutByte(byte[] key, byte[] value)
         {
             var storage = Storage.CurrentContext.CreateMap(0xAA);
-            storage.Put(key, value);
+            storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
 
         public static void TestDeleteByte(byte[] key)
         {
             var storage = Storage.CurrentContext.CreateMap(0xAA);
-            storage.Delete(key);
+            storage.Delete((ByteString)key);
         }
 
         public static byte[] TestGetByte(byte[] key)
         {
             var context = Storage.CurrentReadOnlyContext;
             var storage = context.CreateMap(0xAA);
-            var value = storage.Get(key);
-            return value;
+            var value = storage.Get((ByteString)key);
+            return (byte[])value;
         }
 
         public static byte[] TestOver16Bytes()
         {
             var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
             StorageMap storageMap = Storage.CurrentContext.CreateMap("test_map");
-            storageMap.Put(new byte[] { 0x01 }, value);
-            value = storageMap.Get(new byte[] { 0x01 });
-            return value;
+            storageMap.Put((ByteString)new byte[] { 0x01 }, (ByteString)value);
+            return (byte[])storageMap.Get((ByteString)new byte[] { 0x01 });
         }
 
         #endregion
@@ -47,7 +46,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
-            storage.Put(key, value);
+            storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
 
@@ -55,7 +54,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = "aa";
             var storage = Storage.CurrentContext.CreateMap(prefix);
-            storage.Delete(key);
+            storage.Delete((ByteString)key);
         }
 
         public static byte[] TestGetString(byte[] key)
@@ -63,8 +62,8 @@ namespace Neo.Compiler.MSIL.TestClasses
             var prefix = "aa";
             var context = Storage.CurrentReadOnlyContext;
             var storage = context.CreateMap(prefix);
-            var value = storage.Get(key);
-            return value;
+            var value = storage.Get((ByteString)key);
+            return (byte[])value;
         }
 
         #endregion
@@ -75,7 +74,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
-            storage.Put(key, value);
+            storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
 
@@ -83,7 +82,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = new byte[] { 0x00, 0xFF };
             var storage = Storage.CurrentContext.CreateMap(prefix);
-            storage.Delete(key);
+            storage.Delete((ByteString)key);
         }
 
         public static byte[] TestGetByteArray(byte[] key)
@@ -91,8 +90,8 @@ namespace Neo.Compiler.MSIL.TestClasses
             var prefix = new byte[] { 0x00, 0xFF };
             var context = Storage.CurrentContext.AsReadOnly;
             var storage = context.CreateMap(prefix);
-            var value = storage.Get(key);
-            return value;
+            var value = storage.Get((ByteString)key);
+            return (byte[])value;
         }
 
         #endregion
@@ -102,8 +101,22 @@ namespace Neo.Compiler.MSIL.TestClasses
             var prefix = new byte[] { 0x00, 0xFF };
             var context = Storage.CurrentContext.AsReadOnly;
             var storage = context.CreateMap(prefix);
-            storage.Put(key, value);
+            storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
+
+        #region Find
+
+        public static byte[] TestFind()
+        {
+            var context = Storage.CurrentContext;
+            Storage.Put(context, (ByteString)"key1", (ByteString)new byte[] { 0x01 });
+            Storage.Put(context, (ByteString)"key2", (ByteString)new byte[] { 0x02 });
+            Iterator<byte[]> iterator = (Iterator<byte[]>)Storage.Find(context, "key", FindOptions.ValuesOnly);
+            iterator.Next();
+            return iterator.Value;
+        }
+
+        #endregion
     }
 }

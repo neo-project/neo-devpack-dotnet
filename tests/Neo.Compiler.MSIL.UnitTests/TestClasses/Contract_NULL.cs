@@ -54,13 +54,15 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static object NullCollationAndCollation(string code)
         {
-            return Storage.Get(code) ?? new byte[] { 123 };
+            var context = Storage.CurrentContext;
+            return Storage.Get(context, code) ?? (ByteString) new byte[] { 123 };
         }
 
         public static object NullCollationAndCollation2(string code)
         {
-            Storage.Put(code, "111");
-            return Storage.Get(code) ?? new byte[] { 123 };
+            var context = Storage.CurrentContext;
+            Storage.Put(context, code, "111");
+            return Storage.Get(context, code) ?? (ByteString) new byte[] { 123 };
         }
     }
 }

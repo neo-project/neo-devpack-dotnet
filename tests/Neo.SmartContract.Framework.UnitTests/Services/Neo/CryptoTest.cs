@@ -22,10 +22,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine = new TestEngine(TriggerType.Application, new Transaction()
             {
-                Attributes = new TransactionAttribute[0],
-                Script = new byte[0],
+                Attributes = System.Array.Empty<TransactionAttribute>(),
+                Script = System.Array.Empty<byte>(),
                 Signers = new Signer[] { new Signer() { Account = UInt160.Zero } },
-                Witnesses = new Witness[0],
+                Witnesses = System.Array.Empty<Witness>(),
                 NetworkFee = 1,
                 Nonce = 2,
                 SystemFee = 3,
@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             Assert.AreEqual("688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6", item.GetSpan().ToArray().ToHexString());
         }
 
@@ -69,7 +69,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             Assert.AreEqual("98c615784ccb5fe5936fbc0cbe9dfdb408d92f0f", item.GetSpan().ToArray().ToHexString());
         }
 
@@ -83,7 +83,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             Assert.AreEqual("d7d5ee7824ff93f94c3055af9382c86c68b5ca92", item.GetSpan().ToArray().ToHexString());
         }
 
@@ -97,7 +97,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             Assert.AreEqual("bc62d4b80d9e36da29c16c5d4d9f11731f36052c72401a76c23c0fb5a9b74423", item.GetSpan().ToArray().ToHexString());
         }
 

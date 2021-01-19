@@ -1,6 +1,7 @@
 using Neo.Cryptography;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Neo.Compiler.MSIL
@@ -191,28 +192,72 @@ namespace Neo.Compiler.MSIL
                                     p2[i] = p1[i];
                                 }
                             }
-                            else if (m.DeclaringType.FullName == "System.Numerics.BigInteger" && m.Name == "op_Implicit")
+                            else if (m.DeclaringType.FullName == "System.Numerics.BigInteger")
                             {
-                                var type = m.Parameters[0].ParameterType.FullName;
-                                if (type == "System.UInt64")
+                                if (m.Name == "op_Implicit")
                                 {
-                                    var p = (ulong)(long)calcStack.Pop();
-                                    calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
+                                    var type = m.Parameters[0].ParameterType.FullName;
+                                    if (type == "System.UInt64")
+                                    {
+                                        var p = (ulong)(long)calcStack.Pop();
+                                        calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
+                                    }
+                                    else if (type == "System.UInt32")
+                                    {
+                                        var p = (ulong)(int)calcStack.Pop();
+                                        calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
+                                    }
+                                    else if (type == "System.Int64")
+                                    {
+                                        var p = (long)calcStack.Pop();
+                                        calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
+                                    }
+                                    else
+                                    {
+                                        var p = (int)calcStack.Pop();
+                                        calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
+                                    }
                                 }
-                                else if (type == "System.UInt32")
+                                else if (m.Name == "Parse")
                                 {
-                                    var p = (ulong)(int)calcStack.Pop();
-                                    calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
-                                }
-                                else if (type == "System.Int64")
-                                {
-                                    var p = (long)calcStack.Pop();
-                                    calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
-                                }
-                                else
-                                {
-                                    var p = (int)calcStack.Pop();
-                                    calcStack.Push(new System.Numerics.BigInteger(p).ToByteArray());
+                                    switch (calcStack.Count)
+                                    {
+                                        case 1:
+                                            {
+                                                var p = calcStack.Pop();
+                                                if (p is string pstr)
+                                                {
+                                                    p = System.Numerics.BigInteger.Parse(pstr);
+                                                    calcStack.Push(p);
+                                                    break;
+                                                }
+
+                                                throw new InvalidOperationException("Unsupported call to BigInteger.Parse");
+                                            }
+                                        case 2:
+                                            {
+                                                var s = calcStack.Pop();
+                                                var p = calcStack.Pop();
+                                                if (p is string pstr)
+                                                {
+                                                    if (s is int)
+                                                    {
+                                                        p = System.Numerics.BigInteger.Parse(pstr, (NumberStyles)s);
+                                                        calcStack.Push(p);
+                                                        break;
+                                                    }
+                                                    else if (s is IFormatProvider)
+                                                    {
+                                                        p = System.Numerics.BigInteger.Parse(pstr, (IFormatProvider)s);
+                                                        calcStack.Push(p);
+                                                        break;
+                                                    }
+                                                }
+
+                                                throw new InvalidOperationException("Unsupported call to BigInteger.Parse");
+                                            }
+                                        default: throw new InvalidOperationException("Unsupported call to BigInteger.Parse");
+                                    }
                                 }
                             }
                             else
@@ -246,12 +291,6 @@ namespace Neo.Compiler.MSIL
                                             var hex = text.HexString2Bytes();
                                             if (reverse) hex = hex.Reverse().ToArray();
                                             calcStack.Push(hex);
-                                        }
-                                        else if (attrname == "ToBigInteger")
-                                        {
-                                            var text = (string)calcStack.Pop();
-                                            var n = System.Numerics.BigInteger.Parse(text);
-                                            calcStack.Push(n);
                                         }
                                     }
                                     if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")

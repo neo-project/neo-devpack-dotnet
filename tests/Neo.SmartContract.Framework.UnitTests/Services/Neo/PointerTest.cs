@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Test pointer
 
             engine.Reset();
-            engine.ExecuteTestCaseStandard(((Pointer)item).Position);
+            engine.ExecuteTestCaseStandard(((Pointer)item).Position, 1);
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Count);
 

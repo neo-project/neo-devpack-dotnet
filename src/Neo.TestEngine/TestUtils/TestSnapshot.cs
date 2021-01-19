@@ -28,15 +28,6 @@ namespace Neo.TestingEngine
         public override MetaDataCache<HashIndexState> HeaderHashIndex => _HeaderHashIndex;
 
         /// <summary>
-        /// Set Persisting block for unit test
-        /// </summary>
-        /// <param name="block">Block</param>
-        public void SetPersistingBlock(Block block)
-        {
-            this.GetType().GetProperty("PersistingBlock").SetValue(this, block);
-        }
-
-        /// <summary>
         /// Clear the storage for unit test
         /// </summary>
         public void ClearStorage()

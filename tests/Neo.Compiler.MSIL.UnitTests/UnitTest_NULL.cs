@@ -112,12 +112,12 @@ namespace Neo.Compiler.MSIL.UnitTests
             _testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Script = testengine.EntryContext.Script,
+                Nef = testengine.ScriptEntry.nefFile,
                 Manifest = new ContractManifest()
             });
 
             var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
-            var item = result.Pop() as Buffer;
+            var item = result.Pop() as ByteString;
             Assert.AreEqual(123, item.GetSpan()[0]);
         }
 
@@ -129,7 +129,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             _testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Script = testengine.EntryContext.Script,
+                Nef = testengine.ScriptEntry.nefFile,
                 Manifest = new ContractManifest()
             });
 

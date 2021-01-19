@@ -2,9 +2,12 @@ using Neo.Compiler;
 using Neo.Compiler.MSIL;
 using Neo.Compiler.Optimizer;
 using Neo.IO.Json;
+using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace Neo.TestingEngine
 {
@@ -19,9 +22,15 @@ namespace Neo.TestingEngine
         public JObject finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
         public JObject debugInfo { get; private set; }
+        public NefFile nefFile { get; private set; }
 
         public BuildScript()
         {
+        }
+
+        protected BuildScript(NefFile nefFile)
+        {
+            this.nefFile = nefFile;
         }
 
         public void Build(Stream fs, Stream fspdb, bool optimizer)
@@ -106,6 +115,23 @@ namespace Neo.TestingEngine
             {
                 log.Log("Gen Manifest Error:" + err.ToString());
                 this.Error = err;
+                return;
+            }
+
+            try
+            {
+                nefFile = new NefFile
+                {
+                    Compiler = "neon-" + Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
+                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
+                    Tokens = converterIL.methodTokens.ToArray(),
+                    Script = finalNEFScript
+                };
+                nefFile.CheckSum = NefFile.ComputeChecksum(nefFile);
+            }
+            catch (Exception err)
+            {
+                log.Log("Write Bytes Error:" + err.ToString());
                 return;
             }
         }

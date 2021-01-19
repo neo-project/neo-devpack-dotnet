@@ -156,11 +156,11 @@ namespace Neo.Compiler
             int bSucc = 0;
             string debugstr = null;
             NeoModule module;
+            var conv = new ModuleConverter(log);
 
             // Convert and build
             try
             {
-                var conv = new ModuleConverter(log);
                 ConvOption option = new ConvOption();
                 module = conv.Convert(mod, option);
                 bytes = module.Build();
@@ -213,9 +213,9 @@ namespace Neo.Compiler
                 string bytesname = onlyname + ".nef";
                 var nef = new NefFile
                 {
-                    Compiler = "neon",
-                    Version = Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
+                    Compiler = "neon-" + Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
                         .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
+                    Tokens = conv.methodTokens.ToArray(),
                     Script = bytes
                 };
                 nef.CheckSum = NefFile.ComputeChecksum(nef);

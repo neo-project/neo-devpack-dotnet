@@ -5,6 +5,7 @@ using Neo.TestingEngine;
 using Neo.VM;
 using Neo.VM.Types;
 using System.IO;
+using System.Linq;
 using Compiler = Neo.Compiler.Program;
 
 namespace TestEngine.UnitTests
@@ -146,14 +147,10 @@ namespace TestEngine.UnitTests
             Assert.AreEqual(height, Engine.Instance.Height);
 
             // test result
-            Assert.IsTrue(Engine.Instance.Snaptshot is TestSnapshot);
-            // the compiler doesn't allow to do this with only the assertion
-            if (Engine.Instance.Snaptshot is TestSnapshot snapshot)
-            {
-                var block = snapshot.PersistingBlock;
-                Assert.IsNotNull(block);
-                Assert.AreEqual(block.Transactions.Length, ((JArray)blockJson["transactions"]).Count);
-            }
+            var (hash, trimblock) = Engine.Instance.Snaptshot.Blocks.Seek().Last();
+            var block = Engine.Instance.Snaptshot.GetBlock(hash);
+            Assert.IsNotNull(block);
+            Assert.AreEqual(block.Transactions.Length, ((JArray)blockJson["transactions"]).Count);
         }
     }
 }

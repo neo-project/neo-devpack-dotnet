@@ -7,11 +7,13 @@ namespace Neo.SmartContract
     {
         None = 0,
 
-        AllowModifyStates = 0b00000001,
-        AllowCall = 0b00000010,
-        AllowNotify = 0b00000100,
+        ReadStates = 0b00000001,
+        WriteStates = 0b00000010,
+        AllowCall = 0b00000100,
+        AllowNotify = 0b00001000,
 
-        ReadOnly = AllowCall | AllowNotify,
-        All = AllowModifyStates | AllowCall | AllowNotify
+        States = ReadStates | WriteStates,
+        ReadOnly = ReadStates | AllowCall,
+        All = States | AllowCall | AllowNotify
     }
 }

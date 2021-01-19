@@ -159,6 +159,9 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, byte[] second);
 
+        [OpCode(OpCode.CAT)]
+        public extern static byte[] Concat(this byte[] first, ByteString second);
+
         [NonemitWithConvert(ConvertMethod.HexToBytes)]
         public extern static byte[] HexToBytes(this string hex, bool reverse = false);
 
@@ -194,9 +197,6 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static UInt160 ToScriptHash(this string address);
-
-        [NonemitWithConvert(ConvertMethod.ToBigInteger)]
-        public extern static BigInteger ToBigInteger(this string text);
 
         [Syscall("System.Binary.Serialize")]
         public extern static byte[] Serialize(this object source);

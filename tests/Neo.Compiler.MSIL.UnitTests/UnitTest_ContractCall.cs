@@ -21,11 +21,11 @@ namespace Neo.Compiler.MSIL.UnitTests
             _engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
-                Script = _engine.Build("./TestClasses/Contract1.cs").finalNEFScript,
+                Nef = _engine.Build("./TestClasses/Contract1.cs").nefFile,
                 Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract1.cs").finalManifest)),
             });
 
-            //will ContractCall 0102030405060708090A0102030405060708090A
+            // will ContractCall 0102030405060708090A0102030405060708090A
             _engine.AddEntryScript("./TestClasses/Contract_ContractCall.cs");
         }
 

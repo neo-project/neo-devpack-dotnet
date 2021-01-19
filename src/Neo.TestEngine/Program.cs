@@ -252,7 +252,12 @@ namespace Neo.TestingEngine
                     Id = int.Parse(jsonKey["id"].AsString()),
                     Key = key.GetSpan().ToArray()
                 };
-                var storageItem = new StorageItem(value.GetSpan().ToArray(), jsonValue["isconstant"].AsBoolean());
+
+                StorageItem storageItem = null;
+                if (value != StackItem.Null)
+                {
+                    storageItem = new StorageItem(value.GetSpan().ToArray(), jsonValue["isconstant"].AsBoolean());
+                }
                 items[storageKey] = storageItem;
             }
 

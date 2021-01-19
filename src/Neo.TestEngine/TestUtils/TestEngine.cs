@@ -20,8 +20,8 @@ namespace Neo.TestingEngine
 
         public BuildScript ScriptEntry { get; private set; }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), TestGas)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null, Block persistingBlock = null)
+            : base(trigger, verificable, snapshot ?? new TestSnapshot(), persistingBlock, TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }
@@ -87,7 +87,16 @@ namespace Neo.TestingEngine
             {
                 this.ResultStack.Pop();
             }
-            if (ScriptEntry != null) this.LoadScript(ScriptEntry.finalNEFScript);
+            if (ScriptEntry != null)
+            {
+                this.LoadScript(ScriptEntry.finalNEFScript);
+                // Mock contract
+                var contextState = CurrentContext.GetState<ExecutionContextState>();
+                contextState.Contract ??= new ContractState()
+                {
+                    Nef = ScriptEntry.nefFile
+                };
+            }
         }
 
         public class ContractMethod
@@ -131,17 +140,52 @@ namespace Neo.TestingEngine
             return -1;
         }
 
+        public int GetMethodReturnCount(string methodname)
+        {
+            if (this.ScriptEntry is null) return -1;
+            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
+            foreach (var item in methods)
+            {
+                var method = item as JObject;
+                if (method["name"].AsString() == methodname)
+                {
+                    var returntype = method["returntype"].AsString();
+                    if (returntype == "Null" || returntype == "Void")
+                        return 0;
+                    else
+                        return 1;
+                }
+            }
+            return -1;
+        }
+
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
+        {
+            return ExecuteTestCaseStandard(methodname, ScriptEntry.nefFile, args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, params StackItem[] args)
         {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
-            return ExecuteTestCaseStandard(offset, args);
+            var rvcount = GetMethodReturnCount(methodname);
+            if (rvcount == -1) throw new Exception("Can't find method return count : " + methodname);
+            return ExecuteTestCaseStandard(offset, (ushort)rvcount, contract, args);
         }
 
-        public EvaluationStack ExecuteTestCaseStandard(int offset, params StackItem[] args)
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, params StackItem[] args)
+        {
+            return ExecuteTestCaseStandard(offset, rvcount, ScriptEntry.nefFile, args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            LoadContext(context.Clone(offset));
+            context = CreateContext(context.Script, rvcount, offset);
+            LoadContext(context);
+            // Mock contract
+            var contextState = CurrentContext.GetState<ExecutionContextState>();
+            contextState.Contract ??= new ContractState() { Nef = contract };
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");

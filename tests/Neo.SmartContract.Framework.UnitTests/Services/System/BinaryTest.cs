@@ -27,7 +27,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
-                Script = _engine.ScriptEntry.finalNEFScript,
+                Nef = _engine.ScriptEntry.nefFile,
                 Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
             });
         }
@@ -64,7 +64,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<VM.Types.ByteString>();
+            var item = result.Pop<VM.Types.Buffer>();
             Assert.AreEqual("test", item.GetString());
         }
 
@@ -88,7 +88,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<VM.Types.ByteString>();
+            var item = result.Pop<VM.Types.Buffer>();
             Assert.AreEqual("test", item.GetString());
         }
 

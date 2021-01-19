@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static BigInteger Get(string msg)
         {
-            return Data.Get(msg)?.ToBigInteger() ?? 0;
+            return (BigInteger)Data.Get(msg);
         }
 
         public static void PutReadonly(string message)
@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static BigInteger GetReadonly(string msg)
         {
-            return ReadonlyData.Get(msg)?.ToBigInteger() ?? 0;
+            return (BigInteger)ReadonlyData.Get(msg);
         }
 
         public static void Put2(string message)
@@ -38,7 +38,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static BigInteger Get2(string msg)
         {
             var Data2 = Storage.CurrentContext.CreateMap("data");
-            return Data2.Get(msg)?.ToBigInteger() ?? 0;
+            return (BigInteger)Data2.Get(msg);
         }
     }
 }
