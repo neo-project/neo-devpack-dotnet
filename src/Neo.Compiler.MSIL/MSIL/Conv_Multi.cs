@@ -4,7 +4,6 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -29,9 +28,56 @@ namespace Neo.Compiler.MSIL
             }
         }
 
+        private void ConvertLdsFld(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.LDSFLD0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)pos });
+            }
+        }
+
+        private void ConvertLdArg(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.LDARG0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
+            }
+        }
+
+        private void ConvertStArg(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.STARG0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.STARG, src, to, new byte[] { (byte)pos });
+            }
+        }
+
+        private void ConvertStsFld(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.STSFLD0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)pos });
+            }
+        }
+
         private void ConvertLdLoc(OpCode src, NeoMethod to, int pos)
         {
-
             if (pos < 7)
             {
                 Convert1by1(VM.OpCode.LDLOC0 + (byte)pos, src, to);
@@ -71,7 +117,6 @@ namespace Neo.Compiler.MSIL
                 }
             }
             ConvertLdLoc(src, to, pos);
-
         }
 
         private void ConvertCastclass(OpCode src, NeoMethod to)
@@ -118,26 +163,7 @@ namespace Neo.Compiler.MSIL
             {
             }
 
-            if (pos < 7)
-            {
-                Convert1by1(VM.OpCode.LDARG0 + (byte)pos, src, to);
-            }
-            else
-            {
-                Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
-            }
-        }
-
-        private void ConvertStArg(OpCode src, NeoMethod to, int pos)
-        {
-            if (pos < 7)
-            {
-                Convert1by1(VM.OpCode.STARG0 + (byte)pos, src, to);
-            }
-            else
-            {
-                Convert1by1(VM.OpCode.STARG, src, to, new byte[] { (byte)pos });
-            }
+            ConvertLdArg(src, to, pos);
         }
 
         /*
