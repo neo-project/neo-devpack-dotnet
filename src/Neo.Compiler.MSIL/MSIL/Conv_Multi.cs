@@ -166,32 +166,6 @@ namespace Neo.Compiler.MSIL
             ConvertLdArg(src, to, pos);
         }
 
-        /*
-                public bool IsSysCall(Mono.Cecil.MethodDefinition defs, out string name)
-                {
-                    if (defs == null)
-                    {
-                        name = "";
-                        return false;
-                    }
-                    foreach (var attr in defs.CustomAttributes)
-                    {
-                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
-                        {
-                            var type = attr.ConstructorArguments[0].Type;
-                            var value = (string)attr.ConstructorArguments[0].Value;
-
-                            //dosth
-                            name = value;
-                            return true;
-                        }
-                        //if(attr.t)
-                    }
-                    name = "";
-                    return false;
-                }
-        */
-
         public bool IsContractCall(Mono.Cecil.MethodDefinition defs, out UInt160 hash)
         {
             if (defs == null)
@@ -339,38 +313,6 @@ namespace Neo.Compiler.MSIL
                 throw new Exception("neomachine Cannot mix OpCode/Syscall/Script attributes with others!");
             }
         }
-
-        /*
-                public bool IsOpCall(Mono.Cecil.MethodDefinition defs, out VM.OpCode[] opcodes)
-                {
-                    opcodes = null;
-                    if (defs == null)
-                    {
-                        return false;
-                    }
-
-                    foreach (var attr in defs.CustomAttributes)
-                    {
-                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute")
-                        {
-
-                            var type = attr.ConstructorArguments[0].Type;
-
-                            Mono.Cecil.CustomAttributeArgument[] val = (Mono.Cecil.CustomAttributeArgument[])attr.ConstructorArguments[0].Value;
-
-                            opcodes = new VM.OpCode[val.Length];
-                            for (var j = 0; j < val.Length; j++)
-                            {
-                                opcodes[j] = ((VM.OpCode)(byte)val[j].Value);
-                            }
-
-                            return true;
-                        }
-                        //if(attr.t)
-                    }
-                    return false;
-                }
-        */
 
         public bool IsNotifyCall(Mono.Cecil.MethodDefinition defs, Mono.Cecil.MethodReference refs, NeoMethod to, out string name)
         {
