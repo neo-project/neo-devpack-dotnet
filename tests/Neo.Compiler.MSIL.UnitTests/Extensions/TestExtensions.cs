@@ -21,7 +21,6 @@ namespace Neo.Compiler.MSIL.Extensions
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
 
-            
             var method2 = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             method2.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
         }
