@@ -8,18 +8,22 @@ namespace Neo.Compiler.MSIL.Extensions
 {
     public static class TestExtensions
     {
-        public static void ContractAdd(this StoreView snapshot, ContractState contract)
+        public static void ContractAdd(this DataCache snapshot, ContractState contract)
         {
             var key = new KeyBuilder(-1, 8).Add(contract.Hash);
-            snapshot.Storages.Add(key, new StorageItem(contract));
+            snapshot.Add(key, new StorageItem(contract));
         }
 
-        public static void DeployNativeContracts(this StoreView snapshot, Block persistingBlock = null)
+        public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
         {
-            persistingBlock ??= new Block() { Index = 0 };
+            persistingBlock ??= Blockchain.GenesisBlock;
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
+
+            
+            var method2 = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            method2.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
         }
     }
 }

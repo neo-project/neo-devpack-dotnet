@@ -32,5 +32,23 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return Neo.SmartContract.Framework.Services.Neo.NEO.Hash;
         }
+
+
+        public static UInt160 LedgerHash()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.Ledger.Hash;
+        }
+
+
+        public static UInt256 LedgerCurrentHash()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.Ledger.CurrentHash;
+        }
+
+        public static uint LedgerCurrentIndex()
+        {
+            return Neo.SmartContract.Framework.Services.Neo.Ledger.CurrentIndex;
+        }
+
     }
 }
