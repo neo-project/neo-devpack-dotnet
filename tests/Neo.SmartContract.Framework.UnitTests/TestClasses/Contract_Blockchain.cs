@@ -4,7 +4,6 @@ using System.Numerics;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
-
     public class Contract_Blockchain : SmartContract.Framework.SmartContract
     {
         public static uint GetHeight()

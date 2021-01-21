@@ -22,7 +22,7 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), persistingBlock, TestGas)
+            : base(trigger, verificable, snapshot ?? new TestDataCache(), persistingBlock, TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }

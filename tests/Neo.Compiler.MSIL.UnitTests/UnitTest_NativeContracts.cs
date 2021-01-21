@@ -1,4 +1,3 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
@@ -12,7 +11,7 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class Contract_NativeContracts
     {
-        private readonly TestSnapshot snapshot = new TestSnapshot();
+        private readonly TestDataCache snapshot = new TestDataCache();
 
         [TestInitialize]
         public void Test_Init()

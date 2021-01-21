@@ -3,14 +3,11 @@ using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using Neo.SmartContract.Native;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -46,14 +43,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 }
             };
 
-            //snapshot.BlockHashIndex.GetAndChange().Index = _block.Index;
-            //snapshot.BlockHashIndex.GetAndChange().Hash = _block.Hash;
             snapshot.BlocksAdd(_block.Hash, _block.Trim());
             snapshot.TransactionAdd(new TransactionState()
             {
                 BlockIndex = _block.Index,
-                Transaction = _block.Transactions[0],
-                //VMState = VMState.HALT
+                Transaction = _block.Transactions[0]
             });
 
             _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);

@@ -16,7 +16,6 @@ namespace Neo.SmartContract.Framework.UnitTests
         const byte Prefix_Transaction = 11;
         const byte Prefix_CurrentBlock = 12;
 
-
         static TestBlockchain()
         {
             TheNeoSystem = new NeoSystem();
@@ -37,7 +36,6 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             return new KeyBuilder(contract.Id, prefix).AddBigEndian(value);
         }
-
 
         public static void BlocksDelete(this DataCache snapshot, UInt256 hash)
         {

@@ -1,10 +1,7 @@
-using Neo.IO;
-using Neo.IO.Caching;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Neo.Persistence;
 using Neo.SmartContract;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
@@ -31,7 +28,6 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
         {
             return dict[key];
         }
-
 
         protected override IEnumerable<(StorageKey Key, StorageItem Value)> SeekInternal(byte[] keyOrPrefix, SeekDirection direction)
         {
