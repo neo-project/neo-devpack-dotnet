@@ -979,7 +979,7 @@ namespace Neo.Compiler.MSIL
                         if (!findEventFlag)
                         {
                             var field = this.outModule.mapFields[d.FullName];
-                            Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index });
+                            ConvertLdsFld(src, to, field.index);
                         }
                     }
                     break;
@@ -987,7 +987,7 @@ namespace Neo.Compiler.MSIL
                     {
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
                         var field = this.outModule.mapFields[d.FullName];
-                        Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)field.index });
+                        ConvertStsFld(src, to, field.index);
                     }
                     break;
                 case CodeEx.Throw:

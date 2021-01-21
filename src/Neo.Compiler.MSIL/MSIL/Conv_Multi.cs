@@ -4,7 +4,6 @@ using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -29,9 +28,56 @@ namespace Neo.Compiler.MSIL
             }
         }
 
+        private void ConvertLdsFld(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.LDSFLD0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)pos });
+            }
+        }
+
+        private void ConvertLdArg(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.LDARG0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
+            }
+        }
+
+        private void ConvertStArg(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.STARG0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.STARG, src, to, new byte[] { (byte)pos });
+            }
+        }
+
+        private void ConvertStsFld(OpCode src, NeoMethod to, int pos)
+        {
+            if (pos < 7)
+            {
+                Convert1by1(VM.OpCode.STSFLD0 + (byte)pos, src, to);
+            }
+            else
+            {
+                Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)pos });
+            }
+        }
+
         private void ConvertLdLoc(OpCode src, NeoMethod to, int pos)
         {
-
             if (pos < 7)
             {
                 Convert1by1(VM.OpCode.LDLOC0 + (byte)pos, src, to);
@@ -71,7 +117,6 @@ namespace Neo.Compiler.MSIL
                 }
             }
             ConvertLdLoc(src, to, pos);
-
         }
 
         private void ConvertCastclass(OpCode src, NeoMethod to)
@@ -118,53 +163,8 @@ namespace Neo.Compiler.MSIL
             {
             }
 
-            if (pos < 7)
-            {
-                Convert1by1(VM.OpCode.LDARG0 + (byte)pos, src, to);
-            }
-            else
-            {
-                Convert1by1(VM.OpCode.LDARG, src, to, new byte[] { (byte)pos });
-            }
+            ConvertLdArg(src, to, pos);
         }
-
-        private void ConvertStArg(OpCode src, NeoMethod to, int pos)
-        {
-            if (pos < 7)
-            {
-                Convert1by1(VM.OpCode.STARG0 + (byte)pos, src, to);
-            }
-            else
-            {
-                Convert1by1(VM.OpCode.STARG, src, to, new byte[] { (byte)pos });
-            }
-        }
-
-        /*
-                public bool IsSysCall(Mono.Cecil.MethodDefinition defs, out string name)
-                {
-                    if (defs == null)
-                    {
-                        name = "";
-                        return false;
-                    }
-                    foreach (var attr in defs.CustomAttributes)
-                    {
-                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.SyscallAttribute")
-                        {
-                            var type = attr.ConstructorArguments[0].Type;
-                            var value = (string)attr.ConstructorArguments[0].Value;
-
-                            //dosth
-                            name = value;
-                            return true;
-                        }
-                        //if(attr.t)
-                    }
-                    name = "";
-                    return false;
-                }
-        */
 
         public bool IsContractCall(Mono.Cecil.MethodDefinition defs, out UInt160 hash)
         {
@@ -313,38 +313,6 @@ namespace Neo.Compiler.MSIL
                 throw new Exception("neomachine Cannot mix OpCode/Syscall/Script attributes with others!");
             }
         }
-
-        /*
-                public bool IsOpCall(Mono.Cecil.MethodDefinition defs, out VM.OpCode[] opcodes)
-                {
-                    opcodes = null;
-                    if (defs == null)
-                    {
-                        return false;
-                    }
-
-                    foreach (var attr in defs.CustomAttributes)
-                    {
-                        if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.OpCodeAttribute")
-                        {
-
-                            var type = attr.ConstructorArguments[0].Type;
-
-                            Mono.Cecil.CustomAttributeArgument[] val = (Mono.Cecil.CustomAttributeArgument[])attr.ConstructorArguments[0].Value;
-
-                            opcodes = new VM.OpCode[val.Length];
-                            for (var j = 0; j < val.Length; j++)
-                            {
-                                opcodes[j] = ((VM.OpCode)(byte)val[j].Value);
-                            }
-
-                            return true;
-                        }
-                        //if(attr.t)
-                    }
-                    return false;
-                }
-        */
 
         public bool IsNotifyCall(Mono.Cecil.MethodDefinition defs, Mono.Cecil.MethodReference refs, NeoMethod to, out string name)
         {
