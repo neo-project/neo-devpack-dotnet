@@ -19,8 +19,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
-            snapshot.BlockHashIndex.Get().Index = 1234;
+            var snapshot = Blockchain.Singleton.GetSnapshot().CreateSnapshot();
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");

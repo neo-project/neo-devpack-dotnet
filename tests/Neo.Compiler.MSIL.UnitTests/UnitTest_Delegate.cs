@@ -2,8 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
-using Neo.Ledger;
-using Neo.Persistence;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
@@ -14,7 +12,7 @@ namespace Neo.Compiler.MSIL.UnitTests
     public class UnitTest_Delegate
     {
         private TestEngine testengine;
-        private readonly TestSnapshot snapshot = new TestSnapshot();
+        private readonly TestDataCache snapshot = new TestDataCache();
 
         [TestInitialize]
         public void Init()
