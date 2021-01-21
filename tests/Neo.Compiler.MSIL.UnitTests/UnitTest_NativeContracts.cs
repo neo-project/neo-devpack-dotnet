@@ -115,8 +115,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual("GAS", entry.GetString());
         }
 
-
-
         [TestMethod]
         public void Test_Ledger()
         {
@@ -154,7 +152,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.IsTrue(entry is VM.Types.ByteString);
             var blockHash = new UInt256((VM.Types.ByteString)entry);
             Assert.AreEqual(Blockchain.GenesisBlock.Hash.ToString(), blockHash.ToString());
-
         }
     }
 }
