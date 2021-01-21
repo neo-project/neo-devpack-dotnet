@@ -8,23 +8,23 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static uint GetHeight()
         {
-            return Blockchain.GetHeight();
+            return Neo.SmartContract.Framework.Services.Neo.Ledger.CurrentIndex;
         }
 
         public static BigInteger GetTransactionHeight(UInt256 hash)
         {
-            return Blockchain.GetTransactionHeight(hash);
+            return Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransactionHeight(hash);
         }
 
         public static object GetBlockByHash(UInt256 hash, string whatReturn)
         {
-            var block = Blockchain.GetBlock(hash);
+            var block = Neo.SmartContract.Framework.Services.Neo.Ledger.GetBlock(hash);
             return GetBlockInfo(block, whatReturn);
         }
 
         public static object GetBlockByIndex(uint index, string whatReturn)
         {
-            var block = Blockchain.GetBlock(index);
+            var block = Neo.SmartContract.Framework.Services.Neo.Ledger.GetBlock(index);
             return GetBlockInfo(block, whatReturn);
         }
 
@@ -50,19 +50,19 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object GetTxByHash(UInt256 hash, string whatReturn)
         {
-            var tx = Blockchain.GetTransaction(hash);
+            var tx = Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransaction(hash);
             return GetTxInfo(tx, whatReturn);
         }
 
         public static object GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
         {
-            var tx = Blockchain.GetTransactionFromBlock(blockHash, txIndex);
+            var tx = Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransactionFromBlock(blockHash, txIndex);
             return GetTxInfo(tx, whatReturn);
         }
 
         public static object GetTxByBlockIndex(uint blockIndex, int txIndex, string whatReturn)
         {
-            var tx = Blockchain.GetTransactionFromBlock(blockIndex, txIndex);
+            var tx = Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransactionFromBlock(blockIndex, txIndex);
             return GetTxInfo(tx, whatReturn);
         }
 

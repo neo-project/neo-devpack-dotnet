@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x1bda60bf76671280ab2ab80d78f7ba95434751b5")]
+    [Contract("0xa2b524b68dfe43a9d56af84f443c6b9843b8028c")]
     public class NameService
     {
         // NonfungibleToken

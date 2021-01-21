@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             public void DeserializeUnsigned(BinaryReader reader) { }
 
-            public UInt160[] GetScriptHashesForVerifying(StoreView snapshot)
+            public UInt160[] GetScriptHashesForVerifying(DataCache snapshot)
             {
                 return new UInt160[]
                 {
