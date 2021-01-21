@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+#pragma warning disable CS0626
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
@@ -15,12 +10,9 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern uint CurrentIndex { get; }
         public static extern Block GetBlock(uint index);
         public static extern Block GetBlock(UInt256 hash);
-
-
         public static extern Transaction GetTransaction(UInt256 hash);
         public static extern Transaction GetTransactionFromBlock(UInt256 blockHash, int txIndex);
         public static extern Transaction GetTransactionFromBlock(uint blockHeight, int txIndex);
         public static extern int GetTransactionHeight(UInt256 hash);
-
     }
 }
