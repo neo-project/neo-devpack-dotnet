@@ -1,58 +1,47 @@
-using Neo.IO;
-using Neo.IO.Caching;
-using System;
+using Neo.Persistence;
+using Neo.SmartContract;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests.Utils
 {
-    public class TestDataCache<TKey, TValue> : DataCache<TKey, TValue>
-        where TKey : IEquatable<TKey>, ISerializable
-        where TValue : class, ICloneable<TValue>, ISerializable, new()
+    public class TestDataCache : DataCache
     {
-        private readonly Dictionary<TKey, TValue> dic = new Dictionary<TKey, TValue>();
+        private readonly Dictionary<StorageKey, StorageItem> dict = new Dictionary<StorageKey, StorageItem>();
 
-        public TestDataCache() { }
-
-        public TestDataCache(TKey key, TValue value)
+        protected override void AddInternal(StorageKey key, StorageItem value)
         {
-            dic.Add(key, value);
+            dict.Add(key, value);
         }
 
-        protected override bool ContainsInternal(TKey key)
+        protected override void DeleteInternal(StorageKey key)
         {
-            return dic.ContainsKey(key);
+            dict.Remove(key);
         }
 
-        protected override void DeleteInternal(TKey key)
+        protected override bool ContainsInternal(StorageKey key)
         {
-            dic.Remove(key);
+            return dict.ContainsKey(key);
         }
 
-        protected override void AddInternal(TKey key, TValue value)
+        protected override StorageItem GetInternal(StorageKey key)
         {
-            dic.Add(key, value);
+            return dict[key];
         }
 
-        protected override IEnumerable<(TKey Key, TValue Value)> SeekInternal(byte[] keyOrPrefix, SeekDirection direction)
+        protected override IEnumerable<(StorageKey Key, StorageItem Value)> SeekInternal(byte[] keyOrPrefix, SeekDirection direction)
         {
-            return dic.Select(u => (u.Key, u.Value));
+            return dict.Select(u => (u.Key, u.Value));
         }
 
-        protected override TValue GetInternal(TKey key)
+        protected override StorageItem TryGetInternal(StorageKey key)
         {
-            if (dic[key] == null) throw new NotImplementedException();
-            return dic[key];
+            return dict.TryGetValue(key, out var value) ? value : null;
         }
 
-        protected override TValue TryGetInternal(TKey key)
+        protected override void UpdateInternal(StorageKey key, StorageItem value)
         {
-            return dic.TryGetValue(key, out TValue value) ? value : null;
-        }
-
-        protected override void UpdateInternal(TKey key, TValue value)
-        {
-            dic[key] = value;
+            dict[key] = value;
         }
     }
 }
