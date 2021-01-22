@@ -3,6 +3,7 @@ using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.Ledger;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
@@ -372,6 +373,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 },
                 Manifest = new Manifest.ContractManifest()
                 {
+                    Name = "Name",
                     SupportedStandards = new string[0],
                     Groups = new Manifest.ContractGroup[0],
                     Trusts = Manifest.WildcardContainer<UInt160>.Create(),
@@ -403,8 +405,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual(contract.Manifest.ToString(), item.GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Struct));
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(item);
+            Assert.AreEqual(contract.Manifest.ToString(), ritem.ToString());
 
             // Found + UpdateCounter
 
