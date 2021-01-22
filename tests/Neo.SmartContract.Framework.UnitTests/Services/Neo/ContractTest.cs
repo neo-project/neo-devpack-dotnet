@@ -56,7 +56,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
             Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-            Assert.AreEqual(manifest.ToString(), itemArray[4].GetString()); // Manifest
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(itemArray[4]);
+            Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
 
             // Call
 
@@ -119,7 +121,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
             Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-            Assert.AreEqual(manifest.ToString(), itemArray[4].GetString()); // Manifest
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(itemArray[4]);
+            Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
 
             // Call & Update
 
