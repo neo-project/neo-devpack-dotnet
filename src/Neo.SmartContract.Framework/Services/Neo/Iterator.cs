@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Iterator.Next")]
         public extern bool Next();
-        
+
         public static extern object Value
         {
             [Syscall("System.Iterator.Value")]
