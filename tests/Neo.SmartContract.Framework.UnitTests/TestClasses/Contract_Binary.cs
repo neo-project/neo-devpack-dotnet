@@ -7,7 +7,6 @@ using System.ComponentModel;
 namespace Neo.Compiler.MSIL.TestClasses
 {
     [DisplayName("Contract_Binary")]
-
     public class Contract_Binary : SmartContract.Framework.SmartContract
     {
         public static byte[] base64Decode(string input)
