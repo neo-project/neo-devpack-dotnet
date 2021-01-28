@@ -25,6 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
             },
+            snapshot: new TestDataCache(Blockchain.GenesisBlock),
             persistingBlock: Blockchain.GenesisBlock);
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
         }
