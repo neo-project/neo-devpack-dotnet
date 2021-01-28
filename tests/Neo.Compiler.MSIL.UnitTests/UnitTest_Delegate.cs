@@ -12,13 +12,12 @@ namespace Neo.Compiler.MSIL.UnitTests
     public class UnitTest_Delegate
     {
         private TestEngine testengine;
-        private readonly TestDataCache snapshot = new TestDataCache();
+        private TestDataCache snapshot;
 
         [TestInitialize]
         public void Init()
         {
-            snapshot.DeployNativeContracts();
-
+            snapshot = new TestDataCache(null);
             testengine = new TestEngine(snapshot: snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_Delegate.cs");
         }

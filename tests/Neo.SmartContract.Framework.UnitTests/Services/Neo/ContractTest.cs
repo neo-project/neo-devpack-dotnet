@@ -24,9 +24,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
-            });
+            },
+            persistingBlock: Blockchain.GenesisBlock);
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
-            _engine.Snapshot.DeployNativeContracts(Blockchain.GenesisBlock);
         }
 
         [TestMethod]
