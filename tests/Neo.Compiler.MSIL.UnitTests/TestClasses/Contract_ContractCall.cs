@@ -1,4 +1,5 @@
 using Neo.SmartContract.Framework;
+using System.ComponentModel;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
@@ -9,6 +10,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         public static extern void testVoid();
     }
 
+    [DisplayName("Contract_ContractCall")]
     public class Contract_ContractCall : SmartContract.Framework.SmartContract
     {
         public static byte[] testContractCall()

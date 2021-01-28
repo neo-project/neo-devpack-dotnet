@@ -17,7 +17,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestInitialize]
         public void Init()
         {
-            snapshot = new TestDataCache(null);
+            snapshot = new TestDataCache();
             testengine = new TestEngine(snapshot: snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_Delegate.cs");
         }

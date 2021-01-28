@@ -18,7 +18,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void Init()
         {
             var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
-            _engine = new TestEngine(snapshot: new TestDataCache(null));
+            _engine = new TestEngine(snapshot: new TestDataCache());
             _engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
