@@ -7,8 +7,10 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static extern UInt160 Hash { [ContractHash] get; }
         public static extern Contract GetContract(UInt160 hash);
-        public static extern Contract Deploy(ByteString nefFile, string manifest, object data = null);
-        public static extern void Update(ByteString nefFile, string manifest, object data = null);
+        public static extern Contract Deploy(ByteString nefFile, string manifest);
+        public static extern void Update(ByteString nefFile, string manifest);
+        public static extern Contract Deploy(ByteString nefFile, string manifest, object data);
+        public static extern void Update(ByteString nefFile, string manifest, object data);
         public static extern void Destroy();
     }
 }
