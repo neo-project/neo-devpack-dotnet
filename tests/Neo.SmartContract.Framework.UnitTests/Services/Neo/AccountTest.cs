@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine();
+            _engine = new TestEngine(snapshot: new TestDataCache());
             _engine.AddEntryScript("./TestClasses/Contract_Account.cs");
         }
 
