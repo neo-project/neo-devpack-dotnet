@@ -9,11 +9,7 @@ namespace Neo.Compiler
 {
     public class NeoModule
     {
-        public readonly string Name;
-        public NeoModule(ILogger logger, string name)
-        {
-            Name = name;
-        }
+        public string Name;
 
         public ConvOption option;
         public List<CustomAttribute> attributes = new List<CustomAttribute>();

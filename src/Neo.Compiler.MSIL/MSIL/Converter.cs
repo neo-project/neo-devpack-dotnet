@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL
         public NeoModule Convert(ILModule _in, ConvOption option = null)
         {
             this.inModule = _in;
-            this.outModule = new NeoModule(this.logger, Path.GetFileNameWithoutExtension(_in.module.Name))
+            this.outModule = new NeoModule()
             {
                 option = option ?? ConvOption.Default
             };
@@ -141,6 +141,15 @@ namespace Neo.Compiler.MSIL
             {
                 outModule.attributes.AddRange(attr);
             }
+
+            var declaringTypes = outModule.mapMethods.Values
+                .Where(u => u.inSmartContract)
+                .Select(u => u.method?.method?.DeclaringType)
+                .Where(u => u != null && !string.IsNullOrEmpty(u.Name))
+                .Distinct()
+                .ToArray();
+
+            outModule.Name = declaringTypes.Length == 1 ? declaringTypes[0].Name : Path.GetFileNameWithoutExtension(_in.module.Name);
 
             this.LinkCode();
 
