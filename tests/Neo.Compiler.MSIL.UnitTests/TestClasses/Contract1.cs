@@ -1,8 +1,5 @@
-using System.ComponentModel;
-
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
-    [DisplayName("Name")]
     public class Contract1 : SmartContract.Framework.SmartContract
     {
         public static byte[] unitTest_001()
