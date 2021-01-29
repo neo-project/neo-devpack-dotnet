@@ -26,7 +26,7 @@ namespace Neo.Compiler
                 {
                     if (i.InterfaceType.Name == nameof(IApiInterface))
                     {
-                        return "IInteropInterface";
+                        return "InteropInterface";
                     }
                 }
 
