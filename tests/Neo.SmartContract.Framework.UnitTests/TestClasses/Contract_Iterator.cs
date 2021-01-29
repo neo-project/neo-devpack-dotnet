@@ -30,5 +30,18 @@ namespace Neo.Compiler.MSIL.TestClasses
 
             return sum;
         }
+
+        public static int TestNextIntArrayBase(int[] a)
+        {
+            int sum = 0;
+            var iterator = (Iterator)Iterator.Create<int>(a);
+
+            while (iterator.Next())
+            {
+                sum += (int)iterator.Value;
+            }
+
+            return sum;
+        }
     }
 }
