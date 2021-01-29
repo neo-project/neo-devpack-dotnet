@@ -3,14 +3,12 @@ using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using System;
 using System.Numerics;
-using System.ComponentModel;
 
 namespace $safeprojectname$
 {
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a contract example")]
-    [DisplayName("Name")]
     public class Contract1 : SmartContract
     {
         //TODO: Replace it with your own address.

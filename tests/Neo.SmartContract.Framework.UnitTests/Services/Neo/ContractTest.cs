@@ -106,6 +106,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
+            manifestUpdate.Name = manifest.Name; // Must be the same name
 
             // Create
 

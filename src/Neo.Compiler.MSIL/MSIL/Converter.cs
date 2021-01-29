@@ -1,6 +1,7 @@
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 
@@ -41,7 +42,7 @@ namespace Neo.Compiler.MSIL
         public NeoModule Convert(ILModule _in, ConvOption option = null)
         {
             this.inModule = _in;
-            this.outModule = new NeoModule(this.logger)
+            this.outModule = new NeoModule(this.logger, Path.GetFileNameWithoutExtension(_in.module.Name))
             {
                 option = option ?? ConvOption.Default
             };
