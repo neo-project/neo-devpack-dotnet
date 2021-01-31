@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Ledger;
 using Neo.SmartContract;
@@ -11,13 +10,12 @@ namespace Neo.Compiler.MSIL.UnitTests
     [TestClass]
     public class Contract_NativeContracts
     {
-        private readonly TestDataCache snapshot = new TestDataCache();
+        private TestDataCache snapshot;
 
         [TestInitialize]
         public void Test_Init()
         {
-            // Fake native deploy
-            snapshot.DeployNativeContracts();
+            snapshot = new TestDataCache();
         }
 
         [TestMethod]

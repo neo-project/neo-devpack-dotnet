@@ -1,3 +1,5 @@
+using Neo.Compiler.MSIL.Extensions;
+using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
 using System.Collections.Generic;
@@ -8,6 +10,11 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
     public class TestDataCache : DataCache
     {
         private readonly Dictionary<StorageKey, StorageItem> dict = new Dictionary<StorageKey, StorageItem>();
+
+        public TestDataCache(Block persistingBlock = null)
+        {
+            this.DeployNativeContracts(persistingBlock);
+        }
 
         protected override void AddInternal(StorageKey key, StorageItem value)
         {
@@ -26,7 +33,12 @@ namespace Neo.Compiler.MSIL.UnitTests.Utils
 
         protected override StorageItem GetInternal(StorageKey key)
         {
-            return dict[key];
+            if (!dict.TryGetValue(key, out var value))
+            {
+                return null;
+            }
+
+            return value;
         }
 
         protected override IEnumerable<(StorageKey Key, StorageItem Value)> SeekInternal(byte[] keyOrPrefix, SeekDirection direction)

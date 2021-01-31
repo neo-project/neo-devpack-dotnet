@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.Ledger;
 using Neo.SmartContract;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
@@ -19,7 +18,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot().CreateSnapshot();
+            var snapshot = new TestDataCache(null);
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");

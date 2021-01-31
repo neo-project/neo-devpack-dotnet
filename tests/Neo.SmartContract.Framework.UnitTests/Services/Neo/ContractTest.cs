@@ -24,9 +24,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
-            });
+            },
+            snapshot: new TestDataCache(Blockchain.GenesisBlock),
+            persistingBlock: Blockchain.GenesisBlock);
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
-            _engine.Snapshot.DeployNativeContracts(Blockchain.GenesisBlock);
         }
 
         [TestMethod]
@@ -105,6 +106,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
+            manifestUpdate.Name = manifest.Name; // Must be the same name
 
             // Create
 
