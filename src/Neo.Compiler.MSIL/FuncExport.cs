@@ -201,7 +201,7 @@ namespace Neo.Compiler
             var name = module.attributes
                 .Where(u => u.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
-                .FirstOrDefault() ?? "";
+                .FirstOrDefault() ?? module.Name;
 
             return
                 @"{""groups"":[],""abi"":" +

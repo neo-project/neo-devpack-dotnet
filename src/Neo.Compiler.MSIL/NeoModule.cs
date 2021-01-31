@@ -4,13 +4,12 @@ using Neo.IO.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 
 namespace Neo.Compiler
 {
     public class NeoModule
     {
-        public NeoModule(ILogger logger) { }
+        public string Name;
 
         public ConvOption option;
         public List<CustomAttribute> attributes = new List<CustomAttribute>();
