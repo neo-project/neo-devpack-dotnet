@@ -56,27 +56,15 @@ namespace Neo.TestingEngine
         }
 
         /// <summary>
-        /// Clear the storage for unit test
-        /// </summary>
-        public void Clear()
-        {
-            dict.Clear();
-        }
-
-        /// <summary>
-        /// Gets the size of the storage for unit test
-        /// </summary>
-        public int Count()
-        {
-            return dict.Count;
-        }
-
-        /// <summary>
         /// Include a new value to the storage for unit test
         /// </summary>
         public void AddForTest(StorageKey key, StorageItem value)
         {
-            AddInternal(key, value);
+            if (Contains(key))
+            {
+                Delete(key);
+            }
+            Add(key, value);
         }
     }
 }

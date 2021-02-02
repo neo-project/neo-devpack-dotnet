@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             };
 
             snapshot.BlocksAdd(_block.Hash, _block.Trim());
-            snapshot.TransactionAdd(new TransactionState()
+            snapshot.TransactionAddOrUpdate(new TransactionState()
             {
                 BlockIndex = _block.Index,
                 Transaction = _block.Transactions[0]

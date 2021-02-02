@@ -53,26 +53,28 @@ namespace Neo.TestingEngine
         public static JObject ToJson(this DataCache storage)
         {
             var jsonStorage = new JArray();
-            foreach (var storagePair in storage.Seek())
+            // had to filter which data should be returned back, since everything is in the storage now
+            var newStorage = storage.GetStorageOnly();
+
+            foreach (var (storageKey, storageValue) in newStorage)
             {
-                var key = new ByteString(storagePair.Key.Key);
+                var key = new ByteString(storageKey.Key);
                 StackItem value;
                 try
                 {
-                    value = new ByteString(storagePair.Value.Value);
+                    value = new ByteString(storageValue.Value);
                 }
                 catch
                 {
                     value = StackItem.Null;
                 }
 
-
                 var jsonKey = new JObject();
-                jsonKey["id"] = storagePair.Key.Id;
+                jsonKey["id"] = storageKey.Id;
                 jsonKey["key"] = key.ToJson();
 
                 var jsonValue = new JObject();
-                jsonValue["isconstant"] = storagePair.Value.IsConstant;
+                jsonValue["isconstant"] = storageValue.IsConstant;
                 jsonValue["value"] = value.ToJson();
 
                 var storageItem = new JObject();

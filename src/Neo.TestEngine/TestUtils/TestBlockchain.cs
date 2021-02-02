@@ -42,24 +42,20 @@ namespace Neo.TestingEngine
             return new KeyBuilder(contract.Id, prefix).AddBigEndian(value);
         }
 
-        public static void BlocksDelete(this DataCache snapshot, UInt256 hash)
+        public static List<(StorageKey, StorageItem)> GetStorageOnly(this DataCache snapshot)
         {
-            snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, hash));
-            snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash));
-        }
-
-        public static void TransactionAdd(this DataCache snapshot, params TransactionState[] txs)
-        {
-            foreach (TransactionState tx in txs)
+            var nativeTokens = new int[]
             {
-                snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_Transaction, tx.Transaction.Hash), new StorageItem(tx, true));
-            }
+                NativeContract.GAS.Id, NativeContract.NEO.Id
+            };
+
+            return snapshot.Find().Where(pair => pair.Key.Id >= 0 || nativeTokens.Contains(pair.Key.Id)).ToList();
         }
 
-        public static bool ContainsTransaction(this DataCache snapshot, Transaction tx)
+        public static void BlocksDelete(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
         {
-            var key = NativeContract.Ledger.CreateStorageKey(Prefix_Transaction, tx.Hash);
-            return snapshot.Contains(key);
+            snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, block.Index));
+            snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash));
         }
 
         public static void BlocksAdd(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
@@ -70,9 +66,15 @@ namespace Neo.TestingEngine
 
         public static void UpdateChangedBlocks(this DataCache snapshot, UInt256 oldHash, UInt256 newHash, TrimmedBlock block)
         {
-            if (snapshot.Contains(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, oldHash)))
+            if (snapshot.Contains(NativeContract.Ledger.CreateStorageKey(Prefix_Block, oldHash)))
             {
-                snapshot.BlocksDelete(oldHash);
+                var oldBlock = NativeContract.Ledger.GetBlock(snapshot, oldHash);
+                snapshot.BlocksDelete(oldHash, oldBlock.Trim());
+            }
+
+            if (snapshot.Contains(NativeContract.Ledger.CreateStorageKey(Prefix_Block, newHash)))
+            {
+                snapshot.BlocksDelete(newHash, block);
             }
             snapshot.BlocksAdd(newHash, block);
         }
@@ -98,12 +100,33 @@ namespace Neo.TestingEngine
             return NativeContract.Ledger.GetBlock(snapshot, index);
         }
 
+        public static void BlocksAddOrUpdate(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
+        {
+            var existingBlock = NativeContract.Ledger.GetBlock(snapshot, block.Index);
+            if (existingBlock != null)
+            {
+                snapshot.UpdateChangedBlocks(existingBlock.Hash, hash, block);
+            }
+            else
+            {
+                snapshot.BlocksAdd(hash, block);
+            }
+        }
+
         public static List<TrimmedBlock> Blocks(this DataCache snapshot)
         {
             var blockKey = NativeContract.Ledger.CreateStorageKey(Prefix_Block);
             return snapshot.Find(blockKey.ToArray())
                 .Select(item => item.Value.Value.AsSerializable<TrimmedBlock>())
                 .OrderBy(b => b.Index).ToList();
+        }
+
+        public static List<UInt256> BlocksIndex(this DataCache snapshot)
+        {
+            var blockKey = NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash);
+            return snapshot.Find(blockKey.ToArray())
+                .Select(item => new UInt256(item.Value.ToArray()))
+                .ToList();
         }
 
         public static Block GetLastBlock(this DataCache snapshot)
@@ -126,13 +149,33 @@ namespace Neo.TestingEngine
             item.Value = BinarySerializer.Serialize(hashIndex.ToStackItem(null), MaxStackSize);
         }
 
-        public static void AddTransactions(this DataCache snapshot, Transaction[] txs, int blockIndex = -1)
+        public static void TransactionAddOrUpdate(this DataCache snapshot, params TransactionState[] txs)
         {
-            uint index = blockIndex >= 0 ? (uint)blockIndex : NativeContract.Ledger.CurrentIndex(snapshot);
-            snapshot.AddTransactions(txs, index);
+            foreach (TransactionState tx in txs)
+            {
+                var key = NativeContract.Ledger.CreateStorageKey(Prefix_Transaction, tx.Transaction.Hash);
+
+                if (snapshot.Contains(key))
+                {
+                    snapshot.Delete(key);
+                }
+                snapshot.Add(key, new StorageItem(tx, true));
+            }
         }
 
-        public static void AddTransactions(this DataCache snapshot, Transaction[] txs, uint index)
+        public static bool ContainsTransaction(this DataCache snapshot, Transaction tx)
+        {
+            var key = NativeContract.Ledger.CreateStorageKey(Prefix_Transaction, tx.Hash);
+            return snapshot.Contains(key);
+        }
+
+        public static void AddOrUpdateTransactions(this DataCache snapshot, Transaction[] txs, int blockIndex = -1)
+        {
+            uint index = blockIndex >= 0 ? (uint)blockIndex : NativeContract.Ledger.CurrentIndex(snapshot);
+            snapshot.AddOrUpdateTransactions(txs, index);
+        }
+
+        public static void AddOrUpdateTransactions(this DataCache snapshot, Transaction[] txs, uint index)
         {
             var states = new List<TransactionState>();
             foreach (var tx in txs)
@@ -151,7 +194,7 @@ namespace Neo.TestingEngine
                 states.Add(state);
             }
 
-            snapshot.TransactionAdd(states.ToArray());
+            snapshot.TransactionAddOrUpdate(states.ToArray());
         }
     }
 }

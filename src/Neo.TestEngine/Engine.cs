@@ -46,7 +46,6 @@ namespace Neo.TestingEngine
         public void Reset()
         {
             engine = SetupNativeContracts();
-            IncreaseBlockCount(0);
         }
 
         public void SetTestEngine(string path)
@@ -91,7 +90,7 @@ namespace Neo.TestingEngine
                 if (snapshot.Blocks().Count == 0)
                 {
                     newBlock = Blockchain.GenesisBlock;
-                    snapshot.AddTransactions(newBlock.Transactions, newBlock.Index);
+                    snapshot.AddOrUpdateTransactions(newBlock.Transactions, newBlock.Index);
                 }
                 else
                 {
@@ -102,7 +101,7 @@ namespace Neo.TestingEngine
                 {
                     var hash = newBlock.Hash;
                     var trim = newBlock.Trim();
-                    snapshot.BlocksAdd(hash, trim);
+                    snapshot.BlocksAddOrUpdate(hash, trim);
                     lastBlock = newBlock;
                     newBlock = CreateBlock();
                 }
@@ -113,10 +112,13 @@ namespace Neo.TestingEngine
 
         public void SetStorage(Dictionary<StorageKey, StorageItem> storage)
         {
-            //foreach (var (key, value) in storage)
-            //{
-            //    ((TestDataCache<StorageKey, StorageItem>)engine.Snapshot.Storages).AddForTest(key, value);
-            //}
+            if (engine.Snapshot is TestDataCache snapshot)
+            {
+                foreach (var (key, value) in storage)
+                {
+                    snapshot.AddForTest(key, value);
+                }
+            }
         }
 
         public void SetSigners(UInt160[] signerAccounts)
@@ -132,12 +134,13 @@ namespace Neo.TestingEngine
             if (engine.Snapshot is TestDataCache snapshot)
             {
                 Block currentBlock = null;
-                if (Height < block.Index)
+                if (Height < block.Index || snapshot.Blocks().Count == 0)
                 {
                     IncreaseBlockCount(block.Index);
-                    currentBlock = CreateBlock(block);
+                    currentBlock = engine.Snapshot.GetLastBlock();
                 }
-                else {
+                else
+                {
                     currentBlock = NativeContract.Ledger.GetBlock(snapshot, block.Index);
                 }
 
@@ -162,10 +165,11 @@ namespace Neo.TestingEngine
                         tx.ValidUntilBlock = block.Index + Transaction.MaxValidUntilBlockIncrement;
                     }
 
-                    snapshot.UpdateChangedBlocks(hash, currentBlock.Hash, currentBlock.Trim());
+                    var trimmed = currentBlock.Trim();
+                    snapshot.UpdateChangedBlocks(hash, trimmed.Hash, trimmed);
                 }
 
-                snapshot.AddTransactions(block.Transactions);
+                snapshot.AddOrUpdateTransactions(block.Transactions);
             }
         }
 
@@ -189,6 +193,7 @@ namespace Neo.TestingEngine
                 engine.PersistingBlock.MerkleRoot = lastBlock.MerkleRoot;
 
                 currentTx.ValidUntilBlock = lastBlock.Index;
+                snapshot.SetCurrentBlockHash(lastBlock.Index, lastBlock.Hash);
             }
 
             using (ScriptBuilder scriptBuilder = new ScriptBuilder())
@@ -227,14 +232,18 @@ namespace Neo.TestingEngine
             TestEngine engine = new TestEngine(TriggerType.Application, currentTx, new TestDataCache(), persistingBlock: new Block() { Index = 0 });
 
             engine.ClearNotifications();
-            //((TestSnapshot)engine.Snapshot).ClearStorage();
-
             return engine;
         }
 
         private Block CreateBlock(Block originBlock = null)
         {
-            var trimmedBlock = engine.Snapshot.Blocks().Last();
+            TrimmedBlock trimmedBlock = null;
+            var blocks = engine.Snapshot.Blocks();
+            if (blocks.Count > 0)
+            {
+                trimmedBlock = blocks.Last();
+            }
+
             if (trimmedBlock == null)
             {
                 trimmedBlock = Blockchain.GenesisBlock.Trim();
