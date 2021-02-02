@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xe21a28cfc1e662e152f668c86198141cc17b6c37")]
+    [Contract("0x79bcd398505eb779df6e67e4be6c14cded08e2f2")]
     public class Policy
     {
         public static extern UInt160 Hash { [ContractHash] get; }
@@ -13,10 +13,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern long GetMaxBlockSystemFee();
         public static extern BigInteger GetFeePerByte();
         public static extern string[] IsBlocked(UInt160 account);
-        public static extern bool SetMaxBlockSize(uint value);
-        public static extern bool SetMaxTransactionsPerBlock(uint value);
-        public static extern bool SetMaxBlockSystemFee(long value);
-        public static extern bool SetFeePerByte(long value);
         public static extern bool BlockAccount(UInt160 account);
         public static extern bool UnblockAccount(UInt160 account);
     }

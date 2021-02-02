@@ -1,6 +1,7 @@
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 
@@ -41,7 +42,7 @@ namespace Neo.Compiler.MSIL
         public NeoModule Convert(ILModule _in, ConvOption option = null)
         {
             this.inModule = _in;
-            this.outModule = new NeoModule(this.logger)
+            this.outModule = new NeoModule()
             {
                 option = option ?? ConvOption.Default
             };
@@ -140,6 +141,15 @@ namespace Neo.Compiler.MSIL
             {
                 outModule.attributes.AddRange(attr);
             }
+
+            var declaringTypes = outModule.mapMethods.Values
+                .Where(u => u.inSmartContract)
+                .Select(u => u.method?.method?.DeclaringType)
+                .Where(u => u != null && !string.IsNullOrEmpty(u.Name))
+                .Distinct()
+                .ToArray();
+
+            outModule.Name = declaringTypes.Length == 1 ? declaringTypes[0].Name : Path.GetFileNameWithoutExtension(_in.module.Name);
 
             this.LinkCode();
 
@@ -979,7 +989,7 @@ namespace Neo.Compiler.MSIL
                         if (!findEventFlag)
                         {
                             var field = this.outModule.mapFields[d.FullName];
-                            Convert1by1(VM.OpCode.LDSFLD, src, to, new byte[] { (byte)field.index });
+                            ConvertLdsFld(src, to, field.index);
                         }
                     }
                     break;
@@ -987,7 +997,7 @@ namespace Neo.Compiler.MSIL
                     {
                         var d = src.tokenUnknown as Mono.Cecil.FieldDefinition;
                         var field = this.outModule.mapFields[d.FullName];
-                        Convert1by1(VM.OpCode.STSFLD, src, to, new byte[] { (byte)field.index });
+                        ConvertStsFld(src, to, field.index);
                     }
                     break;
                 case CodeEx.Throw:

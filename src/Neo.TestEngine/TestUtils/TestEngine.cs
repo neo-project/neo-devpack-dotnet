@@ -12,7 +12,7 @@ namespace Neo.TestingEngine
 {
     public class TestEngine : ApplicationEngine
     {
-        public const long TestGas = 2000_000_000;
+        public const long TestGas = 2000_00000000;
 
         static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
 
@@ -20,8 +20,8 @@ namespace Neo.TestingEngine
 
         public BuildScript ScriptEntry { get; private set; }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, StoreView snapshot = null, Block persistingBlock = null)
-            : base(trigger, verificable, snapshot ?? new TestSnapshot(), persistingBlock, TestGas)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
+            : base(trigger, verificable, snapshot, persistingBlock, TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }

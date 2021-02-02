@@ -16,11 +16,17 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Iterator.Next")]
         public extern bool Next();
+
+        public extern object Value
+        {
+            [Syscall("System.Iterator.Value")]
+            get;
+        }
     }
 
     public class Iterator<T> : Iterator, IApiInterface
     {
-        public extern T Value
+        public extern new T Value
         {
             [Syscall("System.Iterator.Value")]
             get;

@@ -39,9 +39,9 @@ namespace Neo.TestingEngine
             Reset();
         }
 
-        public uint Height => engine.Snapshot.Height;
+        public uint Height => NativeContract.Ledger.CurrentIndex(engine.Snapshot);
 
-        public StoreView Snaptshot => engine.Snapshot;
+        public DataCache Snaptshot => engine.Snapshot;
 
         public void Reset()
         {
@@ -83,39 +83,40 @@ namespace Neo.TestingEngine
 
         public void IncreaseBlockCount(uint newHeight)
         {
-            var snapshot = (TestSnapshot)engine.Snapshot;
-            var blocks = (TestDataCache<UInt256, TrimmedBlock>)snapshot.Blocks;
-            Block newBlock;
-            Block lastBlock = null;
-            if (blocks.Count() == 0)
+            var snapshot = (TestDataCache)engine.Snapshot;
+            if (snapshot.Blocks().Count <= newHeight)
             {
-                newBlock = Blockchain.GenesisBlock;
-                snapshot.AddTransactions(newBlock.Transactions, newBlock.Index);
-            }
-            else
-            {
-                newBlock = CreateBlock();
-            }
+                Block newBlock;
+                Block lastBlock = null;
+                if (snapshot.Blocks().Count == 0)
+                {
+                    newBlock = Blockchain.GenesisBlock;
+                    snapshot.AddTransactions(newBlock.Transactions, newBlock.Index);
+                }
+                else
+                {
+                    newBlock = CreateBlock();
+                }
 
-            while (blocks.Count() <= newHeight)
-            {
-                var hash = newBlock.Hash;
-                var trim = newBlock.Trim();
-                blocks.AddForTest(hash, trim);
-                lastBlock = newBlock;
-                newBlock = CreateBlock();
-            }
+                while (snapshot.Blocks().Count <= newHeight)
+                {
+                    var hash = newBlock.Hash;
+                    var trim = newBlock.Trim();
+                    snapshot.BlocksAdd(hash, trim);
+                    lastBlock = newBlock;
+                    newBlock = CreateBlock();
+                }
 
-            var index = (uint)(blocks.Count() - 1);
-            snapshot.SetCurrentBlockHash(index, lastBlock?.Hash ?? newBlock.Hash);
+                snapshot.SetCurrentBlockHash(lastBlock.Index, lastBlock.Hash);
+            }
         }
 
         public void SetStorage(Dictionary<StorageKey, StorageItem> storage)
         {
-            foreach (var (key, value) in storage)
-            {
-                ((TestDataCache<StorageKey, StorageItem>)engine.Snapshot.Storages).AddForTest(key, value);
-            }
+            //foreach (var (key, value) in storage)
+            //{
+            //    ((TestDataCache<StorageKey, StorageItem>)engine.Snapshot.Storages).AddForTest(key, value);
+            //}
         }
 
         public void SetSigners(UInt160[] signerAccounts)
@@ -128,14 +129,17 @@ namespace Neo.TestingEngine
 
         public void AddBlock(Block block)
         {
-            if (engine.Snapshot is TestSnapshot snapshot)
+            if (engine.Snapshot is TestDataCache snapshot)
             {
-                if (snapshot.Height < block.Index)
+                Block currentBlock = null;
+                if (Height < block.Index)
                 {
                     IncreaseBlockCount(block.Index);
+                    currentBlock = CreateBlock(block);
                 }
-
-                var currentBlock = snapshot.TryGetBlock(block.Index);
+                else {
+                    currentBlock = NativeContract.Ledger.GetBlock(snapshot, block.Index);
+                }
 
                 if (currentBlock != null)
                 {
@@ -158,20 +162,22 @@ namespace Neo.TestingEngine
                         tx.ValidUntilBlock = block.Index + Transaction.MaxValidUntilBlockIncrement;
                     }
 
-                    if (snapshot.Blocks is TestDataCache<UInt256, TrimmedBlock> blocks)
-                    {
-                        blocks.UpdateChangingKey(hash, currentBlock.Hash, currentBlock.Trim());
-                    }
-                    snapshot.AddTransactions(block.Transactions);
+                    snapshot.UpdateChangedBlocks(hash, currentBlock.Hash, currentBlock.Trim());
                 }
+
+                snapshot.AddTransactions(block.Transactions);
             }
         }
 
         public JObject Run(string method, ContractParameter[] args)
         {
-            if (engine.Snapshot is TestSnapshot snapshot)
+            if (engine.Snapshot is TestDataCache snapshot)
             {
-                var lastBlock = snapshot.TryGetBlock(snapshot.Height);
+                if (snapshot.Blocks().Count == 0)
+                {
+                    IncreaseBlockCount(0);
+                }
+                var lastBlock = snapshot.GetLastBlock();
 
                 engine.PersistingBlock.Index = lastBlock.Index;
                 engine.PersistingBlock.Timestamp = lastBlock.Timestamp;
@@ -182,7 +188,7 @@ namespace Neo.TestingEngine
                 engine.PersistingBlock.NextConsensus = lastBlock.NextConsensus;
                 engine.PersistingBlock.MerkleRoot = lastBlock.MerkleRoot;
 
-                currentTx.ValidUntilBlock = snapshot.Height;
+                currentTx.ValidUntilBlock = lastBlock.Index;
             }
 
             using (ScriptBuilder scriptBuilder = new ScriptBuilder())
@@ -194,7 +200,7 @@ namespace Neo.TestingEngine
             var stackItemsArgs = args.Select(a => a.ToStackItem()).ToArray();
             engine.GetMethod(method).RunEx(stackItemsArgs);
 
-            currentTx.ValidUntilBlock = engine.Snapshot.Height + Transaction.MaxValidUntilBlockIncrement;
+            //currentTx.ValidUntilBlock = engine.Snapshot.Height + Transaction.MaxValidUntilBlockIncrement;
             currentTx.SystemFee = engine.GasConsumed;
             UInt160[] hashes = currentTx.GetScriptHashesForVerifying(engine.Snapshot);
 
@@ -218,29 +224,23 @@ namespace Neo.TestingEngine
                 SystemFee = 3,
                 Version = 4
             };
-            TestEngine engine = new TestEngine(TriggerType.Application, currentTx, persistingBlock: new Block() { Index = 0 });
+            TestEngine engine = new TestEngine(TriggerType.Application, currentTx, new TestDataCache(), persistingBlock: new Block() { Index = 0 });
 
-            SetNative(engine);
             engine.ClearNotifications();
-            ((TestSnapshot)engine.Snapshot).ClearStorage();
+            //((TestSnapshot)engine.Snapshot).ClearStorage();
 
             return engine;
         }
 
-        private void SetNative(TestEngine engine)
+        private Block CreateBlock(Block originBlock = null)
         {
-            engine.Snapshot.DeployNativeContracts();
-        }
-
-        private Block CreateBlock()
-        {
-            var (blockHash, trimmedBlock) = engine.Snapshot.Blocks.Seek().Last();
-            if (blockHash == null)
+            var trimmedBlock = engine.Snapshot.Blocks().Last();
+            if (trimmedBlock == null)
             {
-                (blockHash, trimmedBlock) = (Blockchain.GenesisBlock.Hash, Blockchain.GenesisBlock.Trim());
+                trimmedBlock = Blockchain.GenesisBlock.Trim();
             }
 
-            return new Block()
+            var newBlock = new Block()
             {
                 Index = trimmedBlock.Index + 1,
                 Timestamp = trimmedBlock.Timestamp + Blockchain.MillisecondsPerBlock,
@@ -253,8 +253,15 @@ namespace Neo.TestingEngine
                 },
                 NextConsensus = trimmedBlock.NextConsensus,
                 MerkleRoot = trimmedBlock.MerkleRoot,
-                PrevHash = blockHash
+                PrevHash = trimmedBlock.Hash
             };
+
+            if (originBlock != null)
+            {
+                newBlock.Timestamp = originBlock.Timestamp;
+            }
+
+            return newBlock;
         }
 
         private static byte[] HexString2Bytes(string str)

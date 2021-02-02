@@ -107,7 +107,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void NullCollationAndCollation()
         {
-            var _testengine = new TestEngine();
+            var _testengine = new TestEngine(snapshot: new TestDataCache());
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
             _testengine.Snapshot.ContractAdd(new ContractState()
             {
@@ -124,7 +124,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void NullCollationAndCollation2()
         {
-            var _testengine = new TestEngine();
+            var _testengine = new TestEngine(snapshot: new TestDataCache());
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
             _testengine.Snapshot.ContractAdd(new ContractState()
             {

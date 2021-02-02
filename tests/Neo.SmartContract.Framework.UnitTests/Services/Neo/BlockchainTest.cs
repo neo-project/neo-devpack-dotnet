@@ -2,13 +2,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.IO;
 using Neo.Ledger;
+using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -22,7 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
+            var snapshot = Blockchain.Singleton.GetSnapshot().CreateSnapshot();
 
             _block = new Network.P2P.Payloads.Block()
             {
@@ -44,36 +43,21 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 }
             };
 
-            snapshot.BlockHashIndex.GetAndChange().Index = _block.Index;
-            snapshot.BlockHashIndex.GetAndChange().Hash = _block.Hash;
-            snapshot.Blocks.Add(_block.Hash, _block.Trim());
-            snapshot.Transactions.Add(_block.Transactions[0].Hash, new TransactionState()
+            snapshot.BlocksAdd(_block.Hash, _block.Trim());
+            snapshot.TransactionAdd(new TransactionState()
             {
                 BlockIndex = _block.Index,
-                Transaction = _block.Transactions[0],
-                VMState = VMState.HALT
+                Transaction = _block.Transactions[0]
             });
 
-            // Fake header_index
-
-            var header_index = (List<UInt256>)Blockchain.Singleton.GetType()
-                .GetField("header_index", BindingFlags.Instance | BindingFlags.NonPublic)
-                .GetValue(Blockchain.Singleton);
-            header_index.Add(_block.Hash);
-
             _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);
+
+            var method2 = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            method2.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { _engine });
+
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
         }
 
-        [TestCleanup]
-        public void Clean()
-        {
-            // Revert header_index
-            var header_index = (List<UInt256>)Blockchain.Singleton.GetType()
-                .GetField("header_index", BindingFlags.Instance | BindingFlags.NonPublic)
-                .GetValue(Blockchain.Singleton);
-            header_index.RemoveAt(1);
-        }
 
         [TestMethod]
         public void Test_GetHeight()
@@ -388,6 +372,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 },
                 Manifest = new Manifest.ContractManifest()
                 {
+                    Name = "Name",
                     SupportedStandards = new string[0],
                     Groups = new Manifest.ContractGroup[0],
                     Trusts = Manifest.WildcardContainer<UInt160>.Create(),
@@ -419,8 +404,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual(contract.Manifest.ToString(), item.GetString());
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Struct));
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(item);
+            Assert.AreEqual(contract.Manifest.ToString(), ritem.ToString());
 
             // Found + UpdateCounter
 

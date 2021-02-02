@@ -12,7 +12,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static object getBlock(uint blockIndex)
         {
-            return Blockchain.GetTransactionFromBlock(blockIndex, 0);
+            return Ledger.GetTransactionFromBlock(blockIndex, 0);
         }
     }
 }

@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using Neo.IO;
 using System.Collections.Generic;
+using Neo.Persistence;
 
 namespace Neo.TestingEngine
 {
@@ -20,7 +21,7 @@ namespace Neo.TestingEngine
             var json = new JObject();
 
             json["vm_state"] = testEngine.State.ToString();
-            json["gasconsumed"] = (new BigDecimal(testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
+            json["gasconsumed"] = (new BigDecimal((decimal)testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
             json["result_stack"] = testEngine.ResultStack.ToJson();
 
             if (testEngine.ScriptContainer is Transaction tx)
@@ -28,7 +29,7 @@ namespace Neo.TestingEngine
                 json["transaction"] = tx.ToSimpleJson();
             }
 
-            json["storage"] = testEngine.Snapshot.Storages.ToJson();
+            json["storage"] = testEngine.Snapshot.ToJson();
             json["notifications"] = new JArray(testEngine.Notifications.Select(n => n.ToJson()));
             json["error"] = testEngine.State.HasFlag(VMState.FAULT) ? GetExceptionMessage(testEngine.FaultException) : null;
 
@@ -49,7 +50,7 @@ namespace Neo.TestingEngine
             return json;
         }
 
-        public static JObject ToJson(this DataCache<StorageKey, StorageItem> storage)
+        public static JObject ToJson(this DataCache storage)
         {
             var jsonStorage = new JArray();
             foreach (var storagePair in storage.Seek())

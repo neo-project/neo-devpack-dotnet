@@ -27,7 +27,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             {
             }
 
-            public UInt160[] GetScriptHashesForVerifying(StoreView snapshot)
+            public UInt160[] GetScriptHashesForVerifying(DataCache snapshot)
             {
                 throw new global::System.NotImplementedException();
             }

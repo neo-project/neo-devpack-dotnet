@@ -1,6 +1,6 @@
 using Neo.IO.Json;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
+using Neo.SmartContract;
 using System.Collections.Generic;
 
 namespace Neo.TestingEngine

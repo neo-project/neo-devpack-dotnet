@@ -5,7 +5,7 @@ using Neo.Cryptography.ECC;
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0xf617baca689d1abddedda7c3b80675c4ac21e932")]
+    [Contract("0xf61eebf573ea36593fd43aa150c055ad7906ab83")]
     public class NEO
     {
         public static extern UInt160 Hash { [ContractHash] get; }
@@ -13,9 +13,8 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(UInt160 account);
-        public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+        public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
 
-        public static extern bool SetGasPerBlock(BigInteger gasPerBlock);
         public static extern BigInteger GetGasPerBlock();
         public static extern BigInteger UnclaimedGas(UInt160 account, uint end);
 

@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO.Json;
 using Neo.Ledger;
+using Neo.SmartContract.Native;
 using Neo.TestingEngine;
 using Neo.VM;
 using Neo.VM.Types;
@@ -147,8 +148,7 @@ namespace TestEngine.UnitTests
             Assert.AreEqual(height, Engine.Instance.Height);
 
             // test result
-            var (hash, trimblock) = Engine.Instance.Snaptshot.Blocks.Seek().Last();
-            var block = Engine.Instance.Snaptshot.GetBlock(hash);
+            var block = NativeContract.Ledger.GetBlock(Engine.Instance.Snaptshot, Engine.Instance.Height);
             Assert.IsNotNull(block);
             Assert.AreEqual(block.Transactions.Length, ((JArray)blockJson["transactions"]).Count);
         }

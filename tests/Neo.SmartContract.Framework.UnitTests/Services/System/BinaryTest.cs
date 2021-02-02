@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
-using Neo.Ledger;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -17,8 +16,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
         public void Init()
         {
             var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot().Clone();
-            snapshot.BlockHashIndex.Get().Index = 1234;
+            var snapshot = new TestDataCache(null);
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");

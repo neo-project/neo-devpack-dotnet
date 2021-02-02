@@ -32,9 +32,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 PrevHash = UInt256.Zero
             };
 
-            _engine = new TestEngine(TriggerType.Application, block);
-            _engine.Snapshot.DeployNativeContracts(block);
-
+            _engine = new TestEngine(TriggerType.Application, block, new TestDataCache(block));
             _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
         }

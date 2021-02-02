@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             public void DeserializeUnsigned(BinaryReader reader) { }
 
-            public UInt160[] GetScriptHashesForVerifying(StoreView snapshot)
+            public UInt160[] GetScriptHashesForVerifying(DataCache snapshot)
             {
                 return new UInt160[]
                 {
@@ -48,11 +48,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 Index = 123,
                 Timestamp = 1234,
                 ConsensusData = new ConsensusData(),
-                Transactions = new Transaction[0],
+                Transactions = System.Array.Empty<Transaction>(),
                 Witness = new Witness()
                 {
-                    InvocationScript = new byte[0],
-                    VerificationScript = new byte[0]
+                    InvocationScript = System.Array.Empty<byte>(),
+                    VerificationScript = System.Array.Empty<byte>()
                 },
                 NextConsensus = UInt160.Zero,
                 MerkleRoot = UInt256.Zero,
@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // We need a new TestEngine because invocationCounter it's shared between them
 
             var contract = _engine.EntryScriptHash;
-            var engine = new TestEngine(TriggerType.Application, new DummyVerificable());
+            var engine = new TestEngine(TriggerType.Application, new DummyVerificable(), new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,

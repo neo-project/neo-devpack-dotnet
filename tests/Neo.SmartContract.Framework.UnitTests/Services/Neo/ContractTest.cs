@@ -23,9 +23,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
-            });
+            },
+            snapshot: new TestDataCache(Blockchain.GenesisBlock),
+            persistingBlock: Blockchain.GenesisBlock);
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
-            _engine.Snapshot.DeployNativeContracts(Blockchain.GenesisBlock);
         }
 
         [TestMethod]
@@ -55,7 +56,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
             Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-            Assert.AreEqual(manifest.ToString(), itemArray[4].GetString()); // Manifest
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(itemArray[4]);
+            Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
 
             // Call
 
@@ -102,6 +105,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
             var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
+            manifestUpdate.Name = manifest.Name; // Must be the same name
 
             // Create
 
@@ -118,7 +122,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
             Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-            Assert.AreEqual(manifest.ToString(), itemArray[4].GetString()); // Manifest
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(itemArray[4]);
+            Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
 
             // Call & Update
 
