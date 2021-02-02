@@ -35,10 +35,10 @@ namespace $safeprojectname$
             Storage.Put("Hello", "World");
         }
 
-        public static void Update(byte[] nefFile, string manifest)
+        public static void Update(ByteString nefFile, string manifest)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            ContractManagement.Update((ByteString)nefFile, manifest, null);
+            ContractManagement.Update(nefFile, manifest, null);
         }
 
         public static void Destroy()
