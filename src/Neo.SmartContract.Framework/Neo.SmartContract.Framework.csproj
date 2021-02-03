@@ -1,9 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Copyright>2016-2021 The Neo Project</Copyright>
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
+    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionSuffix>preview5</VersionSuffix>
+    <Authors>The Neo Project</Authors>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
     <PackageId>Neo.SmartContract.Framework</PackageId>
+    <PackageTags>NEO;Blockchain</PackageTags>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
     <Description>Neo.SmartContract.Framework</Description>
   </PropertyGroup>
 
