@@ -31,6 +31,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         }
 
         [TestMethod]
+        public void TestNextIntArrayBase()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testNextIntArrayBase", new Array(new StackItem[] { 1, 2, 3 }));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(6, item.GetInteger());
+        }
+
+        [TestMethod]
         public void TestNextByteArray()
         {
             _engine.Reset();

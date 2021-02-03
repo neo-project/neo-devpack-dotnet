@@ -5,7 +5,6 @@ using Neo.IO.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using IApiInterface = scfx.Neo.SmartContract.Framework.IApiInterface;
 
 namespace Neo.Compiler
@@ -27,7 +26,7 @@ namespace Neo.Compiler
                 {
                     if (i.InterfaceType.Name == nameof(IApiInterface))
                     {
-                        return "IInteropInterface";
+                        return "InteropInterface";
                     }
                 }
 
@@ -203,7 +202,7 @@ namespace Neo.Compiler
             var name = module.attributes
                 .Where(u => u.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
-                .FirstOrDefault() ?? "";
+                .FirstOrDefault() ?? module.Name;
 
             return
                 @"{""groups"":[],""abi"":" +
