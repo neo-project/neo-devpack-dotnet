@@ -5,7 +5,7 @@ Imports System.Numerics
 
 Public Class $itemname$ : Inherits SmartContract
     Public Shared Function Main() As Boolean
-        Storage.Put(Storage.CurrentContext, "Hello", "World")
+        Storage.Put(Storage.CurrentContext, (ByteString)"Hello", (ByteString)"World")
         Return True
     End Function
 End Class
