@@ -24,7 +24,7 @@ namespace $safeprojectname$
         // TODO: Replace it with your methods.
         public static byte[] MyMethod()
         {
-            return Storage.Get("Hello");
+            return Storage.Get(Storage.CurrentContext, "Hello");
         }
 
         public static void _deploy(object data, bool update)
@@ -32,7 +32,7 @@ namespace $safeprojectname$
             if (update) return;
 
             // It will be executed during deploy
-            Storage.Put("Hello", "World");
+            Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 
         public static void Update(ByteString nefFile, string manifest)
