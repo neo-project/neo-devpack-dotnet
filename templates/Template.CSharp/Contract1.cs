@@ -24,7 +24,7 @@ namespace $safeprojectname$
         // TODO: Replace it with your methods.
         public static byte[] MyMethod()
         {
-            return Storage.Get(Storage.CurrentContext, "Hello");
+            return (byte[])Storage.Get(Storage.CurrentContext, "Hello");
         }
 
         public static void _deploy(object data, bool update)
