@@ -43,6 +43,7 @@ namespace Neo.Compiler
                 case "System.Int64":
                 case "System.UInt64":
                 case "System.Numerics.BigInteger": return "Integer";
+                case "Neo.SmartContract.Framework.ByteString":
                 case "System.Byte[]": return "ByteArray";
                 case "System.String": return "String";
                 case "IInteropInterface": return "InteropInterface";
