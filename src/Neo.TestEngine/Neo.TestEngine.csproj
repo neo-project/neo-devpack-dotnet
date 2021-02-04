@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2015-2020 The Neo Project</Copyright>
+    <Copyright>2015-2021 The Neo Project</Copyright>
     <AssemblyTitle>Neo.TestEngine</AssemblyTitle>
-    <Version>3.0.0-preview3</Version>
+    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionSuffix>preview5</VersionSuffix>
     <Authors>The Neo Project</Authors>
+    <TargetFramework>net5.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
@@ -15,7 +17,12 @@
     <Company>The Neo Project</Company>
     <Product>TestingEngine</Product>
     <Description>TestingEngine</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Neo" Version="3.0.0-preview5" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
