@@ -14,7 +14,7 @@ exec dotnet build ..\..\src\build-tasks\
 exec dotnet restore 
 exec dotnet msbuild /nologo /bl
 
-if (-not (test-path .\obj\Debug\netcoreapp3.1\Apoc.contract-interface.cs)) { 
+if (-not (test-path .\obj\Debug\net5.0\Apoc.contract-interface.cs)) { 
     throw 'Apoc.contract-interface.cs *not* generated'
 }
 

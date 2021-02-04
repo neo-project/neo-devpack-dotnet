@@ -41,21 +41,6 @@ namespace NeoTestHarness
             return new UInt160(data.AsSpan(1));
         }
 
-        public static SnapshotView CreateSnapshot(this CheckpointStore @this, Block? block = null)
-        {
-            var snapshot = new SnapshotView(@this);
-            if (block != null) SetPersistingBlock(snapshot, block);
-            return snapshot;
-
-
-            static void SetPersistingBlock(StoreView @this, Block block)
-            {
-                var set = typeof(StoreView).GetMethod("set_PersistingBlock", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetProperty)
-                    ?? throw new Exception("Reflection error");
-                set.Invoke(@this, new object[] { block });
-            }
-        }
-
         public static VMState ExecuteScript<T>(this TestApplicationEngine engine, params Expression<Action<T>>[] expressions)
             where T : class
         {
@@ -70,10 +55,10 @@ namespace NeoTestHarness
             engine.LoadScript(script);
         }
 
-        public static Script CreateScript<T>(this StoreView store, params Expression<Action<T>>[] expressions)
+        public static Script CreateScript<T>(this DataCache snapshot, params Expression<Action<T>>[] expressions)
             where T : class
         {
-            var scriptHash = store.GetContractAddress<T>();
+            var scriptHash = snapshot.GetContractAddress<T>();
             using var builder = new ScriptBuilder();
             for (int i = 0; i < expressions.Length; i++)
             {
@@ -87,6 +72,7 @@ namespace NeoTestHarness
                 }
                 builder.EmitPush(methodCall.Arguments.Count);
                 builder.Emit(OpCode.PACK);
+                builder.EmitPush(CallFlags.All);
                 builder.EmitPush(operation);
                 builder.EmitPush(scriptHash);
                 builder.EmitSysCall(ApplicationEngine.System_Contract_Call);
@@ -94,13 +80,13 @@ namespace NeoTestHarness
             return builder.ToArray();
         }
 
-        public static NeoStorage GetContractStorages<T>(this StoreView store)
+        public static NeoStorage GetContractStorages<T>(this DataCache snapshot)
             where T : class
         {
-            var contract = store.GetContract<T>();
+            var contract = snapshot.GetContract<T>();
             var prefix = StorageKey.CreateSearchPrefix(contract.Id, default);
 
-            return store.Storages.Find(prefix)
+            return snapshot.Find(prefix)
                 .ToImmutableDictionary(s => (ReadOnlyMemory<byte>)s.Key.Key.AsMemory(), s => s.Value, MemoryEqualityComparer.Instance);
         }
 
@@ -142,19 +128,19 @@ namespace NeoTestHarness
         public static bool TryGetValue(this NeoStorage storage, UInt256 key, [NotNullWhen(true)] out StorageItem item)
             => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item!);
 
-        public static BigInteger ToBigInteger(this StorageItem @this)
-            => new BigInteger(@this.Value);
+        public static BigInteger ToBigInteger(this StorageItem storageItem)
+            => new BigInteger(storageItem.Value);
 
-        public static UInt160 GetContractAddress<T>(this StoreView store)
+        public static UInt160 GetContractAddress<T>(this DataCache snapshot)
             where T : class
-            => store.GetContract<T>().Hash;
+            => snapshot.GetContract<T>().Hash;
 
-        public static ContractState GetContract<T>(this StoreView store)
+        public static ContractState GetContract<T>(this DataCache snapshot)
             where T : class
         {
             var contractName = GetContractName(typeof(T));
 
-            foreach (var contractState in NativeContract.Management.ListContracts(store))
+            foreach (var contractState in NativeContract.ContractManagement.ListContracts(snapshot))
             {
                 var name = contractState.Id >= 0 ? contractState.Manifest.Name : "Neo.SmartContract.Native." + contractState.Manifest.Name;
                 if (string.Equals(contractName, name))

@@ -1,31 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Neo.Assertions" Version="0.4.6-preview" />
-    <PackageReference Include="Neo.Test.Harness" Version="0.4.6-preview" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\build-tasks\build-tasks.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\test-harness\test-harness.csproj" />
   </ItemGroup>
 
-  <UsingTask AssemblyFile="..\..\src\build-tasks\bin\Debug\netstandard2.0\neo-build-tasks.dll   " TaskName="Neo.BuildTasks.NeoContractInterface"/>
+  <UsingTask AssemblyFile="..\..\src\build-tasks\bin\Debug\netstandard2.0\neo-build-tasks.dll   " TaskName="Neo.BuildTasks.NeoContractInterface" />
 
   <Target Name="TestNeoContractInterface" AfterTargets="PrepareForBuild">
-
     <NeoContractInterface ManifestFile="Apoc.manifest.json" OutputFile="$(IntermediateOutputPath)\Apoc.contract-interface.cs" RootNamespace="TestContract" />
 
     <ItemGroup>
       <Compile Include="$(IntermediateOutputPath)\Apoc.contract-interface.cs" />
     </ItemGroup>
-
   </Target>
 
 </Project>

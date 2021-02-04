@@ -3,8 +3,7 @@ using System.Numerics;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using Neo;
-using Neo.Ledger;
+using Neo.SmartContract;
 
 namespace Neo.Assertions
 {

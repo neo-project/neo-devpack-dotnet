@@ -3,7 +3,7 @@ using Xunit;
 
 namespace build_tasks
 {
-    public class UnitTest1
+    public class TestNeoManifest
     {
         [Fact]
         public void parse_sample_manifest()
