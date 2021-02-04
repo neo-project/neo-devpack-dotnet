@@ -9,6 +9,7 @@ namespace $safeprojectname$
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a contract example")]
+    [WildcardContractPermission("onNEP17Payment")]
     public class Contract1 : SmartContract
     {
         //TODO: Replace it with your own address.
