@@ -6,11 +6,8 @@
     <RootNamespace>Neo.Test.Harness</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)'!='Debug'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
-
   <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     <PackageReference Include="Neo.BlockchainToolkit3" Version="1.0.7-preview" />
   </ItemGroup>
 
