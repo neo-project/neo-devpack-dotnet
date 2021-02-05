@@ -219,7 +219,7 @@ namespace Neo.Compiler
             var jsonMethods = ((methods?.Length ?? 0) == 0 || (string)methods[0].Value == "*") ?
                 "\"*\"" : $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson((string)u.Value) + "\""))}]";
 
-            var value = ScapeJson((string)u.ConstructorArguments[0].Value;
+            var value = ScapeJson((string)u.ConstructorArguments[0].Value);
             return $"{{\"contract\":\"{value}\",\"methods\":{jsonMethods}}}";
         }
     }
