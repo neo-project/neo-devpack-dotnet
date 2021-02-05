@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO.Json;
+using Neo.TestingEngine;
 
 namespace Neo.Compiler.MSIL.UnitTests
 {
