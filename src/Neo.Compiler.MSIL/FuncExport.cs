@@ -203,10 +203,7 @@ namespace Neo.Compiler
             var permissions =
                 string.Join(',',
                 module.attributes
-               .Where(u =>
-                    u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute" ||
-                    u.AttributeType.FullName == "Neo.SmartContract.Framework.WildcardContractPermissionAttribute"
-                    )
+               .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute")
                .Select(u => ContractPermissionToManifest(u))
                .ToList());
             if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
@@ -224,20 +221,8 @@ namespace Neo.Compiler
                 "\"*\"" :
                 $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson((string)u.Value) + "\""))}]";
 
-            switch (u.AttributeType.FullName)
-            {
-                case "Neo.SmartContract.Framework.ContractPermissionAttribute":
-                    {
-                        var value = ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value);
-                        return $"{{\"contract\":\"{value}\",\"methods\":{jsonMethods}}}";
-                    }
-                case "Neo.SmartContract.Framework.WildcardContractPermissionAttribute":
-                    {
-                        return $"{{\"contract\":\"*\",\"methods\":{jsonMethods}}}";
-                    }
-            }
-
-            throw new ArgumentException("Unknown contract permission: " + u.AttributeType.FullName);
+            var value = ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value);
+            return $"{{\"contract\":\"{value}\",\"methods\":{jsonMethods}}}";
         }
     }
 }

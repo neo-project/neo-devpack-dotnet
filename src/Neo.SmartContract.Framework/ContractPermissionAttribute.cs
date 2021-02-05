@@ -5,12 +5,12 @@ namespace Neo.SmartContract.Framework
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ContractPermissionAttribute : Attribute
     {
-        public string HashOrGroup { get; set; }
+        public string Contract { get; set; }
         public string[] Methods { get; set; }
 
-        public ContractPermissionAttribute(string hashOrGroup, params string[] methods)
+        public ContractPermissionAttribute(string contract, params string[] methods)
         {
-            HashOrGroup = hashOrGroup;
+            Contract = contract;
             Methods = methods;
         }
     }
