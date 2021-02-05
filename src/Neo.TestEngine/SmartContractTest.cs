@@ -7,7 +7,8 @@ namespace Neo.TestingEngine
 {
     public class SmartContractTest
     {
-        public readonly string nefPath;
+        public readonly UInt160 scriptHash = null;
+        public readonly string nefPath = null;
         public readonly string methodName;
         public JArray methodParameters;
         public Dictionary<StorageKey, StorageItem> storage;
@@ -16,9 +17,18 @@ namespace Neo.TestingEngine
         public UInt160[] signers;
         public Block[] blocks;
 
-        public SmartContractTest(string path, string method, JArray parameters)
+        public SmartContractTest(string path, string method, JArray parameters) : this(method, parameters)
         {
             nefPath = path;
+        }
+
+        public SmartContractTest(UInt160 scriptHash, string method, JArray parameters) : this(method, parameters)
+        {
+            this.scriptHash = scriptHash;
+        }
+
+        private SmartContractTest(string method, JArray parameters)
+        {
             methodName = method;
             methodParameters = parameters;
             storage = new Dictionary<StorageKey, StorageItem>();

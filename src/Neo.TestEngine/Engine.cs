@@ -8,7 +8,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
-using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,11 +47,16 @@ namespace Neo.TestingEngine
             engine = SetupNativeContracts();
         }
 
-        public void SetTestEngine(string path)
+        public void SetEntryScript(string path)
         {
             engine.AddEntryScript(path);
             var manifest = ContractManifest.FromJson(JObject.Parse(engine.ScriptEntry.finalManifest));
             var hash = engine.ScriptEntry.finalNEFScript.ToScriptHash();
+
+            if (engine.Snapshot.ContainsContract(hash))
+            {
+                engine.Snapshot.DeleteContract(hash);
+            }
 
             engine.Snapshot.ContractAdd(new ContractState()
             {
@@ -62,7 +66,18 @@ namespace Neo.TestingEngine
             });
         }
 
-        public void AddSmartContract(string path)
+        public void SetEntryScript(UInt160 contractHash)
+        {
+            engine.AddEntryScript(contractHash);
+        }
+
+        public void AddSmartContract(TestContract contract)
+        {
+            var script = AddSmartContract(contract.nefPath);
+            contract.nefFile = script.nefFile;
+        }
+
+        private BuildScript AddSmartContract(string path)
         {
             var builtScript = engine.Build(path);
             var hash = builtScript.finalNEFScript.ToScriptHash();
@@ -78,6 +93,8 @@ namespace Neo.TestingEngine
                     Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
                 });
             }
+
+            return builtScript;
         }
 
         public void IncreaseBlockCount(uint newHeight)
@@ -203,7 +220,14 @@ namespace Neo.TestingEngine
             }
 
             var stackItemsArgs = args.Select(a => a.ToStackItem()).ToArray();
-            engine.GetMethod(method).RunEx(stackItemsArgs);
+            if (engine.ScriptEntry is BuildNative)
+            {
+                engine.RunNativeContract(method, stackItemsArgs);
+            }
+            else
+            {
+                engine.GetMethod(method).RunEx(stackItemsArgs);
+            }
 
             //currentTx.ValidUntilBlock = engine.Snapshot.Height + Transaction.MaxValidUntilBlockIncrement;
             currentTx.SystemFee = engine.GasConsumed;

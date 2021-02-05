@@ -23,7 +23,7 @@ namespace Neo.TestingEngine
             var contract = NativeContract.ContractManagement.GetContract(snapshot, hash);
             if (contract != null)
             {
-                var key = new KeyBuilder(contract.Id, 8).Add(hash);
+                var key = new KeyBuilder(NativeContract.ContractManagement.Id, 8).Add(hash);
                 snapshot.Delete(key);
             }
         }

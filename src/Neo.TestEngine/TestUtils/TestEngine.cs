@@ -2,11 +2,13 @@ using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.TestingEngine
 {
@@ -77,6 +79,39 @@ namespace Neo.TestingEngine
         {
             ScriptEntry = Build(filenames, releaseMode, optimizer);
             Reset();
+        }
+
+        public void AddEntryScript(UInt160 contractHash)
+        {
+            var nativeContract = NativeContract.GetContract(contractHash);
+            if (nativeContract != null)
+            {
+                ScriptEntry = new BuildNative(nativeContract);
+            }
+            else
+            {
+                var buildScripts = scriptsAll.Values.ToArray();
+                var scriptHashes = buildScripts.Select(build => build.finalNEFScript.ToScriptHash()).ToList();
+
+                if (!scriptHashes.Contains(contractHash))
+                {
+                    new InvalidOperationException($"Contract Does Not Exist: {contractHash}");
+                }
+                var index = scriptHashes.IndexOf(contractHash);
+                ScriptEntry = buildScripts[index];
+            }
+
+            Reset();
+        }
+
+        public void RunNativeContract(string method, StackItem[] parameters, CallFlags flags = CallFlags.All)
+        {
+            VM.Types.Array paramsArray = new VM.Types.Array(parameters);
+            ByteString methodName = method;
+            Integer callFlag = (uint)flags;
+
+            var items = new StackItem[] { methodName, callFlag, paramsArray };
+            ExecuteTestCaseStandard(method, items.ToArray());
         }
 
         public void Reset()

@@ -1,5 +1,4 @@
 using Neo.IO.Json;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.VM;
@@ -113,7 +112,7 @@ namespace Neo.TestingEngine
         public static JObject RunWithJson(JObject json)
         {
             var missigFieldMessage = "Missing field: '{0}'";
-            if (!json.ContainsProperty("path"))
+            if (!json.ContainsProperty("path") && !json.ContainsProperty("scripthash"))
             {
                 return BuildJsonException(string.Format(missigFieldMessage, "path"));
             }
@@ -130,11 +129,21 @@ namespace Neo.TestingEngine
 
             try
             {
-                var path = json["path"].AsString();
                 var methodName = json["method"].AsString();
                 var parameters = (JArray)json["arguments"];
 
-                var smartContractTestCase = new SmartContractTest(path, methodName, parameters);
+
+                SmartContractTest smartContractTestCase;
+                if (json.ContainsProperty("path") && json["path"].AsString().Length > 0)
+                {
+                    var path = json["path"].AsString();
+                    smartContractTestCase = new SmartContractTest(path, methodName, parameters);
+                }
+                else
+                {
+                    var scriptHash = UInt160.Parse(json["scripthash"].AsString());
+                    smartContractTestCase = new SmartContractTest(scriptHash, methodName, parameters);
+                }
 
                 if (json.ContainsProperty("storage"))
                 {
@@ -177,10 +186,6 @@ namespace Neo.TestingEngine
         {
             try
             {
-                IsValidNefPath(smartContractTest.nefPath);
-
-                Engine.Instance.SetTestEngine(smartContractTest.nefPath);
-
                 if (smartContractTest.storage.Count > 0)
                 {
                     Engine.Instance.SetStorage(smartContractTest.storage);
@@ -188,9 +193,18 @@ namespace Neo.TestingEngine
 
                 foreach (var contract in smartContractTest.contracts)
                 {
-                    Engine.Instance.AddSmartContract(contract.nefPath);
+                    Engine.Instance.AddSmartContract(contract);
                 }
 
+                if (smartContractTest.nefPath != null)
+                {
+                    IsValidNefPath(smartContractTest.nefPath);
+                    Engine.Instance.SetEntryScript(smartContractTest.nefPath);
+                }
+                else
+                {
+                    Engine.Instance.SetEntryScript(smartContractTest.scriptHash);
+                }
                 foreach (var block in smartContractTest.blocks.OrderBy(b => b.Index))
                 {
                     Engine.Instance.AddBlock(block);
