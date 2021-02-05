@@ -192,22 +192,35 @@ namespace Neo.Compiler
         public static string GenerateManifest(JObject abi, NeoModule module)
         {
             var sbABI = abi.ToString(false);
-
             var extraAttributes = module == null ? Array.Empty<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToArray();
             var supportedStandardsAttribute = module?.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SupportedStandardsAttribute").Select(attribute => attribute.ConstructorArguments).FirstOrDefault();
-
             var extra = BuildExtraAttributes(extraAttributes);
             var supportedStandards = BuildSupportedStandards(supportedStandardsAttribute);
-
             var name = module.attributes
                 .Where(u => u.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
                 .FirstOrDefault() ?? module.Name;
+            var permissions =
+                string.Join(',',
+                module.attributes
+               .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute")
+               .Select(u => ContractPermissionToManifest(u))
+               .ToList());
+            if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
 
             return
-                @"{""groups"":[],""abi"":" +
-                sbABI +
-                @",""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                @"{""groups"":[],""abi"":" + sbABI +
+                @",""permissions"":[" + permissions + @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+        }
+
+        private static string ContractPermissionToManifest(CustomAttribute u)
+        {
+            var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
+            var jsonMethods = ((methods?.Length ?? 0) == 0 || (string)methods[0].Value == "*") ?
+                "\"*\"" : $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson((string)u.Value) + "\""))}]";
+
+            var value = ScapeJson((string)u.ConstructorArguments[0].Value);
+            return $"{{\"contract\":\"{value}\",\"methods\":{jsonMethods}}}";
         }
     }
 }
