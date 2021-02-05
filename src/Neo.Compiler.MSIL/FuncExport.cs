@@ -209,8 +209,7 @@ namespace Neo.Compiler
             if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
 
             return
-                @"{""groups"":[],""abi"":" +
-                sbABI +
+                @"{""groups"":[],""abi"":" + sbABI +
                 @",""permissions"":[" + permissions + @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
 
