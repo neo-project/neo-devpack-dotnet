@@ -2,8 +2,13 @@
 
   <PropertyGroup>
     <AssemblyName>neo-test-harness</AssemblyName>
+    <DebugType>embedded</DebugType>
     <PackageId>Neo.Test.Harness</PackageId>
     <RootNamespace>Neo.Test.Harness</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>

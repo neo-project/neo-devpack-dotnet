@@ -6,7 +6,6 @@
     <Company>The Neo Project</Company>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <Copyright>2015-2020 The Neo Project</Copyright>
-    <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <LangVersion>8</LangVersion>
@@ -20,10 +19,6 @@
     <RepositoryUrl>https://github.com/ngdenterprise/neo-test</RepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
