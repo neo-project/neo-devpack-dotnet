@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
+using Neo.IO.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
@@ -111,6 +112,16 @@ namespace Neo.Compiler.MSIL.UnitTests
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(456, item.GetInteger());
+        }
+
+        [TestMethod]
+        public void checkEnumArg_Test()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            var methods = (JArray)testengine.ScriptEntry.finalABI["methods"];
+            var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
+            Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
 
         [TestMethod]
