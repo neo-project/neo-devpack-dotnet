@@ -2,7 +2,7 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x597b1471bbce497b7809e2c8f10db67050008b02")]
+    [Contract("0x49cf4e5378ffcd4dec034fd98a174c5491e395e2")]
     public class RoleManagement
     {
         public static extern UInt160 Hash { [ContractHash] get; }

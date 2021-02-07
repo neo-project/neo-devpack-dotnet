@@ -8,6 +8,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public readonly UInt256 MerkleRoot;
         public readonly ulong Timestamp;
         public readonly uint Index;
+        public readonly byte PrimaryIndex;
         public readonly UInt160 NextConsensus;
         public readonly int TransactionsCount;
     }

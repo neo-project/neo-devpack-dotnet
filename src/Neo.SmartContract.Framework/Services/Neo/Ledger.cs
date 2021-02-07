@@ -2,7 +2,7 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x971d69c6dd10ce88e7dfffec1dc603c6125a8764")]
+    [Contract("0xda65b600f7124ce6c79950c1772a36403104f2be")]
     public class Ledger
     {
         public static extern UInt160 Hash { [ContractHash] get; }

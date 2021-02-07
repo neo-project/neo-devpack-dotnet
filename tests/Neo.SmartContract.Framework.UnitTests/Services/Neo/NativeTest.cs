@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.Cryptography.ECC;
+using Neo.Network.P2P.Payloads;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -20,17 +21,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Deploy native contracts
             var block = new Network.P2P.Payloads.Block()
             {
-                Index = 0,
-                ConsensusData = new Network.P2P.Payloads.ConsensusData(),
-                Transactions = new Network.P2P.Payloads.Transaction[0],
-                Witness = new Network.P2P.Payloads.Witness()
+                Header = new Header()
                 {
-                    InvocationScript = System.Array.Empty<byte>(),
-                    VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
+                    Index = 0,
+                    Witness = new Network.P2P.Payloads.Witness()
+                    {
+                        InvocationScript = System.Array.Empty<byte>(),
+                        VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
+                    },
+                    NextConsensus = UInt160.Zero,
+                    MerkleRoot = UInt256.Zero,
+                    PrevHash = UInt256.Zero
                 },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
-                PrevHash = UInt256.Zero
+                Transactions = new Network.P2P.Payloads.Transaction[0],
             };
 
             _engine = new TestEngine(TriggerType.Application, block, new TestDataCache(block));
