@@ -2,7 +2,7 @@
 
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x8dc0e742cbdfdeda51ff8a8b78d46829144c80ee")]
+    [Contract("0xfe924b7cfe89ddd271abaf7210a80a7e11178758")]
     public class Oracle
     {
         public static extern UInt160 Hash { [ContractHash] get; }
@@ -10,3 +10,4 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
     }
 }
+
