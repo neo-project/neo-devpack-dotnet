@@ -9,6 +9,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
+using Neo.Network.P2P.Payloads;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -26,12 +27,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _block = new Network.P2P.Payloads.Block()
             {
-                ConsensusData = new Network.P2P.Payloads.ConsensusData(),
-                Index = 1,
-                PrevHash = Blockchain.GenesisBlock.Hash,
-                Witness = new Network.P2P.Payloads.Witness() { InvocationScript = new byte[0], VerificationScript = new byte[0] },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
+                Header = new Header()
+                {
+                    Index = 1,
+                    PrevHash = Blockchain.GenesisBlock.Hash,
+                    Witness = new Network.P2P.Payloads.Witness() { InvocationScript = new byte[0], VerificationScript = new byte[0] },
+                    NextConsensus = UInt160.Zero,
+                    MerkleRoot = UInt256.Zero,
+                },
                 Transactions = new Network.P2P.Payloads.Transaction[]
                 {
                      new Network.P2P.Payloads.Transaction()
