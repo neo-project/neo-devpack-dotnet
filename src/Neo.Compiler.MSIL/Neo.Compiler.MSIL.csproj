@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2015-2020 The Neo Project</Copyright>
+    <Copyright>2015-2021 The Neo Project</Copyright>
     <AssemblyTitle>Neo.Compiler.MSIL</AssemblyTitle>
     <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>preview4</VersionSuffix>
+    <VersionSuffix>preview5</VersionSuffix>
     <Authors>The Neo Project</Authors>
+    <TargetFramework>net5.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AssemblyName>neon</AssemblyName>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
@@ -27,7 +28,6 @@
   -->
 
   <PropertyGroup Condition="'$(SharedLibrary)' != true">
-    <OutputType>Exe</OutputType>
     <PackageId>Neo.Neon</PackageId>
     <PackAsTool>true</PackAsTool>
   </PropertyGroup>
@@ -37,11 +37,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.7.82" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.4.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.2" />
-    <PackageReference Include="Neo" Version="3.0.0-CI01193" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.8.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
+    <PackageReference Include="Neo" Version="3.0.0-preview5" />
   </ItemGroup>
 
   <ItemGroup>
