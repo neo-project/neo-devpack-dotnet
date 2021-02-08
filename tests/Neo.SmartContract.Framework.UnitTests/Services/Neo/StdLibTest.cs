@@ -6,10 +6,10 @@ using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
+namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
 {
     [TestClass]
-    public class BinaryTest
+    public class StdLibTest
     {
         private TestEngine _engine;
         private UInt160 scriptHash;
@@ -21,7 +21,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             var snapshot = new TestDataCache(null);
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
-            _engine.AddEntryScript("./TestClasses/Contract_Binary.cs");
+            _engine.AddEntryScript("./TestClasses/Contract_StdLib.cs");
             scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
 
             snapshot.ContractAdd(new ContractState()

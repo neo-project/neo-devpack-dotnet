@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 SystemFee = 3,
                 ValidUntilBlock = 4,
                 Version = 5
-            });
+            }, new TestDataCache());
             _engine.AddEntryScript("./TestClasses/Contract_Crypto.cs");
             _key = GenerateKey(32);
         }
@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
+            Assert.IsInstanceOfType(item, typeof(Buffer));
             Assert.AreEqual("688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6", item.GetSpan().ToArray().ToHexString());
         }
 

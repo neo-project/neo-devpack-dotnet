@@ -1,6 +1,7 @@
 using Mono.Cecil;
 using Neo.IO;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -722,14 +723,22 @@ namespace Neo.Compiler.MSIL
                 {
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
+                    ConvertPushNumber(2, null, to);
+                    ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
+                    ConvertPushString("itoa", null, to);
+                    ConvertPushDataArray(NativeContract.StdLib.Hash.ToArray(), null, to);
+                    Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Parse(System.String)")
                 {
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Atoi));
+                    ConvertPushNumber(2, null, to);
+                    ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
+                    ConvertPushString("atoi", null, to);
+                    ConvertPushDataArray(NativeContract.StdLib.Hash.ToArray(), null, to);
+                    Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_One()")
@@ -753,7 +762,7 @@ namespace Neo.Compiler.MSIL
             {
                 if (defs == null && defError != null)
                 {
-                    if (defError is Mono.Cecil.AssemblyResolutionException dllError)
+                    if (defError is AssemblyResolutionException dllError)
                     {
                         logger.Log("<Error>Miss a Symbol in :" + dllError.AssemblyReference.FullName);
                         logger.Log("<Error>Check DLLs for contract.");
@@ -772,7 +781,7 @@ namespace Neo.Compiler.MSIL
                 else
                     throw new Exception("unknown call: " + src.tokenMethod + "\r\n   in: " + to.name + "\r\n");
             }
-            var md = src.tokenUnknown as Mono.Cecil.MethodReference;
+            var md = src.tokenUnknown as MethodReference;
             var pcount = md.Parameters.Count;
             bool havethis = md.HasThis;
             if (calltype == 2)
@@ -910,7 +919,7 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 3)
             {
-                var methodRef = src.tokenUnknown as Mono.Cecil.MethodReference;
+                var methodRef = src.tokenUnknown as MethodReference;
                 var parameterCount = methodRef.Parameters.Count;
                 ConvertPushNumber(parameterCount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);

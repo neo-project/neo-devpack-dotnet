@@ -1,9 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
 using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.IO;
 using Neo.IO.Json;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -21,12 +19,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
+            var system = new NeoSystem(ProtocolSettings.Default);
             _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
             },
-            snapshot: new TestDataCache(Blockchain.GenesisBlock),
-            persistingBlock: Blockchain.GenesisBlock);
+            snapshot: new TestDataCache(system.GenesisBlock),
+            persistingBlock: system.GenesisBlock);
             _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
         }
 
