@@ -21,7 +21,9 @@ namespace Neo.Compiler
             var type = t.FullName;
 
             TypeDefinition definition = t.Resolve();
-            if (definition != null)
+            if (definition is not null)
+            {
+                if (definition.IsEnum) return "Integer";
                 foreach (var i in definition.Interfaces)
                 {
                     if (i.InterfaceType.Name == nameof(IApiInterface))
@@ -29,6 +31,7 @@ namespace Neo.Compiler
                         return "InteropInterface";
                     }
                 }
+            }
 
             switch (type)
             {

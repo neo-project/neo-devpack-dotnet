@@ -45,6 +45,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         public static byte[] checkByteArray() { return new byte[] { 1, 2, 3 }; }
         public static object checkEnum() { return EDummy.test; }
         private static EDummy icheckEnum() { return EDummy.test; }
+        public static void checkEnumArg(Neo.SmartContract.Framework.Services.Neo.OracleResponseCode arg) { }
         public static object checkDelegate()
         {
             return new enumDel(icheckEnum);
