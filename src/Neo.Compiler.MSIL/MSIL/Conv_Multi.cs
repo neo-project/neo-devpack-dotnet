@@ -724,6 +724,7 @@ namespace Neo.Compiler.MSIL
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
                     ConvertPushNumber(2, null, to);
+                    Convert1by1(VM.OpCode.PACK, src, to);   // PACK
                     ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
                     ConvertPushString("itoa", null, to);
                     ConvertPushDataArray(NativeContract.StdLib.Hash.ToArray(), null, to);
@@ -735,6 +736,7 @@ namespace Neo.Compiler.MSIL
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
                     ConvertPushNumber(2, null, to);
+                    Convert1by1(VM.OpCode.PACK, src, to);   // PACK
                     ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
                     ConvertPushString("atoi", null, to);
                     ConvertPushDataArray(NativeContract.StdLib.Hash.ToArray(), null, to);
