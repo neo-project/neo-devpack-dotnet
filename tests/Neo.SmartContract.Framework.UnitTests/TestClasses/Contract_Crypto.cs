@@ -16,7 +16,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         [DisplayName("RIPEMD160")]
         public static byte[] RIPEMD160(byte[] value)
         {
-            return (byte[])CryptoLib.RIPEMD160((ByteString)value);
+            return (byte[])CryptoLib.ripemd160((ByteString)value);
         }
 
         public static byte[] Hash160(byte[] value)
@@ -29,19 +29,9 @@ namespace Neo.Compiler.MSIL.TestClasses
             return (byte[])CryptoLib.Hash256((ByteString)value);
         }
 
-        public static bool Secp256r1VerifySignature(ECPoint pubkey, byte[] signature)
-        {
-            return CryptoLib.VerifyWithECDsa(null, pubkey, (ByteString)signature, CryptoLib.NamedCurve.secp256r1);
-        }
-
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
             return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, CryptoLib.NamedCurve.secp256r1);
-        }
-
-        public static bool Secp256k1VerifySignature(ECPoint pubkey, byte[] signature)
-        {
-            return CryptoLib.VerifyWithECDsa(null, pubkey, (ByteString)signature, CryptoLib.NamedCurve.secp256k1);
         }
 
         public static bool Secp256k1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)

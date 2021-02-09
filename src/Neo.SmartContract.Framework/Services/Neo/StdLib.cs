@@ -9,6 +9,10 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static extern UInt160 Hash { [ContractHash] get; }
 
+        public extern static byte[] Serialize(object source);
+
+        public extern static object Deserialize(byte[] source);
+
         public extern static string JsonSerialize(object obj);
 
         public extern static object JsonDeserialize(string json);

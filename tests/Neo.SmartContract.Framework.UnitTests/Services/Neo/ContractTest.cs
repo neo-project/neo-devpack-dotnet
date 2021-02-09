@@ -182,7 +182,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             var item = result.Pop();
             Assert.IsTrue(item.Type == VM.Types.StackItemType.ByteString);
-            Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
+            Assert.AreEqual("3a2b832468cb80448003ccde421afb18ff8cd809", item.GetSpan().ToHexString());
 
             // Good pubKey (uncompressed)
 
@@ -193,7 +193,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             item = result.Pop();
             Assert.IsTrue(item.Type == VM.Types.StackItemType.ByteString);
-            Assert.AreEqual("3ae15fc83b48d9bb5c327e578e2f1d2100ba1b89", item.GetSpan().ToHexString());
+            Assert.AreEqual("3a2b832468cb80448003ccde421afb18ff8cd809", item.GetSpan().ToHexString());
         }
 
         [TestMethod]
