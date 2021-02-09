@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
     [TestClass]
     public class ExecutionEngineTest
     {
-        class DummyVerificable : IVerifiable,IInteroperable
+        class DummyVerificable : IVerifiable, IInteroperable
         {
             public Witness[] Witnesses { get; set; }
 
