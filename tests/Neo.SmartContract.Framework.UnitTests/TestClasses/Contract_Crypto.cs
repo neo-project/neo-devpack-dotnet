@@ -21,12 +21,12 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static byte[] Hash160(byte[] value)
         {
-            return (byte[])CryptoLib.Hash160((ByteString)value);
+            return (byte[])Crypto.Hash160((ByteString)value);
         }
 
         public static byte[] Hash256(byte[] value)
         {
-            return (byte[])CryptoLib.Hash256((ByteString)value);
+            return (byte[])Crypto.Hash256((ByteString)value);
         }
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
