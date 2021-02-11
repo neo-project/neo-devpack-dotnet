@@ -404,7 +404,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void UInt160_ValidateAddress()
         {
-            var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+            var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
@@ -468,8 +468,8 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void UInt160_equals_test()
         {
-            var owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
-            var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+            var owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
+            var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
@@ -490,7 +490,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void UInt160_equals_zero_test()
         {
             var zero = UInt160.Zero;
-            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
@@ -509,7 +509,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void UInt160_byte_array_construct()
         {
-            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
