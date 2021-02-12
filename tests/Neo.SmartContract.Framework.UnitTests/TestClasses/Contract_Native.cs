@@ -74,12 +74,6 @@ namespace Neo.Compiler.MSIL.TestClasses
             return Policy.GetFeePerByte();
         }
 
-        [DisplayName("Policy_GetMaxTransactionsPerBlock")]
-        public static uint Policy_GetMaxTransactionsPerBlock()
-        {
-            return Policy.GetMaxTransactionsPerBlock();
-        }
-
         [DisplayName("Policy_IsBlocked")]
         public static object[] Policy_IsBlocked(UInt160 account)
         {
