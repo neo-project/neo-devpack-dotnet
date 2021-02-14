@@ -924,7 +924,7 @@ namespace Neo.Compiler.MSIL
 
         private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, CallFlags flags, MethodDefinition method)
         {
-            return AddMethodToken(methodTokens, hash, flags, method.Name, (ushort)method.Parameters.Count, method.ReturnType.FullName != FuncExport.Void.FullName);
+            return AddMethodToken(methodTokens, hash, flags, GetMethodName(method), (ushort)method.Parameters.Count, method.ReturnType.FullName != FuncExport.Void.FullName);
         }
 
         private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, CallFlags flags, string methodName, ushort parametersCount, bool hasReturnValue)
