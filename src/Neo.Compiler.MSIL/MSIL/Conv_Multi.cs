@@ -723,24 +723,16 @@ namespace Neo.Compiler.MSIL
                 {
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
-                    ConvertPushNumber(2, null, to);
-                    Convert1by1(VM.OpCode.PACK, src, to);   // PACK
-                    ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
-                    ConvertPushString("itoa", null, to);
-                    ConvertPushDataArray(NativeContract.StdLib.Hash.ToArray(), null, to);
-                    Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                    ushort tokenId = AddMethodToken(methodTokens, NativeContract.StdLib.Hash, CallFlags.All, "itoa", 2, true);
+                    Convert1by1(VM.OpCode.CALLT, null, to, BitConverter.GetBytes(tokenId));
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Parse(System.String)")
                 {
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
-                    ConvertPushNumber(2, null, to);
-                    Convert1by1(VM.OpCode.PACK, src, to);   // PACK
-                    ConvertPushNumber((int)CallFlags.All, null, to); // add CallFlag
-                    ConvertPushString("atoi", null, to);
-                    ConvertPushDataArray(NativeContract.StdLib.Hash.ToArray(), null, to);
-                    Convert1by1(VM.OpCode.SYSCALL, null, to, BitConverter.GetBytes(ApplicationEngine.System_Contract_Call));
+                    ushort tokenId = AddMethodToken(methodTokens, NativeContract.StdLib.Hash, CallFlags.All, "atoi", 2, true);
+                    Convert1by1(VM.OpCode.CALLT, null, to, BitConverter.GetBytes(tokenId));
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_One()")
@@ -890,7 +882,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    ushort methodId = AddMethodToken(methodTokens, callhash, defs.Body.Method, CallFlags.All);
+                    ushort methodId = AddMethodToken(methodTokens, callhash, CallFlags.All, defs.Body.Method);
                     Insert1(VM.OpCode.CALLT, "", to, BitConverter.GetBytes(methodId));
                 }
             }
@@ -930,15 +922,20 @@ namespace Neo.Compiler.MSIL
             return 0;
         }
 
-        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, MethodDefinition method, CallFlags flags)
+        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, CallFlags flags, MethodDefinition method)
+        {
+            return AddMethodToken(methodTokens, hash, flags, method.Name, (ushort)method.Parameters.Count, method.ReturnType.FullName != FuncExport.Void.FullName);
+        }
+
+        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, CallFlags flags, string methodName, ushort parametersCount, bool hasReturnValue)
         {
             var mt = new MethodToken()
             {
                 Hash = hash,
-                Method = GetMethodName(method),
+                Method = methodName,
                 CallFlags = flags,
-                ParametersCount = (ushort)method.Parameters.Count,
-                HasReturnValue = method.ReturnType.FullName != FuncExport.Void.FullName
+                ParametersCount = parametersCount,
+                HasReturnValue = hasReturnValue
             };
 
             ushort ix = 0;
