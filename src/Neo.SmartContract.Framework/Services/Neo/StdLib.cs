@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         public extern static byte[] Serialize(object source);
 
-        public extern static object Deserialize(byte[] source);
+        public extern static object Deserialize(ByteString source);
 
         public extern static string JsonSerialize(object obj);
 
