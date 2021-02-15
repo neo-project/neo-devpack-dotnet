@@ -31,12 +31,12 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
-            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, CryptoLib.NamedCurve.secp256r1);
+            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256r1);
         }
 
         public static bool Secp256k1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
-            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, CryptoLib.NamedCurve.secp256k1);
+            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256k1);
         }
     }
 }
