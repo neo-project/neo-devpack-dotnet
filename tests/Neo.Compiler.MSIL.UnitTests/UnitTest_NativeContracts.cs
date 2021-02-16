@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.Ledger;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
@@ -11,16 +11,20 @@ namespace Neo.Compiler.MSIL.UnitTests
     public class Contract_NativeContracts
     {
         private TestDataCache snapshot;
+        private Block genesisBlock;
 
         [TestInitialize]
         public void Test_Init()
         {
             snapshot = new TestDataCache();
+            genesisBlock = new NeoSystem(ProtocolSettings.Default).GenesisBlock;
         }
 
         [TestMethod]
         public void TestHashes()
         {
+            Assert.AreEqual(NativeContract.StdLib.Hash.ToString(), "0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0");
+            Assert.AreEqual(NativeContract.CryptoLib.Hash.ToString(), "0x726cb6e0cd8628a1350a611384688911ab75f51b");
             Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xfffdc93764dbaddd97c48f252a53ea4643faa3fd");
             Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x49cf4e5378ffcd4dec034fd98a174c5491e395e2");
             Assert.AreEqual(NativeContract.NameService.Hash.ToString(), "0x7a8fcf0392cd625647907afa8e45cc66872b596b");
@@ -116,7 +120,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_Ledger()
         {
-            var testengine = new TestEngine(TriggerType.Application, null, snapshot, persistingBlock: Blockchain.GenesisBlock);
+            var testengine = new TestEngine(TriggerType.Application, null, snapshot, persistingBlock: genesisBlock);
             testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
 
             var result = testengine.ExecuteTestCaseStandard("ledgerHash");
@@ -149,7 +153,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             entry = result.Pop();
             Assert.IsTrue(entry is VM.Types.ByteString);
             var blockHash = new UInt256((VM.Types.ByteString)entry);
-            Assert.AreEqual(Blockchain.GenesisBlock.Hash.ToString(), blockHash.ToString());
+            Assert.AreEqual(genesisBlock.Hash.ToString(), blockHash.ToString());
         }
     }
 }

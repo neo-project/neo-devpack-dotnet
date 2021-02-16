@@ -1,9 +1,8 @@
-using System.Linq;
 using Neo.IO;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Native;
+using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -14,15 +13,10 @@ namespace Neo.SmartContract.Framework.UnitTests
         const byte Prefix_Block = 5;
         const byte Prefix_BlockHash = 9;
         const byte Prefix_Transaction = 11;
-        const byte Prefix_CurrentBlock = 12;
 
         static TestBlockchain()
         {
-            TheNeoSystem = new NeoSystem();
-
-            // Ensure that blockchain is loaded
-
-            var _ = Blockchain.Singleton;
+            TheNeoSystem = new NeoSystem(ProtocolSettings.Default);
         }
 
         public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable key = null)

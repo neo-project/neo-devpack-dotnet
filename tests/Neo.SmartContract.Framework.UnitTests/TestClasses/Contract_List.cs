@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
                 some.Add(i);
             }
 
-            return Json.Serialize(some);
+            return StdLib.JsonSerialize(some);
         }
 
         public static string TestRemoveAt(int count, int removeAt)
@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             }
 
             some.RemoveAt(removeAt);
-            return Json.Serialize(some);
+            return StdLib.JsonSerialize(some);
         }
 
         public static string TestClear(int count)
@@ -49,7 +49,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             }
 
             some.Clear();
-            return Json.Serialize(some);
+            return StdLib.JsonSerialize(some);
         }
 
         public static int[] TestArrayConvert(int count)
