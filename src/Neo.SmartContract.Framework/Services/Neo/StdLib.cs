@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static extern UInt160 Hash { [ContractHash] get; }
 
-        public extern static byte[] Serialize(object source);
+        public extern static ByteString Serialize(object source);
 
         public extern static object Deserialize(ByteString source);
 
