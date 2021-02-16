@@ -176,13 +176,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.AreEqual(1000L, item.GetInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Policy_GetMaxTransactionsPerBlock");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(512, item.GetInteger());
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("Policy_IsBlocked", account);
