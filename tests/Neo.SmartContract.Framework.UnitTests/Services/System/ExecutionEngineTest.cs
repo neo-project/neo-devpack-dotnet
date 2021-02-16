@@ -6,6 +6,7 @@ using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.IO;
 
 namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
@@ -13,7 +14,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
     [TestClass]
     public class ExecutionEngineTest
     {
-        class DummyVerificable : IVerifiable
+        class DummyVerificable : IVerifiable, IInteroperable
         {
             public Witness[] Witnesses { get; set; }
 
@@ -27,9 +28,14 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             {
             }
 
+            public void FromStackItem(StackItem stackItem)
+            {
+                throw new NotImplementedException();
+            }
+
             public UInt160[] GetScriptHashesForVerifying(DataCache snapshot)
             {
-                throw new global::System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             public void Serialize(BinaryWriter writer)
@@ -38,6 +44,11 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
 
             public void SerializeUnsigned(BinaryWriter writer)
             {
+            }
+
+            public StackItem ToStackItem(ReferenceCounter referenceCounter)
+            {
+                return new VM.Types.Array();
             }
         }
 
@@ -102,8 +113,8 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop() as InteropInterface;
-            Assert.AreEqual(null, item);
+            var item = result.Pop() as VM.Types.Array;
+            Assert.AreEqual(0, item.Count);
         }
     }
 }

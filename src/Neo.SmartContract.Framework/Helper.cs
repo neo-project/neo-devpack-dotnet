@@ -197,11 +197,5 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static UInt160 ToScriptHash(this string address);
-
-        [Syscall("System.Binary.Serialize")]
-        public extern static byte[] Serialize(this object source);
-
-        [Syscall("System.Binary.Deserialize")]
-        public extern static object Deserialize(this byte[] source);
     }
 }

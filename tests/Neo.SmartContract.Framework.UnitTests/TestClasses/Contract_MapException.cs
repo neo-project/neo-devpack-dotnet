@@ -10,8 +10,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static string TestByteArrayMap()
         {
             Map<byte[], string> some = new Map<byte[], string>();
-            some[new byte[] { 0x01, 0x01 }] = Json.Serialize("");
-            return Json.Serialize(some);
+            some[new byte[] { 0x01, 0x01 }] = StdLib.JsonSerialize("");
+            return StdLib.JsonSerialize(some);
         }
     }
 }

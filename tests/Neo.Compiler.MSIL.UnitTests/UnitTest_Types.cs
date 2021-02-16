@@ -18,7 +18,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void float_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
             Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
         }
@@ -26,7 +26,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void decimal_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             try
             {
                 testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs");
@@ -42,7 +42,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void double_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
             Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
         }
@@ -52,7 +52,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void null_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkNull");
 
@@ -63,7 +63,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void bool_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
 
@@ -82,7 +82,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void bigInteer_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_Types_BigInteger.cs");
 
             // static vars
@@ -117,7 +117,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void checkEnumArg_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var methods = (JArray)testengine.ScriptEntry.finalABI["methods"];
             var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
@@ -127,7 +127,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void sbyte_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkSbyte");
 
@@ -139,7 +139,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void byte_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkByte");
 
@@ -151,7 +151,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void short_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkShort");
 
@@ -163,7 +163,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void ushort_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUshort");
 
@@ -175,7 +175,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void int_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkInt");
 
@@ -187,7 +187,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void uint_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUint");
 
@@ -199,7 +199,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void long_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkLong");
 
@@ -211,7 +211,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void ulong_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUlong");
 
@@ -223,7 +223,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void bigInteger_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkBigInteger");
 
@@ -235,7 +235,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void byteArray_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkByteArray");
 
@@ -247,7 +247,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void char_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkChar");
 
@@ -259,7 +259,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void string_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkString");
 
@@ -271,7 +271,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void arrayObj_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkArrayObj");
 
@@ -284,7 +284,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void enum_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkEnum");
 
@@ -296,7 +296,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void class_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkClass");
 
@@ -309,7 +309,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void struct_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkStruct");
 
@@ -322,7 +322,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void tuple_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple");
 
@@ -336,7 +336,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void tuple2_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple2");
 
@@ -350,7 +350,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void tuple3_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple3");
 
@@ -364,7 +364,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void event_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkEvent");
             Assert.AreEqual(0, result.Count);
@@ -380,7 +380,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void lambda_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkLambda");
             Assert.AreEqual(1, result.Count);
@@ -392,7 +392,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void delegate_Test()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkDelegate");
             Assert.AreEqual(1, result.Count);
@@ -404,9 +404,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void UInt160_ValidateAddress()
         {
-            var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+            var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
 
             // True
@@ -468,10 +468,10 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void UInt160_equals_test()
         {
-            var owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
-            var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+            var owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
+            var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
 
             var result = testengine.ExecuteTestCaseStandard("checkOwner", owner.ToArray());
@@ -490,9 +490,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         public void UInt160_equals_zero_test()
         {
             var zero = UInt160.Zero;
-            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
             var result = testengine.ExecuteTestCaseStandard("checkZeroStatic", zero.ToArray());
             Assert.AreEqual(1, result.Count);
@@ -509,9 +509,9 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void UInt160_byte_array_construct()
         {
-            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash();
+            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
 
             var result = testengine.ExecuteTestCaseStandard("constructUInt160", notZero.ToArray());
