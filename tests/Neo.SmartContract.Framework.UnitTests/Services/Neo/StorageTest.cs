@@ -60,8 +60,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot();
+            var system = TestBlockchain.TheNeoSystem;
+            var snapshot = system.GetSnapshot();
 
             testengine = new TestEngine(snapshot: snapshot.CreateSnapshot());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");

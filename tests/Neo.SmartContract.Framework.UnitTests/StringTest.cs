@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine();
+            _engine = new TestEngine(snapshot: new TestDataCache());
             _engine.AddEntryScript("./TestClasses/Contract_String.cs");
         }
 
@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("Neo3", item.GetString());
         }
     }

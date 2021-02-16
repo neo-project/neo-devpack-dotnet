@@ -1,5 +1,4 @@
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -16,7 +15,8 @@ namespace Neo.Compiler.MSIL.Extensions
 
         public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
         {
-            persistingBlock ??= Blockchain.GenesisBlock;
+            persistingBlock ??= new NeoSystem(ProtocolSettings.Default).GenesisBlock;
+
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });

@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine();
+            _engine = new TestEngine(snapshot: new TestDataCache());
             _engine.AddEntryScript("./TestClasses/Contract_Json.cs");
         }
 
@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("serialize", new Array(new StackItem[]{
-                 StackItem.Null, new Boolean(true), new VM.Types.ByteString(Encoding.ASCII.GetBytes("asd"))
+                 StackItem.Null, new Boolean(true), new ByteString(Encoding.ASCII.GetBytes("asd"))
             }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Deserialize
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("deserialize", new VM.Types.ByteString(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
+            result = _engine.ExecuteTestCaseStandard("deserialize", new ByteString(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

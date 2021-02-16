@@ -1,6 +1,7 @@
 using Mono.Cecil;
 using Neo.IO;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -722,14 +723,16 @@ namespace Neo.Compiler.MSIL
                 {
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Itoa));
+                    ushort tokenId = AddMethodToken(methodTokens, NativeContract.StdLib.Hash, CallFlags.All, "itoa", 2, true);
+                    Convert1by1(VM.OpCode.CALLT, null, to, BitConverter.GetBytes(tokenId));
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Parse(System.String)")
                 {
                     ConvertPushNumber(10, null, to);        // Push Base
                     Convert1by1(VM.OpCode.SWAP, src, to);   // Swap arguments
-                    Insert1(VM.OpCode.SYSCALL, "", to, BitConverter.GetBytes(ApplicationEngine.System_Binary_Atoi));
+                    ushort tokenId = AddMethodToken(methodTokens, NativeContract.StdLib.Hash, CallFlags.All, "atoi", 2, true);
+                    Convert1by1(VM.OpCode.CALLT, null, to, BitConverter.GetBytes(tokenId));
                     return 0;
                 }
                 else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::get_One()")
@@ -753,7 +756,7 @@ namespace Neo.Compiler.MSIL
             {
                 if (defs == null && defError != null)
                 {
-                    if (defError is Mono.Cecil.AssemblyResolutionException dllError)
+                    if (defError is AssemblyResolutionException dllError)
                     {
                         logger.Log("<Error>Miss a Symbol in :" + dllError.AssemblyReference.FullName);
                         logger.Log("<Error>Check DLLs for contract.");
@@ -772,7 +775,7 @@ namespace Neo.Compiler.MSIL
                 else
                     throw new Exception("unknown call: " + src.tokenMethod + "\r\n   in: " + to.name + "\r\n");
             }
-            var md = src.tokenUnknown as Mono.Cecil.MethodReference;
+            var md = src.tokenUnknown as MethodReference;
             var pcount = md.Parameters.Count;
             bool havethis = md.HasThis;
             if (calltype == 2)
@@ -879,7 +882,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else
                 {
-                    ushort methodId = AddMethodToken(methodTokens, callhash, defs.Body.Method, CallFlags.All);
+                    ushort methodId = AddMethodToken(methodTokens, callhash, CallFlags.All, defs.Body.Method);
                     Insert1(VM.OpCode.CALLT, "", to, BitConverter.GetBytes(methodId));
                 }
             }
@@ -910,7 +913,7 @@ namespace Neo.Compiler.MSIL
             }
             else if (calltype == 3)
             {
-                var methodRef = src.tokenUnknown as Mono.Cecil.MethodReference;
+                var methodRef = src.tokenUnknown as MethodReference;
                 var parameterCount = methodRef.Parameters.Count;
                 ConvertPushNumber(parameterCount, src, to);
                 Convert1by1(VM.OpCode.ROLL, null, to);
@@ -919,15 +922,20 @@ namespace Neo.Compiler.MSIL
             return 0;
         }
 
-        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, MethodDefinition method, CallFlags flags)
+        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, CallFlags flags, MethodDefinition method)
+        {
+            return AddMethodToken(methodTokens, hash, flags, GetMethodName(method), (ushort)method.Parameters.Count, method.ReturnType.FullName != FuncExport.Void.FullName);
+        }
+
+        private ushort AddMethodToken(List<MethodToken> methodTokens, UInt160 hash, CallFlags flags, string methodName, ushort parametersCount, bool hasReturnValue)
         {
             var mt = new MethodToken()
             {
                 Hash = hash,
-                Method = GetMethodName(method),
+                Method = methodName,
                 CallFlags = flags,
-                ParametersCount = (ushort)method.Parameters.Count,
-                HasReturnValue = method.ReturnType.FullName != FuncExport.Void.FullName
+                ParametersCount = parametersCount,
+                HasReturnValue = hasReturnValue
             };
 
             ushort ix = 0;
