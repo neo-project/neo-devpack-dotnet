@@ -6,7 +6,6 @@ using Neo.Compiler.MSIL.UnitTests.Utils;
 using Neo.VM.Types;
 using System;
 using System.Linq;
-using Blockchain = Neo.Ledger.Blockchain;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -25,9 +24,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 testengine.Snapshot.GetChangeSet()
                 .Count(a =>
                     a.Key.Key.SequenceEqual(Concat(prefix, key)) &&
-                    a.Item.Value.SequenceEqual(value) &&
-                    !a.Item.IsConstant
-                    ));
+                    a.Item.Value.SequenceEqual(value)));
         }
 
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)

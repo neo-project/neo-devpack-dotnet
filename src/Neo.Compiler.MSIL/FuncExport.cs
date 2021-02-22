@@ -91,8 +91,7 @@ namespace Neo.Compiler
                 var funcsign = new JObject();
                 methods.Add(funcsign);
                 funcsign["name"] = function.Value.displayName;
-                var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
-                funcsign["offset"] = offset.ToString();
+                funcsign["offset"] = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["safe"] = function.Value.method?.method.CustomAttributes.Any(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SafeAttribute") == true;
                 JArray funcparams = new JArray();
                 funcsign["parameters"] = funcparams;
