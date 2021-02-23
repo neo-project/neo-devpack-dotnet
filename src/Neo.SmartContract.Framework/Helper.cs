@@ -198,7 +198,6 @@ namespace Neo.SmartContract.Framework
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static UInt160 ToScriptHash(this string address);
 
-
         /// <summary>
         /// Return the value of x to the power of exponent
         /// </summary>
