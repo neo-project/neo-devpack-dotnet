@@ -6,7 +6,6 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
-
     class Contract_BigInteger : SmartContract.Framework.SmartContract
     {
         public static object TestPow(BigInteger x, int y)
@@ -39,7 +38,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return x.Pow(y);
         }
 
-
         public static object TestSqrt(BigInteger x)
         {
             return x.Sqrt();
@@ -64,9 +62,5 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
         {
             return x.Sqrt();
         }
-
-
-
-
     }
 }

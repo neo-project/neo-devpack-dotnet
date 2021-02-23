@@ -208,7 +208,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.POW)]
         public extern static BigInteger Pow(this int x, int exponent);
 
-
         /// <summary>
         /// Return the value of x to the power of exponent
         /// </summary>
@@ -217,7 +216,6 @@ namespace Neo.SmartContract.Framework
         /// <returns></returns>
         [OpCode(OpCode.POW)]
         public extern static BigInteger Pow(this uint x, int exponent);
-
 
         /// <summary>
         /// Return the value of x to the power of exponent
@@ -228,7 +226,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.POW)]
         public extern static BigInteger Pow(this long x, int exponent);
 
-
         /// <summary>
         /// Return the value of x to the power of exponent
         /// </summary>
@@ -238,7 +235,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.POW)]
         public extern static BigInteger Pow(this ulong x, int exponent);
 
-
         /// <summary>
         /// Return the value of x to the power of exponent
         /// </summary>
@@ -247,8 +243,6 @@ namespace Neo.SmartContract.Framework
         /// <returns></returns>
         [OpCode(OpCode.POW)]
         public extern static BigInteger Pow(this BigInteger x, int exponent);
-
-
 
         /// <summary>
         /// Returns the square root of number x

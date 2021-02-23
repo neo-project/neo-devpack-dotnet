@@ -1,7 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.MSIL.UnitTests.Utils;
-using Neo.VM.Types;
-using System.Linq;
 
 namespace Neo.Compiler.MSIL.UnitTests
 {
@@ -19,7 +17,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(8, value);
         }
 
-
         [TestMethod]
         public void Test_PowInt()
         {
@@ -30,7 +27,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             var value = result.Pop().GetInteger();
             Assert.AreEqual(-32, value);
         }
-
 
         [TestMethod]
         public void Test_PowUInt()
@@ -43,8 +39,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(9, value);
         }
 
-
-
         [TestMethod]
         public void Test_PowLong()
         {
@@ -55,7 +49,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             var value = result.Pop().GetInteger();
             Assert.AreEqual(25, value);
         }
-
 
         [TestMethod]
         public void Test_PowULong()
@@ -68,7 +61,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(125, value);
         }
 
-
         [TestMethod]
         public void Test_PowBigInt()
         {
@@ -79,8 +71,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             var value = result.Pop().GetInteger();
             Assert.AreEqual(1024, value);
         }
-
-
 
         [TestMethod]
         public void Test_Sqrt()
@@ -93,7 +83,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(2, value);
         }
 
-
         [TestMethod]
         public void Test_SqrtInt()
         {
@@ -104,7 +93,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             var value = result.Pop().GetInteger();
             Assert.AreEqual(10, value);
         }
-
 
         [TestMethod]
         public void Test_SqrtUInt()
@@ -117,8 +105,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(3, value);
         }
 
-
-
         [TestMethod]
         public void Test_SqrtLong()
         {
@@ -130,7 +116,6 @@ namespace Neo.Compiler.MSIL.UnitTests
             Assert.AreEqual(5, value);
         }
 
-
         [TestMethod]
         public void Test_SqrtULong()
         {
@@ -141,7 +126,5 @@ namespace Neo.Compiler.MSIL.UnitTests
             var value = result.Pop().GetInteger();
             Assert.AreEqual(6, value);
         }
-
-
     }
 }
