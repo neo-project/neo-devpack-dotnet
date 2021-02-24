@@ -197,5 +197,13 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static UInt160 ToScriptHash(this string address);
+
+        /// <summary>
+        /// Returns the square root of number x
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        [OpCode(OpCode.SQRT)]
+        public extern static BigInteger Sqrt(this BigInteger x);
     }
 }

@@ -582,6 +582,11 @@ namespace Neo.Compiler.MSIL
                     Convert1by1(VM.OpCode.MOD, src, to);
                     return 0;
                 }
+                else if (src.tokenMethod == "System.Numerics.BigInteger System.Numerics.BigInteger::Pow(System.Numerics.BigInteger,System.Int32)")
+                {
+                    Convert1by1(VM.OpCode.POW, src, to);
+                    return 0;
+                }
                 else if (src.tokenMethod.Contains("::op_LessThan("))
                 {
                     Convert1by1(VM.OpCode.LT, src, to);
