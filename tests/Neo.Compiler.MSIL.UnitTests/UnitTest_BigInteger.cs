@@ -18,17 +18,6 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
-        public void Test_PowBigInt()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testPowBigInteger", 2, 10);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(1024, value);
-        }
-
-        [TestMethod]
         public void Test_Sqrt()
         {
             var testengine = new TestEngine();

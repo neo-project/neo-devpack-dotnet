@@ -13,11 +13,6 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
             return BigInteger.Pow(x, y);
         }
 
-        public static object TestPowBigInteger(BigInteger x, int y)
-        {
-            return x.Pow(y);
-        }
-
         public static object TestSqrt(BigInteger x)
         {
             return x.Sqrt();

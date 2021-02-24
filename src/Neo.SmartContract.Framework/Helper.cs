@@ -199,15 +199,6 @@ namespace Neo.SmartContract.Framework
         public extern static UInt160 ToScriptHash(this string address);
 
         /// <summary>
-        /// Return the value of x to the power of exponent
-        /// </summary>
-        /// <param name="x">base</param>
-        /// <param name="exponent"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.POW)]
-        public extern static BigInteger Pow(this BigInteger x, int exponent);
-
-        /// <summary>
         /// Returns the square root of number x
         /// </summary>
         /// <param name="x"></param>
