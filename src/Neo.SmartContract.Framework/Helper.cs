@@ -205,75 +205,7 @@ namespace Neo.SmartContract.Framework
         /// <param name="exponent"></param>
         /// <returns></returns>
         [OpCode(OpCode.POW)]
-        public extern static BigInteger Pow(this int x, int exponent);
-
-        /// <summary>
-        /// Return the value of x to the power of exponent
-        /// </summary>
-        /// <param name="x">base</param>
-        /// <param name="exponent"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.POW)]
-        public extern static BigInteger Pow(this uint x, int exponent);
-
-        /// <summary>
-        /// Return the value of x to the power of exponent
-        /// </summary>
-        /// <param name="x">base</param>
-        /// <param name="exponent"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.POW)]
-        public extern static BigInteger Pow(this long x, int exponent);
-
-        /// <summary>
-        /// Return the value of x to the power of exponent
-        /// </summary>
-        /// <param name="x">base</param>
-        /// <param name="exponent"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.POW)]
-        public extern static BigInteger Pow(this ulong x, int exponent);
-
-        /// <summary>
-        /// Return the value of x to the power of exponent
-        /// </summary>
-        /// <param name="x">base</param>
-        /// <param name="exponent"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.POW)]
         public extern static BigInteger Pow(this BigInteger x, int exponent);
-
-        /// <summary>
-        /// Returns the square root of number x
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.SQRT)]
-        public extern static BigInteger Sqrt(this int x);
-
-        /// <summary>
-        /// Returns the square root of number x
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.SQRT)]
-        public extern static BigInteger Sqrt(this uint x);
-
-        /// <summary>
-        /// Returns the square root of number x
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.SQRT)]
-        public extern static BigInteger Sqrt(this long x);
-
-        /// <summary>
-        /// Returns the square root of number x
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        [OpCode(OpCode.SQRT)]
-        public extern static BigInteger Sqrt(this ulong x);
 
         /// <summary>
         /// Returns the square root of number x

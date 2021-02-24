@@ -18,50 +18,6 @@ namespace Neo.Compiler.MSIL.UnitTests
         }
 
         [TestMethod]
-        public void Test_PowInt()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testPowInt", -2, 5);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(-32, value);
-        }
-
-        [TestMethod]
-        public void Test_PowUInt()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testPowUInt", 3, 2);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(9, value);
-        }
-
-        [TestMethod]
-        public void Test_PowLong()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testPowLong", 5, 2);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(25, value);
-        }
-
-        [TestMethod]
-        public void Test_PowULong()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testPowULong", 5, 3);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(125, value);
-        }
-
-        [TestMethod]
         public void Test_PowBigInt()
         {
             var testengine = new TestEngine();
@@ -81,50 +37,6 @@ namespace Neo.Compiler.MSIL.UnitTests
 
             var value = result.Pop().GetInteger();
             Assert.AreEqual(2, value);
-        }
-
-        [TestMethod]
-        public void Test_SqrtInt()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testSqrtInt", 100);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(10, value);
-        }
-
-        [TestMethod]
-        public void Test_SqrtUInt()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testSqrtUInt", 9);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(3, value);
-        }
-
-        [TestMethod]
-        public void Test_SqrtLong()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testSqrtLong", 25);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(5, value);
-        }
-
-        [TestMethod]
-        public void Test_SqrtULong()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            var result = testengine.ExecuteTestCaseStandard("testSqrtULong", 36);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(6, value);
         }
     }
 }
