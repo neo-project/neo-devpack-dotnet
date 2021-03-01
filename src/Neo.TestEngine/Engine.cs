@@ -50,20 +50,7 @@ namespace Neo.TestingEngine
         public void SetEntryScript(string path)
         {
             engine.AddEntryScript(path);
-            var manifest = ContractManifest.FromJson(JObject.Parse(engine.ScriptEntry.finalManifest));
-            var hash = engine.ScriptEntry.finalNEFScript.ToScriptHash();
-
-            if (engine.Snapshot.ContainsContract(hash))
-            {
-                engine.Snapshot.DeleteContract(hash);
-            }
-
-            engine.Snapshot.ContractAdd(new ContractState()
-            {
-                Hash = hash,
-                Nef = engine.ScriptEntry.nefFile,
-                Manifest = manifest,
-            });
+            AddSmartContract(path);
         }
 
         public void SetEntryScript(UInt160 contractHash)
@@ -73,11 +60,11 @@ namespace Neo.TestingEngine
 
         public void AddSmartContract(TestContract contract)
         {
-            var script = AddSmartContract(contract.nefPath);
-            contract.nefFile = script.nefFile;
+            var state = AddSmartContract(contract.nefPath);
+            contract.nefFile = state.Nef;
         }
 
-        private BuildScript AddSmartContract(string path)
+        private ContractState AddSmartContract(string path)
         {
             var builtScript = engine.Build(path);
             var hash = builtScript.finalNEFScript.ToScriptHash();
@@ -86,15 +73,17 @@ namespace Neo.TestingEngine
 
             if (!snapshot.ContainsContract(hash))
             {
-                snapshot.TryContractAdd(new ContractState()
+                var state = new ContractState()
                 {
+                    Id = snapshot.GetNextAvailableId(),
                     Hash = hash,
                     Nef = builtScript.nefFile,
                     Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
-                });
+                };
+                snapshot.TryContractAdd(state);
             }
 
-            return builtScript;
+            return NativeContract.ContractManagement.GetContract(snapshot, hash);
         }
 
         public void IncreaseBlockCount(uint newHeight)

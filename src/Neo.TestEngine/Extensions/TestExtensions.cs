@@ -3,11 +3,14 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
+using System.Linq;
 
 namespace Neo.TestingEngine
 {
     public static class TestExtensions
     {
+        private const byte Prefix_NextAvailableId = 15;
+
         public static void ContractAdd(this DataCache snapshot, ContractState contract)
         {
             var key = new KeyBuilder(NativeContract.ContractManagement.Id, 8).Add(contract.Hash);
@@ -41,7 +44,7 @@ namespace Neo.TestingEngine
 
         public static bool TryContractAdd(this DataCache snapshot, ContractState contract)
         {
-            var key = new KeyBuilder(NativeContract.ContractManagement.Id, 8).Add(contract.Hash);
+            var key = NativeContract.ContractManagement.CreateStorageKey(8, contract.Hash);
             if (snapshot.Contains(key))
             {
                 return false;
@@ -49,6 +52,12 @@ namespace Neo.TestingEngine
 
             snapshot.Add(key, new StorageItem(contract));
             return true;
+        }
+        public static int GetNextAvailableId(this DataCache snapshot)
+        {
+            StorageItem item = snapshot.GetAndChange(NativeContract.ContractManagement.CreateStorageKey(Prefix_NextAvailableId));
+            item.Add(1);
+            return NativeContract.ContractManagement.ListContracts(snapshot).ToList().Where(state => state.Id >= 0).Count();
         }
     }
 }
