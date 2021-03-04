@@ -162,11 +162,19 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, ByteString second);
 
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        public extern static ByteString Concat(this ByteString first, ByteString second);
+
         [NonemitWithConvert(ConvertMethod.HexToBytes)]
         public extern static byte[] HexToBytes(this string hex, bool reverse = false);
 
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
+
+        [OpCode(OpCode.SUBSTR)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        public extern static ByteString Range(this ByteString source, int index, int count);
 
         /// <summary>
         /// Returns byte[] with first 'count' elements from 'source'. Faults if count < 0
@@ -174,11 +182,19 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
 
+        [OpCode(OpCode.LEFT)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        public extern static ByteString Take(this ByteString source, int count);
+
         /// <summary>
         /// Returns byte[] with last 'count' elements from 'source'. Faults if count < 0
         /// </summary>
         [OpCode(OpCode.RIGHT)]
         public extern static byte[] Last(this byte[] source, int count);
+
+        [OpCode(OpCode.RIGHT)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        public extern static ByteString Last(this ByteString source, int count);
 
         /// <summary>
         /// Returns a reversed copy of parameter 'source'.
