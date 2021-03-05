@@ -174,7 +174,7 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.SUBSTR)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
-        public extern static ByteString Range(this ByteString source, int index, int count);
+        public extern static string Range(this string source, int index, int count);
 
         /// <summary>
         /// Returns byte[] with first 'count' elements from 'source'. Faults if count < 0
@@ -184,7 +184,7 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.LEFT)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
-        public extern static ByteString Take(this ByteString source, int count);
+        public extern static string Take(this string source, int count);
 
         /// <summary>
         /// Returns byte[] with last 'count' elements from 'source'. Faults if count < 0
@@ -194,7 +194,7 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.RIGHT)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
-        public extern static ByteString Last(this ByteString source, int count);
+        public extern static string Last(this string source, int count);
 
         /// <summary>
         /// Returns a reversed copy of parameter 'source'.
