@@ -672,7 +672,7 @@ namespace Neo.Compiler.MSIL
                 {
                     ConvertPushNumber(1, src, to);
                     Convert1by1(VM.OpCode.SUBSTR, null, to);
-                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.ByteString });
+                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Integer });
                     return 0;
                 }
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32)")
