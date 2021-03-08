@@ -382,6 +382,7 @@ namespace Neo.Compiler.MSIL
             UInt160 callhash = null;
             VM.OpCode[] callcodes = null;
             string[] calldata = null;
+            CallingConvention callingConvention = CallingConvention.ThisCall;
 
             Mono.Cecil.MethodDefinition defs = null;
             Exception defError = null;
@@ -431,12 +432,12 @@ namespace Neo.Compiler.MSIL
             //{
             //    calltype = 3;
             //}
-            else if (IsMixAttribute(defs, out callcodes, out calldata, out var callingConvention))
+            else if (IsMixAttribute(defs, out callcodes, out calldata, out callingConvention))
             {
                 //only syscall, need to reverse arguments
                 //only opcall, no matter what arguments
 
-                calltype = callingConvention == CallingConvention.ThisCall ? 7 : 2;
+                calltype = 7;
             }
             else if (IsContractCall(defs, out callhash))
             {
@@ -798,41 +799,45 @@ namespace Neo.Compiler.MSIL
             }
             else
             {
-                // reverse the arguments order
+                if (callingConvention == CallingConvention.ThisCall)
+                {
+                    // reverse the arguments order
 
-                //this become very diffcult
+                    //this become very diffcult
 
-                // because opcode donot need to flip params
-                // but syscall need
-                // calltype7 is  opcode? or is syscall?
+                    // because opcode donot need to flip params
+                    // but syscall need
+                    // calltype7 is  opcode? or is syscall?
 
-                // i will make calltype7 =calltype3 , you can add flip opcode if you need.
-                if (havethis && calltype == 7) // is syscall
-                    pcount++;
-                //if ((calltype == 3) || ((calltype == 7) && (callcodes[0] == VM.OpCode.SYSCALL)))
-                //    pcount++;
-                // calltype == 3 does not exist anymore
+                    // i will make calltype7 =calltype3 , you can add flip opcode if you need.
+                    if (havethis && calltype == 7) // is syscall
+                        pcount++;
+                    //if ((calltype == 3) || ((calltype == 7) && (callcodes[0] == VM.OpCode.SYSCALL)))
+                    //    pcount++;
+                    // calltype == 3 does not exist anymore
 
-                Convert1by1(VM.OpCode.NOP, src, to);
-                if (pcount <= 1)
-                {
-                }
-                else if (pcount == 2)
-                {
-                    Insert1(VM.OpCode.SWAP, "swap 2 param", to);
-                }
-                else if (pcount == 3)
-                {
-                    Insert1(VM.OpCode.REVERSE3, "", to);
-                }
-                else if (pcount == 4)
-                {
-                    Insert1(VM.OpCode.REVERSE4, "", to);
-                }
-                else
-                {
-                    InsertPush(pcount, "swap" + pcount, to);
-                    Insert1(VM.OpCode.REVERSEN, "", to);
+
+                    Convert1by1(VM.OpCode.NOP, src, to);
+                    if (pcount <= 1)
+                    {
+                    }
+                    else if (pcount == 2)
+                    {
+                        Insert1(VM.OpCode.SWAP, "swap 2 param", to);
+                    }
+                    else if (pcount == 3)
+                    {
+                        Insert1(VM.OpCode.REVERSE3, "", to);
+                    }
+                    else if (pcount == 4)
+                    {
+                        Insert1(VM.OpCode.REVERSE4, "", to);
+                    }
+                    else
+                    {
+                        InsertPush(pcount, "swap" + pcount, to);
+                        Insert1(VM.OpCode.REVERSEN, "", to);
+                    }
                 }
             }
             if (calltype == 1)
@@ -846,29 +851,6 @@ namespace Neo.Compiler.MSIL
             {
                 Convert1by1(callcodes[0], src, to, Helper.OpDataToBytes(calldata[0]));
             }
-
-            /*
-                        else if (calltype == 3)
-                        {
-                            byte[] bytes = null;
-                            if (this.outModule.option.useSysCallInteropHash)
-                            {
-                                //now neovm use ineropMethod hash for syscall.
-                                bytes = BitConverter.GetBytes(callname.ToInteropMethodHash());
-                            }
-                            else
-                            {
-                                bytes = System.Text.Utility.StrictUTF8.GetBytes(callname);
-                                if (bytes.Length > 252) throw new Exception("string is to long");
-                            }
-                            byte[] outbytes = new byte[bytes.Length + 1];
-                            outbytes[0] = (byte)bytes.Length;
-                            Array.Copy(bytes, 0, outbytes, 1, bytes.Length);
-                            //bytes.Prepend 函数在 dotnet framework 4.6 编译不过
-                            _Convert1by1(VM.OpCode.SYSCALL, null, to, outbytes);
-                            return 0;
-                        }
-            */
             else if (calltype == 7)
             {
                 for (var j = 0; j < callcodes.Length; j++)
@@ -881,7 +863,6 @@ namespace Neo.Compiler.MSIL
                     else
                     {
                         byte[] opdata = Helper.OpDataToBytes(calldata[j]);
-
                         Convert1by1(callcodes[j], src, to, opdata);
                     }
                 }
