@@ -531,28 +531,28 @@ namespace Neo.Compiler.MSIL.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkIndex", "hello", 4);
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
-            Assert.IsTrue(item is Integer);
+            Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual((byte)'o', item.GetInteger());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkTake", "hello", 4);
             Assert.AreEqual(1, result.Count);
             item = result.Pop();
-            Assert.IsTrue(item is ByteString);
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("hell", item.GetString());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkLast", "hello", 2);
             Assert.AreEqual(1, result.Count);
             item = result.Pop();
-            Assert.IsTrue(item is ByteString);
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("lo", item.GetString());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkRange", "hello", 1, 2);
             Assert.AreEqual(1, result.Count);
             item = result.Pop();
-            Assert.IsTrue(item is ByteString);
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("el", item.GetString());
         }
     }
