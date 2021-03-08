@@ -670,9 +670,7 @@ namespace Neo.Compiler.MSIL
                 }
                 else if (src.tokenMethod == "System.Char System.String::get_Chars(System.Int32)")
                 {
-                    ConvertPushNumber(1, src, to);
-                    Convert1by1(VM.OpCode.SUBSTR, null, to);
-                    Insert1(VM.OpCode.CONVERT, "", to, new byte[] { (byte)VM.Types.StackItemType.Integer });
+                    Convert1by1(VM.OpCode.PICKITEM, src, to);
                     return 0;
                 }
                 else if (src.tokenMethod == "System.String System.String::Substring(System.Int32)")

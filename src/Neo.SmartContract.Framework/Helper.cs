@@ -168,6 +168,8 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.ROT)]
         [OpCode(OpCode.SUBSTR)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string Range(this string source, int index, int count);
@@ -178,6 +180,7 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
 
+        [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.LEFT)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string Take(this string source, int count);
@@ -188,6 +191,7 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.RIGHT)]
         public extern static byte[] Last(this byte[] source, int count);
 
+        [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.RIGHT)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string Last(this string source, int count);

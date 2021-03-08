@@ -521,5 +521,39 @@ namespace Neo.Compiler.MSIL.UnitTests
             var received = new UInt160(((ByteString)item).GetSpan());
             Assert.AreEqual(received, notZero);
         }
+
+        [TestMethod]
+        public void String_Methods()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types_String.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("checkIndex", "hello", 4);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is Integer);
+            Assert.AreEqual((byte)'o', item.GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkTake", "hello", 4);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is ByteString);
+            Assert.AreEqual("hell", item.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkLast", "hello", 2);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is ByteString);
+            Assert.AreEqual("lo", item.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkRange", "hello", 1, 2);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is ByteString);
+            Assert.AreEqual("el", item.GetString());
+        }
     }
 }
