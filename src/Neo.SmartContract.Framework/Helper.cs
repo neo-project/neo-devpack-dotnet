@@ -168,12 +168,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
-        [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.SUBSTR)]
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
-        public extern static string Range(this string source, int index, int count);
-
         /// <summary>
         /// Returns byte[] with first 'count' elements from 'source'. Faults if count < 0
         /// </summary>
