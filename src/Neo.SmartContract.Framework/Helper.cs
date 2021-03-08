@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Neo.SmartContract.Framework
 {
@@ -174,7 +175,7 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.LEFT)]
         public extern static byte[] Take(this byte[] source, int count);
 
-        [OpCode(OpCode.SWAP)]
+        [CallingConversion(CallingConvention.Cdecl)]
         [OpCode(OpCode.LEFT)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string Take(this string source, int count);
@@ -185,7 +186,7 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.RIGHT)]
         public extern static byte[] Last(this byte[] source, int count);
 
-        [OpCode(OpCode.SWAP)]
+        [CallingConversion(CallingConvention.Cdecl)]
         [OpCode(OpCode.RIGHT)]
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string Last(this string source, int count);

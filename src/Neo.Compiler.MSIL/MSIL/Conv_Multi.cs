@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.MSIL
@@ -240,7 +241,7 @@ namespace Neo.Compiler.MSIL
             return false;
         }
 
-        public bool IsMixAttribute(Mono.Cecil.MethodDefinition defs, out VM.OpCode[] opcodes, out string[] opdata)
+        public bool IsMixAttribute(MethodDefinition defs, out VM.OpCode[] opcodes, out string[] opdata, out CallingConvention callingConvention)
         {
             // ============================================
             // Integrates attributes: OpCode/Syscall/Script
@@ -248,6 +249,7 @@ namespace Neo.Compiler.MSIL
 
             opcodes = null;
             opdata = null;
+            callingConvention = CallingConvention.ThisCall;
 
             if (defs == null) return false;
 
@@ -263,6 +265,7 @@ namespace Neo.Compiler.MSIL
 
             if (count_attrs == 0) return false; // no OpCode/Syscall/Script Attribute
 
+            bool callingConventionSet = false;
             opcodes = new VM.OpCode[count_attrs];
             opdata = new string[count_attrs];
 
@@ -298,6 +301,12 @@ namespace Neo.Compiler.MSIL
 
                     i++;
                 }
+                else if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.CallingConversionAttribute")
+                {
+                    callingConvention = Enum.Parse<CallingConvention>(attr.ConstructorArguments[0].Value.ToString());
+                    callingConventionSet = true;
+                    ext++;
+                }
 
                 if (attr.AttributeType.FullName == "System.Runtime.CompilerServices.ExtensionAttribute")
                     ext++;
@@ -306,6 +315,11 @@ namespace Neo.Compiler.MSIL
             if ((count_attrs + ext) == defs.CustomAttributes.Count)
             {
                 // all attributes are OpCode or Syscall or Script (plus ExtensionAttribute which is automatic)
+
+                if (!callingConventionSet && count_attrs == 1 && opcodes[0] != VM.OpCode.SYSCALL)
+                {
+                    callingConvention = CallingConvention.Cdecl;
+                }
                 return true;
             }
             else
@@ -417,16 +431,12 @@ namespace Neo.Compiler.MSIL
             //{
             //    calltype = 3;
             //}
-            else if (IsMixAttribute(defs, out callcodes, out calldata))
+            else if (IsMixAttribute(defs, out callcodes, out calldata, out var callingConvention))
             {
                 //only syscall, need to reverse arguments
                 //only opcall, no matter what arguments
-                calltype = 7;
 
-                if (callcodes.Length == 1 && callcodes[0] != VM.OpCode.SYSCALL)
-                {
-                    calltype = 2;
-                }
+                calltype = callingConvention == CallingConvention.ThisCall ? 7 : 2;
             }
             else if (IsContractCall(defs, out callhash))
             {

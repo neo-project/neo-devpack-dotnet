@@ -116,7 +116,7 @@ namespace Neo.Compiler.MSIL
                             continue;
                         if (IsNonCall(m.Value.method))
                             continue;
-                        if (IsMixAttribute(m.Value.method, out _, out _))
+                        if (IsMixAttribute(m.Value.method, out _, out _, out _))
                             continue;
 
                         if (m.Key.Contains("::Main("))
