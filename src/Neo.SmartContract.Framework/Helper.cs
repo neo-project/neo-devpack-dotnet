@@ -162,10 +162,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, ByteString second);
 
-        [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
-        public extern static string Concat(this string first, string second);
-
         [NonemitWithConvert(ConvertMethod.HexToBytes)]
         public extern static byte[] HexToBytes(this string hex, bool reverse = false);
 
