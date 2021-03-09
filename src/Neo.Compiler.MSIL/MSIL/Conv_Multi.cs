@@ -241,7 +241,7 @@ namespace Neo.Compiler.MSIL
             return false;
         }
 
-        public bool IsMixAttribute(MethodDefinition defs, out VM.OpCode[] opcodes, out string[] opdata, out CallingConvention callingConvention)
+        public bool IsMixAttribute(MethodDefinition defs, out VM.OpCode[] opcodes, out string[] opdata, out bool rightToLeft)
         {
             // ============================================
             // Integrates attributes: OpCode/Syscall/Script
@@ -249,7 +249,7 @@ namespace Neo.Compiler.MSIL
 
             opcodes = null;
             opdata = null;
-            callingConvention = CallingConvention.ThisCall;
+            rightToLeft = true;
 
             if (defs == null) return false;
 
@@ -265,7 +265,7 @@ namespace Neo.Compiler.MSIL
 
             if (count_attrs == 0) return false; // no OpCode/Syscall/Script Attribute
 
-            bool callingConventionSet = false;
+            bool rightToLeftSet = false;
             opcodes = new VM.OpCode[count_attrs];
             opdata = new string[count_attrs];
 
@@ -301,10 +301,10 @@ namespace Neo.Compiler.MSIL
 
                     i++;
                 }
-                else if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.CallingConversionAttribute")
+                else if (attr.AttributeType.FullName == "Neo.SmartContract.Framework.RightToLeftAttribute")
                 {
-                    callingConvention = Enum.Parse<CallingConvention>(attr.ConstructorArguments[0].Value.ToString());
-                    callingConventionSet = true;
+                    rightToLeft = (bool)attr.ConstructorArguments[0].Value;
+                    rightToLeftSet = true;
                     ext++;
                 }
 
@@ -316,9 +316,9 @@ namespace Neo.Compiler.MSIL
             {
                 // all attributes are OpCode or Syscall or Script (plus ExtensionAttribute which is automatic)
 
-                if (!callingConventionSet && count_attrs == 1 && opcodes[0] != VM.OpCode.SYSCALL)
+                if (!rightToLeftSet && count_attrs == 1 && opcodes[0] != VM.OpCode.SYSCALL)
                 {
-                    callingConvention = CallingConvention.Cdecl;
+                    rightToLeft = false;
                 }
                 return true;
             }
@@ -382,7 +382,7 @@ namespace Neo.Compiler.MSIL
             UInt160 callhash = null;
             VM.OpCode[] callcodes = null;
             string[] calldata = null;
-            CallingConvention callingConvention = CallingConvention.ThisCall;
+            bool rightToLeft = true;
 
             Mono.Cecil.MethodDefinition defs = null;
             Exception defError = null;
@@ -432,7 +432,7 @@ namespace Neo.Compiler.MSIL
             //{
             //    calltype = 3;
             //}
-            else if (IsMixAttribute(defs, out callcodes, out calldata, out callingConvention))
+            else if (IsMixAttribute(defs, out callcodes, out calldata, out rightToLeft))
             {
                 //only syscall, need to reverse arguments
                 //only opcall, no matter what arguments
@@ -799,7 +799,7 @@ namespace Neo.Compiler.MSIL
             }
             else
             {
-                if (callingConvention == CallingConvention.ThisCall)
+                if (rightToLeft)
                 {
                     // reverse the arguments order
 
@@ -815,7 +815,6 @@ namespace Neo.Compiler.MSIL
                     //if ((calltype == 3) || ((calltype == 7) && (callcodes[0] == VM.OpCode.SYSCALL)))
                     //    pcount++;
                     // calltype == 3 does not exist anymore
-
 
                     Convert1by1(VM.OpCode.NOP, src, to);
                     if (pcount <= 1)
