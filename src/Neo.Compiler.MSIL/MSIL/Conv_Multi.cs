@@ -817,10 +817,7 @@ namespace Neo.Compiler.MSIL
                     // calltype == 3 does not exist anymore
 
                     Convert1by1(VM.OpCode.NOP, src, to);
-                    if (pcount <= 1)
-                    {
-                    }
-                    else if (pcount == 2)
+                    if (pcount == 2)
                     {
                         Insert1(VM.OpCode.SWAP, "swap 2 param", to);
                     }
@@ -832,7 +829,7 @@ namespace Neo.Compiler.MSIL
                     {
                         Insert1(VM.OpCode.REVERSE4, "", to);
                     }
-                    else
+                    else if (pcount > 4)
                     {
                         InsertPush(pcount, "swap" + pcount, to);
                         Insert1(VM.OpCode.REVERSEN, "", to);
