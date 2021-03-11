@@ -5,15 +5,11 @@
     <DebugType>embedded</DebugType>
     <PackageId>Neo.Test.Harness</PackageId>
     <RootNamespace>Neo.Test.Harness</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Neo.BlockchainToolkit3" Version="1.0.9-preview" />
+    <PackageReference Include="Neo.BlockchainToolkit3" Version="1.0.16-preview" />
   </ItemGroup>
 
 </Project>

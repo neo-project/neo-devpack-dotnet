@@ -35,25 +35,5 @@ namespace Neo.Assertions
 
         public AndConstraint<StorageItemAssertions> Be(UInt256 expected, string because = "", params object[] becauseArgs)
             => Be<UInt256>(expected, bytes => new UInt256(bytes), because, becauseArgs);
-
-        public AndConstraint<StorageItemAssertions> BeConstant(string because = "", params object[] becauseArgs)
-        {
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .ForCondition(Subject.IsConstant == true)
-                .FailWith("Expected {context:StorageItem} to be constant{reason}, but IsConstant returned {1}.", Subject.IsConstant);
-
-            return new AndConstraint<StorageItemAssertions>(this);
-        }
-
-        public AndConstraint<StorageItemAssertions> NotBeConstant(string because = "", params object[] becauseArgs)
-        {
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .ForCondition(Subject.IsConstant == false)
-                .FailWith("Expected {context:StorageItem} to not be constant{reason}, but IsConstant returned {1}.", Subject.IsConstant);
-
-            return new AndConstraint<StorageItemAssertions>(this);
-        }
     }
 }

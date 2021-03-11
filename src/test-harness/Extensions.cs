@@ -18,26 +18,6 @@ namespace NeoTestHarness
 
     public static class Extensions
     {
-        // TestHarness replacement for Neo.Wallets.Helper.ToAddress that doesn't load protocol settings
-        public static string ToAddress(this UInt160 scriptHash, byte addressVersion = (byte)0x35)
-        {
-            Span<byte> data = stackalloc byte[21];
-            data[0] = addressVersion;
-            Neo.IO.Helper.ToArray(scriptHash).CopyTo(data[1..]);
-            return Neo.Cryptography.Base58.Base58CheckEncode(data);
-        }
-
-        // TestHarness replacement for Neo.Wallets.Helper.ToScriptHash that doesn't load protocol settings
-        public static UInt160 FromAddress(this string address, byte addressVersion = (byte)0x35)
-        {
-            byte[] data = Neo.Cryptography.Base58.Base58CheckDecode(address);
-            if (data.Length != 21)
-                throw new FormatException();
-            if (data[0] != addressVersion)
-                throw new FormatException();
-            return new UInt160(data.AsSpan(1));
-        }
-
         public static VMState ExecuteScript<T>(this TestApplicationEngine engine, params Expression<Action<T>>[] expressions)
             where T : class
         {

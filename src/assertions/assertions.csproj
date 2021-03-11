@@ -5,16 +5,13 @@
     <DebugType>embedded</DebugType>
     <PackageId>Neo.Assertions</PackageId>
     <RootNamespace>Neo.Assertions</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Neo" Version="3.0.0-preview5" />
+    <PackageReference Include="Neo" Version="3.0.0-mono-master-00686" />
   </ItemGroup>
 
 </Project>
