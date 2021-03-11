@@ -2,6 +2,7 @@ extern alias scfx;
 
 using Mono.Cecil;
 using Neo.IO.Json;
+using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -191,7 +192,7 @@ namespace Neo.Compiler
             return value.Replace("\"", "");
         }
 
-        public static string GenerateManifest(JObject abi, NeoModule module)
+        public static string GenerateManifest(JObject abi, NeoModule module, MethodToken[] tokens)
         {
             var sbABI = abi.ToString(false);
             var extraAttributes = module == null ? Array.Empty<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToArray();
@@ -202,12 +203,24 @@ namespace Neo.Compiler
                 .Where(u => u.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
                 .FirstOrDefault() ?? module.Name;
-            var permissions =
-                string.Join(',',
-                module.attributes
+
+            var permissions = string.Join(",", module.attributes
                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute")
-               .Select(u => ContractPermissionToManifest(u))
-               .ToList());
+               .Select(u =>
+               {
+                   var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
+                   var hash = ScapeJson((string)u.ConstructorArguments[0].Value);
+                   return (hash, ((methods?.Length ?? 0) == 0 || (string)methods[0].Value == "*") ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
+               })
+            .Concat(tokens.Select(u => (u.Hash.ToString(), new string[] { u.Method })))
+            .GroupBy(u => u.Item1, u => u.Item2)
+            .Select(u =>
+            {
+                var list = new HashSet<string>();
+                foreach (var kv in u.ToArray()) foreach (var k in kv) list.Add(k);
+                return ContractPermissionToManifest(u.Key, list.ToArray());
+            }));
+
             if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
 
             return
@@ -215,14 +228,12 @@ namespace Neo.Compiler
                 @",""permissions"":[" + permissions + @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
 
-        private static string ContractPermissionToManifest(CustomAttribute u)
+        private static string ContractPermissionToManifest(string hash, string[] methods)
         {
-            var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
-            var jsonMethods = ((methods?.Length ?? 0) == 0 || (string)methods[0].Value == "*") ?
-                "\"*\"" : $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson((string)u.Value) + "\""))}]";
+            var jsonMethods = ((methods?.Length ?? 0) == 0 || methods[0] == "*") ?
+                "\"*\"" : $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson(u) + "\""))}]";
 
-            var value = ScapeJson((string)u.ConstructorArguments[0].Value);
-            return $"{{\"contract\":\"{value}\",\"methods\":{jsonMethods}}}";
+            return $"{{\"contract\":\"{ScapeJson(hash)}\",\"methods\":{jsonMethods}}}";
         }
     }
 }
