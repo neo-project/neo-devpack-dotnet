@@ -210,7 +210,7 @@ namespace Neo.Compiler
                {
                    var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
                    var hash = ScapeJson((string)u.ConstructorArguments[0].Value);
-                   return (hash, ((methods?.Length ?? 0) == 0 || (string)methods[0].Value == "*") ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
+                   return (hash, (methods?.Length ?? 0) == 0 ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
                })
             .Concat(tokens.Select(u => (u.Hash.ToString(), new string[] { u.Method })))
             .GroupBy(u => u.Item1, u => u.Item2)
