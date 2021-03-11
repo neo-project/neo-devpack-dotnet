@@ -1,5 +1,7 @@
 #pragma warning disable CS0626
 
+using System.Numerics;
+
 namespace Neo.SmartContract.Framework.Services.Neo
 {
     [Contract("0xfffdc93764dbaddd97c48f252a53ea4643faa3fd")]
@@ -12,5 +14,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern Contract Deploy(ByteString nefFile, string manifest, object data);
         public static extern void Update(ByteString nefFile, string manifest, object data);
         public static extern void Destroy();
+        public static extern BigInteger GetMinimumDeploymentFee();
     }
 }

@@ -9,8 +9,8 @@ namespace Neo.SmartContract.Framework.Services.Neo
     {
         public static extern UInt160 Hash { [ContractHash] get; }
         public static extern BigInteger GetFeePerByte();
+        public static extern BigInteger GetExecFeeFactor();
+        public static extern BigInteger GetStoragePrice();
         public static extern string[] IsBlocked(UInt160 account);
-        public static extern bool BlockAccount(UInt160 account);
-        public static extern bool UnblockAccount(UInt160 account);
     }
 }
