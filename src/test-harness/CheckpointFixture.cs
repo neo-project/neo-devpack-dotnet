@@ -44,7 +44,7 @@ namespace NeoTestHarness
             {
                 Magic = metadata.magic,
                 AddressVersion = metadata.addressVersion,
-            }; 
+            };
             rocksDbStore = RocksDbStore.OpenReadOnly(checkpointTempPath);
         }
 
