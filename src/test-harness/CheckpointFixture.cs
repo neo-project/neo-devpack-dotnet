@@ -1,12 +1,16 @@
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using Neo;
+using Neo.BlockchainToolkit;
+using Neo.BlockchainToolkit.Models;
 using Neo.BlockchainToolkit.Persistence;
 
 namespace NeoTestHarness
 {
     public abstract class CheckpointFixture : IDisposable
     {
+        readonly static Lazy<IFileSystem> defaultFileSystem = new Lazy<IFileSystem>(() => new FileSystem());
         readonly string checkpointTempPath;
         readonly RocksDbStore rocksDbStore;
         public readonly ProtocolSettings ProtocolSettings;
@@ -54,6 +58,9 @@ namespace NeoTestHarness
         {
             return new CheckpointStore(rocksDbStore, false);
         }
+
+        public ExpressChain FindChain(string fileName = Constants.DEFAULT_EXPRESS_FILENAME, IFileSystem? fileSystem = null, string? searchFolder = null)
+            => (fileSystem ?? defaultFileSystem.Value).FindChain(fileName, searchFolder);
     }
 }
 
