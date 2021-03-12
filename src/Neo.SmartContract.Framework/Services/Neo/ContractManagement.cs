@@ -6,6 +6,7 @@ namespace Neo.SmartContract.Framework.Services.Neo
     public class ContractManagement
     {
         public static extern UInt160 Hash { [ContractHash] get; }
+        public static extern long GetMinimumDeploymentFee();
         public static extern Contract GetContract(UInt160 hash);
         public static extern Contract Deploy(ByteString nefFile, string manifest);
         public static extern void Update(ByteString nefFile, string manifest);
