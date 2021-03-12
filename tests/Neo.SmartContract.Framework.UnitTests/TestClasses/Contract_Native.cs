@@ -69,13 +69,13 @@ namespace Neo.Compiler.MSIL.TestClasses
         }
 
         [DisplayName("Policy_GetFeePerByte")]
-        public static BigInteger Policy_GetFeePerByte()
+        public static long Policy_GetFeePerByte()
         {
             return Policy.GetFeePerByte();
         }
 
         [DisplayName("Policy_IsBlocked")]
-        public static object[] Policy_IsBlocked(UInt160 account)
+        public static bool Policy_IsBlocked(UInt160 account)
         {
             return Policy.IsBlocked(account);
         }
