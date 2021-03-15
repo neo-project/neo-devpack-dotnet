@@ -204,23 +204,29 @@ namespace Neo.Compiler
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
                 .FirstOrDefault() ?? module.Name;
 
-            var permissions = string.Join(",", module.attributes
+            var permissionsAttributes = module.attributes
                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute")
                .Select(u =>
                {
                    var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
                    var hash = ScapeJson((string)u.ConstructorArguments[0].Value);
-                   return (hash, (methods?.Length ?? 0) == 0 ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
-               })
-            .Concat(tokens.Select(u => (u.Hash.ToString(), new string[] { u.Method })))
-            .GroupBy(u => u.Item1, u => u.Item2)
-            .Select(u =>
-            {
-                var list = new HashSet<string>();
-                foreach (var kv in u.ToArray()) foreach (var k in kv) list.Add(k);
-                return ContractPermissionToManifest(u.Key, list.ToArray());
-            }));
+                   return (hash, methods: (methods?.Length ?? 0) == 0 ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
+               }).ToArray();
 
+            string permissions = null;
+            if (!permissionsAttributes.Any(u => u.hash == "*" && u.methods.Length == 1 && u.methods[0] == "*"))
+            {
+                permissions = string.Join(",", permissionsAttributes
+                .Concat(tokens.Select(u => (u.Hash.ToString(), new string[] { u.Method })))
+                .GroupBy(u => u.Item1, u => u.Item2)
+                .Select(u =>
+                {
+                    var list = new HashSet<string>();
+                    foreach (var kv in u.ToArray()) foreach (var k in kv) list.Add(k);
+                    return ContractPermissionToManifest(u.Key, list.ToArray());
+                }));
+
+            }
             if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
 
             return
