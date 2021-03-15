@@ -225,7 +225,6 @@ namespace Neo.Compiler
                     foreach (var kv in u.ToArray()) foreach (var k in kv) list.Add(k);
                     return ContractPermissionToManifest(u.Key, list.ToArray());
                 }));
-
             }
             if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
 
