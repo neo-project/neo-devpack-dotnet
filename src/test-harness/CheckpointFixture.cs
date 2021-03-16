@@ -54,7 +54,7 @@ namespace NeoTestHarness
             if (Directory.Exists(checkpointTempPath)) Directory.Delete(checkpointTempPath, true);
         }
 
-        public CheckpointStorageProvider GetCheckpointStore()
+        public IDisposableStorageProvider GetStorageProvider()
         {
             return new CheckpointStorageProvider(rocksProvider);
         }
