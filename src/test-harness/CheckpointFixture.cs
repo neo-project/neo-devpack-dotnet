@@ -12,7 +12,7 @@ namespace NeoTestHarness
     {
         readonly static Lazy<IFileSystem> defaultFileSystem = new Lazy<IFileSystem>(() => new FileSystem());
         readonly string checkpointTempPath;
-        readonly RocksDbStore rocksDbStore;
+        readonly RocksDbStorageProvider rocksProvider;
         public readonly ProtocolSettings ProtocolSettings;
 
         public CheckpointFixture(string checkpointPath)
@@ -39,24 +39,24 @@ namespace NeoTestHarness
             }
             while (Directory.Exists(checkpointTempPath));
 
-            var metadata = RocksDbStore.RestoreCheckpoint(checkpointPath, checkpointTempPath);
+            var metadata = RocksDbStorageProvider.RestoreCheckpoint(checkpointPath, checkpointTempPath);
             this.ProtocolSettings = ProtocolSettings.Default with
             {
                 Magic = metadata.magic,
                 AddressVersion = metadata.addressVersion,
             };
-            rocksDbStore = RocksDbStore.OpenReadOnly(checkpointTempPath);
+            rocksProvider = RocksDbStorageProvider.OpenReadOnly(checkpointTempPath);
         }
 
         public void Dispose()
         {
-            rocksDbStore.Dispose();
+            rocksProvider.Dispose();
             if (Directory.Exists(checkpointTempPath)) Directory.Delete(checkpointTempPath, true);
         }
 
-        public CheckpointStore GetCheckpointStore()
+        public CheckpointStorageProvider GetCheckpointStore()
         {
-            return new CheckpointStore(rocksDbStore, false);
+            return new CheckpointStorageProvider(rocksProvider);
         }
 
         public ExpressChain FindChain(string fileName = Constants.DEFAULT_EXPRESS_FILENAME, IFileSystem? fileSystem = null, string? searchFolder = null)
