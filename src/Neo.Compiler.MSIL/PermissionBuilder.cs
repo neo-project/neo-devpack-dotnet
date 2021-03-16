@@ -49,7 +49,7 @@ namespace Neo.Compiler
         public JArray ToJson()
         {
             JArray permissions = new();
-            if (isWildcard || normalItems.Count == 0)
+            if (isWildcard)
             {
                 permissions.Add(new JObject
                 {
