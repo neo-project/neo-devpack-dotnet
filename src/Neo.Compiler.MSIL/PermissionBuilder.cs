@@ -11,6 +11,11 @@ namespace Neo.Compiler
         private readonly HashSet<string> wildcardMethods = new();
         private bool isWildcard;
 
+        public void Add(string hash, params string[] methods)
+        {
+            foreach (var method in methods) Add(hash, method);
+        }
+
         public void Add(string hash, string method)
         {
             if (isWildcard) return;
@@ -44,7 +49,7 @@ namespace Neo.Compiler
         public JArray ToJson()
         {
             JArray permissions = new();
-            if (isWildcard)
+            if (isWildcard || normalItems.Count == 0)
             {
                 permissions.Add(new JObject
                 {
@@ -78,7 +83,7 @@ namespace Neo.Compiler
 
         public override string ToString()
         {
-            return ToJson().ToString();
+            return ToJson().ToString(false);
         }
     }
 }

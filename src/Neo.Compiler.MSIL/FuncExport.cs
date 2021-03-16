@@ -70,13 +70,13 @@ namespace Neo.Compiler
 
         public static JObject GenerateAbi(NeoModule module, Dictionary<int, int> addrConvTable)
         {
-            var outjson = new JObject();
+            JObject outjson = new();
 
             //functions
-            var methods = new JArray();
+            JArray methods = new();
             outjson["methods"] = methods;
 
-            HashSet<string> names = new HashSet<string>();
+            HashSet<string> names = new();
             foreach (var function in module.mapMethods.OrderBy(u => u.Value.funcaddr))
             {
                 var mm = function.Value;
@@ -89,18 +89,18 @@ namespace Neo.Compiler
                 {
                     throw new Exception("abi not allow same name functions");
                 }
-                var funcsign = new JObject();
+                JObject funcsign = new();
                 methods.Add(funcsign);
                 funcsign["name"] = function.Value.displayName;
                 funcsign["offset"] = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["safe"] = function.Value.method?.method.CustomAttributes.Any(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SafeAttribute") == true;
-                JArray funcparams = new JArray();
+                JArray funcparams = new();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var item = new JObject();
+                        JObject item = new();
                         funcparams.Add(item);
 
                         item["name"] = v.name;
@@ -118,22 +118,22 @@ namespace Neo.Compiler
             }
 
             //events
-            var eventsigns = new JArray();
+            JArray eventsigns = new();
             outjson["events"] = eventsigns;
             foreach (var events in module.mapEvents)
             {
                 var mm = events.Value;
-                var funcsign = new JObject();
+                JObject funcsign = new();
                 eventsigns.Add(funcsign);
 
                 funcsign["name"] = events.Value.displayName;
-                JArray funcparams = new JArray();
+                JArray funcparams = new();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var item = new JObject();
+                        JObject item = new();
                         funcparams.Add(item);
 
                         item["name"] = v.name;
@@ -204,41 +204,21 @@ namespace Neo.Compiler
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
                 .FirstOrDefault() ?? module.Name;
 
-            var permissionsAttributes = module.attributes
+            PermissionBuilder permissions = new();
+            module.attributes
                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute")
-               .Select(u =>
+               .ToList().ForEach(u =>
                {
                    var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
                    var hash = ScapeJson((string)u.ConstructorArguments[0].Value);
-                   return (hash, methods: (methods?.Length ?? 0) == 0 ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
-               }).ToArray();
-
-            string permissions = null;
-            if (!permissionsAttributes.Any(u => u.hash == "*" && u.methods.Length == 1 && u.methods[0] == "*"))
-            {
-                permissions = string.Join(",", permissionsAttributes
-                .Concat(tokens.Select(u => (u.Hash.ToString(), new string[] { u.Method })))
-                .GroupBy(u => u.Item1, u => u.Item2)
-                .Select(u =>
-                {
-                    var list = new HashSet<string>();
-                    foreach (var kv in u.ToArray()) foreach (var k in kv) list.Add(k);
-                    return ContractPermissionToManifest(u.Key, list.ToArray());
-                }));
-            }
-            if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
+                   permissions.Add(hash, (methods?.Length ?? 0) == 0 ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
+               });
+            tokens.ToList().ForEach(u => permissions.Add(u.Hash.ToString(), new string[] { u.Method }));
 
             return
                 @"{""groups"":[],""abi"":" + sbABI +
-                @",""permissions"":[" + permissions + @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
-        }
-
-        private static string ContractPermissionToManifest(string hash, string[] methods)
-        {
-            var jsonMethods = ((methods?.Length ?? 0) == 0 || methods[0] == "*") ?
-                "\"*\"" : $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson(u) + "\""))}]";
-
-            return $"{{\"contract\":\"{ScapeJson(hash)}\",\"methods\":{jsonMethods}}}";
+                @",""permissions"":[" + permissions.ToString() +
+                @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }
