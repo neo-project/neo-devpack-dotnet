@@ -217,8 +217,8 @@ namespace Neo.Compiler
 
             return
                 @"{""groups"":[],""abi"":" + sbABI +
-                @",""permissions"":[" + permissions.ToString() +
-                @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
+                @",""permissions"":" + permissions.ToString() +
+                @",""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }
