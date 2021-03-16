@@ -140,7 +140,7 @@ namespace NeoTestHarness
             }
         }
 
-        public static DataCache GetSnapshot(this CheckpointFixture fixture, string? storeName = null)
+        public static SnapshotCache GetSnapshot(this CheckpointFixture fixture, string? storeName = null)
         {
             var provider = fixture.GetStorageProvider();
             var store = provider.GetStore(storeName);
