@@ -139,5 +139,12 @@ namespace NeoTestHarness
                 return attrib?.Name ?? type.FullName ?? throw new Exception("reflection - FullName returned null");
             }
         }
+
+        public static DataCache GetSnapshot(this CheckpointFixture fixture, string? storeName = null)
+        {
+            var provider = fixture.GetStorageProvider();
+            var store = provider.GetStore(storeName);
+            return new SnapshotCache(store);
+        }
     }
 }
