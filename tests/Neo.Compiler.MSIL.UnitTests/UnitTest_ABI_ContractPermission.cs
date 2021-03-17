@@ -13,7 +13,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             var buildScript = NeonTestTool.BuildScript("./TestClasses/Contract_ABIContractPermission.cs", true, false);
             var manifest = JObject.Parse(buildScript.finalManifest);
             var permissions = manifest["permissions"].ToString(false);
-            Assert.AreEqual(@"[{""contract"":""*"",""methods"":[""c""]},{""contract"":""0x01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4"",""methods"":[""a"",""b""]}]", permissions);
+            Assert.AreEqual(@"[{""contract"":""0x01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4"",""methods"":[""a"",""b""]},{""contract"":""*"",""methods"":[""c""]}]", permissions);
         }
     }
 }
