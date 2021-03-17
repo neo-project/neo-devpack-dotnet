@@ -12,17 +12,17 @@ namespace Neo.Compiler
         public string Name;
 
         public ConvOption option;
-        public List<CustomAttribute> attributes = new List<CustomAttribute>();
-        public Dictionary<string, NeoMethod> mapMethods = new Dictionary<string, NeoMethod>();
-        public Dictionary<string, NeoEvent> mapEvents = new Dictionary<string, NeoEvent>();
-        public Dictionary<string, NeoField> mapFields = new Dictionary<string, NeoField>();
-        public Dictionary<string, object> staticfieldsWithConstValue = new Dictionary<string, object>();
-        public List<ILMethod> staticfieldsCctor = new List<ILMethod>();
-        public SortedDictionary<int, NeoCode> totalCodes = new SortedDictionary<int, NeoCode>();
+        public List<CustomAttribute> attributes = new();
+        public Dictionary<string, NeoMethod> mapMethods = new();
+        public Dictionary<string, NeoEvent> mapEvents = new();
+        public Dictionary<string, NeoField> mapFields = new();
+        public Dictionary<string, object> staticfieldsWithConstValue = new();
+        public List<ILMethod> staticfieldsCctor = new();
+        public SortedDictionary<int, NeoCode> totalCodes = new();
 
         public byte[] Build()
         {
-            List<byte> bytes = new List<byte>();
+            List<byte> bytes = new();
             foreach (var c in this.totalCodes.Values)
             {
                 bytes.Add((byte)c.code);
@@ -37,11 +37,11 @@ namespace Neo.Compiler
 
         public string GenJson()
         {
-            JObject json = new JObject();
+            JObject json = new();
             json["__name__"] = "neomodule.";
 
             //code
-            var jsoncode = new JArray();
+            JArray jsoncode = new();
             json["code"] = jsoncode;
             foreach (var c in this.totalCodes.Values)
             {
@@ -57,7 +57,7 @@ namespace Neo.Compiler
             json["codebin"] = codestr;
 
             //calls
-            JObject methodinfo = new JObject();
+            JObject methodinfo = new();
             json["call"] = methodinfo;
             foreach (var m in this.mapMethods)
             {
@@ -78,28 +78,28 @@ namespace Neo.Compiler
         public string _namespace;
         public string name;
         public string displayName;
-        public List<NeoParam> paramtypes = new List<NeoParam>();
+        public List<NeoParam> paramtypes = new();
         public TypeReference returntype;
         public bool isPublic = true;
         public bool inSmartContract;
         public ILMethod method;
         public ILType type;
 
-        public List<NeoParam> body_Variables = new List<NeoParam>(); // Temporary variable
-        public SortedDictionary<int, NeoCode> body_Codes = new SortedDictionary<int, NeoCode>(); // Temporary records and will be merged later
+        public List<NeoParam> body_Variables = new(); // Temporary variable
+        public SortedDictionary<int, NeoCode> body_Codes = new(); // Temporary records and will be merged later
         public int funcaddr;
 
         public JObject GenJson()
         {
-            JObject json = new JObject();
+            JObject json = new();
             json["name"] = this.name;
             json["returntype"] = FuncExport.ConvType(this.returntype);
             json["paramcount"] = this.paramtypes.Count;
-            JArray jsonparams = new JArray();
+            JArray jsonparams = new();
             json["params"] = jsonparams;
             for (var i = 0; i < this.paramtypes.Count; i++)
             {
-                JObject item = new JObject();
+                JObject item = new();
                 item["name"] = this.paramtypes[i].name;
                 item["type"] = FuncExport.ConvType(this.paramtypes[i].type);
                 jsonparams.Add(item);

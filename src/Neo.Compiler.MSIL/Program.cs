@@ -207,14 +207,15 @@ namespace Neo.Compiler
             }
 
             // Write bytes
+            NefFile nef;
 
             try
             {
                 string bytesname = onlyname + ".nef";
-                var nef = new NefFile
+                nef = new NefFile
                 {
                     Compiler = "neon-" + Version.Parse(((AssemblyFileVersionAttribute)Assembly.GetAssembly(typeof(Program))
-                        .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
+                       .GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(),
                     Tokens = conv.methodTokens.ToArray(),
                     Script = bytes
                 };
@@ -277,7 +278,7 @@ namespace Neo.Compiler
             try
             {
                 string manifest = onlyname + ".manifest.json";
-                var defManifest = FuncExport.GenerateManifest(abi, module);
+                var defManifest = FuncExport.GenerateManifest(abi, module, nef.Tokens);
 
                 File.Delete(manifest);
                 File.WriteAllText(manifest, defManifest);
