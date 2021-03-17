@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestStringAdd()
+         public void TestStringAdd()
         {
             var result = _engine.ExecuteTestCaseStandard("isZeroUInt256", UInt256.Zero.ToArray());
             Assert.IsTrue(result.Pop().GetBoolean());

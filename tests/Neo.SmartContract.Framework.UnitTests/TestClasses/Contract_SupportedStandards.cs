@@ -6,9 +6,9 @@ namespace Neo.Compiler.MSIL.TestClasses
     [SupportedStandards("NEP10","NEP5")]
     public class Contract_SupportedStandards : SmartContract.Framework.SmartContract
     {
-        public static bool AccountIsStandard(UInt160 scripthash)
+        public static bool TestStandard()
         {
-            return Account.IsStandard(scripthash);
+            return true;
         }
     }
 }
