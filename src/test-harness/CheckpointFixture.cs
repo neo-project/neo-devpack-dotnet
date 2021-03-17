@@ -54,7 +54,7 @@ namespace NeoTestHarness
             if (Directory.Exists(checkpointTempPath)) Directory.Delete(checkpointTempPath, true);
         }
 
-        public CheckpointStorageProvider GetStorageProvider() 
+        public CheckpointStorageProvider GetStorageProvider()
             => new CheckpointStorageProvider(rocksProvider, disposeRocksDbProvider: false);
 
         public ExpressChain FindChain(string fileName = Constants.DEFAULT_EXPRESS_FILENAME, IFileSystem? fileSystem = null, string? searchFolder = null)
