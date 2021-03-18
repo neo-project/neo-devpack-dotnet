@@ -1,4 +1,5 @@
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
@@ -8,23 +9,23 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static uint GetHeight()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Ledger.CurrentIndex;
+            return Ledger.CurrentIndex;
         }
 
         public static BigInteger GetTransactionHeight(UInt256 hash)
         {
-            return Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransactionHeight(hash);
+            return Ledger.GetTransactionHeight(hash);
         }
 
         public static object GetBlockByHash(UInt256 hash, string whatReturn)
         {
-            var block = Neo.SmartContract.Framework.Services.Neo.Ledger.GetBlock(hash);
+            var block = Ledger.GetBlock(hash);
             return GetBlockInfo(block, whatReturn);
         }
 
         public static object GetBlockByIndex(uint index, string whatReturn)
         {
-            var block = Neo.SmartContract.Framework.Services.Neo.Ledger.GetBlock(index);
+            var block = Ledger.GetBlock(index);
             return GetBlockInfo(block, whatReturn);
         }
 
@@ -50,19 +51,19 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static object GetTxByHash(UInt256 hash, string whatReturn)
         {
-            var tx = Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransaction(hash);
+            var tx = Ledger.GetTransaction(hash);
             return GetTxInfo(tx, whatReturn);
         }
 
         public static object GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
         {
-            var tx = Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransactionFromBlock(blockHash, txIndex);
+            var tx = Ledger.GetTransactionFromBlock(blockHash, txIndex);
             return GetTxInfo(tx, whatReturn);
         }
 
         public static object GetTxByBlockIndex(uint blockIndex, int txIndex, string whatReturn)
         {
-            var tx = Neo.SmartContract.Framework.Services.Neo.Ledger.GetTransactionFromBlock(blockIndex, txIndex);
+            var tx = Ledger.GetTransactionFromBlock(blockIndex, txIndex);
             return GetTxInfo(tx, whatReturn);
         }
 

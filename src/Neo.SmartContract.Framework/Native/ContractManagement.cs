@@ -1,6 +1,8 @@
 #pragma warning disable CS0626
 
-namespace Neo.SmartContract.Framework.Services.Neo
+using Neo.SmartContract.Framework.Services;
+
+namespace Neo.SmartContract.Framework.Native
 {
     [Contract("0xfffdc93764dbaddd97c48f252a53ea4643faa3fd")]
     public class ContractManagement

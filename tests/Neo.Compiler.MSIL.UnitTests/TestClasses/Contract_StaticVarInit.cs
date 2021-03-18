@@ -1,11 +1,11 @@
-using Neo.SmartContract.Framework.Services.System;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
     class Contract_staticvar : SmartContract.Framework.SmartContract
     {
         //define and staticvar and initit with a runtime code.
-        static byte[] callscript = (byte[])ExecutionEngine.EntryScriptHash;
+        static byte[] callscript = (byte[])Runtime.EntryScriptHash;
 
         public static object StaticInit()
         {
@@ -14,7 +14,7 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static object DirectGet()
         {
-            return ExecutionEngine.EntryScriptHash;
+            return Runtime.EntryScriptHash;
         }
 
         static byte[] TestStaticInit()

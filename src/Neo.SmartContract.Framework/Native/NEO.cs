@@ -1,9 +1,9 @@
 #pragma warning disable CS0626
 
-using System.Numerics;
 using Neo.Cryptography.ECC;
+using System.Numerics;
 
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Native
 {
     [Contract("0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")]
     public class NEO

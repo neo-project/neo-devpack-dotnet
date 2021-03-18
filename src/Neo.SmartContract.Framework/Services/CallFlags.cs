@@ -1,6 +1,6 @@
 using System;
 
-namespace Neo.SmartContract
+namespace Neo.SmartContract.Framework.Services
 {
     [Flags]
     public enum CallFlags : byte

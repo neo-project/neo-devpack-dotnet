@@ -1,6 +1,6 @@
 using System;
 
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Services
 {
     [Flags]
     public enum FindOptions : byte
