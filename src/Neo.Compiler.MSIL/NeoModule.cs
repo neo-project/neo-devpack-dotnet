@@ -116,14 +116,9 @@ namespace Neo.Compiler
 
             _namespace = method.method.DeclaringType.FullName;
             name = method.method.FullName;
-            displayName = method.method.Name[..1].ToLowerInvariant() + method.method.Name[1..];
+            displayName = GetDisplayName(method.method);
             inSmartContract = method.method.DeclaringType.BaseType.FullName == "Neo.SmartContract.Framework.SmartContract";
             isPublic = method.method.IsPublic;
-
-            foreach (var attr in method.method.CustomAttributes)
-            {
-                ProcessAttribute(attr);
-            }
 
             // Ensure method definition
 
@@ -150,16 +145,14 @@ namespace Neo.Compiler
             }
         }
 
-        private void ProcessAttribute(CustomAttribute attr)
+        private static string GetDisplayName(MethodDefinition method)
         {
-            switch (attr.AttributeType.Name)
-            {
-                case nameof(DisplayNameAttribute):
-                    {
-                        displayName = (string)attr.ConstructorArguments[0].Value;
-                        break;
-                    }
-            }
+            foreach (var attr in method.CustomAttributes)
+                if (attr.AttributeType.Name == nameof(DisplayNameAttribute))
+                    return (string)attr.ConstructorArguments[0].Value;
+            string name = method.Name;
+            if (method.IsGetter) name = name[4..];
+            return name[..1].ToLowerInvariant() + name[1..];
         }
     }
 
