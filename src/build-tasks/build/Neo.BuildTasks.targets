@@ -38,7 +38,7 @@
     <NeoContractInterface
       ManifestFile="@(ContractManifest)"
       OutputFile="@(ContractManifest->Metadata('OutputFile'))"
-      RootNamespace="DevHawk.RegistrarTests"/>
+      RootNamespace="@(ContractManifest->Metadata('RootNamespace'))"/>
 
     <ItemGroup>
       <Compile Include="@(ContractManifest->Metadata('OutputFile'))" />
