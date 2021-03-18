@@ -2,10 +2,10 @@ namespace Neo.SmartContract.Framework.Services.Neo
 {
     public static class Crypto
     {
-        [Syscall("Neo.Crypto.CheckSig")]
+        [Syscall("System.Crypto.CheckSig")]
         public extern static bool CheckSig(Cryptography.ECC.ECPoint pubkey, ByteString signature);
 
-        [Syscall("Neo.Crypto.CheckMultisig")]
+        [Syscall("System.Crypto.CheckMultisig")]
         public extern static bool CheckMultisig(Cryptography.ECC.ECPoint[] pubkey, ByteString[] signature);
 
         public static ByteString Hash160(ByteString value)
