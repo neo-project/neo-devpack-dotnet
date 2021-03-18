@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+    - name: Install nbgv
+      run: dotnet tool install nbgv --tool-path ./tools --version 3.3.37
+    - name: Run nbgv
+      run: echo "NUGET_PACKAGE_VERSION=$(./tools/nbgv get-version -v NuGetPackageVersion)" >> $GITHUB_ENV
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Pack 
+      run: dotnet pack --output ./out --configuration Release --no-restore --verbosity normal
+    - name: Create Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: ${{ contains(env.NUGET_PACKAGE_VERSION, '-preview') }}
+        title: Release ${{ env.NUGET_PACKAGE_VERSION }}
+        automatic_release_tag: ${{ env.NUGET_PACKAGE_VERSION }}
+        files: |
+          ./out/*
