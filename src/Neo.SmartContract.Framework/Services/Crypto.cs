@@ -1,4 +1,4 @@
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Services
 {
     public static class Crypto
     {
@@ -7,15 +7,5 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Crypto.CheckMultisig")]
         public extern static bool CheckMultisig(Cryptography.ECC.ECPoint[] pubkey, ByteString[] signature);
-
-        public static ByteString Hash160(ByteString value)
-        {
-            return CryptoLib.ripemd160(CryptoLib.Sha256(value));
-        }
-
-        public static ByteString Hash256(ByteString value)
-        {
-            return CryptoLib.Sha256(CryptoLib.Sha256(value));
-        }
     }
 }

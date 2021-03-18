@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Services
 {
     public static class Helper
     {

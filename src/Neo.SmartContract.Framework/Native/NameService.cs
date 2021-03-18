@@ -1,8 +1,9 @@
 #pragma warning disable CS0626
 
+using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Native
 {
     [Contract("0x7a8fcf0392cd625647907afa8e45cc66872b596b")]
     public class NameService

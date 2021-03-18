@@ -2,7 +2,7 @@
 
 using System.Numerics;
 
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Native
 {
     [Contract("0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0")]
     public static class StdLib
