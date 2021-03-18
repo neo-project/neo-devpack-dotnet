@@ -1,4 +1,4 @@
-using Neo.SmartContract.Framework.Services.System;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.MSIL.TestClasses
 {
@@ -6,22 +6,22 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static byte[] CallingScriptHash()
         {
-            return (byte[])ExecutionEngine.CallingScriptHash;
+            return (byte[])Runtime.CallingScriptHash;
         }
 
         public static byte[] EntryScriptHash()
         {
-            return (byte[])ExecutionEngine.EntryScriptHash;
+            return (byte[])Runtime.EntryScriptHash;
         }
 
         public static byte[] ExecutingScriptHash()
         {
-            return (byte[])ExecutionEngine.ExecutingScriptHash;
+            return (byte[])Runtime.ExecutingScriptHash;
         }
 
         public static object ScriptContainer()
         {
-            return ExecutionEngine.ScriptContainer;
+            return Runtime.ScriptContainer;
         }
     }
 }
