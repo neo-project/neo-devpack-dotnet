@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Native;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
@@ -30,24 +30,24 @@ namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 
         public static UInt160 NEOHash()
         {
-            return Neo.SmartContract.Framework.Services.Neo.NEO.Hash;
+            return NEO.Hash;
         }
 
 
         public static UInt160 LedgerHash()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Ledger.Hash;
+            return Ledger.Hash;
         }
 
 
         public static UInt256 LedgerCurrentHash()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Ledger.CurrentHash;
+            return Ledger.CurrentHash;
         }
 
         public static uint LedgerCurrentIndex()
         {
-            return Neo.SmartContract.Framework.Services.Neo.Ledger.CurrentIndex;
+            return Ledger.CurrentIndex;
         }
 
     }

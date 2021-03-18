@@ -1,5 +1,5 @@
 Imports Neo.SmartContract.Framework
-Imports Neo.SmartContract.Framework.Services.Neo
+Imports Neo.SmartContract.Framework.Services
 Imports System
 Imports System.Numerics
 

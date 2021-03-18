@@ -1,6 +1,6 @@
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Native;
 using System.ComponentModel;
 
 namespace Neo.Compiler.MSIL.TestClasses
@@ -21,12 +21,12 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static byte[] Hash160(byte[] value)
         {
-            return (byte[])Crypto.Hash160((ByteString)value);
+            return (byte[])Hash160((ByteString)value);
         }
 
         public static byte[] Hash256(byte[] value)
         {
-            return (byte[])Crypto.Hash256((ByteString)value);
+            return (byte[])Hash256((ByteString)value);
         }
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)

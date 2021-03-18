@@ -2,7 +2,7 @@
 
 using System.Numerics;
 
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Native
 {
     [Contract("0xd2a4cff31913016155e38e474a2c06d08be276cf")]
     public class GAS

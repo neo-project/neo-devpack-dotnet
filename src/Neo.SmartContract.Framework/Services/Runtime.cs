@@ -1,4 +1,4 @@
-namespace Neo.SmartContract.Framework.Services.Neo
+namespace Neo.SmartContract.Framework.Services
 {
     public static class Runtime
     {
@@ -11,6 +11,30 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern string Platform
         {
             [Syscall("System.Runtime.Platform")]
+            get;
+        }
+
+        public static extern object ScriptContainer
+        {
+            [Syscall("System.Runtime.GetScriptContainer")]
+            get;
+        }
+
+        public static extern UInt160 ExecutingScriptHash
+        {
+            [Syscall("System.Runtime.GetExecutingScriptHash")]
+            get;
+        }
+
+        public static extern UInt160 CallingScriptHash
+        {
+            [Syscall("System.Runtime.GetCallingScriptHash")]
+            get;
+        }
+
+        public static extern UInt160 EntryScriptHash
+        {
+            [Syscall("System.Runtime.GetEntryScriptHash")]
             get;
         }
 
