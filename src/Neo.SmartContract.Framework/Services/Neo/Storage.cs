@@ -65,30 +65,6 @@ namespace Neo.SmartContract.Framework.Services.Neo
         public static extern void Put(StorageContext context, byte[] key, BigInteger value);
 
         /// <summary>
-        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
-        /// </summary>
-        [Syscall("System.Storage.PutEx")]
-        public static extern void Put(StorageContext context, ByteString key, ByteString value, StorageFlags flags);
-
-        /// <summary>
-        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
-        /// </summary>
-        [Syscall("System.Storage.PutEx")]
-        public static extern void Put(StorageContext context, byte[] key, byte[] value, StorageFlags flags);
-
-        /// <summary>
-        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
-        /// </summary>
-        [Syscall("System.Storage.PutEx")]
-        public static extern void Put(StorageContext context, ByteString key, BigInteger value, StorageFlags flags);
-
-        /// <summary>
-        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
-        /// </summary>
-        [Syscall("System.Storage.PutEx")]
-        public static extern void Put(StorageContext context, byte[] key, BigInteger value, StorageFlags flags);
-
-        /// <summary>
         /// Deletes the entry from the given Storage context (faster: generates opcode directly)
         /// </summary>
         [Syscall("System.Storage.Delete")]

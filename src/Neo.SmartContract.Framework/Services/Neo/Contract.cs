@@ -35,5 +35,8 @@ namespace Neo.SmartContract.Framework.Services.Neo
 
         [Syscall("System.Contract.CreateStandardAccount")]
         public static extern UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);
+
+        [Syscall("System.Contract.CreateMultisigAccount")]
+        public static extern UInt160 CreateMultisigAccount(int m, params Cryptography.ECC.ECPoint[] pubKey);
     }
 }

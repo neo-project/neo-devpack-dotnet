@@ -9,6 +9,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.IO;
+using Neo.Ledger;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -45,18 +46,22 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             _engine = new TestEngine(TriggerType.Application, new DummyVerificable(), persistingBlock: new Block()
             {
-                Index = 123,
-                Timestamp = 1234,
-                ConsensusData = new ConsensusData(),
-                Transactions = System.Array.Empty<Transaction>(),
-                Witness = new Witness()
+                Header = new Header()
                 {
-                    InvocationScript = System.Array.Empty<byte>(),
-                    VerificationScript = System.Array.Empty<byte>()
+                    Index = 123,
+                    Timestamp = 1234,
+                    Witness = new Witness()
+                    {
+                        InvocationScript = System.Array.Empty<byte>(),
+                        VerificationScript = System.Array.Empty<byte>()
+                    },
+                    NextConsensus = UInt160.Zero,
+                    MerkleRoot = UInt256.Zero,
+                    PrevHash = UInt256.Zero
                 },
-                NextConsensus = UInt160.Zero,
-                MerkleRoot = UInt256.Zero,
-                PrevHash = UInt256.Zero
+
+                Transactions = System.Array.Empty<Transaction>(),
+
             });
             _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
         }

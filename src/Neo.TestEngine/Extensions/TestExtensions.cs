@@ -13,9 +13,10 @@ namespace Neo.TestingEngine
 
         public static void ContractAdd(this DataCache snapshot, ContractState contract)
         {
-            var key = new KeyBuilder(NativeContract.ContractManagement.Id, 8).Add(contract.Hash);
+            var key = new KeyBuilder(-1, 8).Add(contract.Hash);
             snapshot.Add(key, new StorageItem(contract));
         }
+
         public static bool ContainsContract(this DataCache snapshot, UInt160 hash)
         {
             return NativeContract.ContractManagement.GetContract(snapshot, hash) != null;
@@ -33,7 +34,7 @@ namespace Neo.TestingEngine
 
         public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
         {
-            persistingBlock ??= Blockchain.GenesisBlock;
+            persistingBlock ??= new NeoSystem(ProtocolSettings.Default).GenesisBlock;
             var method = typeof(ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             method.Invoke(NativeContract.ContractManagement, new object[] { engine });

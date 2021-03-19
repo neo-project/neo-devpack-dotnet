@@ -5,7 +5,6 @@ using Neo.TestingEngine;
 using Neo.VM.Types;
 using System;
 using System.Linq;
-using Blockchain = Neo.Ledger.Blockchain;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -24,9 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                 testengine.Snapshot.GetChangeSet()
                 .Count(a =>
                     a.Key.Key.SequenceEqual(Concat(prefix, key)) &&
-                    a.Item.Value.SequenceEqual(value) &&
-                    !a.Item.IsConstant
-                    ));
+                    a.Item.Value.SequenceEqual(value)));
         }
 
         private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
@@ -59,8 +56,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot();
+            var system = TestBlockchain.TheNeoSystem;
+            var snapshot = system.GetSnapshot();
 
             testengine = new TestEngine(snapshot: snapshot.CreateSnapshot());
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");

@@ -2,7 +2,6 @@ extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
-using Neo.Ledger;
 using Neo.VM;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
@@ -15,8 +14,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestInitialize]
         public void Init()
         {
-            var _ = TestBlockchain.TheNeoSystem;
-            var snapshot = Blockchain.Singleton.GetSnapshot().CreateSnapshot();
+            var system = TestBlockchain.TheNeoSystem;
+            var snapshot = system.GetSnapshot().CreateSnapshot();
 
             _engine = new TestEngine(snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_StaticStorageMap.cs");

@@ -10,7 +10,7 @@ namespace Neo.TestingEngine
         private UInt160 scriptHash;
         private KeyPair key = null;
 
-        public TestAccount(UInt160 scriptHash, byte[] privKey = null) : base(scriptHash)
+        public TestAccount(UInt160 scriptHash, byte[] privKey = null) : base(scriptHash, ProtocolSettings.Default)
         {
             if (privKey != null)
             {

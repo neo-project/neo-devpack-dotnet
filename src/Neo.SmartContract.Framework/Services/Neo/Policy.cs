@@ -1,19 +1,14 @@
 #pragma warning disable CS0626
 
-using System.Numerics;
-
 namespace Neo.SmartContract.Framework.Services.Neo
 {
-    [Contract("0x79bcd398505eb779df6e67e4be6c14cded08e2f2")]
+    [Contract("0xcc5e4edd9f5f8dba8bb65734541df7a1c081c67b")]
     public class Policy
     {
         public static extern UInt160 Hash { [ContractHash] get; }
-        public static extern uint GetMaxTransactionsPerBlock();
-        public static extern uint GetMaxBlockSize();
-        public static extern long GetMaxBlockSystemFee();
-        public static extern BigInteger GetFeePerByte();
-        public static extern string[] IsBlocked(UInt160 account);
-        public static extern bool BlockAccount(UInt160 account);
-        public static extern bool UnblockAccount(UInt160 account);
+        public static extern long GetFeePerByte();
+        public static extern uint GetExecFeeFactor();
+        public static extern uint GetStoragePrice();
+        public static extern bool IsBlocked(UInt160 account);
     }
 }

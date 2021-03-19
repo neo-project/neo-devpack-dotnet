@@ -6,12 +6,12 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static string Serialize(object obj)
         {
-            return Json.Serialize(obj);
+            return StdLib.JsonSerialize(obj);
         }
 
         public static object Deserialize(string json)
         {
-            return Json.Deserialize(json);
+            return StdLib.JsonDeserialize(json);
         }
     }
 }

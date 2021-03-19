@@ -2,6 +2,7 @@ extern alias scfx;
 
 using Mono.Cecil;
 using Neo.IO.Json;
+using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,9 @@ namespace Neo.Compiler
             var type = t.FullName;
 
             TypeDefinition definition = t.Resolve();
-            if (definition != null)
+            if (definition is not null)
+            {
+                if (definition.IsEnum) return "Integer";
                 foreach (var i in definition.Interfaces)
                 {
                     if (i.InterfaceType.Name == nameof(IApiInterface))
@@ -29,6 +32,7 @@ namespace Neo.Compiler
                         return "InteropInterface";
                     }
                 }
+            }
 
             switch (type)
             {
@@ -66,13 +70,13 @@ namespace Neo.Compiler
 
         public static JObject GenerateAbi(NeoModule module, Dictionary<int, int> addrConvTable)
         {
-            var outjson = new JObject();
+            JObject outjson = new();
 
             //functions
-            var methods = new JArray();
+            JArray methods = new();
             outjson["methods"] = methods;
 
-            HashSet<string> names = new HashSet<string>();
+            HashSet<string> names = new();
             foreach (var function in module.mapMethods.OrderBy(u => u.Value.funcaddr))
             {
                 var mm = function.Value;
@@ -85,19 +89,18 @@ namespace Neo.Compiler
                 {
                     throw new Exception("abi not allow same name functions");
                 }
-                var funcsign = new JObject();
+                JObject funcsign = new();
                 methods.Add(funcsign);
                 funcsign["name"] = function.Value.displayName;
-                var offset = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
-                funcsign["offset"] = offset.ToString();
+                funcsign["offset"] = addrConvTable?[function.Value.funcaddr] ?? function.Value.funcaddr;
                 funcsign["safe"] = function.Value.method?.method.CustomAttributes.Any(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.SafeAttribute") == true;
-                JArray funcparams = new JArray();
+                JArray funcparams = new();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var item = new JObject();
+                        JObject item = new();
                         funcparams.Add(item);
 
                         item["name"] = v.name;
@@ -115,22 +118,22 @@ namespace Neo.Compiler
             }
 
             //events
-            var eventsigns = new JArray();
+            JArray eventsigns = new();
             outjson["events"] = eventsigns;
             foreach (var events in module.mapEvents)
             {
                 var mm = events.Value;
-                var funcsign = new JObject();
+                JObject funcsign = new();
                 eventsigns.Add(funcsign);
 
                 funcsign["name"] = events.Value.displayName;
-                JArray funcparams = new JArray();
+                JArray funcparams = new();
                 funcsign["parameters"] = funcparams;
                 if (mm.paramtypes != null)
                 {
                     foreach (var v in mm.paramtypes)
                     {
-                        var item = new JObject();
+                        JObject item = new();
                         funcparams.Add(item);
 
                         item["name"] = v.name;
@@ -189,7 +192,7 @@ namespace Neo.Compiler
             return value.Replace("\"", "");
         }
 
-        public static string GenerateManifest(JObject abi, NeoModule module)
+        public static string GenerateManifest(JObject abi, NeoModule module, MethodToken[] tokens)
         {
             var sbABI = abi.ToString(false);
             var extraAttributes = module == null ? Array.Empty<Mono.Collections.Generic.Collection<CustomAttributeArgument>>() : module.attributes.Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ManifestExtraAttribute").Select(attribute => attribute.ConstructorArguments).ToArray();
@@ -200,27 +203,22 @@ namespace Neo.Compiler
                 .Where(u => u.AttributeType.FullName == "System.ComponentModel.DisplayNameAttribute")
                 .Select(u => ScapeJson((string)u.ConstructorArguments.FirstOrDefault().Value))
                 .FirstOrDefault() ?? module.Name;
-            var permissions =
-                string.Join(',',
-                module.attributes
+
+            PermissionBuilder permissions = new();
+            module.attributes
                .Where(u => u.AttributeType.FullName == "Neo.SmartContract.Framework.ContractPermissionAttribute")
-               .Select(u => ContractPermissionToManifest(u))
-               .ToList());
-            if (string.IsNullOrEmpty(permissions)) permissions = @"{""contract"":""*"",""methods"":""*""}";
+               .ToList().ForEach(u =>
+               {
+                   var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
+                   var hash = ScapeJson((string)u.ConstructorArguments[0].Value);
+                   permissions.Add(hash, (methods?.Length ?? 0) == 0 ? new string[] { "*" } : methods.Select(u => (string)u.Value).ToArray());
+               });
+            tokens.ToList().ForEach(u => permissions.Add(u.Hash.ToString(), new string[] { u.Method }));
 
             return
                 @"{""groups"":[],""abi"":" + sbABI +
-                @",""permissions"":[" + permissions + @"],""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
-        }
-
-        private static string ContractPermissionToManifest(CustomAttribute u)
-        {
-            var methods = (CustomAttributeArgument[])u.ConstructorArguments[1].Value;
-            var jsonMethods = ((methods?.Length ?? 0) == 0 || (string)methods[0].Value == "*") ?
-                "\"*\"" : $"[{string.Join(',', methods.Select(u => "\"" + ScapeJson((string)u.Value) + "\""))}]";
-
-            var value = ScapeJson((string)u.ConstructorArguments[0].Value);
-            return $"{{\"contract\":\"{value}\",\"methods\":{jsonMethods}}}";
+                @",""permissions"":" + permissions.ToString() +
+                @",""trusts"":[],""name"":""" + name + @""",""supportedstandards"":" + supportedStandards + @",""extra"":" + extra + "}";
         }
     }
 }

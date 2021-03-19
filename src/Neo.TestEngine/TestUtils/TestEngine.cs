@@ -23,7 +23,7 @@ namespace Neo.TestingEngine
         public BuildScript ScriptEntry { get; private set; }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
-            : base(trigger, verificable, snapshot, persistingBlock, TestGas)
+            : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas)
         {
             Scripts = new Dictionary<string, BuildScript>();
         }

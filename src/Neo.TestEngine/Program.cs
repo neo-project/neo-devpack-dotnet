@@ -270,7 +270,7 @@ namespace Neo.TestingEngine
                 StorageItem storageItem = null;
                 if (value != StackItem.Null)
                 {
-                    storageItem = new StorageItem(value.GetSpan().ToArray(), jsonValue["isconstant"].AsBoolean());
+                    storageItem = new StorageItem(value.GetSpan().ToArray());
                 }
                 items[storageKey] = storageItem;
             }
@@ -349,8 +349,11 @@ namespace Neo.TestingEngine
             var transactions = blockJson["transactions"] as JArray;
             return new Block()
             {
-                Index = uint.Parse(blockJson["index"].AsString()),
-                Timestamp = ulong.Parse(blockJson["timestamp"].AsString()),
+                Header = new Header()
+                {
+                    Index = uint.Parse(blockJson["index"].AsString()),
+                    Timestamp = ulong.Parse(blockJson["timestamp"].AsString())
+                },
                 Transactions = transactions.Select(b => TxFromJson(b)).ToArray()
             };
         }

@@ -10,7 +10,7 @@ namespace Neo.TestingEngine
     {
         private Dictionary<UInt160, WalletAccount> accounts;
 
-        public TestWallet(UInt160 scriptHash) : base("", "TestWallet")
+        public TestWallet(UInt160 scriptHash) : base("", ProtocolSettings.Default, "TestWallet")
         {
             this.accounts = new Dictionary<UInt160, WalletAccount>()
             {

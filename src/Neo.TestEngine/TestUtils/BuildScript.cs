@@ -109,7 +109,7 @@ namespace Neo.TestingEngine
 
             try
             {
-                finalManifest = FuncExport.GenerateManifest(finalABI, converterIL.outModule);
+                finalManifest = FuncExport.GenerateManifest(finalABI, converterIL.outModule, converterIL.methodTokens.ToArray());
             }
             catch (Exception err)
             {

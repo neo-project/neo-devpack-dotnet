@@ -32,7 +32,7 @@ namespace TestEngine.UnitTests
         [TestMethod]
         public void Test_Check_Witness()
         {
-            var scripthash = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+            var scripthash = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
             var param = new ContractParameter(ContractParameterType.Hash160)
             {
                 Value = scripthash.ToString().Substring(2)
@@ -70,7 +70,7 @@ namespace TestEngine.UnitTests
         [TestMethod]
         public void Test_Check_Witness_With_Sign()
         {
-            var scripthash = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+            var scripthash = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
             var param = new ContractParameter(ContractParameterType.Hash160)
             {
                 Value = scripthash.ToString().Substring(2)

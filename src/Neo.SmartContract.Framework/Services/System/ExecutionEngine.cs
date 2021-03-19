@@ -2,7 +2,7 @@ namespace Neo.SmartContract.Framework.Services.System
 {
     public static class ExecutionEngine
     {
-        public static extern IScriptContainer ScriptContainer
+        public static extern object ScriptContainer
         {
             [Syscall("System.Runtime.GetScriptContainer")]
             get;

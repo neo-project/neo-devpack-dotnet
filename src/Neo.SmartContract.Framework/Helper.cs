@@ -198,10 +198,12 @@ namespace Neo.SmartContract.Framework
         [NonemitWithConvert(ConvertMethod.ToScriptHash)]
         public extern static UInt160 ToScriptHash(this string address);
 
-        [Syscall("System.Binary.Serialize")]
-        public extern static byte[] Serialize(this object source);
-
-        [Syscall("System.Binary.Deserialize")]
-        public extern static object Deserialize(this byte[] source);
+        /// <summary>
+        /// Returns the square root of number x
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        [OpCode(OpCode.SQRT)]
+        public extern static BigInteger Sqrt(this BigInteger x);
     }
 }

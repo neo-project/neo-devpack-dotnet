@@ -9,32 +9,32 @@ namespace Neo.Compiler.MSIL.TestClasses
     {
         public static byte[] base64Decode(string input)
         {
-            return (byte[])Binary.Base64Decode(input);
+            return (byte[])StdLib.Base64Decode(input);
         }
 
         public static string base64Encode(byte[] input)
         {
-            return Binary.Base64Encode((ByteString)input);
+            return StdLib.Base64Encode((ByteString)input);
         }
 
         public static byte[] base58Decode(string input)
         {
-            return (byte[])Binary.Base58Decode(input);
+            return (byte[])StdLib.Base58Decode(input);
         }
 
         public static string base58Encode(byte[] input)
         {
-            return Binary.Base58Encode((ByteString)input);
+            return StdLib.Base58Encode((ByteString)input);
         }
 
         public static object atoi(string value, int @base)
         {
-            return Binary.Atoi(value, @base);
+            return StdLib.Atoi(value, @base);
         }
 
         public static string itoa(int value, int @base)
         {
-            return Binary.Itoa(value, @base);
+            return StdLib.Itoa(value, @base);
         }
     }
 }

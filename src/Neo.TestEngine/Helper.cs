@@ -74,7 +74,7 @@ namespace Neo.TestingEngine
                 jsonKey["key"] = key.ToJson();
 
                 var jsonValue = new JObject();
-                jsonValue["isconstant"] = storageValue.IsConstant;
+                jsonValue["isconstant"] = false;
                 jsonValue["value"] = value.ToJson();
 
                 var storageItem = new JObject();

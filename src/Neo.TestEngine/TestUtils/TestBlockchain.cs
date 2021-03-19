@@ -19,15 +19,10 @@ namespace Neo.TestingEngine
         const byte Prefix_CurrentBlock = 12;
 
         const uint MaxStackSize = 2 * 1024;
-        const uint MaxItemSize = 1024 * 1024;
 
         static TestBlockchain()
         {
-            TheNeoSystem = new NeoSystem();
-
-            // Ensure that blockchain is loaded
-
-            var _ = Blockchain.Singleton;
+            TheNeoSystem = new NeoSystem(ProtocolSettings.Default);
         }
 
         public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable key = null)
@@ -52,6 +47,20 @@ namespace Neo.TestingEngine
             return snapshot.Find().Where(pair => pair.Key.Id >= 0 || nativeTokens.Contains(pair.Key.Id)).ToList();
         }
 
+        public static void BlocksDelete(this DataCache snapshot, UInt256 hash)
+        {
+            snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, hash));
+            snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash));
+        }
+
+        public static void TransactionAdd(this DataCache snapshot, params TransactionState[] txs)
+        {
+            foreach (TransactionState tx in txs)
+            {
+                snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_Transaction, tx.Transaction.Hash), new StorageItem(tx));
+            }
+        }
+
         public static void BlocksDelete(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
         {
             snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, block.Index));
@@ -60,8 +69,8 @@ namespace Neo.TestingEngine
 
         public static void BlocksAdd(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
         {
-            snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, block.Index), new StorageItem(hash.ToArray(), true));
-            snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash), new StorageItem(block.ToArray(), true));
+            snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, block.Index), new StorageItem(hash.ToArray()));
+            snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash), new StorageItem(block.ToArray()));
         }
 
         public static void UpdateChangedBlocks(this DataCache snapshot, UInt256 oldHash, UInt256 newHash, TrimmedBlock block)
@@ -83,15 +92,17 @@ namespace Neo.TestingEngine
         {
             return new TrimmedBlock
             {
-                Version = block.Version,
-                PrevHash = block.PrevHash,
-                MerkleRoot = block.MerkleRoot,
-                Timestamp = block.Timestamp,
-                Index = block.Index,
-                NextConsensus = block.NextConsensus,
-                Witness = block.Witness,
-                Hashes = block.Transactions.Select(p => p.Hash).Prepend(block.ConsensusData.Hash).ToArray(),
-                ConsensusData = block.ConsensusData
+                Header = new Header()
+                {
+                    Version = block.Version,
+                    PrevHash = block.PrevHash,
+                    MerkleRoot = block.MerkleRoot,
+                    Timestamp = block.Timestamp,
+                    Index = block.Index,
+                    NextConsensus = block.NextConsensus,
+                    Witness = block.Witness,
+                },
+                Hashes = block.Transactions.Select(p => p.Hash).ToArray(),
             };
         }
 
@@ -141,7 +152,7 @@ namespace Neo.TestingEngine
             var item = snapshot.GetAndChange(key, () => new StorageItem());
 
             var hashIndex = new TestHashIndexState();
-            var stack = BinarySerializer.Deserialize(item.Value, MaxStackSize, MaxItemSize);
+            var stack = BinarySerializer.Deserialize(item.Value, MaxStackSize);
             hashIndex.FromStackItem(stack);
             hashIndex.Hash = hash;
             hashIndex.Index = index;
@@ -159,7 +170,7 @@ namespace Neo.TestingEngine
                 {
                     snapshot.Delete(key);
                 }
-                snapshot.Add(key, new StorageItem(tx, true));
+                snapshot.Add(key, new StorageItem(tx));
             }
         }
 

@@ -11,7 +11,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_StaticVar()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("main");
 
@@ -24,24 +24,23 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_StaticVarInit()
         {
-            Neo.VM.Types.Buffer var1;
+            VM.Types.Buffer var1;
             ByteString var2;
-            {
-                var testengine = new TestEngine();
-                testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
-                var result = testengine.ExecuteTestCaseStandard("staticInit");
-                // static byte[] callscript = ExecutionEngine.EntryScriptHash;
-                // ...
-                // return callscript
-                var1 = (result.Pop() as Neo.VM.Types.Buffer);
-            }
-            {
-                var testengine = new TestEngine();
-                testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
-                var result = testengine.ExecuteTestCaseStandard("directGet");
-                // return ExecutionEngine.EntryScriptHash
-                var2 = (result.Pop() as ByteString);
-            }
+
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            var result = testengine.ExecuteTestCaseStandard("staticInit");
+            // static byte[] callscript = ExecutionEngine.EntryScriptHash;
+            // ...
+            // return callscript
+            var1 = result.Pop() as VM.Types.Buffer;
+
+            testengine.Reset();
+            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            result = testengine.ExecuteTestCaseStandard("directGet");
+            // return ExecutionEngine.EntryScriptHash
+            var2 = result.Pop() as ByteString;
+
             Assert.IsNotNull(var1);
             Assert.IsTrue(var1.GetSpan().SequenceEqual(var2.GetSpan()));
         }
@@ -49,7 +48,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse");
             var var1 = result.Pop();
@@ -60,7 +59,7 @@ namespace Neo.Compiler.MSIL.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse2()
         {
-            var testengine = new TestEngine();
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse2", "123");
             var var1 = result.Pop();
@@ -74,7 +73,7 @@ namespace Neo.Compiler.MSIL.UnitTests
             StackItem var1;
             try
             {
-                var testengine = new TestEngine();
+                using var testengine = new TestEngine();
                 testengine.AddEntryScript("./TestClasses/Contract_StaticConstruct.cs");
                 var result = testengine.ExecuteTestCaseStandard("testStatic");
                 // static byte[] callscript = ExecutionEngine.EntryScriptHash;

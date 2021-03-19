@@ -62,7 +62,7 @@ namespace TestEngine.UnitTests
         public void Test_Include_Block()
         {
             uint height = 10;
-            ulong timestamp = Blockchain.GenesisBlock.Timestamp + 20 * Blockchain.MillisecondsPerBlock;
+            ulong timestamp = TestBlockchain.TheNeoSystem.GenesisBlock.Timestamp + 20 * TestBlockchain.TheNeoSystem.Settings.MillisecondsPerBlock;
 
             var blockJson = new JObject();
             blockJson["index"] = height;
@@ -116,7 +116,7 @@ namespace TestEngine.UnitTests
             };
 
             uint height = 1;
-            ulong timestamp = Blockchain.GenesisBlock.Timestamp + 20 * Blockchain.MillisecondsPerBlock;
+            ulong timestamp = TestBlockchain.TheNeoSystem.GenesisBlock.Timestamp + 20 * TestBlockchain.TheNeoSystem.Settings.MillisecondsPerBlock;
 
             var blockJson = new JObject();
             blockJson["index"] = height;

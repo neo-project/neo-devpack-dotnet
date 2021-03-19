@@ -95,7 +95,7 @@ namespace Neo.TestingEngine
                 Block lastBlock = null;
                 if (snapshot.Blocks().Count == 0)
                 {
-                    newBlock = Blockchain.GenesisBlock;
+                    newBlock = TestBlockchain.TheNeoSystem.GenesisBlock;
                     snapshot.AddOrUpdateTransactions(newBlock.Transactions, newBlock.Index);
                 }
                 else
@@ -153,7 +153,7 @@ namespace Neo.TestingEngine
                 if (currentBlock != null)
                 {
                     var hash = currentBlock.Hash;
-                    currentBlock.Timestamp = block.Timestamp;
+                    currentBlock.Header.Timestamp = block.Header.Timestamp;
 
                     if (currentBlock.Transactions.Length > 0)
                     {
@@ -189,14 +189,8 @@ namespace Neo.TestingEngine
                 }
                 var lastBlock = snapshot.GetLastBlock();
 
-                engine.PersistingBlock.Index = lastBlock.Index;
-                engine.PersistingBlock.Timestamp = lastBlock.Timestamp;
-                engine.PersistingBlock.PrevHash = lastBlock.PrevHash;
-                engine.PersistingBlock.ConsensusData = lastBlock.ConsensusData;
+                engine.PersistingBlock.Header = lastBlock.Header;
                 engine.PersistingBlock.Transactions = lastBlock.Transactions;
-                engine.PersistingBlock.Witness = lastBlock.Witness;
-                engine.PersistingBlock.NextConsensus = lastBlock.NextConsensus;
-                engine.PersistingBlock.MerkleRoot = lastBlock.MerkleRoot;
 
                 currentTx.ValidUntilBlock = lastBlock.Index;
                 snapshot.SetCurrentBlockHash(lastBlock.Index, lastBlock.Hash);
@@ -242,7 +236,14 @@ namespace Neo.TestingEngine
                 SystemFee = 3,
                 Version = 4
             };
-            TestEngine engine = new TestEngine(TriggerType.Application, currentTx, new TestDataCache(), persistingBlock: new Block() { Index = 0 });
+            var persistingBlock = new Block()
+            {
+                Header = new Header()
+                {
+                    Index = 0
+                }
+            };
+            TestEngine engine = new TestEngine(TriggerType.Application, currentTx, new TestDataCache(), persistingBlock: persistingBlock);
 
             engine.ClearNotifications();
             return engine;
@@ -259,28 +260,30 @@ namespace Neo.TestingEngine
 
             if (trimmedBlock == null)
             {
-                trimmedBlock = Blockchain.GenesisBlock.Trim();
+                trimmedBlock = TestBlockchain.TheNeoSystem.GenesisBlock.Trim();
             }
 
             var newBlock = new Block()
             {
-                Index = trimmedBlock.Index + 1,
-                Timestamp = trimmedBlock.Timestamp + Blockchain.MillisecondsPerBlock,
-                ConsensusData = new ConsensusData(),
-                Transactions = new Transaction[0],
-                Witness = new Witness()
+                Header = new Header()
                 {
-                    InvocationScript = new byte[0],
-                    VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(PubKey, ECCurve.Secp256k1))
+                    Index = trimmedBlock.Index + 1,
+                    Timestamp = trimmedBlock.Header.Timestamp + TestBlockchain.TheNeoSystem.Settings.MillisecondsPerBlock,
+                    Witness = new Witness()
+                    {
+                        InvocationScript = new byte[0],
+                        VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(PubKey, ECCurve.Secp256k1))
+                    },
+                    NextConsensus = trimmedBlock.Header.NextConsensus,
+                    MerkleRoot = trimmedBlock.Header.MerkleRoot,
+                    PrevHash = trimmedBlock.Hash
                 },
-                NextConsensus = trimmedBlock.NextConsensus,
-                MerkleRoot = trimmedBlock.MerkleRoot,
-                PrevHash = trimmedBlock.Hash
+                Transactions = new Transaction[0]
             };
 
             if (originBlock != null)
             {
-                newBlock.Timestamp = originBlock.Timestamp;
+                newBlock.Header.Timestamp = originBlock.Header.Timestamp;
             }
 
             return newBlock;
