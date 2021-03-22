@@ -22,7 +22,7 @@ namespace Neo.TestingEngine
         public JObject finalABI { get; protected set; }
         public string finalManifest { get; protected set; }
         public JObject debugInfo { get; private set; }
-        public NefFile nefFile { get; private set; }
+        public NefFile nefFile { get; protected set; }
 
         public BuildScript()
         {

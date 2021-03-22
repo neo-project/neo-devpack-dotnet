@@ -111,7 +111,8 @@ namespace Neo.TestingEngine
             Integer callFlag = (uint)flags;
 
             var items = new StackItem[] { methodName, callFlag, paramsArray };
-            ExecuteTestCaseStandard(method, items.ToArray());
+            var rvcount = GetMethodReturnCount(method);
+            ExecuteTestCaseStandard(0, (ushort)rvcount, ScriptEntry.nefFile, items.ToArray());
         }
 
         public void Reset()

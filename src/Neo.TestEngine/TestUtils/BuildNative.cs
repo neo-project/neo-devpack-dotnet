@@ -11,6 +11,8 @@ namespace Neo.TestingEngine
         public BuildNative(NativeContract nativeContract) : base()
         {
             this.nativeContract = nativeContract;
+            this.nefFile = nativeContract.Nef;
+
             byte[] script;
             using (ScriptBuilder sb = new ScriptBuilder())
             {
