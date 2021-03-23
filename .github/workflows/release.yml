@@ -20,6 +20,11 @@ jobs:
       run: dotnet restore
     - name: Pack 
       run: dotnet pack --output ./out --configuration Release --no-restore --verbosity normal
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: packages
+        path: ./out
     - name: Create Release
       uses: marvinpinto/action-automatic-releases@v1.1.1
       with:
