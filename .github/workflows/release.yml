@@ -21,7 +21,7 @@ jobs:
     - name: Pack 
       run: dotnet pack --output ./out --configuration Release --no-restore --verbosity normal
     - name: Create Release
-      uses: marvinpinto/action-automatic-releases@v1.1.0
+      uses: marvinpinto/action-automatic-releases@v1.1.1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: ${{ contains(env.NUGET_PACKAGE_VERSION, '-preview') }}
