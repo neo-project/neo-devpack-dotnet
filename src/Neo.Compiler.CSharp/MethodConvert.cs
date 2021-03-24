@@ -106,13 +106,13 @@ namespace Neo.Compiler
         private void ConvertExtern(CompilationContext context, IMethodSymbol symbol)
         {
             _inline = true;
-            AttributeData contractAttribute = symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.ContractAttribute));
+            AttributeData? contractAttribute = symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.ContractAttribute));
             if (contractAttribute is null)
             {
                 bool emitted = false;
                 foreach (AttributeData attribute in symbol.GetAttributes())
                 {
-                    switch (attribute.AttributeClass.Name)
+                    switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(scfx.Neo.SmartContract.Framework.OpCodeAttribute):
                             if (!emitted)
@@ -122,8 +122,8 @@ namespace Neo.Compiler
                             }
                             AddInstruction(new Instruction
                             {
-                                OpCode = (OpCode)attribute.ConstructorArguments[0].Value,
-                                Operand = ((string)attribute.ConstructorArguments[1].Value).HexToBytes()
+                                OpCode = (OpCode)attribute.ConstructorArguments[0].Value!,
+                                Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes()
                             });
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SyscallAttribute):
@@ -135,7 +135,7 @@ namespace Neo.Compiler
                             AddInstruction(new Instruction
                             {
                                 OpCode = OpCode.SYSCALL,
-                                Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value).Sha256()[..4]
+                                Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
                             });
                             break;
                     }
@@ -144,8 +144,8 @@ namespace Neo.Compiler
             }
             else
             {
-                UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value);
-                AttributeData attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.ContractHashAttribute));
+                UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
+                AttributeData? attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.ContractHashAttribute));
                 if (attribute is null)
                 {
                     string method = symbol.GetDisplayName(true);
@@ -164,7 +164,7 @@ namespace Neo.Compiler
         {
             _inline = true;
             _callingConvention = CallingConvention.Cdecl;
-            IPropertySymbol property = (IPropertySymbol)symbol.AssociatedSymbol;
+            IPropertySymbol property = (IPropertySymbol)symbol.AssociatedSymbol!;
             INamedTypeSymbol type = property.ContainingType;
             IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
             int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
@@ -225,10 +225,10 @@ namespace Neo.Compiler
                     ConvertExpression(context, model, syntax.Expression);
                     break;
                 case ConstructorDeclarationSyntax syntax:
-                    ConvertStatement(context, model, syntax.Body);
+                    ConvertStatement(context, model, syntax.Body!);
                     break;
                 case MethodDeclarationSyntax syntax:
-                    ConvertStatement(context, model, syntax.Body);
+                    ConvertStatement(context, model, syntax.Body!);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported method body:{body}");
@@ -349,7 +349,7 @@ namespace Neo.Compiler
 
         private void ConvertExpressionStatement(CompilationContext context, SemanticModel model, ExpressionStatementSyntax syntax)
         {
-            ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type;
+            ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
             ConvertExpression(context, model, syntax.Expression);
             if (type.SpecialType != SpecialType.System_Void)
                 AddInstruction(OpCode.DROP);
@@ -357,7 +357,7 @@ namespace Neo.Compiler
 
         private void ConvertForEachStatement(CompilationContext context, SemanticModel model, ForEachStatementSyntax syntax)
         {
-            ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax);
+            ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax)!;
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
@@ -384,7 +384,7 @@ namespace Neo.Compiler
 
         private void ConvertForEachVariableStatement(CompilationContext context, SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)).ToArray();
+            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
@@ -421,7 +421,9 @@ namespace Neo.Compiler
 
         private void ConvertForStatement(CompilationContext context, SemanticModel model, ForStatementSyntax syntax)
         {
-            var variables = syntax.Declaration.Variables.Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p))).ToArray();
+            var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
+                .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
+                .ToArray();
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -431,8 +433,11 @@ namespace Neo.Compiler
             foreach (var (variable, symbol) in variables)
             {
                 byte variableIndex = AddLocalVariable(symbol);
-                ConvertExpression(context, model, variable.Initializer.Value);
-                AccessSlot(OpCode.STLOC, variableIndex);
+                if (variable.Initializer is not null)
+                {
+                    ConvertExpression(context, model, variable.Initializer.Value);
+                    AccessSlot(OpCode.STLOC, variableIndex);
+                }
             }
             Jump(OpCode.JMP_L, conditionTarget);
             startTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -440,14 +445,21 @@ namespace Neo.Compiler
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
             foreach (ExpressionSyntax expression in syntax.Incrementors)
             {
-                ITypeSymbol type = model.GetTypeInfo(expression).Type;
+                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
                 ConvertExpression(context, model, expression);
                 if (type.SpecialType != SpecialType.System_Void)
                     AddInstruction(OpCode.DROP);
             }
             conditionTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertExpression(context, model, syntax.Condition);
-            Jump(OpCode.JMPIF_L, startTarget);
+            if (syntax.Condition is null)
+            {
+                Jump(OpCode.JMP_L, startTarget);
+            }
+            else
+            {
+                ConvertExpression(context, model, syntax.Condition);
+                Jump(OpCode.JMPIF_L, startTarget);
+            }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             foreach (var (_, symbol) in variables)
                 _localVariables.Remove(symbol);
@@ -480,7 +492,7 @@ namespace Neo.Compiler
             if (syntax.IsConst) return;
             foreach (VariableDeclaratorSyntax variable in syntax.Declaration.Variables)
             {
-                ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable);
+                ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
                 byte variableIndex = AddLocalVariable(symbol);
                 if (variable.Initializer is not null)
                 {
@@ -550,7 +562,7 @@ namespace Neo.Compiler
                 CatchClauseSyntax catchClause = syntax.Catches[0];
                 if (catchClause.Filter is not null)
                     throw new NotSupportedException($"Unsupported syntax: {catchClause.Filter}");
-                ILocalSymbol exceptionSymbol = null;
+                ILocalSymbol? exceptionSymbol = null;
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
                 byte exceptionIndex;
                 if (catchClause.Declaration is null)
@@ -559,7 +571,7 @@ namespace Neo.Compiler
                 }
                 else
                 {
-                    exceptionSymbol = model.GetDeclaredSymbol(catchClause.Declaration);
+                    exceptionSymbol = model.GetDeclaredSymbol(catchClause.Declaration)!;
                     exceptionIndex = AddLocalVariable(exceptionSymbol);
                 }
                 catchTarget.Instruction = AccessSlot(OpCode.STLOC, exceptionIndex);
@@ -712,7 +724,7 @@ namespace Neo.Compiler
             ConvertExpression(context, model, specifier.Sizes[0]);
             if (expression.Initializer is null)
             {
-                ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type;
+                ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type!;
                 AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
             }
             else
@@ -759,7 +771,7 @@ namespace Neo.Compiler
 
         private void ConvertIdentifierNameAssignment(CompilationContext context, SemanticModel model, IdentifierNameSyntax left)
         {
-            ISymbol symbol = model.GetSymbolInfo(left).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -785,7 +797,7 @@ namespace Neo.Compiler
                     break;
                 case IPropertySymbol property:
                     if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
-                    Call(context, model, property.SetMethod, CallingConvention.Cdecl);
+                    Call(context, model, property.SetMethod!, CallingConvention.Cdecl);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported symbol: {symbol}");
@@ -794,7 +806,7 @@ namespace Neo.Compiler
 
         private void ConvertMemberAccessAssignment(CompilationContext context, SemanticModel model, MemberAccessExpressionSyntax left)
         {
-            ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -814,7 +826,7 @@ namespace Neo.Compiler
                     break;
                 case IPropertySymbol property:
                     if (!property.IsStatic) ConvertExpression(context, model, left.Expression);
-                    Call(context, model, property.SetMethod, CallingConvention.Cdecl);
+                    Call(context, model, property.SetMethod!, CallingConvention.Cdecl);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported symbol: {symbol}");
@@ -824,7 +836,7 @@ namespace Neo.Compiler
         private void ConvertObjectCreationExpression(CompilationContext context, SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
             bool needCallConstructor, needCreateObject;
-            IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol;
+            IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
             if (constructor.IsExtern)
             {
                 needCallConstructor = true;
@@ -842,12 +854,12 @@ namespace Neo.Compiler
             }
             if (needCreateObject)
             {
-                ITypeSymbol type = model.GetTypeInfo(expression).Type;
+                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
                 IFieldSymbol[] fields = type.GetFields();
                 AddInstruction(OpCode.NEWARRAY0);
                 foreach (IFieldSymbol field in fields)
                 {
-                    ExpressionSyntax right = null;
+                    ExpressionSyntax? right = null;
                     if (expression.Initializer is not null)
                     {
                         foreach (ExpressionSyntax e in expression.Initializer.Expressions)
@@ -871,7 +883,8 @@ namespace Neo.Compiler
             }
             if (needCallConstructor)
             {
-                Call(context, model, constructor, needCreateObject, expression.ArgumentList.Arguments);
+                IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
+                Call(context, model, constructor, needCreateObject, arguments);
             }
         }
 
@@ -924,7 +937,7 @@ namespace Neo.Compiler
 
         private void ConvertCastExpression(CompilationContext context, SemanticModel model, CastExpressionSyntax expression)
         {
-            IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol;
+            IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
             if (symbol is null)
                 ConvertExpression(context, model, expression.Expression);
             else
@@ -933,7 +946,7 @@ namespace Neo.Compiler
 
         private void ConvertConditionalAccessExpression(CompilationContext context, SemanticModel model, ConditionalAccessExpressionSyntax expression)
         {
-            ITypeSymbol type = model.GetTypeInfo(expression).Type;
+            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
             JumpTarget nullTarget = new();
             ConvertExpression(context, model, expression.Expression);
             AddInstruction(OpCode.DUP);
@@ -968,7 +981,7 @@ namespace Neo.Compiler
 
         private void ConvertDefaultExpression(SemanticModel model, DefaultExpressionSyntax expression)
         {
-            PushDefault(model.GetTypeInfo(expression.Type).Type);
+            PushDefault(model.GetTypeInfo(expression.Type).Type!);
         }
 
         private void ConvertElementAccessExpression(CompilationContext context, SemanticModel model, ElementAccessExpressionSyntax expression)
@@ -990,7 +1003,7 @@ namespace Neo.Compiler
 
         private void ConvertIdentifierNameExpression(CompilationContext context, SemanticModel model, IdentifierNameSyntax expression)
         {
-            ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1023,12 +1036,12 @@ namespace Neo.Compiler
                 case IPropertySymbol property:
                     if (property.IsStatic)
                     {
-                        Call(context, model, property.GetMethod);
+                        Call(context, model, property.GetMethod!);
                     }
                     else
                     {
                         AddInstruction(OpCode.LDARG0);
-                        Call(context, model, property.GetMethod);
+                        Call(context, model, property.GetMethod!);
                     }
                     break;
                 default:
@@ -1077,8 +1090,8 @@ namespace Neo.Compiler
                     if (syntax.FormatClause is not null)
                         throw new NotSupportedException($"Unsupported format clause: {syntax.FormatClause}");
                     ConvertExpression(context, model, syntax.Expression);
-                    ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type;
-                    switch (type.SpecialType)
+                    ITypeSymbol? type = model.GetTypeInfo(syntax.Expression).Type;
+                    switch (type?.SpecialType)
                     {
                         case SpecialType.System_SByte:
                         case SpecialType.System_Byte:
@@ -1105,7 +1118,7 @@ namespace Neo.Compiler
         private void ConvertInvocationExpression(CompilationContext context, SemanticModel model, InvocationExpressionSyntax expression)
         {
             ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
-            ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
             switch (symbol)
             {
                 case IEventSymbol @event:
@@ -1164,7 +1177,7 @@ namespace Neo.Compiler
 
         private void ConvertMemberAccessExpression(CompilationContext context, SemanticModel model, MemberAccessExpressionSyntax expression)
         {
-            ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1186,8 +1199,8 @@ namespace Neo.Compiler
                     }
                     break;
                 case IPropertySymbol property:
-                    ExpressionSyntax instanceExpression = property.IsStatic ? null : expression.Expression;
-                    Call(context, model, property.GetMethod, instanceExpression);
+                    ExpressionSyntax? instanceExpression = property.IsStatic ? null : expression.Expression;
+                    Call(context, model, property.GetMethod!, instanceExpression);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported symbol: {symbol}");
@@ -1196,7 +1209,7 @@ namespace Neo.Compiler
 
         private void ConvertMemberBindingExpression(CompilationContext context, SemanticModel model, MemberBindingExpressionSyntax expression)
         {
-            ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1205,7 +1218,7 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.PICKITEM);
                     break;
                 case IPropertySymbol property:
-                    Call(context, model, property.GetMethod);
+                    Call(context, model, property.GetMethod!);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported symbol: {symbol}");
@@ -1264,7 +1277,7 @@ namespace Neo.Compiler
 
         private void ConvertIdentifierNamePostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
         {
-            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1331,25 +1344,25 @@ namespace Neo.Compiler
         {
             if (symbol.IsStatic)
             {
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
                 EmitIncrementOrDecrement(operatorToken);
-                Call(context, model, symbol.SetMethod);
+                Call(context, model, symbol.SetMethod!);
             }
             else
             {
                 AddInstruction(OpCode.LDARG0);
                 AddInstruction(OpCode.DUP);
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
                 EmitIncrementOrDecrement(operatorToken);
-                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+                Call(context, model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
 
         private void ConvertMemberAccessPostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand)
         {
-            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1392,19 +1405,19 @@ namespace Neo.Compiler
         {
             if (symbol.IsStatic)
             {
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
                 EmitIncrementOrDecrement(operatorToken);
-                Call(context, model, symbol.SetMethod);
+                Call(context, model, symbol.SetMethod!);
             }
             else
             {
                 ConvertExpression(context, model, operand.Expression);
                 AddInstruction(OpCode.DUP);
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
                 EmitIncrementOrDecrement(operatorToken);
-                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+                Call(context, model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
 
@@ -1472,7 +1485,7 @@ namespace Neo.Compiler
 
         private void ConvertIdentifierNamePreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
         {
-            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1539,25 +1552,25 @@ namespace Neo.Compiler
         {
             if (symbol.IsStatic)
             {
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
                 AddInstruction(OpCode.DUP);
-                Call(context, model, symbol.SetMethod);
+                Call(context, model, symbol.SetMethod!);
             }
             else
             {
                 AddInstruction(OpCode.LDARG0);
                 AddInstruction(OpCode.DUP);
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
                 AddInstruction(OpCode.TUCK);
-                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+                Call(context, model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
 
         private void ConvertMemberAccessPreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand)
         {
-            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
@@ -1600,19 +1613,19 @@ namespace Neo.Compiler
         {
             if (symbol.IsStatic)
             {
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
                 AddInstruction(OpCode.DUP);
-                Call(context, model, symbol.SetMethod);
+                Call(context, model, symbol.SetMethod!);
             }
             else
             {
                 ConvertExpression(context, model, operand.Expression);
                 AddInstruction(OpCode.DUP);
-                Call(context, model, symbol.GetMethod);
+                Call(context, model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
                 AddInstruction(OpCode.TUCK);
-                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+                Call(context, model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
 
@@ -1628,7 +1641,7 @@ namespace Neo.Compiler
 
         private void ConvertSizeOfExpression(SemanticModel model, SizeOfExpressionSyntax expression)
         {
-            Push((int)model.GetConstantValue(expression).Value);
+            Push((int)model.GetConstantValue(expression).Value!);
         }
 
         private void ConvertSwitchExpression(CompilationContext context, SemanticModel model, SwitchExpressionSyntax expression)
@@ -1821,7 +1834,7 @@ namespace Neo.Compiler
             });
         }
 
-        private Instruction Push(object obj)
+        private Instruction Push(object? obj)
         {
             return obj switch
             {
@@ -1879,13 +1892,14 @@ namespace Neo.Compiler
             });
         }
 
-        private void Throw(CompilationContext context, SemanticModel model, ExpressionSyntax exception)
+        private void Throw(CompilationContext context, SemanticModel model, ExpressionSyntax? exception)
         {
             switch (exception)
             {
                 case ObjectCreationExpressionSyntax expression:
-                    switch (expression.ArgumentList.Arguments.Count)
+                    switch (expression.ArgumentList?.Arguments.Count)
                     {
+                        case null:
                         case 0:
                             Push("exception");
                             break;
@@ -1953,7 +1967,7 @@ namespace Neo.Compiler
             EmitCall(convert);
         }
 
-        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax instanceExpression, params SyntaxNode[] arguments)
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
         {
             if (TryProcessSystemMethods(context, model, methodSymbol, instanceExpression))
                 return;
@@ -2007,13 +2021,13 @@ namespace Neo.Compiler
 
         private void PrepareArgumentsForMethod(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
         {
-            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon.Name).Symbol, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
+            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
             var parameters = methodSymbol.Parameters.Select((p, i) => (Symbol: p, Index: i));
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
             foreach (var (parameter, index) in parameters)
             {
-                if (namedArguments.TryGetValue(parameter, out ExpressionSyntax expression))
+                if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
                 {
                     ConvertExpression(context, model, expression);
                 }
@@ -2042,7 +2056,7 @@ namespace Neo.Compiler
             }
         }
 
-        private bool TryProcessSystemMethods(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax instanceExpression)
+        private bool TryProcessSystemMethods(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax? instanceExpression)
         {
             switch (methodSymbol.ToString())
             {

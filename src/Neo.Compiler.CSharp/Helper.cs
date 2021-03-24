@@ -69,8 +69,8 @@ namespace Neo.Compiler
 
         public static string GetDisplayName(this ISymbol symbol, bool lowercase = false)
         {
-            AttributeData attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute));
-            if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value;
+            AttributeData? attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(DisplayNameAttribute));
+            if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value!;
             if (symbol is IMethodSymbol method)
             {
                 switch (method.MethodKind)
@@ -79,9 +79,9 @@ namespace Neo.Compiler
                         symbol = method.ContainingType;
                         break;
                     case MethodKind.PropertyGet:
-                        ISymbol property = method.AssociatedSymbol;
-                        attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute));
-                        if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value;
+                        ISymbol property = method.AssociatedSymbol!;
+                        attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(DisplayNameAttribute));
+                        if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value!;
                         symbol = property;
                         break;
                     case MethodKind.StaticConstructor:

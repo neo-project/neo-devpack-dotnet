@@ -11,9 +11,9 @@ namespace Neo.Compiler
         private static readonly int[] OperandSizeTable = new int[256];
 
         public OpCode OpCode;
-        public byte[] Operand;
-        public JumpTarget Target;
-        public JumpTarget Target2;
+        public byte[]? Operand;
+        public JumpTarget? Target;
+        public JumpTarget? Target2;
         public int Offset;
         private int _size;
 
@@ -25,7 +25,7 @@ namespace Neo.Compiler
                 {
                     int prefixSize = OperandSizePrefixTable[(int)OpCode];
                     _size = prefixSize > 0
-                        ? sizeof(OpCode) + prefixSize + Operand.Length
+                        ? sizeof(OpCode) + prefixSize + Operand!.Length
                         : sizeof(OpCode) + OperandSizeTable[(int)OpCode];
                 }
                 return _size;
@@ -36,9 +36,9 @@ namespace Neo.Compiler
         {
             foreach (FieldInfo field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
-                OperandSizeAttribute attribute = field.GetCustomAttribute<OperandSizeAttribute>();
+                OperandSizeAttribute? attribute = field.GetCustomAttribute<OperandSizeAttribute>();
                 if (attribute is null) continue;
-                int index = (int)(OpCode)field.GetValue(null);
+                int index = (int)(OpCode)field.GetValue(null)!;
                 OperandSizePrefixTable[index] = attribute.SizePrefix;
                 OperandSizeTable[index] = attribute.Size;
             }

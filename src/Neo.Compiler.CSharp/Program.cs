@@ -20,10 +20,10 @@ namespace Neo.Compiler
                 switch (Path.GetExtension(path).ToLowerInvariant())
                 {
                     case ".cs":
-                        ProcessSources(Path.GetDirectoryName(path), path);
+                        ProcessSources(Path.GetDirectoryName(path)!, path);
                         break;
                     case ".csproj":
-                        ProcessDirectory(Path.GetDirectoryName(path));
+                        ProcessDirectory(Path.GetDirectoryName(path)!);
                         break;
                     default:
                         throw new NotSupportedException();

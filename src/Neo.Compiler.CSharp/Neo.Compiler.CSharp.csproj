@@ -10,6 +10,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <RootNamespace>Neo.Compiler</RootNamespace>
+    <Nullable>enable</Nullable>
     <Authors>The Neo Project</Authors>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
