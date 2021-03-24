@@ -925,7 +925,10 @@ namespace Neo.Compiler
         private void ConvertCastExpression(CompilationContext context, SemanticModel model, CastExpressionSyntax expression)
         {
             IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol;
-            Call(context, model, symbol, null, expression.Expression);
+            if (symbol is null)
+                ConvertExpression(context, model, expression.Expression);
+            else
+                Call(context, model, symbol, null, expression.Expression);
         }
 
         private void ConvertConditionalAccessExpression(CompilationContext context, SemanticModel model, ConditionalAccessExpressionSyntax expression)

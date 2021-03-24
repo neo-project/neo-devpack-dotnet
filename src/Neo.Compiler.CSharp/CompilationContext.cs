@@ -176,8 +176,9 @@ namespace Neo.Compiler
             var methods = members.OfType<IMethodSymbol>().Where(p => p.MethodKind != MethodKind.StaticConstructor);
             foreach (IMethodSymbol method in methods)
                 ProcessMethod(model, method);
-            IMethodSymbol initializeMethod = members.OfType<IMethodSymbol>().First(p => p.MethodKind == MethodKind.StaticConstructor);
-            ProcessMethod(model, initializeMethod);
+            IMethodSymbol initializeMethod = members.OfType<IMethodSymbol>().FirstOrDefault(p => p.MethodKind == MethodKind.StaticConstructor);
+            if (initializeMethod is not null)
+                ProcessMethod(model, initializeMethod);
         }
 
         private void ProcessEvent(IEventSymbol symbol)
