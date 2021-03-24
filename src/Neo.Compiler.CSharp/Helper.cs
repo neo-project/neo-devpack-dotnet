@@ -1,4 +1,7 @@
+extern alias scfx;
+
 using Microsoft.CodeAnalysis;
+using Neo.Cryptography.ECC;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
@@ -12,7 +15,14 @@ namespace Neo.Compiler
     {
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
-            //TODO: More types
+            if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;
+            if (type is IArrayTypeSymbol array)
+                if (array.ElementType.SpecialType == SpecialType.System_Byte)
+                    return ContractParameterType.ByteArray;
+                else
+                    return ContractParameterType.Array;
+            if (type.AllInterfaces.Any(p => p.Name == nameof(scfx::Neo.SmartContract.Framework.IApiInterface)))
+                return ContractParameterType.InteropInterface;
             return type.SpecialType switch
             {
                 SpecialType.System_Object => ContractParameterType.Any,
@@ -31,10 +41,10 @@ namespace Neo.Compiler
                 _ => type.Name switch
                 {
                     nameof(BigInteger) => ContractParameterType.Integer,
-                    "UInt160" => ContractParameterType.Hash160,
-                    "UInt256" => ContractParameterType.Hash256,
-                    "ECPoint" => ContractParameterType.PublicKey,
-                    "ByteString" => ContractParameterType.ByteArray,
+                    nameof(UInt160) => ContractParameterType.Hash160,
+                    nameof(UInt256) => ContractParameterType.Hash256,
+                    nameof(ECPoint) => ContractParameterType.PublicKey,
+                    nameof(ByteString) => ContractParameterType.ByteArray,
                     _ => ContractParameterType.Any
                 }
             };
