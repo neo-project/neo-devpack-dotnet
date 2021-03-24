@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>
   </ItemGroup>

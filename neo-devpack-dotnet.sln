@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "src\Installer\
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Template.VB", "templates\Template.VB\Template.VB.vbproj", "{3B1B140B-0716-4B2C-9A40-D1D6F2B49710}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp", "Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj", "{A2A3B687-A1EC-4221-B792-9BBA8DED09DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp", "src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj", "{A2A3B687-A1EC-4221-B792-9BBA8DED09DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.MSIL", "src\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj", "{42C0FF0F-0A7C-4166-A773-1F944642C209}"
 EndProject
