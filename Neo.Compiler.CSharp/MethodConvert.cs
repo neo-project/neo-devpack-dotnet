@@ -623,6 +623,9 @@ namespace Neo.Compiler
                 case InvocationExpressionSyntax expression:
                     ConvertInvocationExpression(context, model, expression);
                     break;
+                case IsPatternExpressionSyntax expression:
+                    ConvertIsPatternExpression(context, model, expression);
+                    break;
                 case LiteralExpressionSyntax expression:
                     ConvertLiteralExpression(model, expression);
                     break;
@@ -1082,6 +1085,13 @@ namespace Neo.Compiler
                 default:
                     throw new NotSupportedException($"Unsupported expression: {expression.Expression}");
             }
+        }
+
+        private void ConvertIsPatternExpression(CompilationContext context, SemanticModel model, IsPatternExpressionSyntax expression)
+        {
+            ConvertExpression(context, model, expression.Expression);
+            ConvertPattern(context, model, expression.Pattern);
+            AddInstruction(OpCode.NIP);
         }
 
         private void ConvertLiteralExpression(SemanticModel model, LiteralExpressionSyntax expression)
@@ -1561,7 +1571,8 @@ namespace Neo.Compiler
             ConvertExpression(context, model, expression.GoverningExpression);
             foreach (var (arm, nextTarget) in arms)
             {
-                ConvertSwitchExpressionArmPattern(context, model, arm.Pattern, nextTarget);
+                ConvertPattern(context, model, arm.Pattern);
+                Jump(OpCode.JMPIFNOT_L, nextTarget);
                 if (arm.WhenClause is not null)
                 {
                     ConvertExpression(context, model, arm.WhenClause.Condition);
@@ -1575,65 +1586,79 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NIP);
         }
 
-        private void ConvertSwitchExpressionArmPattern(CompilationContext context, SemanticModel model, PatternSyntax pattern, JumpTarget nextTarget)
+        private void ConvertPattern(CompilationContext context, SemanticModel model, PatternSyntax pattern)
         {
             switch (pattern)
             {
                 case BinaryPatternSyntax binaryPattern:
-                    ConvertSwitchExpressionArmBinaryPattern(context, model, binaryPattern, nextTarget);
+                    ConvertBinaryPattern(context, model, binaryPattern);
                     break;
                 case ConstantPatternSyntax constantPattern:
-                    ConvertSwitchExpressionArmConstantPattern(context, model, constantPattern, nextTarget);
+                    ConvertConstantPattern(context, model, constantPattern);
                     break;
                 case DiscardPatternSyntax:
+                    Push(true);
                     break;
                 case RelationalPatternSyntax relationalPattern:
-                    ConvertSwitchExpressionArmRelationalPattern(context, model, relationalPattern, nextTarget);
+                    ConvertRelationalPattern(context, model, relationalPattern);
                     break;
                 case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
-                    ConvertSwitchExpressionArmNotPattern(context, model, unaryPattern, nextTarget);
+                    ConvertNotPattern(context, model, unaryPattern);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported pattern: {pattern}");
             }
         }
 
-        private void ConvertSwitchExpressionArmBinaryPattern(CompilationContext context, SemanticModel model, BinaryPatternSyntax pattern, JumpTarget nextTarget)
+        private void ConvertBinaryPattern(CompilationContext context, SemanticModel model, BinaryPatternSyntax pattern)
         {
             switch (pattern.OperatorToken.ValueText)
             {
                 case "and":
-                    ConvertSwitchExpressionArmPattern(context, model, pattern.Left, nextTarget);
-                    ConvertSwitchExpressionArmPattern(context, model, pattern.Right, nextTarget);
+                    ConvertAndPattern(context, model, pattern.Left, pattern.Right);
                     break;
                 case "or":
-                    ConvertSwitchExpressionArmOrPattern(context, model, pattern.Left, pattern.Right, nextTarget);
+                    ConvertOrPattern(context, model, pattern.Left, pattern.Right);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported pattern: {pattern}");
             }
         }
 
-        private void ConvertSwitchExpressionArmOrPattern(CompilationContext context, SemanticModel model, PatternSyntax left, PatternSyntax right, JumpTarget nextTarget)
+        private void ConvertAndPattern(CompilationContext context, SemanticModel model, PatternSyntax left, PatternSyntax right)
         {
             JumpTarget rightTarget = new();
             JumpTarget endTarget = new();
-            ConvertSwitchExpressionArmPattern(context, model, left, rightTarget);
+            ConvertPattern(context, model, left);
+            Jump(OpCode.JMPIF_L, rightTarget);
+            Push(false);
             Jump(OpCode.JMP_L, endTarget);
             rightTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertSwitchExpressionArmPattern(context, model, right, nextTarget);
+            ConvertPattern(context, model, right);
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
-        private void ConvertSwitchExpressionArmConstantPattern(CompilationContext context, SemanticModel model, ConstantPatternSyntax pattern, JumpTarget nextTarget)
+        private void ConvertOrPattern(CompilationContext context, SemanticModel model, PatternSyntax left, PatternSyntax right)
+        {
+            JumpTarget rightTarget = new();
+            JumpTarget endTarget = new();
+            ConvertPattern(context, model, left);
+            Jump(OpCode.JMPIFNOT_L, rightTarget);
+            Push(true);
+            Jump(OpCode.JMP_L, endTarget);
+            rightTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertPattern(context, model, right);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertConstantPattern(CompilationContext context, SemanticModel model, ConstantPatternSyntax pattern)
         {
             AddInstruction(OpCode.DUP);
             ConvertExpression(context, model, pattern.Expression);
             AddInstruction(OpCode.EQUAL);
-            Jump(OpCode.JMPIFNOT_L, nextTarget);
         }
 
-        private void ConvertSwitchExpressionArmRelationalPattern(CompilationContext context, SemanticModel model, RelationalPatternSyntax pattern, JumpTarget nextTarget)
+        private void ConvertRelationalPattern(CompilationContext context, SemanticModel model, RelationalPatternSyntax pattern)
         {
             AddInstruction(OpCode.DUP);
             ConvertExpression(context, model, pattern.Expression);
@@ -1645,15 +1670,12 @@ namespace Neo.Compiler
                 ">=" => OpCode.GE,
                 _ => throw new NotSupportedException($"Unsupported pattern: {pattern}")
             });
-            Jump(OpCode.JMPIFNOT_L, nextTarget);
         }
 
-        private void ConvertSwitchExpressionArmNotPattern(CompilationContext context, SemanticModel model, UnaryPatternSyntax pattern, JumpTarget nextTarget)
+        private void ConvertNotPattern(CompilationContext context, SemanticModel model, UnaryPatternSyntax pattern)
         {
-            JumpTarget endTarget = new();
-            ConvertSwitchExpressionArmPattern(context, model, pattern.Pattern, endTarget);
-            Jump(OpCode.JMP_L, nextTarget);
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertPattern(context, model, pattern.Pattern);
+            AddInstruction(OpCode.NOT);
         }
 
         private void ConvertTupleExpression(CompilationContext context, SemanticModel model, TupleExpressionSyntax expression)
