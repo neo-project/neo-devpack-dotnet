@@ -42,20 +42,25 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references);
+            context.Compile(CSharpCompilation.Create(null, syntaxTrees, references));
+            return context;
+        }
+
+        private void Compile(CSharpCompilation compilation)
+        {
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
-                context.ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
+                ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
             }
-            context.instructions = context.methodsConverted.SelectMany(p => p.Value.Instructions).ToArray();
-            for (int i = 0, offset = 0; i < context.instructions.Length; i++)
+            instructions = methodsConverted.SelectMany(p => p.Value.Instructions).ToArray();
+            for (int i = 0, offset = 0; i < instructions.Length; i++)
             {
-                Instruction instruction = context.instructions[i];
+                Instruction instruction = instructions[i];
                 instruction.Offset = offset;
                 offset += instruction.Size;
             }
-            foreach (Instruction instruction in context.instructions)
+            foreach (Instruction instruction in instructions)
             {
                 if (instruction.Target is null) continue;
                 if (instruction.OpCode == OpCode.TRY_L)
@@ -72,7 +77,6 @@ namespace Neo.Compiler
                     instruction.Operand = BitConverter.GetBytes(offset);
                 }
             }
-            return context;
         }
 
         public NefFile CreateExecutable()
@@ -168,7 +172,7 @@ namespace Neo.Compiler
                 switch (member)
                 {
                     case IEventSymbol @event:
-                        ProcessEvent(model, @event);
+                        ProcessEvent(@event);
                         break;
                     case IMethodSymbol method:
                         ProcessMethod(model, method);
@@ -177,26 +181,28 @@ namespace Neo.Compiler
             }
         }
 
-        private void ProcessEvent(SemanticModel model, IEventSymbol symbol)
+        private void ProcessEvent(IEventSymbol symbol)
         {
             if (symbol.DeclaredAccessibility != Accessibility.Public) return;
-            string displayName = (string)symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute))?.ConstructorArguments[0].Value;
             INamedTypeSymbol typeSymbol = (INamedTypeSymbol)symbol.Type;
             eventsExported.Add(new AbiEvent()
             {
-                Name = displayName ?? symbol.Name,
+                Name = symbol.GetDisplayName(),
                 Parameters = typeSymbol.DelegateInvokeMethod.Parameters.Select(p => p.ToAbiParameter()).ToArray()
             });
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol)
         {
-            if (symbol.DeclaredAccessibility != Accessibility.Public) return;
-            if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet) return;
+            if (symbol.MethodKind != MethodKind.StaticConstructor)
+            {
+                if (symbol.DeclaredAccessibility != Accessibility.Public) return;
+                if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet) return;
+            }
             methodsExported.Add(new AbiMethod
             {
                 Symbol = symbol,
-                Name = symbol.GetDisplayName(),
+                Name = symbol.GetDisplayName(true),
                 Safe = symbol.GetAttributes().Any(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.SafeAttribute)),
                 Parameters = symbol.Parameters.Select(p => p.ToAbiParameter()).ToArray(),
                 ReturnType = symbol.ReturnType.GetContractParameterType()

@@ -72,12 +72,27 @@ namespace Neo.Compiler
 
         public void Convert(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
+            if (symbol.MethodKind == MethodKind.StaticConstructor)
+                ProcessFields(context, model, symbol);
             if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
                 ConvertSource(context, model, symbol);
-            else
+            else if (symbol.MethodKind != MethodKind.StaticConstructor)
                 ConvertExtern(context, symbol);
             _returnTarget.Instruction = AddInstruction(OpCode.RET);
             _startTarget.Instruction = _instructions[0];
+        }
+
+        private void ProcessFields(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
+        {
+            foreach (IFieldSymbol field in symbol.ContainingType.GetMembers().OfType<IFieldSymbol>())
+            {
+                if (field.IsConst || !field.IsStatic) continue;
+                VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
+                if (syntax.Initializer is null) continue;
+                byte index = context.AddStaticField(field);
+                ConvertExpression(context, model, syntax.Initializer.Value);
+                AccessSlot(OpCode.STSFLD, index);
+            }
         }
 
         private void ConvertExtern(CompilationContext context, IMethodSymbol symbol)
@@ -125,7 +140,7 @@ namespace Neo.Compiler
                 AttributeData attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.ContractHashAttribute));
                 if (attribute is null)
                 {
-                    string method = symbol.GetDisplayName();
+                    string method = symbol.GetDisplayName(true);
                     ushort parametersCount = (ushort)symbol.Parameters.Length;
                     bool hasReturnValue = !symbol.ReturnsVoid || symbol.MethodKind == MethodKind.Constructor;
                     Call(context, hash, method, parametersCount, hasReturnValue);
@@ -190,12 +205,6 @@ namespace Neo.Compiler
             }
             switch (body)
             {
-                case ArrowExpressionClauseSyntax syntax:
-                    ConvertExpression(context, model, syntax.Expression);
-                    break;
-                case MethodDeclarationSyntax syntax:
-                    ConvertStatement(context, model, syntax.Body);
-                    break;
                 case AccessorDeclarationSyntax syntax:
                     if (syntax.Body is not null)
                         ConvertStatement(context, model, syntax.Body);
@@ -203,6 +212,15 @@ namespace Neo.Compiler
                         ConvertExpression(context, model, syntax.ExpressionBody.Expression);
                     else
                         ConvertNoBody(context, symbol);
+                    break;
+                case ArrowExpressionClauseSyntax syntax:
+                    ConvertExpression(context, model, syntax.Expression);
+                    break;
+                case ConstructorDeclarationSyntax syntax:
+                    ConvertStatement(context, model, syntax.Body);
+                    break;
+                case MethodDeclarationSyntax syntax:
+                    ConvertStatement(context, model, syntax.Body);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported method body:{body}");

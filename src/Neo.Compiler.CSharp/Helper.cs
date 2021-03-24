@@ -67,23 +67,31 @@ namespace Neo.Compiler
             return type.GetMembers().OfType<IFieldSymbol>().Where(p => !p.IsStatic).ToArray();
         }
 
-        public static string GetDisplayName(this IMethodSymbol method)
+        public static string GetDisplayName(this ISymbol symbol, bool lowercase = false)
         {
-            AttributeData attribute = method.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute));
+            AttributeData attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute));
             if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value;
-            ISymbol symbol = method;
-            if (method.MethodKind == MethodKind.PropertyGet)
+            if (symbol is IMethodSymbol method)
             {
-                ISymbol property = method.AssociatedSymbol;
-                attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute));
-                if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value;
-                symbol = property;
+                switch (method.MethodKind)
+                {
+                    case MethodKind.Constructor:
+                        symbol = method.ContainingType;
+                        break;
+                    case MethodKind.PropertyGet:
+                        ISymbol property = method.AssociatedSymbol;
+                        attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(DisplayNameAttribute));
+                        if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value;
+                        symbol = property;
+                        break;
+                    case MethodKind.StaticConstructor:
+                        return "_initialize";
+                }
             }
-            else if (method.MethodKind == MethodKind.Constructor)
-            {
-                symbol = method.ContainingType;
-            }
-            return symbol.Name[..1].ToLowerInvariant() + symbol.Name[1..];
+            if (lowercase)
+                return symbol.Name[..1].ToLowerInvariant() + symbol.Name[1..];
+            else
+                return symbol.Name;
         }
 
         public static ContractParameterDefinition ToAbiParameter(this IParameterSymbol symbol)
