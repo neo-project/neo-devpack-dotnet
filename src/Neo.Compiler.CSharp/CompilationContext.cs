@@ -9,6 +9,7 @@ using Neo.VM;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace Neo.Compiler
         private Instruction[] instructions;
 
         public string ContractName { get; private set; }
+        internal int StaticFieldsCount => staticFields.Count;
 
         public static CompilationContext Compile(params string[] sourceFiles)
         {
@@ -167,18 +169,15 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            foreach (ISymbol member in symbol.GetMembers())
-            {
-                switch (member)
-                {
-                    case IEventSymbol @event:
-                        ProcessEvent(@event);
-                        break;
-                    case IMethodSymbol method:
-                        ProcessMethod(model, method);
-                        break;
-                }
-            }
+            ImmutableArray<ISymbol> members = symbol.GetMembers();
+            var events = members.OfType<IEventSymbol>();
+            foreach (IEventSymbol @event in events)
+                ProcessEvent(@event);
+            var methods = members.OfType<IMethodSymbol>().Where(p => p.MethodKind != MethodKind.StaticConstructor);
+            foreach (IMethodSymbol method in methods)
+                ProcessMethod(model, method);
+            IMethodSymbol initializeMethod = members.OfType<IMethodSymbol>().First(p => p.MethodKind == MethodKind.StaticConstructor);
+            ProcessMethod(model, initializeMethod);
         }
 
         private void ProcessEvent(IEventSymbol symbol)

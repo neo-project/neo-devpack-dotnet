@@ -78,6 +78,14 @@ namespace Neo.Compiler
                 ConvertSource(context, model, symbol);
             else if (symbol.MethodKind != MethodKind.StaticConstructor)
                 ConvertExtern(context, symbol);
+            if (symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldsCount > 0)
+            {
+                _instructions.Insert(0, new Instruction
+                {
+                    OpCode = OpCode.INITSSLOT,
+                    Operand = new[] { (byte)context.StaticFieldsCount }
+                });
+            }
             _returnTarget.Instruction = AddInstruction(OpCode.RET);
             _startTarget.Instruction = _instructions[0];
         }
@@ -225,20 +233,18 @@ namespace Neo.Compiler
                 default:
                     throw new NotSupportedException($"Unsupported method body:{body}");
             }
-            if (!_inline) InsertInitSlot(symbol);
-        }
-
-        private void InsertInitSlot(IMethodSymbol symbol)
-        {
-            byte pc = (byte)_parameters.Count;
-            byte lc = (byte)_localsCount;
-            if (!symbol.IsStatic) pc++;
-            if (pc == 0 && lc == 0) return;
-            _instructions.Insert(0, new Instruction
+            if (!_inline)
             {
-                OpCode = OpCode.INITSLOT,
-                Operand = new[] { pc, lc }
-            });
+                byte pc = (byte)_parameters.Count;
+                byte lc = (byte)_localsCount;
+                if (!symbol.IsStatic) pc++;
+                if (pc == 0 && lc == 0) return;
+                _instructions.Insert(0, new Instruction
+                {
+                    OpCode = OpCode.INITSLOT,
+                    Operand = new[] { pc, lc }
+                });
+            }
         }
 
         private void ConvertStatement(CompilationContext context, SemanticModel model, StatementSyntax statement)
