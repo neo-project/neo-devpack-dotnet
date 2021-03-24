@@ -1101,21 +1101,49 @@ namespace Neo.Compiler
 
         private void ConvertInvocationExpression(CompilationContext context, SemanticModel model, InvocationExpressionSyntax expression)
         {
-            IMethodSymbol methodSymbol = (IMethodSymbol)model.GetSymbolInfo(expression.Expression).Symbol;
             ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
-            switch (expression.Expression)
+            ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol;
+            switch (symbol)
             {
-                case IdentifierNameSyntax:
-                    Call(context, model, methodSymbol, null, arguments);
+                case IEventSymbol @event:
+                    ConvertEventInvocationExpression(context, model, @event, arguments);
                     break;
-                case MemberAccessExpressionSyntax syntax:
-                    Call(context, model, methodSymbol, syntax.Expression, arguments);
-                    break;
-                case MemberBindingExpressionSyntax:
-                    Call(context, model, methodSymbol, true, arguments);
+                case IMethodSymbol method:
+                    ConvertMethodInvocationExpression(context, model, method, expression.Expression, arguments);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported expression: {expression.Expression}");
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertEventInvocationExpression(CompilationContext context, SemanticModel model, IEventSymbol symbol, ArgumentSyntax[] arguments)
+        {
+            AddInstruction(OpCode.NEWARRAY0);
+            foreach (ArgumentSyntax argument in arguments)
+            {
+                AddInstruction(OpCode.DUP);
+                ConvertExpression(context, model, argument.Expression);
+                AddInstruction(OpCode.APPEND);
+            }
+            Push(symbol.GetDisplayName());
+            Call(ApplicationEngine.System_Runtime_Notify);
+        }
+
+        private void ConvertMethodInvocationExpression(CompilationContext context, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax expression, ArgumentSyntax[] arguments)
+        {
+            switch (expression)
+            {
+                case IdentifierNameSyntax:
+                    Call(context, model, symbol, null, arguments);
+                    break;
+                case MemberAccessExpressionSyntax syntax:
+                    Call(context, model, symbol, syntax.Expression, arguments);
+                    break;
+                case MemberBindingExpressionSyntax:
+                    Call(context, model, symbol, true, arguments);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported expression: {expression}");
             }
         }
 
