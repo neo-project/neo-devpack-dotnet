@@ -1,0 +1,1970 @@
+extern alias scfx;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Cryptography;
+using Neo.IO;
+using Neo.SmartContract;
+using Neo.SmartContract.Native;
+using Neo.VM;
+using System;
+using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace Neo.Compiler
+{
+    class MethodConvert
+    {
+        private CallingConvention _callingConvention = CallingConvention.Cdecl;
+        private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
+        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
+        private readonly List<byte> _anonymousVariables = new();
+        private int _localsCount;
+        private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
+        private readonly List<Instruction> _instructions = new();
+        private readonly JumpTarget _startTarget = new();
+        private readonly Stack<JumpTarget> _continueTargets = new();
+        private readonly Stack<JumpTarget> _breakTargets = new();
+        private readonly JumpTarget _returnTarget = new();
+        private readonly Stack<ExceptionHandling> _tryStack = new();
+        private readonly Stack<byte> _exceptionStack = new();
+
+        public IReadOnlyList<Instruction> Instructions => _instructions;
+
+        private byte AddLocalVariable(ILocalSymbol symbol)
+        {
+            byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+            _localVariables.Add(symbol, index);
+            if (_localsCount < index + 1)
+                _localsCount = index + 1;
+            _blockSymbols.Peek().Add(symbol);
+            return index;
+        }
+
+        private byte AddAnonymousVariable()
+        {
+            byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+            _anonymousVariables.Add(index);
+            if (_localsCount < index + 1)
+                _localsCount = index + 1;
+            return index;
+        }
+
+        private Instruction AddInstruction(Instruction instruction)
+        {
+            _instructions.Add(instruction);
+            return instruction;
+        }
+
+        private Instruction AddInstruction(OpCode opcode)
+        {
+            return AddInstruction(new Instruction
+            {
+                OpCode = opcode
+            });
+        }
+
+        public void Convert(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
+        {
+            if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
+                ConvertSource(context, model, symbol);
+            else
+                ConvertExtern(context, symbol);
+            _returnTarget.Instruction = AddInstruction(OpCode.RET);
+            _startTarget.Instruction = _instructions[0];
+        }
+
+        private void ConvertExtern(CompilationContext context, IMethodSymbol symbol)
+        {
+            AttributeData contractAttribute = symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.ContractAttribute));
+            if (contractAttribute is null)
+            {
+                bool emitted = false;
+                foreach (AttributeData attribute in symbol.GetAttributes())
+                {
+                    switch (attribute.AttributeClass.Name)
+                    {
+                        case nameof(scfx.Neo.SmartContract.Framework.OpCodeAttribute):
+                            if (!emitted)
+                            {
+                                emitted = true;
+                                _callingConvention = CallingConvention.StdCall;
+                            }
+                            AddInstruction(new Instruction
+                            {
+                                OpCode = (OpCode)attribute.ConstructorArguments[0].Value,
+                                Operand = ((string)attribute.ConstructorArguments[1].Value).HexToBytes()
+                            });
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.SyscallAttribute):
+                            if (!emitted)
+                            {
+                                emitted = true;
+                                _callingConvention = CallingConvention.Cdecl;
+                            }
+                            AddInstruction(new Instruction
+                            {
+                                OpCode = OpCode.SYSCALL,
+                                Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value).Sha256()[..4]
+                            });
+                            break;
+                    }
+                }
+                if (!emitted) throw new NotSupportedException($"Unknown method: {symbol}");
+            }
+            else
+            {
+                UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value);
+                AttributeData attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.ContractHashAttribute));
+                if (attribute is null)
+                {
+                    string method = symbol.GetDisplayName();
+                    ushort parametersCount = (ushort)symbol.Parameters.Length;
+                    bool hasReturnValue = !symbol.ReturnsVoid || symbol.MethodKind == MethodKind.Constructor;
+                    Call(context, hash, method, parametersCount, hasReturnValue);
+                }
+                else
+                {
+                    Push(hash.ToArray());
+                }
+            }
+        }
+
+        private void ConvertNoBody(CompilationContext context, IMethodSymbol symbol)
+        {
+            IPropertySymbol property = (IPropertySymbol)symbol.AssociatedSymbol;
+            INamedTypeSymbol type = property.ContainingType;
+            IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
+            int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+            IFieldSymbol backingField = fields[backingFieldIndex];
+            switch (symbol.MethodKind)
+            {
+                case MethodKind.PropertyGet:
+                    if (symbol.IsStatic)
+                    {
+                        byte index = context.AddStaticField(backingField);
+                        AccessSlot(OpCode.LDSFLD, index);
+                    }
+                    else
+                    {
+                        AddInstruction(OpCode.LDARG0);
+                        Push(backingFieldIndex);
+                        AddInstruction(OpCode.PICKITEM);
+                    }
+                    break;
+                case MethodKind.PropertySet:
+                    if (symbol.IsStatic)
+                    {
+                        byte index = context.AddStaticField(backingField);
+                        AddInstruction(OpCode.LDARG0);
+                        AccessSlot(OpCode.STSFLD, index);
+                    }
+                    else
+                    {
+                        AddInstruction(OpCode.LDARG0);
+                        Push(backingFieldIndex);
+                        AddInstruction(OpCode.LDARG1);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported accessor: {symbol}");
+            }
+        }
+
+        private void ConvertSource(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
+        {
+            var body = symbol.DeclaringSyntaxReferences[0].GetSyntax();
+            for (byte i = 0; i < symbol.Parameters.Length; i++)
+            {
+                IParameterSymbol parameter = symbol.Parameters[i];
+                byte index = i;
+                if (!symbol.IsStatic) index++;
+                _parameters.Add(parameter, index);
+            }
+            switch (body)
+            {
+                case ArrowExpressionClauseSyntax syntax:
+                    ConvertExpression(context, model, syntax.Expression);
+                    break;
+                case MethodDeclarationSyntax syntax:
+                    ConvertStatement(context, model, syntax.Body);
+                    break;
+                case AccessorDeclarationSyntax syntax:
+                    if (syntax.Body is not null)
+                        ConvertStatement(context, model, syntax.Body);
+                    else if (syntax.ExpressionBody is not null)
+                        ConvertExpression(context, model, syntax.ExpressionBody.Expression);
+                    else
+                        ConvertNoBody(context, symbol);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported method body:{body}");
+            }
+            InsertInitSlot(symbol);
+        }
+
+        private void InsertInitSlot(IMethodSymbol symbol)
+        {
+            byte pc = (byte)_parameters.Count;
+            byte lc = (byte)_localsCount;
+            if (!symbol.IsStatic) pc++;
+            if (pc == 0 && lc == 0) return;
+            _instructions.Insert(0, new Instruction
+            {
+                OpCode = OpCode.INITSLOT,
+                Operand = new[] { pc, lc }
+            });
+        }
+
+        private void ConvertStatement(CompilationContext context, SemanticModel model, StatementSyntax statement)
+        {
+            switch (statement)
+            {
+                case BlockSyntax syntax:
+                    ConvertBlockStatement(context, model, syntax);
+                    break;
+                case BreakStatementSyntax:
+                    ConvertBreakStatement();
+                    break;
+                case ContinueStatementSyntax:
+                    ConvertContinueStatement();
+                    break;
+                case DoStatementSyntax syntax:
+                    ConvertDoStatement(context, model, syntax);
+                    break;
+                case EmptyStatementSyntax:
+                    break;
+                case ExpressionStatementSyntax syntax:
+                    ConvertExpressionStatement(context, model, syntax);
+                    break;
+                case ForEachStatementSyntax syntax:
+                    ConvertForEachStatement(context, model, syntax);
+                    break;
+                case ForEachVariableStatementSyntax syntax:
+                    ConvertForEachVariableStatement(context, model, syntax);
+                    break;
+                case ForStatementSyntax syntax:
+                    ConvertForStatement(context, model, syntax);
+                    break;
+                case IfStatementSyntax syntax:
+                    ConvertIfStatement(context, model, syntax);
+                    break;
+                case LocalDeclarationStatementSyntax syntax:
+                    ConvertLocalDeclarationStatement(context, model, syntax);
+                    break;
+                case LocalFunctionStatementSyntax:
+                    break;
+                case ReturnStatementSyntax syntax:
+                    ConvertReturnStatement(context, model, syntax);
+                    break;
+                case SwitchStatementSyntax syntax:
+                    ConvertSwitchStatement(context, model, syntax);
+                    break;
+                case ThrowStatementSyntax syntax:
+                    Throw(context, model, syntax.Expression);
+                    break;
+                case TryStatementSyntax syntax:
+                    ConvertTryStatement(context, model, syntax);
+                    break;
+                case WhileStatementSyntax syntax:
+                    ConvertWhileStatement(context, model, syntax);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported syntax: {statement}");
+            }
+        }
+
+        private void ConvertBlockStatement(CompilationContext context, SemanticModel model, BlockSyntax syntax)
+        {
+            _blockSymbols.Push(new List<ILocalSymbol>());
+            foreach (StatementSyntax child in syntax.Statements)
+                ConvertStatement(context, model, child);
+            foreach (ILocalSymbol symbol in _blockSymbols.Pop())
+                _localVariables.Remove(symbol);
+        }
+
+        private void ConvertBreakStatement()
+        {
+            if (_tryStack.Count > 0)
+                Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
+            else
+                Jump(OpCode.JMP_L, _breakTargets.Peek());
+        }
+
+        private void ConvertContinueStatement()
+        {
+            if (_tryStack.Count > 0)
+                Jump(OpCode.ENDTRY_L, _continueTargets.Peek());
+            else
+                Jump(OpCode.JMP_L, _continueTargets.Peek());
+        }
+
+        private void ConvertDoStatement(CompilationContext context, SemanticModel model, DoStatementSyntax syntax)
+        {
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget breakTarget = new();
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            startTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertStatement(context, model, syntax.Statement);
+            continueTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(context, model, syntax.Condition);
+            Jump(OpCode.JMPIF_L, startTarget);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
+        private void ConvertExpressionStatement(CompilationContext context, SemanticModel model, ExpressionStatementSyntax syntax)
+        {
+            ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type;
+            ConvertExpression(context, model, syntax.Expression);
+            if (type.SpecialType != SpecialType.System_Void)
+                AddInstruction(OpCode.DROP);
+        }
+
+        private void ConvertForEachStatement(CompilationContext context, SemanticModel model, ForEachStatementSyntax syntax)
+        {
+            ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax);
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget breakTarget = new();
+            byte iteratorIndex = AddAnonymousVariable();
+            byte elementIndex = AddLocalVariable(elementSymbol);
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            ConvertExpression(context, model, syntax.Expression);
+            AccessSlot(OpCode.STLOC, iteratorIndex);
+            Jump(OpCode.JMP_L, continueTarget);
+            startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+            Call(ApplicationEngine.System_Iterator_Value);
+            AccessSlot(OpCode.STLOC, elementIndex);
+            ConvertStatement(context, model, syntax.Statement);
+            continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+            Call(ApplicationEngine.System_Iterator_Next);
+            Jump(OpCode.JMPIF_L, startTarget);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _anonymousVariables.Remove(iteratorIndex);
+            _localVariables.Remove(elementSymbol);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
+        private void ConvertForEachVariableStatement(CompilationContext context, SemanticModel model, ForEachVariableStatementSyntax syntax)
+        {
+            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)).ToArray();
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget breakTarget = new();
+            byte iteratorIndex = AddAnonymousVariable();
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            ConvertExpression(context, model, syntax.Expression);
+            AccessSlot(OpCode.STLOC, iteratorIndex);
+            Jump(OpCode.JMP_L, continueTarget);
+            startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+            Call(ApplicationEngine.System_Iterator_Value);
+            for (int i = 0; i < symbols.Length; i++)
+            {
+                if (symbols[i] is null) continue;
+                byte variableIndex = AddLocalVariable(symbols[i]);
+                AddInstruction(OpCode.DUP);
+                Push(i);
+                AddInstruction(OpCode.PICKITEM);
+                AccessSlot(OpCode.STLOC, variableIndex);
+            }
+            AddInstruction(OpCode.DROP);
+            ConvertStatement(context, model, syntax.Statement);
+            continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+            Call(ApplicationEngine.System_Iterator_Next);
+            Jump(OpCode.JMPIF_L, startTarget);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _anonymousVariables.Remove(iteratorIndex);
+            foreach (ILocalSymbol symbol in symbols)
+                if (symbol is not null)
+                    _localVariables.Remove(symbol);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
+        private void ConvertForStatement(CompilationContext context, SemanticModel model, ForStatementSyntax syntax)
+        {
+            var variables = syntax.Declaration.Variables.Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p))).ToArray();
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget conditionTarget = new();
+            JumpTarget breakTarget = new();
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            foreach (var (variable, symbol) in variables)
+            {
+                byte variableIndex = AddLocalVariable(symbol);
+                ConvertExpression(context, model, variable.Initializer.Value);
+                AccessSlot(OpCode.STLOC, variableIndex);
+            }
+            Jump(OpCode.JMP_L, conditionTarget);
+            startTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertStatement(context, model, syntax.Statement);
+            continueTarget.Instruction = AddInstruction(OpCode.NOP);
+            foreach (ExpressionSyntax expression in syntax.Incrementors)
+            {
+                ITypeSymbol type = model.GetTypeInfo(expression).Type;
+                ConvertExpression(context, model, expression);
+                if (type.SpecialType != SpecialType.System_Void)
+                    AddInstruction(OpCode.DROP);
+            }
+            conditionTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(context, model, syntax.Condition);
+            Jump(OpCode.JMPIF_L, startTarget);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            foreach (var (_, symbol) in variables)
+                _localVariables.Remove(symbol);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
+        private void ConvertIfStatement(CompilationContext context, SemanticModel model, IfStatementSyntax syntax)
+        {
+            JumpTarget elseTarget = new();
+            ConvertExpression(context, model, syntax.Condition);
+            Jump(OpCode.JMPIFNOT_L, elseTarget);
+            ConvertStatement(context, model, syntax.Statement);
+            if (syntax.Else is null)
+            {
+                elseTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+            else
+            {
+                JumpTarget endTarget = new();
+                Jump(OpCode.JMP_L, endTarget);
+                elseTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertStatement(context, model, syntax.Else.Statement);
+                endTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+        }
+
+        private void ConvertLocalDeclarationStatement(CompilationContext context, SemanticModel model, LocalDeclarationStatementSyntax syntax)
+        {
+            if (syntax.IsConst) return;
+            foreach (VariableDeclaratorSyntax variable in syntax.Declaration.Variables)
+            {
+                ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable);
+                byte variableIndex = AddLocalVariable(symbol);
+                if (variable.Initializer is not null)
+                {
+                    ConvertExpression(context, model, variable.Initializer.Value);
+                    AccessSlot(OpCode.STLOC, variableIndex);
+                }
+            }
+        }
+
+        private void ConvertReturnStatement(CompilationContext context, SemanticModel model, ReturnStatementSyntax syntax)
+        {
+            if (syntax.Expression is not null)
+                ConvertExpression(context, model, syntax.Expression);
+            if (_tryStack.Count > 0)
+                Jump(OpCode.ENDTRY_L, _returnTarget);
+            else
+                Jump(OpCode.JMP_L, _returnTarget);
+        }
+
+        private void ConvertSwitchStatement(CompilationContext context, SemanticModel model, SwitchStatementSyntax syntax)
+        {
+            var sections = syntax.Sections.Select(p => (p.Labels, p.Statements, Target: new JumpTarget())).ToArray();
+            var labels = sections.SelectMany(p => p.Labels, (p, l) => (l, p.Target)).ToArray();
+            JumpTarget breakTarget = new();
+            _breakTargets.Push(breakTarget);
+            ConvertExpression(context, model, syntax.Expression);
+            foreach (var (label, target) in labels)
+            {
+                switch (label)
+                {
+                    case CaseSwitchLabelSyntax caseSwitchLabel:
+                        AddInstruction(OpCode.DUP);
+                        ConvertExpression(context, model, caseSwitchLabel.Value);
+                        Jump(OpCode.JMPEQ_L, target);
+                        break;
+                    case DefaultSwitchLabelSyntax:
+                        Jump(OpCode.JMP_L, target);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unsupported syntax: {label}");
+                }
+            }
+            Jump(OpCode.JMP_L, breakTarget);
+            foreach (var (_, statements, target) in sections)
+            {
+                target.Instruction = AddInstruction(OpCode.NOP);
+                foreach (StatementSyntax statement in statements)
+                    ConvertStatement(context, model, statement);
+            }
+            breakTarget.Instruction = AddInstruction(OpCode.DROP);
+            _breakTargets.Pop();
+        }
+
+        private void ConvertTryStatement(CompilationContext context, SemanticModel model, TryStatementSyntax syntax)
+        {
+            JumpTarget catchTarget = new();
+            JumpTarget finallyTarget = new();
+            JumpTarget endTarget = new();
+            AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
+            _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
+            ConvertStatement(context, model, syntax.Block);
+            Jump(OpCode.ENDTRY_L, endTarget);
+            if (syntax.Catches.Count > 1)
+                throw new NotSupportedException("Only support one single catch.");
+            if (syntax.Catches.Count > 0)
+            {
+                CatchClauseSyntax catchClause = syntax.Catches[0];
+                if (catchClause.Filter is not null)
+                    throw new NotSupportedException($"Unsupported syntax: {catchClause.Filter}");
+                ILocalSymbol exceptionSymbol = null;
+                _tryStack.Peek().State = ExceptionHandlingState.Catch;
+                byte exceptionIndex;
+                if (catchClause.Declaration is null)
+                {
+                    exceptionIndex = AddAnonymousVariable();
+                }
+                else
+                {
+                    exceptionSymbol = model.GetDeclaredSymbol(catchClause.Declaration);
+                    exceptionIndex = AddLocalVariable(exceptionSymbol);
+                }
+                catchTarget.Instruction = AccessSlot(OpCode.STLOC, exceptionIndex);
+                _exceptionStack.Push(exceptionIndex);
+                ConvertStatement(context, model, catchClause.Block);
+                Jump(OpCode.ENDTRY_L, endTarget);
+                if (exceptionSymbol is null)
+                    _anonymousVariables.Remove(exceptionIndex);
+                else
+                    _localVariables.Remove(exceptionSymbol);
+                _exceptionStack.Pop();
+            }
+            if (syntax.Finally is not null)
+            {
+                _tryStack.Peek().State = ExceptionHandlingState.Finally;
+                finallyTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertStatement(context, model, syntax.Finally.Block);
+                AddInstruction(OpCode.ENDFINALLY);
+            }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            _tryStack.Pop();
+        }
+
+        private void ConvertWhileStatement(CompilationContext context, SemanticModel model, WhileStatementSyntax syntax)
+        {
+            JumpTarget continueTarget = new();
+            JumpTarget breakTarget = new();
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            continueTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(context, model, syntax.Condition);
+            Jump(OpCode.JMPIFNOT_L, breakTarget);
+            ConvertStatement(context, model, syntax.Statement);
+            Jump(OpCode.JMP_L, continueTarget);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
+        private void ConvertExpression(CompilationContext context, SemanticModel model, ExpressionSyntax syntax)
+        {
+            switch (syntax)
+            {
+                case AnonymousObjectCreationExpressionSyntax expression:
+                    ConvertAnonymousObjectCreationExpression(context, model, expression);
+                    break;
+                case ArrayCreationExpressionSyntax expression:
+                    ConvertArrayCreationExpression(context, model, expression);
+                    break;
+                case AssignmentExpressionSyntax expression:
+                    ConvertAssignmentExpression(context, model, expression);
+                    break;
+                case BaseObjectCreationExpressionSyntax expression:
+                    ConvertObjectCreationExpression(context, model, expression);
+                    break;
+                case BinaryExpressionSyntax expression:
+                    ConvertBinaryExpression(context, model, expression);
+                    break;
+                case CastExpressionSyntax expression:
+                    ConvertCastExpression(context, model, expression);
+                    break;
+                case ConditionalAccessExpressionSyntax expression:
+                    ConvertConditionalAccessExpression(context, model, expression);
+                    break;
+                case ConditionalExpressionSyntax expression:
+                    ConvertConditionalExpression(context, model, expression);
+                    break;
+                case DefaultExpressionSyntax expression:
+                    ConvertDefaultExpression(model, expression);
+                    break;
+                case ElementAccessExpressionSyntax expression:
+                    ConvertElementAccessExpression(context, model, expression);
+                    break;
+                case ElementBindingExpressionSyntax expression:
+                    ConvertElementBindingExpression(context, model, expression);
+                    break;
+                case IdentifierNameSyntax expression:
+                    ConvertIdentifierNameExpression(context, model, expression);
+                    break;
+                case ImplicitArrayCreationExpressionSyntax expression:
+                    ConvertImplicitArrayCreationExpression(context, model, expression);
+                    break;
+                case InterpolatedStringExpressionSyntax expression:
+                    ConvertInterpolatedStringExpression(context, model, expression);
+                    break;
+                case InvocationExpressionSyntax expression:
+                    ConvertInvocationExpression(context, model, expression);
+                    break;
+                case LiteralExpressionSyntax expression:
+                    ConvertLiteralExpression(model, expression);
+                    break;
+                case MemberAccessExpressionSyntax expression:
+                    ConvertMemberAccessExpression(context, model, expression);
+                    break;
+                case MemberBindingExpressionSyntax expression:
+                    ConvertMemberBindingExpression(context, model, expression);
+                    break;
+                case OmittedArraySizeExpressionSyntax:
+                    break;
+                case ParenthesizedExpressionSyntax expression:
+                    ConvertExpression(context, model, expression.Expression);
+                    break;
+                case PostfixUnaryExpressionSyntax expression:
+                    ConvertPostfixUnaryExpression(context, model, expression);
+                    break;
+                case PrefixUnaryExpressionSyntax expression:
+                    ConvertPrefixUnaryExpression(context, model, expression);
+                    break;
+                case SizeOfExpressionSyntax expression:
+                    ConvertSizeOfExpression(model, expression);
+                    break;
+                case SwitchExpressionSyntax expression:
+                    ConvertSwitchExpression(context, model, expression);
+                    break;
+                case ThisExpressionSyntax:
+                    AddInstruction(OpCode.LDARG0);
+                    break;
+                case ThrowExpressionSyntax expression:
+                    Throw(context, model, expression.Expression);
+                    break;
+                case TupleExpressionSyntax expression:
+                    ConvertTupleExpression(context, model, expression);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported syntax: {syntax}");
+            }
+        }
+
+        private void ConvertAnonymousObjectCreationExpression(CompilationContext context, SemanticModel model, AnonymousObjectCreationExpressionSyntax expression)
+        {
+            AddInstruction(OpCode.NEWARRAY0);
+            foreach (AnonymousObjectMemberDeclaratorSyntax initializer in expression.Initializers)
+            {
+                AddInstruction(OpCode.DUP);
+                ConvertExpression(context, model, initializer.Expression);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+
+        private void ConvertArrayCreationExpression(CompilationContext context, SemanticModel model, ArrayCreationExpressionSyntax expression)
+        {
+            if (expression.Type.RankSpecifiers.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {expression.Type.RankSpecifiers}");
+            ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
+            if (specifier.Rank != 1)
+                throw new NotSupportedException($"Unsupported array rank: {specifier}");
+            ConvertExpression(context, model, specifier.Sizes[0]);
+            if (expression.Initializer is null)
+            {
+                ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type;
+                AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
+            }
+            else
+            {
+                AddInstruction(OpCode.NEWARRAY0);
+                foreach (ExpressionSyntax ex in expression.Initializer.Expressions)
+                {
+                    AddInstruction(OpCode.DUP);
+                    ConvertExpression(context, model, ex);
+                    AddInstruction(OpCode.APPEND);
+                }
+            }
+        }
+
+        private void ConvertAssignmentExpression(CompilationContext context, SemanticModel model, AssignmentExpressionSyntax expression)
+        {
+            ConvertExpression(context, model, expression.Right);
+            AddInstruction(OpCode.DUP);
+            switch (expression.Left)
+            {
+                case ElementAccessExpressionSyntax left:
+                    ConvertElementAccessAssignment(context, model, left);
+                    break;
+                case IdentifierNameSyntax left:
+                    ConvertIdentifierNameAssignment(context, model, left);
+                    break;
+                case MemberAccessExpressionSyntax left:
+                    ConvertMemberAccessAssignment(context, model, left);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported assignment: {expression.Left}");
+            }
+        }
+
+        private void ConvertElementAccessAssignment(CompilationContext context, SemanticModel model, ElementAccessExpressionSyntax left)
+        {
+            if (left.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {left.ArgumentList.Arguments}");
+            ConvertExpression(context, model, left.Expression);
+            ConvertExpression(context, model, left.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.ROT);
+            AddInstruction(OpCode.SETITEM);
+        }
+
+        private void ConvertIdentifierNameAssignment(CompilationContext context, SemanticModel model, IdentifierNameSyntax left)
+        {
+            ISymbol symbol = model.GetSymbolInfo(left).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    if (field.IsStatic)
+                    {
+                        byte index = context.AddStaticField(field);
+                        AccessSlot(OpCode.STSFLD, index);
+                    }
+                    else
+                    {
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        AddInstruction(OpCode.LDARG0);
+                        Push(index);
+                        AddInstruction(OpCode.ROT);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                    break;
+                case ILocalSymbol local:
+                    AccessSlot(OpCode.STLOC, _localVariables[local]);
+                    break;
+                case IParameterSymbol parameter:
+                    AccessSlot(OpCode.STARG, _parameters[parameter]);
+                    break;
+                case IPropertySymbol property:
+                    if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
+                    Call(context, model, property.SetMethod, CallingConvention.Cdecl);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertMemberAccessAssignment(CompilationContext context, SemanticModel model, MemberAccessExpressionSyntax left)
+        {
+            ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    if (field.IsStatic)
+                    {
+                        byte index = context.AddStaticField(field);
+                        AccessSlot(OpCode.STSFLD, index);
+                    }
+                    else
+                    {
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        ConvertExpression(context, model, left.Expression);
+                        Push(index);
+                        AddInstruction(OpCode.ROT);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                    break;
+                case IPropertySymbol property:
+                    if (!property.IsStatic) ConvertExpression(context, model, left.Expression);
+                    Call(context, model, property.SetMethod, CallingConvention.Cdecl);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertObjectCreationExpression(CompilationContext context, SemanticModel model, BaseObjectCreationExpressionSyntax expression)
+        {
+            bool needCallConstructor, needCreateObject;
+            IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol;
+            if (constructor.IsExtern)
+            {
+                needCallConstructor = true;
+                needCreateObject = false;
+            }
+            else if (constructor.DeclaringSyntaxReferences.Length > 0)
+            {
+                needCallConstructor = true;
+                needCreateObject = true;
+            }
+            else
+            {
+                needCallConstructor = false;
+                needCreateObject = true;
+            }
+            if (needCreateObject)
+            {
+                ITypeSymbol type = model.GetTypeInfo(expression).Type;
+                IFieldSymbol[] fields = type.GetFields();
+                AddInstruction(OpCode.NEWARRAY0);
+                foreach (IFieldSymbol field in fields)
+                {
+                    ExpressionSyntax right = null;
+                    if (expression.Initializer is not null)
+                    {
+                        foreach (ExpressionSyntax e in expression.Initializer.Expressions)
+                        {
+                            if (e is not AssignmentExpressionSyntax ae)
+                                throw new NotSupportedException($"Unsupported initializer: {expression.Initializer}");
+                            if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
+                            {
+                                right = ae.Right;
+                                break;
+                            }
+                        }
+                    }
+                    AddInstruction(OpCode.DUP);
+                    if (right is null)
+                        PushDefault(field.Type);
+                    else
+                        ConvertExpression(context, model, right);
+                    AddInstruction(OpCode.APPEND);
+                }
+            }
+            if (needCallConstructor)
+            {
+                Call(context, model, constructor, needCreateObject, expression.ArgumentList.Arguments);
+            }
+        }
+
+        private void ConvertBinaryExpression(CompilationContext context, SemanticModel model, BinaryExpressionSyntax expression)
+        {
+            if (expression.OperatorToken.ValueText == "??")
+            {
+                ConvertCoalesceExpression(context, model, expression.Left, expression.Right);
+            }
+            else
+            {
+                ConvertExpression(context, model, expression.Left);
+                ConvertExpression(context, model, expression.Right);
+                AddInstruction(expression.OperatorToken.ValueText switch
+                {
+                    "+" => OpCode.ADD,
+                    "-" => OpCode.SUB,
+                    "*" => OpCode.MUL,
+                    "/" => OpCode.DIV,
+                    "%" => OpCode.MOD,
+                    "<<" => OpCode.SHL,
+                    ">>" => OpCode.SHR,
+                    "||" => OpCode.BOOLOR,
+                    "&&" => OpCode.BOOLAND,
+                    "|" => OpCode.OR,
+                    "&" => OpCode.AND,
+                    "^" => OpCode.XOR,
+                    "==" => OpCode.NUMEQUAL,
+                    "!=" => OpCode.NUMNOTEQUAL,
+                    "<" => OpCode.LT,
+                    "<=" => OpCode.LE,
+                    ">" => OpCode.GT,
+                    ">=" => OpCode.GE,
+                    _ => throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}")
+                });
+            }
+        }
+
+        private void ConvertCoalesceExpression(CompilationContext context, SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
+        {
+            JumpTarget endTarget = new();
+            ConvertExpression(context, model, left);
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.ISNULL);
+            Jump(OpCode.JMPIFNOT_L, endTarget);
+            AddInstruction(OpCode.DROP);
+            ConvertExpression(context, model, right);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertCastExpression(CompilationContext context, SemanticModel model, CastExpressionSyntax expression)
+        {
+            IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol;
+            Call(context, model, symbol, null, expression.Expression);
+        }
+
+        private void ConvertConditionalAccessExpression(CompilationContext context, SemanticModel model, ConditionalAccessExpressionSyntax expression)
+        {
+            ITypeSymbol type = model.GetTypeInfo(expression).Type;
+            JumpTarget nullTarget = new();
+            ConvertExpression(context, model, expression.Expression);
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.ISNULL);
+            Jump(OpCode.JMPIF_L, nullTarget);
+            ConvertExpression(context, model, expression.WhenNotNull);
+            if (type.SpecialType == SpecialType.System_Void)
+            {
+                JumpTarget endTarget = new();
+                Jump(OpCode.JMP_L, endTarget);
+                nullTarget.Instruction = AddInstruction(OpCode.DROP);
+                endTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+            else
+            {
+                nullTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+        }
+
+        private void ConvertConditionalExpression(CompilationContext context, SemanticModel model, ConditionalExpressionSyntax expression)
+        {
+            JumpTarget falseTarget = new();
+            JumpTarget endTarget = new();
+            ConvertExpression(context, model, expression.Condition);
+            Jump(OpCode.JMPIFNOT_L, falseTarget);
+            ConvertExpression(context, model, expression.WhenTrue);
+            Jump(OpCode.JMP_L, endTarget);
+            falseTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(context, model, expression.WhenFalse);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertDefaultExpression(SemanticModel model, DefaultExpressionSyntax expression)
+        {
+            PushDefault(model.GetTypeInfo(expression.Type).Type);
+        }
+
+        private void ConvertElementAccessExpression(CompilationContext context, SemanticModel model, ElementAccessExpressionSyntax expression)
+        {
+            if (expression.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {expression.ArgumentList.Arguments}");
+            ConvertExpression(context, model, expression.Expression);
+            ConvertExpression(context, model, expression.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.PICKITEM);
+        }
+
+        private void ConvertElementBindingExpression(CompilationContext context, SemanticModel model, ElementBindingExpressionSyntax expression)
+        {
+            if (expression.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {expression.ArgumentList.Arguments}");
+            ConvertExpression(context, model, expression.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.PICKITEM);
+        }
+
+        private void ConvertIdentifierNameExpression(CompilationContext context, SemanticModel model, IdentifierNameSyntax expression)
+        {
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    if (field.IsStatic)
+                    {
+                        byte index = context.AddStaticField(field);
+                        AccessSlot(OpCode.LDSFLD, index);
+                    }
+                    else
+                    {
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        AddInstruction(OpCode.LDARG0);
+                        Push(index);
+                        AddInstruction(OpCode.PICKITEM);
+                    }
+                    break;
+                case ILocalSymbol local:
+                    AccessSlot(OpCode.LDLOC, _localVariables[local]);
+                    break;
+                case IParameterSymbol parameter:
+                    AccessSlot(OpCode.LDARG, _parameters[parameter]);
+                    break;
+                case IPropertySymbol property:
+                    if (property.IsStatic)
+                    {
+                        Call(context, model, property.GetMethod);
+                    }
+                    else
+                    {
+                        AddInstruction(OpCode.LDARG0);
+                        Call(context, model, property.GetMethod);
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertImplicitArrayCreationExpression(CompilationContext context, SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
+        {
+            AddInstruction(OpCode.NEWARRAY0);
+            foreach (ExpressionSyntax ex in expression.Initializer.Expressions)
+            {
+                AddInstruction(OpCode.DUP);
+                ConvertExpression(context, model, ex);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+
+        private void ConvertInterpolatedStringExpression(CompilationContext context, SemanticModel model, InterpolatedStringExpressionSyntax expression)
+        {
+            if (expression.Contents.Count == 0)
+            {
+                Push(string.Empty);
+                return;
+            }
+            ConvertInterpolatedStringContent(context, model, expression.Contents[0]);
+            for (int i = 1; i < expression.Contents.Count; i++)
+            {
+                ConvertInterpolatedStringContent(context, model, expression.Contents[i]);
+                AddInstruction(OpCode.CAT);
+            }
+            if (expression.Contents.Count >= 2)
+                ChangeType(VM.Types.StackItemType.ByteString);
+        }
+
+        private void ConvertInterpolatedStringContent(CompilationContext context, SemanticModel model, InterpolatedStringContentSyntax content)
+        {
+            switch (content)
+            {
+                case InterpolatedStringTextSyntax syntax:
+                    Push(syntax.TextToken.ValueText);
+                    break;
+                case InterpolationSyntax syntax:
+                    if (syntax.AlignmentClause is not null)
+                        throw new NotSupportedException($"Unsupported alignment clause: {syntax.AlignmentClause}");
+                    if (syntax.FormatClause is not null)
+                        throw new NotSupportedException($"Unsupported format clause: {syntax.FormatClause}");
+                    ConvertExpression(context, model, syntax.Expression);
+                    ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type;
+                    switch (type.SpecialType)
+                    {
+                        case SpecialType.System_SByte:
+                        case SpecialType.System_Byte:
+                        case SpecialType.System_Int16:
+                        case SpecialType.System_UInt16:
+                        case SpecialType.System_Int32:
+                        case SpecialType.System_UInt32:
+                        case SpecialType.System_Int64:
+                        case SpecialType.System_UInt64:
+                        case SpecialType.None when type.Name == nameof(BigInteger):
+                            Push(10);
+                            AddInstruction(OpCode.SWAP);
+                            Call(context, NativeContract.StdLib.Hash, "itoa", 2, true);
+                            break;
+                        case SpecialType.System_String:
+                            break;
+                        default:
+                            throw new NotSupportedException($"Unsupported interpolation: {syntax.Expression}");
+                    }
+                    break;
+            }
+        }
+
+        private void ConvertInvocationExpression(CompilationContext context, SemanticModel model, InvocationExpressionSyntax expression)
+        {
+            IMethodSymbol methodSymbol = (IMethodSymbol)model.GetSymbolInfo(expression.Expression).Symbol;
+            ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
+            switch (expression.Expression)
+            {
+                case IdentifierNameSyntax:
+                    Call(context, model, methodSymbol, null, arguments);
+                    break;
+                case MemberAccessExpressionSyntax syntax:
+                    Call(context, model, methodSymbol, syntax.Expression, arguments);
+                    break;
+                case MemberBindingExpressionSyntax:
+                    Call(context, model, methodSymbol, true, arguments);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported expression: {expression.Expression}");
+            }
+        }
+
+        private void ConvertLiteralExpression(SemanticModel model, LiteralExpressionSyntax expression)
+        {
+            Push(model.GetConstantValue(expression).Value);
+        }
+
+        private void ConvertMemberAccessExpression(CompilationContext context, SemanticModel model, MemberAccessExpressionSyntax expression)
+        {
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    if (field.IsStatic)
+                    {
+                        byte index = context.AddStaticField(field);
+                        AccessSlot(OpCode.LDSFLD, index);
+                    }
+                    else
+                    {
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        ConvertExpression(context, model, expression.Expression);
+                        Push(index);
+                        AddInstruction(OpCode.PICKITEM);
+                    }
+                    break;
+                case IPropertySymbol property:
+                    ExpressionSyntax instanceExpression = property.IsStatic ? null : expression.Expression;
+                    Call(context, model, property.GetMethod, instanceExpression);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertMemberBindingExpression(CompilationContext context, SemanticModel model, MemberBindingExpressionSyntax expression)
+        {
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    Push(index);
+                    AddInstruction(OpCode.PICKITEM);
+                    break;
+                case IPropertySymbol property:
+                    Call(context, model, property.GetMethod);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertPostfixUnaryExpression(CompilationContext context, SemanticModel model, PostfixUnaryExpressionSyntax expression)
+        {
+            switch (expression.OperatorToken.ValueText)
+            {
+                case "++":
+                case "--":
+                    ConvertPostIncrementOrDecrementExpression(context, model, expression);
+                    break;
+                case "!":
+                    ConvertExpression(context, model, expression.Operand);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}");
+            }
+        }
+
+        private void ConvertPostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, PostfixUnaryExpressionSyntax expression)
+        {
+            switch (expression.Operand)
+            {
+                case ElementAccessExpressionSyntax operand:
+                    ConvertElementAccessPostIncrementOrDecrementExpression(context, model, expression.OperatorToken, operand);
+                    break;
+                case IdentifierNameSyntax operand:
+                    ConvertIdentifierNamePostIncrementOrDecrementExpression(context, model, expression.OperatorToken, operand);
+                    break;
+                case MemberAccessExpressionSyntax operand:
+                    ConvertMemberAccessPostIncrementOrDecrementExpression(context, model, expression.OperatorToken, operand);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported postfix unary expression: {expression}");
+            }
+        }
+
+        private void ConvertElementAccessPostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, ElementAccessExpressionSyntax operand)
+        {
+            if (operand.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {operand.ArgumentList.Arguments}");
+            ConvertExpression(context, model, operand.Expression);
+            ConvertExpression(context, model, operand.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.PICKITEM);
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.REVERSE4);
+            AddInstruction(OpCode.REVERSE3);
+            EmitIncrementOrDecrement(operatorToken);
+            AddInstruction(OpCode.SETITEM);
+        }
+
+        private void ConvertIdentifierNamePostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
+        {
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(context, operatorToken, field);
+                    break;
+                case ILocalSymbol local:
+                    ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(operatorToken, local);
+                    break;
+                case IParameterSymbol parameter:
+                    ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(operatorToken, parameter);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(context, model, operatorToken, property);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(CompilationContext context, SyntaxToken operatorToken, IFieldSymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                byte index = context.AddStaticField(symbol);
+                AccessSlot(OpCode.LDSFLD, index);
+                AddInstruction(OpCode.DUP);
+                EmitIncrementOrDecrement(operatorToken);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
+                AddInstruction(OpCode.LDARG0);
+                AddInstruction(OpCode.DUP);
+                Push(index);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.TUCK);
+                EmitIncrementOrDecrement(operatorToken);
+                Push(index);
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+
+        private void ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
+        {
+            byte index = _localVariables[symbol];
+            AccessSlot(OpCode.LDLOC, index);
+            AddInstruction(OpCode.DUP);
+            EmitIncrementOrDecrement(operatorToken);
+            AccessSlot(OpCode.STLOC, index);
+        }
+
+        private void ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
+        {
+            byte index = _parameters[symbol];
+            AccessSlot(OpCode.LDARG, index);
+            AddInstruction(OpCode.DUP);
+            EmitIncrementOrDecrement(operatorToken);
+            AccessSlot(OpCode.STARG, index);
+        }
+
+        private void ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                Call(context, model, symbol.GetMethod);
+                AddInstruction(OpCode.DUP);
+                EmitIncrementOrDecrement(operatorToken);
+                Call(context, model, symbol.SetMethod);
+            }
+            else
+            {
+                AddInstruction(OpCode.LDARG0);
+                AddInstruction(OpCode.DUP);
+                Call(context, model, symbol.GetMethod);
+                AddInstruction(OpCode.TUCK);
+                EmitIncrementOrDecrement(operatorToken);
+                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+            }
+        }
+
+        private void ConvertMemberAccessPostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand)
+        {
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldMemberAccessPostIncrementOrDecrementExpression(context, model, operatorToken, operand, field);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyMemberAccessPostIncrementOrDecrementExpression(context, model, operatorToken, operand, property);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldMemberAccessPostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand, IFieldSymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                byte index = context.AddStaticField(symbol);
+                AccessSlot(OpCode.LDSFLD, index);
+                AddInstruction(OpCode.DUP);
+                EmitIncrementOrDecrement(operatorToken);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
+                ConvertExpression(context, model, operand.Expression);
+                AddInstruction(OpCode.DUP);
+                Push(index);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.TUCK);
+                EmitIncrementOrDecrement(operatorToken);
+                Push(index);
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+
+        private void ConvertPropertyMemberAccessPostIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand, IPropertySymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                Call(context, model, symbol.GetMethod);
+                AddInstruction(OpCode.DUP);
+                EmitIncrementOrDecrement(operatorToken);
+                Call(context, model, symbol.SetMethod);
+            }
+            else
+            {
+                ConvertExpression(context, model, operand.Expression);
+                AddInstruction(OpCode.DUP);
+                Call(context, model, symbol.GetMethod);
+                AddInstruction(OpCode.TUCK);
+                EmitIncrementOrDecrement(operatorToken);
+                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+            }
+        }
+
+        private void ConvertPrefixUnaryExpression(CompilationContext context, SemanticModel model, PrefixUnaryExpressionSyntax expression)
+        {
+            switch (expression.OperatorToken.ValueText)
+            {
+                case "+":
+                    ConvertExpression(context, model, expression.Operand);
+                    break;
+                case "-":
+                    ConvertExpression(context, model, expression.Operand);
+                    AddInstruction(OpCode.NEGATE);
+                    break;
+                case "~":
+                    ConvertExpression(context, model, expression.Operand);
+                    AddInstruction(OpCode.INVERT);
+                    break;
+                case "!":
+                    ConvertExpression(context, model, expression.Operand);
+                    AddInstruction(OpCode.NOT);
+                    break;
+                case "++":
+                case "--":
+                    ConvertPreIncrementOrDecrementExpression(context, model, expression);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}");
+            }
+        }
+
+        private void ConvertPreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, PrefixUnaryExpressionSyntax expression)
+        {
+            switch (expression.Operand)
+            {
+                case ElementAccessExpressionSyntax operand:
+                    ConvertElementAccessPreIncrementOrDecrementExpression(context, model, expression.OperatorToken, operand);
+                    break;
+                case IdentifierNameSyntax operand:
+                    ConvertIdentifierNamePreIncrementOrDecrementExpression(context, model, expression.OperatorToken, operand);
+                    break;
+                case MemberAccessExpressionSyntax operand:
+                    ConvertMemberAccessPreIncrementOrDecrementExpression(context, model, expression.OperatorToken, operand);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported postfix unary expression: {expression}");
+            }
+        }
+
+        private void ConvertElementAccessPreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, ElementAccessExpressionSyntax operand)
+        {
+            if (operand.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {operand.ArgumentList.Arguments}");
+            ConvertExpression(context, model, operand.Expression);
+            ConvertExpression(context, model, operand.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.PICKITEM);
+            EmitIncrementOrDecrement(operatorToken);
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.REVERSE4);
+            AddInstruction(OpCode.REVERSE3);
+            AddInstruction(OpCode.SETITEM);
+        }
+
+        private void ConvertIdentifierNamePreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
+        {
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldIdentifierNamePreIncrementOrDecrementExpression(context, operatorToken, field);
+                    break;
+                case ILocalSymbol local:
+                    ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(operatorToken, local);
+                    break;
+                case IParameterSymbol parameter:
+                    ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(operatorToken, parameter);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(context, model, operatorToken, property);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldIdentifierNamePreIncrementOrDecrementExpression(CompilationContext context, SyntaxToken operatorToken, IFieldSymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                byte index = context.AddStaticField(symbol);
+                AccessSlot(OpCode.LDSFLD, index);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
+                AddInstruction(OpCode.LDARG0);
+                AddInstruction(OpCode.DUP);
+                Push(index);
+                AddInstruction(OpCode.PICKITEM);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Push(index);
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+
+        private void ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
+        {
+            byte index = _localVariables[symbol];
+            AccessSlot(OpCode.LDLOC, index);
+            EmitIncrementOrDecrement(operatorToken);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.STLOC, index);
+        }
+
+        private void ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
+        {
+            byte index = _parameters[symbol];
+            AccessSlot(OpCode.LDARG, index);
+            EmitIncrementOrDecrement(operatorToken);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.STARG, index);
+        }
+
+        private void ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                Call(context, model, symbol.GetMethod);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.DUP);
+                Call(context, model, symbol.SetMethod);
+            }
+            else
+            {
+                AddInstruction(OpCode.LDARG0);
+                AddInstruction(OpCode.DUP);
+                Call(context, model, symbol.GetMethod);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+            }
+        }
+
+        private void ConvertMemberAccessPreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand)
+        {
+            ISymbol symbol = model.GetSymbolInfo(operand).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldMemberAccessPreIncrementOrDecrementExpression(context, model, operatorToken, operand, field);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyMemberAccessPreIncrementOrDecrementExpression(context, model, operatorToken, operand, property);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldMemberAccessPreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand, IFieldSymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                byte index = context.AddStaticField(symbol);
+                AccessSlot(OpCode.LDSFLD, index);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
+                ConvertExpression(context, model, operand.Expression);
+                AddInstruction(OpCode.DUP);
+                Push(index);
+                AddInstruction(OpCode.PICKITEM);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Push(index);
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+
+        private void ConvertPropertyMemberAccessPreIncrementOrDecrementExpression(CompilationContext context, SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand, IPropertySymbol symbol)
+        {
+            if (symbol.IsStatic)
+            {
+                Call(context, model, symbol.GetMethod);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.DUP);
+                Call(context, model, symbol.SetMethod);
+            }
+            else
+            {
+                ConvertExpression(context, model, operand.Expression);
+                AddInstruction(OpCode.DUP);
+                Call(context, model, symbol.GetMethod);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Call(context, model, symbol.SetMethod, CallingConvention.StdCall);
+            }
+        }
+
+        private void EmitIncrementOrDecrement(SyntaxToken operatorToken)
+        {
+            AddInstruction(operatorToken.ValueText switch
+            {
+                "++" => OpCode.INC,
+                "--" => OpCode.DEC,
+                _ => throw new NotSupportedException($"Unsupported operator: {operatorToken}")
+            });
+        }
+
+        private void ConvertSizeOfExpression(SemanticModel model, SizeOfExpressionSyntax expression)
+        {
+            Push((int)model.GetConstantValue(expression).Value);
+        }
+
+        private void ConvertSwitchExpression(CompilationContext context, SemanticModel model, SwitchExpressionSyntax expression)
+        {
+            var arms = expression.Arms.Select(p => (p, new JumpTarget())).ToArray();
+            JumpTarget breakTarget = new();
+            ConvertExpression(context, model, expression.GoverningExpression);
+            foreach (var (arm, nextTarget) in arms)
+            {
+                ConvertSwitchExpressionArmPattern(context, model, arm.Pattern, nextTarget);
+                if (arm.WhenClause is not null)
+                {
+                    ConvertExpression(context, model, arm.WhenClause.Condition);
+                    Jump(OpCode.JMPIFNOT_L, nextTarget);
+                }
+                ConvertExpression(context, model, arm.Expression);
+                Jump(OpCode.JMP_L, breakTarget);
+                nextTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+            AddInstruction(OpCode.THROW);
+            breakTarget.Instruction = AddInstruction(OpCode.NIP);
+        }
+
+        private void ConvertSwitchExpressionArmPattern(CompilationContext context, SemanticModel model, PatternSyntax pattern, JumpTarget nextTarget)
+        {
+            switch (pattern)
+            {
+                case BinaryPatternSyntax binaryPattern:
+                    ConvertSwitchExpressionArmBinaryPattern(context, model, binaryPattern, nextTarget);
+                    break;
+                case ConstantPatternSyntax constantPattern:
+                    ConvertSwitchExpressionArmConstantPattern(context, model, constantPattern, nextTarget);
+                    break;
+                case DiscardPatternSyntax:
+                    break;
+                case RelationalPatternSyntax relationalPattern:
+                    ConvertSwitchExpressionArmRelationalPattern(context, model, relationalPattern, nextTarget);
+                    break;
+                case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
+                    ConvertSwitchExpressionArmNotPattern(context, model, unaryPattern, nextTarget);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported pattern: {pattern}");
+            }
+        }
+
+        private void ConvertSwitchExpressionArmBinaryPattern(CompilationContext context, SemanticModel model, BinaryPatternSyntax pattern, JumpTarget nextTarget)
+        {
+            switch (pattern.OperatorToken.ValueText)
+            {
+                case "and":
+                    ConvertSwitchExpressionArmPattern(context, model, pattern.Left, nextTarget);
+                    ConvertSwitchExpressionArmPattern(context, model, pattern.Right, nextTarget);
+                    break;
+                case "or":
+                    ConvertSwitchExpressionArmOrPattern(context, model, pattern.Left, pattern.Right, nextTarget);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported pattern: {pattern}");
+            }
+        }
+
+        private void ConvertSwitchExpressionArmOrPattern(CompilationContext context, SemanticModel model, PatternSyntax left, PatternSyntax right, JumpTarget nextTarget)
+        {
+            JumpTarget rightTarget = new();
+            JumpTarget endTarget = new();
+            ConvertSwitchExpressionArmPattern(context, model, left, rightTarget);
+            Jump(OpCode.JMP_L, endTarget);
+            rightTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertSwitchExpressionArmPattern(context, model, right, nextTarget);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertSwitchExpressionArmConstantPattern(CompilationContext context, SemanticModel model, ConstantPatternSyntax pattern, JumpTarget nextTarget)
+        {
+            AddInstruction(OpCode.DUP);
+            ConvertExpression(context, model, pattern.Expression);
+            AddInstruction(OpCode.EQUAL);
+            Jump(OpCode.JMPIFNOT_L, nextTarget);
+        }
+
+        private void ConvertSwitchExpressionArmRelationalPattern(CompilationContext context, SemanticModel model, RelationalPatternSyntax pattern, JumpTarget nextTarget)
+        {
+            AddInstruction(OpCode.DUP);
+            ConvertExpression(context, model, pattern.Expression);
+            AddInstruction(pattern.OperatorToken.ValueText switch
+            {
+                "<" => OpCode.LT,
+                "<=" => OpCode.LE,
+                ">" => OpCode.GT,
+                ">=" => OpCode.GE,
+                _ => throw new NotSupportedException($"Unsupported pattern: {pattern}")
+            });
+            Jump(OpCode.JMPIFNOT_L, nextTarget);
+        }
+
+        private void ConvertSwitchExpressionArmNotPattern(CompilationContext context, SemanticModel model, UnaryPatternSyntax pattern, JumpTarget nextTarget)
+        {
+            JumpTarget endTarget = new();
+            ConvertSwitchExpressionArmPattern(context, model, pattern.Pattern, endTarget);
+            Jump(OpCode.JMP_L, nextTarget);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertTupleExpression(CompilationContext context, SemanticModel model, TupleExpressionSyntax expression)
+        {
+            AddInstruction(OpCode.NEWSTRUCT0);
+            foreach (ArgumentSyntax argument in expression.Arguments)
+            {
+                AddInstruction(OpCode.DUP);
+                ConvertExpression(context, model, argument.Expression);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+
+        private Instruction Push(bool value)
+        {
+            return AddInstruction(value ? OpCode.PUSH1 : OpCode.PUSH0);
+        }
+
+        private Instruction Push(BigInteger number)
+        {
+            if (number == BigInteger.MinusOne) return AddInstruction(OpCode.PUSHM1);
+            if (number >= BigInteger.Zero && number <= 16) return AddInstruction(OpCode.PUSH0 + (byte)number);
+            byte n = number.GetByteCount() switch
+            {
+                <= 1 => 0,
+                <= 2 => 1,
+                <= 4 => 2,
+                <= 8 => 3,
+                <= 16 => 4,
+                <= 32 => 5,
+                _ => throw new ArgumentOutOfRangeException(nameof(number))
+            };
+            byte[] buffer = new byte[1 << n];
+            number.TryWriteBytes(buffer, out _);
+            return AddInstruction(new Instruction
+            {
+                OpCode = OpCode.PUSHINT8 + n,
+                Operand = buffer
+            });
+        }
+
+        private Instruction Push(string s)
+        {
+            return Push(Encoding.UTF8.GetBytes(s));
+        }
+
+        private Instruction Push(byte[] data)
+        {
+            OpCode opcode;
+            byte[] buffer;
+            switch (data.Length)
+            {
+                case <= byte.MaxValue:
+                    opcode = OpCode.PUSHDATA1;
+                    buffer = new byte[sizeof(byte) + data.Length];
+                    buffer[0] = (byte)data.Length;
+                    Buffer.BlockCopy(data, 0, buffer, sizeof(byte), data.Length);
+                    break;
+                case <= ushort.MaxValue:
+                    opcode = OpCode.PUSHDATA2;
+                    buffer = new byte[sizeof(ushort) + data.Length];
+                    BinaryPrimitives.WriteUInt16LittleEndian(buffer, (ushort)data.Length);
+                    Buffer.BlockCopy(data, 0, buffer, sizeof(ushort), data.Length);
+                    break;
+                default:
+                    opcode = OpCode.PUSHDATA4;
+                    buffer = new byte[sizeof(uint) + data.Length];
+                    BinaryPrimitives.WriteUInt32LittleEndian(buffer, (uint)data.Length);
+                    Buffer.BlockCopy(data, 0, buffer, sizeof(uint), data.Length);
+                    break;
+            }
+            return AddInstruction(new Instruction
+            {
+                OpCode = opcode,
+                Operand = buffer
+            });
+        }
+
+        private Instruction Push(object obj)
+        {
+            return obj switch
+            {
+                bool data => Push(data),
+                byte[] data => Push(data),
+                string data => Push(data),
+                BigInteger data => Push(data),
+                sbyte data => Push(data),
+                byte data => Push(data),
+                short data => Push(data),
+                ushort data => Push(data),
+                int data => Push(data),
+                uint data => Push(data),
+                long data => Push(data),
+                ulong data => Push(data),
+                Enum data => Push(BigInteger.Parse(data.ToString("d"))),
+                null => AddInstruction(OpCode.PUSHNULL),
+                _ => throw new NotSupportedException($"Unsupported constant value: {obj}"),
+            };
+        }
+
+        private Instruction PushDefault(ITypeSymbol type)
+        {
+            return AddInstruction(type.GetStackItemType() switch
+            {
+                VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
+                _ => OpCode.PUSHNULL,
+            });
+        }
+
+        private Instruction AccessSlot(OpCode opcode, byte index)
+        {
+            return AddInstruction(new Instruction
+            {
+                OpCode = opcode,
+                Operand = new[] { index }
+            });
+        }
+
+        private Instruction ChangeType(VM.Types.StackItemType type)
+        {
+            return AddInstruction(new Instruction
+            {
+                OpCode = OpCode.CONVERT,
+                Operand = new[] { (byte)type }
+            });
+        }
+
+        private Instruction Jump(OpCode opcode, JumpTarget target)
+        {
+            return AddInstruction(new Instruction
+            {
+                OpCode = opcode,
+                Target = target
+            });
+        }
+
+        private void Throw(CompilationContext context, SemanticModel model, ExpressionSyntax exception)
+        {
+            switch (exception)
+            {
+                case ObjectCreationExpressionSyntax expression:
+                    switch (expression.ArgumentList.Arguments.Count)
+                    {
+                        case 0:
+                            Push("exception");
+                            break;
+                        case 1:
+                            ConvertExpression(context, model, expression.ArgumentList.Arguments[0].Expression);
+                            break;
+                        default:
+                            throw new NotSupportedException("Only a single parameter is supported for exceptions.");
+                    }
+                    break;
+                case null:
+                    AccessSlot(OpCode.LDLOC, _exceptionStack.Peek());
+                    break;
+                default:
+                    ConvertExpression(context, model, exception);
+                    break;
+            }
+            AddInstruction(OpCode.THROW);
+        }
+
+        private Instruction Call(InteropDescriptor descriptor)
+        {
+            return AddInstruction(new Instruction
+            {
+                OpCode = OpCode.SYSCALL,
+                Operand = BitConverter.GetBytes(descriptor)
+            });
+        }
+
+        private Instruction Call(CompilationContext context, UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.All)
+        {
+            ushort token = context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
+            return AddInstruction(new Instruction
+            {
+                OpCode = OpCode.CALLT,
+                Operand = BitConverter.GetBytes(token)
+            });
+        }
+
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
+        {
+            if (TryProcessSystemMethods(context, model, methodSymbol, null))
+                return;
+            MethodConvert convert = context.ConvertMethod(model, methodSymbol);
+            bool isConstructor = methodSymbol.MethodKind == MethodKind.Constructor;
+            if (instanceOnStack && convert._callingConvention != CallingConvention.Cdecl && isConstructor)
+                AddInstruction(OpCode.DUP);
+            PrepareArgumentsForMethod(context, model, methodSymbol, arguments, convert._callingConvention);
+            if (instanceOnStack && convert._callingConvention == CallingConvention.Cdecl)
+            {
+                switch (methodSymbol.Parameters.Length)
+                {
+                    case 0:
+                        if (isConstructor) AddInstruction(OpCode.DUP);
+                        break;
+                    case 1:
+                        AddInstruction(isConstructor ? OpCode.OVER : OpCode.SWAP);
+                        break;
+                    default:
+                        Push(methodSymbol.Parameters.Length);
+                        AddInstruction(isConstructor ? OpCode.PICK : OpCode.ROLL);
+                        break;
+                }
+            }
+            Jump(OpCode.CALL_L, convert._startTarget);
+        }
+
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax instanceExpression, params SyntaxNode[] arguments)
+        {
+            if (TryProcessSystemMethods(context, model, methodSymbol, instanceExpression))
+                return;
+            MethodConvert convert = context.ConvertMethod(model, methodSymbol);
+            if (!methodSymbol.IsStatic && convert._callingConvention != CallingConvention.Cdecl)
+            {
+                if (instanceExpression is null)
+                    AddInstruction(OpCode.LDARG0);
+                else
+                    ConvertExpression(context, model, instanceExpression);
+            }
+            PrepareArgumentsForMethod(context, model, methodSymbol, arguments, convert._callingConvention);
+            if (!methodSymbol.IsStatic && convert._callingConvention == CallingConvention.Cdecl)
+            {
+                if (instanceExpression is null)
+                    AddInstruction(OpCode.LDARG0);
+                else
+                    ConvertExpression(context, model, instanceExpression);
+            }
+            Jump(OpCode.CALL_L, convert._startTarget);
+        }
+
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, CallingConvention callingConvention = CallingConvention.Cdecl)
+        {
+            if (TryProcessSystemMethods(context, model, methodSymbol, null))
+                return;
+            MethodConvert convert = context.ConvertMethod(model, methodSymbol);
+            int pc = methodSymbol.Parameters.Length;
+            if (!methodSymbol.IsStatic) pc++;
+            if (pc > 1 && convert._callingConvention != callingConvention)
+            {
+                switch (pc)
+                {
+                    case 2:
+                        AddInstruction(OpCode.SWAP);
+                        break;
+                    case 3:
+                        AddInstruction(OpCode.REVERSE3);
+                        break;
+                    case 4:
+                        AddInstruction(OpCode.REVERSE4);
+                        break;
+                    default:
+                        Push(pc);
+                        AddInstruction(OpCode.REVERSEN);
+                        break;
+                }
+            }
+            Jump(OpCode.CALL_L, convert._startTarget);
+        }
+
+        private void PrepareArgumentsForMethod(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+        {
+            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon.Name).Symbol, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
+            var parameters = methodSymbol.Parameters.Select((p, i) => (Symbol: p, Index: i));
+            if (callingConvention == CallingConvention.Cdecl)
+                parameters = parameters.Reverse();
+            foreach (var (parameter, index) in parameters)
+            {
+                if (namedArguments.TryGetValue(parameter, out ExpressionSyntax expression))
+                {
+                    ConvertExpression(context, model, expression);
+                }
+                else
+                {
+                    if (arguments.Count > index)
+                    {
+                        switch (arguments[index])
+                        {
+                            case ArgumentSyntax argument:
+                                if (argument.NameColon is null)
+                                {
+                                    ConvertExpression(context, model, argument.Expression);
+                                    continue;
+                                }
+                                break;
+                            case ExpressionSyntax ex:
+                                ConvertExpression(context, model, ex);
+                                continue;
+                            default:
+                                throw new Exception("Unknown exception.");
+                        }
+                    }
+                    Push(parameter.ExplicitDefaultValue);
+                }
+            }
+        }
+
+        private bool TryProcessSystemMethods(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax instanceExpression)
+        {
+            switch (methodSymbol.ToString())
+            {
+                case "System.Array.Length.get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    AddInstruction(OpCode.SIZE);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+}
