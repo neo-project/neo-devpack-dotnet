@@ -967,7 +967,11 @@ namespace Neo.Compiler
             switch (symbol)
             {
                 case IFieldSymbol field:
-                    if (field.IsStatic)
+                    if (field.IsConst)
+                    {
+                        Push(field.ConstantValue);
+                    }
+                    else if (field.IsStatic)
                     {
                         byte index = context.AddStaticField(field);
                         AccessSlot(OpCode.LDSFLD, index);
@@ -981,7 +985,10 @@ namespace Neo.Compiler
                     }
                     break;
                 case ILocalSymbol local:
-                    AccessSlot(OpCode.LDLOC, _localVariables[local]);
+                    if (local.IsConst)
+                        Push(local.ConstantValue);
+                    else
+                        AccessSlot(OpCode.LDLOC, _localVariables[local]);
                     break;
                 case IParameterSymbol parameter:
                     AccessSlot(OpCode.LDARG, _parameters[parameter]);
@@ -1106,7 +1113,11 @@ namespace Neo.Compiler
             switch (symbol)
             {
                 case IFieldSymbol field:
-                    if (field.IsStatic)
+                    if (field.IsConst)
+                    {
+                        Push(field.ConstantValue);
+                    }
+                    else if (field.IsStatic)
                     {
                         byte index = context.AddStaticField(field);
                         AccessSlot(OpCode.LDSFLD, index);
