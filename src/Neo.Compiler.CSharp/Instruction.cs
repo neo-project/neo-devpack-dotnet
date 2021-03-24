@@ -1,4 +1,5 @@
 using Neo.VM;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -41,6 +42,17 @@ namespace Neo.Compiler
                 OperandSizePrefixTable[index] = attribute.SizePrefix;
                 OperandSizeTable[index] = attribute.Size;
             }
+        }
+
+        public Instruction Clone()
+        {
+            if (Target is not null || Target2 is not null)
+                throw new InvalidOperationException();
+            return new Instruction
+            {
+                OpCode = OpCode,
+                Operand = Operand
+            };
         }
 
         public byte[] ToArray()

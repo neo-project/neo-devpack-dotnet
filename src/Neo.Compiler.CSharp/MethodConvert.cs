@@ -21,6 +21,7 @@ namespace Neo.Compiler
     class MethodConvert
     {
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
+        private bool _inline;
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
         private readonly List<byte> _anonymousVariables = new();
@@ -81,6 +82,7 @@ namespace Neo.Compiler
 
         private void ConvertExtern(CompilationContext context, IMethodSymbol symbol)
         {
+            _inline = true;
             AttributeData contractAttribute = symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass.Name == nameof(scfx.Neo.SmartContract.Framework.ContractAttribute));
             if (contractAttribute is null)
             {
@@ -137,6 +139,8 @@ namespace Neo.Compiler
 
         private void ConvertNoBody(CompilationContext context, IMethodSymbol symbol)
         {
+            _inline = true;
+            _callingConvention = CallingConvention.Cdecl;
             IPropertySymbol property = (IPropertySymbol)symbol.AssociatedSymbol;
             INamedTypeSymbol type = property.ContainingType;
             IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
@@ -152,7 +156,6 @@ namespace Neo.Compiler
                     }
                     else
                     {
-                        AddInstruction(OpCode.LDARG0);
                         Push(backingFieldIndex);
                         AddInstruction(OpCode.PICKITEM);
                     }
@@ -161,14 +164,12 @@ namespace Neo.Compiler
                     if (symbol.IsStatic)
                     {
                         byte index = context.AddStaticField(backingField);
-                        AddInstruction(OpCode.LDARG0);
                         AccessSlot(OpCode.STSFLD, index);
                     }
                     else
                     {
-                        AddInstruction(OpCode.LDARG0);
                         Push(backingFieldIndex);
-                        AddInstruction(OpCode.LDARG1);
+                        AddInstruction(OpCode.ROT);
                         AddInstruction(OpCode.SETITEM);
                     }
                     break;
@@ -206,7 +207,7 @@ namespace Neo.Compiler
                 default:
                     throw new NotSupportedException($"Unsupported method body:{body}");
             }
-            InsertInitSlot(symbol);
+            if (!_inline) InsertInitSlot(symbol);
         }
 
         private void InsertInitSlot(IMethodSymbol symbol)
@@ -1883,7 +1884,7 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            Jump(OpCode.CALL_L, convert._startTarget);
+            EmitCall(convert);
         }
 
         private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax instanceExpression, params SyntaxNode[] arguments)
@@ -1906,7 +1907,7 @@ namespace Neo.Compiler
                 else
                     ConvertExpression(context, model, instanceExpression);
             }
-            Jump(OpCode.CALL_L, convert._startTarget);
+            EmitCall(convert);
         }
 
         private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, CallingConvention callingConvention = CallingConvention.Cdecl)
@@ -1935,7 +1936,7 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            Jump(OpCode.CALL_L, convert._startTarget);
+            EmitCall(convert);
         }
 
         private void PrepareArgumentsForMethod(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
@@ -1987,6 +1988,15 @@ namespace Neo.Compiler
                 default:
                     return false;
             }
+        }
+
+        private void EmitCall(MethodConvert target)
+        {
+            if (target._inline)
+                for (int i = 0; i < target._instructions.Count - 1; i++)
+                    AddInstruction(target._instructions[i].Clone());
+            else
+                Jump(OpCode.CALL_L, target._startTarget);
         }
     }
 }
