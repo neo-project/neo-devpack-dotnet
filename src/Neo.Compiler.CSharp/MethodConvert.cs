@@ -4,10 +4,12 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Cryptography;
+using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.Wallets;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -95,11 +97,35 @@ namespace Neo.Compiler
             foreach (IFieldSymbol field in symbol.ContainingType.GetMembers().OfType<IFieldSymbol>())
             {
                 if (field.IsConst || !field.IsStatic) continue;
-                VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
-                if (syntax.Initializer is null) continue;
-                model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
+                if (initialValue is null)
+                {
+                    VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
+                    if (syntax.Initializer is null) continue;
+                    model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                    ConvertExpression(context, model, syntax.Initializer.Value);
+                }
+                else
+                {
+                    string value = (string)initialValue.ConstructorArguments[0].Value!;
+                    ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+                    switch (type)
+                    {
+                        case ContractParameterType.ByteArray:
+                            Push(value.HexToBytes(true));
+                            break;
+                        case ContractParameterType.Hash160:
+                            //TODO: Read AddressVersion from settings file.
+                            Push(value.ToScriptHash(ProtocolSettings.Default.AddressVersion).ToArray());
+                            break;
+                        case ContractParameterType.PublicKey:
+                            Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
+                            break;
+                        default:
+                            throw new NotSupportedException($"Unsupported initial value type: {type}");
+                    }
+                }
                 byte index = context.AddStaticField(field);
-                ConvertExpression(context, model, syntax.Initializer.Value);
                 AccessSlot(OpCode.STSFLD, index);
             }
         }

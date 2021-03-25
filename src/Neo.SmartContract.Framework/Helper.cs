@@ -194,9 +194,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, ByteString second);
 
-        [NonemitWithConvert(ConvertMethod.HexToBytes)]
-        public extern static byte[] HexToBytes(this string hex, bool reverse = false);
-
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
@@ -222,13 +219,6 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.NOP)]
         public extern static Delegate ToDelegate(this byte[] source);
-
-        /// <summary>
-        /// ToScriptHash converts a base-58 Address to ScriptHash in little-endian byte array.
-        /// Example: "AFsCjUGzicZmXQtWpwVt6hNeJTBwSipJMS".ToScriptHash() generates 0102030405060708090a0b0c0d0e0faabbccddee
-        /// </summary>
-        [NonemitWithConvert(ConvertMethod.ToScriptHash)]
-        public extern static UInt160 ToScriptHash(this string address);
 
         /// <summary>
         /// Returns the square root of number x
