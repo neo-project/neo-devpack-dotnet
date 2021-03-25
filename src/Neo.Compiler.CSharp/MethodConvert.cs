@@ -745,20 +745,40 @@ namespace Neo.Compiler
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
             if (specifier.Rank != 1)
                 throw new NotSupportedException($"Unsupported array rank: {specifier}");
-            ConvertExpression(context, model, specifier.Sizes[0]);
-            if (expression.Initializer is null)
+            ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type!;
+            if (type.SpecialType == SpecialType.System_Byte)
             {
-                ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type!;
-                AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
+                if (expression.Initializer is null)
+                {
+                    ConvertExpression(context, model, specifier.Sizes[0]);
+                    AddInstruction(OpCode.NEWBUFFER);
+                }
+                else
+                {
+                    Optional<object?>[] values = expression.Initializer.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
+                    if (values.Any(p => !p.HasValue))
+                        throw new NotSupportedException($"Unsupported array initializer: {expression.Initializer}");
+                    byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
+                    Push(data);
+                    ChangeType(VM.Types.StackItemType.Buffer);
+                }
             }
             else
             {
-                AddInstruction(OpCode.NEWARRAY0);
-                foreach (ExpressionSyntax ex in expression.Initializer.Expressions)
+                if (expression.Initializer is null)
                 {
-                    AddInstruction(OpCode.DUP);
-                    ConvertExpression(context, model, ex);
-                    AddInstruction(OpCode.APPEND);
+                    ConvertExpression(context, model, specifier.Sizes[0]);
+                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
+                }
+                else
+                {
+                    AddInstruction(OpCode.NEWARRAY0);
+                    foreach (ExpressionSyntax ex in expression.Initializer.Expressions)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        ConvertExpression(context, model, ex);
+                        AddInstruction(OpCode.APPEND);
+                    }
                 }
             }
         }
