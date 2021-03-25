@@ -266,7 +266,7 @@ namespace Neo.Compiler
                 _instructions.Insert(0, new Instruction
                 {
                     OpCode = OpCode.INITSLOT,
-                    Operand = new[] { pc, lc }
+                    Operand = new[] { lc, pc }
                 });
             }
         }
