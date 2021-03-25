@@ -8,6 +8,7 @@
     <AssemblyName>nccs</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <PackageId>Neo.Compiler.CSharp</PackageId>
     <PackAsTool>true</PackAsTool>
     <RootNamespace>Neo.Compiler</RootNamespace>
     <Nullable>enable</Nullable>
