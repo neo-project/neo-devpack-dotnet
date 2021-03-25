@@ -5,6 +5,7 @@ using Neo.Cryptography.ECC;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
@@ -13,6 +14,14 @@ namespace Neo.Compiler
 {
     static class Helper
     {
+        public static byte[] HexToBytes(this string hex, bool removePrefix)
+        {
+            ReadOnlySpan<char> s = hex;
+            if (removePrefix && hex.StartsWith("0x"))
+                s = s[2..];
+            return Convert.FromHexString(s);
+        }
+
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
             if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;

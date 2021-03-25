@@ -97,6 +97,7 @@ namespace Neo.Compiler
                 if (field.IsConst || !field.IsStatic) continue;
                 VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
                 if (syntax.Initializer is null) continue;
+                model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
                 byte index = context.AddStaticField(field);
                 ConvertExpression(context, model, syntax.Initializer.Value);
                 AccessSlot(OpCode.STSFLD, index);
@@ -123,7 +124,7 @@ namespace Neo.Compiler
                             AddInstruction(new Instruction
                             {
                                 OpCode = (OpCode)attribute.ConstructorArguments[0].Value!,
-                                Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes()
+                                Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes(true)
                             });
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SyscallAttribute):
@@ -221,14 +222,11 @@ namespace Neo.Compiler
                     else
                         ConvertNoBody(context, symbol);
                     break;
-                case ArrowExpressionClauseSyntax syntax:
-                    ConvertExpression(context, model, syntax.Expression);
-                    break;
-                case ConstructorDeclarationSyntax syntax:
-                    ConvertStatement(context, model, syntax.Body!);
-                    break;
-                case MethodDeclarationSyntax syntax:
-                    ConvertStatement(context, model, syntax.Body!);
+                case BaseMethodDeclarationSyntax syntax:
+                    if (syntax.Body is null)
+                        ConvertExpression(context, model, syntax.ExpressionBody!.Expression);
+                    else
+                        ConvertStatement(context, model, syntax.Body);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported method body:{body}");
@@ -1129,7 +1127,7 @@ namespace Neo.Compiler
         private void ConvertInvocationExpression(CompilationContext context, SemanticModel model, InvocationExpressionSyntax expression)
         {
             ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
-            ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
+            ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
             switch (symbol)
             {
                 case IEventSymbol @event:
@@ -2074,6 +2072,31 @@ namespace Neo.Compiler
         {
             switch (symbol.ToString())
             {
+                case "System.Numerics.BigInteger.One.get":
+                    Push(1);
+                    return true;
+                case "System.Numerics.BigInteger.MinusOne.get":
+                    Push(-1);
+                    return true;
+                case "System.Numerics.BigInteger.Zero.get":
+                    Push(0);
+                    return true;
+                case "System.Numerics.BigInteger.IsZero.get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    ChangeType(VM.Types.StackItemType.Boolean);
+                    return true;
+                case "System.Numerics.BigInteger.IsOne.get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    Push(1);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                case "System.Numerics.BigInteger.Sign.get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
                 case "System.Array.Length.get":
                     if (instanceExpression is not null)
                         ConvertExpression(context, model, instanceExpression);
@@ -2092,6 +2115,22 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(context, model, symbol, arguments);
                     Call(context, NativeContract.StdLib.Hash, "atoi", 2, true);
+                    return true;
+                case "System.Numerics.BigInteger.Equals(long)":
+                case "System.Numerics.BigInteger.Equals(ulong)":
+                case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                case "object.Equals(object?)":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments);
+                    AddInstruction(OpCode.EQUAL);
                     return true;
                 default:
                     return false;

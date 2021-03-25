@@ -19,6 +19,7 @@ namespace Neo.Compiler
 {
     public class CompilationContext
     {
+        private bool scTypeFound;
         private readonly List<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
         private readonly List<AbiEvent> eventsExported = new();
@@ -32,7 +33,7 @@ namespace Neo.Compiler
         public string ContractName { get; private set; } = "";
         internal int StaticFieldsCount => staticFields.Count;
 
-        private CompilationContext(CSharpCompilation compilation)
+        private CompilationContext(Compilation compilation)
         {
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
@@ -146,9 +147,11 @@ namespace Neo.Compiler
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
         {
+            if (scTypeFound) return;
             if (symbol.DeclaredAccessibility != Accessibility.Public) return;
             if (symbol.IsAbstract) return;
             if (symbol.BaseType!.Name != nameof(scfx.Neo.SmartContract.Framework.SmartContract)) return;
+            scTypeFound = true;
             ContractName = symbol.Name;
             foreach (var attribute in symbol.GetAttributes())
             {
@@ -209,6 +212,8 @@ namespace Neo.Compiler
             {
                 method = new MethodConvert();
                 methodsConverted.Add(symbol, method);
+                if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+                    model = model.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
                 method.Convert(this, model, symbol);
             }
             return method;
