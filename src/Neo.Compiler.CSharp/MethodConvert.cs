@@ -774,6 +774,9 @@ namespace Neo.Compiler
             ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
             switch (symbol)
             {
+                case IDiscardSymbol:
+                    _instructions.RemoveAt(_instructions.Count - 1);
+                    break;
                 case IFieldSymbol field:
                     if (field.IsStatic)
                     {
@@ -896,6 +899,9 @@ namespace Neo.Compiler
             }
             else
             {
+                IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
+                if (symbol is not null && TryProcessSystemOperators(context, model, symbol, expression.Left, expression.Right))
+                    return;
                 ConvertExpression(context, model, expression.Left);
                 ConvertExpression(context, model, expression.Right);
                 AddInstruction(expression.OperatorToken.ValueText switch
@@ -1089,36 +1095,41 @@ namespace Neo.Compiler
                         throw new NotSupportedException($"Unsupported alignment clause: {syntax.AlignmentClause}");
                     if (syntax.FormatClause is not null)
                         throw new NotSupportedException($"Unsupported format clause: {syntax.FormatClause}");
-                    ConvertExpression(context, model, syntax.Expression);
-                    ITypeSymbol? type = model.GetTypeInfo(syntax.Expression).Type;
-                    switch (type?.SpecialType)
-                    {
-                        case SpecialType.System_SByte:
-                        case SpecialType.System_Byte:
-                        case SpecialType.System_Int16:
-                        case SpecialType.System_UInt16:
-                        case SpecialType.System_Int32:
-                        case SpecialType.System_UInt32:
-                        case SpecialType.System_Int64:
-                        case SpecialType.System_UInt64:
-                        case SpecialType.None when type.Name == nameof(BigInteger):
-                            Push(10);
-                            AddInstruction(OpCode.SWAP);
-                            Call(context, NativeContract.StdLib.Hash, "itoa", 2, true);
-                            break;
-                        case SpecialType.System_String:
-                            break;
-                        default:
-                            throw new NotSupportedException($"Unsupported interpolation: {syntax.Expression}");
-                    }
+                    ConvertObjectToString(context, model, syntax.Expression);
                     break;
+            }
+        }
+
+        private void ConvertObjectToString(CompilationContext context, SemanticModel model, ExpressionSyntax expression)
+        {
+            ITypeSymbol? type = model.GetTypeInfo(expression).Type;
+            switch (type?.SpecialType)
+            {
+                case SpecialType.System_SByte:
+                case SpecialType.System_Byte:
+                case SpecialType.System_Int16:
+                case SpecialType.System_UInt16:
+                case SpecialType.System_Int32:
+                case SpecialType.System_UInt32:
+                case SpecialType.System_Int64:
+                case SpecialType.System_UInt64:
+                case SpecialType.None when type.Name == nameof(BigInteger):
+                    Push(10);
+                    ConvertExpression(context, model, expression);
+                    Call(context, NativeContract.StdLib.Hash, "itoa", 2, true);
+                    break;
+                case SpecialType.System_String:
+                    ConvertExpression(context, model, expression);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported interpolation: {expression}");
             }
         }
 
         private void ConvertInvocationExpression(CompilationContext context, SemanticModel model, InvocationExpressionSyntax expression)
         {
             ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
-            ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
+            ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
             switch (symbol)
             {
                 case IEventSymbol @event:
@@ -1153,7 +1164,10 @@ namespace Neo.Compiler
                     Call(context, model, symbol, null, arguments);
                     break;
                 case MemberAccessExpressionSyntax syntax:
-                    Call(context, model, symbol, syntax.Expression, arguments);
+                    if (symbol.IsStatic)
+                        Call(context, model, symbol, null, arguments);
+                    else
+                        Call(context, model, symbol, syntax.Expression, arguments);
                     break;
                 case MemberBindingExpressionSyntax:
                     Call(context, model, symbol, true, arguments);
@@ -1939,18 +1953,18 @@ namespace Neo.Compiler
             });
         }
 
-        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
         {
-            if (TryProcessSystemMethods(context, model, methodSymbol, null))
+            if (TryProcessSystemMethods(context, model, symbol, null, arguments))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, methodSymbol);
-            bool isConstructor = methodSymbol.MethodKind == MethodKind.Constructor;
+            MethodConvert convert = context.ConvertMethod(model, symbol);
+            bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
             if (instanceOnStack && convert._callingConvention != CallingConvention.Cdecl && isConstructor)
                 AddInstruction(OpCode.DUP);
-            PrepareArgumentsForMethod(context, model, methodSymbol, arguments, convert._callingConvention);
+            PrepareArgumentsForMethod(context, model, symbol, arguments, convert._callingConvention);
             if (instanceOnStack && convert._callingConvention == CallingConvention.Cdecl)
             {
-                switch (methodSymbol.Parameters.Length)
+                switch (symbol.Parameters.Length)
                 {
                     case 0:
                         if (isConstructor) AddInstruction(OpCode.DUP);
@@ -1959,7 +1973,7 @@ namespace Neo.Compiler
                         AddInstruction(isConstructor ? OpCode.OVER : OpCode.SWAP);
                         break;
                     default:
-                        Push(methodSymbol.Parameters.Length);
+                        Push(symbol.Parameters.Length);
                         AddInstruction(isConstructor ? OpCode.PICK : OpCode.ROLL);
                         break;
                 }
@@ -1967,20 +1981,20 @@ namespace Neo.Compiler
             EmitCall(convert);
         }
 
-        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
         {
-            if (TryProcessSystemMethods(context, model, methodSymbol, instanceExpression))
+            if (TryProcessSystemMethods(context, model, symbol, instanceExpression, arguments))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, methodSymbol);
-            if (!methodSymbol.IsStatic && convert._callingConvention != CallingConvention.Cdecl)
+            MethodConvert convert = context.ConvertMethod(model, symbol);
+            if (!symbol.IsStatic && convert._callingConvention != CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
                     AddInstruction(OpCode.LDARG0);
                 else
                     ConvertExpression(context, model, instanceExpression);
             }
-            PrepareArgumentsForMethod(context, model, methodSymbol, arguments, convert._callingConvention);
-            if (!methodSymbol.IsStatic && convert._callingConvention == CallingConvention.Cdecl)
+            PrepareArgumentsForMethod(context, model, symbol, arguments, convert._callingConvention);
+            if (!symbol.IsStatic && convert._callingConvention == CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
                     AddInstruction(OpCode.LDARG0);
@@ -1990,13 +2004,13 @@ namespace Neo.Compiler
             EmitCall(convert);
         }
 
-        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, CallingConvention callingConvention = CallingConvention.Cdecl)
+        private void Call(CompilationContext context, SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            if (TryProcessSystemMethods(context, model, methodSymbol, null))
+            if (TryProcessSystemMethods(context, model, symbol, null, null))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, methodSymbol);
-            int pc = methodSymbol.Parameters.Length;
-            if (!methodSymbol.IsStatic) pc++;
+            MethodConvert convert = context.ConvertMethod(model, symbol);
+            int pc = symbol.Parameters.Length;
+            if (!symbol.IsStatic) pc++;
             if (pc > 1 && convert._callingConvention != callingConvention)
             {
                 switch (pc)
@@ -2019,10 +2033,10 @@ namespace Neo.Compiler
             EmitCall(convert);
         }
 
-        private void PrepareArgumentsForMethod(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+        private void PrepareArgumentsForMethod(CompilationContext context, SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
-            var parameters = methodSymbol.Parameters.Select((p, i) => (Symbol: p, Index: i));
+            var parameters = symbol.Parameters.Select((p, i) => (Symbol: p, Index: i));
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
             foreach (var (parameter, index) in parameters)
@@ -2056,14 +2070,59 @@ namespace Neo.Compiler
             }
         }
 
-        private bool TryProcessSystemMethods(CompilationContext context, SemanticModel model, IMethodSymbol methodSymbol, ExpressionSyntax? instanceExpression)
+        private bool TryProcessSystemMethods(CompilationContext context, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
         {
-            switch (methodSymbol.ToString())
+            switch (symbol.ToString())
             {
                 case "System.Array.Length.get":
                     if (instanceExpression is not null)
                         ConvertExpression(context, model, instanceExpression);
                     AddInstruction(OpCode.SIZE);
+                    return true;
+                case "sbyte.Parse(string)":
+                case "byte.Parse(string)":
+                case "short.Parse(string)":
+                case "ushort.Parse(string)":
+                case "int.Parse(string)":
+                case "uint.Parse(string)":
+                case "long.Parse(string)":
+                case "ulong.Parse(string)":
+                case "System.Numerics.BigInteger.Parse(string)":
+                    Push(10);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments);
+                    Call(context, NativeContract.StdLib.Hash, "atoi", 2, true);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private bool TryProcessSystemOperators(CompilationContext context, SemanticModel model, IMethodSymbol symbol, params ExpressionSyntax[] arguments)
+        {
+            switch (symbol.ToString())
+            {
+                case "object.operator ==(object, object)":
+                    ConvertExpression(context, model, arguments[0]);
+                    ConvertExpression(context, model, arguments[1]);
+                    AddInstruction(OpCode.EQUAL);
+                    return true;
+                case "object.operator !=(object, object)":
+                    ConvertExpression(context, model, arguments[0]);
+                    ConvertExpression(context, model, arguments[1]);
+                    AddInstruction(OpCode.NOTEQUAL);
+                    return true;
+                case "string.operator +(string, object)":
+                    ConvertExpression(context, model, arguments[0]);
+                    ConvertObjectToString(context, model, arguments[1]);
+                    AddInstruction(OpCode.CAT);
+                    ChangeType(VM.Types.StackItemType.ByteString);
+                    return true;
+                case "string.operator +(object, string)":
+                    ConvertObjectToString(context, model, arguments[0]);
+                    ConvertExpression(context, model, arguments[1]);
+                    AddInstruction(OpCode.CAT);
+                    ChangeType(VM.Types.StackItemType.ByteString);
                     return true;
                 default:
                     return false;

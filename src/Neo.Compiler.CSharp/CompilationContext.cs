@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 
 namespace Neo.Compiler
@@ -73,6 +74,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
             return new(CSharpCompilation.Create(null, syntaxTrees, references));
