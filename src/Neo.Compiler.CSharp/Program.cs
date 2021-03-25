@@ -1,20 +1,27 @@
 using Neo.IO;
 using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Neo.Compiler
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            if (args.Length != 1)
+            RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
-                ShowUsage();
-                return;
-            }
-            string path = args[0];
+                new Argument<string>("path", "The path of the project file, project directory or source file")
+            };
+            rootCommand.Handler = CommandHandler.Create<string>(Handle);
+            return rootCommand.Invoke(args);
+        }
+
+        private static void Handle(string path)
+        {
             if (File.Exists(path))
             {
                 switch (Path.GetExtension(path).ToLowerInvariant())
@@ -37,11 +44,6 @@ namespace Neo.Compiler
             {
                 throw new FileNotFoundException();
             }
-        }
-
-        private static void ShowUsage()
-        {
-            Console.WriteLine("Usage:\n\tneocs <project_file|project_directory|source_file>");
         }
 
         private static void ProcessDirectory(string path)
