@@ -25,7 +25,7 @@ namespace Neo.Compiler
                 {
                     int prefixSize = OperandSizePrefixTable[(int)OpCode];
                     _size = prefixSize > 0
-                        ? sizeof(OpCode) + prefixSize + Operand!.Length
+                        ? sizeof(OpCode) + Operand!.Length
                         : sizeof(OpCode) + OperandSizeTable[(int)OpCode];
                 }
                 return _size;
