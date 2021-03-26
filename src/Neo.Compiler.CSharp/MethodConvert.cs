@@ -171,6 +171,10 @@ namespace Neo.Compiler
                                 Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
                             });
                             break;
+                        case nameof(scfx.Neo.SmartContract.Framework.CallingConventionAttribute):
+                            emitted = true;
+                            _callingConvention = (CallingConvention)attribute.ConstructorArguments[0].Value!;
+                            break;
                     }
                 }
                 if (!emitted) throw new NotSupportedException($"Unknown method: {symbol}");

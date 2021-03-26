@@ -76,12 +76,14 @@ namespace Neo.Compiler
             MetadataReference[] references = new[]
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
                 MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references);
+            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, options);
             if (csproj is not null)
             {
                 string path = Path.GetDirectoryName(csproj)!;
@@ -96,6 +98,7 @@ namespace Neo.Compiler
                 string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
                 foreach (var (name, package) in assets["targets"].Properties.First().Value.Properties)
                 {
+                    if (name.StartsWith("Neo.SmartContract.Framework")) continue;
                     JObject files = package["compile"] ?? package["runtime"];
                     if (files is null) continue;
                     foreach (var (file, _) in files.Properties)

@@ -1,17 +1,21 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Neo.SmartContract.Framework.Services
 {
     public static class Helper
     {
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
         public static extern StorageMap CreateMap(this StorageContext context, byte[] prefix);
 
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
         public static extern StorageMap CreateMap(this StorageContext context, ByteString prefix);
 
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
         public static extern StorageMap CreateMap(this StorageContext context, sbyte prefix);
