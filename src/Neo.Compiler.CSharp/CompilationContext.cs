@@ -10,6 +10,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -66,7 +67,7 @@ namespace Neo.Compiler
             }
         }
 
-        public static CompilationContext Compile(params string[] sourceFiles)
+        private static CompilationContext Compile(string? csproj, string[] sourceFiles)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p)));
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
@@ -78,7 +79,46 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
-            return new(CSharpCompilation.Create(null, syntaxTrees, references));
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references);
+            if (csproj is not null)
+            {
+                string path = Path.GetDirectoryName(csproj)!;
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    Arguments = "restore",
+                    WorkingDirectory = path
+                })!.WaitForExit();
+                path = Path.Combine(path, "obj", "project.assets.json");
+                JObject assets = JObject.Parse(File.ReadAllBytes(path));
+                string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
+                foreach (var (name, package) in assets["targets"].Properties.First().Value.Properties)
+                {
+                    JObject files = package["compile"] ?? package["runtime"];
+                    if (files is null) continue;
+                    foreach (var (file, _) in files.Properties)
+                    {
+                        if (file.EndsWith("_._")) continue;
+                        path = Path.Combine(packagesPath, name, file);
+                        if (!File.Exists(path)) continue;
+                        compilation.AddReferences(MetadataReference.CreateFromFile(path));
+                    }
+                }
+            }
+            return new(compilation);
+        }
+
+        public static CompilationContext CompileSources(params string[] sourceFiles)
+        {
+            return Compile(null, sourceFiles);
+        }
+
+        public static CompilationContext CompileProject(string csproj)
+        {
+            string folder = Path.GetDirectoryName(csproj)!;
+            string obj = Path.Combine(folder, "obj");
+            string[] sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
+            return Compile(csproj, sourceFiles);
         }
 
         public NefFile CreateExecutable()

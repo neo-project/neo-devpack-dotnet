@@ -30,7 +30,7 @@ namespace Neo.Compiler
                         ProcessSources(Path.GetDirectoryName(path)!, path);
                         break;
                     case ".csproj":
-                        ProcessDirectory(Path.GetDirectoryName(path)!);
+                        ProcessCsproj(path);
                         break;
                     default:
                         throw new NotSupportedException();
@@ -48,16 +48,33 @@ namespace Neo.Compiler
 
         private static void ProcessDirectory(string path)
         {
-            string obj = Path.Combine(path, "obj");
-            string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
-            ProcessSources(path, sourceFiles);
+            string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            if (csproj is null)
+            {
+                string obj = Path.Combine(path, "obj");
+                string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
+                ProcessSources(path, sourceFiles);
+            }
+            else
+            {
+                ProcessCsproj(csproj);
+            }
+        }
+
+        private static void ProcessCsproj(string path)
+        {
+            ProcessOutputs(Path.GetDirectoryName(path)!, CompilationContext.CompileProject(path));
         }
 
         private static void ProcessSources(string folder, params string[] sourceFiles)
         {
+            ProcessOutputs(folder, CompilationContext.CompileSources(sourceFiles));
+        }
+
+        private static void ProcessOutputs(string folder, CompilationContext context)
+        {
             folder = Path.Combine(folder, "bin", "sc");
             Directory.CreateDirectory(folder);
-            CompilationContext context = CompilationContext.Compile(sourceFiles);
             File.WriteAllBytes($"{folder}/{context.ContractName}.nef", context.CreateExecutable().ToArray());
             File.WriteAllText($"{folder}/{context.ContractName}.manifest.json", context.CreateManifest().ToString());
         }
