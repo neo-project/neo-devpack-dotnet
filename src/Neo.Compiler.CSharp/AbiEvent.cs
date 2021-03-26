@@ -9,14 +9,17 @@ namespace Neo.Compiler
         public readonly string Name;
         public readonly ContractParameterDefinition[] Parameters;
 
-        protected AbiEvent(string name, ContractParameterDefinition[] parameters)
+        public virtual ISymbol Symbol { get; }
+
+        protected AbiEvent(ISymbol symbol, string name, ContractParameterDefinition[] parameters)
         {
+            Symbol = symbol;
             Name = name;
             Parameters = parameters;
         }
 
         public AbiEvent(IEventSymbol symbol)
-            : this(symbol.GetDisplayName(), ((INamedTypeSymbol)symbol.Type).DelegateInvokeMethod!.Parameters.Select(p => p.ToAbiParameter()).ToArray())
+            : this(symbol, symbol.GetDisplayName(), ((INamedTypeSymbol)symbol.Type).DelegateInvokeMethod!.Parameters.Select(p => p.ToAbiParameter()).ToArray())
         {
         }
     }

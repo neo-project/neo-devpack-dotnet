@@ -3,6 +3,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 
@@ -76,7 +77,13 @@ namespace Neo.Compiler
             folder = Path.Combine(folder, "bin", "sc");
             Directory.CreateDirectory(folder);
             File.WriteAllBytes($"{folder}/{context.ContractName}.nef", context.CreateExecutable().ToArray());
-            File.WriteAllText($"{folder}/{context.ContractName}.manifest.json", context.CreateManifest().ToString());
+            File.WriteAllBytes($"{folder}/{context.ContractName}.manifest.json", context.CreateManifest().ToByteArray(false));
+            using (FileStream fs = new($"{folder}/{context.ContractName}.nefdbgnfo", FileMode.Create, FileAccess.Write))
+            using (ZipArchive archive = new(fs, ZipArchiveMode.Create))
+            {
+                using Stream stream = archive.CreateEntry($"{context.ContractName}.debug.json").Open();
+                stream.Write(context.CreateDebugInformation().ToByteArray(false));
+            }
         }
     }
 }

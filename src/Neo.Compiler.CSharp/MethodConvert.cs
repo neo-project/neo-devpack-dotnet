@@ -25,6 +25,7 @@ namespace Neo.Compiler
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
+        private readonly List<ILocalSymbol> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
@@ -38,9 +39,11 @@ namespace Neo.Compiler
         private readonly Stack<byte> _exceptionStack = new();
 
         public IReadOnlyList<Instruction> Instructions => _instructions;
+        public IReadOnlyList<ILocalSymbol> Variables => _variableSymbols;
 
         private byte AddLocalVariable(ILocalSymbol symbol)
         {
+            _variableSymbols.Add(symbol);
             byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
             _localVariables.Add(symbol, index);
             if (_localsCount < index + 1)

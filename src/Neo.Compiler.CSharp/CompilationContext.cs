@@ -20,6 +20,7 @@ namespace Neo.Compiler
 {
     public class CompilationContext
     {
+        private readonly Compilation compilation;
         private bool scTypeFound;
         private readonly List<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
@@ -36,6 +37,7 @@ namespace Neo.Compiler
 
         private CompilationContext(Compilation compilation)
         {
+            this.compilation = compilation;
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
@@ -69,7 +71,7 @@ namespace Neo.Compiler
 
         private static CompilationContext Compile(string? csproj, string[] sourceFiles)
         {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p)));
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             MetadataReference[] references = new[]
             {
@@ -162,6 +164,30 @@ namespace Neo.Compiler
                 ["permissions"] = permissions.ToJson(),
                 ["trusts"] = new JArray(),
                 ["extra"] = manifestExtra
+            };
+        }
+
+        public JObject CreateDebugInformation()
+        {
+            return new JObject
+            {
+                ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
+                ["methods"] = methodsConverted.Select(m => new JObject
+                {
+                    ["id"] = m.Key.ToString(),
+                    ["name"] = $"{m.Key.ContainingType},{m.Key.Name}",
+                    ["range"] = $"{m.Value.Instructions[0].Offset}-{m.Value.Instructions[^1].Offset + m.Value.Instructions[^1].Size}",
+                    ["params"] = m.Key.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
+                    ["return"] = m.Key.ReturnType.GetContractParameterType().ToString(),
+                    ["variables"] = m.Value.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
+                    ["sequence-points"] = new JArray()
+                }).ToArray(),
+                ["events"] = eventsExported.Select(e => new JObject
+                {
+                    ["id"] = e.Name,
+                    ["name"] = $"{e.Symbol.ContainingType},{e.Symbol.Name}",
+                    ["params"] = e.Parameters.Select(p => (JString)$"{p.Name},{p.Type}").ToArray()
+                }).ToArray()
             };
         }
 
