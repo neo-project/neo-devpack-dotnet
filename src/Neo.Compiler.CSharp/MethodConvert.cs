@@ -92,6 +92,7 @@ namespace Neo.Compiler
                 });
             }
             _returnTarget.Instruction = AddInstruction(OpCode.RET);
+            Optimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }
 

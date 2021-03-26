@@ -55,8 +55,8 @@ namespace Neo.Compiler
                 if (instruction.Target is null) continue;
                 if (instruction.OpCode == OpCode.TRY_L)
                 {
-                    int offset1 = (instruction.Target?.Instruction?.Offset - instruction.Offset) ?? 0;
-                    int offset2 = (instruction.Target2?.Instruction?.Offset - instruction.Offset) ?? 0;
+                    int offset1 = (instruction.Target.Instruction?.Offset - instruction.Offset) ?? 0;
+                    int offset2 = (instruction.Target2!.Instruction?.Offset - instruction.Offset) ?? 0;
                     instruction.Operand = new byte[sizeof(int) + sizeof(int)];
                     BinaryPrimitives.WriteInt32LittleEndian(instruction.Operand, offset1);
                     BinaryPrimitives.WriteInt32LittleEndian(instruction.Operand.AsSpan(sizeof(int)), offset2);
