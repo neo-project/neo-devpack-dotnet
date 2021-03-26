@@ -91,7 +91,7 @@ public void Can_register_domain()
 }
 ```
 
-## TODO - Contract Interface Generator
+## Contract Interface Generator
 
 Several of the Neo Test Harness extension methods and the Neo Assertion `NotifyEventArgs`
 `BeEquivalentTo` method take a contract interface as a type parameter. Currently,
