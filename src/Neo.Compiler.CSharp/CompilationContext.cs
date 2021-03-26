@@ -29,11 +29,11 @@ namespace Neo.Compiler
         private readonly JObject manifestExtra = new();
         private readonly Dictionary<IMethodSymbol, MethodConvert> methodsConverted = new();
         private readonly List<MethodToken> methodTokens = new();
-        private readonly Dictionary<IFieldSymbol, byte> staticFields = new();
+        private readonly List<IFieldSymbol> staticFields = new();
         private readonly Instruction[] instructions;
 
         public string ContractName { get; private set; } = "";
-        internal int StaticFieldsCount => staticFields.Count;
+        internal IReadOnlyList<IFieldSymbol> StaticFields => staticFields;
 
         private CompilationContext(Compilation compilation)
         {
@@ -303,12 +303,13 @@ namespace Neo.Compiler
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
-            if (!staticFields.TryGetValue(symbol, out byte index))
+            int index = staticFields.IndexOf(symbol);
+            if (index == -1)
             {
-                index = (byte)staticFields.Count;
-                staticFields.Add(symbol, index);
+                index = staticFields.Count;
+                staticFields.Add(symbol);
             }
-            return index;
+            return (byte)index;
         }
     }
 }

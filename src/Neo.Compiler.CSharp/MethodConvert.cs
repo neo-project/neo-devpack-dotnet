@@ -83,12 +83,12 @@ namespace Neo.Compiler
                 ConvertSource(context, model, symbol);
             else if (symbol.MethodKind != MethodKind.StaticConstructor)
                 ConvertExtern(context, symbol);
-            if (symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldsCount > 0)
+            if (symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFields.Count > 0)
             {
                 _instructions.Insert(0, new Instruction
                 {
                     OpCode = OpCode.INITSSLOT,
-                    Operand = new[] { (byte)context.StaticFieldsCount }
+                    Operand = new[] { (byte)context.StaticFields.Count }
                 });
             }
             _returnTarget.Instruction = AddInstruction(OpCode.RET);
@@ -97,39 +97,42 @@ namespace Neo.Compiler
 
         private void ProcessFields(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
-            foreach (IFieldSymbol field in symbol.ContainingType.GetMembers().OfType<IFieldSymbol>())
+            foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct())
             {
-                if (field.IsConst || !field.IsStatic) continue;
-                AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
-                if (initialValue is null)
+                foreach (IFieldSymbol field in @class.GetMembers().OfType<IFieldSymbol>())
                 {
-                    VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
-                    if (syntax.Initializer is null) continue;
-                    model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                    ConvertExpression(context, model, syntax.Initializer.Value);
-                }
-                else
-                {
-                    string value = (string)initialValue.ConstructorArguments[0].Value!;
-                    ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
-                    switch (type)
+                    if (field.IsConst || !field.IsStatic) continue;
+                    AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
+                    if (initialValue is null)
                     {
-                        case ContractParameterType.ByteArray:
-                            Push(value.HexToBytes(true));
-                            break;
-                        case ContractParameterType.Hash160:
-                            //TODO: Read AddressVersion from settings file.
-                            Push(value.ToScriptHash(ProtocolSettings.Default.AddressVersion).ToArray());
-                            break;
-                        case ContractParameterType.PublicKey:
-                            Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
-                            break;
-                        default:
-                            throw new NotSupportedException($"Unsupported initial value type: {type}");
+                        VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
+                        if (syntax.Initializer is null) continue;
+                        model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                        ConvertExpression(context, model, syntax.Initializer.Value);
                     }
+                    else
+                    {
+                        string value = (string)initialValue.ConstructorArguments[0].Value!;
+                        ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+                        switch (type)
+                        {
+                            case ContractParameterType.ByteArray:
+                                Push(value.HexToBytes(true));
+                                break;
+                            case ContractParameterType.Hash160:
+                                //TODO: Read AddressVersion from settings file.
+                                Push(value.ToScriptHash(ProtocolSettings.Default.AddressVersion).ToArray());
+                                break;
+                            case ContractParameterType.PublicKey:
+                                Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
+                                break;
+                            default:
+                                throw new NotSupportedException($"Unsupported initial value type: {type}");
+                        }
+                    }
+                    byte index = context.AddStaticField(field);
+                    AccessSlot(OpCode.STSFLD, index);
                 }
-                byte index = context.AddStaticField(field);
-                AccessSlot(OpCode.STSFLD, index);
             }
         }
 
