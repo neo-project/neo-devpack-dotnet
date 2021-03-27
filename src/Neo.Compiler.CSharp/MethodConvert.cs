@@ -93,7 +93,8 @@ namespace Neo.Compiler
                 });
             }
             _returnTarget.Instruction = AddInstruction(OpCode.RET);
-            Optimizer.RemoveNops(_instructions);
+            if (!context.Options.NoOptimize)
+                Optimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }
 
@@ -122,8 +123,7 @@ namespace Neo.Compiler
                                 Push(value.HexToBytes(true));
                                 break;
                             case ContractParameterType.Hash160:
-                                //TODO: Read AddressVersion from settings file.
-                                Push(value.ToScriptHash(ProtocolSettings.Default.AddressVersion).ToArray());
+                                Push(value.ToScriptHash(context.Options.AddressVersion).ToArray());
                                 break;
                             case ContractParameterType.PublicKey:
                                 Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
@@ -1043,7 +1043,7 @@ namespace Neo.Compiler
 
         private void ConvertDefaultExpression(SemanticModel model, DefaultExpressionSyntax expression)
         {
-            PushDefault(model.GetTypeInfo(expression.Type).Type!);
+            Push(model.GetConstantValue(expression).Value);
         }
 
         private void ConvertElementAccessExpression(CompilationContext context, SemanticModel model, ElementAccessExpressionSyntax expression)

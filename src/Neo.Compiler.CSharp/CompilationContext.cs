@@ -32,12 +32,14 @@ namespace Neo.Compiler
         private readonly List<IFieldSymbol> staticFields = new();
         private readonly Instruction[] instructions;
 
+        public Options Options { get; private set; }
         public string ContractName { get; private set; } = "";
         internal IReadOnlyList<IFieldSymbol> StaticFields => staticFields;
 
-        private CompilationContext(Compilation compilation)
+        private CompilationContext(Compilation compilation, Options options)
         {
             this.compilation = compilation;
+            this.Options = options;
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
@@ -69,7 +71,7 @@ namespace Neo.Compiler
             }
         }
 
-        private static CompilationContext Compile(string? csproj, string[] sourceFiles)
+        private static CompilationContext Compile(string? csproj, string[] sourceFiles, Options options)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
@@ -82,8 +84,7 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
-            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, options);
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             if (csproj is not null)
             {
                 string path = Path.GetDirectoryName(csproj)!;
@@ -96,7 +97,7 @@ namespace Neo.Compiler
                 path = Path.Combine(path, "obj", "project.assets.json");
                 JObject assets = JObject.Parse(File.ReadAllBytes(path));
                 string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
-                foreach (var (name, package) in assets["targets"].Properties.First().Value.Properties)
+                foreach (var (name, package) in assets["targets"][0].Properties)
                 {
                     if (name.StartsWith("Neo.SmartContract.Framework")) continue;
                     JObject files = package["compile"] ?? package["runtime"];
@@ -110,20 +111,20 @@ namespace Neo.Compiler
                     }
                 }
             }
-            return new(compilation);
+            return new(compilation, options);
         }
 
-        public static CompilationContext CompileSources(params string[] sourceFiles)
+        public static CompilationContext CompileSources(string[] sourceFiles, Options options)
         {
-            return Compile(null, sourceFiles);
+            return Compile(null, sourceFiles, options);
         }
 
-        public static CompilationContext CompileProject(string csproj)
+        public static CompilationContext CompileProject(string csproj, Options options)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
             string[] sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
-            return Compile(csproj, sourceFiles);
+            return Compile(csproj, sourceFiles, options);
         }
 
         public NefFile CreateExecutable()
