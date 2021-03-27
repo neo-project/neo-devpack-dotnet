@@ -103,6 +103,8 @@ namespace Neo.Compiler
                         if (attribute is not null) return (string)attribute.ConstructorArguments[0].Value!;
                         symbol = property;
                         break;
+                    case MethodKind.PropertySet:
+                        return "set" + symbol.Name[4..];
                     case MethodKind.StaticConstructor:
                         return "_initialize";
                 }

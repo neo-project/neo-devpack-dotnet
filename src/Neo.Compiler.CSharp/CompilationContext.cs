@@ -287,8 +287,10 @@ namespace Neo.Compiler
         {
             if (symbol.MethodKind != MethodKind.StaticConstructor)
             {
-                if (symbol.DeclaredAccessibility != Accessibility.Public) return;
-                if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet) return;
+                if (symbol.DeclaredAccessibility != Accessibility.Public)
+                    return;
+                if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
+                    return;
             }
             methodsExported.Add(new AbiMethod(symbol));
             ConvertMethod(model, symbol);
