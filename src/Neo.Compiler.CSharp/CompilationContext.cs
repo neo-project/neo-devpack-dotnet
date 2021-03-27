@@ -173,6 +173,7 @@ namespace Neo.Compiler
 
         public JObject CreateDebugInformation()
         {
+            SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
             return new JObject
             {
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
@@ -184,7 +185,11 @@ namespace Neo.Compiler
                     ["params"] = m.Key.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
                     ["return"] = m.Key.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Value.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
-                    ["sequence-points"] = new JArray()
+                    ["sequence-points"] = m.Value.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
+                    {
+                        FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();
+                        return (JString)$"{p.Offset}[{Array.IndexOf(trees, p.SourceLocation.SourceTree)}]{span.StartLinePosition.Line}:{span.StartLinePosition.Character}-{span.EndLinePosition.Line}:{span.EndLinePosition.Character}";
+                    }).ToArray()
                 }).ToArray(),
                 ["events"] = eventsExported.Select(e => new JObject
                 {

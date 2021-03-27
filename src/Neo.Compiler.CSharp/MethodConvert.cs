@@ -76,6 +76,11 @@ namespace Neo.Compiler
             });
         }
 
+        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken syntax)
+        {
+            return new SequencePointInserter(_instructions, syntax);
+        }
+
         public void Convert(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
             if (symbol.MethodKind == MethodKind.StaticConstructor)
@@ -100,7 +105,7 @@ namespace Neo.Compiler
 
         private void ProcessFields(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct())
+            foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct().ToArray())
             {
                 foreach (IFieldSymbol field in @class.GetMembers().OfType<IFieldSymbol>())
                 {
@@ -108,10 +113,12 @@ namespace Neo.Compiler
                     AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
                     if (initialValue is null)
                     {
+                        if (field.DeclaringSyntaxReferences.IsEmpty) continue;
                         VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
                         if (syntax.Initializer is null) continue;
                         model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                        ConvertExpression(context, model, syntax.Initializer.Value);
+                        using (InsertSequencePoint(syntax))
+                            ConvertExpression(context, model, syntax.Initializer.Value);
                     }
                     else
                     {
@@ -199,7 +206,7 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertNoBody(CompilationContext context, IMethodSymbol symbol)
+        private void ConvertNoBody(CompilationContext context, IMethodSymbol symbol, AccessorDeclarationSyntax syntax)
         {
             _inline = true;
             _callingConvention = CallingConvention.Cdecl;
@@ -208,35 +215,38 @@ namespace Neo.Compiler
             IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
             int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
             IFieldSymbol backingField = fields[backingFieldIndex];
-            switch (symbol.MethodKind)
+            using (InsertSequencePoint(syntax))
             {
-                case MethodKind.PropertyGet:
-                    if (symbol.IsStatic)
-                    {
-                        byte index = context.AddStaticField(backingField);
-                        AccessSlot(OpCode.LDSFLD, index);
-                    }
-                    else
-                    {
-                        Push(backingFieldIndex);
-                        AddInstruction(OpCode.PICKITEM);
-                    }
-                    break;
-                case MethodKind.PropertySet:
-                    if (symbol.IsStatic)
-                    {
-                        byte index = context.AddStaticField(backingField);
-                        AccessSlot(OpCode.STSFLD, index);
-                    }
-                    else
-                    {
-                        Push(backingFieldIndex);
-                        AddInstruction(OpCode.ROT);
-                        AddInstruction(OpCode.SETITEM);
-                    }
-                    break;
-                default:
-                    throw new NotSupportedException($"Unsupported accessor: {symbol}");
+                switch (symbol.MethodKind)
+                {
+                    case MethodKind.PropertyGet:
+                        if (symbol.IsStatic)
+                        {
+                            byte index = context.AddStaticField(backingField);
+                            AccessSlot(OpCode.LDSFLD, index);
+                        }
+                        else
+                        {
+                            Push(backingFieldIndex);
+                            AddInstruction(OpCode.PICKITEM);
+                        }
+                        break;
+                    case MethodKind.PropertySet:
+                        if (symbol.IsStatic)
+                        {
+                            byte index = context.AddStaticField(backingField);
+                            AccessSlot(OpCode.STSFLD, index);
+                        }
+                        else
+                        {
+                            Push(backingFieldIndex);
+                            AddInstruction(OpCode.ROT);
+                            AddInstruction(OpCode.SETITEM);
+                        }
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unsupported accessor: {symbol}");
+                }
             }
         }
 
@@ -256,13 +266,15 @@ namespace Neo.Compiler
                     if (syntax.Body is not null)
                         ConvertStatement(context, model, syntax.Body);
                     else if (syntax.ExpressionBody is not null)
-                        ConvertExpression(context, model, syntax.ExpressionBody.Expression);
+                        using (InsertSequencePoint(syntax.ExpressionBody.Expression))
+                            ConvertExpression(context, model, syntax.ExpressionBody.Expression);
                     else
-                        ConvertNoBody(context, symbol);
+                        ConvertNoBody(context, symbol, syntax);
                     break;
                 case BaseMethodDeclarationSyntax syntax:
                     if (syntax.Body is null)
-                        ConvertExpression(context, model, syntax.ExpressionBody!.Expression);
+                        using (InsertSequencePoint(syntax.ExpressionBody!.Expression))
+                            ConvertExpression(context, model, syntax.ExpressionBody.Expression);
                     else
                         ConvertStatement(context, model, syntax.Body);
                     break;
@@ -290,16 +302,17 @@ namespace Neo.Compiler
                 case BlockSyntax syntax:
                     ConvertBlockStatement(context, model, syntax);
                     break;
-                case BreakStatementSyntax:
-                    ConvertBreakStatement();
+                case BreakStatementSyntax syntax:
+                    ConvertBreakStatement(syntax);
                     break;
-                case ContinueStatementSyntax:
-                    ConvertContinueStatement();
+                case ContinueStatementSyntax syntax:
+                    ConvertContinueStatement(syntax);
                     break;
                 case DoStatementSyntax syntax:
                     ConvertDoStatement(context, model, syntax);
                     break;
-                case EmptyStatementSyntax:
+                case EmptyStatementSyntax syntax:
+                    ConvertEmptyStatement(syntax);
                     break;
                 case ExpressionStatementSyntax syntax:
                     ConvertExpressionStatement(context, model, syntax);
@@ -328,7 +341,7 @@ namespace Neo.Compiler
                     ConvertSwitchStatement(context, model, syntax);
                     break;
                 case ThrowStatementSyntax syntax:
-                    Throw(context, model, syntax.Expression);
+                    ConvertThrowStatement(context, model, syntax);
                     break;
                 case TryStatementSyntax syntax:
                     ConvertTryStatement(context, model, syntax);
@@ -344,26 +357,32 @@ namespace Neo.Compiler
         private void ConvertBlockStatement(CompilationContext context, SemanticModel model, BlockSyntax syntax)
         {
             _blockSymbols.Push(new List<ILocalSymbol>());
+            using (InsertSequencePoint(syntax.OpenBraceToken))
+                AddInstruction(OpCode.NOP);
             foreach (StatementSyntax child in syntax.Statements)
                 ConvertStatement(context, model, child);
+            using (InsertSequencePoint(syntax.CloseBraceToken))
+                AddInstruction(OpCode.NOP);
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 _localVariables.Remove(symbol);
         }
 
-        private void ConvertBreakStatement()
+        private void ConvertBreakStatement(BreakStatementSyntax syntax)
         {
-            if (_tryStack.Count > 0)
-                Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
-            else
-                Jump(OpCode.JMP_L, _breakTargets.Peek());
+            using (InsertSequencePoint(syntax))
+                if (_tryStack.Count > 0)
+                    Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
+                else
+                    Jump(OpCode.JMP_L, _breakTargets.Peek());
         }
 
-        private void ConvertContinueStatement()
+        private void ConvertContinueStatement(ContinueStatementSyntax syntax)
         {
-            if (_tryStack.Count > 0)
-                Jump(OpCode.ENDTRY_L, _continueTargets.Peek());
-            else
-                Jump(OpCode.JMP_L, _continueTargets.Peek());
+            using (InsertSequencePoint(syntax))
+                if (_tryStack.Count > 0)
+                    Jump(OpCode.ENDTRY_L, _continueTargets.Peek());
+                else
+                    Jump(OpCode.JMP_L, _continueTargets.Peek());
         }
 
         private void ConvertDoStatement(CompilationContext context, SemanticModel model, DoStatementSyntax syntax)
@@ -376,19 +395,29 @@ namespace Neo.Compiler
             startTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(context, model, syntax.Statement);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertExpression(context, model, syntax.Condition);
+            using (InsertSequencePoint(syntax.Condition))
+                ConvertExpression(context, model, syntax.Condition);
             Jump(OpCode.JMPIF_L, startTarget);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             _continueTargets.Pop();
             _breakTargets.Pop();
         }
 
+        private void ConvertEmptyStatement(EmptyStatementSyntax syntax)
+        {
+            using (InsertSequencePoint(syntax))
+                AddInstruction(OpCode.NOP);
+        }
+
         private void ConvertExpressionStatement(CompilationContext context, SemanticModel model, ExpressionStatementSyntax syntax)
         {
             ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
-            ConvertExpression(context, model, syntax.Expression);
-            if (type.SpecialType != SpecialType.System_Void)
-                AddInstruction(OpCode.DROP);
+            using (InsertSequencePoint(syntax))
+            {
+                ConvertExpression(context, model, syntax.Expression);
+                if (type.SpecialType != SpecialType.System_Void)
+                    AddInstruction(OpCode.DROP);
+            }
         }
 
         private void ConvertForEachStatement(CompilationContext context, SemanticModel model, ForEachStatementSyntax syntax)
@@ -401,16 +430,25 @@ namespace Neo.Compiler
             byte elementIndex = AddLocalVariable(elementSymbol);
             _continueTargets.Push(continueTarget);
             _breakTargets.Push(breakTarget);
-            ConvertExpression(context, model, syntax.Expression);
-            AccessSlot(OpCode.STLOC, iteratorIndex);
-            Jump(OpCode.JMP_L, continueTarget);
-            startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-            Call(ApplicationEngine.System_Iterator_Value);
-            AccessSlot(OpCode.STLOC, elementIndex);
+            using (InsertSequencePoint(syntax.ForEachKeyword))
+            {
+                ConvertExpression(context, model, syntax.Expression);
+                AccessSlot(OpCode.STLOC, iteratorIndex);
+                Jump(OpCode.JMP_L, continueTarget);
+            }
+            using (InsertSequencePoint(syntax.Identifier))
+            {
+                startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+                Call(ApplicationEngine.System_Iterator_Value);
+                AccessSlot(OpCode.STLOC, elementIndex);
+            }
             ConvertStatement(context, model, syntax.Statement);
-            continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-            Call(ApplicationEngine.System_Iterator_Next);
-            Jump(OpCode.JMPIF_L, startTarget);
+            using (InsertSequencePoint(syntax.Expression))
+            {
+                continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+                Call(ApplicationEngine.System_Iterator_Next);
+                Jump(OpCode.JMPIF_L, startTarget);
+            }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             _anonymousVariables.Remove(iteratorIndex);
             _localVariables.Remove(elementSymbol);
@@ -427,25 +465,34 @@ namespace Neo.Compiler
             byte iteratorIndex = AddAnonymousVariable();
             _continueTargets.Push(continueTarget);
             _breakTargets.Push(breakTarget);
-            ConvertExpression(context, model, syntax.Expression);
-            AccessSlot(OpCode.STLOC, iteratorIndex);
-            Jump(OpCode.JMP_L, continueTarget);
-            startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-            Call(ApplicationEngine.System_Iterator_Value);
-            for (int i = 0; i < symbols.Length; i++)
+            using (InsertSequencePoint(syntax.ForEachKeyword))
             {
-                if (symbols[i] is null) continue;
-                byte variableIndex = AddLocalVariable(symbols[i]);
-                AddInstruction(OpCode.DUP);
-                Push(i);
-                AddInstruction(OpCode.PICKITEM);
-                AccessSlot(OpCode.STLOC, variableIndex);
+                ConvertExpression(context, model, syntax.Expression);
+                AccessSlot(OpCode.STLOC, iteratorIndex);
+                Jump(OpCode.JMP_L, continueTarget);
             }
-            AddInstruction(OpCode.DROP);
+            using (InsertSequencePoint(syntax.Variable))
+            {
+                startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+                Call(ApplicationEngine.System_Iterator_Value);
+                for (int i = 0; i < symbols.Length; i++)
+                {
+                    if (symbols[i] is null) continue;
+                    byte variableIndex = AddLocalVariable(symbols[i]);
+                    AddInstruction(OpCode.DUP);
+                    Push(i);
+                    AddInstruction(OpCode.PICKITEM);
+                    AccessSlot(OpCode.STLOC, variableIndex);
+                }
+                AddInstruction(OpCode.DROP);
+            }
             ConvertStatement(context, model, syntax.Statement);
-            continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-            Call(ApplicationEngine.System_Iterator_Next);
-            Jump(OpCode.JMPIF_L, startTarget);
+            using (InsertSequencePoint(syntax.Expression))
+            {
+                continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
+                Call(ApplicationEngine.System_Iterator_Next);
+                Jump(OpCode.JMPIF_L, startTarget);
+            }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             _anonymousVariables.Remove(iteratorIndex);
             foreach (ILocalSymbol symbol in symbols)
@@ -470,22 +517,24 @@ namespace Neo.Compiler
             {
                 byte variableIndex = AddLocalVariable(symbol);
                 if (variable.Initializer is not null)
-                {
-                    ConvertExpression(context, model, variable.Initializer.Value);
-                    AccessSlot(OpCode.STLOC, variableIndex);
-                }
+                    using (InsertSequencePoint(variable))
+                    {
+                        ConvertExpression(context, model, variable.Initializer.Value);
+                        AccessSlot(OpCode.STLOC, variableIndex);
+                    }
             }
             Jump(OpCode.JMP_L, conditionTarget);
             startTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(context, model, syntax.Statement);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
             foreach (ExpressionSyntax expression in syntax.Incrementors)
-            {
-                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-                ConvertExpression(context, model, expression);
-                if (type.SpecialType != SpecialType.System_Void)
-                    AddInstruction(OpCode.DROP);
-            }
+                using (InsertSequencePoint(expression))
+                {
+                    ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                    ConvertExpression(context, model, expression);
+                    if (type.SpecialType != SpecialType.System_Void)
+                        AddInstruction(OpCode.DROP);
+                }
             conditionTarget.Instruction = AddInstruction(OpCode.NOP);
             if (syntax.Condition is null)
             {
@@ -493,7 +542,8 @@ namespace Neo.Compiler
             }
             else
             {
-                ConvertExpression(context, model, syntax.Condition);
+                using (InsertSequencePoint(syntax.Condition))
+                    ConvertExpression(context, model, syntax.Condition);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -506,7 +556,8 @@ namespace Neo.Compiler
         private void ConvertIfStatement(CompilationContext context, SemanticModel model, IfStatementSyntax syntax)
         {
             JumpTarget elseTarget = new();
-            ConvertExpression(context, model, syntax.Condition);
+            using (InsertSequencePoint(syntax.Condition))
+                ConvertExpression(context, model, syntax.Condition);
             Jump(OpCode.JMPIFNOT_L, elseTarget);
             ConvertStatement(context, model, syntax.Statement);
             if (syntax.Else is null)
@@ -531,21 +582,25 @@ namespace Neo.Compiler
                 ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
                 byte variableIndex = AddLocalVariable(symbol);
                 if (variable.Initializer is not null)
-                {
-                    ConvertExpression(context, model, variable.Initializer.Value);
-                    AccessSlot(OpCode.STLOC, variableIndex);
-                }
+                    using (InsertSequencePoint(variable))
+                    {
+                        ConvertExpression(context, model, variable.Initializer.Value);
+                        AccessSlot(OpCode.STLOC, variableIndex);
+                    }
             }
         }
 
         private void ConvertReturnStatement(CompilationContext context, SemanticModel model, ReturnStatementSyntax syntax)
         {
-            if (syntax.Expression is not null)
-                ConvertExpression(context, model, syntax.Expression);
-            if (_tryStack.Count > 0)
-                Jump(OpCode.ENDTRY_L, _returnTarget);
-            else
-                Jump(OpCode.JMP_L, _returnTarget);
+            using (InsertSequencePoint(syntax))
+            {
+                if (syntax.Expression is not null)
+                    ConvertExpression(context, model, syntax.Expression);
+                if (_tryStack.Count > 0)
+                    Jump(OpCode.ENDTRY_L, _returnTarget);
+                else
+                    Jump(OpCode.JMP_L, _returnTarget);
+            }
         }
 
         private void ConvertSwitchStatement(CompilationContext context, SemanticModel model, SwitchStatementSyntax syntax)
@@ -554,18 +609,41 @@ namespace Neo.Compiler
             var labels = sections.SelectMany(p => p.Labels, (p, l) => (l, p.Target)).ToArray();
             JumpTarget breakTarget = new();
             _breakTargets.Push(breakTarget);
-            ConvertExpression(context, model, syntax.Expression);
+            using (InsertSequencePoint(syntax.Expression))
+                ConvertExpression(context, model, syntax.Expression);
             foreach (var (label, target) in labels)
             {
                 switch (label)
                 {
-                    case CaseSwitchLabelSyntax caseSwitchLabel:
-                        AddInstruction(OpCode.DUP);
-                        ConvertExpression(context, model, caseSwitchLabel.Value);
-                        Jump(OpCode.JMPEQ_L, target);
+                    case CasePatternSwitchLabelSyntax casePatternSwitchLabel:
+                        using (InsertSequencePoint(casePatternSwitchLabel))
+                        {
+                            JumpTarget endTarget = new();
+                            ConvertPattern(context, model, casePatternSwitchLabel.Pattern);
+                            Jump(OpCode.JMPIFNOT_L, endTarget);
+                            if (casePatternSwitchLabel.WhenClause is not null)
+                            {
+                                ConvertExpression(context, model, casePatternSwitchLabel.WhenClause.Condition);
+                                Jump(OpCode.JMPIFNOT_L, endTarget);
+                            }
+                            Jump(OpCode.JMP_L, target);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
                         break;
-                    case DefaultSwitchLabelSyntax:
-                        Jump(OpCode.JMP_L, target);
+                    case CaseSwitchLabelSyntax caseSwitchLabel:
+                        using (InsertSequencePoint(caseSwitchLabel))
+                        {
+                            AddInstruction(OpCode.DUP);
+                            ConvertExpression(context, model, caseSwitchLabel.Value);
+                            AddInstruction(OpCode.EQUAL);
+                            Jump(OpCode.JMPIF_L, target);
+                        }
+                        break;
+                    case DefaultSwitchLabelSyntax defaultSwitchLabel:
+                        using (InsertSequencePoint(defaultSwitchLabel))
+                        {
+                            Jump(OpCode.JMP_L, target);
+                        }
                         break;
                     default:
                         throw new NotSupportedException($"Unsupported syntax: {label}");
@@ -580,6 +658,12 @@ namespace Neo.Compiler
             }
             breakTarget.Instruction = AddInstruction(OpCode.DROP);
             _breakTargets.Pop();
+        }
+
+        private void ConvertThrowStatement(CompilationContext context, SemanticModel model, ThrowStatementSyntax syntax)
+        {
+            using (InsertSequencePoint(syntax))
+                Throw(context, model, syntax.Expression);
         }
 
         private void ConvertTryStatement(CompilationContext context, SemanticModel model, TryStatementSyntax syntax)
@@ -598,8 +682,8 @@ namespace Neo.Compiler
                 CatchClauseSyntax catchClause = syntax.Catches[0];
                 if (catchClause.Filter is not null)
                     throw new NotSupportedException($"Unsupported syntax: {catchClause.Filter}");
-                ILocalSymbol? exceptionSymbol = null;
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
+                ILocalSymbol? exceptionSymbol = null;
                 byte exceptionIndex;
                 if (catchClause.Declaration is null)
                 {
@@ -607,10 +691,13 @@ namespace Neo.Compiler
                 }
                 else
                 {
-                    exceptionSymbol = model.GetDeclaredSymbol(catchClause.Declaration)!;
-                    exceptionIndex = AddLocalVariable(exceptionSymbol);
+                    exceptionSymbol = model.GetDeclaredSymbol(catchClause.Declaration);
+                    exceptionIndex = exceptionSymbol is null
+                        ? AddAnonymousVariable()
+                        : AddLocalVariable(exceptionSymbol);
                 }
-                catchTarget.Instruction = AccessSlot(OpCode.STLOC, exceptionIndex);
+                using (InsertSequencePoint(catchClause.CatchKeyword))
+                    catchTarget.Instruction = AccessSlot(OpCode.STLOC, exceptionIndex);
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(context, model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
@@ -638,8 +725,11 @@ namespace Neo.Compiler
             _continueTargets.Push(continueTarget);
             _breakTargets.Push(breakTarget);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertExpression(context, model, syntax.Condition);
-            Jump(OpCode.JMPIFNOT_L, breakTarget);
+            using (InsertSequencePoint(syntax.Condition))
+            {
+                ConvertExpression(context, model, syntax.Condition);
+                Jump(OpCode.JMPIFNOT_L, breakTarget);
+            }
             ConvertStatement(context, model, syntax.Statement);
             Jump(OpCode.JMP_L, continueTarget);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -707,8 +797,6 @@ namespace Neo.Compiler
                     break;
                 case MemberBindingExpressionSyntax expression:
                     ConvertMemberBindingExpression(context, model, expression);
-                    break;
-                case OmittedArraySizeExpressionSyntax:
                     break;
                 case ParenthesizedExpressionSyntax expression:
                     ConvertExpression(context, model, expression.Expression);
@@ -1868,7 +1956,7 @@ namespace Neo.Compiler
 
         private Instruction Push(string s)
         {
-            return Push(Encoding.UTF8.GetBytes(s));
+            return Push(Utility.StrictUTF8.GetBytes(s));
         }
 
         private Instruction Push(byte[] data)

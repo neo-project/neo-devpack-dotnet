@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Neo.VM;
 using System;
 using System.Linq;
@@ -15,8 +16,9 @@ namespace Neo.Compiler
         public JumpTarget? Target;
         public JumpTarget? Target2;
         public int Offset;
-        private int _size;
+        public Location? SourceLocation;
 
+        private int _size;
         public int Size
         {
             get
@@ -51,7 +53,8 @@ namespace Neo.Compiler
             return new Instruction
             {
                 OpCode = OpCode,
-                Operand = Operand
+                Operand = Operand,
+                SourceLocation = SourceLocation
             };
         }
 
