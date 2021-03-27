@@ -2243,6 +2243,7 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.SIGN);
                     return true;
                 case "System.Array.Length.get":
+                case "string.Length.get":
                     if (instanceExpression is not null)
                         ConvertExpression(context, model, instanceExpression);
                     AddInstruction(OpCode.SIZE);
