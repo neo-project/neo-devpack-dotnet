@@ -2121,7 +2121,7 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            EmitCall(convert);
+            EmitCall(context, convert);
         }
 
         private void Call(CompilationContext context, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
@@ -2144,7 +2144,7 @@ namespace Neo.Compiler
                 else
                     ConvertExpression(context, model, instanceExpression);
             }
-            EmitCall(convert);
+            EmitCall(context, convert);
         }
 
         private void Call(CompilationContext context, SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
@@ -2173,7 +2173,7 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            EmitCall(convert);
+            EmitCall(context, convert);
         }
 
         private void PrepareArgumentsForMethod(CompilationContext context, SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
@@ -2313,9 +2313,9 @@ namespace Neo.Compiler
             }
         }
 
-        private void EmitCall(MethodConvert target)
+        private void EmitCall(CompilationContext context, MethodConvert target)
         {
-            if (target._inline)
+            if (target._inline && !context.Options.NoInline)
                 for (int i = 0; i < target._instructions.Count - 1; i++)
                     AddInstruction(target._instructions[i].Clone());
             else

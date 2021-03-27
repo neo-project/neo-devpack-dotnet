@@ -19,6 +19,7 @@ namespace Neo.Compiler
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
+                new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
             rootCommand.Handler = CommandHandler.Create<Options, string>(Handle);
