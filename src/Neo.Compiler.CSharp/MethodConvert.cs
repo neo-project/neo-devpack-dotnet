@@ -84,7 +84,7 @@ namespace Neo.Compiler
         public void Convert(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
             if (symbol.MethodKind == MethodKind.StaticConstructor)
-                ProcessFields(context, model, symbol);
+                ProcessFields(context, model);
             if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
                 ConvertSource(context, model, symbol);
             else if (symbol.MethodKind != MethodKind.StaticConstructor)
@@ -103,7 +103,7 @@ namespace Neo.Compiler
             _startTarget.Instruction = _instructions[0];
         }
 
-        private void ProcessFields(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
+        private void ProcessFields(CompilationContext context, SemanticModel model)
         {
             foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct().ToArray())
             {

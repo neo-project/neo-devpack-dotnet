@@ -45,6 +45,7 @@ namespace Neo.Compiler
                 SemanticModel model = compilation.GetSemanticModel(tree);
                 ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
             }
+            RemoveEmptyInitialize();
             instructions = methodsConverted.SelectMany(p => p.Value.Instructions).ToArray();
             for (int i = 0, offset = 0; i < instructions.Length; i++)
             {
@@ -68,6 +69,18 @@ namespace Neo.Compiler
                     int offset = instruction.Target.Instruction!.Offset - instruction.Offset;
                     instruction.Operand = BitConverter.GetBytes(offset);
                 }
+            }
+        }
+
+        private void RemoveEmptyInitialize()
+        {
+            int index = methodsExported.FindIndex(p => p.Name == "_initialize");
+            if (index < 0) return;
+            AbiMethod method = methodsExported[index];
+            if (methodsConverted[method.Symbol].Instructions.Count <= 1)
+            {
+                methodsExported.RemoveAt(index);
+                methodsConverted.Remove(method.Symbol);
             }
         }
 
