@@ -38,6 +38,7 @@ namespace Neo.Compiler
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
 
+        public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
         public IReadOnlyList<ILocalSymbol> Variables => _variableSymbols;
 
@@ -241,7 +242,7 @@ namespace Neo.Compiler
 
         private void ConvertSource(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
-            var body = symbol.DeclaringSyntaxReferences[0].GetSyntax();
+            SyntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
             for (byte i = 0; i < symbol.Parameters.Length; i++)
             {
                 IParameterSymbol parameter = symbol.Parameters[i];
@@ -249,7 +250,7 @@ namespace Neo.Compiler
                 if (!symbol.IsStatic) index++;
                 _parameters.Add(parameter, index);
             }
-            switch (body)
+            switch (SyntaxNode)
             {
                 case AccessorDeclarationSyntax syntax:
                     if (syntax.Body is not null)
@@ -266,7 +267,7 @@ namespace Neo.Compiler
                         ConvertStatement(context, model, syntax.Body);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported method body:{body}");
+                    throw new NotSupportedException($"Unsupported method body:{SyntaxNode}");
             }
             if (!_inline)
             {
@@ -1169,7 +1170,6 @@ namespace Neo.Compiler
                 case SpecialType.System_Int64:
                 case SpecialType.System_UInt64:
                 case SpecialType.None when type.Name == nameof(BigInteger):
-                    Push(10);
                     ConvertExpression(context, model, expression);
                     Call(context, NativeContract.StdLib.Hash, "itoa", 2, true);
                     break;
@@ -2168,7 +2168,6 @@ namespace Neo.Compiler
                 case "long.Parse(string)":
                 case "ulong.Parse(string)":
                 case "System.Numerics.BigInteger.Parse(string)":
-                    Push(10);
                     if (arguments is not null)
                         PrepareArgumentsForMethod(context, model, symbol, arguments);
                     Call(context, NativeContract.StdLib.Hash, "atoi", 2, true);

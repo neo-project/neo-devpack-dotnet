@@ -175,11 +175,11 @@ namespace Neo.Compiler
             return new JObject
             {
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
-                ["methods"] = methodsConverted.Select(m => new JObject
+                ["methods"] = methodsConverted.Where(p => p.Value.SyntaxNode is not null).Select(m => new JObject
                 {
                     ["id"] = m.Key.ToString(),
                     ["name"] = $"{m.Key.ContainingType},{m.Key.Name}",
-                    ["range"] = $"{m.Value.Instructions[0].Offset}-{m.Value.Instructions[^1].Offset + m.Value.Instructions[^1].Size}",
+                    ["range"] = $"{m.Value.Instructions[0].Offset}-{m.Value.Instructions[^1].Offset}",
                     ["params"] = m.Key.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
                     ["return"] = m.Key.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Value.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
