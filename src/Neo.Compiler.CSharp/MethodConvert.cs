@@ -24,6 +24,7 @@ namespace Neo.Compiler
     {
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
+        private bool _initslot;
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
         private readonly List<ILocalSymbol> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
@@ -83,19 +84,45 @@ namespace Neo.Compiler
 
         public void Convert(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
         {
-            if (symbol.MethodKind == MethodKind.StaticConstructor)
-                ProcessFields(context, model);
-            if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
-                ConvertSource(context, model, symbol);
-            else if (symbol.MethodKind != MethodKind.StaticConstructor)
-                ConvertExtern(context, symbol);
-            if (symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFields.Count > 0)
+            if (symbol.IsExtern || symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
             {
-                _instructions.Insert(0, new Instruction
+                ConvertExtern(context, symbol);
+            }
+            else
+            {
+                switch (symbol.MethodKind)
                 {
-                    OpCode = OpCode.INITSSLOT,
-                    Operand = new[] { (byte)context.StaticFields.Count }
-                });
+                    case MethodKind.Constructor:
+                        ProcessFields(context, model, symbol);
+                        break;
+                    case MethodKind.StaticConstructor:
+                        ProcessStaticFields(context, model);
+                        break;
+                }
+                if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+                    ConvertSource(context, model, symbol);
+                if (symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFields.Count > 0)
+                {
+                    _instructions.Insert(0, new Instruction
+                    {
+                        OpCode = OpCode.INITSSLOT,
+                        Operand = new[] { (byte)context.StaticFields.Count }
+                    });
+                }
+                if (_initslot)
+                {
+                    byte pc = (byte)_parameters.Count;
+                    byte lc = (byte)_localsCount;
+                    if (!symbol.IsStatic) pc++;
+                    if (pc > 0 || lc > 0)
+                    {
+                        _instructions.Insert(0, new Instruction
+                        {
+                            OpCode = OpCode.INITSLOT,
+                            Operand = new[] { lc, pc }
+                        });
+                    }
+                }
             }
             _returnTarget.Instruction = AddInstruction(OpCode.RET);
             if (!context.Options.NoOptimize)
@@ -103,45 +130,75 @@ namespace Neo.Compiler
             _startTarget.Instruction = _instructions[0];
         }
 
-        private void ProcessFields(CompilationContext context, SemanticModel model)
+        private void ProcessFields(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
+        {
+            _initslot = true;
+            IFieldSymbol[] fields = symbol.ContainingType.GetFields();
+            for (int i = 0; i < fields.Length; i++)
+            {
+                ProcessFieldInitializer(context, model, fields[i], () =>
+                {
+                    AddInstruction(OpCode.LDARG0);
+                    Push(i);
+                }, () =>
+                {
+                    AddInstruction(OpCode.SETITEM);
+                });
+            }
+        }
+
+        private void ProcessStaticFields(CompilationContext context, SemanticModel model)
         {
             foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct().ToArray())
             {
                 foreach (IFieldSymbol field in @class.GetMembers().OfType<IFieldSymbol>())
                 {
                     if (field.IsConst || !field.IsStatic) continue;
-                    AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
-                    if (initialValue is null)
+                    ProcessFieldInitializer(context, model, field, null, () =>
                     {
-                        if (field.DeclaringSyntaxReferences.IsEmpty) continue;
-                        VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
-                        if (syntax.Initializer is null) continue;
-                        model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                        using (InsertSequencePoint(syntax))
-                            ConvertExpression(context, model, syntax.Initializer.Value);
-                    }
-                    else
-                    {
-                        string value = (string)initialValue.ConstructorArguments[0].Value!;
-                        ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
-                        switch (type)
-                        {
-                            case ContractParameterType.ByteArray:
-                                Push(value.HexToBytes(true));
-                                break;
-                            case ContractParameterType.Hash160:
-                                Push(value.ToScriptHash(context.Options.AddressVersion).ToArray());
-                                break;
-                            case ContractParameterType.PublicKey:
-                                Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
-                                break;
-                            default:
-                                throw new NotSupportedException($"Unsupported initial value type: {type}");
-                        }
-                    }
-                    byte index = context.AddStaticField(field);
-                    AccessSlot(OpCode.STSFLD, index);
+                        byte index = context.AddStaticField(field);
+                        AccessSlot(OpCode.STSFLD, index);
+                    });
                 }
+            }
+        }
+
+        private void ProcessFieldInitializer(CompilationContext context, SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
+        {
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
+            if (initialValue is null)
+            {
+                if (field.DeclaringSyntaxReferences.IsEmpty) return;
+                VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
+                if (syntax.Initializer is null) return;
+                model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                using (InsertSequencePoint(syntax))
+                {
+                    preInitialize?.Invoke();
+                    ConvertExpression(context, model, syntax.Initializer.Value);
+                    postInitialize?.Invoke();
+                }
+            }
+            else
+            {
+                preInitialize?.Invoke();
+                string value = (string)initialValue.ConstructorArguments[0].Value!;
+                ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+                switch (type)
+                {
+                    case ContractParameterType.ByteArray:
+                        Push(value.HexToBytes(true));
+                        break;
+                    case ContractParameterType.Hash160:
+                        Push(value.ToScriptHash(context.Options.AddressVersion).ToArray());
+                        break;
+                    case ContractParameterType.PublicKey:
+                        Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unsupported initial value type: {type}");
+                }
+                postInitialize?.Invoke();
             }
         }
 
@@ -281,18 +338,7 @@ namespace Neo.Compiler
                 default:
                     throw new NotSupportedException($"Unsupported method body:{SyntaxNode}");
             }
-            if (!_inline)
-            {
-                byte pc = (byte)_parameters.Count;
-                byte lc = (byte)_localsCount;
-                if (!symbol.IsStatic) pc++;
-                if (pc == 0 && lc == 0) return;
-                _instructions.Insert(0, new Instruction
-                {
-                    OpCode = OpCode.INITSLOT,
-                    Operand = new[] { lc, pc }
-                });
-            }
+            _initslot = !_inline;
         }
 
         private void ConvertStatement(CompilationContext context, SemanticModel model, StatementSyntax statement)
@@ -895,7 +941,7 @@ namespace Neo.Compiler
             switch (expression.Left)
             {
                 case DeclarationExpressionSyntax left:
-                    ConvertDeclarationAssignment(context, model, left);
+                    ConvertDeclarationAssignment(model, left);
                     break;
                 case ElementAccessExpressionSyntax left:
                     ConvertElementAccessAssignment(context, model, left);
@@ -911,7 +957,7 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertDeclarationAssignment(CompilationContext context, SemanticModel model, DeclarationExpressionSyntax left)
+        private void ConvertDeclarationAssignment(SemanticModel model, DeclarationExpressionSyntax left)
         {
             ITypeSymbol type = model.GetTypeInfo(left).Type!;
             if (!type.IsValueType)
@@ -1015,29 +1061,14 @@ namespace Neo.Compiler
 
         private void ConvertObjectCreationExpression(CompilationContext context, SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
+            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
             IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
             IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
             if (TryProcessSystemConstructors(context, model, constructor, arguments))
                 return;
-            bool needCallConstructor, needCreateObject;
-            if (constructor.IsExtern)
-            {
-                needCallConstructor = true;
-                needCreateObject = false;
-            }
-            else if (constructor.DeclaringSyntaxReferences.Length > 0)
-            {
-                needCallConstructor = true;
-                needCreateObject = true;
-            }
-            else
-            {
-                needCallConstructor = false;
-                needCreateObject = true;
-            }
+            bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
             if (needCreateObject)
             {
-                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
                 IFieldSymbol[] fields = type.GetFields();
                 AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
                 foreach (IFieldSymbol field in fields)
@@ -1064,10 +1095,7 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.APPEND);
                 }
             }
-            if (needCallConstructor)
-            {
-                Call(context, model, constructor, needCreateObject, arguments);
-            }
+            Call(context, model, constructor, needCreateObject, arguments);
         }
 
         private void ConvertBinaryExpression(CompilationContext context, SemanticModel model, BinaryExpressionSyntax expression)
@@ -1966,7 +1994,7 @@ namespace Neo.Compiler
                     ConvertConstantPattern(context, model, constantPattern);
                     break;
                 case DeclarationPatternSyntax declarationPattern:
-                    ConvertDeclarationPattern(context, model, declarationPattern);
+                    ConvertDeclarationPattern(model, declarationPattern);
                     break;
                 case DiscardPatternSyntax:
                     Push(true);
@@ -2033,7 +2061,7 @@ namespace Neo.Compiler
             AddInstruction(OpCode.EQUAL);
         }
 
-        private void ConvertDeclarationPattern(CompilationContext context, SemanticModel model, DeclarationPatternSyntax pattern)
+        private void ConvertDeclarationPattern(SemanticModel model, DeclarationPatternSyntax pattern)
         {
             ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
             AddInstruction(OpCode.DUP);
