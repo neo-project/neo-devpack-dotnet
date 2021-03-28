@@ -2326,6 +2326,24 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(context, model, symbol, arguments);
                     AddInstruction(OpCode.EQUAL);
                     return true;
+                case "string.Substring(int)":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments);
+                    AddInstruction(OpCode.OVER);
+                    AddInstruction(OpCode.SIZE);
+                    AddInstruction(OpCode.OVER);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.SUBSTR);
+                    return true;
+                case "string.Substring(int, int)":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.SUBSTR);
+                    return true;
                 default:
                     return false;
             }
