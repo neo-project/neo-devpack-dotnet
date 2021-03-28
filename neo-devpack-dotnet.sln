@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D5266066-0AFD-44D5-A83E-2F73668A63C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.Compiler.CSharp.UnitTests", "Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj", "{4C6B120B-99B5-4888-B8D5-45031458DD07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp.UnitTests", "Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj", "{4C6B120B-99B5-4888-B8D5-45031458DD07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

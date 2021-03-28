@@ -1003,7 +1003,7 @@ namespace Neo.Compiler
             {
                 ITypeSymbol type = model.GetTypeInfo(expression).Type!;
                 IFieldSymbol[] fields = type.GetFields();
-                AddInstruction(OpCode.NEWARRAY0);
+                AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
                 foreach (IFieldSymbol field in fields)
                 {
                     ExpressionSyntax? right = null;
