@@ -82,6 +82,19 @@ namespace Neo.Compiler
             };
         }
 
+        public static StackItemType GetPatternType(this ITypeSymbol type)
+        {
+            return type.ToString() switch
+            {
+                "bool" => StackItemType.Boolean,
+                "byte[]" => StackItemType.Buffer,
+                "string" => StackItemType.ByteString,
+                "Neo.SmartContract.Framework.ByteString" => StackItemType.ByteString,
+                "System.Numerics.BigInteger" => StackItemType.Integer,
+                _ => throw new NotSupportedException($"Unsupported pattern type: {type}")
+            };
+        }
+
         public static IFieldSymbol[] GetFields(this ITypeSymbol type)
         {
             return type.GetMembers().OfType<IFieldSymbol>().Where(p => !p.IsStatic).ToArray();

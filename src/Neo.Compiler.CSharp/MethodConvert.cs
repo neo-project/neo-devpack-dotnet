@@ -1072,40 +1072,65 @@ namespace Neo.Compiler
 
         private void ConvertBinaryExpression(CompilationContext context, SemanticModel model, BinaryExpressionSyntax expression)
         {
-            if (expression.OperatorToken.ValueText == "??")
+            switch (expression.OperatorToken.ValueText)
             {
-                ConvertCoalesceExpression(context, model, expression.Left, expression.Right);
-            }
-            else
-            {
-                IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
-                if (symbol is not null && TryProcessSystemOperators(context, model, symbol, expression.Left, expression.Right))
+                case "is":
+                    ConvertIsExpression(context, model, expression.Left, expression.Right);
                     return;
-                ConvertExpression(context, model, expression.Left);
-                ConvertExpression(context, model, expression.Right);
-                AddInstruction(expression.OperatorToken.ValueText switch
-                {
-                    "+" => OpCode.ADD,
-                    "-" => OpCode.SUB,
-                    "*" => OpCode.MUL,
-                    "/" => OpCode.DIV,
-                    "%" => OpCode.MOD,
-                    "<<" => OpCode.SHL,
-                    ">>" => OpCode.SHR,
-                    "||" => OpCode.BOOLOR,
-                    "&&" => OpCode.BOOLAND,
-                    "|" => OpCode.OR,
-                    "&" => OpCode.AND,
-                    "^" => OpCode.XOR,
-                    "==" => OpCode.NUMEQUAL,
-                    "!=" => OpCode.NUMNOTEQUAL,
-                    "<" => OpCode.LT,
-                    "<=" => OpCode.LE,
-                    ">" => OpCode.GT,
-                    ">=" => OpCode.GE,
-                    _ => throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}")
-                });
+                case "as":
+                    ConvertAsExpression(context, model, expression.Left, expression.Right);
+                    return;
+                case "??":
+                    ConvertCoalesceExpression(context, model, expression.Left, expression.Right);
+                    return;
             }
+            IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
+            if (symbol is not null && TryProcessSystemOperators(context, model, symbol, expression.Left, expression.Right))
+                return;
+            ConvertExpression(context, model, expression.Left);
+            ConvertExpression(context, model, expression.Right);
+            AddInstruction(expression.OperatorToken.ValueText switch
+            {
+                "+" => OpCode.ADD,
+                "-" => OpCode.SUB,
+                "*" => OpCode.MUL,
+                "/" => OpCode.DIV,
+                "%" => OpCode.MOD,
+                "<<" => OpCode.SHL,
+                ">>" => OpCode.SHR,
+                "||" => OpCode.BOOLOR,
+                "&&" => OpCode.BOOLAND,
+                "|" => OpCode.OR,
+                "&" => OpCode.AND,
+                "^" => OpCode.XOR,
+                "==" => OpCode.NUMEQUAL,
+                "!=" => OpCode.NUMNOTEQUAL,
+                "<" => OpCode.LT,
+                "<=" => OpCode.LE,
+                ">" => OpCode.GT,
+                ">=" => OpCode.GE,
+                _ => throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}")
+            });
+        }
+
+        private void ConvertIsExpression(CompilationContext context, SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
+        {
+            ITypeSymbol type = model.GetTypeInfo(right).Type!;
+            ConvertExpression(context, model, left);
+            IsType(type.GetPatternType());
+        }
+
+        private void ConvertAsExpression(CompilationContext context, SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
+        {
+            JumpTarget endTarget = new();
+            ITypeSymbol type = model.GetTypeInfo(right).Type!;
+            ConvertExpression(context, model, left);
+            AddInstruction(OpCode.DUP);
+            IsType(type.GetPatternType());
+            Jump(OpCode.JMPIF_L, endTarget);
+            AddInstruction(OpCode.DROP);
+            Push((object?)null);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
         private void ConvertCoalesceExpression(CompilationContext context, SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -1940,11 +1965,17 @@ namespace Neo.Compiler
                 case ConstantPatternSyntax constantPattern:
                     ConvertConstantPattern(context, model, constantPattern);
                     break;
+                case DeclarationPatternSyntax declarationPattern:
+                    ConvertDeclarationPattern(context, model, declarationPattern);
+                    break;
                 case DiscardPatternSyntax:
                     Push(true);
                     break;
                 case RelationalPatternSyntax relationalPattern:
                     ConvertRelationalPattern(context, model, relationalPattern);
+                    break;
+                case TypePatternSyntax typePattern:
+                    ConvertTypePattern(model, typePattern);
                     break;
                 case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                     ConvertNotPattern(context, model, unaryPattern);
@@ -2002,6 +2033,26 @@ namespace Neo.Compiler
             AddInstruction(OpCode.EQUAL);
         }
 
+        private void ConvertDeclarationPattern(CompilationContext context, SemanticModel model, DeclarationPatternSyntax pattern)
+        {
+            ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
+            AddInstruction(OpCode.DUP);
+            IsType(type.GetPatternType());
+            switch (pattern.Designation)
+            {
+                case DiscardDesignationSyntax:
+                    break;
+                case SingleVariableDesignationSyntax variable:
+                    ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
+                    byte index = AddLocalVariable(local);
+                    AddInstruction(OpCode.OVER);
+                    AccessSlot(OpCode.STLOC, index);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported pattern: {pattern}");
+            }
+        }
+
         private void ConvertRelationalPattern(CompilationContext context, SemanticModel model, RelationalPatternSyntax pattern)
         {
             AddInstruction(OpCode.DUP);
@@ -2014,6 +2065,13 @@ namespace Neo.Compiler
                 ">=" => OpCode.GE,
                 _ => throw new NotSupportedException($"Unsupported pattern: {pattern}")
             });
+        }
+
+        private void ConvertTypePattern(SemanticModel model, TypePatternSyntax pattern)
+        {
+            ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
+            AddInstruction(OpCode.DUP);
+            IsType(type.GetPatternType());
         }
 
         private void ConvertNotPattern(CompilationContext context, SemanticModel model, UnaryPatternSyntax pattern)
@@ -2135,6 +2193,15 @@ namespace Neo.Compiler
             {
                 OpCode = opcode,
                 Operand = new[] { index }
+            });
+        }
+
+        private Instruction IsType(VM.Types.StackItemType type)
+        {
+            return AddInstruction(new Instruction
+            {
+                OpCode = OpCode.ISTYPE,
+                Operand = new[] { (byte)type }
             });
         }
 
