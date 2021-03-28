@@ -2242,6 +2242,11 @@ namespace Neo.Compiler
                         ConvertExpression(context, model, instanceExpression);
                     AddInstruction(OpCode.SIGN);
                     return true;
+                case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.POW);
+                    return true;
                 case "System.Array.Length.get":
                 case "string.Length.get":
                     if (instanceExpression is not null)
