@@ -25,6 +25,7 @@ namespace Neo.Compiler
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
             if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;
+            if (type.IsValueType) return ContractParameterType.Array;
             if (type is IArrayTypeSymbol array)
                 if (array.ElementType.SpecialType == SpecialType.System_Byte)
                     return ContractParameterType.ByteArray;

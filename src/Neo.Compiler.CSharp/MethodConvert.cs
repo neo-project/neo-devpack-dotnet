@@ -475,14 +475,19 @@ namespace Neo.Compiler
             {
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
                 Call(ApplicationEngine.System_Iterator_Value);
+                AddInstruction(OpCode.UNPACK);
+                AddInstruction(OpCode.DROP);
                 for (int i = 0; i < symbols.Length; i++)
                 {
-                    if (symbols[i] is null) continue;
-                    byte variableIndex = AddLocalVariable(symbols[i]);
-                    AddInstruction(OpCode.DUP);
-                    Push(i);
-                    AddInstruction(OpCode.PICKITEM);
-                    AccessSlot(OpCode.STLOC, variableIndex);
+                    if (symbols[i] is null)
+                    {
+                        AddInstruction(OpCode.DROP);
+                    }
+                    else
+                    {
+                        byte variableIndex = AddLocalVariable(symbols[i]);
+                        AccessSlot(OpCode.STLOC, variableIndex);
+                    }
                 }
                 AddInstruction(OpCode.DROP);
             }
@@ -889,6 +894,9 @@ namespace Neo.Compiler
             AddInstruction(OpCode.DUP);
             switch (expression.Left)
             {
+                case DeclarationExpressionSyntax left:
+                    ConvertDeclarationAssignment(context, model, left);
+                    break;
                 case ElementAccessExpressionSyntax left:
                     ConvertElementAccessAssignment(context, model, left);
                     break;
@@ -900,6 +908,31 @@ namespace Neo.Compiler
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported assignment: {expression.Left}");
+            }
+        }
+
+        private void ConvertDeclarationAssignment(CompilationContext context, SemanticModel model, DeclarationExpressionSyntax left)
+        {
+            ITypeSymbol type = model.GetTypeInfo(left).Type!;
+            if (!type.IsValueType)
+                throw new NotSupportedException($"Unsupported assignment type: {type}");
+            AddInstruction(OpCode.UNPACK);
+            AddInstruction(OpCode.DROP);
+            foreach (VariableDesignationSyntax variable in ((ParenthesizedVariableDesignationSyntax)left.Designation).Variables)
+            {
+                switch (variable)
+                {
+                    case SingleVariableDesignationSyntax singleVariableDesignation:
+                        ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
+                        byte index = AddLocalVariable(local);
+                        AccessSlot(OpCode.STLOC, index);
+                        break;
+                    case DiscardDesignationSyntax:
+                        AddInstruction(OpCode.DROP);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unsupported designation: {variable}");
+                }
             }
         }
 
