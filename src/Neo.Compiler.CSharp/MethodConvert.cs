@@ -1182,6 +1182,12 @@ namespace Neo.Compiler
                     else
                         AccessSlot(OpCode.LDLOC, _localVariables[local]);
                     break;
+                case IMethodSymbol method:
+                    if (!method.IsStatic)
+                        throw new NotSupportedException($"Unsupported delegate: {method}");
+                    MethodConvert convert = context.ConvertMethod(model, method);
+                    Jump(OpCode.PUSHA, convert._startTarget);
+                    break;
                 case IParameterSymbol parameter:
                     AccessSlot(OpCode.LDARG, _parameters[parameter]);
                     break;
@@ -1284,7 +1290,8 @@ namespace Neo.Compiler
                     ConvertMethodInvocationExpression(context, model, method, expression.Expression, arguments);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    ConvertDelegateInvocationExpression(context, model, expression.Expression, arguments);
+                    break;
             }
         }
 
@@ -1322,6 +1329,14 @@ namespace Neo.Compiler
             }
         }
 
+        private void ConvertDelegateInvocationExpression(CompilationContext context, SemanticModel model, ExpressionSyntax expression, ArgumentSyntax[] arguments)
+        {
+            INamedTypeSymbol type = (INamedTypeSymbol)model.GetTypeInfo(expression).Type!;
+            PrepareArgumentsForMethod(context, model, type.DelegateInvokeMethod!, arguments);
+            ConvertExpression(context, model, expression);
+            AddInstruction(OpCode.CALLA);
+        }
+
         private void ConvertIsPatternExpression(CompilationContext context, SemanticModel model, IsPatternExpressionSyntax expression)
         {
             ConvertExpression(context, model, expression.Expression);
@@ -1356,6 +1371,12 @@ namespace Neo.Compiler
                         Push(index);
                         AddInstruction(OpCode.PICKITEM);
                     }
+                    break;
+                case IMethodSymbol method:
+                    if (!method.IsStatic)
+                        throw new NotSupportedException($"Unsupported delegate: {method}");
+                    MethodConvert convert = context.ConvertMethod(model, method);
+                    Jump(OpCode.PUSHA, convert._startTarget);
                     break;
                 case IPropertySymbol property:
                     ExpressionSyntax? instanceExpression = property.IsStatic ? null : expression.Expression;
