@@ -2247,6 +2247,17 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(context, model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.POW);
                     return true;
+                case "System.Numerics.BigInteger.explicit operator sbyte(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator byte(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator short(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator ushort(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator int(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator uint(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator long(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.explicit operator ulong(System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(context, model, symbol, arguments);
+                    return true;
                 case "System.Array.Length.get":
                 case "string.Length.get":
                     if (instanceExpression is not null)
