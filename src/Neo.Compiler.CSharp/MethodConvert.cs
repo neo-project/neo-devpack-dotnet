@@ -982,8 +982,11 @@ namespace Neo.Compiler
 
         private void ConvertObjectCreationExpression(CompilationContext context, SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
-            bool needCallConstructor, needCreateObject;
             IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+            IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
+            if (TryProcessSystemConstructors(context, model, constructor, arguments))
+                return;
+            bool needCallConstructor, needCreateObject;
             if (constructor.IsExtern)
             {
                 needCallConstructor = true;
@@ -1030,7 +1033,6 @@ namespace Neo.Compiler
             }
             if (needCallConstructor)
             {
-                IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
                 Call(context, model, constructor, needCreateObject, arguments);
             }
         }
@@ -1259,7 +1261,7 @@ namespace Neo.Compiler
                 case SpecialType.System_UInt64:
                 case SpecialType.None when type.Name == nameof(BigInteger):
                     ConvertExpression(context, model, expression);
-                    Call(context, NativeContract.StdLib.Hash, "itoa", 2, true);
+                    Call(context, NativeContract.StdLib.Hash, "itoa", 1, true);
                     break;
                 case SpecialType.System_String:
                     ConvertExpression(context, model, expression);
@@ -2213,6 +2215,19 @@ namespace Neo.Compiler
             }
         }
 
+        private bool TryProcessSystemConstructors(CompilationContext context, SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
+        {
+            switch (symbol.ToString())
+            {
+                case "System.Numerics.BigInteger.BigInteger(byte[])":
+                    PrepareArgumentsForMethod(context, model, symbol, arguments);
+                    ChangeType(VM.Types.StackItemType.Integer);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private bool TryProcessSystemMethods(CompilationContext context, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
         {
             switch (symbol.ToString())
@@ -2247,6 +2262,11 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(context, model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.POW);
                     return true;
+                case "System.Numerics.BigInteger.ToByteArray()":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    ChangeType(VM.Types.StackItemType.Buffer);
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator sbyte(System.Numerics.BigInteger)":
                 case "System.Numerics.BigInteger.explicit operator byte(System.Numerics.BigInteger)":
                 case "System.Numerics.BigInteger.explicit operator short(System.Numerics.BigInteger)":
@@ -2275,7 +2295,20 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger.Parse(string)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(context, model, symbol, arguments);
-                    Call(context, NativeContract.StdLib.Hash, "atoi", 2, true);
+                    Call(context, NativeContract.StdLib.Hash, "atoi", 1, true);
+                    return true;
+                case "sbyte.ToString()":
+                case "byte.ToString()":
+                case "short.ToString()":
+                case "ushort.ToString()":
+                case "int.ToString()":
+                case "uint.ToString()":
+                case "long.ToString()":
+                case "ulong.ToString()":
+                case "System.Numerics.BigInteger.ToString()":
+                    if (instanceExpression is not null)
+                        ConvertExpression(context, model, instanceExpression);
+                    Call(context, NativeContract.StdLib.Hash, "itoa", 1, true);
                     return true;
                 case "System.Numerics.BigInteger.Equals(long)":
                 case "System.Numerics.BigInteger.Equals(ulong)":
