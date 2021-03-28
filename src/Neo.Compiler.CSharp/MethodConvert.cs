@@ -328,6 +328,10 @@ namespace Neo.Compiler
                     else
                         ConvertNoBody(context, symbol, syntax);
                     break;
+                case ArrowExpressionClauseSyntax syntax:
+                    using (InsertSequencePoint(syntax))
+                        ConvertExpression(context, model, syntax.Expression);
+                    break;
                 case BaseMethodDeclarationSyntax syntax:
                     if (syntax.Body is null)
                         using (InsertSequencePoint(syntax.ExpressionBody!.Expression))

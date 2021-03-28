@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 
 namespace Neo.Compiler
 {
@@ -153,6 +154,26 @@ namespace Neo.Compiler
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
+        }
+
+        public string CreateAssembly()
+        {
+            StringBuilder builder = new();
+            foreach (var (s, m) in methodsConverted)
+            {
+                builder.Append("// ");
+                builder.AppendLine(s.ToString());
+                builder.AppendLine();
+                foreach (Instruction i in m.Instructions)
+                {
+                    builder.Append($"{i.Offset:x8}: ");
+                    i.ToString(builder);
+                    builder.AppendLine();
+                }
+                builder.AppendLine();
+                builder.AppendLine();
+            }
+            return builder.ToString();
         }
 
         public JObject CreateManifest()
