@@ -85,10 +85,23 @@ namespace Neo.Compiler
         {
             if (symbol.MethodKind == MethodKind.StaticConstructor)
                 ProcessFields(context, model);
-            if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
-                ConvertSource(context, model, symbol);
-            else if (symbol.MethodKind != MethodKind.StaticConstructor)
+            var asm = symbol.ContainingAssembly;
+            var curasm = model.Compilation.Assembly;
+
+            //if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
+            if (SymbolEqualityComparer.Default.Equals(asm, curasm))
+            {
+                if (symbol.DeclaringSyntaxReferences.Length > 0 && !symbol.IsExtern)
+                    ConvertSource(context, model, symbol);//in code function
+            }
+            else if (symbol.IsExtern)
+            {
                 ConvertExtern(context, symbol);
+            }
+            else
+            {
+                ConvertFarCall(context, model, symbol);
+            }
             if (symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFields.Count > 0)
             {
                 _instructions.Insert(0, new Instruction
@@ -144,7 +157,31 @@ namespace Neo.Compiler
                 }
             }
         }
+        private void ConvertFarCall(CompilationContext context, SemanticModel model, IMethodSymbol symbol)
+        {
+            var funname = symbol.ToDisplayString();
+            switch (funname)
+            {
+                case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
 
+                    AddInstruction(new Instruction
+                    {
+                        OpCode = OpCode.POW,
+                        Operand = null
+                    });
+                    break;
+                case "System.Numerics.BigInteger.Sqrt()":
+                    AddInstruction(new Instruction
+                    {
+                        OpCode = OpCode.SQRT,
+                        Operand = null
+                    });
+                    break;
+                default:
+                    throw new Exception("not support this Farcall.");
+            }
+
+        }
         private void ConvertExtern(CompilationContext context, IMethodSymbol symbol)
         {
             _inline = true;
@@ -2182,7 +2219,7 @@ namespace Neo.Compiler
             var parameters = symbol.Parameters.Select((p, i) => (Symbol: p, Index: i));
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
-            foreach (var (parameter, index) in parameters)
+            foreach (var (parameter, index) in parameters.Reverse())
             {
                 if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
                 {
