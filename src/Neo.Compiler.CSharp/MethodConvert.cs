@@ -672,9 +672,13 @@ namespace Neo.Compiler
             var sections = syntax.Sections.Select(p => (p.Labels, p.Statements, Target: new JumpTarget())).ToArray();
             var labels = sections.SelectMany(p => p.Labels, (p, l) => (l, p.Target)).ToArray();
             JumpTarget breakTarget = new();
+            byte anonymousIndex = AddAnonymousVariable();
             _breakTargets.Push(breakTarget);
             using (InsertSequencePoint(syntax.Expression))
+            {
                 ConvertExpression(model, syntax.Expression);
+                AccessSlot(OpCode.STLOC, anonymousIndex);
+            }
             foreach (var (label, target) in labels)
             {
                 switch (label)
@@ -683,7 +687,7 @@ namespace Neo.Compiler
                         using (InsertSequencePoint(casePatternSwitchLabel))
                         {
                             JumpTarget endTarget = new();
-                            ConvertPattern(model, casePatternSwitchLabel.Pattern);
+                            ConvertPattern(model, casePatternSwitchLabel.Pattern, anonymousIndex);
                             Jump(OpCode.JMPIFNOT_L, endTarget);
                             if (casePatternSwitchLabel.WhenClause is not null)
                             {
@@ -697,7 +701,7 @@ namespace Neo.Compiler
                     case CaseSwitchLabelSyntax caseSwitchLabel:
                         using (InsertSequencePoint(caseSwitchLabel))
                         {
-                            AddInstruction(OpCode.DUP);
+                            AccessSlot(OpCode.LDLOC, anonymousIndex);
                             ConvertExpression(model, caseSwitchLabel.Value);
                             AddInstruction(OpCode.EQUAL);
                             Jump(OpCode.JMPIF_L, target);
@@ -713,6 +717,7 @@ namespace Neo.Compiler
                         throw new NotSupportedException($"Unsupported syntax: {label}");
                 }
             }
+            _anonymousVariables.Remove(anonymousIndex);
             Jump(OpCode.JMP_L, breakTarget);
             foreach (var (_, statements, target) in sections)
             {
@@ -720,7 +725,7 @@ namespace Neo.Compiler
                 foreach (StatementSyntax statement in statements)
                     ConvertStatement(model, statement);
             }
-            breakTarget.Instruction = AddInstruction(OpCode.DROP);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
             _breakTargets.Pop();
         }
 
@@ -965,6 +970,9 @@ namespace Neo.Compiler
                 case MemberAccessExpressionSyntax left:
                     ConvertMemberAccessAssignment(model, left);
                     break;
+                case TupleExpressionSyntax left:
+                    ConvertTupleAssignment(model, left);
+                    break;
                 default:
                     throw new NotSupportedException($"Unsupported assignment: {expression.Left}");
             }
@@ -1011,7 +1019,7 @@ namespace Neo.Compiler
             switch (symbol)
             {
                 case IDiscardSymbol:
-                    _instructions.RemoveAt(_instructions.Count - 1);
+                    AddInstruction(OpCode.DROP);
                     break;
                 case IFieldSymbol field:
                     if (field.IsStatic)
@@ -1069,6 +1077,38 @@ namespace Neo.Compiler
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertTupleAssignment(SemanticModel model, TupleExpressionSyntax left)
+        {
+            AddInstruction(OpCode.UNPACK);
+            AddInstruction(OpCode.DROP);
+            foreach (ArgumentSyntax argument in left.Arguments)
+            {
+                switch (argument.Expression)
+                {
+                    case DeclarationExpressionSyntax declaration:
+                        switch (declaration.Designation)
+                        {
+                            case SingleVariableDesignationSyntax singleVariableDesignation:
+                                ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
+                                byte index = AddLocalVariable(local);
+                                AccessSlot(OpCode.STLOC, index);
+                                break;
+                            case DiscardDesignationSyntax:
+                                AddInstruction(OpCode.DROP);
+                                break;
+                            default:
+                                throw new NotSupportedException($"Unsupported designation: {argument}");
+                        }
+                        break;
+                    case IdentifierNameSyntax identifier:
+                        ConvertIdentifierNameAssignment(model, identifier);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unsupported assignment: {left}");
+                }
             }
         }
 
@@ -1483,9 +1523,11 @@ namespace Neo.Compiler
 
         private void ConvertIsPatternExpression(SemanticModel model, IsPatternExpressionSyntax expression)
         {
+            byte anonymousIndex = AddAnonymousVariable();
             ConvertExpression(model, expression.Expression);
-            ConvertPattern(model, expression.Pattern);
-            AddInstruction(OpCode.NIP);
+            AccessSlot(OpCode.STLOC, anonymousIndex);
+            ConvertPattern(model, expression.Pattern, anonymousIndex);
+            _anonymousVariables.Remove(anonymousIndex);
         }
 
         private void ConvertLiteralExpression(SemanticModel model, LiteralExpressionSyntax expression)
@@ -1978,10 +2020,12 @@ namespace Neo.Compiler
         {
             var arms = expression.Arms.Select(p => (p, new JumpTarget())).ToArray();
             JumpTarget breakTarget = new();
+            byte anonymousIndex = AddAnonymousVariable();
             ConvertExpression(model, expression.GoverningExpression);
+            AccessSlot(OpCode.STLOC, anonymousIndex);
             foreach (var (arm, nextTarget) in arms)
             {
-                ConvertPattern(model, arm.Pattern);
+                ConvertPattern(model, arm.Pattern, anonymousIndex);
                 Jump(OpCode.JMPIFNOT_L, nextTarget);
                 if (arm.WhenClause is not null)
                 {
@@ -1992,92 +2036,94 @@ namespace Neo.Compiler
                 Jump(OpCode.JMP_L, breakTarget);
                 nextTarget.Instruction = AddInstruction(OpCode.NOP);
             }
+            AccessSlot(OpCode.LDLOC, anonymousIndex);
             AddInstruction(OpCode.THROW);
-            breakTarget.Instruction = AddInstruction(OpCode.NIP);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _anonymousVariables.Remove(anonymousIndex);
         }
 
-        private void ConvertPattern(SemanticModel model, PatternSyntax pattern)
+        private void ConvertPattern(SemanticModel model, PatternSyntax pattern, byte localIndex)
         {
             switch (pattern)
             {
                 case BinaryPatternSyntax binaryPattern:
-                    ConvertBinaryPattern(model, binaryPattern);
+                    ConvertBinaryPattern(model, binaryPattern, localIndex);
                     break;
                 case ConstantPatternSyntax constantPattern:
-                    ConvertConstantPattern(model, constantPattern);
+                    ConvertConstantPattern(model, constantPattern, localIndex);
                     break;
                 case DeclarationPatternSyntax declarationPattern:
-                    ConvertDeclarationPattern(model, declarationPattern);
+                    ConvertDeclarationPattern(model, declarationPattern, localIndex);
                     break;
                 case DiscardPatternSyntax:
                     Push(true);
                     break;
                 case RelationalPatternSyntax relationalPattern:
-                    ConvertRelationalPattern(model, relationalPattern);
+                    ConvertRelationalPattern(model, relationalPattern, localIndex);
                     break;
                 case TypePatternSyntax typePattern:
-                    ConvertTypePattern(model, typePattern);
+                    ConvertTypePattern(model, typePattern, localIndex);
                     break;
                 case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
-                    ConvertNotPattern(model, unaryPattern);
+                    ConvertNotPattern(model, unaryPattern, localIndex);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported pattern: {pattern}");
             }
         }
 
-        private void ConvertBinaryPattern(SemanticModel model, BinaryPatternSyntax pattern)
+        private void ConvertBinaryPattern(SemanticModel model, BinaryPatternSyntax pattern, byte localIndex)
         {
             switch (pattern.OperatorToken.ValueText)
             {
                 case "and":
-                    ConvertAndPattern(model, pattern.Left, pattern.Right);
+                    ConvertAndPattern(model, pattern.Left, pattern.Right, localIndex);
                     break;
                 case "or":
-                    ConvertOrPattern(model, pattern.Left, pattern.Right);
+                    ConvertOrPattern(model, pattern.Left, pattern.Right, localIndex);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported pattern: {pattern}");
             }
         }
 
-        private void ConvertAndPattern(SemanticModel model, PatternSyntax left, PatternSyntax right)
+        private void ConvertAndPattern(SemanticModel model, PatternSyntax left, PatternSyntax right, byte localIndex)
         {
             JumpTarget rightTarget = new();
             JumpTarget endTarget = new();
-            ConvertPattern(model, left);
+            ConvertPattern(model, left, localIndex);
             Jump(OpCode.JMPIF_L, rightTarget);
             Push(false);
             Jump(OpCode.JMP_L, endTarget);
             rightTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertPattern(model, right);
+            ConvertPattern(model, right, localIndex);
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
-        private void ConvertOrPattern(SemanticModel model, PatternSyntax left, PatternSyntax right)
+        private void ConvertOrPattern(SemanticModel model, PatternSyntax left, PatternSyntax right, byte localIndex)
         {
             JumpTarget rightTarget = new();
             JumpTarget endTarget = new();
-            ConvertPattern(model, left);
+            ConvertPattern(model, left, localIndex);
             Jump(OpCode.JMPIFNOT_L, rightTarget);
             Push(true);
             Jump(OpCode.JMP_L, endTarget);
             rightTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertPattern(model, right);
+            ConvertPattern(model, right, localIndex);
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
-        private void ConvertConstantPattern(SemanticModel model, ConstantPatternSyntax pattern)
+        private void ConvertConstantPattern(SemanticModel model, ConstantPatternSyntax pattern, byte localIndex)
         {
-            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.LDLOC, localIndex);
             ConvertExpression(model, pattern.Expression);
             AddInstruction(OpCode.EQUAL);
         }
 
-        private void ConvertDeclarationPattern(SemanticModel model, DeclarationPatternSyntax pattern)
+        private void ConvertDeclarationPattern(SemanticModel model, DeclarationPatternSyntax pattern, byte localIndex)
         {
             ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
-            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.LDLOC, localIndex);
             IsType(type.GetPatternType());
             switch (pattern.Designation)
             {
@@ -2086,7 +2132,7 @@ namespace Neo.Compiler
                 case SingleVariableDesignationSyntax variable:
                     ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
                     byte index = AddLocalVariable(local);
-                    AddInstruction(OpCode.OVER);
+                    AccessSlot(OpCode.LDLOC, localIndex);
                     AccessSlot(OpCode.STLOC, index);
                     break;
                 default:
@@ -2094,9 +2140,9 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertRelationalPattern(SemanticModel model, RelationalPatternSyntax pattern)
+        private void ConvertRelationalPattern(SemanticModel model, RelationalPatternSyntax pattern, byte localIndex)
         {
-            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.LDLOC, localIndex);
             ConvertExpression(model, pattern.Expression);
             AddInstruction(pattern.OperatorToken.ValueText switch
             {
@@ -2108,16 +2154,16 @@ namespace Neo.Compiler
             });
         }
 
-        private void ConvertTypePattern(SemanticModel model, TypePatternSyntax pattern)
+        private void ConvertTypePattern(SemanticModel model, TypePatternSyntax pattern, byte localIndex)
         {
             ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
-            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.LDLOC, localIndex);
             IsType(type.GetPatternType());
         }
 
-        private void ConvertNotPattern(SemanticModel model, UnaryPatternSyntax pattern)
+        private void ConvertNotPattern(SemanticModel model, UnaryPatternSyntax pattern, byte localIndex)
         {
-            ConvertPattern(model, pattern.Pattern);
+            ConvertPattern(model, pattern.Pattern, localIndex);
             AddInstruction(OpCode.NOT);
         }
 
@@ -2573,6 +2619,12 @@ namespace Neo.Compiler
                     ConvertExpression(model, arguments[0]);
                     ConvertExpression(model, arguments[1]);
                     AddInstruction(OpCode.NOTEQUAL);
+                    return true;
+                case "string.operator +(string, string)":
+                    ConvertExpression(model, arguments[0]);
+                    ConvertExpression(model, arguments[1]);
+                    AddInstruction(OpCode.CAT);
+                    ChangeType(VM.Types.StackItemType.ByteString);
                     return true;
                 case "string.operator +(string, object)":
                     ConvertExpression(model, arguments[0]);

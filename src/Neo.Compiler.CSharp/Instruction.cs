@@ -23,19 +23,14 @@ namespace Neo.Compiler
         public int Offset;
         public Location? SourceLocation;
 
-        private int _size;
         public int Size
         {
             get
             {
-                if (_size == 0)
-                {
-                    int prefixSize = OperandSizePrefixTable[(int)OpCode];
-                    _size = prefixSize > 0
-                        ? sizeof(OpCode) + Operand!.Length
-                        : sizeof(OpCode) + OperandSizeTable[(int)OpCode];
-                }
-                return _size;
+                int prefixSize = OperandSizePrefixTable[(int)OpCode];
+                return prefixSize > 0
+                    ? sizeof(OpCode) + Operand!.Length
+                    : sizeof(OpCode) + OperandSizeTable[(int)OpCode];
             }
         }
 
