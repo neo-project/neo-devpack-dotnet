@@ -2,14 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="TestClasses\Contract_Array.cs" />
-    <Compile Remove="TestClasses\Contract_BigInteger.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
@@ -19,16 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestClasses\Contract_Array.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestClasses\Contract_BigInteger.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    <Compile Remove="TestClasses\*.cs" />
+    <None Include="TestClasses\*.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
