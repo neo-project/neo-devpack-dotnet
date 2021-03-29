@@ -1597,6 +1597,11 @@ namespace Neo.Compiler
         private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+            if (type.TypeKind == TypeKind.Delegate)
+            {
+                ConvertDelegateCreationExpression(model, expression);
+                return;
+            }
             IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
             IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
             if (TryProcessSystemConstructors(model, constructor, arguments))
@@ -1631,6 +1636,17 @@ namespace Neo.Compiler
                 }
             }
             Call(model, constructor, needCreateObject, arguments);
+        }
+
+        private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
+        {
+            if (expression.ArgumentList!.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported delegate: {expression}");
+            IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
+            if (!symbol.IsStatic)
+                throw new NotSupportedException($"Unsupported delegate: {symbol}");
+            MethodConvert convert = context.ConvertMethod(model, symbol);
+            Jump(OpCode.PUSHA, convert._startTarget);
         }
 
         private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
