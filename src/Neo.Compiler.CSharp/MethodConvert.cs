@@ -2230,11 +2230,9 @@ namespace Neo.Compiler
 
         private Instruction AccessSlot(OpCode opcode, byte index)
         {
-            return AddInstruction(new Instruction
-            {
-                OpCode = opcode,
-                Operand = new[] { index }
-            });
+            return index >= 7
+                ? AddInstruction(new Instruction { OpCode = opcode, Operand = new[] { index } })
+                : AddInstruction(opcode - 7 + index);
         }
 
         private Instruction IsType(VM.Types.StackItemType type)
