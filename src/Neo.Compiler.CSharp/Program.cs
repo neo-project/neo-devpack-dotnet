@@ -18,6 +18,7 @@ namespace Neo.Compiler
                 new Argument<string>("path", "The path of the project file, project directory or source file."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
+                new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -89,6 +90,10 @@ namespace Neo.Compiler
                 using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                 using Stream stream = archive.CreateEntry($"{context.ContractName}.debug.json").Open();
                 stream.Write(context.CreateDebugInformation().ToByteArray(false));
+            }
+            if (options.Assembly)
+            {
+                File.WriteAllText($"{folder}/{context.ContractName}.asm", context.CreateAssembly());
             }
         }
     }
