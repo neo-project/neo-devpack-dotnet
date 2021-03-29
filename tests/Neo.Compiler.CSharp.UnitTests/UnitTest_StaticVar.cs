@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse()
         {
-            using var testengine = new TestEngine();
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse");
             var var1 = result.Pop();
@@ -34,7 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse2()
         {
-            using var testengine = new TestEngine();
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse2", "123");
             var var1 = result.Pop();

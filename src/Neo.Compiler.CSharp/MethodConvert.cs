@@ -2733,6 +2733,7 @@ namespace Neo.Compiler
                 byte[] data => Push(data),
                 string data => Push(data),
                 BigInteger data => Push(data),
+                char data => Push(data),
                 sbyte data => Push(data),
                 byte data => Push(data),
                 short data => Push(data),
@@ -3014,6 +3015,14 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger.explicit operator uint(System.Numerics.BigInteger)":
                 case "System.Numerics.BigInteger.explicit operator long(System.Numerics.BigInteger)":
                 case "System.Numerics.BigInteger.explicit operator ulong(System.Numerics.BigInteger)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(sbyte)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(byte)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(short)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(ushort)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(int)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(uint)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(long)":
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(ulong)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     return true;
