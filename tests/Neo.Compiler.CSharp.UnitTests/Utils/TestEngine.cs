@@ -22,10 +22,17 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         }
         public void AddEntryScript(string filename)
         {
-            ScriptEntry = new BuildScript();
-            ScriptEntry.Build(filename);
+            ScriptEntry = Build(filename);
             Reset();
         }
+
+        public BuildScript Build(string filename)
+        {
+            var script = new BuildScript();
+            script.Build(filename);
+            return script;
+        }
+
         public void Reset()
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine

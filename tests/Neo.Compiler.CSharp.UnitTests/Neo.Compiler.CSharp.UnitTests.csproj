@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="TestClasses\Contract_Array.cs" />
-    <Compile Remove="TestClasses\Contract_BigInteger.cs" />
+    <Compile Remove="TestClasses\*" />
+    <None Include="TestClasses\*.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -19,16 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestClasses\Contract_Array.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestClasses\Contract_BigInteger.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+      <Aliases>scfx</Aliases>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

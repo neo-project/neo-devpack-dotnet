@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     struct State
     {
