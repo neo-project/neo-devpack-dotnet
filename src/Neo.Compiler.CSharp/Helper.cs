@@ -1,7 +1,6 @@
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
-using Neo.Cryptography.ECC;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -27,40 +26,34 @@ namespace Neo.Compiler
 
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
+            switch (type.ToString())
+            {
+                case "void": return ContractParameterType.Void;
+                case "bool": return ContractParameterType.Boolean;
+                case "char": return ContractParameterType.Integer;
+                case "sbyte": return ContractParameterType.Integer;
+                case "byte": return ContractParameterType.Integer;
+                case "short": return ContractParameterType.Integer;
+                case "ushort": return ContractParameterType.Integer;
+                case "int": return ContractParameterType.Integer;
+                case "uint": return ContractParameterType.Integer;
+                case "long": return ContractParameterType.Integer;
+                case "ulong": return ContractParameterType.Integer;
+                case "string": return ContractParameterType.String;
+                case "byte[]": return ContractParameterType.ByteArray;
+                case "object": return ContractParameterType.Any;
+                case "Neo.Cryptography.ECC.ECPoint": return ContractParameterType.PublicKey;
+                case "Neo.SmartContract.Framework.ByteString": return ContractParameterType.ByteArray;
+                case "Neo.UInt160": return ContractParameterType.Hash160;
+                case "Neo.UInt256": return ContractParameterType.Hash256;
+                case "System.Numerics.BigInteger": return ContractParameterType.Integer;
+            }
             if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;
-            if (type.IsValueType) return ContractParameterType.Array;
-            if (type is IArrayTypeSymbol array)
-                if (array.ElementType.SpecialType == SpecialType.System_Byte)
-                    return ContractParameterType.ByteArray;
-                else
-                    return ContractParameterType.Array;
+            if (type is IArrayTypeSymbol) return ContractParameterType.Array;
             if (type.AllInterfaces.Any(p => p.Name == nameof(scfx::Neo.SmartContract.Framework.IApiInterface)))
                 return ContractParameterType.InteropInterface;
-            return type.SpecialType switch
-            {
-                SpecialType.System_Object => ContractParameterType.Any,
-                SpecialType.System_Void => ContractParameterType.Void,
-                SpecialType.System_Boolean => ContractParameterType.Boolean,
-                SpecialType.System_Char => ContractParameterType.Integer,
-                SpecialType.System_SByte => ContractParameterType.Integer,
-                SpecialType.System_Byte => ContractParameterType.Integer,
-                SpecialType.System_Int16 => ContractParameterType.Integer,
-                SpecialType.System_UInt16 => ContractParameterType.Integer,
-                SpecialType.System_Int32 => ContractParameterType.Integer,
-                SpecialType.System_UInt32 => ContractParameterType.Integer,
-                SpecialType.System_Int64 => ContractParameterType.Integer,
-                SpecialType.System_UInt64 => ContractParameterType.Integer,
-                SpecialType.System_String => ContractParameterType.String,
-                _ => type.Name switch
-                {
-                    nameof(BigInteger) => ContractParameterType.Integer,
-                    nameof(UInt160) => ContractParameterType.Hash160,
-                    nameof(UInt256) => ContractParameterType.Hash256,
-                    nameof(ECPoint) => ContractParameterType.PublicKey,
-                    nameof(ByteString) => ContractParameterType.ByteArray,
-                    _ => ContractParameterType.Any
-                }
-            };
+            if (type.IsValueType) return ContractParameterType.Array;
+            return ContractParameterType.Any;
         }
 
         public static StackItemType GetStackItemType(this ITypeSymbol type)
