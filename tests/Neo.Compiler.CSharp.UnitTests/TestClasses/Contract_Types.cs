@@ -24,17 +24,17 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             public string Value;
         }
 
-        public static object checknull() { return null; }
-        public static bool checkbooltrue() { return true; }
-        public static bool checkboolfalse() { return false; }
-        public static sbyte checksbyte() { return (sbyte)5; }
-        public static byte checkbyte() { return (byte)5; }
-        public static short checkshort() { return (short)5; }
-        public static ushort checkushort() { return (ushort)5; }
-        public static int checkint() { return (int)5; }
-        public static uint checkuint() { return (uint)5; }
-        public static long checklong() { return (long)5; }
-        public static ulong checkulong() { return (ulong)5; }
+        public static object checkNull() { return null; }
+        public static bool checkBoolTrue() { return true; }
+        public static bool checkBoolFalse() { return false; }
+        public static sbyte checkSbyte() { return (sbyte)5; }
+        public static byte checkByte() { return (byte)5; }
+        public static short checkShort() { return (short)5; }
+        public static ushort checkUshort() { return (ushort)5; }
+        public static int checkInt() { return (int)5; }
+        public static uint checkUint() { return (uint)5; }
+        public static long checkLong() { return (long)5; }
+        public static ulong checkUlong() { return (ulong)5; }
         public static char checkChar() { return 'n'; }
         public static string checkString() { return "neo"; }
         public static object[] checkArrayObj() { return new object[] { "neo" }; }
@@ -75,10 +75,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             var tuple = ("neo", "smart economy");
             return tuple;
-        }
-        public static Tuple<string, string> checkTuple3()
-        {
-            return new Tuple<string, string>("neo", "smart economy");
         }
     }
 }

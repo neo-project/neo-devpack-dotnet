@@ -308,20 +308,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void tuple3_Test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkTuple3");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
-            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
-            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
-        }
-
-        [TestMethod]
         public void event_Test()
         {
             using var testengine = new TestEngine();
