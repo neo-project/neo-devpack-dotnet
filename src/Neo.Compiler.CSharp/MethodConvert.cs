@@ -954,6 +954,22 @@ namespace Neo.Compiler
 
         private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
         {
+            switch (expression.OperatorToken.ValueText)
+            {
+                case "=":
+                    ConvertSimpleAssignmentExpression(model, expression);
+                    break;
+                case "??=":
+                    ConvertCoalesceAssignmentExpression(model, expression);
+                    break;
+                default:
+                    ConvertComplexAssignmentExpression(model, expression);
+                    break;
+            }
+        }
+
+        private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
+        {
             ConvertExpression(model, expression.Right);
             AddInstruction(OpCode.DUP);
             switch (expression.Left)
@@ -1110,6 +1126,472 @@ namespace Neo.Compiler
                         throw new NotSupportedException($"Unsupported assignment: {left}");
                 }
             }
+        }
+
+        private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
+        {
+            switch (expression.Left)
+            {
+                case ElementAccessExpressionSyntax left:
+                    ConvertElementAccessCoalesceAssignment(model, left, expression.Right);
+                    break;
+                case IdentifierNameSyntax left:
+                    ConvertIdentifierNameCoalesceAssignment(model, left, expression.Right);
+                    break;
+                case MemberAccessExpressionSyntax left:
+                    ConvertMemberAccessCoalesceAssignment(model, left, expression.Right);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported coalesce assignment: {expression}");
+            }
+        }
+
+        private void ConvertElementAccessCoalesceAssignment(SemanticModel model, ElementAccessExpressionSyntax left, ExpressionSyntax right)
+        {
+            if (left.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {left.ArgumentList.Arguments}");
+            JumpTarget assignmentTarget = new();
+            JumpTarget endTarget = new();
+            ConvertExpression(model, left.Expression);
+            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.PICKITEM);
+            AddInstruction(OpCode.ISNULL);
+            Jump(OpCode.JMPIF_L, assignmentTarget);
+            AddInstruction(OpCode.PICKITEM);
+            Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(model, right);
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.REVERSE4);
+            AddInstruction(OpCode.REVERSE3);
+            AddInstruction(OpCode.SETITEM);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertIdentifierNameCoalesceAssignment(SemanticModel model, IdentifierNameSyntax left, ExpressionSyntax right)
+        {
+            ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldIdentifierNameCoalesceAssignment(model, field, right);
+                    break;
+                case ILocalSymbol local:
+                    ConvertLocalIdentifierNameCoalesceAssignment(model, local, right);
+                    break;
+                case IParameterSymbol parameter:
+                    ConvertParameterIdentifierNameCoalesceAssignment(model, parameter, right);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyIdentifierNameCoalesceAssignment(model, property, right);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldIdentifierNameCoalesceAssignment(SemanticModel model, IFieldSymbol left, ExpressionSyntax right)
+        {
+            JumpTarget assignmentTarget = new();
+            JumpTarget endTarget = new();
+            if (left.IsStatic)
+            {
+                byte index = context.AddStaticField(left);
+                AccessSlot(OpCode.LDSFLD, index);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AccessSlot(OpCode.LDSFLD, index);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(left.ContainingType.GetFields(), left);
+                AddInstruction(OpCode.LDARG0);
+                Push(index);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.PICKITEM);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertLocalIdentifierNameCoalesceAssignment(SemanticModel model, ILocalSymbol left, ExpressionSyntax right)
+        {
+            JumpTarget assignmentTarget = new();
+            JumpTarget endTarget = new();
+            byte index = _localVariables[left];
+            AccessSlot(OpCode.LDLOC, index);
+            AddInstruction(OpCode.ISNULL);
+            Jump(OpCode.JMPIF_L, assignmentTarget);
+            AccessSlot(OpCode.LDLOC, index);
+            Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(model, right);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.STLOC, index);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertParameterIdentifierNameCoalesceAssignment(SemanticModel model, IParameterSymbol left, ExpressionSyntax right)
+        {
+            JumpTarget assignmentTarget = new();
+            JumpTarget endTarget = new();
+            byte index = _parameters[left];
+            AccessSlot(OpCode.LDARG, index);
+            AddInstruction(OpCode.ISNULL);
+            Jump(OpCode.JMPIF_L, assignmentTarget);
+            AccessSlot(OpCode.LDARG, index);
+            Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(model, right);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.STARG, index);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertPropertyIdentifierNameCoalesceAssignment(SemanticModel model, IPropertySymbol left, ExpressionSyntax right)
+        {
+            JumpTarget endTarget = new();
+            if (left.IsStatic)
+            {
+                Call(model, left.GetMethod!);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, endTarget);
+                AddInstruction(OpCode.DROP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                Call(model, left.SetMethod!);
+            }
+            else
+            {
+                AddInstruction(OpCode.LDARG0);
+                Call(model, left.GetMethod!);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, endTarget);
+                AddInstruction(OpCode.DROP);
+                AddInstruction(OpCode.LDARG0);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.TUCK);
+                Call(model, left.SetMethod!, CallingConvention.StdCall);
+            }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right)
+        {
+            ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldMemberAccessCoalesceAssignment(model, left, right, field);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyMemberAccessCoalesceAssignment(model, left, right, property);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IFieldSymbol field)
+        {
+            JumpTarget assignmentTarget = new();
+            JumpTarget endTarget = new();
+            if (field.IsStatic)
+            {
+                byte index = context.AddStaticField(field);
+                AccessSlot(OpCode.LDSFLD, index);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AccessSlot(OpCode.LDSFLD, index);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                ConvertExpression(model, left.Expression);
+                Push(index);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.PICKITEM);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertPropertyMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
+        {
+            JumpTarget endTarget = new();
+            if (property.IsStatic)
+            {
+                Call(model, property.GetMethod!);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, endTarget);
+                AddInstruction(OpCode.DROP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                Call(model, property.SetMethod!);
+            }
+            else
+            {
+                JumpTarget assignmentTarget = new();
+                ConvertExpression(model, left.Expression);
+                AddInstruction(OpCode.DUP);
+                Call(model, property.GetMethod!);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.NIP);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.TUCK);
+                Call(model, property.SetMethod!, CallingConvention.StdCall);
+            }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
+        {
+            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+            switch (expression.Left)
+            {
+                case ElementAccessExpressionSyntax left:
+                    ConvertElementAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
+                    break;
+                case IdentifierNameSyntax left:
+                    ConvertIdentifierNameComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
+                    break;
+                case MemberAccessExpressionSyntax left:
+                    ConvertMemberAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported assignment expression: {expression}");
+            }
+        }
+
+        private void ConvertElementAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ElementAccessExpressionSyntax left, ExpressionSyntax right)
+        {
+            if (left.ArgumentList.Arguments.Count != 1)
+                throw new NotSupportedException($"Unsupported array rank: {left.ArgumentList.Arguments}");
+            ConvertExpression(model, left.Expression);
+            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.OVER);
+            AddInstruction(OpCode.PICKITEM);
+            ConvertExpression(model, right);
+            EmitComplexAssignmentOperator(type, operatorToken);
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.REVERSE4);
+            AddInstruction(OpCode.REVERSE3);
+            AddInstruction(OpCode.SETITEM);
+        }
+
+        private void ConvertIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IdentifierNameSyntax left, ExpressionSyntax right)
+        {
+            ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldIdentifierNameComplexAssignment(model, type, operatorToken, field, right);
+                    break;
+                case ILocalSymbol local:
+                    ConvertLocalIdentifierNameComplexAssignment(model, type, operatorToken, local, right);
+                    break;
+                case IParameterSymbol parameter:
+                    ConvertParameterIdentifierNameComplexAssignment(model, type, operatorToken, parameter, right);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyIdentifierNameComplexAssignment(model, type, operatorToken, property, right);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IFieldSymbol left, ExpressionSyntax right)
+        {
+            if (left.IsStatic)
+            {
+                byte index = context.AddStaticField(left);
+                AccessSlot(OpCode.LDSFLD, index);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(left.ContainingType.GetFields(), left);
+                AddInstruction(OpCode.LDARG0);
+                AddInstruction(OpCode.DUP);
+                Push(index);
+                AddInstruction(OpCode.PICKITEM);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Push(index);
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+
+        private void ConvertLocalIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ILocalSymbol left, ExpressionSyntax right)
+        {
+            byte index = _localVariables[left];
+            AccessSlot(OpCode.LDLOC, index);
+            ConvertExpression(model, right);
+            EmitComplexAssignmentOperator(type, operatorToken);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.STLOC, index);
+        }
+
+        private void ConvertParameterIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IParameterSymbol left, ExpressionSyntax right)
+        {
+            byte index = _parameters[left];
+            AccessSlot(OpCode.LDARG, index);
+            ConvertExpression(model, right);
+            EmitComplexAssignmentOperator(type, operatorToken);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.STARG, index);
+        }
+
+        private void ConvertPropertyIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IPropertySymbol left, ExpressionSyntax right)
+        {
+            if (left.IsStatic)
+            {
+                Call(model, left.GetMethod!);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                Call(model, left.SetMethod!);
+            }
+            else
+            {
+                AddInstruction(OpCode.LDARG0);
+                AddInstruction(OpCode.DUP);
+                Call(model, left.GetMethod!);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Call(model, left.SetMethod!, CallingConvention.StdCall);
+            }
+        }
+
+        private void ConvertMemberAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, MemberAccessExpressionSyntax left, ExpressionSyntax right)
+        {
+            ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
+            switch (symbol)
+            {
+                case IFieldSymbol field:
+                    ConvertFieldMemberAccessComplexAssignment(model, type, operatorToken, left, right, field);
+                    break;
+                case IPropertySymbol property:
+                    ConvertPropertyMemberAccessComplexAssignment(model, type, operatorToken, left, right, property);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+            }
+        }
+
+        private void ConvertFieldMemberAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, MemberAccessExpressionSyntax left, ExpressionSyntax right, IFieldSymbol field)
+        {
+            if (field.IsStatic)
+            {
+                byte index = context.AddStaticField(field);
+                AccessSlot(OpCode.LDSFLD, index);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STSFLD, index);
+            }
+            else
+            {
+                int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                ConvertExpression(model, left.Expression);
+                AddInstruction(OpCode.DUP);
+                Push(index);
+                AddInstruction(OpCode.PICKITEM);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Push(index);
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+
+        private void ConvertPropertyMemberAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
+        {
+            if (property.IsStatic)
+            {
+                Call(model, property.GetMethod!);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                Call(model, property.SetMethod!);
+            }
+            else
+            {
+                ConvertExpression(model, left.Expression);
+                AddInstruction(OpCode.DUP);
+                Call(model, property.GetMethod!);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.TUCK);
+                Call(model, property.SetMethod!, CallingConvention.StdCall);
+            }
+        }
+
+        private void EmitComplexAssignmentOperator(ITypeSymbol type, SyntaxToken operatorToken)
+        {
+            bool isBoolean = type.SpecialType == SpecialType.System_Boolean;
+            AddInstruction(operatorToken.ValueText switch
+            {
+                "+=" => OpCode.ADD,
+                "-=" => OpCode.SUB,
+                "*=" => OpCode.MUL,
+                "/=" => OpCode.DIV,
+                "%=" => OpCode.MOD,
+                "&=" => isBoolean ? OpCode.BOOLAND : OpCode.AND,
+                "^=" when !isBoolean => OpCode.XOR,
+                "|=" => isBoolean ? OpCode.BOOLOR : OpCode.OR,
+                "<<=" => OpCode.SHL,
+                ">>=" => OpCode.SHR,
+                _ => throw new NotSupportedException($"Unsupported operator: {operatorToken}")
+            });
         }
 
         private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
