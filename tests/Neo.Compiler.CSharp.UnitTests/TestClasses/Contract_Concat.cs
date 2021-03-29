@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_Concat : SmartContract
+    public class Contract_Concat : SmartContract.Framework.SmartContract
     {
         public static string TestStringAdd1(string a)
         {

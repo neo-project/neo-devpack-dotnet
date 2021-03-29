@@ -1,10 +1,7 @@
-using System.Numerics;
-using Neo.SmartContract.Framework;
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    class Contract_Types_Float : SmartContract.Framework.SmartContract
+    class Contract_Types_Decimal : SmartContract.Framework.SmartContract
     {
-        public static decimal checkFloat() { return 0.1M; }
+        public static decimal checkDecimal() { return 0.1M; }
     }
 }

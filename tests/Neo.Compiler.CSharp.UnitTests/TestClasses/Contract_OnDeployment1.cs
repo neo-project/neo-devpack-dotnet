@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Neo.SmartContract.Framework;
+using System.ComponentModel;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -12,7 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         [DisplayName("_deploy")]
         public static void MyDeployMethod(object data, bool update)
         {
-
         }
     }
 }
