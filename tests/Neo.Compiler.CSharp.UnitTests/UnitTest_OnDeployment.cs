@@ -10,46 +10,46 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         [TestMethod]
         public void Test_OnDeployment1()
         {
-            //var testengine = new TestEngine();
-            //var buildScript = new BuildScript();
-            //buildScript.Build("./TestClasses/Contract_OnDeployment1.cs");
+            var testengine = new TestEngine();
+            var buildScript = new BuildScript();
+            buildScript.Build("./TestClasses/Contract_OnDeployment1.cs");
 
-            //var methods = (build.finalABI["methods"] as JArray);
+            var methods = (build.finalABI["methods"] as JArray);
 
-            //Assert.AreEqual(1, methods.Count);
-            //Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
-            //Assert.AreEqual(methods[0]["offset"].AsString(), "0");
-            //Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
+            Assert.AreEqual(methods[0]["offset"].AsString(), "0");
+            Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
 
-            //var args = (methods[0]["parameters"] as JArray);
+            var args = (methods[0]["parameters"] as JArray);
 
-            //Assert.AreEqual(2, args.Count);
-            //Assert.AreEqual(args[0]["name"].AsString(), "data");
-            //Assert.AreEqual(args[0]["type"].AsString(), "Any");
-            //Assert.AreEqual(args[1]["name"].AsString(), "update");
-            //Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
+            Assert.AreEqual(2, args.Count);
+            Assert.AreEqual(args[0]["name"].AsString(), "data");
+            Assert.AreEqual(args[0]["type"].AsString(), "Any");
+            Assert.AreEqual(args[1]["name"].AsString(), "update");
+            Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
         }
 
         [TestMethod]
         public void Test_OnDeployment2()
         {
-            //var testengine = new TestEngine();
-            //var build = testengine.Build("./TestClasses/Contract_OnDeployment2.cs", false, true);
+            var testengine = new TestEngine();
+            var build = testengine.Build("./TestClasses/Contract_OnDeployment2.cs", false, true);
 
-            //var methods = (build.finalABI["methods"] as JArray);
+            var methods = (build.finalABI["methods"] as JArray);
 
-            //Assert.AreEqual(1, methods.Count);
-            //Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
-            //Assert.AreEqual(methods[0]["offset"].AsString(), "0");
-            //Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
+            Assert.AreEqual(methods[0]["offset"].AsString(), "0");
+            Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
 
-            //var args = (methods[0]["parameters"] as JArray);
+            var args = (methods[0]["parameters"] as JArray);
 
-            //Assert.AreEqual(2, args.Count);
-            //Assert.AreEqual(args[0]["name"].AsString(), "data");
-            //Assert.AreEqual(args[0]["type"].AsString(), "Any");
-            //Assert.AreEqual(args[1]["name"].AsString(), "update");
-            //Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
+            Assert.AreEqual(2, args.Count);
+            Assert.AreEqual(args[0]["name"].AsString(), "data");
+            Assert.AreEqual(args[0]["type"].AsString(), "Any");
+            Assert.AreEqual(args[1]["name"].AsString(), "update");
+            Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
         }
     }
 }
