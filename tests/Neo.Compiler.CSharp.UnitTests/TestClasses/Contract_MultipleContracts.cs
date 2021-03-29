@@ -1,7 +1,7 @@
 using System.Numerics;
 using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     class Contract_a : SmartContract.Framework.SmartContract
     {

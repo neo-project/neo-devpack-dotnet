@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using System;
 
-namespace Neo.Compiler.CSharp.UnitTests.Utils
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_EntryPoints

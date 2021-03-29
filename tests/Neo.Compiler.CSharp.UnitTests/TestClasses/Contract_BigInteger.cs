@@ -4,7 +4,7 @@ using System.Text;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_BigInteger : SmartContract.Framework.SmartContract
     {

@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO.Json;
 
-namespace Neo.Compiler.CSharp.UnitTests.Utils
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_OnDeployment
@@ -10,11 +10,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         [TestMethod]
         public void Test_OnDeployment1()
         {
-            var testengine = new TestEngine();
             var buildScript = new BuildScript();
             buildScript.Build("./TestClasses/Contract_OnDeployment1.cs");
 
-            var methods = (build.finalABI["methods"] as JArray);
+            var methods = (buildScript.manifest["abi"]["methods"] as JArray);
 
             Assert.AreEqual(1, methods.Count);
             Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
@@ -34,9 +33,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         public void Test_OnDeployment2()
         {
             var testengine = new TestEngine();
-            var build = testengine.Build("./TestClasses/Contract_OnDeployment2.cs", false, true);
+            testengine.AddEntryScript("./TestClasses/Contract_OnDeployment2.cs");
 
-            var methods = (build.finalABI["methods"] as JArray);
+            var methods = (testengine.ScriptEntry.manifest["abi"]["methods"] as JArray);
 
             Assert.AreEqual(1, methods.Count);
             Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
