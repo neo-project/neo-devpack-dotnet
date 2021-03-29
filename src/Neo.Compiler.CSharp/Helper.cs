@@ -153,7 +153,7 @@ namespace Neo.Compiler
                 if (instruction.OpCode >= OpCode.JMP && instruction.OpCode <= OpCode.CALL_L)
                     isLong = (instruction.OpCode - OpCode.JMP) % 2 != 0;
                 else
-                    isLong = instruction.OpCode == OpCode.CALLA || instruction.OpCode == OpCode.TRY_L || instruction.OpCode == OpCode.ENDTRY_L;
+                    isLong = instruction.OpCode == OpCode.PUSHA || instruction.OpCode == OpCode.CALLA || instruction.OpCode == OpCode.TRY_L || instruction.OpCode == OpCode.ENDTRY_L;
                 if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
                 {
                     int offset1 = (instruction.Target.Instruction?.Offset - instruction.Offset) ?? 0;
