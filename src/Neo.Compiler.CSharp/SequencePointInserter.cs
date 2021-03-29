@@ -18,7 +18,8 @@ namespace Neo.Compiler
         }
         void IDisposable.Dispose()
         {
-            instructions[position].SourceLocation = syntax.GetLocation();
+            if (position < instructions.Count)
+                instructions[position].SourceLocation = syntax.GetLocation();
         }
     }
 }

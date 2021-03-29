@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM.Types;
+using System;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -14,32 +15,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void float_Test()
         {
             using var testengine = new TestEngine();
-            var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
-            Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
         }
 
         [TestMethod]
         public void decimal_Test()
         {
             using var testengine = new TestEngine();
-            try
-            {
-                testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs");
-                Assert.Fail("must be fault.");
-            }
-            catch (System.Exception ex)
-            {
-                Assert.IsTrue(ex.InnerException.Message.Contains("unsupported"));
-                return;
-            }
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs"));
         }
 
         [TestMethod]
         public void double_Test()
         {
             using var testengine = new TestEngine();
-            var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
-            Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
         }
 
         #endregion
