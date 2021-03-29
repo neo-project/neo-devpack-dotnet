@@ -28,10 +28,9 @@ namespace Neo.Compiler
         private readonly List<AbiEvent> eventsExported = new();
         private readonly PermissionBuilder permissions = new();
         private readonly JObject manifestExtra = new();
-        private readonly Dictionary<IMethodSymbol, MethodConvert> methodsConverted = new();
+        private readonly MethodConvertCollection methodsConverted = new();
         private readonly List<MethodToken> methodTokens = new();
         private readonly List<IFieldSymbol> staticFields = new();
-        private readonly Instruction[] instructions;
 
         public Options Options { get; private set; }
         public string ContractName { get; private set; } = "";
@@ -41,19 +40,30 @@ namespace Neo.Compiler
         {
             this.compilation = compilation;
             this.Options = options;
+        }
+
+        private void RemoveEmptyInitialize()
+        {
+            int index = methodsExported.FindIndex(p => p.Name == "_initialize");
+            if (index < 0) return;
+            AbiMethod method = methodsExported[index];
+            if (methodsConverted[method.Symbol].Instructions.Count <= 1)
+            {
+                methodsExported.RemoveAt(index);
+                methodsConverted.Remove(method.Symbol);
+            }
+        }
+
+        private void Compile()
+        {
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
                 ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
             }
             RemoveEmptyInitialize();
-            instructions = methodsConverted.SelectMany(p => p.Value.Instructions).ToArray();
-            for (int i = 0, offset = 0; i < instructions.Length; i++)
-            {
-                Instruction instruction = instructions[i];
-                instruction.Offset = offset;
-                offset += instruction.Size;
-            }
+            Instruction[] instructions = methodsConverted.SelectMany(p => p.Instructions).ToArray();
+            instructions.RebuildOffset();
             foreach (Instruction instruction in instructions)
             {
                 if (instruction.Target is null) continue;
@@ -70,18 +80,6 @@ namespace Neo.Compiler
                     int offset = instruction.Target.Instruction!.Offset - instruction.Offset;
                     instruction.Operand = BitConverter.GetBytes(offset);
                 }
-            }
-        }
-
-        private void RemoveEmptyInitialize()
-        {
-            int index = methodsExported.FindIndex(p => p.Name == "_initialize");
-            if (index < 0) return;
-            AbiMethod method = methodsExported[index];
-            if (methodsConverted[method.Symbol].Instructions.Count <= 1)
-            {
-                methodsExported.RemoveAt(index);
-                methodsConverted.Remove(method.Symbol);
             }
         }
 
@@ -125,7 +123,9 @@ namespace Neo.Compiler
                     }
                 }
             }
-            return new(compilation, options);
+            CompilationContext context = new(compilation, options);
+            context.Compile();
+            return context;
         }
 
         public static CompilationContext CompileSources(string[] sourceFiles, Options options)
@@ -150,7 +150,7 @@ namespace Neo.Compiler
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
                 Tokens = methodTokens.ToArray(),
-                Script = instructions.Select(p => p.ToArray()).SelectMany(p => p).ToArray()
+                Script = methodsConverted.SelectMany(p => p.Instructions).Select(p => p.ToArray()).SelectMany(p => p).ToArray()
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
@@ -159,12 +159,12 @@ namespace Neo.Compiler
         public string CreateAssembly()
         {
             StringBuilder builder = new();
-            foreach (var (s, m) in methodsConverted)
+            foreach (MethodConvert method in methodsConverted)
             {
                 builder.Append("// ");
-                builder.AppendLine(s.ToString());
+                builder.AppendLine(method.Symbol.ToString());
                 builder.AppendLine();
-                foreach (Instruction i in m.Instructions)
+                foreach (Instruction i in method.Instructions)
                 {
                     builder.Append($"{i.Offset:x8}: ");
                     i.ToString(builder);
@@ -211,15 +211,15 @@ namespace Neo.Compiler
             return new JObject
             {
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
-                ["methods"] = methodsConverted.Where(p => p.Value.SyntaxNode is not null).Select(m => new JObject
+                ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
-                    ["id"] = m.Key.ToString(),
-                    ["name"] = $"{m.Key.ContainingType},{m.Key.Name}",
-                    ["range"] = $"{m.Value.Instructions[0].Offset}-{m.Value.Instructions[^1].Offset}",
-                    ["params"] = m.Key.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
-                    ["return"] = m.Key.ReturnType.GetContractParameterType().ToString(),
-                    ["variables"] = m.Value.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
-                    ["sequence-points"] = m.Value.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
+                    ["id"] = m.Symbol.ToString(),
+                    ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
+                    ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
+                    ["params"] = m.Symbol.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
+                    ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
+                    ["variables"] = m.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
+                    ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
                     {
                         FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();
                         return (JString)$"{p.Offset}[{Array.IndexOf(trees, p.SourceLocation.SourceTree)}]{span.StartLinePosition.Line}:{span.StartLinePosition.Character}-{span.EndLinePosition.Line}:{span.EndLinePosition.Character}";
@@ -321,11 +321,11 @@ namespace Neo.Compiler
         {
             if (!methodsConverted.TryGetValue(symbol, out MethodConvert? method))
             {
-                method = new MethodConvert();
-                methodsConverted.Add(symbol, method);
+                method = new MethodConvert(this, symbol);
+                methodsConverted.Add(method);
                 if (!symbol.DeclaringSyntaxReferences.IsEmpty)
                     model = model.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
-                method.Convert(this, model, symbol);
+                method.Convert(model);
             }
             return method;
         }

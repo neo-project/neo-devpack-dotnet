@@ -6,6 +6,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
@@ -136,6 +137,16 @@ namespace Neo.Compiler
                 Name = symbol.Name,
                 Type = symbol.Type.GetContractParameterType()
             };
+        }
+
+        public static void RebuildOffset(this IEnumerable<Instruction> instructions)
+        {
+            int offset = 0;
+            foreach (Instruction instruction in instructions)
+            {
+                instruction.Offset = offset;
+                offset += instruction.Size;
+            }
         }
     }
 }
