@@ -4,8 +4,10 @@ using Microsoft.CodeAnalysis;
 using Neo.Cryptography.ECC;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.VM;
 using Neo.VM.Types;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -139,13 +141,58 @@ namespace Neo.Compiler
             };
         }
 
-        public static void RebuildOffset(this IEnumerable<Instruction> instructions)
+        public static void RebuildOffsets(this IReadOnlyList<Instruction> instructions)
         {
             int offset = 0;
             foreach (Instruction instruction in instructions)
             {
                 instruction.Offset = offset;
                 offset += instruction.Size;
+            }
+        }
+
+        public static void RebuildOperands(this IReadOnlyList<Instruction> instructions)
+        {
+            foreach (Instruction instruction in instructions)
+            {
+                if (instruction.Target is null) continue;
+                bool isLong;
+                if (instruction.OpCode >= OpCode.JMP && instruction.OpCode <= OpCode.CALL_L)
+                    isLong = (instruction.OpCode - OpCode.JMP) % 2 != 0;
+                else
+                    isLong = instruction.OpCode == OpCode.CALLA || instruction.OpCode == OpCode.TRY_L || instruction.OpCode == OpCode.ENDTRY_L;
+                if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
+                {
+                    int offset1 = (instruction.Target.Instruction?.Offset - instruction.Offset) ?? 0;
+                    int offset2 = (instruction.Target2!.Instruction?.Offset - instruction.Offset) ?? 0;
+                    if (isLong)
+                    {
+                        instruction.Operand = new byte[sizeof(int) + sizeof(int)];
+                        BinaryPrimitives.WriteInt32LittleEndian(instruction.Operand, offset1);
+                        BinaryPrimitives.WriteInt32LittleEndian(instruction.Operand.AsSpan(sizeof(int)), offset2);
+                    }
+                    else
+                    {
+                        instruction.Operand = new byte[sizeof(sbyte) + sizeof(sbyte)];
+                        sbyte sbyte1 = checked((sbyte)offset1);
+                        sbyte sbyte2 = checked((sbyte)offset2);
+                        instruction.Operand[0] = unchecked((byte)sbyte1);
+                        instruction.Operand[1] = unchecked((byte)sbyte2);
+                    }
+                }
+                else
+                {
+                    int offset = instruction.Target.Instruction!.Offset - instruction.Offset;
+                    if (isLong)
+                    {
+                        instruction.Operand = BitConverter.GetBytes(offset);
+                    }
+                    else
+                    {
+                        sbyte sbyte1 = checked((sbyte)offset);
+                        instruction.Operand = new[] { unchecked((byte)sbyte1) };
+                    }
+                }
             }
         }
     }

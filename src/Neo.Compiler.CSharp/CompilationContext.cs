@@ -5,9 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.IO.Json;
 using Neo.SmartContract;
-using Neo.VM;
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -63,24 +61,9 @@ namespace Neo.Compiler
             }
             RemoveEmptyInitialize();
             Instruction[] instructions = methodsConverted.SelectMany(p => p.Instructions).ToArray();
-            instructions.RebuildOffset();
-            foreach (Instruction instruction in instructions)
-            {
-                if (instruction.Target is null) continue;
-                if (instruction.OpCode == OpCode.TRY_L)
-                {
-                    int offset1 = (instruction.Target.Instruction?.Offset - instruction.Offset) ?? 0;
-                    int offset2 = (instruction.Target2!.Instruction?.Offset - instruction.Offset) ?? 0;
-                    instruction.Operand = new byte[sizeof(int) + sizeof(int)];
-                    BinaryPrimitives.WriteInt32LittleEndian(instruction.Operand, offset1);
-                    BinaryPrimitives.WriteInt32LittleEndian(instruction.Operand.AsSpan(sizeof(int)), offset2);
-                }
-                else
-                {
-                    int offset = instruction.Target.Instruction!.Offset - instruction.Offset;
-                    instruction.Operand = BitConverter.GetBytes(offset);
-                }
-            }
+            instructions.RebuildOffsets();
+            if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
+            instructions.RebuildOperands();
         }
 
         private static CompilationContext Compile(string? csproj, string[] sourceFiles, Options options)
