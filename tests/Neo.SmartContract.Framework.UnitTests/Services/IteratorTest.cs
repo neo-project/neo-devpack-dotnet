@@ -3,7 +3,7 @@ using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class IteratorTest

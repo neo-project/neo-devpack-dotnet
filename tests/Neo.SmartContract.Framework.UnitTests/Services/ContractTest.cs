@@ -8,7 +8,7 @@ using Neo.VM.Types;
 using System;
 using Array = Neo.VM.Types.Array;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class ContractTest

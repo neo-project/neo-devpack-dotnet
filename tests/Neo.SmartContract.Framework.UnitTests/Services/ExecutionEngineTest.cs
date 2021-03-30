@@ -3,13 +3,12 @@ using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.IO;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.System
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class ExecutionEngineTest

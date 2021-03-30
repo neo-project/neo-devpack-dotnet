@@ -10,7 +10,7 @@ using Neo.VM.Types;
 using System;
 using System.IO;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class RuntimeTest

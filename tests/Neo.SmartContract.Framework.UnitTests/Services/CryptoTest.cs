@@ -9,7 +9,7 @@ using Neo.Wallets;
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class CryptoTest

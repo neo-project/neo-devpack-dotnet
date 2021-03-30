@@ -1,11 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.SmartContract;
-using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 
-namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class StdLibTest

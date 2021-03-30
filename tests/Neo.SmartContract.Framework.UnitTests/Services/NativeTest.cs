@@ -5,7 +5,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.VM;
 using Neo.VM.Types;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class NativeTest

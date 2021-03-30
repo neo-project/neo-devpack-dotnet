@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using static Neo.Helper;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class StorageTest
