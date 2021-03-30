@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("subtract", 5, 9);
 
             Integer wantresult = -4;
-            Assert.IsTrue(wantresult.Equals(result));
+            Assert.AreEqual(wantresult, result.Pop());
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DoubleReturnB()
         {
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("mix",9, 5);
+            var result = testengine.ExecuteTestCaseStandard("mix", 9, 5);
 
             Assert.AreEqual(1, result.Count);
 

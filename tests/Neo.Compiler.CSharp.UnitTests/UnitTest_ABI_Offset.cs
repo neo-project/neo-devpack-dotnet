@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = _engine.ExecuteTestCaseStandard("unitTest_001");
 
             StackItem wantResult = 3;
-            Assert.AreEqual(wantResult.ConvertTo(StackItemType.ByteString), result);
+            Assert.AreEqual(wantResult, result.Pop());
         }
     }
 }

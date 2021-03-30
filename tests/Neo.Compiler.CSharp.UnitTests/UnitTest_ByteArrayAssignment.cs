@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testAssignment");
             StackItem wantresult = new byte[] { 0x01, 0x02, 0x04 };
 
-            Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result);
+            Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result.Pop());
         }
 
         [TestMethod]

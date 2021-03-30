@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_OnDeployment1.cs");
             var build = testengine.ScriptEntry;
 
-            var methods = (build.manifest["methods"] as JArray);
+            var methods = (build.manifest["abi"]["methods"] as JArray);
 
             Assert.AreEqual(1, methods.Count);
             Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
@@ -33,10 +33,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_OnDeployment2()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_OnDeployment2.cs");
-            var build = testengine.ScriptEntry;
-            var methods = (build.manifest["methods"] as JArray);
+            var buildScript = new BuildScript();
+            buildScript.Build("./TestClasses/Contract_OnDeployment1.cs");
+
+            var methods = (buildScript.manifest["abi"]["methods"] as JArray);
 
             Assert.AreEqual(1, methods.Count);
             Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");

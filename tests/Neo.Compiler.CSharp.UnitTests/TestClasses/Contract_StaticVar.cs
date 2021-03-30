@@ -9,6 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         static readonly BigInteger a2 = BigInteger.Parse("120");
         static readonly BigInteger a3 = BigInteger.Parse("3", NumberStyles.Any);
 
+
         public static object Main()
         {
             testadd();

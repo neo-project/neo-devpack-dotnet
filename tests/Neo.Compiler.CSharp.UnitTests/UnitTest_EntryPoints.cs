@@ -11,7 +11,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultipleContracts()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_MultipleContracts.cs"));
+            testengine.AddEntryScript("./TestClasses/Contract_MultipleContracts.cs");
+            Assert.AreEqual("Contract_a",testengine.ScriptEntry.manifest["name"].AsString());
         }
     }
 }

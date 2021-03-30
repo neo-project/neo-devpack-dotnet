@@ -32,12 +32,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ContractCall()
         {
-            var result = _engine.ExecuteTestCaseStandard("testContractCall");
+            var engine = _engine.ExecuteTestCaseStandard("testContractCall");
             Assert.AreEqual(VMState.HALT, _engine.State);
-
+            var result = engine.Pop();
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
-            var bequal = wantresult.Equals(result.Pop());
-            Assert.IsTrue(bequal);
+            Assert.AreEqual(wantresult, result.ConvertTo(StackItemType.ByteString));
         }
 
         [TestMethod]

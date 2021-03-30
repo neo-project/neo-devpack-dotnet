@@ -7,6 +7,7 @@ using Neo.IO.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
+using System;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -21,6 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             using var testengine = new TestEngine();
             var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
             Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
         }
 
         [TestMethod]
@@ -37,6 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.IsTrue(ex.InnerException.Message.Contains("unsupported"));
                 return;
             }
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs"));
         }
 
         [TestMethod]
@@ -45,6 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             using var testengine = new TestEngine();
             var ex = Assert.ThrowsException<System.Exception>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
             Assert.IsTrue(ex.InnerException.Message.Contains("unsupported instruction"));
+            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
         }
 
         #endregion
@@ -123,6 +127,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
             Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
+
+
 
         [TestMethod]
         public void sbyte_Test()
