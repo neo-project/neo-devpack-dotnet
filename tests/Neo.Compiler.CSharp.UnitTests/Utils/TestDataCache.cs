@@ -1,4 +1,3 @@
-using Neo.Compiler.CSharp.UnitTests.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;

@@ -21,6 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("testStringAdd1", "a");
+
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual("ahello", result.Pop().GetString());
         }

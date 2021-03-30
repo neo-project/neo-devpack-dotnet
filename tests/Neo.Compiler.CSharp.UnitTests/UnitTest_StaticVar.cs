@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM.Types;
@@ -10,6 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_StaticVar()
         {
+
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("main");
@@ -18,6 +20,30 @@ namespace Neo.Compiler.CSharp.UnitTests
             StackItem wantresult = 42;
             var bequal = wantresult.Equals(result.Pop());
             Assert.IsTrue(bequal);
+        }
+
+        [TestMethod]
+        public void Test_StaticVarInit()
+        {
+            VM.Types.Buffer var1;
+            ByteString var2;
+
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            var result = testengine.ExecuteTestCaseStandard("staticInit");
+            // static byte[] callscript = ExecutionEngine.EntryScriptHash;
+            // ...
+            // return callscript
+            var1 = result.Pop() as VM.Types.Buffer;
+
+            testengine.Reset();
+            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            result = testengine.ExecuteTestCaseStandard("directGet");
+            // return ExecutionEngine.EntryScriptHash
+            var2 = result.Pop() as ByteString;
+
+            Assert.IsNotNull(var1);
+            Assert.IsTrue(var1.GetSpan().SequenceEqual(var2.GetSpan()));
         }
 
         [TestMethod]
@@ -42,5 +68,30 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(123, var1.GetInteger());
         }
 
+        [TestMethod]
+        public void Test_StaticConsturct()
+        {
+            StackItem var1;
+            try
+            {
+                using var testengine = new TestEngine();
+                testengine.AddEntryScript("./TestClasses/Contract_StaticConstruct.cs");
+                var result = testengine.ExecuteTestCaseStandard("testStatic");
+                // static byte[] callscript = ExecutionEngine.EntryScriptHash;
+                // ...
+                // return callscript
+                var1 = (result.Pop());
+
+                Assert.IsNotNull(var1);
+                Assert.IsTrue(var1.GetInteger() == 4);
+                Assert.Fail("should throw a error \"not support opcode xxx\" in this case.");
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine("error message:" + err.Message);
+                //need throw a error.
+                Assert.IsTrue(err.Message.Contains("not support opcode"));
+            }
+        }
     }
 }

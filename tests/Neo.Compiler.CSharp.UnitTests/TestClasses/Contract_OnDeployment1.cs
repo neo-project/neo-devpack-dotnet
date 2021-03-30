@@ -7,6 +7,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         [DisplayName("_deploy")]
         public static void MyDeployMethod(object data, bool update)
         {
+
         }
     }
 }
