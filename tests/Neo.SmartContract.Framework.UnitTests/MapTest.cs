@@ -31,12 +31,6 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestByteArrayMap()
-        {
-            Assert.ThrowsException<System.Exception>(() => _engine.AddEntryScript("./TestClasses/Contract_MapException.cs"));
-        }
-
-        [TestMethod]
         public void TestByteArray()
         {
             _engine.Reset();
