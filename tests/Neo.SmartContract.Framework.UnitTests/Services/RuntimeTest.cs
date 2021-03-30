@@ -145,7 +145,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(TestEngine.TestGas - 2400, item.GetInteger());
         }
 
         [TestMethod]

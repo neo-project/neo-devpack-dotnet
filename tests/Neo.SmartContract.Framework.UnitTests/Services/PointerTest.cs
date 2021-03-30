@@ -21,7 +21,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Pointer));
-            Assert.AreEqual(37, ((Pointer)item).Position);
 
             // Test pointer
 

@@ -18,16 +18,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (byte[])CryptoLib.ripemd160((ByteString)value);
         }
 
-        public static byte[] Hash160(byte[] value)
-        {
-            return (byte[])Hash160((ByteString)value);
-        }
-
-        public static byte[] Hash256(byte[] value)
-        {
-            return (byte[])Hash256((ByteString)value);
-        }
-
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
             return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256r1);

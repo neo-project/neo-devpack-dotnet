@@ -66,7 +66,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_Byte()
         {
-            var prefix = new byte[] { 0xAA };
+            var prefix = new byte[] { 0x11 };
             var key = new byte[] { 0x01, 0x02, 0x03 };
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
