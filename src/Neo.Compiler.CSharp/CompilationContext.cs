@@ -59,6 +59,7 @@ namespace Neo.Compiler
                 SemanticModel model = compilation.GetSemanticModel(tree);
                 ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
             }
+            if (!scTypeFound) throw new Exception("No SmartContract is found in the sources.");
             RemoveEmptyInitialize();
             Instruction[] instructions = methodsConverted.SelectMany(p => p.Instructions).ToArray();
             instructions.RebuildOffsets();
