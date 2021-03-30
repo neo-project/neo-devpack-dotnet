@@ -16,9 +16,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var abi = manifest["abi"];
 
             var methodsABI = abi["methods"] as JArray;
-            Assert.IsFalse(methodsABI[1]["safe"].AsBoolean());
-            Assert.IsTrue(methodsABI[2]["safe"].AsBoolean());
-            Assert.IsFalse(methodsABI[3]["safe"].AsBoolean());
+            Assert.IsFalse(methodsABI[0]["safe"].AsBoolean());
+            Assert.IsTrue(methodsABI[1]["safe"].AsBoolean());
+            Assert.IsFalse(methodsABI[2]["safe"].AsBoolean());
         }
     }
 }

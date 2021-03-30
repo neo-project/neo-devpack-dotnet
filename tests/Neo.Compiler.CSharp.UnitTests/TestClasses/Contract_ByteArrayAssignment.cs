@@ -20,16 +20,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static byte[] testAssignmentOverflow()
         {
-            object obj = int.MaxValue;
             var a = new byte[] { 0x00, 0x02, 0x03 };
-            a[0] = (byte)obj;
-            return a;
-        }
-
-        public static byte[] testAssignmentOverflowUncheked()
-        {
-            var a = new byte[] { 0x00, 0x02, 0x03 };
-            a[0] = unchecked((byte)int.MaxValue);
+            a[0] = (byte)int.MaxValue;
             return a;
         }
 
