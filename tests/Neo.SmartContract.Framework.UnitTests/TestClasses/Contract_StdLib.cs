@@ -1,8 +1,7 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 using System;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Binary : SmartContract.Framework.SmartContract
     {

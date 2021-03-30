@@ -1,7 +1,6 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     class Contract_Storage : SmartContract.Framework.SmartContract
     {

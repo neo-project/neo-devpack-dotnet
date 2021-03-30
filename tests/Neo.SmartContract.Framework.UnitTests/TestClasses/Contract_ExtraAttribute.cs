@@ -1,10 +1,8 @@
-using Neo.SmartContract.Framework;
-
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    [ManifestExtraAttribute("Author", "Neo")]
-    [ManifestExtraAttribute("E-mail", "dev@neo.org")]
-    class Contract_ExtraAttribute : SmartContract
+    [ManifestExtra("Author", "Neo")]
+    [ManifestExtra("E-mail", "dev@neo.org")]
+    public class Contract_ExtraAttribute : SmartContract.Framework.SmartContract
     {
         public static object Main(string method, object[] args)
         {

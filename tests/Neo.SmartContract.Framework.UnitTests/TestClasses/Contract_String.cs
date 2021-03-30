@@ -1,10 +1,9 @@
+using Neo.SmartContract.Framework.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_String : SmartContract.Framework.SmartContract
     {

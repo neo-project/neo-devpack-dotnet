@@ -1,12 +1,14 @@
-using Neo.SmartContract.Framework;
 using System.Numerics;
 
-namespace Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Helper : SmartContract
     {
-        static readonly byte[] data = (byte[])"0a0b0c0d0E0F".HexToBytes();
-        static readonly byte[] hashResult = (byte[])"AFsCjUGzicZmXQtWpwVt6hNeJTBwSipJMS".ToScriptHash();
+        [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
+        private static readonly byte[] data = default;
+
+        [InitialValue("NL1JGjDe22U44R57ZXVSeTYFBavEkVmkgF", ContractParameterType.Hash160)]
+        private static readonly byte[] hashResult = default;
 
         public static byte[] TestHexToBytes()
         {

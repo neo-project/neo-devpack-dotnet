@@ -1,9 +1,8 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Pointers : SmartContract.Framework.SmartContract
     {

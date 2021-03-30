@@ -1,10 +1,10 @@
+using Neo.Cryptography.ECC;
 using Neo.SmartContract.Framework.Native;
+using System;
 using System.ComponentModel;
 using System.Numerics;
-using System;
-using Neo.Cryptography.ECC;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Native : SmartContract.Framework.SmartContract
     {

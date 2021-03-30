@@ -1,8 +1,7 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     class Contract_StaticStorageMap : SmartContract.Framework.SmartContract
     {

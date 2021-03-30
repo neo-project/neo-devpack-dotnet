@@ -1,9 +1,8 @@
 using Neo.Cryptography.ECC;
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 using System.ComponentModel;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Crypto : SmartContract.Framework.SmartContract
     {

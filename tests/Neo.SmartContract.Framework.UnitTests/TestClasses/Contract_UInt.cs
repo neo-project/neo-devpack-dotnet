@@ -1,4 +1,4 @@
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_UInt : SmartContract.Framework.SmartContract
     {

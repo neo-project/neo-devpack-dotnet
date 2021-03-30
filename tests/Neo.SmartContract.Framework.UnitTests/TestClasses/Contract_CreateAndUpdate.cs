@@ -1,7 +1,6 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_CreateAndUpdate : SmartContract.Framework.SmartContract
     {
