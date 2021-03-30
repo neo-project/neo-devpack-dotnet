@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("main");
             ApplicationEngine.Notify -= method;
 
-            CollectionAssert.AreEqual(new BigInteger[] { 16, 17179869184, 4, 0 }, list);
+            CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
         }
 
         [TestMethod]

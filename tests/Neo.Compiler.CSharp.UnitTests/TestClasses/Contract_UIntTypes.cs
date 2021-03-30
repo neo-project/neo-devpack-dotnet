@@ -1,8 +1,12 @@
+using Neo.SmartContract;
+using Neo.SmartContract.Framework;
+
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_UIntTypes : SmartContract.Framework.SmartContract
     {
-        static readonly UInt160 Owner = SmartContract.Framework.Helper.ToScriptHash("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
+        [InitialValue("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB", ContractParameterType.Hash160)]
+        static readonly UInt160 Owner = default;
 
         public static bool checkOwner(UInt160 owner) { return owner == Owner; }
 

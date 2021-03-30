@@ -10,8 +10,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         public JObject manifest;
         public void Build(string filename)
         {
-            Options op = new Options();
-            context = Neo.Compiler.CompilationContext.CompileSources(new string[] { filename }, op);
+            Options op = new()
+            {
+                AddressVersion = ProtocolSettings.Default.AddressVersion
+            };
+            context = CompilationContext.CompileSources(new string[] { filename }, op);
             manifest = context.CreateManifest();
             nef = context.CreateExecutable();
         }
