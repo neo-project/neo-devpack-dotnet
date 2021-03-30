@@ -284,6 +284,9 @@ namespace Neo.Compiler
         private void ProcessEvent(IEventSymbol symbol)
         {
             if (symbol.DeclaredAccessibility != Accessibility.Public) return;
+            INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
+            if (!type.DelegateInvokeMethod!.ReturnsVoid)
+                throw new NotSupportedException($"Event return value is not supported.");
             eventsExported.Add(new AbiEvent(symbol));
         }
 
