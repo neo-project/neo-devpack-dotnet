@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
@@ -243,7 +242,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetSpan().ToArray());
         }
 
-        private StackItem[] Concat(StackItem[] a, ByteString b)
+        private static StackItem[] Concat(StackItem[] a, ByteString b)
         {
             return a.Concat(new StackItem[] { b }).ToArray();
         }
@@ -378,7 +377,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     Name = "Name",
                     SupportedStandards = System.Array.Empty<string>(),
                     Groups = System.Array.Empty<ContractGroup>(),
-                    Trusts = WildcardContainer<UInt160>.Create(),
+                    Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
                     Permissions = System.Array.Empty<ContractPermission>(),
                     Abi = new ContractAbi()
                     {

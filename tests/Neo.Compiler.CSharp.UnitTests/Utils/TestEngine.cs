@@ -8,7 +8,7 @@ using System;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
-    class TestEngine : ApplicationEngine
+    public class TestEngine : ApplicationEngine
     {
         public const long TestGas = 2000_00000000;
 
@@ -84,16 +84,31 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
+            return ExecuteTestCaseStandard(methodname, Nef, args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, params StackItem[] args)
+        {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
             var rvcount = GetMethodReturnCount(methodname);
             if (rvcount == -1) throw new Exception("Can't find method return count : " + methodname);
+            return ExecuteTestCaseStandard(offset, (ushort)rvcount, contract, args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, params StackItem[] args)
+        {
+            return ExecuteTestCaseStandard(offset, rvcount, Nef, args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
+        {
             var context = InvocationStack.Pop();
             context = CreateContext(context.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
-            contextState.Contract ??= new ContractState() { Nef = Nef };
+            contextState.Contract ??= new ContractState() { Nef = contract };
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");

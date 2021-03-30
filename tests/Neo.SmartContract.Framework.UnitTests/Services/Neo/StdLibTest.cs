@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract;
 using Neo.SmartContract.Framework.UnitTests;
 using Neo.SmartContract.Manifest;
@@ -22,18 +21,18 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_StdLib.cs");
-            scriptHash = _engine.ScriptEntry.finalNEFScript.ToScriptHash();
+            scriptHash = _engine.Nef.Script.ToScriptHash();
 
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = scriptHash,
-                Nef = _engine.ScriptEntry.nefFile,
-                Manifest = ContractManifest.Parse(_engine.ScriptEntry.finalManifest)
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest)
             });
         }
 
         [TestMethod]
-        public void atoiTest()
+        public void AtoiTest()
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("atoi", "-1", 10);
@@ -45,7 +44,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         }
 
         [TestMethod]
-        public void itoaTest()
+        public void ItoaTest()
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("itoa", -1, 10);
@@ -57,7 +56,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         }
 
         [TestMethod]
-        public void base64DecodeTest()
+        public void Base64DecodeTest()
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("base64Decode", "dGVzdA==");
@@ -69,7 +68,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         }
 
         [TestMethod]
-        public void base64EncodeTest()
+        public void Base64EncodeTest()
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("base64Encode", "test");
@@ -81,7 +80,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         }
 
         [TestMethod]
-        public void base58DecodeTest()
+        public void Base58DecodeTest()
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("base58Decode", "3yZe7d");
@@ -93,7 +92,7 @@ namespace Neo.Compiler.MSIL.SmartContractFramework.Services.Neo
         }
 
         [TestMethod]
-        public void base58EncodeTest()
+        public void Base58EncodeTest()
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("base58Encode", "test");

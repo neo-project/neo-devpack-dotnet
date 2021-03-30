@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
-using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -34,10 +33,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // Create
 
-            var entryScript = _engine.ScriptEntry;
-            var script = _engine.Build("./TestClasses/Contract_Create.cs");
-            var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
-            var nef = new NefFile() { Script = script.finalNEFScript, Compiler = "unit-test-1.0", Tokens = System.Array.Empty<MethodToken>() };
+            _engine.AddEntryScript("./TestClasses/Contract_Create.cs");
+            var manifest = ContractManifest.FromJson(_engine.Manifest);
+            var nef = new NefFile() { Script = _engine.Nef.Script, Compiler = "unit-test-1.0", Tokens = System.Array.Empty<MethodToken>() };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
@@ -74,7 +72,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             // Destroy
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("destroy", entryScript.nefFile);
+            result = _engine.ExecuteTestCaseStandard("destroy", _engine.Nef);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(0, result.Count);
 
@@ -91,20 +89,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         {
             // Create
 
-            var script = _engine.Build("./TestClasses/Contract_CreateAndUpdate.cs");
-            var manifest = ContractManifest.FromJson(JObject.Parse(script.finalManifest));
+            _engine.AddEntryScript("./TestClasses/Contract_CreateAndUpdate.cs");
+            var manifest = ContractManifest.FromJson(_engine.Manifest);
             var nef = new NefFile()
             {
-                Script = script.finalNEFScript,
+                Script = _engine.Nef.Script,
                 Compiler = "unit-test-1.0",
-                Tokens = script.nefFile.Tokens
+                Tokens = _engine.Nef.Tokens
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
 
-            var scriptUpdate = _engine.Build("./TestClasses/Contract_Update.cs");
-            var manifestUpdate = ContractManifest.FromJson(JObject.Parse(scriptUpdate.finalManifest));
+            _engine.AddEntryScript("./TestClasses/Contract_Update.cs");
+            var manifestUpdate = ContractManifest.FromJson(_engine.Manifest);
             manifestUpdate.Name = manifest.Name; // Must be the same name
 
             // Create
@@ -130,7 +128,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 
             Console.WriteLine("Update");
             _engine.Reset();
-            nef.Script = scriptUpdate.finalNEFScript;
+            nef.Script = _engine.Nef.Script;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All,
                 new Array(new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));

@@ -1,9 +1,8 @@
 extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mono.Cecil;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using scfxSmartContract = scfx.Neo.SmartContract.Framework.SmartContract;
 using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
 
@@ -18,16 +17,10 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Current syscalls
 
             var list = new HashSet<string>();
-
-            using (var stream = File.OpenRead(typeof(scfxSmartContract).Assembly.Location))
+            var expectedType = typeof(SyscallAttribute);
+            foreach (var type in typeof(scfxSmartContract).Assembly.ExportedTypes)
             {
-                var expectedType = typeof(SyscallAttribute).FullName;
-                var module = ModuleDefinition.ReadModule(stream);
-
-                foreach (var type in module.Types)
-                {
-                    CheckType(type, expectedType, list);
-                }
+                CheckType(type, expectedType, list);
             }
 
             // Neo syscalls
@@ -57,18 +50,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
         }
 
-        private void CheckType(TypeDefinition type, string expectedType, HashSet<string> list)
+        private static void CheckType(Type type, Type attributeType, HashSet<string> list)
         {
-            foreach (var nested in type.NestedTypes)
-            {
-                CheckType(nested, expectedType, list);
-            }
-
-            foreach (var method in type.Methods)
+            foreach (var method in type.GetMethods())
             {
                 foreach (var attr in method.CustomAttributes)
                 {
-                    if (attr.AttributeType.FullName == expectedType)
+                    if (attr.AttributeType == attributeType)
                     {
                         var syscall = attr.ConstructorArguments[0].Value.ToString();
                         list.Add(syscall);

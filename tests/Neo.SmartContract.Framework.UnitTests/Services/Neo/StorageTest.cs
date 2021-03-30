@@ -1,18 +1,16 @@
-extern alias scfx;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM.Types;
 using System;
 using System.Linq;
+using static Neo.Helper;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
     [TestClass]
     public class StorageTest
     {
-        private void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
+        private static void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
             var result = testengine.ExecuteTestCaseStandard(method, key, value);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
@@ -27,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     a.Item.Value.SequenceEqual(value)));
         }
 
-        private byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
+        private static byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, key);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
@@ -39,17 +37,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             return data.ToArray();
         }
 
-        private void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
+        private static void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, new VM.Types.ByteString(key));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual(0, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
-        }
-
-        private byte[] Concat(byte[] prefix, byte[] key)
-        {
-            return global::Neo.Helper.Concat(prefix, key);
         }
 
         private TestEngine testengine;
@@ -65,7 +58,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             testengine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
-                Nef = testengine.ScriptEntry.nefFile,
+                Nef = testengine.Nef,
                 Manifest = new Manifest.ContractManifest()
             });
         }

@@ -1,16 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
-using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.IO;
-using Neo.Ledger;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
 {
@@ -70,6 +68,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
         [TestMethod]
         public void Test_InvocationCounter()
         {
+            _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
+
             // We need a new TestEngine because invocationCounter it's shared between them
 
             var contract = _engine.EntryScriptHash;
@@ -77,11 +77,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
-                Nef = _engine.ScriptEntry.nefFile,
-                Manifest = ContractManifest.FromJson(JObject.Parse(_engine.Build("./TestClasses/Contract_Runtime.cs").finalManifest)),
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
             });
 
-            using (ScriptBuilder sb = new ScriptBuilder())
+            using (ScriptBuilder sb = new())
             {
                 // First
                 sb.EmitDynamicCall(contract, "getInvocationCounter");

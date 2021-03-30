@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Cryptography.ECC;
 using Neo.Network.P2P.Payloads;
 using Neo.VM;
@@ -12,19 +11,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
     public class NativeTest
     {
         private TestEngine _engine;
-        private readonly byte[] pubKey = NeonTestTool.HexString2Bytes("03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa");
-        byte[] account = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
+        private readonly byte[] pubKey = "03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa".HexToBytes();
+        private readonly byte[] account = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
 
         [TestInitialize]
         public void Init()
         {
             // Deploy native contracts
-            var block = new Network.P2P.Payloads.Block()
+            var block = new Block()
             {
                 Header = new Header()
                 {
                     Index = 0,
-                    Witness = new Network.P2P.Payloads.Witness()
+                    Witness = new Witness()
                     {
                         InvocationScript = System.Array.Empty<byte>(),
                         VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
@@ -33,7 +32,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
                     MerkleRoot = UInt256.Zero,
                     PrevHash = UInt256.Zero
                 },
-                Transactions = new Network.P2P.Payloads.Transaction[0],
+                Transactions = System.Array.Empty<Transaction>(),
             };
 
             _engine = new TestEngine(TriggerType.Application, block, new TestDataCache(block));
@@ -95,8 +94,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             Assert.IsInstanceOfType(candidate, typeof(Struct));
             var candidatePubKey = ((Struct)candidate)[0];
             var candidateVotes = ((Struct)candidate)[1];
-            Assert.IsInstanceOfType(candidatePubKey, typeof(VM.Types.ByteString));
-            Assert.AreEqual(true, candidatePubKey.Equals((VM.Types.ByteString)pubKey));
+            Assert.IsInstanceOfType(candidatePubKey, typeof(ByteString));
+            Assert.AreEqual(true, candidatePubKey.Equals((ByteString)pubKey));
             Assert.IsInstanceOfType(candidateVotes, typeof(Integer));
             Assert.AreEqual(0, candidateVotes.GetInteger());
 

@@ -1,8 +1,5 @@
-extern alias scfx;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.Extensions;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
@@ -23,7 +20,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services.Neo
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = _engine.EntryScriptHash,
-                Nef = _engine.ScriptEntry.nefFile,
+                Nef = _engine.Nef,
                 Manifest = new Manifest.ContractManifest()
             });
         }
