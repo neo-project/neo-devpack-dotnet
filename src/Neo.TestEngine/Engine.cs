@@ -61,19 +61,20 @@ namespace Neo.TestingEngine
         public void AddSmartContract(TestContract contract)
         {
             var state = AddSmartContract(contract.nefPath);
-            contract.nefFile = state.Nef;
+            contract.buildScript = state;
         }
 
-        private ContractState AddSmartContract(string path)
+        private BuildScript AddSmartContract(string path)
         {
             var builtScript = engine.Build(path);
             var hash = builtScript.finalNEFScript.ToScriptHash();
 
             var snapshot = engine.Snapshot;
 
+            ContractState state;
             if (!snapshot.ContainsContract(hash))
             {
-                var state = new ContractState()
+                state = new ContractState()
                 {
                     Id = snapshot.GetNextAvailableId(),
                     Hash = hash,
@@ -82,8 +83,14 @@ namespace Neo.TestingEngine
                 };
                 snapshot.TryContractAdd(state);
             }
+            else
+            {
+                state = NativeContract.ContractManagement.GetContract(snapshot, hash);
+                builtScript = new BuildNEF(state.Nef, state.Manifest.ToJson());
+            }
 
-            return NativeContract.ContractManagement.GetContract(snapshot, hash);
+            engine.AddContract(path, builtScript);
+            return builtScript;
         }
 
         public void IncreaseBlockCount(uint newHeight)

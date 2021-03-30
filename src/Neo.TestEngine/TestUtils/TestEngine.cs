@@ -32,7 +32,7 @@ namespace Neo.TestingEngine
         {
             var contains = scriptsAll.ContainsKey(filename);
 
-            if (!contains || (contains && scriptsAll[filename].UseOptimizer != optimizer))
+            if (!contains || (contains && !(scriptsAll[filename] is BuildNEF) && scriptsAll[filename].UseOptimizer != optimizer))
             {
                 if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
                 {
@@ -102,6 +102,11 @@ namespace Neo.TestingEngine
             }
 
             Reset();
+        }
+
+        public void AddContract(string filename, BuildScript script)
+        {
+            scriptsAll[filename] = script;
         }
 
         public void RunNativeContract(string method, StackItem[] parameters, CallFlags flags = CallFlags.All)
