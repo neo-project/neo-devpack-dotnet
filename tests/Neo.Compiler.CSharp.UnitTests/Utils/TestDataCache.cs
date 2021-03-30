@@ -1,8 +1,8 @@
-using System.Linq;
-using System.Collections.Generic;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {

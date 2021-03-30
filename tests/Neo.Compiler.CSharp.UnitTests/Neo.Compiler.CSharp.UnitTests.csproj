@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="TestClasses\*" />
+    <Compile Remove="TestClasses\*.cs" />
     <None Include="TestClasses\*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -8,11 +9,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void UnitTest_TestABIOffsetWithoutOptimizer()
         {
-            //var buildScript = NeonTestTool.BuildScript("./TestClasses/Contract_Property.cs", true, false);
-            //var abi = buildScript.finalABI;
-
-            //var property = abi["methods"].GetArray()[0];
-            //Assert.AreEqual("symbol", property["name"].GetString());
+            var testEngine = new TestEngine();
+            var buildScript = testEngine.Build("./TestClasses/Contract_Property.cs");
+            var abi = buildScript.manifest["abi"];
+            var property = abi["methods"].GetArray()[0];
+            Assert.AreEqual("symbol", property["name"].GetString());
         }
     }
 }
