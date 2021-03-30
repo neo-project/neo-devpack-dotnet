@@ -5,7 +5,7 @@ using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.MSIL.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_Delegate

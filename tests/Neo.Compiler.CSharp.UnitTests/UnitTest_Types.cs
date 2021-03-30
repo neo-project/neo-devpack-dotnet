@@ -1,14 +1,14 @@
+using System.Linq;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.IO.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
-using System.Linq;
-using System.Numerics;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 
-namespace Neo.Compiler.MSIL.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_Types

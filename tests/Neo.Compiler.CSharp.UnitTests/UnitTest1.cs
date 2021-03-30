@@ -1,9 +1,8 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM.Types;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 
-namespace Neo.Compiler.MSIL.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest1

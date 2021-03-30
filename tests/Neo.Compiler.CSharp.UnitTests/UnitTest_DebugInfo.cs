@@ -1,9 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO.Json;
-using System.Linq;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 
-namespace Neo.Compiler.MSIL
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_DebugInfo

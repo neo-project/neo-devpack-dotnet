@@ -5,7 +5,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
 
-namespace Neo.Compiler.MSIL.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class Contract_NativeContracts

@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Numerics;
 
-namespace Neo.Compiler.MSIL.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_FuncExport
