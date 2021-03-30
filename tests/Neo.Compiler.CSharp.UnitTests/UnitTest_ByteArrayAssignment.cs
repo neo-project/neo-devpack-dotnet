@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -13,10 +12,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            var result = testengine.ExecuteTestCaseStandard("testAssignment");
-            StackItem wantresult = new byte[] { 0x01, 0x02, 0x04 };
-
-            Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result.Pop());
+            var result = testengine.ExecuteTestCaseStandard("testAssignment").Pop();
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x04 }, result.GetSpan().ToArray());
         }
 
         [TestMethod]
@@ -37,18 +34,6 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             testengine.ExecuteTestCaseStandard("testAssignmentOverflow");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
-        }
-
-        [TestMethod]
-        public void Test_ByteArrayAssignmentOverflowUncheked()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("testAssignmentOverflowUncheked");
-            StackItem wantresult = new byte[] { 0xFF, 0x02, 0x03 };
-
-            Assert.AreEqual(wantresult.ConvertTo(StackItemType.ByteString), result);
         }
 
         [TestMethod]

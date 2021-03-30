@@ -2986,6 +2986,14 @@ namespace Neo.Compiler
 
         private bool TryProcessSystemMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
         {
+            if (symbol.ContainingType.TypeKind == TypeKind.Delegate && symbol.Name == "Invoke")
+            {
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+                ConvertExpression(model, instanceExpression!);
+                AddInstruction(OpCode.CALLA);
+                return true;
+            }
             switch (symbol.ToString())
             {
                 case "System.Numerics.BigInteger.One.get":

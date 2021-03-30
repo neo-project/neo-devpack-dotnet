@@ -109,7 +109,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var methods = (JArray)testengine.ScriptEntry.manifest["methods"];
+            var methods = (JArray)testengine.ScriptEntry.manifest["abi"]["methods"];
             var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
             Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
@@ -331,20 +331,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple2");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
-            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
-            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
-        }
-
-        [TestMethod]
-        public void tuple3_Test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkTuple3");
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Array));

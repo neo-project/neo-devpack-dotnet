@@ -12,13 +12,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             int v = 8;
             var v1 = v << 1;
-            var v2 = v << -1;
-            var v3 = v >> 1;
-            var v4 = v >> -1;
+            var v2 = v >> 1;
             notify(v1);
             notify(v2);
-            notify(v3);
-            notify(v4);
             return false;
         }
     }
