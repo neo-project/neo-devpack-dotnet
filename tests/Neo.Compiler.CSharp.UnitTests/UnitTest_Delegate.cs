@@ -1,9 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.IO;
-using Neo.SmartContract.Native;
-using Neo.VM;
-using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -27,21 +23,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard("sumFunc", 2, 3).Pop();
             Assert.AreEqual(5, result.GetInteger());
-        }
-
-        [TestMethod]
-        public void TestDelegateCall()
-        {
-            var token = NativeContract.NEO.Hash; // NEO token
-
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testDynamicCall", token.ToArray(), "symbol");
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("NEO", item.GetString());
         }
     }
 }
