@@ -11,10 +11,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DebugInfo()
         {
-            var builder = new BuildScript();
-            builder.Build("./TestClasses/Contract_Event.cs");
+            var testEngine = new TestEngine();
+            testEngine.AddEntryScript("./TestClasses/Contract_Event.cs");
 
-            var debugInfo = builder.context.CreateDebugInformation();
+            var debugInfo = testEngine.DebugInfo;
             Assert.IsTrue(debugInfo.ContainsProperty("documents"));
             Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
             Assert.AreEqual(1, (debugInfo["documents"] as JArray).Count);

@@ -11,11 +11,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestSafe()
         {
             var testEngine = new TestEngine();
-            var buildScript = testEngine.Build("./TestClasses/Contract_ABISafe.cs");
-            var manifest = buildScript.manifest;
-            var abi = manifest["abi"];
+            testEngine.AddEntryScript("./TestClasses/Contract_ABISafe.cs");
 
-            var methodsABI = abi["methods"] as JArray;
+            var methodsABI = testEngine.Manifest["abi"]["methods"] as JArray;
             Assert.IsFalse(methodsABI[0]["safe"].AsBoolean());
             Assert.IsTrue(methodsABI[1]["safe"].AsBoolean());
             Assert.IsFalse(methodsABI[2]["safe"].AsBoolean());

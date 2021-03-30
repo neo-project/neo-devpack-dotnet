@@ -5,32 +5,32 @@ using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
-using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
     class TestEngine : ApplicationEngine
     {
         public const long TestGas = 2000_00000000;
-        public readonly IDictionary<string, BuildScript> Scripts;
 
-        public BuildScript ScriptEntry { get; private set; }
+        public NefFile Nef { get; private set; }
+        public JObject Manifest { get; private set; }
+        public JObject DebugInfo { get; private set; }
+
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
              : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas)
         {
-            Scripts = new Dictionary<string, BuildScript>();
-        }
-        public void AddEntryScript(string filename)
-        {
-            ScriptEntry = Build(filename);
-            Reset();
         }
 
-        public BuildScript Build(string filename)
+        public void AddEntryScript(string filename)
         {
-            var script = new BuildScript();
-            script.Build(filename);
-            return script;
+            CompilationContext context = CompilationContext.CompileSources(new[] { filename }, new Options
+            {
+                AddressVersion = ProtocolSettings.Default.AddressVersion
+            });
+            Nef = context.CreateExecutable();
+            Manifest = context.CreateManifest();
+            DebugInfo = context.CreateDebugInformation();
+            Reset();
         }
 
         public void Reset()
@@ -41,35 +41,32 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             {
                 this.ResultStack.Pop();
             }
-            if (ScriptEntry != null)
+            if (Nef != null)
             {
-                this.LoadScript(ScriptEntry.nef.Script);
+                this.LoadScript(Nef.Script);
                 // Mock contract
                 var contextState = CurrentContext.GetState<ExecutionContextState>();
-                contextState.Contract ??= new ContractState()
-                {
-                    Nef = ScriptEntry.nef
-                };
+                contextState.Contract ??= new ContractState { Nef = Nef };
             }
         }
+
         public int GetMethodEntryOffset(string methodname)
         {
-            if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.manifest["abi"]["methods"] as JArray;
+            if (Manifest is null) return -1;
+            var methods = Manifest["abi"]["methods"] as JArray;
             foreach (var item in methods)
             {
                 var method = item as JObject;
                 if (method["name"].AsString() == methodname)
                     return int.Parse(method["offset"].AsString());
             }
-
             return -1;
         }
 
         public int GetMethodReturnCount(string methodname)
         {
-            if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.manifest["abi"]["methods"] as JArray;
+            if (Manifest is null) return -1;
+            var methods = Manifest["abi"]["methods"] as JArray;
             foreach (var item in methods)
             {
                 var method = item as JObject;
@@ -84,26 +81,19 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             }
             return -1;
         }
+
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
-        {
-            return ExecuteTestCaseStandard(methodname, ScriptEntry.nef, args);
-        }
-        public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, params StackItem[] args)
         {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
             var rvcount = GetMethodReturnCount(methodname);
             if (rvcount == -1) throw new Exception("Can't find method return count : " + methodname);
-            return ExecuteTestCaseStandard(offset, (ushort)rvcount, contract, args);
-        }
-        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
-        {
             var context = InvocationStack.Pop();
             context = CreateContext(context.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
-            contextState.Contract ??= new ContractState() { Nef = contract };
+            contextState.Contract ??= new ContractState() { Nef = Nef };
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");

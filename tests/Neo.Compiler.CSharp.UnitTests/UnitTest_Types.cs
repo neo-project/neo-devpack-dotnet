@@ -109,7 +109,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var methods = (JArray)testengine.ScriptEntry.manifest["abi"]["methods"];
+            var methods = (JArray)testengine.Manifest["abi"]["methods"];
             var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
             Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
