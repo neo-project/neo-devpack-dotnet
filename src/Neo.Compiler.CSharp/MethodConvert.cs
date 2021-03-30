@@ -1653,6 +1653,12 @@ namespace Neo.Compiler
         {
             switch (expression.OperatorToken.ValueText)
             {
+                case "||":
+                    ConvertLogicalOrExpression(model, expression.Left, expression.Right);
+                    return;
+                case "&&":
+                    ConvertLogicalAndExpression(model, expression.Left, expression.Right);
+                    return;
                 case "is":
                     ConvertIsExpression(model, expression.Left, expression.Right);
                     return;
@@ -1677,8 +1683,6 @@ namespace Neo.Compiler
                 "%" => OpCode.MOD,
                 "<<" => OpCode.SHL,
                 ">>" => OpCode.SHR,
-                "||" => OpCode.BOOLOR,
-                "&&" => OpCode.BOOLAND,
                 "|" => OpCode.OR,
                 "&" => OpCode.AND,
                 "^" => OpCode.XOR,
@@ -1690,6 +1694,32 @@ namespace Neo.Compiler
                 ">=" => OpCode.GE,
                 _ => throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}")
             });
+        }
+
+        private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
+        {
+            JumpTarget rightTarget = new();
+            JumpTarget endTarget = new();
+            ConvertExpression(model, left);
+            Jump(OpCode.JMPIFNOT_L, rightTarget);
+            Push(true);
+            Jump(OpCode.JMP_L, endTarget);
+            rightTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(model, right);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        private void ConvertLogicalAndExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
+        {
+            JumpTarget rightTarget = new();
+            JumpTarget endTarget = new();
+            ConvertExpression(model, left);
+            Jump(OpCode.JMPIF_L, rightTarget);
+            Push(false);
+            Jump(OpCode.JMP_L, endTarget);
+            rightTarget.Instruction = AddInstruction(OpCode.NOP);
+            ConvertExpression(model, right);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
         private void ConvertIsExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
