@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_ExecutionEngine : SmartContract.Framework.SmartContract
+    public class Contract_ExecutionEngine : SmartContract
     {
         public static byte[] CallingScriptHash()
         {

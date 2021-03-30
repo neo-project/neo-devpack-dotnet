@@ -3,7 +3,7 @@ using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Binary : SmartContract.Framework.SmartContract
+    public class Contract_Binary : SmartContract
     {
         public static byte[] base64Decode(string input)
         {

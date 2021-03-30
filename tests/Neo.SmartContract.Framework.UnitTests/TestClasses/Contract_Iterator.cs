@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Iterator : SmartContract.Framework.SmartContract
+    public class Contract_Iterator : SmartContract
     {
         public static int TestNextByteArray(byte[] a)
         {

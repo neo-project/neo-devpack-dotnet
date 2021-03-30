@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Blockchain : SmartContract.Framework.SmartContract
+    public class Contract_Blockchain : SmartContract
     {
         public static uint GetHeight()
         {

@@ -7,6 +7,7 @@ using Neo.IO.Json;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -57,6 +58,12 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
+                ImmutableArray<Diagnostic> diagnostics = model.GetDiagnostics();
+                if (diagnostics.Any(p => p.Severity == DiagnosticSeverity.Error))
+                {
+                    string message = string.Join(Environment.NewLine, diagnostics.Select(p => p.GetMessage()));
+                    throw new Exception(message);
+                }
                 ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
             }
             if (!scTypeFound) throw new Exception("No SmartContract is found in the sources.");

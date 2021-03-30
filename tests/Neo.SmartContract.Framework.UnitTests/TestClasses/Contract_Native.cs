@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Native : SmartContract.Framework.SmartContract
+    public class Contract_Native : SmartContract
     {
         [DisplayName("NEO_Decimals")]
         public static int NEO_Decimals()

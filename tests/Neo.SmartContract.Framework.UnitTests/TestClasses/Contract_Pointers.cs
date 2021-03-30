@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Pointers : SmartContract.Framework.SmartContract
+    public class Contract_Pointers : SmartContract
     {
         public static object CreateFuncPointer()
         {

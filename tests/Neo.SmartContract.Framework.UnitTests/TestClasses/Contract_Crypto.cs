@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Crypto : SmartContract.Framework.SmartContract
+    public class Contract_Crypto : SmartContract
     {
         [DisplayName("SHA256")]
         public static byte[] SHA256(byte[] value)

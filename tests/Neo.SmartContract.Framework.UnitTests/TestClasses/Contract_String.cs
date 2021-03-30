@@ -1,11 +1,6 @@
-using Neo.SmartContract.Framework.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_String : SmartContract.Framework.SmartContract
+    public class Contract_String : SmartContract
     {
         public static int TestStringAdd(string s1, string s2)
         {

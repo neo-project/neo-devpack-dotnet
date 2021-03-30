@@ -9,7 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static extern void testVoid();
     }
 
-    public class Contract_ContractCall : SmartContract
+    public class Contract_ContractCall : SmartContract.Framework.SmartContract
     {
         public static byte[] testContractCall()
         {

@@ -1,6 +1,6 @@
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_UInt : SmartContract.Framework.SmartContract
+    public class Contract_UInt : SmartContract
     {
         public static bool IsZeroUInt256(UInt256 value)
         {
