@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLong()
         {
             EvaluationStack result;
-            TestEngine testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
             // Test cases
@@ -36,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_SwitchLongLong()
         {
-            TestEngine testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLongLong.cs");
 
             var resulta = testengine.ExecuteTestCaseStandard("main", "a").Pop();
@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_SwitchInteger()
         {
-            TestEngine testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchInteger.cs");
 
             var result1 = testengine.ExecuteTestCaseStandard("main", 1).Pop();
@@ -101,7 +101,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLong_Release()
         {
             EvaluationStack result;
-            TestEngine testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
 
             // Test cases
@@ -124,7 +124,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Switch6()
         {
             EvaluationStack result;
-            TestEngine testengine = new TestEngine();
+            using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
 
             // Test cases

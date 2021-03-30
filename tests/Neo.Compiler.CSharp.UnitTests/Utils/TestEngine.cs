@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             }
         }
 
-        public int GetMethodEntryOffset(string methodname)
+        private int GetMethodEntryOffset(string methodname)
         {
             if (Manifest is null) return -1;
             var methods = Manifest["abi"]["methods"] as JArray;
@@ -63,7 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             return -1;
         }
 
-        public int GetMethodReturnCount(string methodname)
+        private int GetMethodReturnCount(string methodname)
         {
             if (Manifest is null) return -1;
             var methods = Manifest["abi"]["methods"] as JArray;
