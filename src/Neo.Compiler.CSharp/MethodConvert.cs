@@ -3123,6 +3123,7 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.NUMEQUAL);
                     return true;
                 case "object.Equals(object?)":
+                case "string.Equals(string?)":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
                     if (arguments is not null)
@@ -3157,6 +3158,7 @@ namespace Neo.Compiler
             switch (symbol.ToString())
             {
                 case "object.operator ==(object, object)":
+                case "string.operator ==(string, string)":
                     ConvertExpression(model, arguments[0]);
                     ConvertExpression(model, arguments[1]);
                     AddInstruction(OpCode.EQUAL);
