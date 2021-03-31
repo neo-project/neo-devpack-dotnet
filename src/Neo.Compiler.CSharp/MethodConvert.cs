@@ -2706,9 +2706,10 @@ namespace Neo.Compiler
             }
         }
 
-        private Instruction Push(bool value)
+        private void Push(bool value)
         {
-            return AddInstruction(value ? OpCode.PUSH1 : OpCode.PUSH0);
+            AddInstruction(value ? OpCode.PUSH1 : OpCode.PUSH0);
+            ChangeType(VM.Types.StackItemType.Boolean);
         }
 
         private Instruction Push(BigInteger number)
@@ -2771,28 +2772,60 @@ namespace Neo.Compiler
             });
         }
 
-        private Instruction Push(object? obj)
+        private void Push(object? obj)
         {
-            return obj switch
+            switch (obj)
             {
-                bool data => Push(data),
-                byte[] data => Push(data),
-                string data => Push(data),
-                BigInteger data => Push(data),
-                char data => Push(data),
-                sbyte data => Push(data),
-                byte data => Push(data),
-                short data => Push(data),
-                ushort data => Push(data),
-                int data => Push(data),
-                uint data => Push(data),
-                long data => Push(data),
-                ulong data => Push(data),
-                Enum data => Push(BigInteger.Parse(data.ToString("d"))),
-                null => AddInstruction(OpCode.PUSHNULL),
-                float or double or decimal => throw new CompilationException(DiagnosticId.FloatingPointNumber, "Floating-point numbers are not supported."),
-                _ => throw new NotSupportedException($"Unsupported constant value: {obj}"),
-            };
+                case bool data:
+                    Push(data);
+                    break;
+                case byte[] data:
+                    Push(data);
+                    break;
+                case string data:
+                    Push(data);
+                    break;
+                case BigInteger data:
+                    Push(data);
+                    break;
+                case char data:
+                    Push(data);
+                    break;
+                case sbyte data:
+                    Push(data);
+                    break;
+                case byte data:
+                    Push(data);
+                    break;
+                case short data:
+                    Push(data);
+                    break;
+                case ushort data:
+                    Push(data);
+                    break;
+                case int data:
+                    Push(data);
+                    break;
+                case uint data:
+                    Push(data);
+                    break;
+                case long data:
+                    Push(data);
+                    break;
+                case ulong data:
+                    Push(data);
+                    break;
+                case Enum data:
+                    Push(BigInteger.Parse(data.ToString("d")));
+                    break;
+                case null:
+                    AddInstruction(OpCode.PUSHNULL);
+                    break;
+                case float or double or decimal:
+                    throw new CompilationException(DiagnosticId.FloatingPointNumber, "Floating-point numbers are not supported.");
+                default:
+                    throw new NotSupportedException($"Unsupported constant value: {obj}");
+            }
         }
 
         private Instruction PushDefault(ITypeSymbol type)
