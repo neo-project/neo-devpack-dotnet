@@ -501,5 +501,29 @@ namespace Neo.Compiler.CSharp.UnitTests
             var received = new UInt160(((ByteString)item).GetSpan());
             Assert.AreEqual(received, notZero);
         }
+
+        [TestMethod]
+        public void ECPoint_test()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types_ECPoint.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("isValid", "0102");
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is Boolean b1 && !b1.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("isValid", new byte[33]);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is Boolean b2 && b2.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("isValid", false);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is Boolean b3 && !b3.GetBoolean());
+        }
     }
 }
