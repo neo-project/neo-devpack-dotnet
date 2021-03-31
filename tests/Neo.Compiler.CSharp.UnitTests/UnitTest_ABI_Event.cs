@@ -26,7 +26,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Wrong()
         {
             var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_WrongEvent.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_WrongEvent.cs");
+            Assert.IsFalse(success);
         }
     }
 }

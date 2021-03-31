@@ -87,7 +87,7 @@ namespace Neo.Compiler
                 "string" => StackItemType.ByteString,
                 "Neo.SmartContract.Framework.ByteString" => StackItemType.ByteString,
                 "System.Numerics.BigInteger" => StackItemType.Integer,
-                _ => throw new NotSupportedException($"Unsupported pattern type: {type}")
+                _ => throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern type: {type}")
             };
         }
 

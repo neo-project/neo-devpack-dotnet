@@ -5,7 +5,6 @@ using Neo.IO.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
-using System;
 using System.Linq;
 using System.Numerics;
 
@@ -20,21 +19,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void float_Test()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs");
+            Assert.IsFalse(success);
         }
 
         [TestMethod]
         public void decimal_Test()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs");
+            Assert.IsFalse(success);
         }
 
         [TestMethod]
         public void double_Test()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs");
+            Assert.IsFalse(success);
         }
 
         #endregion

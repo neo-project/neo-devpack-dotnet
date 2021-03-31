@@ -205,7 +205,7 @@ namespace Neo.Compiler
                         Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                         break;
                     default:
-                        throw new NotSupportedException($"Unsupported initial value type: {type}");
+                        throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
                 }
                 postInitialize?.Invoke();
             }
@@ -252,7 +252,7 @@ namespace Neo.Compiler
                             break;
                     }
                 }
-                if (!emitted) throw new NotSupportedException($"Unknown method: {Symbol}");
+                if (!emitted) throw new CompilationException(Symbol, DiagnosticId.ExternMethod, $"Unknown method: {Symbol}");
             }
             else
             {
@@ -311,7 +311,7 @@ namespace Neo.Compiler
                         }
                         break;
                     default:
-                        throw new NotSupportedException($"Unsupported accessor: {Symbol}");
+                        throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
                 }
             }
         }
@@ -349,7 +349,7 @@ namespace Neo.Compiler
                         ConvertStatement(model, syntax.Body);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported method body:{SyntaxNode}");
+                    throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
             }
             _initslot = !_inline;
         }
@@ -409,7 +409,7 @@ namespace Neo.Compiler
                     ConvertWhileStatement(model, syntax);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported syntax: {statement}");
+                    throw new CompilationException(statement, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {statement}");
             }
         }
 
@@ -714,7 +714,7 @@ namespace Neo.Compiler
                         }
                         break;
                     default:
-                        throw new NotSupportedException($"Unsupported syntax: {label}");
+                        throw new CompilationException(label, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {label}");
                 }
             }
             _anonymousVariables.Remove(anonymousIndex);
@@ -745,12 +745,12 @@ namespace Neo.Compiler
             ConvertStatement(model, syntax.Block);
             Jump(OpCode.ENDTRY_L, endTarget);
             if (syntax.Catches.Count > 1)
-                throw new NotSupportedException("Only support one single catch.");
+                throw new CompilationException(syntax.Catches[1], DiagnosticId.MultiplyCatches, "Only support one single catch.");
             if (syntax.Catches.Count > 0)
             {
                 CatchClauseSyntax catchClause = syntax.Catches[0];
                 if (catchClause.Filter is not null)
-                    throw new NotSupportedException($"Unsupported syntax: {catchClause.Filter}");
+                    throw new CompilationException(catchClause.Filter, DiagnosticId.CatchFilter, $"Unsupported syntax: {catchClause.Filter}");
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
                 ILocalSymbol? exceptionSymbol = null;
                 byte exceptionIndex;
@@ -892,7 +892,7 @@ namespace Neo.Compiler
                     ConvertTupleExpression(model, expression);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported syntax: {syntax}");
+                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
             }
         }
 
@@ -910,10 +910,10 @@ namespace Neo.Compiler
         private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
         {
             if (expression.Type.RankSpecifiers.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {expression.Type.RankSpecifiers}");
+                throw new CompilationException(expression.Type, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.Type.RankSpecifiers}");
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
             if (specifier.Rank != 1)
-                throw new NotSupportedException($"Unsupported array rank: {specifier}");
+                throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
             ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type!;
             if (type.SpecialType == SpecialType.System_Byte)
             {
@@ -926,7 +926,7 @@ namespace Neo.Compiler
                 {
                     Optional<object?>[] values = expression.Initializer.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
                     if (values.Any(p => !p.HasValue))
-                        throw new NotSupportedException($"Unsupported array initializer: {expression.Initializer}");
+                        throw new CompilationException(expression.Initializer, DiagnosticId.ByteArrayInitializer, $"Unsupported array initializer: {expression.Initializer}");
                     byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
                     Push(data);
                     ChangeType(VM.Types.StackItemType.Buffer);
@@ -990,7 +990,7 @@ namespace Neo.Compiler
                     ConvertTupleAssignment(model, left);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported assignment: {expression.Left}");
+                    throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {expression.Left}");
             }
         }
 
@@ -998,7 +998,7 @@ namespace Neo.Compiler
         {
             ITypeSymbol type = model.GetTypeInfo(left).Type!;
             if (!type.IsValueType)
-                throw new NotSupportedException($"Unsupported assignment type: {type}");
+                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment type: {type}");
             AddInstruction(OpCode.UNPACK);
             AddInstruction(OpCode.DROP);
             foreach (VariableDesignationSyntax variable in ((ParenthesizedVariableDesignationSyntax)left.Designation).Variables)
@@ -1014,7 +1014,7 @@ namespace Neo.Compiler
                         AddInstruction(OpCode.DROP);
                         break;
                     default:
-                        throw new NotSupportedException($"Unsupported designation: {variable}");
+                        throw new CompilationException(variable, DiagnosticId.SyntaxNotSupported, $"Unsupported designation: {variable}");
                 }
             }
         }
@@ -1022,7 +1022,7 @@ namespace Neo.Compiler
         private void ConvertElementAccessAssignment(SemanticModel model, ElementAccessExpressionSyntax left)
         {
             if (left.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {left.ArgumentList.Arguments}");
+                throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.ROT);
@@ -1063,7 +1063,7 @@ namespace Neo.Compiler
                     Call(model, property.SetMethod!, CallingConvention.Cdecl);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1092,7 +1092,7 @@ namespace Neo.Compiler
                     Call(model, property.SetMethod!, CallingConvention.Cdecl);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1116,14 +1116,14 @@ namespace Neo.Compiler
                                 AddInstruction(OpCode.DROP);
                                 break;
                             default:
-                                throw new NotSupportedException($"Unsupported designation: {argument}");
+                                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported designation: {argument}");
                         }
                         break;
                     case IdentifierNameSyntax identifier:
                         ConvertIdentifierNameAssignment(model, identifier);
                         break;
                     default:
-                        throw new NotSupportedException($"Unsupported assignment: {left}");
+                        throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {argument}");
                 }
             }
         }
@@ -1142,14 +1142,14 @@ namespace Neo.Compiler
                     ConvertMemberAccessCoalesceAssignment(model, left, expression.Right);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported coalesce assignment: {expression}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported coalesce assignment: {expression}");
             }
         }
 
         private void ConvertElementAccessCoalesceAssignment(SemanticModel model, ElementAccessExpressionSyntax left, ExpressionSyntax right)
         {
             if (left.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {left.ArgumentList.Arguments}");
+                throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             JumpTarget assignmentTarget = new();
             JumpTarget endTarget = new();
             ConvertExpression(model, left.Expression);
@@ -1188,7 +1188,7 @@ namespace Neo.Compiler
                     ConvertPropertyIdentifierNameCoalesceAssignment(model, property, right);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1307,7 +1307,7 @@ namespace Neo.Compiler
                     ConvertPropertyMemberAccessCoalesceAssignment(model, left, right, property);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1398,14 +1398,14 @@ namespace Neo.Compiler
                     ConvertMemberAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported assignment expression: {expression}");
+                    throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment expression: {expression}");
             }
         }
 
         private void ConvertElementAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ElementAccessExpressionSyntax left, ExpressionSyntax right)
         {
             if (left.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {left.ArgumentList.Arguments}");
+                throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
@@ -1437,7 +1437,7 @@ namespace Neo.Compiler
                     ConvertPropertyIdentifierNameComplexAssignment(model, type, operatorToken, property, right);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1522,7 +1522,7 @@ namespace Neo.Compiler
                     ConvertPropertyMemberAccessComplexAssignment(model, type, operatorToken, left, right, property);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1590,7 +1590,7 @@ namespace Neo.Compiler
                 "|=" => isBoolean ? OpCode.BOOLOR : OpCode.OR,
                 "<<=" => OpCode.SHL,
                 ">>=" => OpCode.SHR,
-                _ => throw new NotSupportedException($"Unsupported operator: {operatorToken}")
+                _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
             });
         }
 
@@ -1619,7 +1619,7 @@ namespace Neo.Compiler
                         foreach (ExpressionSyntax e in expression.Initializer.Expressions)
                         {
                             if (e is not AssignmentExpressionSyntax ae)
-                                throw new NotSupportedException($"Unsupported initializer: {expression.Initializer}");
+                                throw new CompilationException(expression.Initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {expression.Initializer}");
                             if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
                             {
                                 right = ae.Right;
@@ -1641,10 +1641,10 @@ namespace Neo.Compiler
         private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
             if (expression.ArgumentList!.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported delegate: {expression}");
+                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported delegate: {expression}");
             IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
             if (!symbol.IsStatic)
-                throw new NotSupportedException($"Unsupported delegate: {symbol}");
+                throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");
             MethodConvert convert = context.ConvertMethod(model, symbol);
             Jump(OpCode.PUSHA, convert._startTarget);
         }
@@ -1692,7 +1692,7 @@ namespace Neo.Compiler
                 "<=" => OpCode.LE,
                 ">" => OpCode.GT,
                 ">=" => OpCode.GE,
-                _ => throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}")
+                _ => throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}")
             });
         }
 
@@ -1806,7 +1806,7 @@ namespace Neo.Compiler
         private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
         {
             if (expression.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {expression.ArgumentList.Arguments}");
+                throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
             ConvertExpression(model, expression.Expression);
             ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
@@ -1815,7 +1815,7 @@ namespace Neo.Compiler
         private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
         {
             if (expression.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {expression.ArgumentList.Arguments}");
+                throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
             ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
         }
@@ -1855,7 +1855,7 @@ namespace Neo.Compiler
                         ChangeType(VM.Types.StackItemType.ByteString);
                         break;
                     default:
-                        throw new NotSupportedException($"The type {type} does not support range access.");
+                        throw new CompilationException(indexOrRange, DiagnosticId.ArrayRange, $"The type {type} does not support range access.");
                 }
             }
             else
@@ -1896,7 +1896,7 @@ namespace Neo.Compiler
                     break;
                 case IMethodSymbol method:
                     if (!method.IsStatic)
-                        throw new NotSupportedException($"Unsupported delegate: {method}");
+                        throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
                     MethodConvert convert = context.ConvertMethod(model, method);
                     Jump(OpCode.PUSHA, convert._startTarget);
                     break;
@@ -1915,7 +1915,7 @@ namespace Neo.Compiler
                     }
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -1956,9 +1956,9 @@ namespace Neo.Compiler
                     break;
                 case InterpolationSyntax syntax:
                     if (syntax.AlignmentClause is not null)
-                        throw new NotSupportedException($"Unsupported alignment clause: {syntax.AlignmentClause}");
+                        throw new CompilationException(syntax.AlignmentClause, DiagnosticId.AlignmentClause, $"Alignment clause is not supported: {syntax.AlignmentClause}");
                     if (syntax.FormatClause is not null)
-                        throw new NotSupportedException($"Unsupported format clause: {syntax.FormatClause}");
+                        throw new CompilationException(syntax.FormatClause, DiagnosticId.FormatClause, $"Format clause is not supported: {syntax.FormatClause}");
                     ConvertObjectToString(model, syntax.Expression);
                     break;
             }
@@ -1985,7 +1985,7 @@ namespace Neo.Compiler
                     ConvertExpression(model, expression);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported interpolation: {expression}");
+                    throw new CompilationException(expression, DiagnosticId.InvalidToStringType, $"Unsupported interpolation: {expression}");
             }
         }
 
@@ -2037,7 +2037,7 @@ namespace Neo.Compiler
                     Call(model, symbol, true, arguments);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported expression: {expression}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported expression: {expression}");
             }
         }
 
@@ -2088,7 +2088,7 @@ namespace Neo.Compiler
                     break;
                 case IMethodSymbol method:
                     if (!method.IsStatic)
-                        throw new NotSupportedException($"Unsupported delegate: {method}");
+                        throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
                     MethodConvert convert = context.ConvertMethod(model, method);
                     Jump(OpCode.PUSHA, convert._startTarget);
                     break;
@@ -2097,7 +2097,7 @@ namespace Neo.Compiler
                     Call(model, property.GetMethod!, instanceExpression);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -2115,7 +2115,7 @@ namespace Neo.Compiler
                     Call(model, property.GetMethod!);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -2131,7 +2131,7 @@ namespace Neo.Compiler
                     ConvertExpression(model, expression.Operand);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}");
+                    throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
             }
         }
 
@@ -2149,14 +2149,14 @@ namespace Neo.Compiler
                     ConvertMemberAccessPostIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported postfix unary expression: {expression}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported postfix unary expression: {expression}");
             }
         }
 
         private void ConvertElementAccessPostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, ElementAccessExpressionSyntax operand)
         {
             if (operand.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {operand.ArgumentList.Arguments}");
+                throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
@@ -2187,7 +2187,7 @@ namespace Neo.Compiler
                     ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, property);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -2266,7 +2266,7 @@ namespace Neo.Compiler
                     ConvertPropertyMemberAccessPostIncrementOrDecrementExpression(model, operatorToken, operand, property);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -2345,7 +2345,7 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.SUB);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported operator: {expression.OperatorToken}");
+                    throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
             }
         }
 
@@ -2363,14 +2363,14 @@ namespace Neo.Compiler
                     ConvertMemberAccessPreIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported postfix unary expression: {expression}");
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported postfix unary expression: {expression}");
             }
         }
 
         private void ConvertElementAccessPreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, ElementAccessExpressionSyntax operand)
         {
             if (operand.ArgumentList.Arguments.Count != 1)
-                throw new NotSupportedException($"Unsupported array rank: {operand.ArgumentList.Arguments}");
+                throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
@@ -2401,7 +2401,7 @@ namespace Neo.Compiler
                     ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(model, operatorToken, property);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -2480,7 +2480,7 @@ namespace Neo.Compiler
                     ConvertPropertyMemberAccessPreIncrementOrDecrementExpression(model, operatorToken, operand, property);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported symbol: {symbol}");
+                    throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
@@ -2535,7 +2535,7 @@ namespace Neo.Compiler
             {
                 "++" => OpCode.INC,
                 "--" => OpCode.DEC,
-                _ => throw new NotSupportedException($"Unsupported operator: {operatorToken}")
+                _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
             });
         }
 
@@ -2596,7 +2596,7 @@ namespace Neo.Compiler
                     ConvertNotPattern(model, unaryPattern, localIndex);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported pattern: {pattern}");
+                    throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
             }
         }
 
@@ -2611,7 +2611,7 @@ namespace Neo.Compiler
                     ConvertOrPattern(model, pattern.Left, pattern.Right, localIndex);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported pattern: {pattern}");
+                    throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
             }
         }
 
@@ -2664,7 +2664,7 @@ namespace Neo.Compiler
                     AccessSlot(OpCode.STLOC, index);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported pattern: {pattern}");
+                    throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
             }
         }
 
@@ -2678,7 +2678,7 @@ namespace Neo.Compiler
                 "<=" => OpCode.LE,
                 ">" => OpCode.GT,
                 ">=" => OpCode.GE,
-                _ => throw new NotSupportedException($"Unsupported pattern: {pattern}")
+                _ => throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}")
             });
         }
 
@@ -2790,6 +2790,7 @@ namespace Neo.Compiler
                 ulong data => Push(data),
                 Enum data => Push(BigInteger.Parse(data.ToString("d"))),
                 null => AddInstruction(OpCode.PUSHNULL),
+                float or double or decimal => throw new CompilationException(DiagnosticId.FloatingPointNumber, "Floating-point numbers are not supported."),
                 _ => throw new NotSupportedException($"Unsupported constant value: {obj}"),
             };
         }
@@ -2852,7 +2853,7 @@ namespace Neo.Compiler
                             ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
                             break;
                         default:
-                            throw new NotSupportedException("Only a single parameter is supported for exceptions.");
+                            throw new CompilationException(expression, DiagnosticId.MultiplyThrows, "Only a single parameter is supported for exceptions.");
                     }
                     break;
                 case null:
@@ -2993,7 +2994,7 @@ namespace Neo.Compiler
                                 ConvertExpression(model, ex);
                                 continue;
                             default:
-                                throw new Exception("Unknown exception.");
+                                throw new CompilationException(arguments[index], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[index]}");
                         }
                     }
                     Push(parameter.ExplicitDefaultValue);

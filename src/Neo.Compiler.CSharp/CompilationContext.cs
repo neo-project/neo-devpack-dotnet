@@ -7,7 +7,6 @@ using Neo.IO.Json;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -22,6 +21,7 @@ namespace Neo.Compiler
     {
         private readonly Compilation compilation;
         private bool scTypeFound;
+        private readonly List<Diagnostic> diagnostics = new();
         private readonly List<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
         private readonly List<AbiEvent> eventsExported = new();
@@ -31,8 +31,10 @@ namespace Neo.Compiler
         private readonly List<MethodToken> methodTokens = new();
         private readonly List<IFieldSymbol> staticFields = new();
 
-        public Options Options { get; private set; }
+        public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
+        public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string ContractName { get; private set; } = "";
+        internal Options Options { get; private set; }
         internal IReadOnlyList<IFieldSymbol> StaticFields => staticFields;
 
         private CompilationContext(Compilation compilation, Options options)
@@ -58,20 +60,30 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
-                ImmutableArray<Diagnostic> diagnostics = model.GetDiagnostics();
-                if (diagnostics.Any(p => p.Severity == DiagnosticSeverity.Error))
+                diagnostics.AddRange(model.GetDiagnostics());
+                if (!Success) continue;
+                try
                 {
-                    string message = string.Join(Environment.NewLine, diagnostics.Select(p => p.GetMessage()));
-                    throw new Exception(message);
+                    ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
                 }
-                ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
+                catch (CompilationException ex)
+                {
+                    diagnostics.Add(ex.Diagnostic);
+                }
             }
-            if (!scTypeFound) throw new Exception("No SmartContract is found in the sources.");
-            RemoveEmptyInitialize();
-            Instruction[] instructions = methodsConverted.SelectMany(p => p.Instructions).ToArray();
-            instructions.RebuildOffsets();
-            if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
-            instructions.RebuildOperands();
+            if (Success)
+            {
+                if (!scTypeFound)
+                {
+                    diagnostics.Add(Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
+                    return;
+                }
+                RemoveEmptyInitialize();
+                Instruction[] instructions = methodsConverted.SelectMany(p => p.Instructions).ToArray();
+                instructions.RebuildOffsets();
+                if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
+                instructions.RebuildOperands();
+            }
         }
 
         private static CompilationContext Compile(string? csproj, string[] sourceFiles, Options options)
@@ -294,7 +306,7 @@ namespace Neo.Compiler
             if (symbol.DeclaredAccessibility != Accessibility.Public) return;
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
-                throw new NotSupportedException($"Event return value is not supported.");
+                throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
             eventsExported.Add(new AbiEvent(symbol));
         }
 
