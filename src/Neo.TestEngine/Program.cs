@@ -27,18 +27,39 @@ namespace Neo.TestingEngine
         {
             if (args.Length == 1)
             {
+                var isFile = Path.GetExtension(args[0]).ToLowerInvariant() == ".json";
                 JObject input;
                 try
                 {
                     // verifies if the parameter is a json string
-                    input = JObject.Parse(args[0]);
+                    string jsonString;
+                    if (isFile)
+                    {
+                        jsonString = File.ReadAllText(args[0]);
+                    }
+                    else
+                    {
+                        jsonString = args[0];
+                    }
+                    input = JObject.Parse(jsonString);
                 }
                 catch
                 {
                     // if it isn't, at least one argument is missing
+                    string lastExpectedArg;
+                    if (isFile)
+                    {
+                        lastExpectedArg = "json file with method arguments";
+                    }
+                    else
+                    {
+                        lastExpectedArg = "method arguments as json";
+                    }
+
                     return BuildJsonException(
-                        "One or more arguments are missing\n" +
-                        "Expected arguments: <nef path> <method name> <method arguments as json>"
+                        string.Format("One or more arguments are missing\n" +
+                                      "Expected arguments: <nef path> <method name> <{0}>",
+                                      lastExpectedArg)
                     );
                 }
 
