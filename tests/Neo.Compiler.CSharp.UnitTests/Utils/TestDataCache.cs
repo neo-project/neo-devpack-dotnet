@@ -8,7 +8,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
     public class TestDataCache : DataCache
     {
-        private readonly Dictionary<StorageKey, StorageItem> dict = new Dictionary<StorageKey, StorageItem>();
+        private readonly Dictionary<StorageKey, StorageItem> dict = new();
 
         public TestDataCache(Block persistingBlock = null)
         {

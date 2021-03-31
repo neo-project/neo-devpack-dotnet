@@ -1,7 +1,7 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO.Json;
+using System;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
-            var abi = testengine.ScriptEntry.manifest["abi"];
+            var abi = testengine.Manifest["abi"];
             Console.WriteLine("abi=" + abi.ToString());
             var events = (abi["events"] as JArray)[0].ToString();
             Console.WriteLine("event abi info =" + events);

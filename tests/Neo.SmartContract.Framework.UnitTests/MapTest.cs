@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -28,12 +28,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(4, (item as Integer).GetInteger());
-        }
-
-        [TestMethod]
-        public void TestByteArrayMap()
-        {
-            Assert.ThrowsException<System.Exception>(() => _engine.AddEntryScript("./TestClasses/Contract_MapException.cs"));
         }
 
         [TestMethod]

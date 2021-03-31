@@ -1,10 +1,9 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    class Contract_StaticStorageMap : SmartContract.Framework.SmartContract
+    public class Contract_StaticStorageMap : SmartContract
     {
         private static StorageMap Data = Storage.CurrentContext.CreateMap("data");
         private static readonly StorageMap ReadonlyData = Storage.CurrentContext.CreateMap("readonlydata");

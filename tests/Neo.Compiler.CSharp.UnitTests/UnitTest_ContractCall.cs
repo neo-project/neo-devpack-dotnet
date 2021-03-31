@@ -21,8 +21,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             _engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
-                Nef = _engine.ScriptEntry.nef,
-                Manifest = ContractManifest.FromJson(_engine.ScriptEntry.manifest),
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
             });
 
             // will ContractCall 0102030405060708090A0102030405060708090A

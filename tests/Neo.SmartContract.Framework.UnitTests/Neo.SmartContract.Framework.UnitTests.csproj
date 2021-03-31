@@ -14,8 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
-    <ProjectReference Include="..\Neo.Compiler.MSIL.UnitTests\Neo.Compiler.MSIL.UnitTests.csproj" />
+    <ProjectReference Include="..\Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj" />
     <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>
