@@ -525,5 +525,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             item = result.Pop();
             Assert.IsTrue(item is Boolean b3 && !b3.GetBoolean());
         }
+
+        [TestMethod]
+        public void Nameof_test()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("checkNameof");
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is Buffer);
+            Assert.AreEqual(item.GetString(), "checkNull");
+        }
     }
 }
