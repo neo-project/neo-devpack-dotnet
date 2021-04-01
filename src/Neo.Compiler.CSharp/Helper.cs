@@ -48,6 +48,8 @@ namespace Neo.Compiler
                 case "Neo.UInt256": return ContractParameterType.Hash256;
                 case "System.Numerics.BigInteger": return ContractParameterType.Integer;
             }
+            if (type.Name == "Map") return ContractParameterType.Map;
+            if (type.Name == "List") return ContractParameterType.Array;
             if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;
             if (type is IArrayTypeSymbol) return ContractParameterType.Array;
             if (type.AllInterfaces.Any(p => p.Name == nameof(scfx::Neo.SmartContract.Framework.IApiInterface)))
