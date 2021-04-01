@@ -35,10 +35,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_objectArray"));
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_intArray"));
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_boolArray"));
-            Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_action_int"));
-            Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_func_int_bool"));
-            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_tuple_int_bool"));
-            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_tupleArray"));
             Assert.AreEqual(ContractParameterType.Hash160, compilation.GetFieldContractType("_uint160"));
             Assert.AreEqual(ContractParameterType.Hash256, compilation.GetFieldContractType("_uint256"));
             Assert.AreEqual(ContractParameterType.PublicKey, compilation.GetFieldContractType("_ecpoint"));

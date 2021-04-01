@@ -26,10 +26,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object[] _objectArray;
         public static int[] _intArray;
         public static bool[] _boolArray;
-        public static Action<int> _action_int;
-        public static Func<int, bool> _func_int_bool;
-        public static Tuple<int, bool> _tuple_int_bool;
-        public static Tuple<int, bool>[] _tupleArray;
         public static UInt160 _uint160;
         public static UInt256 _uint256;
         public static ECPoint _ecpoint;
