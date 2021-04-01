@@ -5,7 +5,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.Cryptography.ECC;
 
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_ParameterType : SmartContract.Framework.SmartContract
@@ -34,6 +33,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static UInt160 _uint160;
         public static UInt256 _uint256;
         public static ECPoint _ecpoint;
-
     }
 }

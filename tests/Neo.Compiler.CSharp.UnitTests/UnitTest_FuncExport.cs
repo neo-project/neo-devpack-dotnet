@@ -1,13 +1,12 @@
 extern alias scfx;
-using System;
-using System.IO;
-using System.Linq;
-using System.Numerics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract;
 using scfx::Neo.SmartContract.Framework;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -36,10 +35,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_objectArray"));
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_intArray"));
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_boolArray"));
-            //Assert.IsTrue(FuncExport.ConvType(Convert(typeof(Action<int>))).StartsWith("Unknown:Pointers are not allowed to be public 'System.Action`1"));
-            //Assert.IsTrue(FuncExport.ConvType(Convert(typeof(Func<int, bool>))).StartsWith("Unknown:Pointers are not allowed to be public 'System.Func`2"));
-            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(Tuple<int, bool>))));
-            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(Tue<int, bool>[]))));
             Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_action_int"));
             Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_func_int_bool"));
             Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_tuple_int_bool"));
@@ -47,27 +42,23 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ContractParameterType.Hash160, compilation.GetFieldContractType("_uint160"));
             Assert.AreEqual(ContractParameterType.Hash256, compilation.GetFieldContractType("_uint256"));
             Assert.AreEqual(ContractParameterType.PublicKey, compilation.GetFieldContractType("_ecpoint"));
-
-
         }
 
         private static Compilation LoadTestCompilation(string file)
         {
-            var treeList = new System.Collections.Generic.List<SyntaxTree>();
-            treeList.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(file)));
+            var treeList = new[]
+            {
+                CSharpSyntaxTree.ParseText(File.ReadAllText(file))
+            };
             var refs = new System.Collections.Generic.List<PortableExecutableReference>
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(SyscallAttribute).Assembly.Location)
-
             };
             return CSharpCompilation.Create("dummyAssembly", treeList, refs);
         }
-
-
     }
-
 
     static class CompilationHelper
     {
