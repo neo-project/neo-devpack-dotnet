@@ -169,8 +169,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsInstanceOfType(item, typeof(Map));
             var map = item as Map;
             Assert.AreEqual(1, map.Count);
-            Assert.IsTrue(map.ContainsKey("a"));
-            Assert.AreEqual((VM.Types.ByteString)"testdeserialize", map["a"]);
+            Assert.IsTrue(map.ContainsKey(new byte[20]));
+            Assert.AreEqual(1, map[new byte[20]]);
         }
     }
 }

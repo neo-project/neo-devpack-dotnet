@@ -25,6 +25,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return (byte[])publicKey2Ecpoint;
         }
-
     }
 }

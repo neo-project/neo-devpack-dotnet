@@ -7,7 +7,6 @@ using Neo.VM.Types;
 using Neo.Wallets;
 using System.Linq;
 using System.Numerics;
-using Neo.Cryptography.ECC;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -546,7 +545,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             item = result.Pop();
             Assert.IsTrue(item is Buffer bf1);
             Assert.AreEqual(item.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
-
         }
 
         [TestMethod]

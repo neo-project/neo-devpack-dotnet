@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Neo.SmartContract.Framework.Native;
-using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
@@ -18,7 +14,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
             return some.Count;
         }
-        
+
         public static object TestByteArray(byte[] key)
         {
             Map<string, string> some = new Map<string, string>();
@@ -91,7 +87,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             UInt160 key = UInt160.Zero;
             some[key] = 1;
             string serializestr = StdLib.JsonSerialize(some);
-            return StdLib.JsonDeserialize(sea);
+            return StdLib.JsonDeserialize(serializestr);
         }
     }
 }

@@ -206,6 +206,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Console.WriteLine("result = " + num.GetInteger().ToString());
             Assert.AreEqual(num.GetInteger(), 3);
         }
-
     }
 }
