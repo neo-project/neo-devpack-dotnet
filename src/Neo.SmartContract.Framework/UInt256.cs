@@ -27,12 +27,18 @@ namespace Neo
 
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ISNULL)]
+        [OpCode(OpCode.JMPIF, "09")]
+        [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
         [OpCode(OpCode.JMPEQ, "03")]
         [OpCode(OpCode.THROW)]
         public static extern explicit operator UInt256(byte[] value);
 
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ISNULL)]
+        [OpCode(OpCode.JMPIF, "09")]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
