@@ -48,6 +48,17 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PACK)]
         public extern StorageMap(StorageContext context, sbyte prefix);
 
+        [OpCode(OpCode.OVER)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Get")]
+        public extern ByteString Get(ByteString key);
+
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.PUSH1)]
