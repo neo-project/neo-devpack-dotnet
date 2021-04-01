@@ -165,7 +165,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return v;
         }
 
-        public static object tryecpointCast(ECPoint x)
+        public static object tryecpointCast()
         {
             int v = 0;
             try
