@@ -1,12 +1,13 @@
 using Neo.Cryptography.ECC;
 using Neo.SmartContract;
+using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_shift : SmartContract.Framework.SmartContract
     {
         [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
-        private static readonly byte[] rawECpoint = default;
+        private static readonly ByteString rawECpoint = default;
         public static object try01()
         {
             int v = 0;
@@ -170,7 +171,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             try
             {
                 v = 2;
-                ECPoint pubkey = rawECpoint;
+                ECPoint pubkey = (ECPoint)rawECpoint;
             }
             catch
             {
