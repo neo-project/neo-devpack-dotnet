@@ -1,11 +1,9 @@
-using Neo.SmartContract;
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Contract : SmartContract.Framework.SmartContract
+    public class Contract_Contract : SmartContract
     {
         public static object Call(UInt160 scriptHash, string method, CallFlags flag, object[] args)
         {

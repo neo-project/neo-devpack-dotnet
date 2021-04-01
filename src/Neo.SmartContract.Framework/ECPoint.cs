@@ -34,7 +34,7 @@ namespace Neo.Cryptography.ECC
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](ECPoint value);
 
-        [Script]
+        [OpCode(OpCode.NOP)]
         public static extern implicit operator ByteString(ECPoint value);
     }
 }
