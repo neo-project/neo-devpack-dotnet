@@ -535,7 +535,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkNameof");
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
-            Assert.IsTrue(item is Buffer);
+            Assert.IsTrue(item is ByteString);
             Assert.AreEqual(item.GetString(), "checkNull");
         }
     }

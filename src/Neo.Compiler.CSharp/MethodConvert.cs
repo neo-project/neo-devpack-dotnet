@@ -1991,6 +1991,11 @@ namespace Neo.Compiler
 
         private void ConvertInvocationExpression(SemanticModel model, InvocationExpressionSyntax expression)
         {
+            if (expression.Expression.ToString() == "nameof")
+            {
+                Push(model.GetConstantValue(expression).Value);
+                return;
+            }
             ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
             ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
             switch (symbol)
