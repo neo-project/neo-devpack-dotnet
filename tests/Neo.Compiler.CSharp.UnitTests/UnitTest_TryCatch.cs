@@ -122,5 +122,20 @@ namespace Neo.Compiler.CSharp.UnitTests
             Console.WriteLine("result = " + num.GetInteger().ToString());
             Assert.AreEqual(num.GetInteger(), 9);
         }
+
+        [TestMethod]
+        public void Test_TryECPointCast()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryecpointCast");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var value = result.Pop();
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
+            var num = value as Neo.VM.Types.Integer;
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 4);
+        }
+
     }
 }
