@@ -5,7 +5,6 @@ using Neo.IO.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
-using System;
 using System.Linq;
 using System.Numerics;
 
@@ -20,21 +19,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void float_Test()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs");
+            Assert.IsFalse(success);
         }
 
         [TestMethod]
         public void decimal_Test()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs");
+            Assert.IsFalse(success);
         }
 
         [TestMethod]
         public void double_Test()
         {
             using var testengine = new TestEngine();
-            Assert.ThrowsException<NotSupportedException>(() => testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs"));
+            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs");
+            Assert.IsFalse(success);
         }
 
         #endregion
@@ -58,15 +60,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1, ((Integer)item).GetInteger());
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.AreEqual(true, item.GetBoolean());
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkBoolFalse");
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, ((Integer)item).GetInteger());
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.AreEqual(false, item.GetBoolean());
         }
 
         [TestMethod]
@@ -498,6 +500,43 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(item is ByteString);
             var received = new UInt160(((ByteString)item).GetSpan());
             Assert.AreEqual(received, notZero);
+        }
+
+        [TestMethod]
+        public void ECPoint_test()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types_ECPoint.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("isValid", "0102");
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is Boolean b1 && !b1.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("isValid", new byte[33]);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is Boolean b2 && b2.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("isValid", false);
+            Assert.AreEqual(1, result.Count);
+            item = result.Pop();
+            Assert.IsTrue(item is Boolean b3 && !b3.GetBoolean());
+        }
+
+        [TestMethod]
+        public void Nameof_test()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("checkNameof");
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsTrue(item is ByteString);
+            Assert.AreEqual(item.GetString(), "checkNull");
         }
     }
 }

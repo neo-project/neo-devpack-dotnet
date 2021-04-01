@@ -47,7 +47,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("ifNull", StackItem.Null);
             var item = result.Pop();
 
-            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsFalse(item.GetBoolean());
         }
 

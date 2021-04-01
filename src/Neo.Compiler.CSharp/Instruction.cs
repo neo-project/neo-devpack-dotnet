@@ -272,7 +272,10 @@ namespace Neo.Compiler
                 case OpCode.CALL_L:
                 case OpCode.ENDTRY:
                 case OpCode.ENDTRY_L:
-                    builder.Append($"<{Target!.Instruction!.Offset:x8}>");
+                    if (Target is null)
+                        builder.Append($"<{Offset + (int)new BigInteger(Operand!):x8}>");
+                    else
+                        builder.Append($"<{Target.Instruction!.Offset:x8}>");
                     break;
                 case OpCode.CALLT:
                     builder.Append(BitConverter.ToUInt16(Operand));

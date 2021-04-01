@@ -21,16 +21,20 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         {
         }
 
-        public void AddEntryScript(string filename)
+        public bool AddEntryScript(string filename)
         {
             CompilationContext context = CompilationContext.CompileSources(new[] { filename }, new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion
             });
-            Nef = context.CreateExecutable();
-            Manifest = context.CreateManifest();
-            DebugInfo = context.CreateDebugInformation();
-            Reset();
+            if (context.Success)
+            {
+                Nef = context.CreateExecutable();
+                Manifest = context.CreateManifest();
+                DebugInfo = context.CreateDebugInformation();
+                Reset();
+            }
+            return context.Success;
         }
 
         public void Reset()

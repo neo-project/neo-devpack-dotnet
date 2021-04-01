@@ -43,6 +43,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object checkEnum() { return EDummy.test; }
         private static EDummy icheckEnum() { return EDummy.test; }
         public static void checkEnumArg(Neo.SmartContract.Framework.Native.OracleResponseCode arg) { }
+        public static string checkNameof() { return nameof(checkNull); }
         public static object checkDelegate()
         {
             return new enumDel(icheckEnum);
