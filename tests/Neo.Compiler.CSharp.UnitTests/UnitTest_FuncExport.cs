@@ -1,4 +1,13 @@
+extern alias scfx;
+using System;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract;
+using scfx::Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -8,35 +17,68 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void ConvTypeTest()
         {
-            //Assert.AreEqual("Null", FuncExport.ConvType(null));
-            //Assert.AreEqual("Void", FuncExport.ConvType(FuncExport.Void));
-            //Assert.AreEqual("String", FuncExport.ConvType(Convert(typeof(string))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(BigInteger))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(char))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(byte))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(sbyte))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(short))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(ushort))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(int))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(uint))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(long))));
-            //Assert.AreEqual("Integer", FuncExport.ConvType(Convert(typeof(ulong))));
-            //Assert.AreEqual("Boolean", FuncExport.ConvType(Convert(typeof(bool))));
-            //Assert.AreEqual("ByteArray", FuncExport.ConvType(Convert(typeof(byte[]))));
-            //Assert.AreEqual("Any", FuncExport.ConvType(Convert(typeof(object))));
-            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(object[]))));
-            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(int[]))));
-            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(bool[]))));
+            var compilation = LoadTestCompilation("./TestClasses/Contract_ParameterType.cs");
+
+            Assert.AreEqual(ContractParameterType.String, compilation.GetFieldContractType("_string"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_bigInteger"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_char"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_byte"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_sbyte"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_short"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_ushort"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_int"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_uint"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_long"));
+            Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_ulong"));
+            Assert.AreEqual(ContractParameterType.Boolean, compilation.GetFieldContractType("_bool"));
+            Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_object"));
+            Assert.AreEqual(ContractParameterType.ByteArray, compilation.GetFieldContractType("_byteArray"));
+            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_objectArray"));
+            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_intArray"));
+            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_boolArray"));
             //Assert.IsTrue(FuncExport.ConvType(Convert(typeof(Action<int>))).StartsWith("Unknown:Pointers are not allowed to be public 'System.Action`1"));
             //Assert.IsTrue(FuncExport.ConvType(Convert(typeof(Func<int, bool>))).StartsWith("Unknown:Pointers are not allowed to be public 'System.Func`2"));
             //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(Tuple<int, bool>))));
-            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(Tuple<int, bool>[]))));
+            //Assert.AreEqual("Array", FuncExport.ConvType(Convert(typeof(Tue<int, bool>[]))));
+            Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_action_int"));
+            Assert.AreEqual(ContractParameterType.Any, compilation.GetFieldContractType("_func_int_bool"));
+            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_tuple_int_bool"));
+            Assert.AreEqual(ContractParameterType.Array, compilation.GetFieldContractType("_tupleArray"));
+            Assert.AreEqual(ContractParameterType.Hash160, compilation.GetFieldContractType("_uint160"));
+            Assert.AreEqual(ContractParameterType.Hash256, compilation.GetFieldContractType("_uint256"));
+            Assert.AreEqual(ContractParameterType.PublicKey, compilation.GetFieldContractType("_ecpoint"));
+
+
         }
 
-        //private TypeReference Convert(Type type)
-        //{
-        //    var a = AssemblyDefinition.ReadAssembly(type.Assembly.Location);
-        //    return a.MainModule.ImportReference(type);
-        //}
+        private static Compilation LoadTestCompilation(string file)
+        {
+            var treeList = new System.Collections.Generic.List<SyntaxTree>();
+            treeList.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(file)));
+            var refs = new System.Collections.Generic.List<PortableExecutableReference>
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(SyscallAttribute).Assembly.Location)
+
+            };
+            return CSharpCompilation.Create("dummyAssembly", treeList, refs);
+        }
+
+
+    }
+
+
+    static class CompilationHelper
+    {
+        public static ITypeSymbol GetFieldType(this Compilation compilation, string fieldName)
+        {
+            return (compilation.GetSymbolsWithName(fieldName).First() as IFieldSymbol)?.Type;
+        }
+
+        public static ContractParameterType GetFieldContractType(this Compilation compilation, string fieldName)
+        {
+            return compilation.GetFieldType(fieldName).GetContractParameterType();
+        }
     }
 }
