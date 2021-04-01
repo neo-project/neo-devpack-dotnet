@@ -7,7 +7,13 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     public class Contract_shift : SmartContract.Framework.SmartContract
     {
         [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
-        private static readonly ByteString rawECpoint = default;
+        private static readonly ByteString invalidECpoint = default;
+        [InitialValue("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", ContractParameterType.ByteArray)]
+        private static readonly ByteString byteString2Ecpoint = default;
+        [InitialValue("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq", ContractParameterType.Hash160)]
+        private static readonly ByteString validUInt160 = default;
+        [InitialValue("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925", ContractParameterType.ByteArray)]
+        private static readonly byte[] validUInt256 = default;
         public static object try01()
         {
             int v = 0;
@@ -171,7 +177,102 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             try
             {
                 v = 2;
-                ECPoint pubkey = (ECPoint)rawECpoint;
+                ECPoint pubkey = (ECPoint)invalidECpoint;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryvalidByteString2Ecpoint()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                ECPoint pubkey = (ECPoint)byteString2Ecpoint;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryinvalidByteArray2UInt160()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                UInt160 data = (UInt160)invalidECpoint;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryvalidByteArray2UInt160()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                UInt160 data = (UInt160)validUInt160;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryinvalidByteArray2UInt256()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                UInt256 data = (UInt256)invalidECpoint;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
+        }
+
+        public static object tryvalidByteArray2UInt256()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                UInt256 data = (UInt256)validUInt256;
             }
             catch
             {

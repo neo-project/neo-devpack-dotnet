@@ -137,5 +137,75 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(num.GetInteger(), 4);
         }
 
+        [TestMethod]
+        public void Test_TryValidECPointCast()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryvalidByteString2Ecpoint");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var value = result.Pop();
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
+            var num = value as Neo.VM.Types.Integer;
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 3);
+        }
+
+        [TestMethod]
+        public void Test_TryInvalidUInt160Cast()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryinvalidByteArray2UInt160");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var value = result.Pop();
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
+            var num = value as Neo.VM.Types.Integer;
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 4);
+        }
+
+        [TestMethod]
+        public void Test_TryValidUInt160Cast()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryvalidByteArray2UInt160");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var value = result.Pop();
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
+            var num = value as Neo.VM.Types.Integer;
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 3);
+        }
+
+        [TestMethod]
+        public void Test_TryInvalidUInt256Cast()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryinvalidByteArray2UInt256");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var value = result.Pop();
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
+            var num = value as Neo.VM.Types.Integer;
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 4);
+        }
+
+        [TestMethod]
+        public void Test_TryValidUInt256Cast()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryvalidByteArray2UInt256");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var value = result.Pop();
+            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
+            var num = value as Neo.VM.Types.Integer;
+            Console.WriteLine("result = " + num.GetInteger().ToString());
+            Assert.AreEqual(num.GetInteger(), 3);
+        }
+
     }
 }

@@ -84,5 +84,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             string sea = StdLib.JsonSerialize(some);
             return StdLib.JsonDeserialize(sea);
         }
+
+        public static object testuint160Key()
+        {
+            Map<UInt160, int> some = new Map<UInt160, int>();
+            UInt160 key = UInt160.Zero;
+            some[key] = 1;
+            string serializestr = StdLib.JsonSerialize(some);
+            return StdLib.JsonDeserialize(sea);
+        }
     }
 }
