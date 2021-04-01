@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.MSIL.UnitTests.Utils;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -28,12 +28,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(4, (item as Integer).GetInteger());
-        }
-
-        [TestMethod]
-        public void TestByteArrayMap()
-        {
-            Assert.ThrowsException<System.Exception>(() => _engine.AddEntryScript("./TestClasses/Contract_MapException.cs"));
         }
 
         [TestMethod]
@@ -161,6 +155,22 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, map.Count);
             Assert.IsTrue(map.ContainsKey("a"));
             Assert.AreEqual((VM.Types.ByteString)"testdeserialize", map["a"]);
+        }
+
+        [TestMethod]
+        public void TestUInt160KeyDeserialize()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testuint160Key");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Map));
+            var map = item as Map;
+            Assert.AreEqual(1, map.Count);
+            Assert.IsTrue(map.ContainsKey(new byte[20]));
+            Assert.AreEqual(1, map[new byte[20]]);
         }
     }
 }

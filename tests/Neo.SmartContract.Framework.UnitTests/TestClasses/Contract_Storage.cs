@@ -1,9 +1,8 @@
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    class Contract_Storage : SmartContract.Framework.SmartContract
+    public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
 
@@ -11,21 +10,21 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static bool TestPutByte(byte[] key, byte[] value)
         {
-            var storage = Storage.CurrentContext.CreateMap(0xAA);
+            var storage = Storage.CurrentContext.CreateMap(0x11);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
 
         public static void TestDeleteByte(byte[] key)
         {
-            var storage = Storage.CurrentContext.CreateMap(0xAA);
+            var storage = Storage.CurrentContext.CreateMap(0x11);
             storage.Delete((ByteString)key);
         }
 
         public static byte[] TestGetByte(byte[] key)
         {
             var context = Storage.CurrentReadOnlyContext;
-            var storage = context.CreateMap(0xAA);
+            var storage = context.CreateMap(0x11);
             var value = storage.Get((ByteString)key);
             return (byte[])value;
         }

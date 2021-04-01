@@ -1,4 +1,5 @@
 using Neo;
+using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
@@ -13,7 +14,8 @@ namespace $safeprojectname$
     public class Contract1 : SmartContract
     {
         //TODO: Replace it with your own address.
-        static readonly UInt160 Owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+        [InitialValue("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB", ContractParameterType.Hash160)]
+        static readonly UInt160 Owner = default;
 
         private static bool IsOwner() => Runtime.CheckWitness(Owner);
 

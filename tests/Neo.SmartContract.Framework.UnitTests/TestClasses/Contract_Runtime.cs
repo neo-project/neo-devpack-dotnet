@@ -1,8 +1,8 @@
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Runtime : SmartContract.Framework.SmartContract
+    public class Contract_Runtime : SmartContract
     {
         public static uint GetInvocationCounter()
         {

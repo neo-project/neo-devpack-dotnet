@@ -1,50 +1,69 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Neo.SmartContract.Framework.Services
 {
     public static class Helper
     {
-        public static StorageMap CreateMap(this StorageContext context, byte[] prefix)
-        {
-            return new StorageMap
-            {
-                Context = context,
-                Prefix = prefix
-            };
-        }
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public static extern StorageMap CreateMap(this StorageContext context, byte[] prefix);
 
-        public static StorageMap CreateMap(this StorageContext context, ByteString prefix)
-        {
-            return CreateMap(context, (byte[])prefix);
-        }
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public static extern StorageMap CreateMap(this StorageContext context, ByteString prefix);
 
-        public static StorageMap CreateMap(this StorageContext context, byte prefix)
-        {
-            return CreateMap(context, prefix.ToByteArray());
-        }
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public static extern StorageMap CreateMap(this StorageContext context, sbyte prefix);
 
-        public static void Delete(this StorageMap map, ByteString key)
-        {
-            byte[] k = map.Prefix.Concat(key);
-            Storage.Delete(map.Context, k);
-        }
+        [OpCode(OpCode.OVER)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Delete")]
+        public static extern void Delete(this StorageMap map, ByteString key);
 
-        public static ByteString Get(this StorageMap map, ByteString key)
-        {
-            byte[] k = map.Prefix.Concat(key);
-            return Storage.Get(map.Context, k);
-        }
+        [OpCode(OpCode.OVER)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Get")]
+        public static extern ByteString Get(this StorageMap map, ByteString key);
 
-        public static void Put(this StorageMap map, ByteString key, ByteString value)
-        {
-            byte[] k = map.Prefix.Concat(key);
-            Storage.Put(map.Context, k, value);
-        }
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PICK)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Put")]
+        public static extern void Put(this StorageMap map, ByteString key, ByteString value);
 
-        public static void Put(this StorageMap map, ByteString key, BigInteger value)
-        {
-            byte[] k = map.Prefix.Concat(key);
-            Storage.Put(map.Context, k, value);
-        }
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PICK)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Put")]
+        public static extern void Put(this StorageMap map, ByteString key, BigInteger value);
     }
 }

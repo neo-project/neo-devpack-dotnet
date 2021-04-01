@@ -43,7 +43,7 @@ namespace Neo
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt160 value);
 
-        [Script]
+        [OpCode(OpCode.NOP)]
         public static extern implicit operator ByteString(UInt160 value);
     }
 }

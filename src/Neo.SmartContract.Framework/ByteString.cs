@@ -16,10 +16,10 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
-        [Script]
+        [OpCode(OpCode.NOP)]
         public static extern implicit operator string(ByteString str);
 
-        [Script]
+        [OpCode(OpCode.NOP)]
         public static extern implicit operator ByteString(string str);
 
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
