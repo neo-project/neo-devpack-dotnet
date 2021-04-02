@@ -1,6 +1,10 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Neo.SmartContract.Framework.Services
 {
-    public class Iterator
+    public class Iterator : IApiInterface, IEnumerable
     {
         [Syscall("System.Iterator.Create")]
         public static extern Iterator<T> Create<T>(T[] array);
@@ -22,14 +26,24 @@ namespace Neo.SmartContract.Framework.Services
             [Syscall("System.Iterator.Value")]
             get;
         }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public class Iterator<T> : Iterator, IApiInterface
+    public class Iterator<T> : Iterator, IEnumerable<T>
     {
         public extern new T Value
         {
             [Syscall("System.Iterator.Value")]
             get;
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }
