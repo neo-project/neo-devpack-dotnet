@@ -33,6 +33,31 @@ namespace Neo.SmartContract.Framework.Services
             set;
         }
 
+        public extern ByteString this[byte[] key]
+        {
+            [OpCode(OpCode.OVER)]
+            [OpCode(OpCode.PUSH1)]
+            [OpCode(OpCode.PICKITEM)]
+            [OpCode(OpCode.SWAP)]
+            [OpCode(OpCode.CAT)]
+            [OpCode(OpCode.SWAP)]
+            [OpCode(OpCode.PUSH0)]
+            [OpCode(OpCode.PICKITEM)]
+            [Syscall("System.Storage.Get")]
+            get;
+            [OpCode(OpCode.PUSH2)]
+            [OpCode(OpCode.PICK)]
+            [OpCode(OpCode.PUSH1)]
+            [OpCode(OpCode.PICKITEM)]
+            [OpCode(OpCode.ROT)]
+            [OpCode(OpCode.CAT)]
+            [OpCode(OpCode.ROT)]
+            [OpCode(OpCode.PUSH0)]
+            [OpCode(OpCode.PICKITEM)]
+            [Syscall("System.Storage.Put")]
+            set;
+        }
+
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
@@ -58,6 +83,17 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(ByteString key);
+
+        [OpCode(OpCode.OVER)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Get")]
+        public extern ByteString Get(byte[] key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.DUP)]
@@ -115,7 +151,31 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Put")]
+        public extern void Put(byte[] key, ByteString value);
+
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PICK)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Put")]
         public extern void Put(ByteString key, BigInteger value);
+
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PICK)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Put")]
+        public extern void Put(byte[] key, BigInteger value);
 
         [OpCode(OpCode.OVER)]
         [OpCode(OpCode.PUSH1)]
@@ -127,5 +187,16 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Delete")]
         public extern void Delete(ByteString key);
+
+        [OpCode(OpCode.OVER)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
+        [Syscall("System.Storage.Delete")]
+        public extern void Delete(byte[] key);
     }
 }
