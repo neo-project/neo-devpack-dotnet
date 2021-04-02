@@ -30,10 +30,9 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
-        [OpCode(OpCode.JMPIFNOT, "0x05")]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.JMPIFNOT, "0x04")]
         [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
         public static extern explicit operator BigInteger(ByteString text);
     }
