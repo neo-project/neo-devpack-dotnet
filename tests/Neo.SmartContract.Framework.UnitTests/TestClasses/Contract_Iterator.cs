@@ -30,6 +30,19 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return sum;
         }
 
+        public static int TestNextIntArrayForeach(int[] a)
+        {
+            int sum = 0;
+            var iterator = Iterator.Create<int>(a);
+
+            foreach (var value in iterator)
+            {
+                sum += value;
+            }
+
+            return sum;
+        }
+
         public static int TestNextIntArrayBase(int[] a)
         {
             int sum = 0;
