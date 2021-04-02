@@ -24,6 +24,18 @@ namespace Neo.Compiler
             return Convert.FromHexString(s);
         }
 
+        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName)
+        {
+            INamedTypeSymbol? baseType = type.BaseType;
+            while (baseType is not null)
+            {
+                if (baseType.Name == baseTypeName)
+                    return true;
+                baseType = baseType.BaseType;
+            }
+            return false;
+        }
+
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
             switch (type.ToString())

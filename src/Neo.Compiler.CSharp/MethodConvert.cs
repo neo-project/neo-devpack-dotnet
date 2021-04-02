@@ -2021,21 +2021,25 @@ namespace Neo.Compiler
         private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
         {
             ITypeSymbol? type = model.GetTypeInfo(expression).Type;
-            switch (type?.SpecialType)
+            switch (type?.ToString())
             {
-                case SpecialType.System_SByte:
-                case SpecialType.System_Byte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                case SpecialType.None when type.Name == nameof(BigInteger):
+                case "sbyte":
+                case "byte":
+                case "short":
+                case "ushort":
+                case "int":
+                case "uint":
+                case "long":
+                case "ulong":
+                case "System.Numerics.BigInteger":
                     ConvertExpression(model, expression);
                     Call(NativeContract.StdLib.Hash, "itoa", 1, true);
                     break;
-                case SpecialType.System_String:
+                case "string":
+                case "Neo.Cryptography.ECC.ECPoint":
+                case "Neo.SmartContract.Framework.ByteString":
+                case "Neo.SmartContract.Framework.UInt160":
+                case "Neo.SmartContract.Framework.UInt256":
                     ConvertExpression(model, expression);
                     break;
                 default:
