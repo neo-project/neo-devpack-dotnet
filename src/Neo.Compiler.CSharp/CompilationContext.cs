@@ -262,7 +262,7 @@ namespace Neo.Compiler
             if (scTypeFound) return;
             if (symbol.DeclaredAccessibility != Accessibility.Public) return;
             if (symbol.IsAbstract) return;
-            if (symbol.BaseType!.Name != nameof(scfx.Neo.SmartContract.Framework.SmartContract)) return;
+            if (!symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract))) return;
             scTypeFound = true;
             ContractName = symbol.Name;
             foreach (var attribute in symbol.GetAttributes())
