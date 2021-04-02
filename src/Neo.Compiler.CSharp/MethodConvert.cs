@@ -1023,10 +1023,19 @@ namespace Neo.Compiler
         {
             if (left.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.ROT);
-            AddInstruction(OpCode.SETITEM);
+            if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
+            {
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                ConvertExpression(model, left.Expression);
+                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.ROT);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
 
         private void ConvertIdentifierNameAssignment(SemanticModel model, IdentifierNameSyntax left)
@@ -1152,21 +1161,43 @@ namespace Neo.Compiler
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             JumpTarget assignmentTarget = new();
             JumpTarget endTarget = new();
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.PICKITEM);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                Call(model, property.GetMethod!, CallingConvention.StdCall);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.NIP);
+                AddInstruction(OpCode.NIP);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.PICKITEM);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
@@ -1406,17 +1437,33 @@ namespace Neo.Compiler
         {
             if (left.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            ConvertExpression(model, right);
-            EmitComplexAssignmentOperator(type, operatorToken);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                Call(model, property.GetMethod!, CallingConvention.StdCall);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
 
         private void ConvertIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IdentifierNameSyntax left, ExpressionSyntax right)
@@ -1807,9 +1854,16 @@ namespace Neo.Compiler
         {
             if (expression.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
-            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-            ConvertExpression(model, expression.Expression);
-            ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+            if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
+            {
+                Call(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
+            }
+            else
+            {
+                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                ConvertExpression(model, expression.Expression);
+                ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+            }
         }
 
         private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
@@ -2162,16 +2216,32 @@ namespace Neo.Compiler
         {
             if (operand.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
-            ConvertExpression(model, operand.Expression);
-            ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            EmitIncrementOrDecrement(operatorToken);
-            AddInstruction(OpCode.SETITEM);
+            if (model.GetSymbolInfo(operand).Symbol is IPropertySymbol property)
+            {
+                ConvertExpression(model, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                Call(model, property.GetMethod!, CallingConvention.StdCall);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                EmitIncrementOrDecrement(operatorToken);
+                Call(model, property.SetMethod!, CallingConvention.StdCall);
+            }
+            else
+            {
+                ConvertExpression(model, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
 
         private void ConvertIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
@@ -2376,16 +2446,31 @@ namespace Neo.Compiler
         {
             if (operand.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
-            ConvertExpression(model, operand.Expression);
-            ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            EmitIncrementOrDecrement(operatorToken);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            if (model.GetSymbolInfo(operand).Symbol is IPropertySymbol property)
+            {
+                ConvertExpression(model, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                Call(model, property.GetMethod!, CallingConvention.StdCall);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                EmitIncrementOrDecrement(operatorToken);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
 
         private void ConvertIdentifierNamePreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
