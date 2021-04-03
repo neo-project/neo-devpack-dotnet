@@ -1,6 +1,10 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Neo.SmartContract.Framework
 {
-    public class List<T>
+    public class List<T> : IEnumerable<T>
     {
         [OpCode(OpCode.NEWARRAY0)]
         public extern List();
@@ -30,6 +34,16 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.VALUES)]
         public extern List<T> Clone();
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
 
         [OpCode(OpCode.NOP)]
         public static extern implicit operator List<T>(T[] array);
