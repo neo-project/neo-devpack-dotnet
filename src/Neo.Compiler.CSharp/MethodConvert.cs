@@ -3195,8 +3195,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(-128);
-                        Push(128);
+                        Push(sbyte.MinValue);
+                        Push(sbyte.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3209,8 +3209,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(0);
-                        Push(256);
+                        Push(byte.MinValue);
+                        Push(byte.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3223,8 +3223,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(-32768);
-                        Push(32768);
+                        Push(short.MinValue);
+                        Push(short.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3237,8 +3237,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(0);
-                        Push(65536);
+                        Push(ushort.MinValue);
+                        Push(ushort.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3251,8 +3251,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(-2147483648);
-                        Push(2147483648);
+                        Push(int.MinValue);
+                        Push(int.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3265,8 +3265,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(0);
-                        Push(4294967296);
+                        Push(uint.MinValue);
+                        Push(uint.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3279,8 +3279,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(-9223372036854775808);
-                        Push(9223372036854775808);
+                        Push(long.MinValue);
+                        Push(long.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3293,8 +3293,8 @@ namespace Neo.Compiler
                             PrepareArgumentsForMethod(model, symbol, arguments);
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
-                        Push(0);
-                        Push(BigInteger.Parse("18446744073709551616"));
+                        Push(ulong.MinValue);
+                        Push(ulong.MaxValue);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
