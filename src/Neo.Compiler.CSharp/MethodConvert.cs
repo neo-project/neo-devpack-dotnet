@@ -3196,7 +3196,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(sbyte.MinValue);
-                        Push(sbyte.MaxValue);
+                        Push(sbyte.MaxValue + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3210,7 +3210,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(byte.MinValue);
-                        Push(byte.MaxValue);
+                        Push(byte.MaxValue + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3224,7 +3224,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(short.MinValue);
-                        Push(short.MaxValue);
+                        Push(short.MaxValue + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3238,7 +3238,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(ushort.MinValue);
-                        Push(ushort.MaxValue);
+                        Push(ushort.MaxValue + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3252,7 +3252,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(int.MinValue);
-                        Push(int.MaxValue);
+                        Push(new BigInteger(int.MaxValue) + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3266,7 +3266,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(uint.MinValue);
-                        Push(uint.MaxValue);
+                        Push(new BigInteger(uint.MaxValue) + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3280,7 +3280,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(long.MinValue);
-                        Push(long.MaxValue);
+                        Push(new BigInteger(long.MaxValue) + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
@@ -3294,7 +3294,7 @@ namespace Neo.Compiler
                         JumpTarget endTarget = new();
                         AddInstruction(OpCode.DUP);
                         Push(ulong.MinValue);
-                        Push(ulong.MaxValue);
+                        Push(new BigInteger(ulong.MaxValue) + 1);
                         AddInstruction(OpCode.WITHIN);
                         Jump(OpCode.JMPIF, endTarget);
                         AddInstruction(OpCode.THROW);
