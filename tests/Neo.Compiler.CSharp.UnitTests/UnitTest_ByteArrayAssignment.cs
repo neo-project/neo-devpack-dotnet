@@ -32,8 +32,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
 
-            testengine.ExecuteTestCaseStandard("testAssignmentOverflow");
-            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+            var result = testengine.ExecuteTestCaseStandard("testAssignmentOverflow").Pop();
+            CollectionAssert.AreEqual(new byte[] { 0xff, 0x02, 0x03 }, result.GetSpan().ToArray());
         }
 
         [TestMethod]
