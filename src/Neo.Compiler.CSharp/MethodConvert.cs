@@ -3654,13 +3654,125 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.SIZE);
                     return true;
                 case "sbyte.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(sbyte.MinValue);
+                        Push(sbyte.MaxValue + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "byte.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(byte.MinValue);
+                        Push(byte.MaxValue + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "short.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(short.MinValue);
+                        Push(short.MaxValue + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "ushort.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(ushort.MinValue);
+                        Push(ushort.MaxValue + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "int.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(int.MinValue);
+                        Push(new BigInteger(int.MaxValue) + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "uint.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(uint.MinValue);
+                        Push(new BigInteger(uint.MaxValue) + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "long.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(long.MinValue);
+                        Push(new BigInteger(long.MaxValue) + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "ulong.Parse(string)":
+                    {
+                        JumpTarget endTarget = new();
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                        AddInstruction(OpCode.DUP);
+                        Push(ulong.MinValue);
+                        Push(new BigInteger(ulong.MaxValue) + 1);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.Parse(string)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
