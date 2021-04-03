@@ -106,33 +106,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
         }
 
-        public static long testlong_2(long input)
-        {
-            try
-            {
-                long x = input;
-                return x;
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
-        }
-
         public static ulong testulong(BigInteger input)
-        {
-            try
-            {
-                ulong x = (ulong)input;
-                return x;
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
-        }
-
-        public static ulong testulong_2(ulong input)
         {
             try
             {

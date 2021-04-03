@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -246,13 +245,6 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(VMState.FAULT, testengine.State);
             Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            result = testengine.ExecuteTestCaseStandard("testlong_2", 9223372036854775808);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
         }
 
         [TestMethod]
@@ -275,13 +267,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
             result = testengine.ExecuteTestCaseStandard("testulong", -1);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
-            result = testengine.ExecuteTestCaseStandard("testulong_2", -1);
 
             Assert.AreEqual(VMState.FAULT, testengine.State);
             Assert.IsNotNull(testengine.FaultException);
