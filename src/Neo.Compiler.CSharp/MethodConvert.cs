@@ -3190,13 +3190,117 @@ namespace Neo.Compiler
                     ChangeType(VM.Types.StackItemType.Buffer);
                     return true;
                 case "System.Numerics.BigInteger.explicit operator sbyte(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(-128);
+                        Push(128);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator byte(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(0);
+                        Push(256);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator short(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(-32768);
+                        Push(32768);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator ushort(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(0);
+                        Push(65536);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator int(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(-2147483648);
+                        Push(2147483648);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator uint(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(0);
+                        Push(4294967296);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator long(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(-9223372036854775808);
+                        Push(9223372036854775808);
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.explicit operator ulong(System.Numerics.BigInteger)":
+                    {
+                        if (arguments is not null)
+                            PrepareArgumentsForMethod(model, symbol, arguments);
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        Push(0);
+                        Push(BigInteger.Parse("18446744073709551616"));
+                        AddInstruction(OpCode.WITHIN);
+                        Jump(OpCode.JMPIF, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(sbyte)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(byte)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(short)":
