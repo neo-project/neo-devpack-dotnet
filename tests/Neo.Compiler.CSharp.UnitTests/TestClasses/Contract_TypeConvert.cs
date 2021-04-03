@@ -14,10 +14,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var bts1 = int1.ToByteArray();
 
             var bts2 = new byte[1] { 3 };
-            var int2 = bts2.ToBigInteger();
+            var int2 = new BigInteger(bts2);
 
             var bts3 = new byte[0];
-            var int3 = bts3.ToBigInteger();
+            var int3 = new BigInteger(bts3);
 
             var arrobj = new object[8];
             arrobj[0] = int0;

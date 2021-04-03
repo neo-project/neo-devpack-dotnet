@@ -42,8 +42,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
+            Assert.IsTrue(item.IsNull);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(System.Array.Empty<byte>()));
