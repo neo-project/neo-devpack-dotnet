@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static BigInteger TestToBigInteger(byte[] data)
         {
-            return data.ToBigInteger();
+            return new BigInteger(data);
         }
 
         public static BigInteger TestBigIntegerCast(byte[] data)

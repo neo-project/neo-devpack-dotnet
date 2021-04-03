@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static BigInteger MyMethodWithArg(byte[] num)
         {
-            return num.ToBigInteger();
+            return new BigInteger(num);
         }
 
         public static BigInteger CallFuncPointerWithArg()
