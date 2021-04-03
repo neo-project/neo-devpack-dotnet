@@ -206,5 +206,53 @@ namespace Neo.Compiler.CSharp.UnitTests
             Console.WriteLine("result = " + num.GetInteger().ToString());
             Assert.AreEqual(num.GetInteger(), 3);
         }
+
+        [TestMethod]
+        public void Test_TryNULLECPointCast_1()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryNULL2Ecpoint_1");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var array = result.Pop() as Neo.VM.Types.Struct;
+            Assert.AreEqual(4, array[0]);
+            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+        }
+
+        [TestMethod]
+        public void Test_TryNULLUInt160Cast_1()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryNULL2Uint160_1");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var array = result.Pop() as Neo.VM.Types.Struct;
+            Assert.AreEqual(4, array[0]);
+            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+        }
+
+        [TestMethod]
+        public void Test_TryNULLUInt256Cast_1()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryNULL2Uint256_1");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var array = result.Pop() as Neo.VM.Types.Struct;
+            Assert.AreEqual(4, array[0]);
+            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+        }
+
+        [TestMethod]
+        public void Test_TryNULLBytestringCast_1()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            var result = testengine.ExecuteTestCaseStandard("tryNULL2Bytestring_1");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            var array = result.Pop() as Neo.VM.Types.Struct;
+            Assert.AreEqual(4, array[0]);
+            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+        }
     }
 }
