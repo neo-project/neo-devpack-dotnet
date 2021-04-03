@@ -3,6 +3,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.Cryptography;
 using Neo.Cryptography.ECC;
 using Neo.IO;
@@ -481,6 +482,19 @@ namespace Neo.Compiler
 
         private void ConvertForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
         {
+            ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
+            if (type.Name == "Iterator")
+            {
+                ConvertIteratorForEachStatement(model, syntax);
+            }
+            else
+            {
+                ConvertArrayForEachStatement(model, syntax);
+            }
+        }
+
+        private void ConvertIteratorForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
+        {
             ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax)!;
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
@@ -515,7 +529,70 @@ namespace Neo.Compiler
             _breakTargets.Pop();
         }
 
+        private void ConvertArrayForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
+        {
+            ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax)!;
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget conditionTarget = new();
+            JumpTarget breakTarget = new();
+            byte arrayIndex = AddAnonymousVariable();
+            byte lengthIndex = AddAnonymousVariable();
+            byte iIndex = AddAnonymousVariable();
+            byte elementIndex = AddLocalVariable(elementSymbol);
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            using (InsertSequencePoint(syntax.ForEachKeyword))
+            {
+                ConvertExpression(model, syntax.Expression);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STLOC, arrayIndex);
+                AddInstruction(OpCode.SIZE);
+                AccessSlot(OpCode.STLOC, lengthIndex);
+                Push(0);
+                AccessSlot(OpCode.STLOC, iIndex);
+                Jump(OpCode.JMP_L, conditionTarget);
+            }
+            using (InsertSequencePoint(syntax.Identifier))
+            {
+                startTarget.Instruction = AccessSlot(OpCode.LDLOC, arrayIndex);
+                AccessSlot(OpCode.LDLOC, iIndex);
+                AddInstruction(OpCode.PICKITEM);
+                AccessSlot(OpCode.STLOC, elementIndex);
+            }
+            ConvertStatement(model, syntax.Statement);
+            using (InsertSequencePoint(syntax.Expression))
+            {
+                continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iIndex);
+                AddInstruction(OpCode.INC);
+                AccessSlot(OpCode.STLOC, iIndex);
+                conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, iIndex);
+                AccessSlot(OpCode.LDLOC, lengthIndex);
+                Jump(OpCode.JMPLT_L, startTarget);
+            }
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _anonymousVariables.Remove(arrayIndex);
+            _anonymousVariables.Remove(lengthIndex);
+            _anonymousVariables.Remove(iIndex);
+            _localVariables.Remove(elementSymbol);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
         private void ConvertForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
+        {
+            ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
+            if (type.Name == "Iterator")
+            {
+                ConvertIteratorForEachVariableStatement(model, syntax);
+            }
+            else
+            {
+                ConvertArrayForEachVariableStatement(model, syntax);
+            }
+        }
+
+        private void ConvertIteratorForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
             ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
             JumpTarget startTarget = new();
@@ -548,7 +625,6 @@ namespace Neo.Compiler
                         AccessSlot(OpCode.STLOC, variableIndex);
                     }
                 }
-                AddInstruction(OpCode.DROP);
             }
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
@@ -559,6 +635,70 @@ namespace Neo.Compiler
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             _anonymousVariables.Remove(iteratorIndex);
+            foreach (ILocalSymbol symbol in symbols)
+                if (symbol is not null)
+                    _localVariables.Remove(symbol);
+            _continueTargets.Pop();
+            _breakTargets.Pop();
+        }
+
+        private void ConvertArrayForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
+        {
+            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget conditionTarget = new();
+            JumpTarget breakTarget = new();
+            byte arrayIndex = AddAnonymousVariable();
+            byte lengthIndex = AddAnonymousVariable();
+            byte iIndex = AddAnonymousVariable();
+            _continueTargets.Push(continueTarget);
+            _breakTargets.Push(breakTarget);
+            using (InsertSequencePoint(syntax.ForEachKeyword))
+            {
+                ConvertExpression(model, syntax.Expression);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STLOC, arrayIndex);
+                AddInstruction(OpCode.SIZE);
+                AccessSlot(OpCode.STLOC, lengthIndex);
+                Push(0);
+                AccessSlot(OpCode.STLOC, iIndex);
+                Jump(OpCode.JMP_L, conditionTarget);
+            }
+            using (InsertSequencePoint(syntax.Variable))
+            {
+                startTarget.Instruction = AccessSlot(OpCode.LDLOC, arrayIndex);
+                AccessSlot(OpCode.LDLOC, iIndex);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.UNPACK);
+                AddInstruction(OpCode.DROP);
+                for (int i = 0; i < symbols.Length; i++)
+                {
+                    if (symbols[i] is null)
+                    {
+                        AddInstruction(OpCode.DROP);
+                    }
+                    else
+                    {
+                        byte variableIndex = AddLocalVariable(symbols[i]);
+                        AccessSlot(OpCode.STLOC, variableIndex);
+                    }
+                }
+            }
+            ConvertStatement(model, syntax.Statement);
+            using (InsertSequencePoint(syntax.Expression))
+            {
+                continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iIndex);
+                AddInstruction(OpCode.INC);
+                AccessSlot(OpCode.STLOC, iIndex);
+                conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, iIndex);
+                AccessSlot(OpCode.LDLOC, lengthIndex);
+                Jump(OpCode.JMPLT_L, startTarget);
+            }
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _anonymousVariables.Remove(arrayIndex);
+            _anonymousVariables.Remove(lengthIndex);
+            _anonymousVariables.Remove(iIndex);
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
                     _localVariables.Remove(symbol);
@@ -808,6 +948,12 @@ namespace Neo.Compiler
 
         private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax)
         {
+            Optional<object?> constant = model.GetConstantValue(syntax);
+            if (constant.HasValue)
+            {
+                Push(constant.Value);
+                return;
+            }
             switch (syntax)
             {
                 case AnonymousObjectCreationExpressionSyntax expression:
@@ -834,9 +980,6 @@ namespace Neo.Compiler
                 case ConditionalExpressionSyntax expression:
                     ConvertConditionalExpression(model, expression);
                     break;
-                case DefaultExpressionSyntax expression:
-                    ConvertDefaultExpression(model, expression);
-                    break;
                 case ElementAccessExpressionSyntax expression:
                     ConvertElementAccessExpression(model, expression);
                     break;
@@ -858,9 +1001,6 @@ namespace Neo.Compiler
                 case IsPatternExpressionSyntax expression:
                     ConvertIsPatternExpression(model, expression);
                     break;
-                case LiteralExpressionSyntax expression:
-                    ConvertLiteralExpression(model, expression);
-                    break;
                 case MemberAccessExpressionSyntax expression:
                     ConvertMemberAccessExpression(model, expression);
                     break;
@@ -875,9 +1015,6 @@ namespace Neo.Compiler
                     break;
                 case PrefixUnaryExpressionSyntax expression:
                     ConvertPrefixUnaryExpression(model, expression);
-                    break;
-                case SizeOfExpressionSyntax expression:
-                    ConvertSizeOfExpression(model, expression);
                     break;
                 case SwitchExpressionSyntax expression:
                     ConvertSwitchExpression(model, expression);
@@ -1803,11 +1940,229 @@ namespace Neo.Compiler
 
         private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
         {
-            IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
-            if (symbol is null)
+            IConversionOperation operation = (IConversionOperation)model.GetOperation(expression)!;
+            if (operation.Conversion.MethodSymbol is null)
+            {
                 ConvertExpression(model, expression.Expression);
+                switch ((operation.Operand.Type!.Name, operation.Type!.Name))
+                {
+                    case ("ByteString", "ECPoint"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            AddInstruction(OpCode.ISNULL);
+                            Jump(OpCode.JMPIF_L, endTarget);
+                            AddInstruction(OpCode.DUP);
+                            AddInstruction(OpCode.SIZE);
+                            Push(33);
+                            Jump(OpCode.JMPEQ_L, endTarget);
+                            AddInstruction(OpCode.THROW);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("ByteString", "UInt160"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            AddInstruction(OpCode.ISNULL);
+                            Jump(OpCode.JMPIF_L, endTarget);
+                            AddInstruction(OpCode.DUP);
+                            AddInstruction(OpCode.SIZE);
+                            Push(20);
+                            Jump(OpCode.JMPEQ_L, endTarget);
+                            AddInstruction(OpCode.THROW);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("ByteString", "UInt256"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            AddInstruction(OpCode.ISNULL);
+                            Jump(OpCode.JMPIF_L, endTarget);
+                            AddInstruction(OpCode.DUP);
+                            AddInstruction(OpCode.SIZE);
+                            Push(32);
+                            Jump(OpCode.JMPEQ_L, endTarget);
+                            AddInstruction(OpCode.THROW);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("SByte", "Byte"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(0);
+                            Jump(OpCode.JMPGE_L, endTarget);
+                            Push(256);
+                            AddInstruction(OpCode.ADD);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("Byte", "SByte"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(127);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(256);
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("SByte", "UInt16"):
+                    case ("Int16", "UInt16"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(0);
+                            Jump(OpCode.JMPGE_L, endTarget);
+                            Push(65536);
+                            AddInstruction(OpCode.ADD);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("UInt16", "Int16"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(32767);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(65536);
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("SByte", "UInt32"):
+                    case ("Int16", "UInt32"):
+                    case ("Int32", "UInt32"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(0);
+                            Jump(OpCode.JMPGE_L, endTarget);
+                            Push(4294967296);
+                            AddInstruction(OpCode.ADD);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("UInt32", "Int32"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(2147483647);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(4294967296);
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("SByte", "UInt64"):
+                    case ("Int16", "UInt64"):
+                    case ("Int32", "UInt64"):
+                    case ("Int64", "UInt64"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(0);
+                            Jump(OpCode.JMPGE_L, endTarget);
+                            Push(BigInteger.Parse("18446744073709551616"));
+                            AddInstruction(OpCode.ADD);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("UInt64", "Int64"):
+                        {
+                            JumpTarget endTarget = new();
+                            AddInstruction(OpCode.DUP);
+                            Push(9223372036854775807);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(BigInteger.Parse("18446744073709551616"));
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("Int16", "SByte"):
+                    case ("UInt16", "SByte"):
+                    case ("Int32", "SByte"):
+                    case ("UInt32", "SByte"):
+                    case ("Int64", "SByte"):
+                    case ("UInt64", "SByte"):
+                        {
+                            JumpTarget endTarget = new();
+                            Push(255);
+                            AddInstruction(OpCode.AND);
+                            AddInstruction(OpCode.DUP);
+                            Push(127);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(256);
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("Int16", "Byte"):
+                    case ("UInt16", "Byte"):
+                    case ("Int32", "Byte"):
+                    case ("UInt32", "Byte"):
+                    case ("Int64", "Byte"):
+                    case ("UInt64", "Byte"):
+                        {
+                            Push(255);
+                            AddInstruction(OpCode.AND);
+                        }
+                        break;
+                    case ("Int32", "Int16"):
+                    case ("UInt32", "Int16"):
+                    case ("Int64", "Int16"):
+                    case ("UInt64", "Int16"):
+                        {
+                            JumpTarget endTarget = new();
+                            Push(65535);
+                            AddInstruction(OpCode.AND);
+                            AddInstruction(OpCode.DUP);
+                            Push(32767);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(65536);
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("Int32", "UInt16"):
+                    case ("UInt32", "UInt16"):
+                    case ("Int64", "UInt16"):
+                    case ("UInt64", "UInt16"):
+                        {
+                            Push(65535);
+                            AddInstruction(OpCode.AND);
+                        }
+                        break;
+                    case ("Int64", "Int32"):
+                    case ("UInt64", "Int32"):
+                        {
+                            JumpTarget endTarget = new();
+                            Push(4294967295);
+                            AddInstruction(OpCode.AND);
+                            AddInstruction(OpCode.DUP);
+                            Push(2147483647);
+                            Jump(OpCode.JMPLE_L, endTarget);
+                            Push(4294967296);
+                            AddInstruction(OpCode.SUB);
+                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                        }
+                        break;
+                    case ("Int64", "UInt32"):
+                    case ("UInt64", "UInt32"):
+                        {
+                            Push(4294967295);
+                            AddInstruction(OpCode.AND);
+                        }
+                        break;
+                }
+            }
             else
-                Call(model, symbol, null, expression.Expression);
+            {
+                Call(model, operation.Conversion.MethodSymbol, null, expression.Expression);
+            }
         }
 
         private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
@@ -1843,11 +2198,6 @@ namespace Neo.Compiler
             falseTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertExpression(model, expression.WhenFalse);
             endTarget.Instruction = AddInstruction(OpCode.NOP);
-        }
-
-        private void ConvertDefaultExpression(SemanticModel model, DefaultExpressionSyntax expression)
-        {
-            Push(model.GetConstantValue(expression).Value);
         }
 
         private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
@@ -2049,11 +2399,6 @@ namespace Neo.Compiler
 
         private void ConvertInvocationExpression(SemanticModel model, InvocationExpressionSyntax expression)
         {
-            if (expression.Expression.ToString() == "nameof")
-            {
-                Push(model.GetConstantValue(expression).Value);
-                return;
-            }
             ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
             ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
             switch (symbol)
@@ -2119,11 +2464,6 @@ namespace Neo.Compiler
             AccessSlot(OpCode.STLOC, anonymousIndex);
             ConvertPattern(model, expression.Pattern, anonymousIndex);
             _anonymousVariables.Remove(anonymousIndex);
-        }
-
-        private void ConvertLiteralExpression(SemanticModel model, LiteralExpressionSyntax expression)
-        {
-            Push(model.GetConstantValue(expression).Value);
         }
 
         private void ConvertMemberAccessExpression(SemanticModel model, MemberAccessExpressionSyntax expression)
@@ -2631,11 +2971,6 @@ namespace Neo.Compiler
                 "--" => OpCode.DEC,
                 _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
             });
-        }
-
-        private void ConvertSizeOfExpression(SemanticModel model, SizeOfExpressionSyntax expression)
-        {
-            Push((int)model.GetConstantValue(expression).Value!);
         }
 
         private void ConvertSwitchExpression(SemanticModel model, SwitchExpressionSyntax expression)

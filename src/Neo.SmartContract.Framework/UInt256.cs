@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework;
 
 namespace Neo
 {
-    public class UInt256
+    public class UInt256 : ByteString
     {
         public static extern UInt256 Zero { [OpCode(OpCode.PUSHDATA1, "200000000000000000000000000000000000000000000000000000000000000000")] get; }
 
@@ -36,20 +36,7 @@ namespace Neo
         [OpCode(OpCode.THROW)]
         public static extern explicit operator UInt256(byte[] value);
 
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.ISNULL)]
-        [OpCode(OpCode.JMPIF, "09")]
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.SIZE)]
-        [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
-        [OpCode(OpCode.JMPEQ, "03")]
-        [OpCode(OpCode.THROW)]
-        public static extern explicit operator UInt256(ByteString value);
-
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt256 value);
-
-        [OpCode(OpCode.NOP)]
-        public static extern implicit operator ByteString(UInt256 value);
     }
 }

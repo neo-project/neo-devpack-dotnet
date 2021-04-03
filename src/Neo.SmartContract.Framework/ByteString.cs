@@ -1,8 +1,11 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
-    public abstract class ByteString
+    public abstract class ByteString : IEnumerable<byte>
     {
         public extern byte this[int index]
         {
@@ -14,6 +17,16 @@ namespace Neo.SmartContract.Framework
         {
             [OpCode(OpCode.SIZE)]
             get;
+        }
+
+        IEnumerator<byte> IEnumerable<byte>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
 
         [OpCode(OpCode.NOP)]
