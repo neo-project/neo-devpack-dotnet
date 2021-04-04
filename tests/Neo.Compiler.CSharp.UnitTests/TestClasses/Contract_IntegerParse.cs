@@ -6,98 +6,42 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     {
         public static sbyte testSbyteparse(string s)
         {
-            try
-            {
-                return sbyte.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return sbyte.Parse(s);
         }
 
         public static byte testByteparse(string s)
         {
-            try
-            {
-                return byte.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return byte.Parse(s);
         }
 
         public static ushort testUshortparse(string s)
         {
-            try
-            {
-                return ushort.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return ushort.Parse(s);
         }
 
         public static short testShortparse(string s)
         {
-            try
-            {
-                return short.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return short.Parse(s);
         }
 
         public static ulong testUlongparse(string s)
         {
-            try
-            {
-                return ulong.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return ulong.Parse(s);
         }
 
         public static long testLongparse(string s)
         {
-            try
-            {
-                return long.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return long.Parse(s);
         }
 
         public static uint testUintparse(string s)
         {
-            try
-            {
-                return uint.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return uint.Parse(s);
         }
 
         public static int testIntparse(string s)
         {
-            try
-            {
-                return int.Parse(s);
-            }
-            catch
-            {
-                throw new System.Exception();
-            }
+            return int.Parse(s);
         }
     }
 }
