@@ -285,6 +285,102 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return v;
         }
 
+        public static (int, object) tryNULL2Ecpoint_1()
+        {
+            int v = 0;
+            ECPoint data = (ECPoint)(new byte[33]);
+            try
+            {
+                v = 2;
+                data = (ECPoint)null;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+                if (data is null)
+                {
+                    v++;
+                }
+            }
+            return (v,data);
+        }
+
+        public static (int, object) tryNULL2Uint160_1()
+        {
+            int v = 0;
+            UInt160 data = (UInt160)(new byte[20]);
+            try
+            {
+                v = 2;
+                data = (UInt160)null;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+                if (data is null)
+                {
+                    v++;
+                }
+            }
+            return (v, data);
+        }
+
+        public static (int, object) tryNULL2Uint256_1()
+        {
+            int v = 0;
+            UInt256 data = (UInt256)(new byte[32]);
+            try
+            {
+                v = 2;
+                data = (UInt256)null;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+                if (data is null)
+                {
+                    v++;
+                }
+            }
+            return (v, data);
+        }
+
+        public static (int, object) tryNULL2Bytestring_1()
+        {
+            int v = 0;
+            ByteString data = "123";
+            try
+            {
+                v = 2;
+                data = (ByteString)null;
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+                if (data is null)
+                {
+                    v++;
+                }
+            }
+            return (v, data);
+        }
+
         public static object throwcall()
         {
             throw new System.Exception();
