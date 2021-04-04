@@ -69,7 +69,10 @@ namespace Neo.SmartContract.Framework.Services
         public extern StorageMap(StorageContext context, ByteString prefix);
 
         [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.LEFT)]
+        [OpCode(OpCode.NEWBUFFER)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.SETITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
