@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
             string methodname = "testSbyteparse";
 
-            var result = testengine.ExecuteTestCaseStandard(methodname,"127");
+            var result = testengine.ExecuteTestCaseStandard(methodname, "127");
             var value = result.Pop().GetInteger();
             Assert.AreEqual(127, value);
 
