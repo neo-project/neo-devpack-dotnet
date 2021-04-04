@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_VerifySignatureWithMessage()
         {
-            byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetSignData(ProtocolSettings.Default.Magic),
+            byte[] signature = Crypto.Sign(_engine.ScriptContainer.GetSignData(ProtocolSettings.Default.Network),
                 _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
 
             // False
@@ -96,7 +96,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("secp256r1VerifySignatureWithMessage",
-                new ByteString(_engine.ScriptContainer.GetSignData(ProtocolSettings.Default.Magic)),
+                new ByteString(_engine.ScriptContainer.GetSignData(ProtocolSettings.Default.Network)),
                 new ByteString(_key.PublicKey.EncodePoint(true)), new ByteString(signature));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
