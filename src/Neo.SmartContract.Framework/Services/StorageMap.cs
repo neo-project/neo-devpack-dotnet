@@ -70,6 +70,7 @@ namespace Neo.SmartContract.Framework.Services
 
         [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.NEWBUFFER)]
+        [OpCode(OpCode.TUCK)]
         [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.ROT)]
         [OpCode(OpCode.SETITEM)]
