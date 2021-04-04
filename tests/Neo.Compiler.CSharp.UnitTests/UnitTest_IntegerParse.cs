@@ -1,12 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.IO;
-using Neo.IO.Json;
 using Neo.VM;
-using Neo.VM.Types;
-using Neo.Wallets;
-using System.Linq;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -14,7 +8,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_IntegerParse
     {
         [TestMethod]
-        public void sbyteparse_Test()
+        public void SByteParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -75,7 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void byteparse_Test()
+        public void ByteParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -136,7 +130,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void ushortparse_Test()
+        public void UShortParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -197,7 +191,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void shortparse_Test()
+        public void ShortParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -258,7 +252,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void ulongparse_Test()
+        public void ULongParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -319,7 +313,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void longparse_Test()
+        public void LongParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -381,7 +375,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void uintparse_Test()
+        public void UIntParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -441,7 +435,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void intparse_Test()
+        public void IntParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
@@ -499,6 +493,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(VMState.FAULT, testengine.State);
             Assert.IsNotNull(testengine.FaultException);
         }
-
     }
 }
