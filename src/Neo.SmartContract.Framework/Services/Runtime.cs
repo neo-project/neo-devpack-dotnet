@@ -74,5 +74,8 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);
+
+        [Syscall("System.Runtime.BurnGas")]
+        public static extern void BurnGas(long gas);
     }
 }
