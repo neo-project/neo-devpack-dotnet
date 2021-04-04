@@ -140,6 +140,24 @@ namespace Neo.Compiler
             _startTarget.Instruction = _instructions[0];
         }
 
+        public void ConvertForward(MethodConvert target)
+        {
+            IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
+            if (fields.Length == 0)
+            {
+                AddInstruction(OpCode.NEWARRAY0);
+            }
+            else
+            {
+                for (int i = fields.Length - 1; i >= 0; i--)
+                    PushDefault(fields[i].Type);
+                Push(fields.Length);
+                AddInstruction(OpCode.PACK);
+            }
+            _returnTarget.Instruction = Jump(OpCode.JMP_L, target._startTarget);
+            _startTarget.Instruction = _instructions[0];
+        }
+
         private void ProcessFields(SemanticModel model)
         {
             _initslot = true;
