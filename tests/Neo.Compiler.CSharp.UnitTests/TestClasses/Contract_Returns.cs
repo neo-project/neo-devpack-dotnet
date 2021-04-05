@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework;
+
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Returns : SmartContract.Framework.SmartContract
@@ -37,6 +39,14 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             (int c, int d) = Div(a, b);
 
             return Subtract(c, d);
+        }
+
+        /// <summary>
+        /// ByteString add
+        /// </summary>
+        public static ByteString ByteStringAdd(ByteString a, ByteString b)
+        {
+            return a + b;
         }
     }
 }
