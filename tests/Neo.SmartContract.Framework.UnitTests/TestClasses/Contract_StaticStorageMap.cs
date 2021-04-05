@@ -1,5 +1,6 @@
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
+using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
@@ -38,6 +39,18 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             var Data2 = new StorageMap(Storage.CurrentContext, "data");
             return (BigInteger)Data2.Get(msg);
+        }
+
+        public static void teststoragemap_Putbyteprefix(byte x)
+        {
+            var store = new StorageMap(Storage.CurrentContext, x);
+            store.Put("test1", 123);
+        }
+
+        public static BigInteger teststoragemap_Getbyteprefix(byte x)
+        {
+            var store = new StorageMap(Storage.CurrentContext, x);
+            return (BigInteger)store.Get("test1");
         }
     }
 }

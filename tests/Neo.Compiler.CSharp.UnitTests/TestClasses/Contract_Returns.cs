@@ -38,5 +38,13 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
             return Subtract(c, d);
         }
+
+        /// <summary>
+        /// ByteString add
+        /// </summary>
+        public static ByteString ByteStringAdd(ByteString a, ByteString b)
+        {
+            return a + b;
+        }
     }
 }

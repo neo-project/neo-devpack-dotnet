@@ -61,5 +61,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             var r1 = result.Pop<Integer>();
             Assert.AreEqual(-3, r1);
         }
+
+        [TestMethod]
+        public void Test_ByteStringAdd()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("byteStringAdd", "hello", "world");
+
+            Assert.AreEqual(1, result.Count);
+
+            var r1 = result.Pop<ByteString>();
+            Assert.AreEqual("helloworld", r1);
+
+            testengine.Reset();
+            ByteString a = (ByteString)12;
+            ByteString b = (ByteString)34;
+            result = testengine.ExecuteTestCaseStandard("byteStringAdd", a, b);
+
+            Assert.AreEqual(1, result.Count);
+
+            r1 = result.Pop<ByteString>();
+            Assert.AreEqual("helloworld", r1);
+        }
     }
 }
