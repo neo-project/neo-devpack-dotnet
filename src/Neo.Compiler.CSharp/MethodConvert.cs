@@ -140,9 +140,10 @@ namespace Neo.Compiler
             _startTarget.Instruction = _instructions[0];
         }
 
-        public void ConvertForward(MethodConvert target)
+        public void ConvertForward(SemanticModel model, MethodConvert target)
         {
-            IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
+            INamedTypeSymbol type = Symbol.ContainingType;
+            IFieldSymbol[] fields = type.GetFields();
             if (fields.Length == 0)
             {
                 AddInstruction(OpCode.NEWARRAY0);
@@ -154,6 +155,10 @@ namespace Neo.Compiler
                 Push(fields.Length);
                 AddInstruction(OpCode.PACK);
             }
+            IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0);
+            if (constructor is null)
+                throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
+            Call(model, constructor, true, Array.Empty<ArgumentSyntax>());
             _returnTarget.Instruction = Jump(OpCode.JMP_L, target._startTarget);
             _startTarget.Instruction = _instructions[0];
         }

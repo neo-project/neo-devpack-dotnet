@@ -56,17 +56,6 @@ namespace Neo.Compiler
             }
         }
 
-        private void CreateForwardMethods()
-        {
-            foreach (AbiMethod abiMethod in methodsExported)
-            {
-                if (abiMethod.Symbol.IsStatic) continue;
-                MethodConvert convert = new(this, abiMethod.Symbol);
-                convert.ConvertForward(methodsConverted[abiMethod.Symbol]);
-                methodsForward.Add(convert);
-            }
-        }
-
         private IEnumerable<Instruction> GetInstructions()
         {
             return methodsConverted.SelectMany(p => p.Instructions).Concat(methodsForward.SelectMany(p => p.Instructions));
@@ -103,7 +92,6 @@ namespace Neo.Compiler
                     return;
                 }
                 RemoveEmptyInitialize();
-                CreateForwardMethods();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
@@ -357,7 +345,13 @@ namespace Neo.Compiler
                     return;
             }
             methodsExported.Add(new AbiMethod(symbol));
-            ConvertMethod(model, symbol);
+            MethodConvert convert = ConvertMethod(model, symbol);
+            if (!symbol.IsStatic)
+            {
+                MethodConvert forward = new(this, symbol);
+                forward.ConvertForward(model, convert);
+                methodsForward.Add(forward);
+            }
         }
 
         internal MethodConvert ConvertMethod(SemanticModel model, IMethodSymbol symbol)
