@@ -26,6 +26,12 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(10, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("intForeachBreak", 3);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(6, result.Pop().GetInteger());
         }
 
         [TestMethod]
