@@ -16,5 +16,22 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             return sum;
         }
+
+
+        public static int IntForeachBreak(int breakIndex)
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            try
+            {
+                foreach (var item in a)
+                {
+                    if (breakIndex-- <= 0) break;
+                    sum += item;
+                }
+            }
+            catch { }
+            return sum;
+        }
     }
 }
