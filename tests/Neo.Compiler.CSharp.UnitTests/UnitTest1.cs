@@ -1,11 +1,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest1
     {
+        [TestMethod]
+        public void Test_PrivateMethod()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract1.cs");
+            Assert.IsTrue(Encoding.ASCII.GetString(testengine.Nef.Script).Contains("NEO3"));
+        }
+
         [TestMethod]
         public void Test_ByteArray_New()
         {

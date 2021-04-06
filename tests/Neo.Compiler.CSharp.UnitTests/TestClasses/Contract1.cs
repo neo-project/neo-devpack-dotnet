@@ -2,6 +2,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract1 : SmartContract.Framework.SmartContract
     {
+        private static string privateMethod()
+        {
+            return "NEO3";
+        }
+
         public static byte[] unitTest_001()
         {
             var nb = new byte[] { 1, 2, 3, 4 };
