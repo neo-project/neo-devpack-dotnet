@@ -28,6 +28,7 @@ namespace Neo.Compiler
         private readonly PermissionBuilder permissions = new();
         private readonly JObject manifestExtra = new();
         private readonly MethodConvertCollection methodsConverted = new();
+        private readonly MethodConvertCollection methodsForward = new();
         private readonly List<MethodToken> methodTokens = new();
         private readonly List<IFieldSymbol> staticFields = new();
 
@@ -55,6 +56,18 @@ namespace Neo.Compiler
             }
         }
 
+        private IEnumerable<Instruction> GetInstructions()
+        {
+            return methodsConverted.SelectMany(p => p.Instructions).Concat(methodsForward.SelectMany(p => p.Instructions));
+        }
+
+        private int GetAbiOffset(IMethodSymbol method)
+        {
+            if (!methodsForward.TryGetValue(method, out MethodConvert? convert))
+                convert = methodsConverted[method];
+            return convert.Instructions[0].Offset;
+        }
+
         private void Compile()
         {
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
@@ -79,7 +92,7 @@ namespace Neo.Compiler
                     return;
                 }
                 RemoveEmptyInitialize();
-                Instruction[] instructions = methodsConverted.SelectMany(p => p.Instructions).ToArray();
+                Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
@@ -153,7 +166,7 @@ namespace Neo.Compiler
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
                 Tokens = methodTokens.ToArray(),
-                Script = methodsConverted.SelectMany(p => p.Instructions).Select(p => p.ToArray()).SelectMany(p => p).ToArray()
+                Script = GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray()
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
@@ -161,12 +174,8 @@ namespace Neo.Compiler
 
         public string CreateAssembly()
         {
-            StringBuilder builder = new();
-            foreach (MethodConvert method in methodsConverted)
+            static void WriteMethod(StringBuilder builder, MethodConvert method)
             {
-                builder.Append("// ");
-                builder.AppendLine(method.Symbol.ToString());
-                builder.AppendLine();
                 foreach (Instruction i in method.Instructions)
                 {
                     builder.Append($"{i.Offset:x8}: ");
@@ -175,6 +184,22 @@ namespace Neo.Compiler
                 }
                 builder.AppendLine();
                 builder.AppendLine();
+            }
+            StringBuilder builder = new();
+            foreach (MethodConvert method in methodsConverted)
+            {
+                builder.Append("// ");
+                builder.AppendLine(method.Symbol.ToString());
+                builder.AppendLine();
+                WriteMethod(builder, method);
+            }
+            foreach (MethodConvert method in methodsForward)
+            {
+                builder.Append("// ");
+                builder.Append(method.Symbol.ToString());
+                builder.AppendLine(" (Forward)");
+                builder.AppendLine();
+                WriteMethod(builder, method);
             }
             return builder.ToString();
         }
@@ -191,7 +216,7 @@ namespace Neo.Compiler
                     ["methods"] = methodsExported.Select(p => new JObject
                     {
                         ["name"] = p.Name,
-                        ["offset"] = methodsConverted[p.Symbol].Instructions[0].Offset,
+                        ["offset"] = GetAbiOffset(p.Symbol),
                         ["safe"] = p.Safe,
                         ["returntype"] = p.ReturnType,
                         ["parameters"] = p.Parameters.Select(p => p.ToJson()).ToArray()
@@ -320,7 +345,13 @@ namespace Neo.Compiler
                     return;
             }
             methodsExported.Add(new AbiMethod(symbol));
-            ConvertMethod(model, symbol);
+            MethodConvert convert = ConvertMethod(model, symbol);
+            if (!symbol.IsStatic)
+            {
+                MethodConvert forward = new(this, symbol);
+                forward.ConvertForward(model, convert);
+                methodsForward.Add(forward);
+            }
         }
 
         internal MethodConvert ConvertMethod(SemanticModel model, IMethodSymbol symbol)
