@@ -453,7 +453,7 @@ namespace Neo.Compiler
         private void ConvertBreakStatement(BreakStatementSyntax syntax)
         {
             using (InsertSequencePoint(syntax))
-                if (_tryStack.Count > 0)
+                if (_tryStack.TryPeek(out ExceptionHandling? result) && result.BreakTargetCount == 0)
                     Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
                 else
                     Jump(OpCode.JMP_L, _breakTargets.Peek());
@@ -462,7 +462,7 @@ namespace Neo.Compiler
         private void ConvertContinueStatement(ContinueStatementSyntax syntax)
         {
             using (InsertSequencePoint(syntax))
-                if (_tryStack.Count > 0)
+                if (_tryStack.TryPeek(out ExceptionHandling? result) && result.ContinueTargetCount == 0)
                     Jump(OpCode.ENDTRY_L, _continueTargets.Peek());
                 else
                     Jump(OpCode.JMP_L, _continueTargets.Peek());
@@ -473,8 +473,8 @@ namespace Neo.Compiler
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             startTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(model, syntax.Statement);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -482,8 +482,8 @@ namespace Neo.Compiler
                 ConvertExpression(model, syntax.Condition);
             Jump(OpCode.JMPIF_L, startTarget);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertEmptyStatement(EmptyStatementSyntax syntax)
@@ -524,8 +524,8 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             byte iteratorIndex = AddAnonymousVariable();
             byte elementIndex = AddLocalVariable(elementSymbol);
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -548,8 +548,8 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             _anonymousVariables.Remove(iteratorIndex);
             _localVariables.Remove(elementSymbol);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertArrayForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
@@ -563,8 +563,8 @@ namespace Neo.Compiler
             byte lengthIndex = AddAnonymousVariable();
             byte iIndex = AddAnonymousVariable();
             byte elementIndex = AddLocalVariable(elementSymbol);
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -598,8 +598,8 @@ namespace Neo.Compiler
             _anonymousVariables.Remove(lengthIndex);
             _anonymousVariables.Remove(iIndex);
             _localVariables.Remove(elementSymbol);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
@@ -622,8 +622,8 @@ namespace Neo.Compiler
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
             byte iteratorIndex = AddAnonymousVariable();
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -661,8 +661,8 @@ namespace Neo.Compiler
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
                     _localVariables.Remove(symbol);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertArrayForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
@@ -675,8 +675,8 @@ namespace Neo.Compiler
             byte arrayIndex = AddAnonymousVariable();
             byte lengthIndex = AddAnonymousVariable();
             byte iIndex = AddAnonymousVariable();
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -725,8 +725,8 @@ namespace Neo.Compiler
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
                     _localVariables.Remove(symbol);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertForStatement(SemanticModel model, ForStatementSyntax syntax)
@@ -738,8 +738,8 @@ namespace Neo.Compiler
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
             JumpTarget breakTarget = new();
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             foreach (var (variable, symbol) in variables)
             {
                 byte variableIndex = AddLocalVariable(symbol);
@@ -776,8 +776,8 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             foreach (var (_, symbol) in variables)
                 _localVariables.Remove(symbol);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertIfStatement(SemanticModel model, IfStatementSyntax syntax)
@@ -836,7 +836,7 @@ namespace Neo.Compiler
             var labels = sections.SelectMany(p => p.Labels, (p, l) => (l, p.Target)).ToArray();
             JumpTarget breakTarget = new();
             byte anonymousIndex = AddAnonymousVariable();
-            _breakTargets.Push(breakTarget);
+            PushBreakTarget(breakTarget);
             using (InsertSequencePoint(syntax.Expression))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -889,7 +889,7 @@ namespace Neo.Compiler
                     ConvertStatement(model, statement);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _breakTargets.Pop();
+            PopBreakTarget();
         }
 
         private void ConvertThrowStatement(SemanticModel model, ThrowStatementSyntax syntax)
@@ -954,8 +954,8 @@ namespace Neo.Compiler
         {
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
-            _continueTargets.Push(continueTarget);
-            _breakTargets.Push(breakTarget);
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
             using (InsertSequencePoint(syntax.Condition))
             {
@@ -965,8 +965,8 @@ namespace Neo.Compiler
             ConvertStatement(model, syntax.Statement);
             Jump(OpCode.JMP_L, continueTarget);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _continueTargets.Pop();
-            _breakTargets.Pop();
+            PopContinueTarget();
+            PopBreakTarget();
         }
 
         private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax)
@@ -3287,6 +3287,34 @@ namespace Neo.Compiler
                 VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
                 _ => OpCode.PUSHNULL,
             });
+        }
+
+        private void PushContinueTarget(JumpTarget target)
+        {
+            _continueTargets.Push(target);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.ContinueTargetCount++;
+        }
+
+        private void PopContinueTarget()
+        {
+            _continueTargets.Pop();
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.ContinueTargetCount--;
+        }
+
+        private void PushBreakTarget(JumpTarget target)
+        {
+            _breakTargets.Push(target);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.BreakTargetCount++;
+        }
+
+        private void PopBreakTarget()
+        {
+            _breakTargets.Pop();
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.BreakTargetCount--;
         }
 
         private Instruction AccessSlot(OpCode opcode, byte index)
