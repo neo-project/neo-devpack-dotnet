@@ -16,5 +16,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return a + init;
         }
+
+        public int sum2(int a)
+        {
+            return sum(a) + sum(a);
+        }
     }
 }

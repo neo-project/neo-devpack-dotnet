@@ -26,6 +26,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("sum", 3).Pop();
             Assert.AreEqual(4, result.GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("sum2", 3).Pop();
+            Assert.AreEqual(8, result.GetInteger());
         }
     }
 }
