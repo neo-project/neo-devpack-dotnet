@@ -36,9 +36,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static byte[] testAssignmentDynamic(byte x)
         {
-            byte[] result = new byte[] { 0x01, x};
+            byte[] result = new byte[] { 0x01, x };
             return result;
         }
-
     }
 }
