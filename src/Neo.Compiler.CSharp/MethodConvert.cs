@@ -3430,7 +3430,9 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, symbol);
+            MethodConvert convert = symbol.ReducedFrom is null
+                ? context.ConvertMethod(model, symbol)
+                : context.ConvertMethod(model, symbol.ReducedFrom);
             if (!symbol.IsStatic && convert._callingConvention != CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
