@@ -311,7 +311,7 @@ namespace Neo.Compiler
                     }
                 }
             }
-            foreach (ISymbol member in symbol.GetMembers())
+            foreach (ISymbol member in symbol.GetAllMembers())
             {
                 switch (member)
                 {

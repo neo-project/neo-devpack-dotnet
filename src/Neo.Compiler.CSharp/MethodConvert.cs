@@ -184,7 +184,7 @@ namespace Neo.Compiler
         {
             foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct().ToArray())
             {
-                foreach (IFieldSymbol field in @class.GetMembers().OfType<IFieldSymbol>())
+                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
                     if (field.IsConst || !field.IsStatic) continue;
                     ProcessFieldInitializer(model, field, null, () =>
@@ -302,40 +302,43 @@ namespace Neo.Compiler
             _callingConvention = CallingConvention.Cdecl;
             IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
             INamedTypeSymbol type = property.ContainingType;
-            IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
-            int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-            IFieldSymbol backingField = fields[backingFieldIndex];
+            IFieldSymbol[] fields = type.GetAllMembers().OfType<IFieldSymbol>().ToArray();
             using (InsertSequencePoint(syntax))
             {
-                switch (Symbol.MethodKind)
+                if (Symbol.IsStatic)
                 {
-                    case MethodKind.PropertyGet:
-                        if (Symbol.IsStatic)
-                        {
-                            byte index = context.AddStaticField(backingField);
-                            AccessSlot(OpCode.LDSFLD, index);
-                        }
-                        else
-                        {
+                    IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+                    byte backingFieldIndex = context.AddStaticField(backingField);
+                    switch (Symbol.MethodKind)
+                    {
+                        case MethodKind.PropertyGet:
+                            AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                            break;
+                        case MethodKind.PropertySet:
+                            AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                            break;
+                        default:
+                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                    }
+                }
+                else
+                {
+                    fields = fields.Where(p => !p.IsStatic).ToArray();
+                    int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                    switch (Symbol.MethodKind)
+                    {
+                        case MethodKind.PropertyGet:
                             Push(backingFieldIndex);
                             AddInstruction(OpCode.PICKITEM);
-                        }
-                        break;
-                    case MethodKind.PropertySet:
-                        if (Symbol.IsStatic)
-                        {
-                            byte index = context.AddStaticField(backingField);
-                            AccessSlot(OpCode.STSFLD, index);
-                        }
-                        else
-                        {
+                            break;
+                        case MethodKind.PropertySet:
                             Push(backingFieldIndex);
                             AddInstruction(OpCode.ROT);
                             AddInstruction(OpCode.SETITEM);
-                        }
-                        break;
-                    default:
-                        throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                            break;
+                        default:
+                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                    }
                 }
             }
         }
