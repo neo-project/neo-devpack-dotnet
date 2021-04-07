@@ -33,5 +33,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             a[0] = (byte)obj;
             return a;
         }
+
+        public static byte[] testAssignmentDynamic(byte x)
+        {
+            byte[] result = new byte[] { 0x01, x };
+            return result;
+        }
     }
 }
