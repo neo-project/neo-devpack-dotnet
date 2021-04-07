@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static int AssertCall(bool value)
         {
-            Assert(value == true);
+            ExecutionEngine.Assert(value == true);
             return 5;
         }
 
@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static void VoidAssertCall(bool value)
         {
-            Assert(value == true);
+            ExecutionEngine.Assert(value == true);
         }
 
         public static byte[] TestByteToByteArray()
