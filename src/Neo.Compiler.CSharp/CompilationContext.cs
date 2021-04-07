@@ -284,45 +284,48 @@ namespace Neo.Compiler
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
         {
-            if (scTypeFound) return;
-            if (symbol.DeclaredAccessibility != Accessibility.Public) return;
-            if (symbol.IsAbstract) return;
-            if (!symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract))) return;
-            scTypeFound = true;
-            ContractName = symbol.Name;
-            foreach (var attribute in symbol.GetAttributes())
+            bool isPublic = symbol.DeclaredAccessibility == Accessibility.Public;
+            bool isAbstract = symbol.IsAbstract;
+            bool isContractType = symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract));
+            bool isSmartContract = !scTypeFound && isPublic && !isAbstract && isContractType;
+            if (isSmartContract)
             {
-                switch (attribute.AttributeClass!.Name)
+                scTypeFound = true;
+                ContractName = symbol.Name;
+                foreach (var attribute in symbol.GetAttributes())
                 {
-                    case nameof(DisplayNameAttribute):
-                        ContractName = (string)attribute.ConstructorArguments[0].Value!;
-                        break;
-                    case nameof(scfx.Neo.SmartContract.Framework.ManifestExtraAttribute):
-                        manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
-                        break;
-                    case nameof(scfx.Neo.SmartContract.Framework.ContractPermissionAttribute):
-                        permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
-                        break;
-                    case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
-                        supportedStandards.AddRange(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
-                        break;
+                    switch (attribute.AttributeClass!.Name)
+                    {
+                        case nameof(DisplayNameAttribute):
+                            ContractName = (string)attribute.ConstructorArguments[0].Value!;
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.ManifestExtraAttribute):
+                            manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.ContractPermissionAttribute):
+                            permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
+                            supportedStandards.AddRange(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
+                            break;
+                    }
                 }
             }
             foreach (ISymbol member in symbol.GetMembers())
             {
                 switch (member)
                 {
-                    case IEventSymbol @event:
+                    case IEventSymbol @event when isSmartContract:
                         ProcessEvent(@event);
                         break;
                     case IMethodSymbol method when method.MethodKind != MethodKind.StaticConstructor:
-                        ProcessMethod(model, method);
+                        ProcessMethod(model, method, isSmartContract);
                         break;
                 }
             }
-            if (symbol.StaticConstructors.Length > 0)
+            if (isSmartContract && symbol.StaticConstructors.Length > 0)
             {
-                ProcessMethod(model, symbol.StaticConstructors[0]);
+                ProcessMethod(model, symbol.StaticConstructors[0], true);
             }
         }
 
@@ -335,18 +338,18 @@ namespace Neo.Compiler
             eventsExported.Add(new AbiEvent(symbol));
         }
 
-        private void ProcessMethod(SemanticModel model, IMethodSymbol symbol)
+        private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
         {
             if (symbol.MethodKind != MethodKind.StaticConstructor)
             {
                 if (symbol.DeclaredAccessibility != Accessibility.Public)
-                    return;
+                    export = false;
                 if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
                     return;
             }
-            methodsExported.Add(new AbiMethod(symbol));
+            if (export) methodsExported.Add(new AbiMethod(symbol));
             MethodConvert convert = ConvertMethod(model, symbol);
-            if (!symbol.IsStatic)
+            if (export && !symbol.IsStatic)
             {
                 MethodConvert forward = new(this, symbol);
                 forward.ConvertForward(model, convert);
