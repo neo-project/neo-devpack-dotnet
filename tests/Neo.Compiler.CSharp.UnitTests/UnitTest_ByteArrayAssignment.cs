@@ -45,5 +45,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.ExecuteTestCaseStandard("testAssignmentWrongCasting");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
         }
+
+        [TestMethod]
+        public void Test_ByteArrayAssignmentDynamic()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("testAssignmentDynamic", 10);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x0a }, result.Pop().GetSpan().ToArray());
+        }
     }
 }
