@@ -54,7 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("testAssignmentDynamic", 10);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            CollectionAssert.AreEqual(new byte[] { 0x01,0x0a }, result.Pop().GetSpan().ToArray());
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x0a }, result.Pop().GetSpan().ToArray());
         }
     }
 }
