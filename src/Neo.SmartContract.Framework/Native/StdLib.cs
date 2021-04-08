@@ -44,5 +44,17 @@ namespace Neo.SmartContract.Framework.Native
         public static extern string Itoa(sbyte value, int @base = 10);
 
         public static extern BigInteger Atoi(string value, int @base = 10);
+
+        public static extern int MemoryCompare(ByteString str1, ByteString str2);
+
+        public static extern int MemorySearch(ByteString mem, ByteString value);
+
+        public static extern int MemorySearch(ByteString mem, ByteString value, int start);
+
+        public static extern int MemorySearch(ByteString mem, ByteString value, int start, bool backward);
+
+        public static extern string[] StringSplit(string str, string separator);
+
+        public static extern string[] StringSplit(string str, string separator, bool removeEmptyEntries);
     }
 }
