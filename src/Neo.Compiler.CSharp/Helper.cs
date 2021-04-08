@@ -119,30 +119,31 @@ namespace Neo.Compiler
         {
             if (type.SpecialType == SpecialType.System_Object) yield break;
             List<ISymbol> myMembers = type.GetMembers().ToList();
-            foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
-            {
-                if (member is IMethodSymbol method && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor))
+            if (type.IsReferenceType)
+                foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
                 {
-                    continue;
-                }
-                else if (member.IsAbstract || member.IsVirtual || member.IsOverride)
-                {
-                    int index = myMembers.FindIndex(p => p is IMethodSymbol method && SymbolEqualityComparer.Default.Equals(method.OverriddenMethod, member));
-                    if (index >= 0)
+                    if (member is IMethodSymbol method && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor))
                     {
-                        yield return myMembers[index];
-                        myMembers.RemoveAt(index);
+                        continue;
+                    }
+                    else if (member.IsAbstract || member.IsVirtual || member.IsOverride)
+                    {
+                        int index = myMembers.FindIndex(p => p is IMethodSymbol method && SymbolEqualityComparer.Default.Equals(method.OverriddenMethod, member));
+                        if (index >= 0)
+                        {
+                            yield return myMembers[index];
+                            myMembers.RemoveAt(index);
+                        }
+                        else
+                        {
+                            yield return member;
+                        }
                     }
                     else
                     {
                         yield return member;
                     }
                 }
-                else
-                {
-                    yield return member;
-                }
-            }
             foreach (ISymbol member in myMembers)
             {
                 yield return member;

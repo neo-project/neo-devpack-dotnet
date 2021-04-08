@@ -243,10 +243,13 @@ namespace Neo.Compiler
             ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
             if (initializer is null)
             {
-                INamedTypeSymbol baseType = Symbol.ContainingType.BaseType!;
-                if (baseType.SpecialType == SpecialType.System_Object)
-                    return;
+                INamedTypeSymbol type = Symbol.ContainingType;
+                if (type.IsValueType) return;
+                INamedTypeSymbol baseType = type.BaseType!;
+                if (baseType.SpecialType == SpecialType.System_Object) return;
                 IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
+                if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
+                    return;
                 Call(model, baseConstructor, null);
             }
             else
