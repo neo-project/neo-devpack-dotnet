@@ -321,14 +321,17 @@ namespace Neo.Compiler
                     case IEventSymbol @event when isSmartContract:
                         ProcessEvent(@event);
                         break;
-                    case IMethodSymbol method when method.MethodKind != MethodKind.StaticConstructor:
+                    case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
                         ProcessMethod(model, method, isSmartContract);
                         break;
                 }
             }
-            if (isSmartContract && symbol.StaticConstructors.Length > 0)
+            if (isSmartContract)
             {
-                ProcessMethod(model, symbol.StaticConstructors[0], true);
+                IMethodSymbol _initialize = symbol.StaticConstructors.Length == 0
+                    ? symbol.GetAllMembers().OfType<IMethodSymbol>().First(p => p.Name == "_initialize")
+                    : symbol.StaticConstructors[0];
+                ProcessMethod(model, _initialize, true);
             }
         }
 

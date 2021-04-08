@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public virtual string test() { return "base"; }
     }
 
-    public class B : A
+    public abstract class B : A
     {
         public int mul(int a, int b)
         {

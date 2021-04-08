@@ -96,7 +96,22 @@ namespace Neo.Compiler
         {
             if (Symbol.IsExtern || Symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
             {
-                ConvertExtern();
+                if (Symbol.Name == "_initialize")
+                {
+                    ProcessStaticFields(model);
+                    if (context.StaticFieldCount > 0)
+                    {
+                        _instructions.Insert(0, new Instruction
+                        {
+                            OpCode = OpCode.INITSSLOT,
+                            Operand = new[] { (byte)context.StaticFieldCount }
+                        });
+                    }
+                }
+                else
+                {
+                    ConvertExtern();
+                }
             }
             else
             {
