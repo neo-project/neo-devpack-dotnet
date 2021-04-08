@@ -36,6 +36,11 @@ namespace Neo.Compiler
             return false;
         }
 
+        public static bool IsVirtualMethod(this IMethodSymbol method)
+        {
+            return method.IsAbstract || method.IsVirtual || method.IsOverride;
+        }
+
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
             switch (type.ToString())
@@ -120,7 +125,7 @@ namespace Neo.Compiler
                 {
                     continue;
                 }
-                else if (member.IsAbstract || member.IsVirtual)
+                else if (member.IsAbstract || member.IsVirtual || member.IsOverride)
                 {
                     int index = myMembers.FindIndex(p => p is IMethodSymbol method && SymbolEqualityComparer.Default.Equals(method.OverriddenMethod, member));
                     if (index >= 0)

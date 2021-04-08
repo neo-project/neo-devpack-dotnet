@@ -30,13 +30,16 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection methodsConverted = new();
         private readonly MethodConvertCollection methodsForward = new();
         private readonly List<MethodToken> methodTokens = new();
-        private readonly List<IFieldSymbol> staticFields = new();
+        private readonly Dictionary<IFieldSymbol, byte> staticFields = new();
+        private readonly Dictionary<ITypeSymbol, byte> vtables = new();
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string ContractName { get; private set; } = "";
         internal Options Options { get; private set; }
-        internal IReadOnlyList<IFieldSymbol> StaticFields => staticFields;
+        internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
+        internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
+        internal int StaticFieldCount => staticFields.Count + vtables.Count;
 
         private CompilationContext(Compilation compilation, Options options)
         {
@@ -340,6 +343,7 @@ namespace Neo.Compiler
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
         {
+            if (symbol.IsAbstract) return;
             if (symbol.MethodKind != MethodKind.StaticConstructor)
             {
                 if (symbol.DeclaredAccessibility != Accessibility.Public)
@@ -388,13 +392,22 @@ namespace Neo.Compiler
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
-            int index = staticFields.IndexOf(symbol);
-            if (index == -1)
+            if (!staticFields.TryGetValue(symbol, out byte index))
             {
-                index = staticFields.Count;
-                staticFields.Add(symbol);
+                index = (byte)StaticFieldCount;
+                staticFields.Add(symbol, index);
             }
-            return (byte)index;
+            return index;
+        }
+
+        internal byte AddVTable(ITypeSymbol type)
+        {
+            if (!vtables.TryGetValue(type, out byte index))
+            {
+                index = (byte)StaticFieldCount;
+                vtables.Add(type, index);
+            }
+            return index;
         }
     }
 }
