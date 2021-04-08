@@ -100,5 +100,190 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var item = result.Pop<VM.Types.ByteString>();
             Assert.AreEqual("3yZe7d", item.GetString());
         }
+
+        [TestMethod]
+        public void MemoryCompareTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("memoryCompare", "abc", "c");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memoryCompare", "abc", "d");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memoryCompare", "abc", "abc");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(0, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memoryCompare", "abc", "abcd");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+        }
+
+        [TestMethod]
+        public void StringSplitTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("stringSplit1", "a,b,c", ",");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            var arr = result.Pop<VM.Types.Array>();
+            Assert.AreEqual(3, arr.Count);
+            Assert.AreEqual("a", arr[0].GetString());
+            Assert.AreEqual("b", arr[1].GetString());
+            Assert.AreEqual("c", arr[2].GetString());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("stringSplit2", "a,,c", ",", false);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            arr = result.Pop<VM.Types.Array>();
+            Assert.AreEqual(3, arr.Count);
+            Assert.AreEqual("a", arr[0].GetString());
+            Assert.AreEqual("", arr[1].GetString());
+            Assert.AreEqual("c", arr[2].GetString());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("stringSplit2", "a,,c", ",", true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            arr = result.Pop<VM.Types.Array>();
+            Assert.AreEqual(2, arr.Count);
+            Assert.AreEqual("a", arr[0].GetString());
+            Assert.AreEqual("c", arr[1].GetString());
+        }
+
+        [TestMethod]
+        public void MemorySearchTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("memorySearch1", "abc", "c");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch1", "abc", "c");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch1", "abc", "c");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch1", "abc", "c");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch1", "abc", "d");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch2", "abc", "c", 0);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch2", "abc", "c", 1);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch2", "abc", "c", 2);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch2", "abc", "c", 3);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch2", "abc", "d", 0);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 0, false);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 1, false);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 2, false);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 3, false);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "d", 0, false);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 0, true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 1, true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 2, true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "c", 3, true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Pop<VM.Types.Integer>().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("memorySearch3", "abc", "d", 0, true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(-1, result.Pop<VM.Types.Integer>().GetInteger());
+        }
     }
 }

@@ -13,7 +13,6 @@ namespace Neo.Compiler
         public const string MultiplyCatches = "NC2006";
         public const string CatchFilter = "NC2007";
         public const string MultidimensionalArray = "NC2008";
-        public const string ByteArrayInitializer = "NC2009";
         public const string ArrayRange = "NC2010";
         public const string InvalidToStringType = "NC2011";
         public const string AlignmentClause = "NC2012";

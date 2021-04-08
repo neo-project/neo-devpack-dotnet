@@ -1110,10 +1110,23 @@ namespace Neo.Compiler
                 {
                     Optional<object?>[] values = expression.Initializer.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
                     if (values.Any(p => !p.HasValue))
-                        throw new CompilationException(expression.Initializer, DiagnosticId.ByteArrayInitializer, $"Unsupported array initializer: {expression.Initializer}");
-                    byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-                    Push(data);
-                    ChangeType(VM.Types.StackItemType.Buffer);
+                    {
+                        Push(values.Length);
+                        AddInstruction(OpCode.NEWBUFFER);
+                        for (int i = 0; i < expression.Initializer.Expressions.Count; i++)
+                        {
+                            AddInstruction(OpCode.DUP);
+                            Push(i);
+                            ConvertExpression(model, expression.Initializer.Expressions[i]);
+                            AddInstruction(OpCode.SETITEM);
+                        }
+                    }
+                    else
+                    {
+                        byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
+                        Push(data);
+                        ChangeType(VM.Types.StackItemType.Buffer);
+                    }
                 }
             }
             else
@@ -3506,7 +3519,9 @@ namespace Neo.Compiler
             }
             else
             {
-                convert = context.ConvertMethod(model, symbol);
+                convert = symbol.ReducedFrom is null
+                    ? context.ConvertMethod(model, symbol)
+                    : context.ConvertMethod(model, symbol.ReducedFrom);
                 methodCallingConvention = convert._callingConvention;
             }
             if (!symbol.IsStatic && methodCallingConvention != CallingConvention.Cdecl)
