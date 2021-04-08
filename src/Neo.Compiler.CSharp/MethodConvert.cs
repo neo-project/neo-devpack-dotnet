@@ -255,7 +255,8 @@ namespace Neo.Compiler
             else
             {
                 IMethodSymbol baseConstructor = (IMethodSymbol)model.GetSymbolInfo(initializer).Symbol!;
-                Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
+                using (InsertSequencePoint(initializer))
+                    Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
             }
         }
 
