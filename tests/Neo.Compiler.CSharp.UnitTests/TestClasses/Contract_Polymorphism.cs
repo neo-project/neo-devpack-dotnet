@@ -9,6 +9,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return a + b;
         }
+
+        public virtual string test() { return "base"; }
     }
 
     public class B : A
@@ -21,6 +23,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
     public class Contract_Polymorphism : B
     {
-
+        public override string test()
+        {
+            return "test";
+        }
     }
 }

@@ -25,6 +25,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("mul", 5, 8);
             Assert.AreEqual(40, result.Pop().GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("test");
+            Assert.AreEqual("test", result.Pop().GetString());
         }
     }
 }
