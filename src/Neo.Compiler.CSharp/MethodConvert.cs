@@ -100,17 +100,19 @@ namespace Neo.Compiler
             }
             else
             {
+                if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
+                    SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
                 switch (Symbol.MethodKind)
                 {
                     case MethodKind.Constructor:
                         ProcessFields(model);
+                        ProcessConstructorInitializer(model);
                         break;
                     case MethodKind.StaticConstructor:
                         ProcessStaticFields(model);
                         break;
                 }
-                if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
-                    ConvertSource(model);
+                ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
                     _instructions.Insert(0, new Instruction
@@ -236,6 +238,24 @@ namespace Neo.Compiler
             }
         }
 
+        private void ProcessConstructorInitializer(SemanticModel model)
+        {
+            ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
+            if (initializer is null)
+            {
+                INamedTypeSymbol baseType = Symbol.ContainingType.BaseType!;
+                if (baseType.SpecialType == SpecialType.System_Object)
+                    return;
+                IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
+                Call(model, baseConstructor, null);
+            }
+            else
+            {
+                IMethodSymbol baseConstructor = (IMethodSymbol)model.GetSymbolInfo(initializer).Symbol!;
+                Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
+            }
+        }
+
         private void ConvertExtern()
         {
             _inline = true;
@@ -346,7 +366,7 @@ namespace Neo.Compiler
 
         private void ConvertSource(SemanticModel model)
         {
-            SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
+            if (SyntaxNode is null) return;
             for (byte i = 0; i < Symbol.Parameters.Length; i++)
             {
                 IParameterSymbol parameter = Symbol.Parameters[i];
