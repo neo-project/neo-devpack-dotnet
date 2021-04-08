@@ -3,7 +3,6 @@ namespace Neo.Compiler
     public class Options
     {
         public string? Output { get; set; }
-        public bool Polymorphism { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
         public bool NoOptimize { get; set; }
