@@ -96,27 +96,44 @@ namespace Neo.Compiler
         {
             if (Symbol.IsExtern || Symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
             {
-                ConvertExtern();
+                if (Symbol.Name == "_initialize")
+                {
+                    ProcessStaticFields(model);
+                    if (context.StaticFieldCount > 0)
+                    {
+                        _instructions.Insert(0, new Instruction
+                        {
+                            OpCode = OpCode.INITSSLOT,
+                            Operand = new[] { (byte)context.StaticFieldCount }
+                        });
+                    }
+                }
+                else
+                {
+                    ConvertExtern();
+                }
             }
             else
             {
+                if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
+                    SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
                 switch (Symbol.MethodKind)
                 {
                     case MethodKind.Constructor:
                         ProcessFields(model);
+                        ProcessConstructorInitializer(model);
                         break;
                     case MethodKind.StaticConstructor:
                         ProcessStaticFields(model);
                         break;
                 }
-                if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
-                    ConvertSource(model);
-                if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFields.Count > 0)
+                ConvertSource(model);
+                if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
                     _instructions.Insert(0, new Instruction
                     {
                         OpCode = OpCode.INITSSLOT,
-                        Operand = new[] { (byte)context.StaticFields.Count }
+                        Operand = new[] { (byte)context.StaticFieldCount }
                     });
                 }
                 if (_initslot)
@@ -143,18 +160,7 @@ namespace Neo.Compiler
         public void ConvertForward(SemanticModel model, MethodConvert target)
         {
             INamedTypeSymbol type = Symbol.ContainingType;
-            IFieldSymbol[] fields = type.GetFields();
-            if (fields.Length == 0)
-            {
-                AddInstruction(OpCode.NEWARRAY0);
-            }
-            else
-            {
-                for (int i = fields.Length - 1; i >= 0; i--)
-                    PushDefault(fields[i].Type);
-                Push(fields.Length);
-                AddInstruction(OpCode.PACK);
-            }
+            CreateObject(model, type, null);
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0);
             if (constructor is null)
                 throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
@@ -182,9 +188,9 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct().ToArray())
+            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct().ToArray())
             {
-                foreach (IFieldSymbol field in @class.GetMembers().OfType<IFieldSymbol>())
+                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
                     if (field.IsConst || !field.IsStatic) continue;
                     ProcessFieldInitializer(model, field, null, () =>
@@ -193,6 +199,18 @@ namespace Neo.Compiler
                         AccessSlot(OpCode.STSFLD, index);
                     });
                 }
+            }
+            foreach (var (fieldIndex, type) in context.VTables)
+            {
+                IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+                for (int i = virtualMethods.Length - 1; i >= 0; i--)
+                {
+                    MethodConvert convert = context.ConvertMethod(model, virtualMethods[i]);
+                    Jump(OpCode.PUSHA, convert._startTarget);
+                }
+                Push(virtualMethods.Length);
+                AddInstruction(OpCode.PACK);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
             }
         }
 
@@ -232,6 +250,28 @@ namespace Neo.Compiler
                         throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
                 }
                 postInitialize?.Invoke();
+            }
+        }
+
+        private void ProcessConstructorInitializer(SemanticModel model)
+        {
+            ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
+            if (initializer is null)
+            {
+                INamedTypeSymbol type = Symbol.ContainingType;
+                if (type.IsValueType) return;
+                INamedTypeSymbol baseType = type.BaseType!;
+                if (baseType.SpecialType == SpecialType.System_Object) return;
+                IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
+                if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
+                    return;
+                Call(model, baseConstructor, null);
+            }
+            else
+            {
+                IMethodSymbol baseConstructor = (IMethodSymbol)model.GetSymbolInfo(initializer).Symbol!;
+                using (InsertSequencePoint(initializer))
+                    Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
             }
         }
 
@@ -302,47 +342,50 @@ namespace Neo.Compiler
             _callingConvention = CallingConvention.Cdecl;
             IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
             INamedTypeSymbol type = property.ContainingType;
-            IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
-            int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-            IFieldSymbol backingField = fields[backingFieldIndex];
+            IFieldSymbol[] fields = type.GetAllMembers().OfType<IFieldSymbol>().ToArray();
             using (InsertSequencePoint(syntax))
             {
-                switch (Symbol.MethodKind)
+                if (Symbol.IsStatic)
                 {
-                    case MethodKind.PropertyGet:
-                        if (Symbol.IsStatic)
-                        {
-                            byte index = context.AddStaticField(backingField);
-                            AccessSlot(OpCode.LDSFLD, index);
-                        }
-                        else
-                        {
+                    IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+                    byte backingFieldIndex = context.AddStaticField(backingField);
+                    switch (Symbol.MethodKind)
+                    {
+                        case MethodKind.PropertyGet:
+                            AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                            break;
+                        case MethodKind.PropertySet:
+                            AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                            break;
+                        default:
+                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                    }
+                }
+                else
+                {
+                    fields = fields.Where(p => !p.IsStatic).ToArray();
+                    int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                    switch (Symbol.MethodKind)
+                    {
+                        case MethodKind.PropertyGet:
                             Push(backingFieldIndex);
                             AddInstruction(OpCode.PICKITEM);
-                        }
-                        break;
-                    case MethodKind.PropertySet:
-                        if (Symbol.IsStatic)
-                        {
-                            byte index = context.AddStaticField(backingField);
-                            AccessSlot(OpCode.STSFLD, index);
-                        }
-                        else
-                        {
+                            break;
+                        case MethodKind.PropertySet:
                             Push(backingFieldIndex);
                             AddInstruction(OpCode.ROT);
                             AddInstruction(OpCode.SETITEM);
-                        }
-                        break;
-                    default:
-                        throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                            break;
+                        default:
+                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                    }
                 }
             }
         }
 
         private void ConvertSource(SemanticModel model)
         {
-            SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
+            if (SyntaxNode is null) return;
             for (byte i = 0; i < Symbol.Parameters.Length; i++)
             {
                 IParameterSymbol parameter = Symbol.Parameters[i];
@@ -1829,31 +1872,7 @@ namespace Neo.Compiler
             bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
             if (needCreateObject)
             {
-                IFieldSymbol[] fields = type.GetFields();
-                AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-                foreach (IFieldSymbol field in fields)
-                {
-                    ExpressionSyntax? right = null;
-                    if (expression.Initializer is not null)
-                    {
-                        foreach (ExpressionSyntax e in expression.Initializer.Expressions)
-                        {
-                            if (e is not AssignmentExpressionSyntax ae)
-                                throw new CompilationException(expression.Initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {expression.Initializer}");
-                            if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
-                            {
-                                right = ae.Right;
-                                break;
-                            }
-                        }
-                    }
-                    AddInstruction(OpCode.DUP);
-                    if (right is null)
-                        PushDefault(field.Type);
-                    else
-                        ConvertExpression(model, right);
-                    AddInstruction(OpCode.APPEND);
-                }
+                CreateObject(model, type, expression.Initializer);
             }
             Call(model, constructor, needCreateObject, arguments);
         }
@@ -3355,6 +3374,59 @@ namespace Neo.Compiler
             });
         }
 
+        private void InitializeFieldForObject(SemanticModel model, IFieldSymbol field, InitializerExpressionSyntax? initializer)
+        {
+            ExpressionSyntax? expression = null;
+            if (initializer is not null)
+            {
+                foreach (ExpressionSyntax e in initializer.Expressions)
+                {
+                    if (e is not AssignmentExpressionSyntax ae)
+                        throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                    if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
+                    {
+                        expression = ae.Right;
+                        break;
+                    }
+                }
+            }
+            if (expression is null)
+                PushDefault(field.Type);
+            else
+                ConvertExpression(model, expression);
+        }
+
+        private void CreateObject(SemanticModel model, ITypeSymbol type, InitializerExpressionSyntax? initializer)
+        {
+            ISymbol[] members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+            IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
+            if (fields.Length == 0 || type.IsValueType)
+            {
+                AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+                foreach (IFieldSymbol field in fields)
+                {
+                    AddInstruction(OpCode.DUP);
+                    InitializeFieldForObject(model, field, initializer);
+                    AddInstruction(OpCode.APPEND);
+                }
+            }
+            else
+            {
+                for (int i = fields.Length - 1; i >= 0; i--)
+                    InitializeFieldForObject(model, fields[i], initializer);
+                Push(fields.Length);
+                AddInstruction(OpCode.PACK);
+            }
+            IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            if (virtualMethods.Length > 0)
+            {
+                byte index = context.AddVTable(type);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.LDSFLD, index);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+
         private Instruction Jump(OpCode opcode, JumpTarget target)
         {
             return AddInstruction(new Instruction
@@ -3415,12 +3487,23 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, arguments))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, symbol);
+            MethodConvert? convert;
+            CallingConvention methodCallingConvention;
+            if (symbol.IsVirtualMethod())
+            {
+                convert = null;
+                methodCallingConvention = CallingConvention.Cdecl;
+            }
+            else
+            {
+                convert = context.ConvertMethod(model, symbol);
+                methodCallingConvention = convert._callingConvention;
+            }
             bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
-            if (instanceOnStack && convert._callingConvention != CallingConvention.Cdecl && isConstructor)
+            if (instanceOnStack && methodCallingConvention != CallingConvention.Cdecl && isConstructor)
                 AddInstruction(OpCode.DUP);
-            PrepareArgumentsForMethod(model, symbol, arguments, convert._callingConvention);
-            if (instanceOnStack && convert._callingConvention == CallingConvention.Cdecl)
+            PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
+            if (instanceOnStack && methodCallingConvention == CallingConvention.Cdecl)
             {
                 switch (symbol.Parameters.Length)
                 {
@@ -3436,42 +3519,70 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            EmitCall(convert);
+            if (convert is null)
+                CallVirtual(symbol);
+            else
+                EmitCall(convert);
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
         {
             if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
                 return;
-            MethodConvert convert = symbol.ReducedFrom is null
-                ? context.ConvertMethod(model, symbol)
-                : context.ConvertMethod(model, symbol.ReducedFrom);
-            if (!symbol.IsStatic && convert._callingConvention != CallingConvention.Cdecl)
+            MethodConvert? convert;
+            CallingConvention methodCallingConvention;
+            if (symbol.IsVirtualMethod())
+            {
+                convert = null;
+                methodCallingConvention = CallingConvention.Cdecl;
+            }
+            else
+            {
+                convert = symbol.ReducedFrom is null
+                    ? context.ConvertMethod(model, symbol)
+                    : context.ConvertMethod(model, symbol.ReducedFrom);
+                methodCallingConvention = convert._callingConvention;
+            }
+            if (!symbol.IsStatic && methodCallingConvention != CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
                     AddInstruction(OpCode.LDARG0);
                 else
                     ConvertExpression(model, instanceExpression);
             }
-            PrepareArgumentsForMethod(model, symbol, arguments, convert._callingConvention);
-            if (!symbol.IsStatic && convert._callingConvention == CallingConvention.Cdecl)
+            PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
+            if (!symbol.IsStatic && methodCallingConvention == CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
                     AddInstruction(OpCode.LDARG0);
                 else
                     ConvertExpression(model, instanceExpression);
             }
-            EmitCall(convert);
+            if (convert is null)
+                CallVirtual(symbol);
+            else
+                EmitCall(convert);
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             if (TryProcessSystemMethods(model, symbol, null, null))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, symbol);
+            MethodConvert? convert;
+            CallingConvention methodCallingConvention;
+            if (symbol.IsVirtualMethod())
+            {
+                convert = null;
+                methodCallingConvention = CallingConvention.Cdecl;
+            }
+            else
+            {
+                convert = context.ConvertMethod(model, symbol);
+                methodCallingConvention = convert._callingConvention;
+            }
             int pc = symbol.Parameters.Length;
             if (!symbol.IsStatic) pc++;
-            if (pc > 1 && convert._callingConvention != callingConvention)
+            if (pc > 1 && methodCallingConvention != callingConvention)
             {
                 switch (pc)
                 {
@@ -3490,7 +3601,10 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            EmitCall(convert);
+            if (convert is null)
+                CallVirtual(symbol);
+            else
+                EmitCall(convert);
         }
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
@@ -3942,6 +4056,20 @@ namespace Neo.Compiler
                     AddInstruction(target._instructions[i].Clone());
             else
                 Jump(OpCode.CALL_L, target._startTarget);
+        }
+
+        private void CallVirtual(IMethodSymbol symbol)
+        {
+            ISymbol[] members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+            IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
+            IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            int index = Array.IndexOf(virtualMethods, symbol);
+            AddInstruction(OpCode.DUP);
+            Push(fields.Length);
+            AddInstruction(OpCode.PICKITEM);
+            Push(index);
+            AddInstruction(OpCode.PICKITEM);
+            AddInstruction(OpCode.CALLA);
         }
     }
 
