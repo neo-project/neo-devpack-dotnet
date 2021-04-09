@@ -3988,6 +3988,13 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.EQUAL);
                     return true;
+                case "string.this[int].get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.PICKITEM);
+                    return true;
                 case "string.Substring(int)":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
