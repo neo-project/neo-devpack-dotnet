@@ -116,8 +116,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
 
-
-
         [TestMethod]
         public void sbyte_Test()
         {
@@ -259,7 +257,19 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("neo", ((ByteString)item).GetString());
+            Assert.AreEqual("neo", item.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkStringIndex", "neo", 1);
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual("e", item.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkStringIndex", "neo", 2);
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual("o", item.GetString());
         }
 
         [TestMethod]

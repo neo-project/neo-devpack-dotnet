@@ -1084,6 +1084,7 @@ namespace Neo.Compiler
                 case SwitchExpressionSyntax expression:
                     ConvertSwitchExpression(model, expression);
                     break;
+                case BaseExpressionSyntax:
                 case ThisExpressionSyntax:
                     AddInstruction(OpCode.LDARG0);
                     break;
@@ -3532,7 +3533,7 @@ namespace Neo.Compiler
                 return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
-            if (symbol.IsVirtualMethod())
+            if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
             {
                 convert = null;
                 methodCallingConvention = CallingConvention.Cdecl;
@@ -3988,6 +3989,13 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.EQUAL);
+                    return true;
+                case "string.this[int].get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.PICKITEM);
                     return true;
                 case "string.Substring(int)":
                     if (instanceExpression is not null)
