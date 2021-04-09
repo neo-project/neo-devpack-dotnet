@@ -1085,6 +1085,7 @@ namespace Neo.Compiler
                 case SwitchExpressionSyntax expression:
                     ConvertSwitchExpression(model, expression);
                     break;
+                case BaseExpressionSyntax:
                 case ThisExpressionSyntax:
                     AddInstruction(OpCode.LDARG0);
                     break;
@@ -3531,7 +3532,7 @@ namespace Neo.Compiler
                 return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
-            if (symbol.IsVirtualMethod())
+            if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
             {
                 convert = null;
                 methodCallingConvention = CallingConvention.Cdecl;
