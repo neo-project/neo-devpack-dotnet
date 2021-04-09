@@ -50,7 +50,8 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static BigInteger BalanceOf(UInt160 owner)
         {
-            if (owner is null) throw new Exception("Owner cannot be null.");
+            if (owner is null || !owner.IsValid)
+                throw new Exception("The argument \"owner\" is invalid.");
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
             return (BigInteger)balanceMap[owner];
         }
@@ -65,13 +66,16 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator TokensOf(UInt160 owner)
         {
+            if (owner is null || !owner.IsValid)
+                throw new Exception("The argument \"owner\" is invalid");
             StorageMap accountMap = new(Storage.CurrentContext, Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.ValuesOnly);
         }
 
         public static bool Transfer(UInt160 to, ByteString tokenId, object data)
         {
-            if (to is null) throw new ArgumentNullException(nameof(to));
+            if (to is null || !to.IsValid)
+                throw new Exception("The argument \"to\" is invalid.");
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
             UInt160 from = token.Owner;
