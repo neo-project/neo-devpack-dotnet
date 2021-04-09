@@ -22,7 +22,7 @@ namespace Neo.Compiler
         private readonly Compilation compilation;
         private bool scTypeFound;
         private readonly List<Diagnostic> diagnostics = new();
-        private readonly List<string> supportedStandards = new();
+        private readonly HashSet<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
         private readonly List<AbiEvent> eventsExported = new();
         private readonly PermissionBuilder permissions = new();
@@ -213,7 +213,7 @@ namespace Neo.Compiler
             {
                 ["name"] = ContractName,
                 ["groups"] = new JArray(),
-                ["supportedstandards"] = supportedStandards.Select(p => (JString)p).ToArray(),
+                ["supportedstandards"] = supportedStandards.OrderBy(p => p).Select(p => (JString)p).ToArray(),
                 ["abi"] = new JObject
                 {
                     ["methods"] = methodsExported.Select(p => new JObject
@@ -309,7 +309,7 @@ namespace Neo.Compiler
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
-                            supportedStandards.AddRange(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
+                            supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
                             break;
                     }
                 }
