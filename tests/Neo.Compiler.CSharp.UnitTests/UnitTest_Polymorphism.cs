@@ -29,6 +29,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("test");
             Assert.AreEqual("test", result.Pop().GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("test2");
+            Assert.AreEqual("base.test", result.Pop().GetString());
         }
     }
 }
