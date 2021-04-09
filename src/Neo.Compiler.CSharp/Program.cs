@@ -30,6 +30,7 @@ namespace Neo.Compiler
 
         private static int Handle(Options options, string path)
         {
+            path = Path.GetFullPath(path);
             if (File.Exists(path))
             {
                 return Path.GetExtension(path).ToLowerInvariant() switch
