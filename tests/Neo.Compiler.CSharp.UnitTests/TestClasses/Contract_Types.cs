@@ -37,6 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static ulong checkUlong() { return (ulong)5; }
         public static char checkChar() { return 'n'; }
         public static string checkString() { return "neo"; }
+        public static char checkStringIndex(string input, int index) => input[index];
         public static object[] checkArrayObj() { return new object[] { "neo" }; }
         public static BigInteger checkBigInteger() { return (BigInteger)5; }
         public static byte[] checkByteArray() { return new byte[] { 1, 2, 3 }; }

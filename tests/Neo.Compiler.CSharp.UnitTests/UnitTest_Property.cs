@@ -23,13 +23,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             var property = abi["methods"].GetArray()[0];
             Assert.AreEqual("symbol", property["name"].GetString());
         }
-
-        [TestMethod]
-        public void IndexTest()
-        {
-            testEngine.Reset();
-            var result = testEngine.ExecuteTestCaseStandard("testIndex", 5);
-            Assert.AreEqual("5", result.Pop().GetString());
-        }
     }
 }
