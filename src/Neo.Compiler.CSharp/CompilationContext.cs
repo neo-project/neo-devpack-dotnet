@@ -155,6 +155,7 @@ namespace Neo.Compiler
         public static CompilationContext CompileProject(string csproj, Options options)
         {
             string folder = Path.GetDirectoryName(csproj)!;
+            folder = string.IsNullOrWhiteSpace(folder) ? "." : folder;
             string obj = Path.Combine(folder, "obj");
             string[] sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
             return Compile(csproj, sourceFiles, options);
