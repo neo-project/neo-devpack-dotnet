@@ -11,6 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         }
 
         public virtual string test() { return "base"; }
+        public virtual string test2() { return "base"; }
     }
 
     public abstract class B : A
@@ -26,6 +27,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public override string test()
         {
             return "test";
+        }
+
+        public override string test2()
+        {
+            return base.test2() + ".test";
         }
     }
 }
