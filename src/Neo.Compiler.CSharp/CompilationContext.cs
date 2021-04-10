@@ -14,6 +14,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
@@ -104,9 +105,9 @@ namespace Neo.Compiler
 
         private static CompilationContext Compile(string? csproj, string[] sourceFiles, Options options)
         {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            HashSet<string> sources = new(sourceFiles, StringComparer.OrdinalIgnoreCase);
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            MetadataReference[] references = new[]
+            List<MetadataReference> references = new()
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
@@ -115,10 +116,11 @@ namespace Neo.Compiler
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             if (csproj is not null)
             {
                 string path = Path.GetDirectoryName(csproj)!;
+                XDocument xml = XDocument.Load(csproj);
+                sources.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "dotnet",
@@ -138,10 +140,12 @@ namespace Neo.Compiler
                         if (file.EndsWith("_._")) continue;
                         path = Path.Combine(packagesPath, name, file);
                         if (!File.Exists(path)) continue;
-                        compilation.AddReferences(MetadataReference.CreateFromFile(path));
+                        references.Add(MetadataReference.CreateFromFile(path));
                     }
                 }
             }
+            IEnumerable<SyntaxTree> syntaxTrees = sources.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             CompilationContext context = new(compilation, options);
             context.Compile();
             return context;
