@@ -20,7 +20,7 @@
   <ItemGroup>
     <Compile Update="**/*.cs">
       <Pack>true</Pack>
-      <PackagePath>contentFiles</PackagePath>
+      <PackagePath>src</PackagePath>
     </Compile>
   </ItemGroup>
 
