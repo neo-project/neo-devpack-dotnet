@@ -17,4 +17,11 @@
     <Description>Neo.SmartContract.Framework</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Update="**/*.cs">
+      <Pack>true</Pack>
+      <PackagePath>contentFiles</PackagePath>
+    </Compile>
+  </ItemGroup>
+
 </Project>
