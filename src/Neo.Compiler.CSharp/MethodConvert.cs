@@ -36,6 +36,7 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
@@ -452,8 +453,14 @@ namespace Neo.Compiler
                 case ForStatementSyntax syntax:
                     ConvertForStatement(model, syntax);
                     break;
+                case GotoStatementSyntax syntax:
+                    ConvertGotoStatement(model, syntax);
+                    break;
                 case IfStatementSyntax syntax:
                     ConvertIfStatement(model, syntax);
+                    break;
+                case LabeledStatementSyntax syntax:
+                    ConvertLabeledStatement(model, syntax);
                     break;
                 case LocalDeclarationStatementSyntax syntax:
                     ConvertLocalDeclarationStatement(model, syntax);
@@ -823,6 +830,18 @@ namespace Neo.Compiler
             PopBreakTarget();
         }
 
+        private void ConvertGotoStatement(SemanticModel model, GotoStatementSyntax syntax)
+        {
+            if (!syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.None))
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, "Goto case or goto default statement is not supported.");
+            ILabelSymbol symbol = (ILabelSymbol)model.GetSymbolInfo(syntax.Expression!).Symbol!;
+            JumpTarget target = AddLabel(symbol, false);
+            if (_tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally && !result.Labels.Contains(symbol))
+                result.PendingGotoStatments.Add(Jump(OpCode.ENDTRY_L, target));
+            else
+                Jump(OpCode.JMP_L, target);
+        }
+
         private void ConvertIfStatement(SemanticModel model, IfStatementSyntax syntax)
         {
             JumpTarget elseTarget = new();
@@ -842,6 +861,18 @@ namespace Neo.Compiler
                 ConvertStatement(model, syntax.Else.Statement);
                 endTarget.Instruction = AddInstruction(OpCode.NOP);
             }
+        }
+
+        private void ConvertLabeledStatement(SemanticModel model, LabeledStatementSyntax syntax)
+        {
+            ILabelSymbol symbol = model.GetDeclaredSymbol(syntax)!;
+            JumpTarget target = AddLabel(symbol, true);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                foreach (Instruction instruction in result.PendingGotoStatments)
+                    if (instruction.Target == target)
+                        instruction.OpCode = OpCode.JMP_L;
+            target.Instruction = AddInstruction(OpCode.NOP);
+            ConvertStatement(model, syntax.Statement);
         }
 
         private void ConvertLocalDeclarationStatement(SemanticModel model, LocalDeclarationStatementSyntax syntax)
@@ -3320,6 +3351,20 @@ namespace Neo.Compiler
                 VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
                 _ => OpCode.PUSHNULL,
             });
+        }
+
+        private JumpTarget AddLabel(ILabelSymbol symbol, bool checkTryStack)
+        {
+            if (!_labels.TryGetValue(symbol, out JumpTarget? target))
+            {
+                target = new JumpTarget();
+                _labels.Add(symbol, target);
+            }
+            if (checkTryStack && _tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally)
+            {
+                result.Labels.Add(symbol);
+            }
+            return target;
         }
 
         private void PushContinueTarget(JumpTarget target)
