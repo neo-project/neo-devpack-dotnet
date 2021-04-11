@@ -35,11 +35,13 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
+        private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
 
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
@@ -451,8 +453,14 @@ namespace Neo.Compiler
                 case ForStatementSyntax syntax:
                     ConvertForStatement(model, syntax);
                     break;
+                case GotoStatementSyntax syntax:
+                    ConvertGotoStatement(model, syntax);
+                    break;
                 case IfStatementSyntax syntax:
                     ConvertIfStatement(model, syntax);
+                    break;
+                case LabeledStatementSyntax syntax:
+                    ConvertLabeledStatement(model, syntax);
                     break;
                 case LocalDeclarationStatementSyntax syntax:
                     ConvertLocalDeclarationStatement(model, syntax);
@@ -822,6 +830,58 @@ namespace Neo.Compiler
             PopBreakTarget();
         }
 
+        private void ConvertGotoStatement(SemanticModel model, GotoStatementSyntax syntax)
+        {
+            using (InsertSequencePoint(syntax))
+                if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.None))
+                {
+                    ILabelSymbol symbol = (ILabelSymbol)model.GetSymbolInfo(syntax.Expression!).Symbol!;
+                    JumpTarget target = AddLabel(symbol, false);
+                    if (_tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally && !result.Labels.Contains(symbol))
+                        result.PendingGotoStatments.Add(Jump(OpCode.ENDTRY_L, target));
+                    else
+                        Jump(OpCode.JMP_L, target);
+                }
+                else
+                {
+                    var labels = _switchStack.Peek();
+                    JumpTarget target = default!;
+                    if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.DefaultKeyword))
+                    {
+                        target = labels.First(p => p.Item1 is DefaultSwitchLabelSyntax).Item2;
+                    }
+                    else
+                    {
+                        object? value = model.GetConstantValue(syntax.Expression!).Value;
+                        foreach (var (l, t) in labels)
+                        {
+                            if (l is not CaseSwitchLabelSyntax cl) continue;
+                            object? clValue = model.GetConstantValue(cl.Value).Value;
+                            if (value is null)
+                            {
+                                if (clValue is null)
+                                {
+                                    target = t;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (value.Equals(clValue))
+                                {
+                                    target = t;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (_tryStack.TryPeek(out ExceptionHandling? result) && result.SwitchCount == 0)
+                        Jump(OpCode.ENDTRY_L, target);
+                    else
+                        Jump(OpCode.JMP_L, target);
+                }
+        }
+
         private void ConvertIfStatement(SemanticModel model, IfStatementSyntax syntax)
         {
             JumpTarget elseTarget = new();
@@ -841,6 +901,18 @@ namespace Neo.Compiler
                 ConvertStatement(model, syntax.Else.Statement);
                 endTarget.Instruction = AddInstruction(OpCode.NOP);
             }
+        }
+
+        private void ConvertLabeledStatement(SemanticModel model, LabeledStatementSyntax syntax)
+        {
+            ILabelSymbol symbol = model.GetDeclaredSymbol(syntax)!;
+            JumpTarget target = AddLabel(symbol, true);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                foreach (Instruction instruction in result.PendingGotoStatments)
+                    if (instruction.Target == target)
+                        instruction.OpCode = OpCode.JMP_L;
+            target.Instruction = AddInstruction(OpCode.NOP);
+            ConvertStatement(model, syntax.Statement);
         }
 
         private void ConvertLocalDeclarationStatement(SemanticModel model, LocalDeclarationStatementSyntax syntax)
@@ -876,6 +948,7 @@ namespace Neo.Compiler
         {
             var sections = syntax.Sections.Select(p => (p.Labels, p.Statements, Target: new JumpTarget())).ToArray();
             var labels = sections.SelectMany(p => p.Labels, (p, l) => (l, p.Target)).ToArray();
+            PushSwitchLabels(labels);
             JumpTarget breakTarget = new();
             byte anonymousIndex = AddAnonymousVariable();
             PushBreakTarget(breakTarget);
@@ -931,6 +1004,7 @@ namespace Neo.Compiler
                     ConvertStatement(model, statement);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            PopSwitchLabels();
             PopBreakTarget();
         }
 
@@ -3321,6 +3395,34 @@ namespace Neo.Compiler
                 VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
                 _ => OpCode.PUSHNULL,
             });
+        }
+
+        private JumpTarget AddLabel(ILabelSymbol symbol, bool checkTryStack)
+        {
+            if (!_labels.TryGetValue(symbol, out JumpTarget? target))
+            {
+                target = new JumpTarget();
+                _labels.Add(symbol, target);
+            }
+            if (checkTryStack && _tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally)
+            {
+                result.Labels.Add(symbol);
+            }
+            return target;
+        }
+
+        private void PushSwitchLabels((SwitchLabelSyntax, JumpTarget)[] labels)
+        {
+            _switchStack.Push(labels);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.SwitchCount++;
+        }
+
+        private void PopSwitchLabels()
+        {
+            _switchStack.Pop();
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.SwitchCount--;
         }
 
         private void PushContinueTarget(JumpTarget target)
