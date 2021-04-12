@@ -291,6 +291,7 @@ namespace Neo.Compiler
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
         {
+            if (symbol.IsSubclassOf(nameof(Attribute))) return;
             bool isPublic = symbol.DeclaredAccessibility == Accessibility.Public;
             bool isAbstract = symbol.IsAbstract;
             bool isContractType = symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract));
