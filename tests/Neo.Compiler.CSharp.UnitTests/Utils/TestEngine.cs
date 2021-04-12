@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
         public bool AddEntryScript(string filename)
         {
-            CompilationContext context = CompilationContext.CompileSources(new[] { filename }, new Options
+            CompilationContext context = CompilationContext.Compile(filename, new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion
             });
