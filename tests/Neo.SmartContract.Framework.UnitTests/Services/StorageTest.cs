@@ -170,5 +170,23 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(new ByteString(new byte[] { 0x01 }), result.Pop());
         }
+
+
+        [TestMethod]
+        public void Test_Index()
+        {
+            testengine.Reset();
+            var value = "123";
+            var result = testengine.ExecuteTestCaseStandard("testIndexPut", "key", value);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(true, result.Pop());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testIndexGet", "key");
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(value, result.Pop().GetString());
+        }
     }
 }
