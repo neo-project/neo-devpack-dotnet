@@ -16,7 +16,7 @@ namespace Neo.Compiler
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
-                new Argument<string>("path", "The path of the project file, project directory or source file."),
+                new Argument<string?>("path", () => null, "The path of the project file, project directory or source file."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
@@ -24,25 +24,28 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
-            rootCommand.Handler = CommandHandler.Create<Options, string>(Handle);
+            rootCommand.Handler = CommandHandler.Create<Options, string?>(Handle);
             return rootCommand.Invoke(args);
         }
 
-        private static int Handle(Options options, string path)
+        private static int Handle(Options options, string? path)
         {
-            path = Path.GetFullPath(path);
+            if (path is null)
+                path = Environment.CurrentDirectory;
+            else
+                path = Path.GetFullPath(path);
             if (File.Exists(path))
             {
-                return Path.GetExtension(path).ToLowerInvariant() switch
-                {
-                    ".cs" => ProcessSources(options, Path.GetDirectoryName(path)!, path),
-                    ".csproj" => ProcessCsproj(options, path),
-                    _ => throw new NotSupportedException(),
-                };
+                if (Path.GetExtension(path).ToLowerInvariant() != ".csproj")
+                    throw new NotSupportedException();
+                return ProcessCsproj(options, path);
             }
             else if (Directory.Exists(path))
             {
-                return ProcessDirectory(options, path);
+                string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                if (csproj is null)
+                    throw new FileNotFoundException("No csproj file is found in the directory.");
+                return ProcessCsproj(options, csproj);
             }
             else
             {
@@ -50,29 +53,9 @@ namespace Neo.Compiler
             }
         }
 
-        private static int ProcessDirectory(Options options, string path)
-        {
-            string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            if (csproj is null)
-            {
-                string obj = Path.Combine(path, "obj");
-                string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
-                return ProcessSources(options, path, sourceFiles);
-            }
-            else
-            {
-                return ProcessCsproj(options, csproj);
-            }
-        }
-
         private static int ProcessCsproj(Options options, string path)
         {
-            return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.CompileProject(path, options));
-        }
-
-        private static int ProcessSources(Options options, string folder, params string[] sourceFiles)
-        {
-            return ProcessOutputs(options, folder, CompilationContext.CompileSources(sourceFiles, options));
+            return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.Compile(path, options));
         }
 
         private static int ProcessOutputs(Options options, string folder, CompilationContext context)

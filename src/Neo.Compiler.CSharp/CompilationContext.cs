@@ -103,9 +103,13 @@ namespace Neo.Compiler
             }
         }
 
-        private static CompilationContext Compile(string? csproj, string[] sourceFiles, Options options)
+        public static CompilationContext Compile(string csproj, Options options)
         {
-            HashSet<string> sources = new(sourceFiles, StringComparer.OrdinalIgnoreCase);
+            string folder = Path.GetDirectoryName(csproj)!;
+            string obj = Path.Combine(folder, "obj");
+            HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                .Where(p => !p.StartsWith(obj))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             List<MetadataReference> references = new()
             {
@@ -120,7 +124,7 @@ namespace Neo.Compiler
             {
                 string path = Path.GetDirectoryName(csproj)!;
                 XDocument xml = XDocument.Load(csproj);
-                sources.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
+                sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "dotnet",
@@ -144,24 +148,11 @@ namespace Neo.Compiler
                     }
                 }
             }
-            IEnumerable<SyntaxTree> syntaxTrees = sources.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             CompilationContext context = new(compilation, options);
             context.Compile();
             return context;
-        }
-
-        public static CompilationContext CompileSources(string[] sourceFiles, Options options)
-        {
-            return Compile(null, sourceFiles, options);
-        }
-
-        public static CompilationContext CompileProject(string csproj, Options options)
-        {
-            string folder = Path.GetDirectoryName(csproj)!;
-            string obj = Path.Combine(folder, "obj");
-            string[] sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
-            return Compile(csproj, sourceFiles, options);
         }
 
         public NefFile CreateExecutable()
