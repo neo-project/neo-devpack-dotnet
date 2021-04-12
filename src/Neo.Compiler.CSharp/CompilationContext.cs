@@ -128,7 +128,7 @@ namespace Neo.Compiler
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "dotnet",
-                    Arguments = "restore",
+                    Arguments = $"restore \"{csproj}\"",
                     WorkingDirectory = path
                 })!.WaitForExit();
                 path = Path.Combine(path, "obj", "project.assets.json");
