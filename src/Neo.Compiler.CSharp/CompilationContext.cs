@@ -20,6 +20,7 @@ namespace Neo.Compiler
 {
     public class CompilationContext
     {
+        private static readonly MetadataReference[] commonReferences;
         private readonly Compilation compilation;
         private bool scTypeFound;
         private readonly List<Diagnostic> diagnostics = new();
@@ -41,6 +42,19 @@ namespace Neo.Compiler
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
         internal int StaticFieldCount => staticFields.Count + vtables.Count;
+
+        static CompilationContext()
+        {
+            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+            commonReferences = new[]
+            {
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
+                MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
+            };
+        }
 
         private CompilationContext(Compilation compilation, Options options)
         {
@@ -103,22 +117,30 @@ namespace Neo.Compiler
             }
         }
 
-        public static CompilationContext Compile(string csproj, Options options)
+        internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
+        {
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
+            CompilationContext context = new(compilation, options);
+            context.Compile();
+            return context;
+        }
+
+        public static CompilationContext CompileSources(string[] sourceFiles, Options options)
+        {
+            List<MetadataReference> references = new(commonReferences);
+            references.Add(MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location));
+            return Compile(sourceFiles, references, options);
+        }
+
+        public static CompilationContext CompileProject(string csproj, Options options)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
             HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            MetadataReference[] commonReferences =
-            {
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
-                MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
-            };
             List<MetadataReference> references = new(commonReferences);
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
             string path = Path.GetDirectoryName(csproj)!;
@@ -159,16 +181,6 @@ namespace Neo.Compiler
                 }
             }
             return Compile(sourceFiles, references, options);
-        }
-
-        internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
-        {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
-            CompilationContext context = new(compilation, options);
-            context.Compile();
-            return context;
         }
 
         public NefFile CreateExecutable()

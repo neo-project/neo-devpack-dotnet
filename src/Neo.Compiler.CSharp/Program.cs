@@ -36,16 +36,16 @@ namespace Neo.Compiler
                 path = Path.GetFullPath(path);
             if (File.Exists(path))
             {
-                if (Path.GetExtension(path).ToLowerInvariant() != ".csproj")
-                    throw new NotSupportedException();
-                return ProcessCsproj(options, path);
+                return Path.GetExtension(path).ToLowerInvariant() switch
+                {
+                    ".cs" => ProcessSources(options, Path.GetDirectoryName(path)!, path),
+                    ".csproj" => ProcessCsproj(options, path),
+                    _ => throw new NotSupportedException(),
+                };
             }
             else if (Directory.Exists(path))
             {
-                string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                if (csproj is null)
-                    throw new FileNotFoundException("No csproj file is found in the directory.");
-                return ProcessCsproj(options, csproj);
+                return ProcessDirectory(options, path);
             }
             else
             {
@@ -53,9 +53,29 @@ namespace Neo.Compiler
             }
         }
 
+        private static int ProcessDirectory(Options options, string path)
+        {
+            string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            if (csproj is null)
+            {
+                string obj = Path.Combine(path, "obj");
+                string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
+                return ProcessSources(options, path, sourceFiles);
+            }
+            else
+            {
+                return ProcessCsproj(options, csproj);
+            }
+        }
+
         private static int ProcessCsproj(Options options, string path)
         {
-            return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.Compile(path, options));
+            return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.CompileProject(path, options));
+        }
+
+        private static int ProcessSources(Options options, string folder, params string[] sourceFiles)
+        {
+            return ProcessOutputs(options, folder, CompilationContext.CompileSources(sourceFiles, options));
         }
 
         private static int ProcessOutputs(Options options, string folder, CompilationContext context)
