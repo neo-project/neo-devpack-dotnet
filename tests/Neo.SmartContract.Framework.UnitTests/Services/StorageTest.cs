@@ -171,7 +171,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(new ByteString(new byte[] { 0x01 }), result.Pop());
         }
 
-
         [TestMethod]
         public void Test_Index()
         {
