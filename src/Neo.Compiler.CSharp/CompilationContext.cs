@@ -111,35 +111,39 @@ namespace Neo.Compiler
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            List<MetadataReference> references = new()
+            MetadataReference[] commonReferences =
             {
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
                 MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
+                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
             };
-            if (csproj is not null)
+            List<MetadataReference> references = new(commonReferences);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+            string path = Path.GetDirectoryName(csproj)!;
+            XDocument xml = XDocument.Load(csproj);
+            sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
+            Process.Start(new ProcessStartInfo
             {
-                string path = Path.GetDirectoryName(csproj)!;
-                XDocument xml = XDocument.Load(csproj);
-                sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
-                Process.Start(new ProcessStartInfo
+                FileName = "dotnet",
+                Arguments = $"restore \"{csproj}\"",
+                WorkingDirectory = path
+            })!.WaitForExit();
+            path = Path.Combine(path, "obj", "project.assets.json");
+            JObject assets = JObject.Parse(File.ReadAllBytes(path));
+            string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
+            foreach (var (name, package) in assets["targets"][0].Properties)
+            {
+                string[] files = assets["libraries"][name]["files"].GetArray()
+                    .Select(p => p.GetString())
+                    .Where(p => p.StartsWith("src/"))
+                    .ToArray();
+                if (files.Length == 0)
                 {
-                    FileName = "dotnet",
-                    Arguments = $"restore \"{csproj}\"",
-                    WorkingDirectory = path
-                })!.WaitForExit();
-                path = Path.Combine(path, "obj", "project.assets.json");
-                JObject assets = JObject.Parse(File.ReadAllBytes(path));
-                string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
-                foreach (var (name, package) in assets["targets"][0].Properties)
-                {
-                    if (name.StartsWith("Neo.SmartContract.Framework")) continue;
-                    JObject files = package["compile"] ?? package["runtime"];
-                    if (files is null) continue;
-                    foreach (var (file, _) in files.Properties)
+                    JObject dllFiles = package["compile"] ?? package["runtime"];
+                    if (dllFiles is null) continue;
+                    foreach (var (file, _) in dllFiles.Properties)
                     {
                         if (file.EndsWith("_._")) continue;
                         path = Path.Combine(packagesPath, name, file);
@@ -147,9 +151,15 @@ namespace Neo.Compiler
                         references.Add(MetadataReference.CreateFromFile(path));
                     }
                 }
+                else
+                {
+                    IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, name, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                    CSharpCompilation cr = CSharpCompilation.Create(null, st, commonReferences, compilationOptions);
+                    references.Add(cr.ToMetadataReference());
+                }
             }
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
             context.Compile();
             return context;
@@ -367,7 +377,10 @@ namespace Neo.Compiler
                 method = new MethodConvert(this, symbol);
                 methodsConverted.Add(method);
                 if (!symbol.DeclaringSyntaxReferences.IsEmpty)
-                    model = model.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+                {
+                    ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
+                    model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+                }
                 method.Convert(model);
             }
             return method;
