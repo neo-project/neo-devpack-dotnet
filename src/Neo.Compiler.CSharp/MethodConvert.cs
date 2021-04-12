@@ -3,7 +3,6 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using Neo.Cryptography;
 using Neo.Cryptography.ECC;
 using Neo.IO;
@@ -2070,11 +2069,13 @@ namespace Neo.Compiler
 
         private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
         {
-            IConversionOperation operation = (IConversionOperation)model.GetOperation(expression)!;
-            if (operation.Conversion.MethodSymbol is null)
+            ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
+            ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
+            IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+            if (method is null)
             {
                 ConvertExpression(model, expression.Expression);
-                switch ((operation.Operand.Type!.Name, operation.Type!.Name))
+                switch ((sType.Name, tType.Name))
                 {
                     case ("ByteString", "ECPoint"):
                         {
@@ -2291,7 +2292,7 @@ namespace Neo.Compiler
             }
             else
             {
-                Call(model, operation.Conversion.MethodSymbol, null, expression.Expression);
+                Call(model, method, null, expression.Expression);
             }
         }
 
