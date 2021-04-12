@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
@@ -5,6 +7,11 @@ using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
@@ -12,9 +19,30 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
     {
         public const long TestGas = 2000_00000000;
 
+        private static readonly List<MetadataReference> references = new();
+
         public NefFile Nef { get; private set; }
         public JObject Manifest { get; private set; }
         public JObject DebugInfo { get; private set; }
+
+        static TestEngine()
+        {
+            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+            references.Add(MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")));
+            references.Add(MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")));
+            references.Add(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
+            references.Add(MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location));
+            references.Add(MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location));
+            string folder = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/");
+            string obj = Path.Combine(folder, "obj");
+            IEnumerable<SyntaxTree> st = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                .Where(p => !p.StartsWith(obj))
+                .OrderBy(p => p)
+                .Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
+            CSharpCompilation cr = CSharpCompilation.Create(null, st, references, options);
+            references.Add(cr.ToMetadataReference());
+        }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
              : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas)
@@ -23,7 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
         public bool AddEntryScript(string filename)
         {
-            CompilationContext context = CompilationContext.Compile(filename, new Options
+            CompilationContext context = CompilationContext.Compile(new[] { filename }, references, new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion
             });
