@@ -40,11 +40,13 @@ namespace Neo.SmartContract.Framework
         }
 
         [Safe]
-        public static Map<string, object> Properties(ByteString tokenId)
+        public virtual Map<string, object> Properties(ByteString tokenId)
         {
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
-            return token.GetProperties();
+            Map<string, object> map = new();
+            map["name"] = token.Name;
+            return map;
         }
 
         [Safe]
@@ -97,7 +99,9 @@ namespace Neo.SmartContract.Framework
             byte[] key = new byte[] { Prefix_TokenId };
             ByteString id = Storage.Get(context, key);
             Storage.Put(context, key, (BigInteger)id + 1);
-            return CryptoLib.Sha256(Runtime.ExecutingScriptHash + id);
+            ByteString data = Runtime.ExecutingScriptHash;
+            if (id is not null) data += id;
+            return CryptoLib.Sha256(data);
         }
 
         protected static void Mint(ByteString tokenId, TokenState token)
