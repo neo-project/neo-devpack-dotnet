@@ -206,8 +206,16 @@ namespace Neo.Compiler
                 IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
                 for (int i = virtualMethods.Length - 1; i >= 0; i--)
                 {
-                    MethodConvert convert = context.ConvertMethod(model, virtualMethods[i]);
-                    Jump(OpCode.PUSHA, convert._startTarget);
+                    IMethodSymbol method = virtualMethods[i];
+                    if (method.IsAbstract)
+                    {
+                        Push((object?)null);
+                    }
+                    else
+                    {
+                        MethodConvert convert = context.ConvertMethod(model, method);
+                        Jump(OpCode.PUSHA, convert._startTarget);
+                    }
                 }
                 Push(virtualMethods.Length);
                 AddInstruction(OpCode.PACK);
@@ -389,7 +397,7 @@ namespace Neo.Compiler
             if (SyntaxNode is null) return;
             for (byte i = 0; i < Symbol.Parameters.Length; i++)
             {
-                IParameterSymbol parameter = Symbol.Parameters[i];
+                IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
                 byte index = i;
                 if (!Symbol.IsStatic) index++;
                 _parameters.Add(parameter, index);
