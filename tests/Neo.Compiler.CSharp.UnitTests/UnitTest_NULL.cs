@@ -52,6 +52,31 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void NullProperty()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullProperty", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullProperty", "");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullProperty", "123");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+        }
+
+        [TestMethod]
         public void NullCoalescing()
         {
             //  call NullCoalescing(string code)

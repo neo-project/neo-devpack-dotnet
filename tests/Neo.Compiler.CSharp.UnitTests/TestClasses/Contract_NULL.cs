@@ -42,6 +42,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return myname;
         }
 
+        public static bool NullProperty(string a)
+        {
+            return a?.Length != 0;
+        }
+
         public static bool IfNull(object obj)
         {
             if ((bool)obj)
@@ -55,14 +60,14 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object NullCollationAndCollation(string code)
         {
             var context = Storage.CurrentContext;
-            return Storage.Get(context, code) ?? (ByteString) new byte[] { 123 };
+            return Storage.Get(context, code) ?? (ByteString)new byte[] { 123 };
         }
 
         public static object NullCollationAndCollation2(string code)
         {
             var context = Storage.CurrentContext;
             Storage.Put(context, code, "111");
-            return Storage.Get(context, code) ?? (ByteString) new byte[] { 123 };
+            return Storage.Get(context, code) ?? (ByteString)new byte[] { 123 };
         }
     }
 }
