@@ -14,11 +14,13 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
     public class CompilationContext
     {
+        private static readonly MetadataReference[] commonReferences;
         private readonly Compilation compilation;
         private bool scTypeFound;
         private readonly List<Diagnostic> diagnostics = new();
@@ -30,13 +32,29 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection methodsConverted = new();
         private readonly MethodConvertCollection methodsForward = new();
         private readonly List<MethodToken> methodTokens = new();
-        private readonly List<IFieldSymbol> staticFields = new();
+        private readonly Dictionary<IFieldSymbol, byte> staticFields = new();
+        private readonly Dictionary<ITypeSymbol, byte> vtables = new();
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string ContractName { get; private set; } = "";
         internal Options Options { get; private set; }
-        internal IReadOnlyList<IFieldSymbol> StaticFields => staticFields;
+        internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
+        internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
+        internal int StaticFieldCount => staticFields.Count + vtables.Count;
+
+        static CompilationContext()
+        {
+            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+            commonReferences = new[]
+            {
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
+                MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
+            };
+        }
 
         private CompilationContext(Compilation compilation, Options options)
         {
@@ -99,46 +117,11 @@ namespace Neo.Compiler
             }
         }
 
-        private static CompilationContext Compile(string? csproj, string[] sourceFiles, Options options)
+        internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            MetadataReference[] references = new[]
-            {
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
-                MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
-            };
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            if (csproj is not null)
-            {
-                string path = Path.GetDirectoryName(csproj)!;
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "dotnet",
-                    Arguments = "restore",
-                    WorkingDirectory = path
-                })!.WaitForExit();
-                path = Path.Combine(path, "obj", "project.assets.json");
-                JObject assets = JObject.Parse(File.ReadAllBytes(path));
-                string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
-                foreach (var (name, package) in assets["targets"][0].Properties)
-                {
-                    if (name.StartsWith("Neo.SmartContract.Framework")) continue;
-                    JObject files = package["compile"] ?? package["runtime"];
-                    if (files is null) continue;
-                    foreach (var (file, _) in files.Properties)
-                    {
-                        if (file.EndsWith("_._")) continue;
-                        path = Path.Combine(packagesPath, name, file);
-                        if (!File.Exists(path)) continue;
-                        compilation.AddReferences(MetadataReference.CreateFromFile(path));
-                    }
-                }
-            }
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
             context.Compile();
             return context;
@@ -146,15 +129,58 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileSources(string[] sourceFiles, Options options)
         {
-            return Compile(null, sourceFiles, options);
+            List<MetadataReference> references = new(commonReferences);
+            references.Add(MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location));
+            return Compile(sourceFiles, references, options);
         }
 
         public static CompilationContext CompileProject(string csproj, Options options)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
-            string[] sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
-            return Compile(csproj, sourceFiles, options);
+            HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                .Where(p => !p.StartsWith(obj))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            List<MetadataReference> references = new(commonReferences);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+            string path = Path.GetDirectoryName(csproj)!;
+            XDocument xml = XDocument.Load(csproj);
+            sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"restore \"{csproj}\"",
+                WorkingDirectory = path
+            })!.WaitForExit();
+            path = Path.Combine(path, "obj", "project.assets.json");
+            JObject assets = JObject.Parse(File.ReadAllBytes(path));
+            string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
+            foreach (var (name, package) in assets["targets"][0].Properties)
+            {
+                string[] files = assets["libraries"][name]["files"].GetArray()
+                    .Select(p => p.GetString())
+                    .Where(p => p.StartsWith("src/"))
+                    .ToArray();
+                if (files.Length == 0)
+                {
+                    JObject dllFiles = package["compile"] ?? package["runtime"];
+                    if (dllFiles is null) continue;
+                    foreach (var (file, _) in dllFiles.Properties)
+                    {
+                        if (file.EndsWith("_._")) continue;
+                        path = Path.Combine(packagesPath, name, file);
+                        if (!File.Exists(path)) continue;
+                        references.Add(MetadataReference.CreateFromFile(path));
+                    }
+                }
+                else
+                {
+                    IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, name, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                    CSharpCompilation cr = CSharpCompilation.Create(null, st, commonReferences, compilationOptions);
+                    references.Add(cr.ToMetadataReference());
+                }
+            }
+            return Compile(sourceFiles, references, options);
         }
 
         public NefFile CreateExecutable()
@@ -284,6 +310,7 @@ namespace Neo.Compiler
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
         {
+            if (symbol.IsSubclassOf(nameof(Attribute))) return;
             bool isPublic = symbol.DeclaredAccessibility == Accessibility.Public;
             bool isAbstract = symbol.IsAbstract;
             bool isContractType = symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract));
@@ -311,21 +338,24 @@ namespace Neo.Compiler
                     }
                 }
             }
-            foreach (ISymbol member in symbol.GetMembers())
+            foreach (ISymbol member in symbol.GetAllMembers())
             {
                 switch (member)
                 {
                     case IEventSymbol @event when isSmartContract:
                         ProcessEvent(@event);
                         break;
-                    case IMethodSymbol method when method.MethodKind != MethodKind.StaticConstructor:
+                    case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
                         ProcessMethod(model, method, isSmartContract);
                         break;
                 }
             }
-            if (isSmartContract && symbol.StaticConstructors.Length > 0)
+            if (isSmartContract)
             {
-                ProcessMethod(model, symbol.StaticConstructors[0], true);
+                IMethodSymbol _initialize = symbol.StaticConstructors.Length == 0
+                    ? symbol.GetAllMembers().OfType<IMethodSymbol>().First(p => p.Name == "_initialize")
+                    : symbol.StaticConstructors[0];
+                ProcessMethod(model, _initialize, true);
             }
         }
 
@@ -340,6 +370,7 @@ namespace Neo.Compiler
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
         {
+            if (symbol.IsAbstract) return;
             if (symbol.MethodKind != MethodKind.StaticConstructor)
             {
                 if (symbol.DeclaredAccessibility != Accessibility.Public)
@@ -364,7 +395,10 @@ namespace Neo.Compiler
                 method = new MethodConvert(this, symbol);
                 methodsConverted.Add(method);
                 if (!symbol.DeclaringSyntaxReferences.IsEmpty)
-                    model = model.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+                {
+                    ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
+                    model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+                }
                 method.Convert(model);
             }
             return method;
@@ -388,13 +422,22 @@ namespace Neo.Compiler
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
-            int index = staticFields.IndexOf(symbol);
-            if (index == -1)
+            if (!staticFields.TryGetValue(symbol, out byte index))
             {
-                index = staticFields.Count;
-                staticFields.Add(symbol);
+                index = (byte)StaticFieldCount;
+                staticFields.Add(symbol, index);
             }
-            return (byte)index;
+            return index;
+        }
+
+        internal byte AddVTable(ITypeSymbol type)
+        {
+            if (!vtables.TryGetValue(type, out byte index))
+            {
+                index = (byte)StaticFieldCount;
+                vtables.Add(type, index);
+            }
+            return index;
         }
     }
 }

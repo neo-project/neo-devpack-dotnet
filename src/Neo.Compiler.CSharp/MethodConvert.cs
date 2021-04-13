@@ -3,7 +3,6 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using Neo.Cryptography;
 using Neo.Cryptography.ECC;
 using Neo.IO;
@@ -36,11 +35,13 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
+        private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
 
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
@@ -96,27 +97,44 @@ namespace Neo.Compiler
         {
             if (Symbol.IsExtern || Symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
             {
-                ConvertExtern();
+                if (Symbol.Name == "_initialize")
+                {
+                    ProcessStaticFields(model);
+                    if (context.StaticFieldCount > 0)
+                    {
+                        _instructions.Insert(0, new Instruction
+                        {
+                            OpCode = OpCode.INITSSLOT,
+                            Operand = new[] { (byte)context.StaticFieldCount }
+                        });
+                    }
+                }
+                else
+                {
+                    ConvertExtern();
+                }
             }
             else
             {
+                if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
+                    SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
                 switch (Symbol.MethodKind)
                 {
                     case MethodKind.Constructor:
                         ProcessFields(model);
+                        ProcessConstructorInitializer(model);
                         break;
                     case MethodKind.StaticConstructor:
                         ProcessStaticFields(model);
                         break;
                 }
-                if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
-                    ConvertSource(model);
-                if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFields.Count > 0)
+                ConvertSource(model);
+                if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
                     _instructions.Insert(0, new Instruction
                     {
                         OpCode = OpCode.INITSSLOT,
-                        Operand = new[] { (byte)context.StaticFields.Count }
+                        Operand = new[] { (byte)context.StaticFieldCount }
                     });
                 }
                 if (_initslot)
@@ -143,18 +161,7 @@ namespace Neo.Compiler
         public void ConvertForward(SemanticModel model, MethodConvert target)
         {
             INamedTypeSymbol type = Symbol.ContainingType;
-            IFieldSymbol[] fields = type.GetFields();
-            if (fields.Length == 0)
-            {
-                AddInstruction(OpCode.NEWARRAY0);
-            }
-            else
-            {
-                for (int i = fields.Length - 1; i >= 0; i--)
-                    PushDefault(fields[i].Type);
-                Push(fields.Length);
-                AddInstruction(OpCode.PACK);
-            }
+            CreateObject(model, type, null);
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0);
             if (constructor is null)
                 throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
@@ -182,9 +189,9 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFields.Select(p => p.ContainingType).Distinct().ToArray())
+            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct().ToArray())
             {
-                foreach (IFieldSymbol field in @class.GetMembers().OfType<IFieldSymbol>())
+                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
                     if (field.IsConst || !field.IsStatic) continue;
                     ProcessFieldInitializer(model, field, null, () =>
@@ -193,6 +200,18 @@ namespace Neo.Compiler
                         AccessSlot(OpCode.STSFLD, index);
                     });
                 }
+            }
+            foreach (var (fieldIndex, type) in context.VTables)
+            {
+                IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+                for (int i = virtualMethods.Length - 1; i >= 0; i--)
+                {
+                    MethodConvert convert = context.ConvertMethod(model, virtualMethods[i]);
+                    Jump(OpCode.PUSHA, convert._startTarget);
+                }
+                Push(virtualMethods.Length);
+                AddInstruction(OpCode.PACK);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
             }
         }
 
@@ -232,6 +251,28 @@ namespace Neo.Compiler
                         throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
                 }
                 postInitialize?.Invoke();
+            }
+        }
+
+        private void ProcessConstructorInitializer(SemanticModel model)
+        {
+            ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
+            if (initializer is null)
+            {
+                INamedTypeSymbol type = Symbol.ContainingType;
+                if (type.IsValueType) return;
+                INamedTypeSymbol baseType = type.BaseType!;
+                if (baseType.SpecialType == SpecialType.System_Object) return;
+                IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
+                if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
+                    return;
+                Call(model, baseConstructor, null);
+            }
+            else
+            {
+                IMethodSymbol baseConstructor = (IMethodSymbol)model.GetSymbolInfo(initializer).Symbol!;
+                using (InsertSequencePoint(initializer))
+                    Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
             }
         }
 
@@ -302,47 +343,50 @@ namespace Neo.Compiler
             _callingConvention = CallingConvention.Cdecl;
             IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
             INamedTypeSymbol type = property.ContainingType;
-            IFieldSymbol[] fields = type.GetMembers().OfType<IFieldSymbol>().ToArray();
-            int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-            IFieldSymbol backingField = fields[backingFieldIndex];
+            IFieldSymbol[] fields = type.GetAllMembers().OfType<IFieldSymbol>().ToArray();
             using (InsertSequencePoint(syntax))
             {
-                switch (Symbol.MethodKind)
+                if (Symbol.IsStatic)
                 {
-                    case MethodKind.PropertyGet:
-                        if (Symbol.IsStatic)
-                        {
-                            byte index = context.AddStaticField(backingField);
-                            AccessSlot(OpCode.LDSFLD, index);
-                        }
-                        else
-                        {
+                    IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+                    byte backingFieldIndex = context.AddStaticField(backingField);
+                    switch (Symbol.MethodKind)
+                    {
+                        case MethodKind.PropertyGet:
+                            AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                            break;
+                        case MethodKind.PropertySet:
+                            AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                            break;
+                        default:
+                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                    }
+                }
+                else
+                {
+                    fields = fields.Where(p => !p.IsStatic).ToArray();
+                    int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                    switch (Symbol.MethodKind)
+                    {
+                        case MethodKind.PropertyGet:
                             Push(backingFieldIndex);
                             AddInstruction(OpCode.PICKITEM);
-                        }
-                        break;
-                    case MethodKind.PropertySet:
-                        if (Symbol.IsStatic)
-                        {
-                            byte index = context.AddStaticField(backingField);
-                            AccessSlot(OpCode.STSFLD, index);
-                        }
-                        else
-                        {
+                            break;
+                        case MethodKind.PropertySet:
                             Push(backingFieldIndex);
                             AddInstruction(OpCode.ROT);
                             AddInstruction(OpCode.SETITEM);
-                        }
-                        break;
-                    default:
-                        throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                            break;
+                        default:
+                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
+                    }
                 }
             }
         }
 
         private void ConvertSource(SemanticModel model)
         {
-            SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
+            if (SyntaxNode is null) return;
             for (byte i = 0; i < Symbol.Parameters.Length; i++)
             {
                 IParameterSymbol parameter = Symbol.Parameters[i];
@@ -409,8 +453,14 @@ namespace Neo.Compiler
                 case ForStatementSyntax syntax:
                     ConvertForStatement(model, syntax);
                     break;
+                case GotoStatementSyntax syntax:
+                    ConvertGotoStatement(model, syntax);
+                    break;
                 case IfStatementSyntax syntax:
                     ConvertIfStatement(model, syntax);
+                    break;
+                case LabeledStatementSyntax syntax:
+                    ConvertLabeledStatement(model, syntax);
                     break;
                 case LocalDeclarationStatementSyntax syntax:
                     ConvertLocalDeclarationStatement(model, syntax);
@@ -780,6 +830,58 @@ namespace Neo.Compiler
             PopBreakTarget();
         }
 
+        private void ConvertGotoStatement(SemanticModel model, GotoStatementSyntax syntax)
+        {
+            using (InsertSequencePoint(syntax))
+                if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.None))
+                {
+                    ILabelSymbol symbol = (ILabelSymbol)model.GetSymbolInfo(syntax.Expression!).Symbol!;
+                    JumpTarget target = AddLabel(symbol, false);
+                    if (_tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally && !result.Labels.Contains(symbol))
+                        result.PendingGotoStatments.Add(Jump(OpCode.ENDTRY_L, target));
+                    else
+                        Jump(OpCode.JMP_L, target);
+                }
+                else
+                {
+                    var labels = _switchStack.Peek();
+                    JumpTarget target = default!;
+                    if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.DefaultKeyword))
+                    {
+                        target = labels.First(p => p.Item1 is DefaultSwitchLabelSyntax).Item2;
+                    }
+                    else
+                    {
+                        object? value = model.GetConstantValue(syntax.Expression!).Value;
+                        foreach (var (l, t) in labels)
+                        {
+                            if (l is not CaseSwitchLabelSyntax cl) continue;
+                            object? clValue = model.GetConstantValue(cl.Value).Value;
+                            if (value is null)
+                            {
+                                if (clValue is null)
+                                {
+                                    target = t;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (value.Equals(clValue))
+                                {
+                                    target = t;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (_tryStack.TryPeek(out ExceptionHandling? result) && result.SwitchCount == 0)
+                        Jump(OpCode.ENDTRY_L, target);
+                    else
+                        Jump(OpCode.JMP_L, target);
+                }
+        }
+
         private void ConvertIfStatement(SemanticModel model, IfStatementSyntax syntax)
         {
             JumpTarget elseTarget = new();
@@ -799,6 +901,18 @@ namespace Neo.Compiler
                 ConvertStatement(model, syntax.Else.Statement);
                 endTarget.Instruction = AddInstruction(OpCode.NOP);
             }
+        }
+
+        private void ConvertLabeledStatement(SemanticModel model, LabeledStatementSyntax syntax)
+        {
+            ILabelSymbol symbol = model.GetDeclaredSymbol(syntax)!;
+            JumpTarget target = AddLabel(symbol, true);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                foreach (Instruction instruction in result.PendingGotoStatments)
+                    if (instruction.Target == target)
+                        instruction.OpCode = OpCode.JMP_L;
+            target.Instruction = AddInstruction(OpCode.NOP);
+            ConvertStatement(model, syntax.Statement);
         }
 
         private void ConvertLocalDeclarationStatement(SemanticModel model, LocalDeclarationStatementSyntax syntax)
@@ -834,6 +948,7 @@ namespace Neo.Compiler
         {
             var sections = syntax.Sections.Select(p => (p.Labels, p.Statements, Target: new JumpTarget())).ToArray();
             var labels = sections.SelectMany(p => p.Labels, (p, l) => (l, p.Target)).ToArray();
+            PushSwitchLabels(labels);
             JumpTarget breakTarget = new();
             byte anonymousIndex = AddAnonymousVariable();
             PushBreakTarget(breakTarget);
@@ -889,6 +1004,7 @@ namespace Neo.Compiler
                     ConvertStatement(model, statement);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            PopSwitchLabels();
             PopBreakTarget();
         }
 
@@ -1042,6 +1158,7 @@ namespace Neo.Compiler
                 case SwitchExpressionSyntax expression:
                     ConvertSwitchExpression(model, expression);
                     break;
+                case BaseExpressionSyntax:
                 case ThisExpressionSyntax:
                     AddInstruction(OpCode.LDARG0);
                     break;
@@ -1829,31 +1946,7 @@ namespace Neo.Compiler
             bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
             if (needCreateObject)
             {
-                IFieldSymbol[] fields = type.GetFields();
-                AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-                foreach (IFieldSymbol field in fields)
-                {
-                    ExpressionSyntax? right = null;
-                    if (expression.Initializer is not null)
-                    {
-                        foreach (ExpressionSyntax e in expression.Initializer.Expressions)
-                        {
-                            if (e is not AssignmentExpressionSyntax ae)
-                                throw new CompilationException(expression.Initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {expression.Initializer}");
-                            if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
-                            {
-                                right = ae.Right;
-                                break;
-                            }
-                        }
-                    }
-                    AddInstruction(OpCode.DUP);
-                    if (right is null)
-                        PushDefault(field.Type);
-                    else
-                        ConvertExpression(model, right);
-                    AddInstruction(OpCode.APPEND);
-                }
+                CreateObject(model, type, expression.Initializer);
             }
             Call(model, constructor, needCreateObject, arguments);
         }
@@ -1976,11 +2069,13 @@ namespace Neo.Compiler
 
         private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
         {
-            IConversionOperation operation = (IConversionOperation)model.GetOperation(expression)!;
-            if (operation.Conversion.MethodSymbol is null)
+            ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
+            ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
+            IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+            if (method is null)
             {
                 ConvertExpression(model, expression.Expression);
-                switch ((operation.Operand.Type!.Name, operation.Type!.Name))
+                switch ((sType.Name, tType.Name))
                 {
                     case ("ByteString", "ECPoint"):
                         {
@@ -2197,7 +2292,7 @@ namespace Neo.Compiler
             }
             else
             {
-                Call(model, operation.Conversion.MethodSymbol, null, expression.Expression);
+                Call(model, method, null, expression.Expression);
             }
         }
 
@@ -3302,6 +3397,34 @@ namespace Neo.Compiler
             });
         }
 
+        private JumpTarget AddLabel(ILabelSymbol symbol, bool checkTryStack)
+        {
+            if (!_labels.TryGetValue(symbol, out JumpTarget? target))
+            {
+                target = new JumpTarget();
+                _labels.Add(symbol, target);
+            }
+            if (checkTryStack && _tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally)
+            {
+                result.Labels.Add(symbol);
+            }
+            return target;
+        }
+
+        private void PushSwitchLabels((SwitchLabelSyntax, JumpTarget)[] labels)
+        {
+            _switchStack.Push(labels);
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.SwitchCount++;
+        }
+
+        private void PopSwitchLabels()
+        {
+            _switchStack.Pop();
+            if (_tryStack.TryPeek(out ExceptionHandling? result))
+                result.SwitchCount--;
+        }
+
         private void PushContinueTarget(JumpTarget target)
         {
             _continueTargets.Push(target);
@@ -3353,6 +3476,59 @@ namespace Neo.Compiler
                 OpCode = OpCode.CONVERT,
                 Operand = new[] { (byte)type }
             });
+        }
+
+        private void InitializeFieldForObject(SemanticModel model, IFieldSymbol field, InitializerExpressionSyntax? initializer)
+        {
+            ExpressionSyntax? expression = null;
+            if (initializer is not null)
+            {
+                foreach (ExpressionSyntax e in initializer.Expressions)
+                {
+                    if (e is not AssignmentExpressionSyntax ae)
+                        throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                    if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
+                    {
+                        expression = ae.Right;
+                        break;
+                    }
+                }
+            }
+            if (expression is null)
+                PushDefault(field.Type);
+            else
+                ConvertExpression(model, expression);
+        }
+
+        private void CreateObject(SemanticModel model, ITypeSymbol type, InitializerExpressionSyntax? initializer)
+        {
+            ISymbol[] members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+            IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
+            if (fields.Length == 0 || type.IsValueType)
+            {
+                AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+                foreach (IFieldSymbol field in fields)
+                {
+                    AddInstruction(OpCode.DUP);
+                    InitializeFieldForObject(model, field, initializer);
+                    AddInstruction(OpCode.APPEND);
+                }
+            }
+            else
+            {
+                for (int i = fields.Length - 1; i >= 0; i--)
+                    InitializeFieldForObject(model, fields[i], initializer);
+                Push(fields.Length);
+                AddInstruction(OpCode.PACK);
+            }
+            IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            if (virtualMethods.Length > 0)
+            {
+                byte index = context.AddVTable(type);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.LDSFLD, index);
+                AddInstruction(OpCode.APPEND);
+            }
         }
 
         private Instruction Jump(OpCode opcode, JumpTarget target)
@@ -3415,12 +3591,23 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, arguments))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, symbol);
+            MethodConvert? convert;
+            CallingConvention methodCallingConvention;
+            if (symbol.IsVirtualMethod())
+            {
+                convert = null;
+                methodCallingConvention = CallingConvention.Cdecl;
+            }
+            else
+            {
+                convert = context.ConvertMethod(model, symbol);
+                methodCallingConvention = convert._callingConvention;
+            }
             bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
-            if (instanceOnStack && convert._callingConvention != CallingConvention.Cdecl && isConstructor)
+            if (instanceOnStack && methodCallingConvention != CallingConvention.Cdecl && isConstructor)
                 AddInstruction(OpCode.DUP);
-            PrepareArgumentsForMethod(model, symbol, arguments, convert._callingConvention);
-            if (instanceOnStack && convert._callingConvention == CallingConvention.Cdecl)
+            PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
+            if (instanceOnStack && methodCallingConvention == CallingConvention.Cdecl)
             {
                 switch (symbol.Parameters.Length)
                 {
@@ -3436,42 +3623,70 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            EmitCall(convert);
+            if (convert is null)
+                CallVirtual(symbol);
+            else
+                EmitCall(convert);
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
         {
             if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
                 return;
-            MethodConvert convert = symbol.ReducedFrom is null
-                ? context.ConvertMethod(model, symbol)
-                : context.ConvertMethod(model, symbol.ReducedFrom);
-            if (!symbol.IsStatic && convert._callingConvention != CallingConvention.Cdecl)
+            MethodConvert? convert;
+            CallingConvention methodCallingConvention;
+            if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
+            {
+                convert = null;
+                methodCallingConvention = CallingConvention.Cdecl;
+            }
+            else
+            {
+                convert = symbol.ReducedFrom is null
+                    ? context.ConvertMethod(model, symbol)
+                    : context.ConvertMethod(model, symbol.ReducedFrom);
+                methodCallingConvention = convert._callingConvention;
+            }
+            if (!symbol.IsStatic && methodCallingConvention != CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
                     AddInstruction(OpCode.LDARG0);
                 else
                     ConvertExpression(model, instanceExpression);
             }
-            PrepareArgumentsForMethod(model, symbol, arguments, convert._callingConvention);
-            if (!symbol.IsStatic && convert._callingConvention == CallingConvention.Cdecl)
+            PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
+            if (!symbol.IsStatic && methodCallingConvention == CallingConvention.Cdecl)
             {
                 if (instanceExpression is null)
                     AddInstruction(OpCode.LDARG0);
                 else
                     ConvertExpression(model, instanceExpression);
             }
-            EmitCall(convert);
+            if (convert is null)
+                CallVirtual(symbol);
+            else
+                EmitCall(convert);
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             if (TryProcessSystemMethods(model, symbol, null, null))
                 return;
-            MethodConvert convert = context.ConvertMethod(model, symbol);
+            MethodConvert? convert;
+            CallingConvention methodCallingConvention;
+            if (symbol.IsVirtualMethod())
+            {
+                convert = null;
+                methodCallingConvention = CallingConvention.Cdecl;
+            }
+            else
+            {
+                convert = context.ConvertMethod(model, symbol);
+                methodCallingConvention = convert._callingConvention;
+            }
             int pc = symbol.Parameters.Length;
             if (!symbol.IsStatic) pc++;
-            if (pc > 1 && convert._callingConvention != callingConvention)
+            if (pc > 1 && methodCallingConvention != callingConvention)
             {
                 switch (pc)
                 {
@@ -3490,7 +3705,10 @@ namespace Neo.Compiler
                         break;
                 }
             }
-            EmitCall(convert);
+            if (convert is null)
+                CallVirtual(symbol);
+            else
+                EmitCall(convert);
         }
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
@@ -3874,6 +4092,13 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.EQUAL);
                     return true;
+                case "string.this[int].get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.PICKITEM);
+                    return true;
                 case "string.Substring(int)":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -3942,6 +4167,20 @@ namespace Neo.Compiler
                     AddInstruction(target._instructions[i].Clone());
             else
                 Jump(OpCode.CALL_L, target._startTarget);
+        }
+
+        private void CallVirtual(IMethodSymbol symbol)
+        {
+            ISymbol[] members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+            IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
+            IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            int index = Array.IndexOf(virtualMethods, symbol);
+            AddInstruction(OpCode.DUP);
+            Push(fields.Length);
+            AddInstruction(OpCode.PICKITEM);
+            Push(index);
+            AddInstruction(OpCode.PICKITEM);
+            AddInstruction(OpCode.CALLA);
         }
     }
 

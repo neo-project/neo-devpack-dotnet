@@ -117,5 +117,26 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
 
         #endregion
+
+        #region IndexProperty
+
+        public static bool TestIndexPut(byte[] key, byte[] value)
+        {
+            var prefix = "ii";
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
+            storage[(ByteString)key] = (ByteString)value;
+            return true;
+        }
+
+        public static byte[] TestIndexGet(byte[] key)
+        {
+            var prefix = "ii";
+            var context = Storage.CurrentReadOnlyContext;
+            var storage = new StorageMap(context, prefix);
+            var value = storage[(ByteString)key];
+            return (byte[])value;
+        }
+
+        #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace Neo.Compiler
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
-                new Argument<string>("path", "The path of the project file, project directory or source file."),
+                new Argument<string?>("path", () => null, "The path of the project file, project directory or source file."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
@@ -24,12 +24,16 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
-            rootCommand.Handler = CommandHandler.Create<Options, string>(Handle);
+            rootCommand.Handler = CommandHandler.Create<Options, string?>(Handle);
             return rootCommand.Invoke(args);
         }
 
-        private static int Handle(Options options, string path)
+        private static int Handle(Options options, string? path)
         {
+            if (path is null)
+                path = Environment.CurrentDirectory;
+            else
+                path = Path.GetFullPath(path);
             if (File.Exists(path))
             {
                 return Path.GetExtension(path).ToLowerInvariant() switch

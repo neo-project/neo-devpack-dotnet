@@ -36,6 +36,11 @@ namespace Neo.Compiler
             return false;
         }
 
+        public static bool IsVirtualMethod(this IMethodSymbol method)
+        {
+            return method.IsAbstract || method.IsVirtual || method.IsOverride;
+        }
+
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
             switch (type.ToString())
@@ -105,9 +110,49 @@ namespace Neo.Compiler
             };
         }
 
+        public static ISymbol[] GetAllMembers(this ITypeSymbol type)
+        {
+            return GetAllMembersInternal(type).ToArray();
+        }
+
+        private static IEnumerable<ISymbol> GetAllMembersInternal(ITypeSymbol type)
+        {
+            if (type.SpecialType == SpecialType.System_Object) yield break;
+            List<ISymbol> myMembers = type.GetMembers().ToList();
+            if (type.IsReferenceType)
+                foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
+                {
+                    if (member is IMethodSymbol method && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor))
+                    {
+                        continue;
+                    }
+                    else if (member.IsAbstract || member.IsVirtual || member.IsOverride)
+                    {
+                        int index = myMembers.FindIndex(p => p is IMethodSymbol method && SymbolEqualityComparer.Default.Equals(method.OverriddenMethod, member));
+                        if (index >= 0)
+                        {
+                            yield return myMembers[index];
+                            myMembers.RemoveAt(index);
+                        }
+                        else
+                        {
+                            yield return member;
+                        }
+                    }
+                    else
+                    {
+                        yield return member;
+                    }
+                }
+            foreach (ISymbol member in myMembers)
+            {
+                yield return member;
+            }
+        }
+
         public static IFieldSymbol[] GetFields(this ITypeSymbol type)
         {
-            return type.GetMembers().OfType<IFieldSymbol>().Where(p => !p.IsStatic).ToArray();
+            return type.GetAllMembers().OfType<IFieldSymbol>().Where(p => !p.IsStatic).ToArray();
         }
 
         public static string GetDisplayName(this ISymbol symbol, bool lowercase = false)
