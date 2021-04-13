@@ -42,6 +42,26 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return myname;
         }
 
+        public static bool NullPropertyGT(string a)
+        {
+            return a?.Length > 0;
+        }
+
+        public static bool NullPropertyLT(string a)
+        {
+            return a?.Length < 0;
+        }
+
+        public static bool NullPropertyGE(string a)
+        {
+            return a?.Length >= 0;
+        }
+
+        public static bool NullPropertyLE(string a)
+        {
+            return a?.Length <= 0;
+        }
+
         public static bool NullProperty(string a)
         {
             return a?.Length != 0;
