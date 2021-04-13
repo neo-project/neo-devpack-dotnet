@@ -389,7 +389,7 @@ namespace Neo.Compiler
             if (SyntaxNode is null) return;
             for (byte i = 0; i < Symbol.Parameters.Length; i++)
             {
-                IParameterSymbol parameter = Symbol.Parameters[i];
+                IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
                 byte index = i;
                 if (!Symbol.IsStatic) index++;
                 _parameters.Add(parameter, index);

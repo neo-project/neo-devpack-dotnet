@@ -77,6 +77,106 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void NullPropertyGT()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullPropertyGT", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyGT", "");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyGT", "123");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void NullPropertyLT()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullPropertyLT", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyLT", "");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyLT", "123");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void NullPropertyGE()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullPropertyGE", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyGE", "");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyGE", "123");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void nullPropertyLE()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullPropertyLE", StackItem.Null);
+            var item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyLE", "");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsTrue(item.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("nullPropertyLE", "123");
+            item = result.Pop();
+
+            Assert.IsInstanceOfType(item, typeof(Boolean));
+            Assert.IsFalse(item.GetBoolean());
+        }
+
+        [TestMethod]
         public void NullCoalescing()
         {
             //  call NullCoalescing(string code)
