@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
   </ItemGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">

@@ -1,13 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO.Json;
-using Neo.Ledger;
 using Neo.SmartContract.Native;
 using Neo.TestEngine.UnitTests.Utils;
 using Neo.TestingEngine;
 using Neo.VM;
 using Neo.VM.Types;
 using System.IO;
-using System.Linq;
 
 namespace TestEngine.UnitTests
 {
