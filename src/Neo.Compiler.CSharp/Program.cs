@@ -102,16 +102,20 @@ namespace Neo.Compiler
                 Directory.CreateDirectory(folder);
                 File.WriteAllBytes($"{folder}/{context.ContractName}.nef", context.CreateExecutable().ToArray());
                 File.WriteAllBytes($"{folder}/{context.ContractName}.manifest.json", context.CreateManifest().ToByteArray(false));
+                Console.WriteLine($"Created {folder}/{context.ContractName}.nef");
+                Console.WriteLine($"Created {folder}/{context.ContractName}.manifest.json");
                 if (options.Debug)
                 {
                     using FileStream fs = new($"{folder}/{context.ContractName}.nefdbgnfo", FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                     using Stream stream = archive.CreateEntry($"{context.ContractName}.debug.json").Open();
                     stream.Write(context.CreateDebugInformation().ToByteArray(false));
+                    Console.WriteLine($"Created {folder}/{context.ContractName}.nefdbgnfo");
                 }
                 if (options.Assembly)
                 {
                     File.WriteAllText($"{folder}/{context.ContractName}.asm", context.CreateAssembly());
+                    Console.WriteLine($"Created {folder}/{context.ContractName}.asm");
                 }
                 Console.WriteLine($"Compilation completed successfully. The target files have been generated in \"{folder}\".");
                 return 0;
