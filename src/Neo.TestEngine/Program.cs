@@ -166,26 +166,37 @@ namespace Neo.TestingEngine
                     smartContractTestCase = new SmartContractTest(scriptHash, methodName, parameters);
                 }
 
+                // fake storage
                 if (json.ContainsProperty("storage"))
                 {
                     smartContractTestCase.storage = GetStorageFromJson(json["storage"]);
                 }
 
+                // additional contracts that aren't the entry point but can be called during executing
                 if (json.ContainsProperty("contracts"))
                 {
                     smartContractTestCase.contracts = GetContractsFromJson(json["contracts"]);
                 }
 
+                // set data for previous blocks for better simulation
                 if (json.ContainsProperty("blocks") && json["blocks"] is JArray blocks)
                 {
                     smartContractTestCase.blocks = blocks.Select(b => BlockFromJson(b)).ToArray();
                 }
 
+                // set the current heigh
                 if (json.ContainsProperty("height"))
                 {
                     smartContractTestCase.currentHeight = uint.Parse(json["height"].AsString());
                 }
 
+                // set data for current tx
+                if (json.ContainsProperty("currentTx"))
+                {
+                    smartContractTestCase.currentTx = TxFromJson(json["currentTx"]);
+                }
+
+                // tx signers
                 if (json.ContainsProperty("signerAccounts") && json["signerAccounts"] is JArray accounts)
                 {
                     smartContractTestCase.signers = accounts.Select(p => UInt160.Parse(p.AsString())).ToArray();
@@ -225,6 +236,14 @@ namespace Neo.TestingEngine
                 Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
                 Engine.Instance.SetSigners(smartContractTest.signers);
 
+                Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
+                Engine.Instance.SetSigners(smartContractTest.signers);
+
+                if (smartContractTest.currentTx != null)
+                {
+                    Engine.Instance.SetTxAttributes(smartContractTest.currentTx.Attributes);
+                }
+
                 if (smartContractTest.nefPath != null)
                 {
                     IsValidNefPath(smartContractTest.nefPath);
@@ -234,6 +253,7 @@ namespace Neo.TestingEngine
                 {
                     Engine.Instance.SetEntryScript(smartContractTest.scriptHash);
                 }
+
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);
                 return Engine.Instance.Run(smartContractTest.methodName, stackParams);
             }
@@ -383,6 +403,7 @@ namespace Neo.TestingEngine
         {
             Signer[] accounts;
             Witness[] witnesses;
+            List<TransactionAttribute> attributes = new List<TransactionAttribute>();
 
             if (txJson.ContainsProperty("signers") && txJson["signers"] is JArray signersJson)
             {
@@ -410,13 +431,73 @@ namespace Neo.TestingEngine
                 witnesses = new Witness[0];
             }
 
+            if (txJson.ContainsProperty("attributes") && txJson["attributes"] is JArray attributesJson)
+            {
+                foreach (var attr in attributesJson)
+                {
+                    var txAttribute = TxAttributeFromJson(attr);
+                    if (txAttribute != null)
+                    {
+                        attributes.Add(txAttribute);
+                    }
+                }
+            }
+
+            byte[] script;
+            if (txJson.ContainsProperty("script"))
+            {
+                script = txJson["script"].ToByteArray(false);
+            }
+            else if (attributes.Any(attribute => attribute is OracleResponse oracleAttr))
+            {
+                script = OracleResponse.FixedScript;
+            }
+            else
+            {
+                script = new byte[0];
+            }
+
             return new Transaction()
             {
-                Script = txJson["script"].ToByteArray(false),
+                Script = script,
                 Signers = accounts,
                 Witnesses = witnesses,
-                Attributes = new TransactionAttribute[0]
+                Attributes = attributes.ToArray()
             };
+        }
+
+        private static TransactionAttribute TxAttributeFromJson(JObject txAttributeJson)
+        {
+            if (!txAttributeJson.ContainsProperty("type"))
+            {
+                return null;
+            }
+
+            if (!Enum.TryParse<TransactionAttributeType>(txAttributeJson["type"].AsString(), out var type))
+            {
+                return null;
+            }
+
+            switch (type)
+            {
+                case TransactionAttributeType.OracleResponse:
+
+                    if (!Enum.TryParse<OracleResponseCode>(txAttributeJson["code"].AsString(), out var responseCode))
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    return new OracleResponse()
+                    {
+                        Id = ulong.Parse(txAttributeJson["id"].AsString()),
+                        Code = responseCode,
+                        Result = Convert.FromBase64String(txAttributeJson["result"].AsString())
+                    };
+                case TransactionAttributeType.HighPriority:
+                    return new HighPriorityAttribute();
+                default:
+                    return null;
+            }
         }
 
         private static bool IsValidNefPath(string path)

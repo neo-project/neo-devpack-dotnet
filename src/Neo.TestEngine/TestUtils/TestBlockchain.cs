@@ -41,7 +41,7 @@ namespace Neo.TestingEngine
         {
             var nativeTokens = new int[]
             {
-                NativeContract.GAS.Id, NativeContract.NEO.Id, NativeContract.ContractManagement.Id
+                NativeContract.GAS.Id, NativeContract.NEO.Id, NativeContract.ContractManagement.Id, NativeContract.Oracle.Id
             };
 
             return snapshot.Find().Where(pair => pair.Key.Id >= 0 || nativeTokens.Contains(pair.Key.Id)).ToList();

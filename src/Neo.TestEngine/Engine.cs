@@ -1,13 +1,13 @@
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.IO.Json;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -140,6 +140,11 @@ namespace Neo.TestingEngine
             {
                 currentTx.Signers = signerAccounts.Select(p => new Signer() { Account = p, Scopes = WitnessScope.CalledByEntry }).ToArray();
             }
+        }
+
+        internal void SetTxAttributes(TransactionAttribute[] attributes)
+        {
+            currentTx.Attributes = attributes.Where(attr => attr != null).ToArray();
         }
 
         public void AddBlock(Block block)
