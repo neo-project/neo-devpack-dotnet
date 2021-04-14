@@ -1137,7 +1137,10 @@ namespace Neo.Compiler
                     ConvertIdentifierNameExpression(model, expression);
                     break;
                 case ImplicitArrayCreationExpressionSyntax expression:
-                    ConvertImplicitArrayCreationExpression(model, expression);
+                    ConvertInitializerExpression(model, expression.Initializer);
+                    break;
+                case InitializerExpressionSyntax expression:
+                    ConvertInitializerExpression(model, expression);
                     break;
                 case InterpolatedStringExpressionSyntax expression:
                     ConvertInterpolatedStringExpression(model, expression);
@@ -1199,54 +1202,18 @@ namespace Neo.Compiler
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
             if (specifier.Rank != 1)
                 throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
-            ITypeSymbol type = model.GetTypeInfo(expression.Type.ElementType).Type!;
-            if (type.SpecialType == SpecialType.System_Byte)
+            IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression.Type).Type!;
+            if (expression.Initializer is null)
             {
-                if (expression.Initializer is null)
-                {
-                    ConvertExpression(model, specifier.Sizes[0]);
+                ConvertExpression(model, specifier.Sizes[0]);
+                if (type.ElementType.SpecialType == SpecialType.System_Byte)
                     AddInstruction(OpCode.NEWBUFFER);
-                }
                 else
-                {
-                    Optional<object?>[] values = expression.Initializer.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
-                    if (values.Any(p => !p.HasValue))
-                    {
-                        Push(values.Length);
-                        AddInstruction(OpCode.NEWBUFFER);
-                        for (int i = 0; i < expression.Initializer.Expressions.Count; i++)
-                        {
-                            AddInstruction(OpCode.DUP);
-                            Push(i);
-                            ConvertExpression(model, expression.Initializer.Expressions[i]);
-                            AddInstruction(OpCode.SETITEM);
-                        }
-                    }
-                    else
-                    {
-                        byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-                        Push(data);
-                        ChangeType(VM.Types.StackItemType.Buffer);
-                    }
-                }
+                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
             }
             else
             {
-                if (expression.Initializer is null)
-                {
-                    ConvertExpression(model, specifier.Sizes[0]);
-                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
-                }
-                else
-                {
-                    AddInstruction(OpCode.NEWARRAY0);
-                    foreach (ExpressionSyntax ex in expression.Initializer.Expressions)
-                    {
-                        AddInstruction(OpCode.DUP);
-                        ConvertExpression(model, ex);
-                        AddInstruction(OpCode.APPEND);
-                    }
-                }
+                ConvertInitializerExpression(model, type, expression.Initializer);
             }
         }
 
@@ -2462,14 +2429,42 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
+        private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
         {
-            AddInstruction(OpCode.NEWARRAY0);
-            foreach (ExpressionSyntax ex in expression.Initializer.Expressions)
+            IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+            ConvertInitializerExpression(model, type, expression);
+        }
+
+        private void ConvertInitializerExpression(SemanticModel model, IArrayTypeSymbol type, InitializerExpressionSyntax expression)
+        {
+            if (type.ElementType.SpecialType == SpecialType.System_Byte)
             {
-                AddInstruction(OpCode.DUP);
-                ConvertExpression(model, ex);
-                AddInstruction(OpCode.APPEND);
+                Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
+                if (values.Any(p => !p.HasValue))
+                {
+                    Push(values.Length);
+                    AddInstruction(OpCode.NEWBUFFER);
+                    for (int i = 0; i < expression.Expressions.Count; i++)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        Push(i);
+                        ConvertExpression(model, expression.Expressions[i]);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                }
+                else
+                {
+                    byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
+                    Push(data);
+                    ChangeType(VM.Types.StackItemType.Buffer);
+                }
+            }
+            else
+            {
+                for (int i = expression.Expressions.Count - 1; i >= 0; i--)
+                    ConvertExpression(model, expression.Expressions[i]);
+                Push(expression.Expressions.Count);
+                AddInstruction(OpCode.PACK);
             }
         }
 
