@@ -16,7 +16,7 @@ namespace Neo.Compiler
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
-                new Argument<string?>("path", () => null, "The path of the project file, project directory or source file."),
+                new Argument<string[]>("paths", "The path of the project file, project directory or source files."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
@@ -24,33 +24,31 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
-            rootCommand.Handler = CommandHandler.Create<Options, string?>(Handle);
+            rootCommand.Handler = CommandHandler.Create<Options, string[]>(Handle);
             return rootCommand.Invoke(args);
         }
 
-        private static int Handle(Options options, string? path)
+        private static int Handle(Options options, string[] paths)
         {
-            if (path is null)
-                path = Environment.CurrentDirectory;
-            else
-                path = Path.GetFullPath(path);
-            if (File.Exists(path))
+            if (paths is null || paths.Length == 0)
+                return ProcessDirectory(options, Environment.CurrentDirectory);
+            paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
+            if (paths.Length == 1)
             {
-                return Path.GetExtension(path).ToLowerInvariant() switch
-                {
-                    ".cs" => ProcessSources(options, Path.GetDirectoryName(path)!, path),
-                    ".csproj" => ProcessCsproj(options, path),
-                    _ => throw new NotSupportedException(),
-                };
+                string path = paths[0];
+                if (Directory.Exists(path))
+                    return ProcessDirectory(options, path);
+                if (File.Exists(path) && Path.GetExtension(path).ToLowerInvariant() == ".csproj")
+                    return ProcessCsproj(options, path);
             }
-            else if (Directory.Exists(path))
+            foreach (string path in paths)
             {
-                return ProcessDirectory(options, path);
+                if (Path.GetExtension(path).ToLowerInvariant() != ".cs")
+                    throw new NotSupportedException();
+                if (!File.Exists(path))
+                    throw new FileNotFoundException();
             }
-            else
-            {
-                throw new FileNotFoundException();
-            }
+            return ProcessSources(options, Path.GetDirectoryName(paths[0])!, paths);
         }
 
         private static int ProcessDirectory(Options options, string path)
@@ -73,7 +71,7 @@ namespace Neo.Compiler
             return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.CompileProject(path, options));
         }
 
-        private static int ProcessSources(Options options, string folder, params string[] sourceFiles)
+        private static int ProcessSources(Options options, string folder, string[] sourceFiles)
         {
             return ProcessOutputs(options, folder, CompilationContext.CompileSources(sourceFiles, options));
         }
