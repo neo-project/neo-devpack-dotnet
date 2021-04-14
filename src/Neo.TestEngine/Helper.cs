@@ -112,11 +112,11 @@ namespace Neo.TestingEngine
 
         public static ScriptBuilder EmitAppCall(this ScriptBuilder sb, UInt160 scriptHash, string operation, params ContractParameter[] args)
         {
-            sb.EmitPush(CallFlags.All);
             for (int i = args.Length - 1; i >= 0; i--)
                 sb.EmitPush(args[i]);
             sb.EmitPush(args.Length);
             sb.Emit(OpCode.PACK);
+            sb.EmitPush(CallFlags.All);
             sb.EmitPush(operation);
             sb.EmitPush(scriptHash);
             sb.EmitSysCall(ApplicationEngine.System_Contract_Call);

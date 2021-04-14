@@ -1,11 +1,10 @@
 using Neo.Cryptography.ECC;
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Native;
 using System.ComponentModel;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Crypto : SmartContract.Framework.SmartContract
+    public class Contract_Crypto : SmartContract
     {
         [DisplayName("SHA256")]
         public static byte[] SHA256(byte[] value)
@@ -17,16 +16,6 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static byte[] RIPEMD160(byte[] value)
         {
             return (byte[])CryptoLib.ripemd160((ByteString)value);
-        }
-
-        public static byte[] Hash160(byte[] value)
-        {
-            return (byte[])Crypto.Hash160((ByteString)value);
-        }
-
-        public static byte[] Hash256(byte[] value)
-        {
-            return (byte[])Crypto.Hash256((ByteString)value);
         }
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)

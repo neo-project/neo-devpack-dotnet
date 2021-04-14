@@ -43,50 +43,50 @@ namespace Neo.TestingEngine
             return outd;
         }
 
-        /// <summary>
-        /// Build script
-        /// </summary>
-        /// <param name="filename">File</param>
-        /// <param name="releaseMode">Release mode (default=false)</param>
-        /// <param name="optimizer">Optimize script (default=false)</param>
-        /// <returns>BuildScript</returns>
-        public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
-        {
-            return BuildScript(new string[] { filename }, releaseMode, optimizer);
-        }
+        ///// <summary>
+        ///// Build script
+        ///// </summary>
+        ///// <param name="filename">File</param>
+        ///// <param name="releaseMode">Release mode (default=false)</param>
+        ///// <param name="optimizer">Optimize script (default=false)</param>
+        ///// <returns>BuildScript</returns>
+        //public static BuildScript BuildScript(string filename, bool releaseMode = false, bool optimizer = false)
+        //{
+        //    return BuildScript(new string[] { filename }, releaseMode, optimizer);
+        //}
 
-        /// <summary>
-        /// Build script
-        /// </summary>
-        /// <param name="filenames">Files</param>
-        /// <param name="releaseMode">Release mode (default=false)</param>
-        /// <param name="optimizer">Optimize script (default=false)</param>
-        /// <returns>BuildScript</returns>
-        public static BuildScript BuildScript(string[] filenames, bool releaseMode = false, bool optimizer = false)
-        {
-            var ext = System.IO.Path.GetExtension(filenames.First());
-            var comp = (ext.ToLowerInvariant()) switch
-            {
-                ".cs" => Compiler.Compiler.CompileCSFiles(filenames, new string[0] { }, releaseMode),
-                ".vb" => Compiler.Compiler.CompileVBFiles(filenames, new string[0] { }, releaseMode),
-                _ => throw new System.Exception("do not support extname = " + ext),
-            };
+        ///// <summary>
+        ///// Build script
+        ///// </summary>
+        ///// <param name="filenames">Files</param>
+        ///// <param name="releaseMode">Release mode (default=false)</param>
+        ///// <param name="optimizer">Optimize script (default=false)</param>
+        ///// <returns>BuildScript</returns>
+        //public static BuildScript BuildScript(string[] filenames, bool releaseMode = false, bool optimizer = false)
+        //{
+        //    var ext = System.IO.Path.GetExtension(filenames.First());
+        //    var comp = (ext.ToLowerInvariant()) switch
+        //    {
+        //        ".cs" => Compiler.Compiler.CompileCSFiles(filenames, new string[0] { }, releaseMode),
+        //        ".vb" => Compiler.Compiler.CompileVBFiles(filenames, new string[0] { }, releaseMode),
+        //        _ => throw new System.Exception("do not support extname = " + ext),
+        //    };
 
-            using (var streamDll = new MemoryStream(comp.Dll))
-            using (var streamPdb = new MemoryStream(comp.Pdb))
-            {
-                var bs = new BuildScript();
-                bs.Build(streamDll, streamPdb, optimizer);
+        //    using (var streamDll = new MemoryStream(comp.Dll))
+        //    using (var streamPdb = new MemoryStream(comp.Pdb))
+        //    {
+        //        var bs = new BuildScript();
+        //        bs.Build(streamDll, streamPdb, optimizer);
 
-                if (bs.Error != null)
-                {
-                    throw (bs.Error);
-                }
+        //        if (bs.Error != null)
+        //        {
+        //            throw (bs.Error);
+        //        }
 
-                if (bs.Error != null) throw bs.Error;
+        //        if (bs.Error != null) throw bs.Error;
 
-                return bs;
-            }
-        }
+        //        return bs;
+        //    }
+        //}
     }
 }

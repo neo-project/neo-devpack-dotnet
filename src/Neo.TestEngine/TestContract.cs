@@ -5,7 +5,7 @@ namespace Neo.TestingEngine
     public class TestContract
     {
         internal string nefPath;
-        internal BuildScript buildScript = null;
+        internal object buildScript = null;
 
         public TestContract(string path)
         {

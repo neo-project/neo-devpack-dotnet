@@ -11,7 +11,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: $(TargetPath)" Importance="high">
     </Message>
-    <Exec Command="neon -f &quot;$(TargetPath)&quot; -o" />
+    <Exec Command="nccs &quot;$(ProjectPath)&quot;" />
   </Target>
 
 </Project>

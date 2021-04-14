@@ -217,6 +217,14 @@ namespace Neo.TestingEngine
                     Engine.Instance.AddSmartContract(contract);
                 }
 
+                foreach (var block in smartContractTest.blocks.OrderBy(b => b.Index))
+                {
+                    Engine.Instance.AddBlock(block);
+                }
+
+                Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
+                Engine.Instance.SetSigners(smartContractTest.signers);
+
                 if (smartContractTest.nefPath != null)
                 {
                     IsValidNefPath(smartContractTest.nefPath);
@@ -226,14 +234,6 @@ namespace Neo.TestingEngine
                 {
                     Engine.Instance.SetEntryScript(smartContractTest.scriptHash);
                 }
-                foreach (var block in smartContractTest.blocks.OrderBy(b => b.Index))
-                {
-                    Engine.Instance.AddBlock(block);
-                }
-
-                Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
-                Engine.Instance.SetSigners(smartContractTest.signers);
-
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);
                 return Engine.Instance.Run(smartContractTest.methodName, stackParams);
             }

@@ -1,8 +1,11 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
-    public abstract class ByteString
+    public abstract class ByteString : IEnumerable<byte>
     {
         public extern byte this[int index]
         {
@@ -16,10 +19,20 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
-        [Script]
+        IEnumerator<byte> IEnumerable<byte>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        [OpCode(OpCode.NOP)]
         public static extern implicit operator string(ByteString str);
 
-        [Script]
+        [OpCode(OpCode.NOP)]
         public static extern implicit operator ByteString(string str);
 
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
@@ -30,11 +43,13 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
-        [OpCode(OpCode.JMPIFNOT, "0x05")]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.JMPIFNOT, "0x04")]
         [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
         public static extern explicit operator BigInteger(ByteString text);
+
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        public static extern explicit operator ByteString(BigInteger integer);
     }
 }

@@ -21,11 +21,11 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-rc1" />
+    <PackageReference Include="Neo" Version="3.0.0-CI01265" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Neo.Compiler.MSIL\Neo.Compiler.MSIL.csproj" />
+    <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
   </ItemGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">

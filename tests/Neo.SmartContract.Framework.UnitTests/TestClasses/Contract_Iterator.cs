@@ -1,9 +1,8 @@
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Iterator : SmartContract.Framework.SmartContract
+    public class Contract_Iterator : SmartContract
     {
         public static int TestNextByteArray(byte[] a)
         {
@@ -26,6 +25,19 @@ namespace Neo.Compiler.MSIL.TestClasses
             while (iterator.Next())
             {
                 sum += iterator.Value;
+            }
+
+            return sum;
+        }
+
+        public static int TestNextIntArrayForeach(int[] a)
+        {
+            int sum = 0;
+            var iterator = Iterator.Create<int>(a);
+
+            foreach (var value in iterator)
+            {
+                sum += value;
             }
 
             return sum;

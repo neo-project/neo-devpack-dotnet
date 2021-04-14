@@ -1,13 +1,13 @@
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services;
 using System.Numerics;
+using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    class Contract_StaticStorageMap : SmartContract.Framework.SmartContract
+    public class Contract_StaticStorageMap : SmartContract
     {
-        private static StorageMap Data = Storage.CurrentContext.CreateMap("data");
-        private static readonly StorageMap ReadonlyData = Storage.CurrentContext.CreateMap("readonlydata");
+        private static StorageMap Data = new StorageMap(Storage.CurrentContext, "data");
+        private static readonly StorageMap ReadonlyData = new StorageMap(Storage.CurrentContext, "readonlydata");
 
         public static void Put(string message)
         {
@@ -31,14 +31,26 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static void Put2(string message)
         {
-            var Data2 = Storage.CurrentContext.CreateMap("data");
+            var Data2 = new StorageMap(Storage.CurrentContext, "data");
             Data2.Put(message, 3);
         }
 
         public static BigInteger Get2(string msg)
         {
-            var Data2 = Storage.CurrentContext.CreateMap("data");
+            var Data2 = new StorageMap(Storage.CurrentContext, "data");
             return (BigInteger)Data2.Get(msg);
+        }
+
+        public static void teststoragemap_Putbyteprefix(byte x)
+        {
+            var store = new StorageMap(Storage.CurrentContext, x);
+            store.Put("test1", 123);
+        }
+
+        public static BigInteger teststoragemap_Getbyteprefix(byte x)
+        {
+            var store = new StorageMap(Storage.CurrentContext, x);
+            return (BigInteger)store.Get("test1");
         }
     }
 }

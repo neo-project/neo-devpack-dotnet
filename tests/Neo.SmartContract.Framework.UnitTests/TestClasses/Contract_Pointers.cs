@@ -1,11 +1,10 @@
-using Neo.SmartContract.Framework.Services.Neo;
-using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Pointers : SmartContract.Framework.SmartContract
+    public class Contract_Pointers : SmartContract
     {
         public static object CreateFuncPointer()
         {
@@ -30,7 +29,7 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static BigInteger MyMethodWithArg(byte[] num)
         {
-            return num.ToBigInteger();
+            return new BigInteger(num);
         }
 
         public static BigInteger CallFuncPointerWithArg()

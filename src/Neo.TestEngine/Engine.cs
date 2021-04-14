@@ -49,7 +49,6 @@ namespace Neo.TestingEngine
 
         public void SetEntryScript(string path)
         {
-            engine.AddEntryScript(path);
             AddSmartContract(path);
         }
 
@@ -64,33 +63,34 @@ namespace Neo.TestingEngine
             contract.buildScript = state;
         }
 
-        private BuildScript AddSmartContract(string path)
+        private object AddSmartContract(string path)
         {
-            var builtScript = engine.Build(path);
-            var hash = builtScript.finalNEFScript.ToScriptHash();
+            engine.AddEntryScript(path);
 
-            var snapshot = engine.Snapshot;
-
-            ContractState state;
-            if (!snapshot.ContainsContract(hash))
+            if (engine.Context?.Success == true)
             {
-                state = new ContractState()
+                var hash = engine.Nef.Script.ToScriptHash();
+                var snapshot = engine.Snapshot;
+
+                ContractState state;
+                if (!snapshot.ContainsContract(hash))
                 {
-                    Id = snapshot.GetNextAvailableId(),
-                    Hash = hash,
-                    Nef = builtScript.nefFile,
-                    Manifest = ContractManifest.FromJson(JObject.Parse(builtScript.finalManifest)),
-                };
-                snapshot.TryContractAdd(state);
+                    state = new ContractState()
+                    {
+                        Id = snapshot.GetNextAvailableId(),
+                        Hash = hash,
+                        Nef = engine.Nef,
+                        Manifest = ContractManifest.FromJson(engine.Manifest),
+                    };
+                    snapshot.TryContractAdd(state);
+                }
+                else
+                {
+                    state = NativeContract.ContractManagement.GetContract(snapshot, hash);
+                    engine.AddEntryScript(new BuildScript(state.Nef, state.Manifest.ToJson()));
+                }
             }
-            else
-            {
-                state = NativeContract.ContractManagement.GetContract(snapshot, hash);
-                builtScript = new BuildNEF(state.Nef, state.Manifest.ToJson());
-            }
-
-            engine.AddContract(path, builtScript);
-            return builtScript;
+            return engine.Context;
         }
 
         public void IncreaseBlockCount(uint newHeight)
@@ -203,20 +203,25 @@ namespace Neo.TestingEngine
                 snapshot.SetCurrentBlockHash(lastBlock.Index, lastBlock.Hash);
             }
 
-            using (ScriptBuilder scriptBuilder = new ScriptBuilder())
-            {
-                scriptBuilder.EmitAppCall(engine.EntryScriptHash, method, args);
-                currentTx.Script = scriptBuilder.ToArray();
-            }
-
             var stackItemsArgs = args.Select(a => a.ToStackItem()).ToArray();
-            if (engine.ScriptEntry is BuildNative)
+            if (engine.Context is BuildNative native)
             {
-                engine.RunNativeContract(method, stackItemsArgs);
+                byte[] script;
+                using (ScriptBuilder scriptBuilder = new ScriptBuilder())
+                {
+                    scriptBuilder.EmitAppCall(native.NativeContract.Hash, method, args);
+                    script = scriptBuilder.ToArray();
+                }
+                engine.RunNativeContract(script, method, stackItemsArgs);
             }
             else
             {
-                engine.GetMethod(method).RunEx(stackItemsArgs);
+                using (ScriptBuilder scriptBuilder = new ScriptBuilder())
+                {
+                    scriptBuilder.EmitAppCall(engine.EntryScriptHash, method, args);
+                    currentTx.Script = scriptBuilder.ToArray();
+                }
+                engine.ExecuteTestCaseStandard(method, stackItemsArgs);
             }
 
             //currentTx.ValidUntilBlock = engine.Snapshot.Height + Transaction.MaxValidUntilBlockIncrement;

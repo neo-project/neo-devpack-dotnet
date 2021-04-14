@@ -1,10 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO.Json;
+using Neo.TestEngine.UnitTests.Utils;
 using Neo.TestingEngine;
 using Neo.VM;
 using Neo.VM.Types;
 using System.IO;
-using Compiler = Neo.Compiler.Program;
+//using Compiler = Neo.Compiler.Program;
 
 namespace TestEngine.UnitTests
 {
@@ -15,11 +16,13 @@ namespace TestEngine.UnitTests
         public void Init()
         {
             string path = Directory.GetCurrentDirectory();
-            var option = new Compiler.Options()
-            {
-                File = path + "/TestClasses/Contract1.cs"
-            };
-            Compiler.Compile(option);
+            //var option = new Compiler.Options()
+            //{
+            //    File = path + "/TestClasses/Contract1.cs"
+            //};
+            //Compiler.Compile(option);
+
+            CSharpCompiler.Compile(path + "/TestClasses/Contract1.cs");
 
             //Compile changes the path, reseting so that other UT won't break
             Directory.SetCurrentDirectory(path);

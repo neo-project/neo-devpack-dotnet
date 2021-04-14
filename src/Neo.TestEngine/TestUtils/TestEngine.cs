@@ -1,14 +1,19 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.TestingEngine
 {
@@ -16,100 +21,112 @@ namespace Neo.TestingEngine
     {
         public const long TestGas = 2000_00000000;
 
-        static readonly IDictionary<string, BuildScript> scriptsAll = new Dictionary<string, BuildScript>();
+        private static readonly List<MetadataReference> references = new();
 
-        public readonly IDictionary<string, BuildScript> Scripts;
+        public NefFile Nef { get; private set; }
+        public JObject Manifest { get; private set; }
+        public JObject DebugInfo { get; private set; }
 
-        public BuildScript ScriptEntry { get; private set; }
+        internal BuildScript Context { get; set; }
+
+        public void ClearNotifications()
+        {
+            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, null);
+        }
+
+        static TestEngine()
+        {
+            try
+            {
+                string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+                references.Add(MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")));
+                references.Add(MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")));
+                references.Add(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
+                references.Add(MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location));
+                references.Add(MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location));
+
+                string folder = Path.GetFullPath(string.Format(
+                    "{0}/../../../../../src/Neo.SmartContract.Framework/",
+                    AppContext.BaseDirectory
+                    ));
+                string obj = Path.Combine(folder, "obj");
+                IEnumerable<SyntaxTree> st = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                    .Where(p => !p.StartsWith(obj))
+                    .OrderBy(p => p)
+                    .Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
+                CSharpCompilation cr = CSharpCompilation.Create(null, st, references, options);
+                references.Add(cr.ToMetadataReference());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
+        }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
-            : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas)
+             : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas)
         {
-            Scripts = new Dictionary<string, BuildScript>();
         }
 
-        public BuildScript Build(string filename, bool releaseMode = false, bool optimizer = true)
+        public bool AddEntryScript(string filename)
         {
-            var contains = scriptsAll.ContainsKey(filename);
-
-            if (!contains || (contains && !(scriptsAll[filename] is BuildNEF) && scriptsAll[filename].UseOptimizer != optimizer))
+            Context = BuildScript.Build(filename);
+            if (Context.Success)
             {
-                if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
-                {
-                    var fileNameManifest = filename;
-                    using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
-                    {
-                        NefFile neffile = new NefFile();
-                        neffile.Deserialize(reader);
-                        fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
-                        string manifestFile = File.ReadAllText(fileNameManifest);
-                        BuildScript buildScriptNef = new BuildNEF(neffile, manifestFile);
-                        scriptsAll[filename] = buildScriptNef;
-                    }
-                }
-                else
-                {
-                    scriptsAll[filename] = NeonTestTool.BuildScript(filename, releaseMode, optimizer);
-                }
+                Nef = Context.Nef;
+                Manifest = Context.Manifest;
+                DebugInfo = Context.DebugInfo;
+                Reset();
             }
-
-            return scriptsAll[filename];
+            return Context.Success;
         }
 
-        public BuildScript Build(string[] filenames, bool releaseMode = false, bool optimizer = true)
-        {
-            var key = string.Join("\n", filenames);
-
-            if (scriptsAll.ContainsKey(key) == false)
-            {
-                return NeonTestTool.BuildScript(filenames, releaseMode, optimizer);
-            }
-
-            return scriptsAll[key];
-        }
-
-        public void AddEntryScript(string filename, bool releaseMode = false, bool optimizer = true)
-        {
-            ScriptEntry = Build(filename, releaseMode, optimizer);
-            Reset();
-        }
-
-
-        public void AddEntryScript(string[] filenames, bool releaseMode = false, bool optimizer = true)
-        {
-            ScriptEntry = Build(filenames, releaseMode, optimizer);
-            Reset();
-        }
-
-        public void AddEntryScript(UInt160 contractHash)
+        public bool AddEntryScript(UInt160 contractHash)
         {
             var nativeContract = NativeContract.GetContract(contractHash);
             if (nativeContract != null)
             {
-                ScriptEntry = new BuildNative(nativeContract);
+                return AddEntryScript(new BuildNative(nativeContract));
+            }
+
+            if (!Snapshot.ContainsContract(contractHash))
+            {
+                return false;
+            }
+
+            var state = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
+
+            Nef = state.Nef;
+            Manifest = state.Manifest.ToJson();
+            Reset();
+
+            return true;
+        }
+
+        public bool AddEntryScript(BuildScript script)
+        {
+            var contractHash = script.Nef.Script.ToScriptHash();
+            var contract = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
+
+            if (contract != null)
+            {
+                Nef = contract.Nef;
+                Manifest = contract.Manifest.ToJson();
             }
             else
             {
-                var buildScripts = scriptsAll.Values.ToArray();
-                var scriptHashes = buildScripts.Select(build => build.finalNEFScript.ToScriptHash()).ToList();
-
-                if (!scriptHashes.Contains(contractHash))
-                {
-                    new InvalidOperationException($"Contract Does Not Exist: {contractHash}");
-                }
-                var index = scriptHashes.IndexOf(contractHash);
-                ScriptEntry = buildScripts[index];
+                Nef = script.Nef;
+                Manifest = script.Manifest;
             }
 
             Reset();
+            Context = script;
+            return true;
         }
 
-        public void AddContract(string filename, BuildScript script)
-        {
-            scriptsAll[filename] = script;
-        }
-
-        public void RunNativeContract(string method, StackItem[] parameters, CallFlags flags = CallFlags.All)
+        public void RunNativeContract(byte[] script, string method, StackItem[] parameters, CallFlags flags = CallFlags.All)
         {
             VM.Types.Array paramsArray = new VM.Types.Array(parameters);
             ByteString methodName = method;
@@ -117,8 +134,16 @@ namespace Neo.TestingEngine
 
             var items = new StackItem[] { methodName, callFlag, paramsArray };
             var rvcount = GetMethodReturnCount(method);
-            ExecuteTestCaseStandard(0, (ushort)rvcount, ScriptEntry.nefFile, items.ToArray());
+
+            var contractScript = new TestScript(script);
+            var context = InvocationStack.Pop();
+            context = CreateContext(contractScript, rvcount, 0);
+            LoadContext(context);
+
+            var mockedNef = new TestNefFile(script);
+            ExecuteTestCaseStandard(0, (ushort)rvcount, mockedNef, new StackItem[0]);
         }
+
 
         public void Reset()
         {
@@ -128,63 +153,32 @@ namespace Neo.TestingEngine
             {
                 this.ResultStack.Pop();
             }
-            if (ScriptEntry != null)
+            if (Nef != null)
             {
-                this.LoadScript(ScriptEntry.finalNEFScript);
+                this.LoadScript(Nef.Script);
                 // Mock contract
                 var contextState = CurrentContext.GetState<ExecutionContextState>();
-                contextState.Contract ??= new ContractState()
-                {
-                    Nef = ScriptEntry.nefFile
-                };
+                contextState.Contract ??= new ContractState { Nef = Nef };
             }
         }
 
-        public class ContractMethod
+        private int GetMethodEntryOffset(string methodname)
         {
-            readonly TestEngine engine;
-            readonly string methodname;
-
-            public ContractMethod(TestEngine engine, string methodname)
-            {
-                this.engine = engine;
-                this.methodname = methodname;
-            }
-
-            public StackItem Run(params StackItem[] _params)
-            {
-                return this.engine.ExecuteTestCaseStandard(methodname, _params).Pop();
-            }
-
-            public EvaluationStack RunEx(params StackItem[] _params)
-            {
-                return this.engine.ExecuteTestCaseStandard(methodname, _params);
-            }
-        }
-
-        public ContractMethod GetMethod(string methodname)
-        {
-            return new ContractMethod(this, methodname);
-        }
-
-        public int GetMethodEntryOffset(string methodname)
-        {
-            if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
+            if (Manifest is null) return -1;
+            var methods = Manifest["abi"]["methods"] as JArray;
             foreach (var item in methods)
             {
                 var method = item as JObject;
                 if (method["name"].AsString() == methodname)
                     return int.Parse(method["offset"].AsString());
             }
-
             return -1;
         }
 
-        public int GetMethodReturnCount(string methodname)
+        private int GetMethodReturnCount(string methodname)
         {
-            if (this.ScriptEntry is null) return -1;
-            var methods = this.ScriptEntry.finalABI["methods"] as JArray;
+            if (Manifest is null) return -1;
+            var methods = Manifest["abi"]["methods"] as JArray;
             foreach (var item in methods)
             {
                 var method = item as JObject;
@@ -202,7 +196,7 @@ namespace Neo.TestingEngine
 
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-            return ExecuteTestCaseStandard(methodname, ScriptEntry.nefFile, args);
+            return ExecuteTestCaseStandard(methodname, Nef, args);
         }
 
         public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, params StackItem[] args)
@@ -216,7 +210,7 @@ namespace Neo.TestingEngine
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, params StackItem[] args)
         {
-            return ExecuteTestCaseStandard(offset, rvcount, ScriptEntry.nefFile, args);
+            return ExecuteTestCaseStandard(offset, rvcount, Nef, args);
         }
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
@@ -246,74 +240,6 @@ namespace Neo.TestingEngine
                 this.ExecuteNext();
             }
             return this.ResultStack;
-        }
-
-        protected override void OnFault(Exception e)
-        {
-            base.OnFault(e);
-            Console.WriteLine(e.ToString());
-        }
-
-        public EvaluationStack ExecuteTestCase(params StackItem[] args)
-        {
-            if (CurrentContext.InstructionPointer != 0)
-            {
-                var context = InvocationStack.Pop();
-                LoadContext(context.Clone(0));
-            }
-            if (args != null)
-            {
-                for (var i = args.Length - 1; i >= 0; i--)
-                {
-                    this.CurrentContext.EvaluationStack.Push(args[i]);
-                }
-            }
-            while (true)
-            {
-                var bfault = (this.State & VMState.FAULT) > 0;
-                var bhalt = (this.State & VMState.HALT) > 0;
-                if (bfault || bhalt) break;
-
-                Console.WriteLine("op:[" +
-                    this.CurrentContext.InstructionPointer.ToString("X04") +
-                    "]" +
-                this.CurrentContext.CurrentInstruction.OpCode);
-                this.ExecuteNext();
-            }
-            return this.ResultStack;
-        }
-
-        public void SendTestNotification(UInt160 hash, string eventName, VM.Types.Array state)
-        {
-            typeof(ApplicationEngine).GetMethod("SendNotification", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(this, new object[] { hash, eventName, state });
-        }
-
-        static Dictionary<uint, InteropDescriptor> callmethod;
-
-        public void ClearNotifications()
-        {
-            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, null);
-        }
-
-        protected override void OnSysCall(uint method)
-        {
-            if (callmethod == null)
-            {
-                callmethod = new Dictionary<uint, InteropDescriptor>();
-                foreach (var m in Services)
-                {
-                    callmethod[m.Key] = m.Value;
-                }
-            }
-            if (callmethod.ContainsKey(method) == false)
-            {
-                throw new Exception($"Syscall not found: {method:X2} (using base call)");
-            }
-            else
-            {
-                base.OnSysCall(method);
-            }
         }
     }
 }

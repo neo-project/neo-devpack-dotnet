@@ -1,9 +1,8 @@
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    class Contract_Storage : SmartContract.Framework.SmartContract
+    public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
 
@@ -11,21 +10,21 @@ namespace Neo.Compiler.MSIL.TestClasses
 
         public static bool TestPutByte(byte[] key, byte[] value)
         {
-            var storage = Storage.CurrentContext.CreateMap(0xAA);
+            var storage = new StorageMap(Storage.CurrentContext, 0x11);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
 
         public static void TestDeleteByte(byte[] key)
         {
-            var storage = Storage.CurrentContext.CreateMap(0xAA);
+            var storage = new StorageMap(Storage.CurrentContext, 0x11);
             storage.Delete((ByteString)key);
         }
 
         public static byte[] TestGetByte(byte[] key)
         {
             var context = Storage.CurrentReadOnlyContext;
-            var storage = context.CreateMap(0xAA);
+            var storage = new StorageMap(context, 0x11);
             var value = storage.Get((ByteString)key);
             return (byte[])value;
         }
@@ -33,7 +32,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static byte[] TestOver16Bytes()
         {
             var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
-            StorageMap storageMap = Storage.CurrentContext.CreateMap("test_map");
+            StorageMap storageMap = new StorageMap(Storage.CurrentContext, "test_map");
             storageMap.Put((ByteString)new byte[] { 0x01 }, (ByteString)value);
             return (byte[])storageMap.Get((ByteString)new byte[] { 0x01 });
         }
@@ -45,7 +44,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static bool TestPutString(byte[] key, byte[] value)
         {
             var prefix = "aa";
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
@@ -53,7 +52,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static void TestDeleteString(byte[] key)
         {
             var prefix = "aa";
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
             storage.Delete((ByteString)key);
         }
 
@@ -61,7 +60,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = "aa";
             var context = Storage.CurrentReadOnlyContext;
-            var storage = context.CreateMap(prefix);
+            var storage = new StorageMap(context, prefix);
             var value = storage.Get((ByteString)key);
             return (byte[])value;
         }
@@ -73,7 +72,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static bool TestPutByteArray(byte[] key, byte[] value)
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
@@ -81,7 +80,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         public static void TestDeleteByteArray(byte[] key)
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = Storage.CurrentContext.CreateMap(prefix);
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
             storage.Delete((ByteString)key);
         }
 
@@ -89,7 +88,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = new byte[] { 0x00, 0xFF };
             var context = Storage.CurrentContext.AsReadOnly;
-            var storage = context.CreateMap(prefix);
+            var storage = new StorageMap(context, prefix);
             var value = storage.Get((ByteString)key);
             return (byte[])value;
         }
@@ -100,7 +99,7 @@ namespace Neo.Compiler.MSIL.TestClasses
         {
             var prefix = new byte[] { 0x00, 0xFF };
             var context = Storage.CurrentContext.AsReadOnly;
-            var storage = context.CreateMap(prefix);
+            var storage = new StorageMap(context, prefix);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
@@ -115,6 +114,27 @@ namespace Neo.Compiler.MSIL.TestClasses
             Iterator<byte[]> iterator = (Iterator<byte[]>)Storage.Find(context, "key", FindOptions.ValuesOnly);
             iterator.Next();
             return iterator.Value;
+        }
+
+        #endregion
+
+        #region IndexProperty
+
+        public static bool TestIndexPut(byte[] key, byte[] value)
+        {
+            var prefix = "ii";
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
+            storage[(ByteString)key] = (ByteString)value;
+            return true;
+        }
+
+        public static byte[] TestIndexGet(byte[] key)
+        {
+            var prefix = "ii";
+            var context = Storage.CurrentReadOnlyContext;
+            var storage = new StorageMap(context, prefix);
+            var value = storage[(ByteString)key];
+            return (byte[])value;
         }
 
         #endregion
