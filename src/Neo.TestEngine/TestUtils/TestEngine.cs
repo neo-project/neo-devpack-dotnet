@@ -43,12 +43,20 @@ namespace Neo.TestingEngine
                 references.Add(MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")));
                 references.Add(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
                 references.Add(MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location));
-                references.Add(MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location));
+                references.Add(MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)); string folder = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/");
+
+                string obj = Path.Combine(folder, "obj");
+                IEnumerable<SyntaxTree> st = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                    .Where(p => !p.StartsWith(obj))
+                    .OrderBy(p => p)
+                    .Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
+                CSharpCompilation cr = CSharpCompilation.Create(null, st, references, options);
+                references.Add(cr.ToMetadataReference());
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw e;
             }
         }
 
