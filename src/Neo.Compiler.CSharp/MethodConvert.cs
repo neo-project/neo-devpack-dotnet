@@ -3722,20 +3722,57 @@ namespace Neo.Compiler
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
             var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
-            var parameters = symbol.Parameters.Select((p, i) => (Symbol: p, Index: i));
+            IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
-            foreach (var (parameter, index) in parameters)
+            foreach (IParameterSymbol parameter in parameters)
             {
                 if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
                 {
                     ConvertExpression(model, expression);
                 }
+                else if (parameter.IsParams)
+                {
+                    if (arguments.Count > parameter.Ordinal)
+                    {
+                        if (arguments.Count == parameter.Ordinal + 1)
+                        {
+                            expression = arguments[parameter.Ordinal] switch
+                            {
+                                ArgumentSyntax argument => argument.Expression,
+                                ExpressionSyntax exp => exp,
+                                _ => throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[parameter.Ordinal]}"),
+                            };
+                            Conversion conversion = model.ClassifyConversion(expression, parameter.Type);
+                            if (conversion.Exists)
+                            {
+                                ConvertExpression(model, expression);
+                                continue;
+                            }
+                        }
+                        for (int i = arguments.Count - 1; i >= parameter.Ordinal; i--)
+                        {
+                            expression = arguments[i] switch
+                            {
+                                ArgumentSyntax argument => argument.Expression,
+                                ExpressionSyntax exp => exp,
+                                _ => throw new CompilationException(arguments[i], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[i]}"),
+                            };
+                            ConvertExpression(model, expression);
+                        }
+                        Push(arguments.Count - parameter.Ordinal);
+                        AddInstruction(OpCode.PACK);
+                    }
+                    else
+                    {
+                        AddInstruction(OpCode.NEWARRAY0);
+                    }
+                }
                 else
                 {
-                    if (arguments.Count > index)
+                    if (arguments.Count > parameter.Ordinal)
                     {
-                        switch (arguments[index])
+                        switch (arguments[parameter.Ordinal])
                         {
                             case ArgumentSyntax argument:
                                 if (argument.NameColon is null)
@@ -3748,7 +3785,7 @@ namespace Neo.Compiler
                                 ConvertExpression(model, ex);
                                 continue;
                             default:
-                                throw new CompilationException(arguments[index], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[index]}");
+                                throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[parameter.Ordinal]}");
                         }
                     }
                     Push(parameter.ExplicitDefaultValue);
