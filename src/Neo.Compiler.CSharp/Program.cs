@@ -100,24 +100,28 @@ namespace Neo.Compiler
             {
                 folder = options.Output ?? Path.Combine(folder, "bin", "sc");
                 Directory.CreateDirectory(folder);
-                File.WriteAllBytes($"{folder}/{context.ContractName}.nef", context.CreateExecutable().ToArray());
-                File.WriteAllBytes($"{folder}/{context.ContractName}.manifest.json", context.CreateManifest().ToByteArray(false));
-                Console.WriteLine($"Created {folder}/{context.ContractName}.nef");
-                Console.WriteLine($"Created {folder}/{context.ContractName}.manifest.json");
+                string path = Path.Combine(folder, $"{context.ContractName}.nef");
+                File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                Console.WriteLine($"Created {path}");
+                path = Path.Combine(folder, $"{context.ContractName}.manifest.json");
+                File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
+                Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
-                    using FileStream fs = new($"{folder}/{context.ContractName}.nefdbgnfo", FileMode.Create, FileAccess.Write);
+                    path = Path.Combine(folder, $"{context.ContractName}.nefdbgnfo");
+                    using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                     using Stream stream = archive.CreateEntry($"{context.ContractName}.debug.json").Open();
                     stream.Write(context.CreateDebugInformation().ToByteArray(false));
-                    Console.WriteLine($"Created {folder}/{context.ContractName}.nefdbgnfo");
+                    Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
-                    File.WriteAllText($"{folder}/{context.ContractName}.asm", context.CreateAssembly());
-                    Console.WriteLine($"Created {folder}/{context.ContractName}.asm");
+                    path = Path.Combine(folder, $"{context.ContractName}.asm");
+                    File.WriteAllText(path, context.CreateAssembly());
+                    Console.WriteLine($"Created {path}");
                 }
-                Console.WriteLine($"Compilation completed successfully. The target files have been generated in \"{folder}\".");
+                Console.WriteLine("Compilation completed successfully.");
                 return 0;
             }
             else
