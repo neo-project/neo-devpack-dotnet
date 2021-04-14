@@ -44,9 +44,15 @@ namespace Neo.Compiler
             foreach (string path in paths)
             {
                 if (Path.GetExtension(path).ToLowerInvariant() != ".cs")
-                    throw new NotSupportedException();
+                {
+                    Console.Error.WriteLine("The files must have a .cs extension.");
+                    return 1;
+                }
                 if (!File.Exists(path))
-                    throw new FileNotFoundException();
+                {
+                    Console.Error.WriteLine($"The file \"{path}\" doesn't exist.");
+                    return 1;
+                }
             }
             return ProcessSources(options, Path.GetDirectoryName(paths[0])!, paths);
         }
@@ -58,6 +64,11 @@ namespace Neo.Compiler
             {
                 string obj = Path.Combine(path, "obj");
                 string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
+                if (sourceFiles.Length == 0)
+                {
+                    Console.Error.WriteLine($"No .cs file is found in \"{path}\".");
+                    return 1;
+                }
                 return ProcessSources(options, path, sourceFiles);
             }
             else
@@ -78,6 +89,13 @@ namespace Neo.Compiler
 
         private static int ProcessOutputs(Options options, string folder, CompilationContext context)
         {
+            foreach (Diagnostic diagnostic in context.Diagnostics)
+            {
+                if (diagnostic.Severity == DiagnosticSeverity.Error)
+                    Console.Error.WriteLine(diagnostic.ToString());
+                else
+                    Console.WriteLine(diagnostic.ToString());
+            }
             if (context.Success)
             {
                 folder = options.Output ?? Path.Combine(folder, "bin", "sc");
@@ -95,17 +113,12 @@ namespace Neo.Compiler
                 {
                     File.WriteAllText($"{folder}/{context.ContractName}.asm", context.CreateAssembly());
                 }
+                Console.WriteLine($"Compilation completed successfully. The target files have been generated in \"{folder}\".");
                 return 0;
             }
             else
             {
-                foreach (Diagnostic diagnostic in context.Diagnostics)
-                {
-                    if (diagnostic.Severity == DiagnosticSeverity.Error)
-                        Console.Error.WriteLine(diagnostic.ToString());
-                    else
-                        Console.WriteLine(diagnostic.ToString());
-                }
+                Console.Error.WriteLine("Compilation failed.");
                 return 1;
             }
         }
