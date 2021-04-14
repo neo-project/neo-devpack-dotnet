@@ -3793,7 +3793,8 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger.IsZero.get":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
-                    ChangeType(VM.Types.StackItemType.Boolean);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
                     return true;
                 case "System.Numerics.BigInteger.IsOne.get":
                     if (instanceExpression is not null)
