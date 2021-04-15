@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Framework
 {
     [SupportedStandards("NEP-11")]
     [ContractPermission("*", "onNEP11Payment")]
-    public abstract class Nep11Token<TokenState> : SmartContract
+    public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {
         public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount, ByteString tokenId);
@@ -16,20 +16,11 @@ namespace Neo.SmartContract.Framework
         [DisplayName("Transfer")]
         public static event OnTransferDelegate OnTransfer;
 
-        protected const byte Prefix_TotalSupply = 0x00;
-        protected const byte Prefix_Balance = 0x01;
         protected const byte Prefix_TokenId = 0x02;
         protected const byte Prefix_Token = 0x03;
         protected const byte Prefix_AccountToken = 0x04;
 
-        [Safe]
-        public abstract string Symbol();
-
-        [Safe]
-        public static byte Decimals() => 0;
-
-        [Safe]
-        public static BigInteger TotalSupply() => (BigInteger)Storage.Get(Storage.CurrentContext, new byte[] { Prefix_TotalSupply });
+        public sealed override byte Decimals() => 0;
 
         [Safe]
         public static UInt160 OwnerOf(ByteString tokenId)
@@ -47,15 +38,6 @@ namespace Neo.SmartContract.Framework
             Map<string, object> map = new();
             map["name"] = token.Name;
             return map;
-        }
-
-        [Safe]
-        public static BigInteger BalanceOf(UInt160 owner)
-        {
-            if (owner is null || !owner.IsValid)
-                throw new Exception("The argument \"owner\" is invalid.");
-            StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
-            return (BigInteger)balanceMap[owner];
         }
 
         [Safe]
@@ -123,26 +105,10 @@ namespace Neo.SmartContract.Framework
             PostTransfer(token.Owner, null, tokenId, null);
         }
 
-        private static void UpdateTotalSupply(int increment)
-        {
-            StorageContext context = Storage.CurrentContext;
-            byte[] key = new byte[] { Prefix_TotalSupply };
-            BigInteger totalSupply = (BigInteger)Storage.Get(context, key);
-            totalSupply += increment;
-            Storage.Put(context, key, totalSupply);
-        }
-
         private static void UpdateBalance(UInt160 owner, ByteString tokenId, int increment)
         {
-            StorageContext context = Storage.CurrentContext;
-            StorageMap balanceMap = new(context, Prefix_Balance);
-            StorageMap accountMap = new(context, Prefix_AccountToken);
-            BigInteger balance = (BigInteger)balanceMap[owner];
-            balance += increment;
-            if (balance.IsZero)
-                balanceMap.Delete(owner);
-            else
-                balanceMap.Put(owner, balance);
+            UpdateBalance(owner, increment);
+            StorageMap accountMap = new(Storage.CurrentContext, Prefix_AccountToken);
             ByteString key = owner + tokenId;
             if (increment > 0)
                 accountMap[key] = tokenId;
