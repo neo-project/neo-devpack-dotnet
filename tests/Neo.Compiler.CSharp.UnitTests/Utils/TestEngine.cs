@@ -49,7 +49,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         {
         }
 
-        public bool AddEntryScript(string filename)
+        public CompilationContext AddEntryScript(string filename)
         {
             CompilationContext context = CompilationContext.Compile(new[] { filename }, references, new Options
             {
@@ -62,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 DebugInfo = context.CreateDebugInformation();
                 Reset();
             }
-            return context.Success;
+            return context;
         }
 
         public void Reset()
