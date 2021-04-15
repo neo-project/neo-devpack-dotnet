@@ -178,7 +178,7 @@ namespace Neo.Compiler
                         else
                         {
                             IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, name, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-                            CSharpCompilation cr = CSharpCompilation.Create(null, st, commonReferences, options);
+                            CSharpCompilation cr = CSharpCompilation.Create(Path.GetDirectoryName(name), st, commonReferences, options);
                             references.Add(cr.ToMetadataReference());
                         }
                         break;
@@ -192,7 +192,7 @@ namespace Neo.Compiler
                 }
             }
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            return CSharpCompilation.Create(null, syntaxTrees, references, options);
+            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, options);
         }
 
         public static CompilationContext CompileProject(string csproj, Options options)
