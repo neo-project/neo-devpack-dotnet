@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             {
                 Nef = context.CreateExecutable();
                 Manifest = context.CreateManifest();
-                DebugInfo = context.CreateDebugInformation();
+                DebugInfo = context.CreateDebugInformation(Nef);
                 Reset();
             }
             return context;

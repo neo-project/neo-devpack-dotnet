@@ -259,11 +259,12 @@ namespace Neo.Compiler
             };
         }
 
-        public JObject CreateDebugInformation()
+        public JObject CreateDebugInformation(NefFile nefFile)
         {
             SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
             return new JObject
             {
+                ["hash"] = nefFile.Script.ToScriptHash().ToString(),
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
                 ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
