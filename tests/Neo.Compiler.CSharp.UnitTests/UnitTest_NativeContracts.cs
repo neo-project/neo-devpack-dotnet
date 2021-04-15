@@ -27,7 +27,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(NativeContract.CryptoLib.Hash.ToString(), "0x726cb6e0cd8628a1350a611384688911ab75f51b");
             Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xfffdc93764dbaddd97c48f252a53ea4643faa3fd");
             Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x49cf4e5378ffcd4dec034fd98a174c5491e395e2");
-            Assert.AreEqual(NativeContract.NameService.Hash.ToString(), "0x7a8fcf0392cd625647907afa8e45cc66872b596b");
             Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xfe924b7cfe89ddd271abaf7210a80a7e11178758");
             Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5");
             Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xd2a4cff31913016155e38e474a2c06d08be276cf");
