@@ -19,24 +19,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void float_Test()
         {
             using var testengine = new TestEngine();
-            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs");
-            Assert.IsFalse(success);
+            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs").Success);
         }
 
         [TestMethod]
         public void decimal_Test()
         {
             using var testengine = new TestEngine();
-            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs");
-            Assert.IsFalse(success);
+            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs").Success);
         }
 
         [TestMethod]
         public void double_Test()
         {
             using var testengine = new TestEngine();
-            bool success = testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs");
-            Assert.IsFalse(success);
+            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs").Success);
         }
 
         #endregion
