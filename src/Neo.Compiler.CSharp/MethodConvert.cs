@@ -4217,6 +4217,8 @@ namespace Neo.Compiler
 
         private void CallVirtual(IMethodSymbol symbol)
         {
+            if (symbol.ContainingType.TypeKind == TypeKind.Interface)
+                throw new CompilationException(symbol.ContainingType, DiagnosticId.InterfaceCall, "Interfaces are not supported.");
             ISymbol[] members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
             IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
             IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
