@@ -134,7 +134,7 @@ namespace Neo.Compiler
             return Compile(sourceFiles, references, options);
         }
 
-        public static CompilationContext CompileProject(string csproj, Options options)
+        public static Compilation GetCompilation(string csproj)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
@@ -142,45 +142,65 @@ namespace Neo.Compiler
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(commonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
-            string path = Path.GetDirectoryName(csproj)!;
+            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
             XDocument xml = XDocument.Load(csproj);
-            sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, path)));
+            sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
                 Arguments = $"restore \"{csproj}\"",
-                WorkingDirectory = path
+                WorkingDirectory = folder
             })!.WaitForExit();
-            path = Path.Combine(path, "obj", "project.assets.json");
-            JObject assets = JObject.Parse(File.ReadAllBytes(path));
+            string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
+            JObject assets = JObject.Parse(File.ReadAllBytes(assetsPath));
             string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
             foreach (var (name, package) in assets["targets"][0].Properties)
             {
-                string[] files = assets["libraries"][name]["files"].GetArray()
-                    .Select(p => p.GetString())
-                    .Where(p => p.StartsWith("src/"))
-                    .ToArray();
-                if (files.Length == 0)
+                switch (assets["libraries"][name]["type"].GetString())
                 {
-                    JObject dllFiles = package["compile"] ?? package["runtime"];
-                    if (dllFiles is null) continue;
-                    foreach (var (file, _) in dllFiles.Properties)
-                    {
-                        if (file.EndsWith("_._")) continue;
-                        path = Path.Combine(packagesPath, name, file);
-                        if (!File.Exists(path)) continue;
-                        references.Add(MetadataReference.CreateFromFile(path));
-                    }
-                }
-                else
-                {
-                    IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, name, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-                    CSharpCompilation cr = CSharpCompilation.Create(null, st, commonReferences, compilationOptions);
-                    references.Add(cr.ToMetadataReference());
+                    case "package":
+                        string[] files = assets["libraries"][name]["files"].GetArray()
+                            .Select(p => p.GetString())
+                            .Where(p => p.StartsWith("src/"))
+                            .ToArray();
+                        if (files.Length == 0)
+                        {
+                            JObject dllFiles = package["compile"] ?? package["runtime"];
+                            if (dllFiles is null) continue;
+                            foreach (var (file, _) in dllFiles.Properties)
+                            {
+                                if (file.EndsWith("_._")) continue;
+                                string path = Path.Combine(packagesPath, name, file);
+                                if (!File.Exists(path)) continue;
+                                references.Add(MetadataReference.CreateFromFile(path));
+                            }
+                        }
+                        else
+                        {
+                            IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, name, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                            CSharpCompilation cr = CSharpCompilation.Create(null, st, commonReferences, options);
+                            references.Add(cr.ToMetadataReference());
+                        }
+                        break;
+                    case "project":
+                        string msbuildProject = assets["libraries"][name]["msbuildProject"].GetString();
+                        msbuildProject = Path.GetFullPath(msbuildProject, folder);
+                        references.Add(GetCompilation(msbuildProject).ToMetadataReference());
+                        break;
+                    default:
+                        throw new NotSupportedException();
                 }
             }
-            return Compile(sourceFiles, references, options);
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            return CSharpCompilation.Create(null, syntaxTrees, references, options);
+        }
+
+        public static CompilationContext CompileProject(string csproj, Options options)
+        {
+            Compilation compilation = GetCompilation(csproj);
+            CompilationContext context = new(compilation, options);
+            context.Compile();
+            return context;
         }
 
         public NefFile CreateExecutable()
