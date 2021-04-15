@@ -71,7 +71,7 @@ namespace Neo.SmartContract.Framework
             if (owner is null || !owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid");
             StorageMap accountMap = new(Storage.CurrentContext, Prefix_AccountToken);
-            return accountMap.Find(owner, FindOptions.ValuesOnly);
+            return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
         public static bool Transfer(UInt160 to, ByteString tokenId, object data)
@@ -145,7 +145,7 @@ namespace Neo.SmartContract.Framework
                 balanceMap.Put(owner, balance);
             ByteString key = owner + tokenId;
             if (increment > 0)
-                accountMap[key] = tokenId;
+                accountMap.Put(key, 0);
             else
                 accountMap.Delete(key);
         }
