@@ -24,7 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArrayInit()
         {
             var testengine = new TestEngine();
-            var ctx = testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testIntArrayInit");
 
             //test 1,4,5
