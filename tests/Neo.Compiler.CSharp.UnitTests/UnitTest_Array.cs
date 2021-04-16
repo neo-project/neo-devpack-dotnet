@@ -24,26 +24,27 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArrayInit()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var ctx = testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testIntArrayInit");
 
             //test 1,4,5
             var arr = result.Pop<Array>();
             CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.GetInteger()).ToArray());
-        }
 
-        /* TODO: We should uncomment this when NEWARRAY_T was done
-        [TestMethod]
-        public void Test_DefaultArray()
-        {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
-            var result = testengine.ExecuteTestCaseStandard("TestDefaultArray");
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testIntArrayInit2");
 
-            //test true
-            Assert.IsTrue(result.TryPop(out Boolean b) && b.GetBoolean());
+            //test 1,4,5
+            arr = result.Pop<Array>();
+            CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.GetInteger()).ToArray());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testIntArrayInit3");
+
+            //test 1,4,5
+            arr = result.Pop<Array>();
+            CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.GetInteger()).ToArray());
         }
-        */
 
         [TestMethod]
         public void Test_StructArray()
