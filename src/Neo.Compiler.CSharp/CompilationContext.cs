@@ -34,6 +34,7 @@ namespace Neo.Compiler
         private readonly List<MethodToken> methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> staticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> vtables = new();
+        private byte[]? script;
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
@@ -42,6 +43,7 @@ namespace Neo.Compiler
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
         internal int StaticFieldCount => staticFields.Count + vtables.Count;
+        private byte[] Script => script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
         static CompilationContext()
         {
@@ -212,7 +214,7 @@ namespace Neo.Compiler
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
                 Tokens = methodTokens.ToArray(),
-                Script = GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray()
+                Script = Script
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
@@ -284,6 +286,7 @@ namespace Neo.Compiler
             SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
             return new JObject
             {
+                ["hash"] = Script.ToScriptHash().ToString(),
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
                 ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
