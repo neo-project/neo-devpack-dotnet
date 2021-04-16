@@ -299,7 +299,7 @@ namespace Neo.Compiler
                     ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
                     {
                         FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();
-                        return (JString)$"{p.Offset}[{Array.IndexOf(trees, p.SourceLocation.SourceTree)}]{span.StartLinePosition.Line}:{span.StartLinePosition.Character}-{span.EndLinePosition.Line}:{span.EndLinePosition.Character}";
+                        return (JString)$"{p.Offset}[{Array.IndexOf(trees, p.SourceLocation.SourceTree)}]{span.StartLinePosition.Line + 1}:{span.StartLinePosition.Character + 1}-{span.EndLinePosition.Line + 1}:{span.EndLinePosition.Character + 1}";
                     }).ToArray()
                 }).ToArray(),
                 ["events"] = eventsExported.Select(e => new JObject
