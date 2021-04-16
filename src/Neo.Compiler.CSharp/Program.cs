@@ -33,7 +33,7 @@ namespace Neo.Compiler
             if (paths is null || paths.Length == 0)
             {
                 var ret = ProcessDirectory(options, Environment.CurrentDirectory);
-                if (ret == 1)
+                if (ret == 2)
                 {
                     // Display help without args
                     command.Invoke("--help");
@@ -75,7 +75,7 @@ namespace Neo.Compiler
                 if (sourceFiles.Length == 0)
                 {
                     Console.Error.WriteLine($"No .cs file is found in \"{path}\".");
-                    return 1;
+                    return 2;
                 }
                 return ProcessSources(options, path, sourceFiles);
             }
