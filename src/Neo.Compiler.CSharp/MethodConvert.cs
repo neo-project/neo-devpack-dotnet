@@ -1137,7 +1137,7 @@ namespace Neo.Compiler
                     ConvertIdentifierNameExpression(model, expression);
                     break;
                 case ImplicitArrayCreationExpressionSyntax expression:
-                    ConvertInitializerExpression(model, expression.Initializer);
+                    ConvertImplicitArrayCreationExpression(model, expression);
                     break;
                 case InitializerExpressionSyntax expression:
                     ConvertInitializerExpression(model, expression);
@@ -2427,6 +2427,12 @@ namespace Neo.Compiler
                 default:
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
+        }
+
+        private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
+        {
+            IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+            ConvertInitializerExpression(model, type, expression.Initializer);
         }
 
         private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
