@@ -114,7 +114,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static int SerializeTest(byte[] key, int value)
         {
             var prefix = new byte[] { 0x01, 0xAA };
-            var context = Storage.CurrentContext.AsReadOnly;
+            var context = Storage.CurrentContext;
             var storage = new StorageMap(context, prefix);
             var val = new Value() { Val = value };
             storage.Put(key, val);
