@@ -35,6 +35,22 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return arrobj;
         }
 
+        public static object testIntArrayInit2()
+        {
+            int[] arrobj = { 1, 2, 3 };
+            arrobj[1] = 4;
+            arrobj[2] = 5;
+            return arrobj;
+        }
+
+        public static object testIntArrayInit3()
+        {
+            int[] arrobj = new[] { 1, 2, 3 };
+            arrobj[1] = 4;
+            arrobj[2] = 5;
+            return arrobj;
+        }
+
         public static int[] TestDynamicArrayInit(int length)
         {
             var arrobj = new int[length];
