@@ -104,6 +104,26 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return true;
         }
 
+        #region Serialize
+
+        class Value
+        {
+            public int Val;
+        }
+
+        public static int SerializeTest(byte[] key, int value)
+        {
+            var prefix = new byte[] { 0x01, 0xAA };
+            var context = Storage.CurrentContext.AsReadOnly;
+            var storage = new StorageMap(context, prefix);
+            var val = new Value() { Val = value };
+            storage.Put(key, val);
+            val = storage.Get<Value>(key);
+            return val.Val;
+        }
+
+        #endregion
+
         #region Find
 
         public static byte[] TestFind()
