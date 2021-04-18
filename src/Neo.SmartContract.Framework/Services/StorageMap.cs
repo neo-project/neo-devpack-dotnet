@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework.Native;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -101,6 +102,16 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(byte[] key);
 
+        public T Get<T>(ByteString key) where T : class, new()
+        {
+            return (T)StdLib.Deserialize(Get(key));
+        }
+
+        public T Get<T>(byte[] key) where T : class, new()
+        {
+            return (T)StdLib.Deserialize(Get(key));
+        }
+
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.PUSH1)]
@@ -182,6 +193,16 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Put")]
         public extern void Put(byte[] key, BigInteger value);
+
+        public void Put<T>(ByteString key, T value) where T : class, new()
+        {
+            Put(key, StdLib.Serialize(value));
+        }
+
+        public void Put<T>(byte[] key, T value) where T : class, new()
+        {
+            Put(key, StdLib.Serialize(value));
+        }
 
         [OpCode(OpCode.OVER)]
         [OpCode(OpCode.PUSH1)]
