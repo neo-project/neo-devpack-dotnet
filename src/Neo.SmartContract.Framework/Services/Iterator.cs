@@ -6,18 +6,6 @@ namespace Neo.SmartContract.Framework.Services
 {
     public class Iterator : IApiInterface, IEnumerable
     {
-        [Syscall("System.Iterator.Create")]
-        public static extern Iterator<T> Create<T>(T[] array);
-
-        [Syscall("System.Iterator.Create")]
-        public static extern Iterator<(TKey, TValue)> Create<TKey, TValue>(Map<TKey, TValue> map);
-
-        [Syscall("System.Iterator.Create")]
-        public static extern Iterator<byte> Create(byte[] buffer);
-
-        [Syscall("System.Iterator.Create")]
-        public static extern Iterator<byte> Create(ByteString buffer);
-
         [Syscall("System.Iterator.Next")]
         public extern bool Next();
 
