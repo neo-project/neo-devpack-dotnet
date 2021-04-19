@@ -370,10 +370,13 @@ namespace Neo.Compiler
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.ContractTrustAttribute):
-                            string value = (string)attribute.ConstructorArguments[0].Value!;
-                            if (!ValidateContractTrust(value))
-                                throw new ArgumentException($"The value {value} is not a valid one for ContractTrust");
-                            trust.Add(value);
+                            foreach (string value in attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!))
+                            {
+                                if (value != "*" && trust.Contains("*")) continue;
+                                if (!ValidateContractTrust(value))
+                                    throw new ArgumentException($"The value {value} is not a valid one for ContractTrust");
+                                trust.Add(value);
+                            }
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
