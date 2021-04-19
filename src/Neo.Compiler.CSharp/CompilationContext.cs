@@ -28,6 +28,7 @@ namespace Neo.Compiler
         private readonly List<AbiMethod> methodsExported = new();
         private readonly List<AbiEvent> eventsExported = new();
         private readonly PermissionBuilder permissions = new();
+        private readonly HashSet<string> trust = new();
         private readonly JObject manifestExtra = new();
         private readonly MethodConvertCollection methodsConverted = new();
         private readonly MethodConvertCollection methodsForward = new();
@@ -276,7 +277,7 @@ namespace Neo.Compiler
                     }).ToArray()
                 },
                 ["permissions"] = permissions.ToJson(),
-                ["trusts"] = new JArray(),
+                ["trusts"] = new JArray(trust.Select(u => new JString(u)).ToArray()),
                 ["extra"] = manifestExtra
             };
         }
@@ -354,6 +355,9 @@ namespace Neo.Compiler
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.ContractPermissionAttribute):
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.ContractTrustAttribute):
+                            trust.Add((string)attribute.ConstructorArguments[0].Value!);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
