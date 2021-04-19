@@ -258,6 +258,7 @@ namespace Neo.Compiler
             {
                 ["name"] = ContractName,
                 ["groups"] = new JArray(),
+                ["features"] = new JObject(),
                 ["supportedstandards"] = supportedStandards.OrderBy(p => p).Select(p => (JString)p).ToArray(),
                 ["abi"] = new JObject
                 {
