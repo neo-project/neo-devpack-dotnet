@@ -5,7 +5,7 @@ namespace Neo.SmartContract.Framework
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ContractTrustAttribute : Attribute
     {
-        public ContractTrustAttribute(string contract)
+        public ContractTrustAttribute(string contractOrPubKey)
         {
         }
     }

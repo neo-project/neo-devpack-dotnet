@@ -332,6 +332,18 @@ namespace Neo.Compiler
             }
         }
 
+        internal static bool ValidateContractTrust(string value)
+        {
+            if (value == "*") return true;
+            try
+            {
+                var data = Helper.HexToBytes(value, true);
+                if (data.Length == 20 || data.Length == 32) return true;
+            }
+            catch { }
+            return false;
+        }
+
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
         {
             if (symbol.IsSubclassOf(nameof(Attribute))) return;
@@ -357,7 +369,10 @@ namespace Neo.Compiler
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.ContractTrustAttribute):
-                            trust.Add((string)attribute.ConstructorArguments[0].Value!);
+                            string value = (string)attribute.ConstructorArguments[0].Value!;
+                            if (!ValidateContractTrust(value))
+                                throw new ArgumentException($"The value {value} is not a valid one for ContractTrust");
+                            trust.Add(value);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
