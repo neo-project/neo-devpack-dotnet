@@ -278,7 +278,7 @@ namespace Neo.Compiler
                     }).ToArray()
                 },
                 ["permissions"] = permissions.ToJson(),
-                ["trusts"] = trusts.OrderBy(p => p).Select(u => new JString(u)).ToArray(),
+                ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
         }
