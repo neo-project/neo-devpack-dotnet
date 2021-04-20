@@ -3,6 +3,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Cryptography.ECC;
 using Neo.IO.Json;
 using Neo.SmartContract;
 using System;
@@ -28,6 +29,7 @@ namespace Neo.Compiler
         private readonly List<AbiMethod> methodsExported = new();
         private readonly List<AbiEvent> eventsExported = new();
         private readonly PermissionBuilder permissions = new();
+        private readonly HashSet<string> trusts = new();
         private readonly JObject manifestExtra = new();
         private readonly MethodConvertCollection methodsConverted = new();
         private readonly MethodConvertCollection methodsForward = new();
@@ -86,6 +88,14 @@ namespace Neo.Compiler
             if (!methodsForward.TryGetValue(method, out MethodConvert? convert))
                 convert = methodsConverted[method];
             return convert.Instructions[0].Offset;
+        }
+
+        private static bool ValidateContractTrust(string value)
+        {
+            if (value == "*") return true;
+            if (UInt160.TryParse(value, out _)) return true;
+            if (ECPoint.TryParse(value, ECCurve.Secp256r1, out _)) return true;
+            return false;
         }
 
         private void Compile()
@@ -277,7 +287,7 @@ namespace Neo.Compiler
                     }).ToArray()
                 },
                 ["permissions"] = permissions.ToJson(),
-                ["trusts"] = new JArray(),
+                ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
         }
@@ -355,6 +365,12 @@ namespace Neo.Compiler
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.ContractPermissionAttribute):
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.ContractTrustAttribute):
+                            string trust = (string)attribute.ConstructorArguments[0].Value!;
+                            if (!ValidateContractTrust(trust))
+                                throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
+                            trusts.Add(trust);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
