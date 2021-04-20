@@ -3,6 +3,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Cryptography.ECC;
 using Neo.IO.Json;
 using Neo.SmartContract;
 using System;
@@ -87,6 +88,14 @@ namespace Neo.Compiler
             if (!methodsForward.TryGetValue(method, out MethodConvert? convert))
                 convert = methodsConverted[method];
             return convert.Instructions[0].Offset;
+        }
+
+        private static bool ValidateContractTrust(string value)
+        {
+            if (value == "*") return true;
+            if (UInt160.TryParse(value, out _)) return true;
+            if (ECPoint.TryParse(value, ECCurve.Secp256r1, out _)) return true;
+            return false;
         }
 
         private void Compile()
@@ -331,18 +340,6 @@ namespace Neo.Compiler
                     ProcessClass(model, model.GetDeclaredSymbol(@class)!);
                     break;
             }
-        }
-
-        internal static bool ValidateContractTrust(string value)
-        {
-            if (value == "*") return true;
-            try
-            {
-                var data = Helper.HexToBytes(value, true);
-                if (data.Length == 20 || data.Length == 32) return true;
-            }
-            catch { }
-            return false;
         }
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
