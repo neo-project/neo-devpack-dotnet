@@ -4109,6 +4109,16 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
+                case "System.Math.Max(int, int)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.MAX);
+                    return true;
+                case "System.Math.Min(int, int)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.MIN);
+                    return true;
                 case "sbyte.ToString()":
                 case "byte.ToString()":
                 case "short.ToString()":
