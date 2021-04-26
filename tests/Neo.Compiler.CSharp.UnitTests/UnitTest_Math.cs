@@ -45,7 +45,45 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = _engine.ExecuteTestCaseStandard("min", 3, 1);
 
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(3, result.Pop().GetInteger());
+            Assert.AreEqual(1, result.Pop().GetInteger());
+        }
+
+        [TestMethod]
+        public void pow_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("pow", 2, 2);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(4, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("pow", 9, 2);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(81, result.Pop().GetInteger());
+        }
+
+        [TestMethod]
+        public void sign_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("sign", 1);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("sign", -1);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(-1, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("sign", 0);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(0, result.Pop().GetInteger());
         }
     }
 }

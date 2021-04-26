@@ -5,14 +5,24 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Math : SmartContract.Framework.SmartContract
     {
-        public int max(int a, int b)
+        public static int max(int a, int b)
         {
             return Math.Max(a, b);
         }
 
-        public int min(int a, int b)
+        public static int min(int a, int b)
         {
             return Math.Min(a, b);
+        }
+
+        public static double pow(double a, double b)
+        {
+            return Math.Pow(a, b);
+        }
+
+        public static int sign(int a)
+        {
+            return Math.Sign(a);
         }
     }
 }
