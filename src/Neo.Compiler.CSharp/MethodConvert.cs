@@ -4112,6 +4112,7 @@ namespace Neo.Compiler
                 case "System.Math.Pow(double, double)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.SWAP);
                     AddInstruction(OpCode.POW);
                     return true;
                 case "System.Math.Sign(byte)":
