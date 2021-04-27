@@ -1,3 +1,5 @@
+#pragma warning disable IDE0051
+
 using Neo.SmartContract.Framework.Native;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -6,8 +8,8 @@ namespace Neo.SmartContract.Framework.Services
 {
     public class StorageMap
     {
-        internal readonly StorageContext Context;
-        internal readonly byte[] Prefix;
+        private readonly StorageContext Context;
+        private readonly ByteString Prefix;
 
         public extern ByteString this[ByteString key]
         {
