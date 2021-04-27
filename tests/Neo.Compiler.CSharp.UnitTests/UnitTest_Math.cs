@@ -49,22 +49,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void pow_test()
-        {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("pow", 2, 2);
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(4, result.Pop().GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("pow", 9, 2);
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(81, result.Pop().GetInteger());
-        }
-
-        [TestMethod]
         public void sign_test()
         {
             _engine.Reset();

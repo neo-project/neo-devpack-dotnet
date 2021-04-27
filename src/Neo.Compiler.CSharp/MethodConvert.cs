@@ -4109,12 +4109,6 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
-                case "System.Math.Pow(double, double)":
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    AddInstruction(OpCode.SWAP);
-                    AddInstruction(OpCode.POW);
-                    return true;
                 case "System.Math.Sign(byte)":
                 case "System.Math.Sign(short)":
                 case "System.Math.Sign(int)":

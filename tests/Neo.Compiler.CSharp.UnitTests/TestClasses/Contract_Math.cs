@@ -15,11 +15,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return Math.Min(a, b);
         }
 
-        public static double pow(double a, double b)
-        {
-            return Math.Pow(a, b);
-        }
-
         public static int sign(int a)
         {
             return Math.Sign(a);
