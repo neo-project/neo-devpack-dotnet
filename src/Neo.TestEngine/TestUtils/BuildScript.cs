@@ -7,10 +7,13 @@ namespace Neo.TestingEngine
 {
     public class BuildScript
     {
-        public bool Success { get; internal set; }
+        public bool Success => !FromCompilation || (Context != null && Context.Success);
         public NefFile Nef { get; protected set; }
         public JObject Manifest { get; protected set; }
         public JObject DebugInfo { get; protected set; }
+        public CompilationContext Context { get; protected set; }
+
+        private bool FromCompilation { get; set; }
 
         public BuildScript(NefFile nefFile, JObject manifestJson)
         {
@@ -32,7 +35,7 @@ namespace Neo.TestingEngine
                     string manifestFile = File.ReadAllText(fileNameManifest);
                     script = new BuildScript(neffile, JObject.Parse(manifestFile))
                     {
-                        Success = true
+                        FromCompilation = false
                     };
                 }
             }
@@ -55,7 +58,8 @@ namespace Neo.TestingEngine
 
                 script = new BuildScript(nef, manifest)
                 {
-                    Success = context.Success,
+                    FromCompilation = true,
+                    Context = context,
                     DebugInfo = debuginfo
                 };
             }

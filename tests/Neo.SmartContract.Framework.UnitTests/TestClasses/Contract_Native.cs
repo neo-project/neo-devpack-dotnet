@@ -56,18 +56,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return GAS.Decimals;
         }
 
-        [DisplayName("NNS_Decimals")]
-        public static int NNS_Decimals()
-        {
-            return NameService.Decimals;
-        }
-
-        [DisplayName("NNS_Symbol")]
-        public static string NNS_Symbol()
-        {
-            return NameService.Symbol;
-        }
-
         [DisplayName("Policy_GetFeePerByte")]
         public static long Policy_GetFeePerByte()
         {
@@ -81,3 +69,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
     }
 }
+

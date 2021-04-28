@@ -141,28 +141,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
-        public void Test_NNS()
-        {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("NNS_Decimals");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NNS_Symbol");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("NNS", item.GetString());
-        }
-
-        [TestMethod]
         public void Test_Policy()
         {
             _engine.Reset();

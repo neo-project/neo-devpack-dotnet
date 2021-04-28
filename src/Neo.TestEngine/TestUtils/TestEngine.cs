@@ -1,10 +1,10 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Neo.Compiler;
 using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
-using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
@@ -27,7 +27,7 @@ namespace Neo.TestingEngine
         public JObject Manifest { get; private set; }
         public JObject DebugInfo { get; private set; }
 
-        internal BuildScript Context { get; set; }
+        internal BuildScript ScriptContext { get; set; }
 
         public void ClearNotifications()
         {
@@ -43,8 +43,9 @@ namespace Neo.TestingEngine
                 references.Add(MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")));
                 references.Add(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
                 references.Add(MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location));
-                references.Add(MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)); string folder = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/");
+                references.Add(MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location));
 
+                string folder = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/");
                 string obj = Path.Combine(folder, "obj");
                 IEnumerable<SyntaxTree> st = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                     .Where(p => !p.StartsWith(obj))
@@ -65,17 +66,18 @@ namespace Neo.TestingEngine
         {
         }
 
-        public bool AddEntryScript(string filename)
+        public CompilationContext AddEntryScript(string filename)
         {
-            Context = BuildScript.Build(filename);
-            if (Context.Success)
+            ScriptContext = BuildScript.Build(filename);
+            if (ScriptContext.Success)
             {
-                Nef = Context.Nef;
-                Manifest = Context.Manifest;
-                DebugInfo = Context.DebugInfo;
+                Nef = ScriptContext.Nef;
+                Manifest = ScriptContext.Manifest;
+                DebugInfo = ScriptContext.DebugInfo;
                 Reset();
             }
-            return Context.Success;
+
+            return ScriptContext.Context;
         }
 
         public bool AddEntryScript(UInt160 contractHash)
@@ -117,7 +119,7 @@ namespace Neo.TestingEngine
             }
 
             Reset();
-            Context = script;
+            ScriptContext = script;
             return true;
         }
 

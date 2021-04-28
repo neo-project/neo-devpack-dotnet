@@ -24,14 +24,22 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
-            rootCommand.Handler = CommandHandler.Create<Options, string[]>(Handle);
+            rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[]>(Handle);
             return rootCommand.Invoke(args);
         }
 
-        private static int Handle(Options options, string[] paths)
+        private static int Handle(RootCommand command, Options options, string[] paths)
         {
             if (paths is null || paths.Length == 0)
-                return ProcessDirectory(options, Environment.CurrentDirectory);
+            {
+                var ret = ProcessDirectory(options, Environment.CurrentDirectory);
+                if (ret == 2)
+                {
+                    // Display help without args
+                    command.Invoke("--help");
+                }
+                return ret;
+            }
             paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
             if (paths.Length == 1)
             {
@@ -67,7 +75,7 @@ namespace Neo.Compiler
                 if (sourceFiles.Length == 0)
                 {
                     Console.Error.WriteLine($"No .cs file is found in \"{path}\".");
-                    return 1;
+                    return 2;
                 }
                 return ProcessSources(options, path, sourceFiles);
             }

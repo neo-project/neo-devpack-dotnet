@@ -67,7 +67,7 @@ namespace Neo.TestingEngine
         {
             engine.AddEntryScript(path);
 
-            if (engine.Context?.Success == true)
+            if (engine.ScriptContext?.Success == true)
             {
                 var hash = engine.Nef.Script.ToScriptHash();
                 var snapshot = engine.Snapshot;
@@ -90,7 +90,7 @@ namespace Neo.TestingEngine
                     engine.AddEntryScript(new BuildScript(state.Nef, state.Manifest.ToJson()));
                 }
             }
-            return engine.Context;
+            return engine.ScriptContext;
         }
 
         public void IncreaseBlockCount(uint newHeight)
@@ -209,7 +209,7 @@ namespace Neo.TestingEngine
             }
 
             var stackItemsArgs = args.Select(a => a.ToStackItem()).ToArray();
-            if (engine.Context is BuildNative native)
+            if (engine.ScriptContext is BuildNative native)
             {
                 byte[] script;
                 using (ScriptBuilder scriptBuilder = new ScriptBuilder())
