@@ -4109,7 +4109,7 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
-                case "System.Math.Sign(byte)":
+                case "System.Math.Sign(sbyte)":
                 case "System.Math.Sign(short)":
                 case "System.Math.Sign(int)":
                 case "System.Math.Sign(long)":
