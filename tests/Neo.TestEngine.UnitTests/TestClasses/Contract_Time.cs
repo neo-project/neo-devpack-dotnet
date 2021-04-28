@@ -1,18 +1,18 @@
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Time : SmartContract.Framework.SmartContract
+    public class Contract_Runtime : SmartContract
     {
-        public static ulong getTime()
+        public static ulong GetTime()
         {
             return Runtime.Time;
         }
 
-        public static object getBlock(uint blockIndex)
+        public static object GetBlock(uint index)
         {
-            return Ledger.GetBlock(blockIndex);
+            return Ledger.GetBlock(index);
         }
     }
 }

@@ -1,16 +1,28 @@
+using Neo.Compiler;
+using Neo.IO;
+using System;
+using System.IO;
+
 namespace Neo.TestEngine.UnitTests.Utils
 {
     public class CSharpCompiler
     {
         public static void Compile(string filepath)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = string.Format("/C nccs {0}", filepath);
-            process.StartInfo = startInfo;
-            process.Start();
+            CompilationContext context = CompilationContext.CompileSources(new[] { filepath }, new Options
+            {
+                AddressVersion = ProtocolSettings.Default.AddressVersion
+            });
+
+            if (!context.Success)
+            {
+                throw new Exception(string.Format("Could not compile '{0}'", filepath));
+            }
+            var nefPath = filepath.Replace(".cs", ".nef");
+            File.WriteAllBytes(nefPath, context.CreateExecutable().ToArray());
+
+            var manifestPath = filepath.Replace(".cs", ".manifest.json");
+            File.WriteAllBytes(manifestPath, context.CreateManifest().ToByteArray(false));
         }
     }
 }

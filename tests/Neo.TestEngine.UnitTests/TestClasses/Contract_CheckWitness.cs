@@ -1,5 +1,4 @@
-using Neo;
-using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.MSIL.UnitTests.TestClasses
 {
