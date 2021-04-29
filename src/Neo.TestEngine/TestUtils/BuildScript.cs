@@ -1,6 +1,8 @@
+using Microsoft.CodeAnalysis;
 using Neo.Compiler;
 using Neo.IO.Json;
 using Neo.SmartContract;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Neo.TestingEngine
@@ -21,7 +23,7 @@ namespace Neo.TestingEngine
             Manifest = manifestJson;
         }
 
-        internal static BuildScript Build(string filename)
+        internal static BuildScript Build(string filename, List<MetadataReference> references = null)
         {
             BuildScript script;
             if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
@@ -44,10 +46,21 @@ namespace Neo.TestingEngine
                 NefFile nef = null;
                 JObject manifest = null;
                 JObject debuginfo = null;
-                CompilationContext context = CompilationContext.CompileSources(new[] { filename }, new Options
+
+                var options = new Options
                 {
                     AddressVersion = ProtocolSettings.Default.AddressVersion
-                });
+                };
+
+                CompilationContext context;
+                if (references != null && references.Count > 0)
+                {
+                    context = CompilationContext.CompileSources(new[] { filename }, references, options);
+                }
+                else
+                {
+                    context = CompilationContext.CompileSources(new[] { filename }, options);
+                }
 
                 if (context.Success)
                 {

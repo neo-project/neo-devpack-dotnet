@@ -68,7 +68,7 @@ namespace Neo.TestingEngine
 
         public CompilationContext AddEntryScript(string filename)
         {
-            ScriptContext = BuildScript.Build(filename);
+            ScriptContext = BuildScript.Build(filename, references);
             if (ScriptContext.Success)
             {
                 Nef = ScriptContext.Nef;

@@ -64,6 +64,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_StorageMap()
+        {
+            testengine.Reset();
+            var ret = testengine.ExecuteTestCaseStandard("serializeTest", new byte[] { 1, 2, 3 }, 456);
+            Assert.AreEqual(1, ret.Count);
+            Assert.AreEqual(456, ret.Pop().GetInteger());
+        }
+
+        [TestMethod]
         public void Test_Byte()
         {
             var prefix = new byte[] { 0x11 };
