@@ -1,3 +1,4 @@
+#pragma warning disable CS0169
 #pragma warning disable IDE0051
 
 using Neo.SmartContract.Framework.Native;

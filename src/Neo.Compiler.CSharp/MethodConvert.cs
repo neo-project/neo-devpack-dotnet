@@ -152,7 +152,15 @@ namespace Neo.Compiler
                     }
                 }
             }
-            _returnTarget.Instruction = AddInstruction(OpCode.RET);
+            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+            {
+                _instructions[^1].OpCode = OpCode.RET;
+                _returnTarget.Instruction = _instructions[^1];
+            }
+            else
+            {
+                _returnTarget.Instruction = AddInstruction(OpCode.RET);
+            }
             if (!context.Options.NoOptimize)
                 Optimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
