@@ -9,7 +9,7 @@ using Neo.VM.Types;
 using Neo.Wallets;
 using System.IO;
 
-namespace TestEngine.UnitTests
+namespace Neo.TestEngine.UnitTests
 {
     [TestClass]
     public class UnitTest_CheckWitness

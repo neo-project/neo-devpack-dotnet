@@ -7,7 +7,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.IO;
 
-namespace TestEngine.UnitTests
+namespace Neo.TestEngine.UnitTests
 {
     [TestClass]
     public class UnitTest_Block

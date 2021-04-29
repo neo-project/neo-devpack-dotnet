@@ -1,6 +1,6 @@
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.TestEngine.UnitTests.TestClasses
 {
     public class Contract_CheckWitness : SmartContract.Framework.SmartContract
     {

@@ -1,6 +1,6 @@
 using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.TestEngine.UnitTests.TestClasses
 {
     [Contract("0x4281dd379f0831b4131f9bc3433299e4fda02e68")]
     public class Contract1

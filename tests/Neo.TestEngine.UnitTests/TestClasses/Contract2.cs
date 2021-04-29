@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Neo.Compiler.MSIL.UnitTests.TestClasses
+namespace Neo.TestEngine.UnitTests.TestClasses
 {
     public class Contract2 : SmartContract.Framework.SmartContract
     {

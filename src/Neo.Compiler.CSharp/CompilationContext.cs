@@ -149,7 +149,7 @@ namespace Neo.Compiler
         public static CompilationContext CompileSources(string[] sourceFiles, List<MetadataReference> extraReferences, Options options)
         {
             List<MetadataReference> references = new(commonReferences);
-            foreach(var extraRef in extraReferences)
+            foreach (var extraRef in extraReferences)
             {
                 if (!references.Contains(extraRef))
                 {
