@@ -236,14 +236,27 @@ namespace Neo.Compiler
             AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
             if (initialValue is null)
             {
-                if (field.DeclaringSyntaxReferences.IsEmpty) return;
-                VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
-                if (syntax.Initializer is null) return;
-                model = model.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                using (InsertSequencePoint(syntax))
+                EqualsValueClauseSyntax? initializer;
+                SyntaxNode syntaxNode;
+                if (field.DeclaringSyntaxReferences.IsEmpty)
+                {
+                    if (field.AssociatedSymbol is not IPropertySymbol property) return;
+                    PropertyDeclarationSyntax syntax = (PropertyDeclarationSyntax)property.DeclaringSyntaxReferences[0].GetSyntax();
+                    syntaxNode = syntax;
+                    initializer = syntax.Initializer;
+                }
+                else
+                {
+                    VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
+                    syntaxNode = syntax;
+                    initializer = syntax.Initializer;
+                }
+                if (initializer is null) return;
+                model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+                using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
-                    ConvertExpression(model, syntax.Initializer.Value);
+                    ConvertExpression(model, initializer.Value);
                     postInitialize?.Invoke();
                 }
             }
