@@ -42,7 +42,7 @@ namespace NeoTestHarness
             var metadata = RocksDbStorageProvider.RestoreCheckpoint(checkpointPath, checkpointTempPath);
             this.ProtocolSettings = ProtocolSettings.Default with
             {
-                Magic = metadata.magic,
+                Network = metadata.magic,
                 AddressVersion = metadata.addressVersion,
             };
             rocksProvider = RocksDbStorageProvider.OpenReadOnly(checkpointTempPath);

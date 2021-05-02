@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <AssemblyName>neo-test-harness</AssemblyName>
     <DebugType>embedded</DebugType>
@@ -7,9 +6,7 @@
     <RootNamespace>Neo.Test.Harness</RootNamespace>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Neo.BlockchainToolkit3" Version="1.0.28-preview" />
+    <PackageReference Include="Neo.BlockchainToolkit3" Version="1.0.33-preview" />
   </ItemGroup>
-
 </Project>

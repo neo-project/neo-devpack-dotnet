@@ -24,7 +24,7 @@ namespace Neo.BuildTasks
         private byte _indent;
         private bool _indentPending = true;
 
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         /// <summary>
         ///     The current length of the built string.
@@ -175,7 +175,7 @@ namespace Neo.BuildTasks
         {
             if (_indentPending && _indent > 0)
             {
-                _stringBuilder.Append(new string(' ', _indent * IndentSize));
+                _stringBuilder.Append(' ', _indent * IndentSize);
             }
 
             _indentPending = false;

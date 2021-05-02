@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <AssemblyName>neo-assertions</AssemblyName>
     <DebugType>embedded</DebugType>
@@ -7,11 +6,9 @@
     <RootNamespace>Neo.Assertions</RootNamespace>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Neo" Version="3.0.0-rc1" />
+    <PackageReference Include="Neo" Version="3.0.0-rc2" />
   </ItemGroup>
-
 </Project>

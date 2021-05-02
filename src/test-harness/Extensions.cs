@@ -25,6 +25,12 @@ namespace NeoTestHarness
             return engine.Execute();
         }
 
+        public static VMState ExecuteScript(this TestApplicationEngine engine, Script script)
+        {
+            engine.LoadScript(script);
+            return engine.Execute();
+        }
+
         public static void LoadScript<T>(this TestApplicationEngine engine, params Expression<Action<T>>[] expressions)
             where T : class
         {
@@ -116,17 +122,7 @@ namespace NeoTestHarness
             where T : class
         {
             var contractName = GetContractName(typeof(T));
-
-            foreach (var contractState in NativeContract.ContractManagement.ListContracts(snapshot))
-            {
-                var name = contractState.Id >= 0 ? contractState.Manifest.Name : "Neo.SmartContract.Native." + contractState.Manifest.Name;
-                if (string.Equals(contractName, name))
-                {
-                    return contractState;
-                }
-            }
-
-            throw new Exception($"couldn't find {contractName} contract");
+            return snapshot.GetContract(contractName);
 
             static string GetContractName(Type type)
             {
@@ -138,6 +134,20 @@ namespace NeoTestHarness
                 var attrib = ContractAttribute.GetCustomAttribute(type, typeof(ContractAttribute)) as ContractAttribute;
                 return attrib?.Name ?? type.FullName ?? throw new Exception("reflection - FullName returned null");
             }
+        }
+
+        public static ContractState GetContract(this DataCache snapshot, string contractName)
+        {
+            foreach (var contractState in NativeContract.ContractManagement.ListContracts(snapshot))
+            {
+                var name = contractState.Id >= 0 ? contractState.Manifest.Name : "Neo.SmartContract.Native." + contractState.Manifest.Name;
+                if (string.Equals(contractName, name))
+                {
+                    return contractState;
+                }
+            }
+
+            throw new Exception($"couldn't find {contractName} contract");
         }
 
         public static SnapshotCache GetSnapshot(this CheckpointFixture fixture, string? storeName = null)
