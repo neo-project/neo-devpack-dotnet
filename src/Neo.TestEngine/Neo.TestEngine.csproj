@@ -21,7 +21,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-CI01272" />
+    <PackageReference Include="Neo" Version="3.0.0-rc2" />
   </ItemGroup>
 
   <ItemGroup>

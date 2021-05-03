@@ -184,6 +184,7 @@ namespace Neo.Compiler
                 switch (assets["libraries"][name]["type"].GetString())
                 {
                     case "package":
+                        string namePath = assets["libraries"][name]["path"].GetString();
                         string[] files = assets["libraries"][name]["files"].GetArray()
                             .Select(p => p.GetString())
                             .Where(p => p.StartsWith("src/"))
@@ -195,15 +196,15 @@ namespace Neo.Compiler
                             foreach (var (file, _) in dllFiles.Properties)
                             {
                                 if (file.EndsWith("_._")) continue;
-                                string path = Path.Combine(packagesPath, name, file);
+                                string path = Path.Combine(packagesPath, namePath, file);
                                 if (!File.Exists(path)) continue;
                                 references.Add(MetadataReference.CreateFromFile(path));
                             }
                         }
                         else
                         {
-                            IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, name, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-                            CSharpCompilation cr = CSharpCompilation.Create(Path.GetDirectoryName(name), st, commonReferences, options);
+                            IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                            CSharpCompilation cr = CSharpCompilation.Create(Path.GetDirectoryName(namePath), st, commonReferences, options);
                             references.Add(cr.ToMetadataReference());
                         }
                         break;

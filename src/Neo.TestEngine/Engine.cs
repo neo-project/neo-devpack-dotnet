@@ -180,7 +180,7 @@ namespace Neo.TestingEngine
 
                     foreach (var tx in block.Transactions)
                     {
-                        tx.ValidUntilBlock = block.Index + Transaction.MaxValidUntilBlockIncrement;
+                        tx.ValidUntilBlock = block.Index + ProtocolSettings.Default.MaxValidUntilBlockIncrement;
                     }
 
                     var trimmed = currentBlock.Trim();
