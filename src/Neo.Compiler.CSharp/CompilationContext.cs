@@ -352,7 +352,7 @@ namespace Neo.Compiler
             bool isSmartContract = isPublic && !isAbstract && isContractType;
             if (isSmartContract)
             {
-                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smartcontract it's allowed");
+                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
                 scTypeFound = true;
                 ContractName = symbol.Name;
                 foreach (var attribute in symbol.GetAttributes())
