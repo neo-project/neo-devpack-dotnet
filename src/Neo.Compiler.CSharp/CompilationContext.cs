@@ -349,9 +349,10 @@ namespace Neo.Compiler
             bool isPublic = symbol.DeclaredAccessibility == Accessibility.Public;
             bool isAbstract = symbol.IsAbstract;
             bool isContractType = symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract));
-            bool isSmartContract = !scTypeFound && isPublic && !isAbstract && isContractType;
+            bool isSmartContract = isPublic && !isAbstract && isContractType;
             if (isSmartContract)
             {
+                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smartcontract it's allowed");
                 scTypeFound = true;
                 ContractName = symbol.Name;
                 foreach (var attribute in symbol.GetAttributes())
