@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
+using System.Linq;
 using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -7,6 +8,15 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest1
     {
+        [TestMethod]
+        public void Test_MultipleContracts()
+        {
+            var testengine = new TestEngine();
+            var context = testengine.AddEntryScript("./TestClasses/Contract_Multiple.cs");
+            Assert.IsFalse(context.Success);
+            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.MultiplyContracts));
+        }
+
         [TestMethod]
         public void Test_PrivateMethod()
         {
