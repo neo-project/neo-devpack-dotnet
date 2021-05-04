@@ -19,9 +19,6 @@ namespace Neo.TestEngine.UnitTests
         {
             string path = Directory.GetCurrentDirectory();
             CSharpCompiler.Compile(path + "/TestClasses/Contract_CheckWitness.cs");
-
-            //Compile changes the path, reseting so that other UT won't break
-            Directory.SetCurrentDirectory(path);
             Engine.Instance.Reset();
         }
 

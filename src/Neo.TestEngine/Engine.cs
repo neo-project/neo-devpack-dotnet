@@ -52,9 +52,10 @@ namespace Neo.TestingEngine
             AddSmartContract(path);
         }
 
-        public void SetEntryScript(UInt160 contractHash)
+        public Engine SetEntryScript(UInt160 contractHash)
         {
             engine.AddEntryScript(contractHash);
+            return this;
         }
 
         public void AddSmartContract(TestContract contract)
