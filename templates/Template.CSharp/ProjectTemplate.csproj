@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Message Text="Start NeoContract converter, Source File: $(TargetPath)" Importance="high">
+    <Message Text="Start NeoContract converter, Source File: $(ProjectPath)" Importance="high">
     </Message>
     <Exec Command="nccs &quot;$(ProjectPath)&quot;" />
   </Target>
