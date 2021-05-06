@@ -237,7 +237,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(0x03, item.GetInteger());
         }
 
-
         [TestMethod]
         public void Test_GetTransactionHash()
         {
@@ -263,8 +262,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
             Assert.AreEqual(tx.Hash, new UInt256(item.GetSpan()));
         }
-
-
 
         [TestMethod]
         public void Test_GetTransactionVersion()
@@ -293,7 +290,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(tx.Version, item.GetInteger());
         }
 
-
         [TestMethod]
         public void Test_GetTransactionNonce()
         {
@@ -320,7 +316,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(tx.Nonce, item.GetInteger());
         }
 
-
         [TestMethod]
         public void Test_GetTransactionSender()
         {
@@ -346,7 +341,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
             Assert.AreEqual(tx.Sender, new UInt160(item.GetSpan()));
         }
-
 
         [TestMethod]
         public void Test_GetTransactionSystemFee()
@@ -375,7 +369,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(tx.SystemFee, item.GetInteger());
         }
 
-
         [TestMethod]
         public void Test_GetTransactionNetworkFee()
         {
@@ -402,7 +395,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.Integer));
             Assert.AreEqual(tx.NetworkFee, item.GetInteger());
         }
-
 
         [TestMethod]
         public void Test_GetTransactionValidUntilBlock()
@@ -431,7 +423,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(tx.ValidUntilBlock, item.GetInteger());
         }
 
-
         [TestMethod]
         public void Test_GetTransactionScript()
         {
@@ -455,22 +446,23 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, engine.ResultStack.Count);
 
             var item = engine.ResultStack.Pop();
-            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
+            Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual(tx.Script.ToHexString(), item.GetSpan().ToHexString());
         }
 
-        private Transaction BuildTransaction(UInt160 sender, byte[] script)
+        private static Transaction BuildTransaction(UInt160 sender, byte[] script)
         {
-            var tx = new Transaction();
-            tx.Script = script;
-            tx.Nonce = (uint)new Random().Next(1000, 9999);
-            tx.Signers = new Signer[]
+            Transaction tx = new()
             {
-                new(){Account = sender,Scopes = WitnessScope.Global}
+                Script = script,
+                Nonce = (uint)new Random().Next(1000, 9999),
+                Signers = new Signer[]
+                {
+                    new() { Account = sender, Scopes = WitnessScope.Global }
+                },
+                Attributes = System.Array.Empty<TransactionAttribute>()
             };
-            tx.Attributes = new TransactionAttribute[0];
             return tx;
         }
-
     }
 }

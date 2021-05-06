@@ -119,6 +119,5 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var tx = (Transaction)Runtime.ScriptContainer;
             return tx?.Script;
         }
-
     }
 }
