@@ -4,9 +4,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Runtime : SmartContract
     {
-
-        [InitialValue("NPS3U9PduobRCai5ZUdK2P3Y8RjwzMVfSg", Neo.SmartContract.ContractParameterType.Hash160)]
-        static readonly UInt160 admin = default;
         public static uint GetInvocationCounter()
         {
             return Runtime.InvocationCounter;
