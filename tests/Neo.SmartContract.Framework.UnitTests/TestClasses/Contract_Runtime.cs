@@ -4,6 +4,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Runtime : SmartContract
     {
+
+        [InitialValue("NPS3U9PduobRCai5ZUdK2P3Y8RjwzMVfSg", Neo.SmartContract.ContractParameterType.Hash160)]
+        static readonly UInt160 admin = default;
         public static uint GetInvocationCounter()
         {
             return Runtime.InvocationCounter;
@@ -71,5 +74,54 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
             return sum;
         }
+
+        public static object GetTransactionHash()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.Hash;
+        }
+
+        public static object GetTransactionVersion()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.Version;
+        }
+
+        public static object GetTransactionNonce()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.Nonce;
+        }
+
+        public static object GetTransactionSender()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.Sender;
+        }
+
+        public static object GetTransactionSystemFee()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.SystemFee;
+        }
+
+        public static object GetTransactionNetworkFee()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.NetworkFee;
+        }
+
+        public static object GetTransactionValidUntilBlock()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.ValidUntilBlock;
+        }
+
+        public static object GetTransactionScript()
+        {
+            var tx = (Transaction)Runtime.ScriptContainer;
+            return tx?.Script;
+        }
+
     }
 }

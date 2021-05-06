@@ -9,6 +9,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.IO;
+using Neo.Wallets;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -235,5 +236,241 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(0x03, item.GetInteger());
         }
+
+
+        [TestMethod]
+        public void Test_GetTransactionHash()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionHash");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
+            Assert.AreEqual(tx.Hash, new UInt256(item.GetSpan()));
+        }
+
+
+
+        [TestMethod]
+        public void Test_GetTransactionVersion()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionVersion");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            tx.Version = 77;
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.Integer));
+            Assert.AreEqual(tx.Version, item.GetInteger());
+        }
+
+
+        [TestMethod]
+        public void Test_GetTransactionNonce()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionNonce");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.Integer));
+            Assert.AreEqual(tx.Nonce, item.GetInteger());
+        }
+
+
+        [TestMethod]
+        public void Test_GetTransactionSender()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionSender");
+            var sender = "NMA2FKN8up2cEwaJgtmAiDrZWB69ApnDfp".ToScriptHash(ProtocolSettings.Default.AddressVersion);
+            var tx = BuildTransaction(sender, sb.ToArray());
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
+            Assert.AreEqual(tx.Sender, new UInt160(item.GetSpan()));
+        }
+
+
+        [TestMethod]
+        public void Test_GetTransactionSystemFee()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionSystemFee");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            tx.SystemFee = 10;
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.Integer));
+            Assert.AreEqual(tx.SystemFee, item.GetInteger());
+        }
+
+
+        [TestMethod]
+        public void Test_GetTransactionNetworkFee()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionNetworkFee");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            tx.NetworkFee = 200;
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.Integer));
+            Assert.AreEqual(tx.NetworkFee, item.GetInteger());
+        }
+
+
+        [TestMethod]
+        public void Test_GetTransactionValidUntilBlock()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionValidUntilBlock");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            tx.ValidUntilBlock = 1111;
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.Integer));
+            Assert.AreEqual(tx.ValidUntilBlock, item.GetInteger());
+        }
+
+
+        [TestMethod]
+        public void Test_GetTransactionScript()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransactionScript");
+
+            var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
+            tx.NetworkFee = 200;
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
+            Assert.AreEqual(tx.Script.ToHexString(), item.GetSpan().ToHexString());
+        }
+
+        private Transaction BuildTransaction(UInt160 sender, byte[] script)
+        {
+            var tx = new Transaction();
+            tx.Script = script;
+            tx.Nonce = (uint)new Random().Next(1000, 9999);
+            tx.Signers = new Signer[]
+            {
+                new(){Account = sender,Scopes = WitnessScope.Global}
+            };
+            tx.Attributes = new TransactionAttribute[0];
+            return tx;
+        }
+
     }
 }
