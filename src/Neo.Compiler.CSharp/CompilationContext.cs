@@ -300,6 +300,7 @@ namespace Neo.Compiler
             {
                 ["hash"] = Script.ToScriptHash().ToString(),
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
+                ["static-variables"] = StaticFieldSymbols.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
                 ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
                     ["id"] = m.Symbol.ToString(),
