@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Copyright>2016-2021 The Neo Project</Copyright>
+    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionSuffix>rc2</VersionSuffix>
+    <Authors>The Neo Project</Authors>
+    <TargetFramework>net5.0</TargetFramework>
+    <Title>Neo.SmartContract.Template</Title>
+    <PackageType>Template</PackageType>
+    <PackageId>Neo.SmartContract.Template</PackageId>
+    <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
+    <Description>Templates to use when creating a smart contract for NEO.</Description>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="templates\**\*" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+</Project>
