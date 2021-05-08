@@ -18,6 +18,7 @@ namespace Neo.Compiler
             {
                 new Argument<string[]>("paths", "The path of the project file, project directory or source files."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
+                new Option<string>("--contract-name", "Specifies the base name of the output files."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),

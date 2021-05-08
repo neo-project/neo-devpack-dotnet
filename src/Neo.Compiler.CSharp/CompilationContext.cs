@@ -64,6 +64,7 @@ namespace Neo.Compiler
         {
             this.compilation = compilation;
             this.Options = options;
+            this.ContractName = options.ContractName;
         }
 
         private void RemoveEmptyInitialize()
@@ -213,7 +214,7 @@ namespace Neo.Compiler
         {
             Compilation compilation = GetCompilation(csproj, out string assemblyName);
             CompilationContext context = new(compilation, options);
-            context.ContractName = assemblyName;
+            context.ContractName ??= assemblyName;
             context.Compile();
             return context;
         }
