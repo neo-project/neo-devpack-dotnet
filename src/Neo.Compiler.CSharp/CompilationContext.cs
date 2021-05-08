@@ -305,8 +305,9 @@ namespace Neo.Compiler
                     ["id"] = m.Symbol.ToString(),
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
-                    ["params"] = (m.Symbol.IsStatic ? Array.Empty<JString>() : new JString[] { (JString)"this,Any" }).Concat(
-                        m.Symbol.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}")).ToArray(),
+                    ["params"] = (m.Symbol.IsStatic ? Array.Empty<JString>() : new JString[] { "this,Any" })
+                        .Concat(m.Symbol.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}"))
+                        .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
                     ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
