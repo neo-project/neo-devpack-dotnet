@@ -12,7 +12,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine(snapshot: null);
-            testengine.AddEntryScript("./TestClasses/Contract_Instance.cs");
+            var ctx = testengine.AddEntryScript("./TestClasses/Contract_Instance.cs");
+            Assert.AreEqual("this,Any", ctx.CreateDebugInformation()["methods"][0]["params"][0].AsString());
+            Assert.AreEqual("this,Any", ctx.CreateDebugInformation()["methods"][1]["params"][0].AsString());
         }
 
         [TestMethod]
