@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "The Neo Project",
+  "classifications": [ "NEO", "Blockchain", "Smart Contract" ],
+  "identity": "Neo.SmartContract.Template",
+  "name": "Neo.SmartContract.Template",
+  "shortName": "neocontract",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "ProjectName"
+}

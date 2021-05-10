@@ -40,7 +40,7 @@ namespace Neo.Compiler
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
-        public string ContractName { get; private set; } = "";
+        public string? ContractName { get; private set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
@@ -64,6 +64,7 @@ namespace Neo.Compiler
         {
             this.compilation = compilation;
             this.Options = options;
+            this.ContractName = options.ContractName;
         }
 
         private void RemoveEmptyInitialize()
@@ -146,7 +147,7 @@ namespace Neo.Compiler
             return Compile(sourceFiles, references, options);
         }
 
-        public static Compilation GetCompilation(string csproj)
+        public static Compilation GetCompilation(string csproj, out string assemblyName)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
@@ -156,6 +157,7 @@ namespace Neo.Compiler
             List<MetadataReference> references = new(commonReferences);
             CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
             XDocument xml = XDocument.Load(csproj);
+            assemblyName = xml.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).SingleOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
             sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
             {
@@ -198,7 +200,7 @@ namespace Neo.Compiler
                     case "project":
                         string msbuildProject = assets["libraries"][name]["msbuildProject"].GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
-                        references.Add(GetCompilation(msbuildProject).ToMetadataReference());
+                        references.Add(GetCompilation(msbuildProject, out _).ToMetadataReference());
                         break;
                     default:
                         throw new NotSupportedException();
@@ -210,8 +212,9 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileProject(string csproj, Options options)
         {
-            Compilation compilation = GetCompilation(csproj);
+            Compilation compilation = GetCompilation(csproj, out string assemblyName);
             CompilationContext context = new(compilation, options);
+            context.ContractName ??= assemblyName;
             context.Compile();
             return context;
         }
@@ -357,13 +360,12 @@ namespace Neo.Compiler
             {
                 if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
                 scTypeFound = true;
-                ContractName = symbol.Name;
                 foreach (var attribute in symbol.GetAttributes())
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            ContractName = (string)attribute.ConstructorArguments[0].Value!;
+                            ContractName ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.ManifestExtraAttribute):
                             manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
@@ -382,6 +384,7 @@ namespace Neo.Compiler
                             break;
                     }
                 }
+                ContractName ??= symbol.Name;
             }
             foreach (ISymbol member in symbol.GetAllMembers())
             {

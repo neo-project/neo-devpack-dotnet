@@ -6,7 +6,7 @@ using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
-namespace $safeprojectname$
+namespace ProjectName
 {
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
