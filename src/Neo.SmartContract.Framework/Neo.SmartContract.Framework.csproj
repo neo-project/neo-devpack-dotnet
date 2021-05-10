@@ -1,12 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2016-2021 The Neo Project</Copyright>
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>rc2</VersionSuffix>
-    <Authors>The Neo Project</Authors>
-    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
     <PackageId>Neo.SmartContract.Framework</PackageId>
     <PackageTags>NEO;Blockchain</PackageTags>

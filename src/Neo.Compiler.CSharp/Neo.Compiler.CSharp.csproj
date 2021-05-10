@@ -1,18 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2015-2021 The Neo Project</Copyright>
     <AssemblyTitle>Neo.Compiler.CSharp</AssemblyTitle>
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>rc2</VersionSuffix>
     <AssemblyName>nccs</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
     <PackageId>Neo.Compiler.CSharp</PackageId>
     <PackAsTool>true</PackAsTool>
     <RootNamespace>Neo.Compiler</RootNamespace>
     <Nullable>enable</Nullable>
-    <Authors>The Neo Project</Authors>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
