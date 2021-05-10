@@ -47,9 +47,10 @@ namespace Neo.TestingEngine
             engine = SetupNativeContracts();
         }
 
-        public void SetEntryScript(string path)
+        public Engine SetEntryScript(string path)
         {
             AddSmartContract(path);
+            return this;
         }
 
         public Engine SetEntryScript(UInt160 contractHash)
@@ -58,10 +59,11 @@ namespace Neo.TestingEngine
             return this;
         }
 
-        public void AddSmartContract(TestContract contract)
+        public Engine AddSmartContract(TestContract contract)
         {
             var state = AddSmartContract(contract.nefPath);
             contract.buildScript = state;
+            return this;
         }
 
         private object AddSmartContract(string path)
@@ -94,7 +96,7 @@ namespace Neo.TestingEngine
             return engine.ScriptContext;
         }
 
-        public void IncreaseBlockCount(uint newHeight)
+        public Engine IncreaseBlockCount(uint newHeight)
         {
             var snapshot = (TestDataCache)engine.Snapshot;
             if (snapshot.Blocks().Count <= newHeight)
@@ -122,9 +124,10 @@ namespace Neo.TestingEngine
 
                 snapshot.SetCurrentBlockHash(lastBlock.Index, lastBlock.Hash);
             }
+            return this;
         }
 
-        public void SetStorage(Dictionary<StorageKey, StorageItem> storage)
+        public Engine SetStorage(Dictionary<StorageKey, StorageItem> storage)
         {
             if (engine.Snapshot is TestDataCache snapshot)
             {
@@ -133,14 +136,16 @@ namespace Neo.TestingEngine
                     snapshot.AddForTest(key, value);
                 }
             }
+            return this;
         }
 
-        public void SetSigners(UInt160[] signerAccounts)
+        public Engine SetSigners(UInt160[] signerAccounts)
         {
             if (signerAccounts.Length > 0)
             {
                 currentTx.Signers = signerAccounts.Select(p => new Signer() { Account = p, Scopes = WitnessScope.CalledByEntry }).ToArray();
             }
+            return this;
         }
 
         internal void SetTxAttributes(TransactionAttribute[] attributes)
@@ -148,7 +153,7 @@ namespace Neo.TestingEngine
             currentTx.Attributes = attributes.Where(attr => attr != null).ToArray();
         }
 
-        public void AddBlock(Block block)
+        public Engine AddBlock(Block block)
         {
             if (engine.Snapshot is TestDataCache snapshot)
             {
@@ -190,6 +195,7 @@ namespace Neo.TestingEngine
 
                 snapshot.AddOrUpdateTransactions(block.Transactions);
             }
+            return this;
         }
 
         public JObject Run(string method, ContractParameter[] args)
