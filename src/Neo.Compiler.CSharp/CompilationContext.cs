@@ -301,7 +301,7 @@ namespace Neo.Compiler
             SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
             var staticVars = staticFields
                 .Select(p => (index: p.Value, name: p.Key.Name, type: p.Key.Type.GetContractParameterType()))
-                .Concat(vtables.Select(p => (index: p.Value, name: p.Key.Name, type: ContractParameterType.Any)))
+                .Concat(vtables.Select(p => (index: p.Value, name: $"${p.Key.Name}_vtable", type: ContractParameterType.Any)))
                 .OrderBy(p => p.index);
 
             return new JObject
