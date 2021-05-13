@@ -52,10 +52,10 @@ namespace Neo.TestEngine.UnitTests
             Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
 
             // test result
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 0);
         }
 
@@ -78,10 +78,10 @@ namespace Neo.TestEngine.UnitTests
 
             // test result
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 1);
             Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
@@ -108,10 +108,10 @@ namespace Neo.TestEngine.UnitTests
 
             // test result
             StackItem wantresult = new byte[] { 1, 2, 3, 16 };
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 1);
             Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
@@ -135,10 +135,10 @@ namespace Neo.TestEngine.UnitTests
             Assert.AreEqual(result["vm_state"].AsString(), VMState.FAULT.ToString());
 
             // result stack must be empty
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 0);
         }
 
@@ -222,10 +222,10 @@ namespace Neo.TestEngine.UnitTests
 
             // test result
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 1);
             Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
@@ -256,10 +256,10 @@ namespace Neo.TestEngine.UnitTests
 
             // test result
             StackItem wantresult = new byte[] { 1, 2, 3, 16 };
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 1);
             Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());

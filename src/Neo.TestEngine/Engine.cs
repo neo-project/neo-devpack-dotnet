@@ -7,7 +7,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
-using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -221,7 +220,7 @@ namespace Neo.TestingEngine
                 byte[] script;
                 using (ScriptBuilder scriptBuilder = new ScriptBuilder())
                 {
-                    scriptBuilder.EmitAppCall(native.NativeContract.Hash, method, args);
+                    scriptBuilder.EmitDynamicCall(native.NativeContract.Hash, method, args);
                     script = scriptBuilder.ToArray();
                 }
                 engine.RunNativeContract(script, method, stackItemsArgs);
@@ -230,7 +229,7 @@ namespace Neo.TestingEngine
             {
                 using (ScriptBuilder scriptBuilder = new ScriptBuilder())
                 {
-                    scriptBuilder.EmitAppCall(engine.EntryScriptHash, method, args);
+                    scriptBuilder.EmitDynamicCall(engine.EntryScriptHash, method, args);
                     currentTx.Script = scriptBuilder.ToArray();
                 }
                 engine.ExecuteTestCaseStandard(method, stackItemsArgs);

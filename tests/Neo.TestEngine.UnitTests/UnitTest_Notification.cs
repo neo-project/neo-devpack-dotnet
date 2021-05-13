@@ -43,10 +43,10 @@ namespace Neo.TestEngine.UnitTests
 
             // test result
             StackItem wantresult = 3;
-            Assert.IsTrue(result.ContainsProperty("result_stack"));
-            Assert.IsInstanceOfType(result["result_stack"], typeof(JArray));
+            Assert.IsTrue(result.ContainsProperty("resultstack"));
+            Assert.IsInstanceOfType(result["resultstack"], typeof(JArray));
 
-            var resultStack = result["result_stack"] as JArray;
+            var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 1);
             Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
@@ -59,16 +59,16 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsTrue(notifications.Count == 2);
 
             Assert.IsTrue(notifications[0].ContainsProperty("value"));
-            Assert.IsTrue(notifications[0].ContainsProperty("eventName"));
-            Assert.AreEqual(notifications[0]["eventName"].AsString(), "event");
+            Assert.IsTrue(notifications[0].ContainsProperty("eventname"));
+            Assert.AreEqual(notifications[0]["eventname"].AsString(), "event");
             Assert.IsTrue(notifications[0].ContainsProperty("value"));
             var firstNotifications = notifications[0]["value"];
             Assert.IsTrue(firstNotifications.ContainsProperty("value"));
             Assert.AreEqual((firstNotifications["value"] as JArray)[0].AsString(), arg1.ToJson().ToString());
 
             Assert.IsTrue(notifications[1].ContainsProperty("value"));
-            Assert.IsTrue(notifications[1].ContainsProperty("eventName"));
-            Assert.AreEqual(notifications[1]["eventName"].AsString(), "event");
+            Assert.IsTrue(notifications[1].ContainsProperty("eventname"));
+            Assert.AreEqual(notifications[1]["eventname"].AsString(), "event");
             Assert.IsTrue(notifications[1].ContainsProperty("value"));
             var secondNotifications = notifications[1]["value"];
             Assert.IsTrue(secondNotifications.ContainsProperty("value"));

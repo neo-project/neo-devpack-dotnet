@@ -22,7 +22,7 @@ namespace Neo.TestingEngine
 
             json["vm_state"] = testEngine.State.ToString();
             json["gasconsumed"] = (new BigDecimal((decimal)testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
-            json["result_stack"] = testEngine.ResultStack.ToJson();
+            json["resultstack"] = testEngine.ResultStack.ToJson();
 
             if (testEngine.ScriptContainer is Transaction tx)
             {
@@ -44,7 +44,7 @@ namespace Neo.TestingEngine
         public static JObject ToJson(this NotifyEventArgs notification)
         {
             var json = new JObject();
-            json["eventName"] = notification.EventName;
+            json["eventname"] = notification.EventName;
             json["scripthash"] = notification.ScriptHash.ToString();
             json["value"] = notification.State.ToJson();
             return json;
@@ -108,47 +108,6 @@ namespace Neo.TestingEngine
             }
 
             return exception.Message;
-        }
-
-        public static ScriptBuilder EmitAppCall(this ScriptBuilder sb, UInt160 scriptHash, string operation, params ContractParameter[] args)
-        {
-            for (int i = args.Length - 1; i >= 0; i--)
-                sb.EmitPush(args[i]);
-            sb.EmitPush(args.Length);
-            sb.Emit(OpCode.PACK);
-            sb.EmitPush(CallFlags.All);
-            sb.EmitPush(operation);
-            sb.EmitPush(scriptHash);
-            sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
-            return sb;
-        }
-
-        public static ScriptBuilder EmitPush(this ScriptBuilder sb, ContractParameter parameter)
-        {
-            try
-            {
-                return VM.Helper.EmitPush(sb, parameter);
-            }
-            catch (ArgumentException)
-            {
-                if (parameter.Type == ContractParameterType.Map)
-                {
-                    var parameters = (IList<KeyValuePair<ContractParameter, ContractParameter>>)parameter.Value;
-                    sb.Emit(OpCode.NEWMAP);
-                    foreach (var p in parameters)
-                    {
-                        sb.Emit(OpCode.DUP);
-                        sb.EmitPush(p.Key);
-                        sb.EmitPush(p.Value);
-                        sb.Emit(OpCode.APPEND);
-                    }
-                    return sb;
-                }
-                else
-                {
-                    throw;
-                }
-            }
         }
     }
 }
