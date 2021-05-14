@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1, (debugInfo["events"] as JArray).Count);
             Assert.AreEqual("Neo.Compiler.CSharp.UnitTests.TestClasses.Contract_Event,Transferred", (debugInfo["events"] as JArray)[0]["name"].AsString());
             Assert.IsTrue(debugInfo.ContainsProperty("static-variables"));
-            Assert.AreEqual("MyStaticVar1,Integer;MyStaticVar2,Boolean", string.Join(';', (debugInfo["static-variables"] as JArray).Select(u => u.AsString())));
+            Assert.AreEqual("MyStaticVar1,Integer,0;MyStaticVar2,Boolean,1", string.Join(';', (debugInfo["static-variables"] as JArray).Select(u => u.AsString())));
         }
     }
 }
