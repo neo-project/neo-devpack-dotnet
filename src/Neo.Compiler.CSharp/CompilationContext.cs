@@ -299,16 +299,11 @@ namespace Neo.Compiler
         public JObject CreateDebugInformation()
         {
             SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
-            var staticVars = staticFields
-                .Select(p => (index: p.Value, name: p.Key.Name, type: p.Key.Type.GetContractParameterType()))
-                .Concat(vtables.Select(p => (index: p.Value, name: $"<{p.Key.Name}>__vtable", type: ContractParameterType.Any)))
-                .OrderBy(p => p.index);
-
             return new JObject
             {
                 ["hash"] = Script.ToScriptHash().ToString(),
                 ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
-                ["static-variables"] = staticVars.Select(p => (JString)$"{p.name},{p.type}").ToArray(),
+                ["static-variables"] = staticFields.OrderBy(p => p.Value).Select(p => (JString)$"{p.Key.Name},{p.Key.Type.GetContractParameterType()},{p.Value}").ToArray(),
                 ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
                     ["id"] = m.Symbol.ToString(),
@@ -318,7 +313,7 @@ namespace Neo.Compiler
                         .Concat(m.Symbol.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}"))
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
-                    ["variables"] = m.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
+                    ["variables"] = m.Variables.Select(p => (JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}").ToArray(),
                     ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
                     {
                         FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();

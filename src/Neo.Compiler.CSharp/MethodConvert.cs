@@ -28,7 +28,7 @@ namespace Neo.Compiler
         private bool _inline;
         private bool _initslot;
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
-        private readonly List<ILocalSymbol> _variableSymbols = new();
+        private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
@@ -46,7 +46,7 @@ namespace Neo.Compiler
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
-        public IReadOnlyList<ILocalSymbol> Variables => _variableSymbols;
+        public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
 
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
@@ -56,8 +56,8 @@ namespace Neo.Compiler
 
         private byte AddLocalVariable(ILocalSymbol symbol)
         {
-            _variableSymbols.Add(symbol);
             byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+            _variableSymbols.Add((symbol, index));
             _localVariables.Add(symbol, index);
             if (_localsCount < index + 1)
                 _localsCount = index + 1;
