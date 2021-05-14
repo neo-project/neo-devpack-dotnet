@@ -74,6 +74,18 @@ namespace Neo.Compiler
             return index;
         }
 
+        private void RemoveAnonymousVariable(byte index)
+        {
+            if (!context.Options.NoOptimize)
+                _anonymousVariables.Remove(index);
+        }
+
+        private void RemoveLocalVariable(ILocalSymbol symbol)
+        {
+            if (!context.Options.NoOptimize)
+                _localVariables.Remove(symbol);
+        }
+
         private Instruction AddInstruction(Instruction instruction)
         {
             _instructions.Add(instruction);
@@ -526,7 +538,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.CloseBraceToken))
                 AddInstruction(OpCode.NOP);
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
-                _localVariables.Remove(symbol);
+                RemoveLocalVariable(symbol);
         }
 
         private void ConvertBreakStatement(BreakStatementSyntax syntax)
@@ -625,8 +637,8 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(iteratorIndex);
-            _localVariables.Remove(elementSymbol);
+            RemoveAnonymousVariable(iteratorIndex);
+            RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -673,10 +685,10 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPLT_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(arrayIndex);
-            _anonymousVariables.Remove(lengthIndex);
-            _anonymousVariables.Remove(iIndex);
-            _localVariables.Remove(elementSymbol);
+            RemoveAnonymousVariable(arrayIndex);
+            RemoveAnonymousVariable(lengthIndex);
+            RemoveAnonymousVariable(iIndex);
+            RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -736,10 +748,10 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(iteratorIndex);
+            RemoveAnonymousVariable(iteratorIndex);
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
-                    _localVariables.Remove(symbol);
+                    RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -798,12 +810,12 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPLT_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(arrayIndex);
-            _anonymousVariables.Remove(lengthIndex);
-            _anonymousVariables.Remove(iIndex);
+            RemoveAnonymousVariable(arrayIndex);
+            RemoveAnonymousVariable(lengthIndex);
+            RemoveAnonymousVariable(iIndex);
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
-                    _localVariables.Remove(symbol);
+                    RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -854,7 +866,7 @@ namespace Neo.Compiler
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             foreach (var (_, symbol) in variables)
-                _localVariables.Remove(symbol);
+                RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -1024,7 +1036,7 @@ namespace Neo.Compiler
                         throw new CompilationException(label, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {label}");
                 }
             }
-            _anonymousVariables.Remove(anonymousIndex);
+            RemoveAnonymousVariable(anonymousIndex);
             Jump(OpCode.JMP_L, breakTarget);
             foreach (var (_, statements, target) in sections)
             {
@@ -1079,9 +1091,9 @@ namespace Neo.Compiler
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
                 if (exceptionSymbol is null)
-                    _anonymousVariables.Remove(exceptionIndex);
+                    RemoveAnonymousVariable(exceptionIndex);
                 else
-                    _localVariables.Remove(exceptionSymbol);
+                    RemoveLocalVariable(exceptionSymbol);
                 _exceptionStack.Pop();
             }
             if (syntax.Finally is not null)
@@ -2624,7 +2636,7 @@ namespace Neo.Compiler
             ConvertExpression(model, expression.Expression);
             AccessSlot(OpCode.STLOC, anonymousIndex);
             ConvertPattern(model, expression.Pattern, anonymousIndex);
-            _anonymousVariables.Remove(anonymousIndex);
+            RemoveAnonymousVariable(anonymousIndex);
         }
 
         private void ConvertMemberAccessExpression(SemanticModel model, MemberAccessExpressionSyntax expression)
@@ -3157,7 +3169,7 @@ namespace Neo.Compiler
             AccessSlot(OpCode.LDLOC, anonymousIndex);
             AddInstruction(OpCode.THROW);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(anonymousIndex);
+            RemoveAnonymousVariable(anonymousIndex);
         }
 
         private void ConvertPattern(SemanticModel model, PatternSyntax pattern, byte localIndex)
