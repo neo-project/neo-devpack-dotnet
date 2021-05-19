@@ -298,7 +298,7 @@ namespace Neo.Compiler
 
         public JObject CreateDebugInformation()
         {
-            SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
+            string[] sourceLocations = GetSourceLocations(compilation).Distinct().ToArray();
             var staticVars = staticFields
                 .Select(p => (index: p.Value, name: p.Key.Name, type: p.Key.Type.GetContractParameterType()))
                 .Concat(vtables.Select(p => (index: p.Value, name: $"<{p.Key.Name}>__vtable", type: ContractParameterType.Any)))
@@ -307,7 +307,7 @@ namespace Neo.Compiler
             return new JObject
             {
                 ["hash"] = Script.ToScriptHash().ToString(),
-                ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
+                ["documents"] = sourceLocations.Select(p => (JString)p).ToArray(),
                 ["static-variables"] = staticVars.Select(p => (JString)$"{p.name},{p.type}").ToArray(),
                 ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
@@ -322,7 +322,7 @@ namespace Neo.Compiler
                     ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
                     {
                         FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();
-                        return (JString)$"{p.Offset}[{Array.IndexOf(trees, p.SourceLocation.SourceTree)}]{span.StartLinePosition.Line + 1}:{span.StartLinePosition.Character + 1}-{span.EndLinePosition.Line + 1}:{span.EndLinePosition.Character + 1}";
+                        return (JString)$"{p.Offset}[{Array.IndexOf(sourceLocations, p.SourceLocation.SourceTree!.FilePath)}]{span.StartLinePosition.Line + 1}:{span.StartLinePosition.Character + 1}-{span.EndLinePosition.Line + 1}:{span.EndLinePosition.Character + 1}";
                     }).ToArray()
                 }).ToArray(),
                 ["events"] = eventsExported.Select(e => new JObject
@@ -332,6 +332,15 @@ namespace Neo.Compiler
                     ["params"] = e.Parameters.Select(p => (JString)$"{p.Name},{p.Type}").ToArray()
                 }).ToArray()
             };
+        }
+
+        private static IEnumerable<string> GetSourceLocations(Compilation compilation)
+        {
+            foreach (SyntaxTree syntaxTree in compilation.SyntaxTrees)
+                yield return syntaxTree.FilePath;
+            foreach (CompilationReference reference in compilation.References.OfType<CompilationReference>())
+                foreach (string path in GetSourceLocations(reference.Compilation))
+                    yield return path;
         }
 
         private void ProcessCompilationUnit(SemanticModel model, CompilationUnitSyntax syntax)
