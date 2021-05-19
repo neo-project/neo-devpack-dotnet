@@ -24,5 +24,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern (ECPoint, BigInteger)[] GetCandidates();
         public static extern ECPoint[] GetCommittee();
         public static extern ECPoint[] GetNextBlockValidators();
+        public static NeoAccountState GetAccountState(UInt160 account);
     }
 }
