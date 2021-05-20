@@ -310,7 +310,7 @@ namespace Neo.Compiler
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
                     ["params"] = (m.Symbol.IsStatic ? Array.Empty<JString>() : new JString[] { "this,Any" })
-                        .Concat(m.Symbol.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}"))
+                        .Concat(m.Symbol.Parameters.Select((p, i) => (JString)$"{p.Name},{p.Type.GetContractParameterType()},{i}"))
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => (JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}").ToArray(),
@@ -324,7 +324,7 @@ namespace Neo.Compiler
                 {
                     ["id"] = e.Name,
                     ["name"] = $"{e.Symbol.ContainingType},{e.Symbol.Name}",
-                    ["params"] = e.Parameters.Select(p => (JString)$"{p.Name},{p.Type}").ToArray()
+                    ["params"] = e.Parameters.Select((p, i) => (JString)$"{p.Name},{p.Type},{i}").ToArray()
                 }).ToArray()
             };
         }
