@@ -9,13 +9,21 @@ namespace Neo.TestingEngine
     public class TestWallet : NEP6Wallet
     {
         private Dictionary<UInt160, WalletAccount> accounts;
+        public WalletAccount DefaultAccount { get; private set; }
 
-        public TestWallet(UInt160 scriptHash) : base("", ProtocolSettings.Default, "TestWallet")
+        public TestWallet(UInt160 scriptHash = null) : base("", ProtocolSettings.Default, "TestWallet")
         {
-            this.accounts = new Dictionary<UInt160, WalletAccount>()
+            this.accounts = new Dictionary<UInt160, WalletAccount>();
+            if (scriptHash == null)
             {
-                { scriptHash, new TestAccount(scriptHash) }
-            };
+                // mock an account
+                var mockedPrivateKey = "a8639cbc8dc867fab51487c1ff0565600999ac73136c95454309f4883854efba".HexToBytes();
+                DefaultAccount = CreateAccount(mockedPrivateKey);
+            }
+            else
+            {
+                DefaultAccount = CreateAccount(scriptHash);
+            }
         }
 
         public override bool ChangePassword(string oldPassword, string newPassword)
@@ -30,7 +38,22 @@ namespace Neo.TestingEngine
 
         public override WalletAccount CreateAccount(byte[] privateKey)
         {
-            throw new NotImplementedException();
+            if (privateKey is null) throw new ArgumentNullException(nameof(privateKey));
+            KeyPair key = new(privateKey);
+            if (key.PublicKey.IsInfinity) throw new ArgumentException(null, nameof(privateKey));
+
+            Contract contract = new()
+            {
+                Script = Contract.CreateSignatureRedeemScript(key.PublicKey),
+                ParameterList = new[] { ContractParameterType.Signature }
+            };
+
+            var account = new TestAccount(contract.ScriptHash, privateKey)
+            {
+                Contract = contract
+            };
+            AddAccount(account);
+            return account;
         }
 
         public override WalletAccount CreateAccount(Contract contract, KeyPair key = null)
@@ -43,6 +66,14 @@ namespace Neo.TestingEngine
             var account = new TestAccount(scriptHash);
             this.accounts[scriptHash] = account;
             return account;
+        }
+
+        private void AddAccount(TestAccount account)
+        {
+            if (!accounts.ContainsKey(account.ScriptHash))
+            {
+                accounts[account.ScriptHash] = account;
+            }
         }
 
         public override bool DeleteAccount(UInt160 scriptHash)
@@ -71,6 +102,12 @@ namespace Neo.TestingEngine
         public override bool VerifyPassword(string password)
         {
             return true;
+        }
+
+        internal void AddSignerAccount(UInt160 scriptHash)
+        {
+            // mock for calculating network fee
+            this.accounts[scriptHash] = DefaultAccount;
         }
     }
 }

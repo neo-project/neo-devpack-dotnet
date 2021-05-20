@@ -7,6 +7,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.Wallets;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -29,11 +30,13 @@ namespace Neo.TestingEngine
 
         private TestEngine engine = null;
         private Transaction currentTx = null;
-        private byte[] PubKey => HexString2Bytes("03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa");
+        private ECPoint PubKey => wallet.DefaultAccount.GetKey().PublicKey;
+        private TestWallet wallet = null;
 
         private Engine()
         {
             var _ = TestBlockchain.TheNeoSystem;
+            wallet = new TestWallet();
             Reset();
         }
 
@@ -142,7 +145,14 @@ namespace Neo.TestingEngine
         {
             if (signerAccounts.Length > 0)
             {
-                currentTx.Signers = signerAccounts.Select(p => new Signer() { Account = p, Scopes = WitnessScope.CalledByEntry }).ToArray();
+                var newSigners = new List<Signer>();
+                foreach (var account in signerAccounts)
+                {
+                    var signer = new Signer() { Account = account, Scopes = WitnessScope.CalledByEntry };
+                    newSigners.Add(signer);
+                    wallet.AddSignerAccount(account);
+                }
+                currentTx.Signers = newSigners.Concat(currentTx.Signers).ToArray();
             }
             return this;
         }
@@ -235,13 +245,9 @@ namespace Neo.TestingEngine
                 engine.ExecuteTestCaseStandard(method, stackItemsArgs);
             }
 
-            //currentTx.ValidUntilBlock = engine.Snapshot.Height + Transaction.MaxValidUntilBlockIncrement;
+            currentTx.ValidUntilBlock = engine.Snapshot.GetLastBlock().Index + ProtocolSettings.Default.MaxValidUntilBlockIncrement;
             currentTx.SystemFee = engine.GasConsumed;
-            UInt160[] hashes = currentTx.GetScriptHashesForVerifying(engine.Snapshot);
-
-            // base size for transaction: includes const_header + signers + attributes + script + hashes
-            int size = Transaction.HeaderSize + currentTx.Signers.GetVarSize() + currentTx.Attributes.GetVarSize() + currentTx.Script.GetVarSize() + IO.Helper.GetVarSize(hashes.Length);
-            currentTx.NetworkFee += size * NativeContract.Policy.GetFeePerByte(engine.Snapshot);
+            currentTx.NetworkFee = wallet.CalculateNetworkFee(engine.Snapshot, currentTx);
 
             return engine.ToJson();
         }
@@ -252,7 +258,7 @@ namespace Neo.TestingEngine
             {
                 Attributes = new TransactionAttribute[0],
                 Script = new byte[0],
-                Signers = new Signer[] { new Signer() { Account = UInt160.Zero } },
+                Signers = new Signer[] { new Signer() { Account = wallet.DefaultAccount.ScriptHash } },
                 Witnesses = new Witness[0],
                 NetworkFee = 1,
                 Nonce = 2,
@@ -295,7 +301,7 @@ namespace Neo.TestingEngine
                     Witness = new Witness()
                     {
                         InvocationScript = new byte[0],
-                        VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(PubKey, ECCurve.Secp256k1))
+                        VerificationScript = Contract.CreateSignatureRedeemScript(PubKey)
                     },
                     NextConsensus = trimmedBlock.Header.NextConsensus,
                     MerkleRoot = trimmedBlock.Header.MerkleRoot,
@@ -310,18 +316,6 @@ namespace Neo.TestingEngine
             }
 
             return newBlock;
-        }
-
-        private static byte[] HexString2Bytes(string str)
-        {
-            if (str.IndexOf("0x") == 0)
-                str = str.Substring(2);
-            byte[] outd = new byte[str.Length / 2];
-            for (var i = 0; i < str.Length / 2; i++)
-            {
-                outd[i] = byte.Parse(str.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber);
-            }
-            return outd;
         }
     }
 }

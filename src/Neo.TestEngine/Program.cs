@@ -236,9 +236,6 @@ namespace Neo.TestingEngine
                 Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
                 Engine.Instance.SetSigners(smartContractTest.signers);
 
-                Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
-                Engine.Instance.SetSigners(smartContractTest.signers);
-
                 if (smartContractTest.currentTx != null)
                 {
                     Engine.Instance.SetTxAttributes(smartContractTest.currentTx.Attributes);
