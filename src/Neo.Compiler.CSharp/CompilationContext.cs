@@ -23,7 +23,7 @@ namespace Neo.Compiler
     {
         private static readonly MetadataReference[] commonReferences;
         private readonly Compilation compilation;
-        private bool scTypeFound;
+        private HashSet<string> scTypesFounds = new();
         private readonly List<Diagnostic> diagnostics = new();
         private readonly HashSet<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
@@ -117,7 +117,7 @@ namespace Neo.Compiler
             }
             if (Success)
             {
-                if (!scTypeFound)
+                if (scTypesFounds.Count == 0)
                 {
                     diagnostics.Add(Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
                     return;
@@ -363,8 +363,8 @@ namespace Neo.Compiler
             bool isSmartContract = isPublic && !isAbstract && isContractType;
             if (isSmartContract)
             {
-                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
-                scTypeFound = true;
+                scTypesFounds.Add(symbol.ContainingNamespace + "." + symbol.Name);
+                if (scTypesFounds.Count != 1) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
                 foreach (var attribute in symbol.GetAttributes())
                 {
                     switch (attribute.AttributeClass!.Name)
