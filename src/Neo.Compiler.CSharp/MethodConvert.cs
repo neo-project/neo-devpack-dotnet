@@ -28,7 +28,7 @@ namespace Neo.Compiler
         private bool _inline;
         private bool _initslot;
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
-        private readonly List<ILocalSymbol> _variableSymbols = new();
+        private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
@@ -46,7 +46,7 @@ namespace Neo.Compiler
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
-        public IReadOnlyList<ILocalSymbol> Variables => _variableSymbols;
+        public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
 
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
@@ -56,8 +56,8 @@ namespace Neo.Compiler
 
         private byte AddLocalVariable(ILocalSymbol symbol)
         {
-            _variableSymbols.Add(symbol);
             byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+            _variableSymbols.Add((symbol, index));
             _localVariables.Add(symbol, index);
             if (_localsCount < index + 1)
                 _localsCount = index + 1;
@@ -72,6 +72,18 @@ namespace Neo.Compiler
             if (_localsCount < index + 1)
                 _localsCount = index + 1;
             return index;
+        }
+
+        private void RemoveAnonymousVariable(byte index)
+        {
+            if (!context.Options.NoOptimize)
+                _anonymousVariables.Remove(index);
+        }
+
+        private void RemoveLocalVariable(ILocalSymbol symbol)
+        {
+            if (!context.Options.NoOptimize)
+                _localVariables.Remove(symbol);
         }
 
         private Instruction AddInstruction(Instruction instruction)
@@ -526,7 +538,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.CloseBraceToken))
                 AddInstruction(OpCode.NOP);
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
-                _localVariables.Remove(symbol);
+                RemoveLocalVariable(symbol);
         }
 
         private void ConvertBreakStatement(BreakStatementSyntax syntax)
@@ -625,8 +637,8 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(iteratorIndex);
-            _localVariables.Remove(elementSymbol);
+            RemoveAnonymousVariable(iteratorIndex);
+            RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -673,10 +685,10 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPLT_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(arrayIndex);
-            _anonymousVariables.Remove(lengthIndex);
-            _anonymousVariables.Remove(iIndex);
-            _localVariables.Remove(elementSymbol);
+            RemoveAnonymousVariable(arrayIndex);
+            RemoveAnonymousVariable(lengthIndex);
+            RemoveAnonymousVariable(iIndex);
+            RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -736,10 +748,10 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(iteratorIndex);
+            RemoveAnonymousVariable(iteratorIndex);
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
-                    _localVariables.Remove(symbol);
+                    RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -798,12 +810,12 @@ namespace Neo.Compiler
                 Jump(OpCode.JMPLT_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(arrayIndex);
-            _anonymousVariables.Remove(lengthIndex);
-            _anonymousVariables.Remove(iIndex);
+            RemoveAnonymousVariable(arrayIndex);
+            RemoveAnonymousVariable(lengthIndex);
+            RemoveAnonymousVariable(iIndex);
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
-                    _localVariables.Remove(symbol);
+                    RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -854,7 +866,7 @@ namespace Neo.Compiler
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             foreach (var (_, symbol) in variables)
-                _localVariables.Remove(symbol);
+                RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
         }
@@ -1024,7 +1036,7 @@ namespace Neo.Compiler
                         throw new CompilationException(label, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {label}");
                 }
             }
-            _anonymousVariables.Remove(anonymousIndex);
+            RemoveAnonymousVariable(anonymousIndex);
             Jump(OpCode.JMP_L, breakTarget);
             foreach (var (_, statements, target) in sections)
             {
@@ -1079,9 +1091,9 @@ namespace Neo.Compiler
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
                 if (exceptionSymbol is null)
-                    _anonymousVariables.Remove(exceptionIndex);
+                    RemoveAnonymousVariable(exceptionIndex);
                 else
-                    _localVariables.Remove(exceptionSymbol);
+                    RemoveLocalVariable(exceptionSymbol);
                 _exceptionStack.Pop();
             }
             if (syntax.Finally is not null)
@@ -2624,7 +2636,7 @@ namespace Neo.Compiler
             ConvertExpression(model, expression.Expression);
             AccessSlot(OpCode.STLOC, anonymousIndex);
             ConvertPattern(model, expression.Pattern, anonymousIndex);
-            _anonymousVariables.Remove(anonymousIndex);
+            RemoveAnonymousVariable(anonymousIndex);
         }
 
         private void ConvertMemberAccessExpression(SemanticModel model, MemberAccessExpressionSyntax expression)
@@ -3157,7 +3169,7 @@ namespace Neo.Compiler
             AccessSlot(OpCode.LDLOC, anonymousIndex);
             AddInstruction(OpCode.THROW);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
-            _anonymousVariables.Remove(anonymousIndex);
+            RemoveAnonymousVariable(anonymousIndex);
         }
 
         private void ConvertPattern(SemanticModel model, PatternSyntax pattern, byte localIndex)
