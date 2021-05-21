@@ -105,14 +105,14 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(byte[] key);
 
-        public T Get<T>(ByteString key) where T : class, new()
+        public object GetObject(ByteString key)
         {
-            return (T)StdLib.Deserialize(Get(key));
+            return StdLib.Deserialize(Get(key));
         }
 
-        public T Get<T>(byte[] key) where T : class, new()
+        public object GetObject(byte[] key)
         {
-            return (T)StdLib.Deserialize(Get(key));
+            return StdLib.Deserialize(Get(key));
         }
 
         [CallingConvention(CallingConvention.Cdecl)]
@@ -197,12 +197,12 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Storage.Put")]
         public extern void Put(byte[] key, BigInteger value);
 
-        public void Put<T>(ByteString key, T value) where T : class, new()
+        public void PutObject(ByteString key, object value)
         {
             Put(key, StdLib.Serialize(value));
         }
 
-        public void Put<T>(byte[] key, T value) where T : class, new()
+        public void PutObject(byte[] key, object value)
         {
             Put(key, StdLib.Serialize(value));
         }

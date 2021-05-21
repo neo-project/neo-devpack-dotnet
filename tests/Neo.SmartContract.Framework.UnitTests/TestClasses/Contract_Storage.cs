@@ -117,8 +117,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var context = Storage.CurrentContext;
             var storage = new StorageMap(context, prefix);
             var val = new Value() { Val = value };
-            storage.Put(key, val);
-            val = storage.Get<Value>(key);
+            storage.PutObject(key, val);
+            val = (Value)storage.GetObject(key);
             return val.Val;
         }
 
