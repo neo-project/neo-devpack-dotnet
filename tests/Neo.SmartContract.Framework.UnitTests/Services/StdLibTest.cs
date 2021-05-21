@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
-            var item = result.Pop<VM.Types.ByteString>();
+            var item = result.Pop<VM.Types.Buffer>();
             Assert.AreEqual("test", item.GetString());
         }
 
