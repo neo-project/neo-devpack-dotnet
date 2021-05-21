@@ -41,6 +41,16 @@ namespace Neo.Compiler
             return method.IsAbstract || method.IsVirtual || method.IsOverride;
         }
 
+        public static bool IsInternalCoreMethod(this IMethodSymbol method)
+        {
+            return method.Name switch
+            {
+                "_initialize" => true,
+                "_deploy" => true,
+                _ => false,
+            };
+        }
+
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
             switch (type.ToString())
