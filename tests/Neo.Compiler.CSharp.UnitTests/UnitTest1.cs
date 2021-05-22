@@ -18,6 +18,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_InvalidNameMethodContracts()
+        {
+            var testengine = new TestEngine();
+            var context = testengine.AddEntryScript("./TestClasses/Contract_InvalidName.cs");
+            Assert.IsFalse(context.Success);
+            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.InvalidMethodName));
+        }
+
+        [TestMethod]
         public void Test_PrivateMethod()
         {
             var testengine = new TestEngine();
