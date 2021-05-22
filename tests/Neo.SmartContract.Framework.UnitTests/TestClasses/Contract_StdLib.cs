@@ -4,6 +4,16 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Binary : SmartContract
     {
+        public static string base58CheckEncode(ByteString input)
+        {
+            return StdLib.Base58CheckEncode(input);
+        }
+
+        public static byte[] base58CheckDecode(string input)
+        {
+            return (byte[])StdLib.Base58CheckDecode(input);
+        }
+
         public static byte[] base64Decode(string input)
         {
             return (byte[])StdLib.Base64Decode(input);
