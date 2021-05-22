@@ -139,6 +139,10 @@ namespace Neo.Compiler
                     case MethodKind.StaticConstructor:
                         ProcessStaticFields(model);
                         break;
+                    default:
+                        if (Symbol.Name.StartsWith("_") && !Helper.IsInternalCoreMethod(Symbol))
+                            throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
+                        break;
                 }
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
