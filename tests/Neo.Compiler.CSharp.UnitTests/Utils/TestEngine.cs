@@ -49,9 +49,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         {
         }
 
-        public CompilationContext AddEntryScript(string filename)
+        public CompilationContext AddEntryScript(params string[] files)
         {
-            CompilationContext context = CompilationContext.Compile(new[] { filename }, references, new Options
+            CompilationContext context = CompilationContext.Compile(files, references, new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion
             });
