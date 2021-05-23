@@ -101,6 +101,7 @@ namespace Neo.Compiler
 
         private void Compile()
         {
+            HashSet<INamedTypeSymbol> processed = new();
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
@@ -108,7 +109,7 @@ namespace Neo.Compiler
                 if (!Success) continue;
                 try
                 {
-                    ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
+                    ProcessCompilationUnit(processed, model, tree.GetCompilationUnitRoot());
                 }
                 catch (CompilationException ex)
                 {
@@ -338,22 +339,23 @@ namespace Neo.Compiler
                     yield return path;
         }
 
-        private void ProcessCompilationUnit(SemanticModel model, CompilationUnitSyntax syntax)
+        private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)
         {
             foreach (MemberDeclarationSyntax member in syntax.Members)
-                ProcessMemberDeclaration(model, member);
+                ProcessMemberDeclaration(processed, model, member);
         }
 
-        private void ProcessMemberDeclaration(SemanticModel model, MemberDeclarationSyntax syntax)
+        private void ProcessMemberDeclaration(HashSet<INamedTypeSymbol> processed, SemanticModel model, MemberDeclarationSyntax syntax)
         {
             switch (syntax)
             {
                 case NamespaceDeclarationSyntax @namespace:
                     foreach (MemberDeclarationSyntax member in @namespace.Members)
-                        ProcessMemberDeclaration(model, member);
+                        ProcessMemberDeclaration(processed, model, member);
                     break;
                 case ClassDeclarationSyntax @class:
-                    ProcessClass(model, model.GetDeclaredSymbol(@class)!);
+                    INamedTypeSymbol symbol = model.GetDeclaredSymbol(@class)!;
+                    if (processed.Add(symbol)) ProcessClass(model, symbol);
                     break;
             }
         }
