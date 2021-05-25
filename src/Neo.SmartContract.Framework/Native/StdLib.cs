@@ -25,6 +25,10 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern string Base58Encode(ByteString input);
 
+        public static extern string Base58CheckEncode(ByteString input);
+
+        public static extern ByteString Base58CheckDecode(string input);
+
         public static extern string Itoa(BigInteger value, int @base = 10);
 
         public static extern string Itoa(int value, int @base = 10);

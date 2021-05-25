@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework;
 
 namespace Neo
 {
-    public class UInt160 : ByteString
+    public abstract class UInt160 : ByteString
     {
         public static extern UInt160 Zero { [OpCode(OpCode.PUSHDATA1, "140000000000000000000000000000000000000000")] get; }
 

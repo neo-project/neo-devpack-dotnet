@@ -23,17 +23,17 @@ namespace Neo.TestingEngine
             Manifest = manifestJson;
         }
 
-        internal static BuildScript Build(string filename, List<MetadataReference> references = null)
+        internal static BuildScript Build(List<MetadataReference> references = null, params string[] files)
         {
             BuildScript script;
-            if (Path.GetExtension(filename).ToLowerInvariant() == ".nef")
+            if (files.Length == 1 && Path.GetExtension(files[0]).ToLowerInvariant() == ".nef")
             {
-                var fileNameManifest = filename;
+                var filename = files[0];
                 using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
                 {
                     NefFile neffile = new NefFile();
                     neffile.Deserialize(reader);
-                    fileNameManifest = fileNameManifest.Replace(".nef", ".manifest.json");
+                    var fileNameManifest = filename.Replace(".nef", ".manifest.json");
                     string manifestFile = File.ReadAllText(fileNameManifest);
                     script = new BuildScript(neffile, JObject.Parse(manifestFile))
                     {
@@ -55,11 +55,11 @@ namespace Neo.TestingEngine
                 CompilationContext context;
                 if (references != null && references.Count > 0)
                 {
-                    context = CompilationContext.CompileSources(new[] { filename }, references, options);
+                    context = CompilationContext.CompileSources(files, references, options);
                 }
                 else
                 {
-                    context = CompilationContext.CompileSources(new[] { filename }, options);
+                    context = CompilationContext.CompileSources(files, options);
                 }
 
                 if (context.Success)

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Copyright>2015-2021 The Neo Project</Copyright>
@@ -21,7 +21,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-rc2" />
+    <PackageReference Include="Neo" Version="3.0.0-CI01278" />
   </ItemGroup>
 
   <ItemGroup>

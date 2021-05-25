@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = new TestDataCache(null);
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
-            _engine.AddEntryScript("./TestClasses/Contract_StdLib.cs");
+            Assert.IsTrue(_engine.AddEntryScript("./TestClasses/Contract_StdLib.cs").Success);
             scriptHash = _engine.Nef.Script.ToScriptHash();
 
             snapshot.ContractAdd(new ContractState()
@@ -99,6 +99,30 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop<VM.Types.ByteString>();
             Assert.AreEqual("3yZe7d", item.GetString());
+        }
+
+        [TestMethod]
+        public void Base58CheckEncodeTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("base58CheckEncode", "test");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<VM.Types.ByteString>();
+            Assert.AreEqual("LUC1eAJa5jW", item.GetString());
+        }
+
+        [TestMethod]
+        public void Base58CheckDecodeTest()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("base58CheckDecode", "LUC1eAJa5jW");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop<VM.Types.Buffer>();
+            Assert.AreEqual("test", item.GetString());
         }
 
         [TestMethod]

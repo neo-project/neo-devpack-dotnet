@@ -20,5 +20,6 @@ namespace Neo.Compiler
         public const string AlignmentClause = "NC2012";
         public const string FormatClause = "NC2013";
         public const string InvalidInitialValueType = "NC3001";
+        public const string InvalidMethodName = "NC3002";
     }
 }
