@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Cryptography.ECC;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.VM;
 using Neo.VM.Types;
@@ -125,6 +126,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(500000000, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("NEO_GetAccountState", Contract.GetBFTAddress(ProtocolSettings.Default.StandbyCommittee).ToArray());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(500000000, ((Array)item)[0].GetInteger());
+            Assert.AreEqual(0, ((Array)item)[1].GetInteger());
+            Assert.AreEqual(0, ((Array)item)[2].GetInteger());
         }
 
         [TestMethod]
