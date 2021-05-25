@@ -128,15 +128,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(500000000, item.GetInteger());
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_GetAccountState", Contract.GetBFTAddress(ProtocolSettings.Default.StandbyCommittee).ToArray());
+            result = _engine.ExecuteTestCaseStandard("NEO_GetAccountState", account);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(500000000, ((Array)item)[0].GetInteger());
-            Assert.AreEqual(0, ((Array)item)[1].GetInteger());
-            Assert.AreEqual(0, ((Array)item)[2].GetInteger());
+            Assert.IsInstanceOfType(item, typeof(Null));
         }
 
         [TestMethod]
