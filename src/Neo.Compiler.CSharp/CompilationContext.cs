@@ -101,6 +101,7 @@ namespace Neo.Compiler
 
         private void Compile()
         {
+            HashSet<INamedTypeSymbol> processed = new();
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
@@ -108,7 +109,7 @@ namespace Neo.Compiler
                 if (!Success) continue;
                 try
                 {
-                    ProcessCompilationUnit(model, tree.GetCompilationUnitRoot());
+                    ProcessCompilationUnit(processed, model, tree.GetCompilationUnitRoot());
                 }
                 catch (CompilationException ex)
                 {
@@ -298,58 +299,63 @@ namespace Neo.Compiler
 
         public JObject CreateDebugInformation()
         {
-            SyntaxTree[] trees = compilation.SyntaxTrees.ToArray();
-            var staticVars = staticFields
-                .Select(p => (index: p.Value, name: p.Key.Name, type: p.Key.Type.GetContractParameterType()))
-                .Concat(vtables.Select(p => (index: p.Value, name: $"<{p.Key.Name}>__vtable", type: ContractParameterType.Any)))
-                .OrderBy(p => p.index);
-
+            string[] sourceLocations = GetSourceLocations(compilation).Distinct().ToArray();
             return new JObject
             {
                 ["hash"] = Script.ToScriptHash().ToString(),
-                ["documents"] = compilation.SyntaxTrees.Select(p => (JString)p.FilePath).ToArray(),
-                ["static-variables"] = staticVars.Select(p => (JString)$"{p.name},{p.type}").ToArray(),
+                ["documents"] = sourceLocations.Select(p => (JString)p).ToArray(),
+                ["static-variables"] = staticFields.OrderBy(p => p.Value).Select(p => (JString)$"{p.Key.Name},{p.Key.Type.GetContractParameterType()},{p.Value}").ToArray(),
                 ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
                 {
                     ["id"] = m.Symbol.ToString(),
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
                     ["params"] = (m.Symbol.IsStatic ? Array.Empty<JString>() : new JString[] { "this,Any" })
-                        .Concat(m.Symbol.Parameters.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}"))
+                        .Concat(m.Symbol.Parameters.Select((p, i) => (JString)$"{p.Name},{p.Type.GetContractParameterType()},{i}"))
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
-                    ["variables"] = m.Variables.Select(p => (JString)$"{p.Name},{p.Type.GetContractParameterType()}").ToArray(),
+                    ["variables"] = m.Variables.Select(p => (JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}").ToArray(),
                     ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
                     {
                         FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();
-                        return (JString)$"{p.Offset}[{Array.IndexOf(trees, p.SourceLocation.SourceTree)}]{span.StartLinePosition.Line + 1}:{span.StartLinePosition.Character + 1}-{span.EndLinePosition.Line + 1}:{span.EndLinePosition.Character + 1}";
+                        return (JString)$"{p.Offset}[{Array.IndexOf(sourceLocations, p.SourceLocation.SourceTree!.FilePath)}]{span.StartLinePosition.Line + 1}:{span.StartLinePosition.Character + 1}-{span.EndLinePosition.Line + 1}:{span.EndLinePosition.Character + 1}";
                     }).ToArray()
                 }).ToArray(),
                 ["events"] = eventsExported.Select(e => new JObject
                 {
                     ["id"] = e.Name,
                     ["name"] = $"{e.Symbol.ContainingType},{e.Symbol.Name}",
-                    ["params"] = e.Parameters.Select(p => (JString)$"{p.Name},{p.Type}").ToArray()
+                    ["params"] = e.Parameters.Select((p, i) => (JString)$"{p.Name},{p.Type},{i}").ToArray()
                 }).ToArray()
             };
         }
 
-        private void ProcessCompilationUnit(SemanticModel model, CompilationUnitSyntax syntax)
+        private static IEnumerable<string> GetSourceLocations(Compilation compilation)
         {
-            foreach (MemberDeclarationSyntax member in syntax.Members)
-                ProcessMemberDeclaration(model, member);
+            foreach (SyntaxTree syntaxTree in compilation.SyntaxTrees)
+                yield return syntaxTree.FilePath;
+            foreach (CompilationReference reference in compilation.References.OfType<CompilationReference>())
+                foreach (string path in GetSourceLocations(reference.Compilation))
+                    yield return path;
         }
 
-        private void ProcessMemberDeclaration(SemanticModel model, MemberDeclarationSyntax syntax)
+        private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)
+        {
+            foreach (MemberDeclarationSyntax member in syntax.Members)
+                ProcessMemberDeclaration(processed, model, member);
+        }
+
+        private void ProcessMemberDeclaration(HashSet<INamedTypeSymbol> processed, SemanticModel model, MemberDeclarationSyntax syntax)
         {
             switch (syntax)
             {
                 case NamespaceDeclarationSyntax @namespace:
                     foreach (MemberDeclarationSyntax member in @namespace.Members)
-                        ProcessMemberDeclaration(model, member);
+                        ProcessMemberDeclaration(processed, model, member);
                     break;
                 case ClassDeclarationSyntax @class:
-                    ProcessClass(model, model.GetDeclaredSymbol(@class)!);
+                    INamedTypeSymbol symbol = model.GetDeclaredSymbol(@class)!;
+                    if (processed.Add(symbol)) ProcessClass(model, symbol);
                     break;
             }
         }

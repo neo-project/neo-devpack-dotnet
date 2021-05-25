@@ -9,12 +9,34 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest1
     {
         [TestMethod]
+        public void Test_Partial()
+        {
+            var testengine = new TestEngine();
+            var context = testengine.AddEntryScript("./TestClasses/Contract_Partial.1.cs", "./TestClasses/Contract_Partial.2.cs");
+            Assert.IsTrue(context.Success);
+            var result = testengine.ExecuteTestCaseStandard("test1").Pop();
+            Assert.AreEqual(1, result.GetInteger());
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("test2").Pop();
+            Assert.AreEqual(2, result.GetInteger());
+        }
+
+        [TestMethod]
         public void Test_MultipleContracts()
         {
             var testengine = new TestEngine();
             var context = testengine.AddEntryScript("./TestClasses/Contract_Multiple.cs");
             Assert.IsFalse(context.Success);
             Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.MultiplyContracts));
+        }
+
+        [TestMethod]
+        public void Test_InvalidNameMethodContracts()
+        {
+            var testengine = new TestEngine();
+            var context = testengine.AddEntryScript("./TestClasses/Contract_InvalidName.cs");
+            Assert.IsFalse(context.Success);
+            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.InvalidMethodName));
         }
 
         [TestMethod]
