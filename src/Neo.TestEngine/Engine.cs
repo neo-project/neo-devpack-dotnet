@@ -213,9 +213,17 @@ namespace Neo.TestingEngine
             {
                 if (snapshot.Blocks().Count == 0)
                 {
-                    IncreaseBlockCount(0);
+                    // don't use genesis block as persisting block
+                    IncreaseBlockCount(1);
                 }
+
                 var lastBlock = snapshot.GetLastBlock();
+                if (lastBlock.Index == 0)
+                {
+                    // don't use genesis block as persisting block
+                    IncreaseBlockCount(1);
+                    lastBlock = snapshot.GetLastBlock();
+                }
 
                 engine.PersistingBlock.Header = lastBlock.Header;
                 engine.PersistingBlock.Transactions = lastBlock.Transactions;

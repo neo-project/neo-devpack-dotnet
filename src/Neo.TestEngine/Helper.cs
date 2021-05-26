@@ -1,6 +1,4 @@
-using Neo.IO.Caching;
 using Neo.IO.Json;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -9,7 +7,6 @@ using Neo.VM.Types;
 using System;
 using System.Linq;
 using Neo.IO;
-using System.Collections.Generic;
 using Neo.Persistence;
 
 namespace Neo.TestingEngine
@@ -24,6 +21,7 @@ namespace Neo.TestingEngine
             json["gasconsumed"] = (new BigDecimal((decimal)testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
             json["resultstack"] = testEngine.ResultStack.ToJson();
 
+            json["currentblock"] = testEngine.PersistingBlock.ToSimpleJson();
             if (testEngine.ScriptContainer is Transaction tx)
             {
                 json["transaction"] = tx.ToSimpleJson();
@@ -84,6 +82,16 @@ namespace Neo.TestingEngine
                 jsonStorage.Add(storageItem);
             }
             return jsonStorage;
+        }
+
+        public static JObject ToSimpleJson(this Block block)
+        {
+            JObject json = new JObject();
+            json["hash"] = block.Hash.ToString();
+            json["index"] = block.Index;
+            json["timestamp"] = block.Timestamp;
+            json["transactions"] = new JArray(block.Transactions.Select(tx => tx.ToSimpleJson()));
+            return json;
         }
 
         public static JObject ToSimpleJson(this Transaction tx)
