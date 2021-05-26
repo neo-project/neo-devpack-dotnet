@@ -443,7 +443,7 @@ namespace Neo.TestingEngine
             byte[] script;
             if (txJson.ContainsProperty("script"))
             {
-                script = txJson["script"].ToByteArray(false);
+                script = Convert.FromBase64String(txJson["script"].AsString());
             }
             else if (attributes.Any(attribute => attribute is OracleResponse oracleAttr))
             {

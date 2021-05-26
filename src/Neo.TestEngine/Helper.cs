@@ -88,13 +88,23 @@ namespace Neo.TestingEngine
 
         public static JObject ToSimpleJson(this Transaction tx)
         {
+            // build a tx with the mutable fields to have a consistent hash between program input and output
+            var simpleTx = new Transaction()
+            {
+                Signers = tx.Signers,
+                Witnesses = tx.Witnesses,
+                Attributes = tx.Attributes,
+                Script = tx.Script,
+                ValidUntilBlock = tx.ValidUntilBlock
+            };
+
             JObject json = new JObject();
-            json["hash"] = tx.Hash.ToString();
-            json["size"] = tx.Size;
-            json["signers"] = tx.Signers.Select(p => p.ToJson()).ToArray();
-            json["attributes"] = tx.Attributes.Select(p => p.ToJson()).ToArray();
-            json["script"] = Convert.ToBase64String(tx.Script);
-            json["witnesses"] = tx.Witnesses.Select(p => p.ToJson()).ToArray();
+            json["hash"] = simpleTx.Hash.ToString();
+            json["size"] = simpleTx.Size;
+            json["signers"] = simpleTx.Signers.Select(p => p.ToJson()).ToArray();
+            json["attributes"] = simpleTx.Attributes.Select(p => p.ToJson()).ToArray();
+            json["script"] = Convert.ToBase64String(simpleTx.Script);
+            json["witnesses"] = simpleTx.Witnesses.Select(p => p.ToJson()).ToArray();
             return json;
         }
 

@@ -258,7 +258,7 @@ namespace Neo.TestingEngine
             {
                 Attributes = new TransactionAttribute[0],
                 Script = new byte[0],
-                Signers = new Signer[] { new Signer() { Account = wallet.DefaultAccount.ScriptHash } },
+                Signers = new Signer[] { new Signer() { Account = wallet.DefaultAccount.ScriptHash, Scopes = WitnessScope.CalledByEntry } },
                 Witnesses = new Witness[0],
                 NetworkFee = 1,
                 Nonce = 2,
