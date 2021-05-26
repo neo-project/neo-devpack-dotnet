@@ -26,6 +26,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return NEO.BalanceOf(account);
         }
 
+        [DisplayName("NEO_GetAccountState")]
+        public static object NEO_GetAccountState(UInt160 account)
+        {
+            return NEO.GetAccountState(account);
+        }
+
         [DisplayName("NEO_GetGasPerBlock")]
         public static BigInteger NEO_GetGasPerBlock()
         {
