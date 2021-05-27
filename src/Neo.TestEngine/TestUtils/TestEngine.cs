@@ -141,7 +141,6 @@ namespace Neo.TestingEngine
             ExecuteTestCaseStandard(0, (ushort)rvcount, mockedNef, new StackItem[0]);
         }
 
-
         public void Reset()
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
