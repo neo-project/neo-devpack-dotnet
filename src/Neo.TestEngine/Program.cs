@@ -153,7 +153,6 @@ namespace Neo.TestingEngine
                 var methodName = json["method"].AsString();
                 var parameters = (JArray)json["arguments"];
 
-
                 SmartContractTest smartContractTestCase;
                 if (json.ContainsProperty("path") && json["path"].AsString().Length > 0)
                 {

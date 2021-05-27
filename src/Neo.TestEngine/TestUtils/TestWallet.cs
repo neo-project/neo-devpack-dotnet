@@ -42,16 +42,7 @@ namespace Neo.TestingEngine
             KeyPair key = new(privateKey);
             if (key.PublicKey.IsInfinity) throw new ArgumentException(null, nameof(privateKey));
 
-            Contract contract = new()
-            {
-                Script = Contract.CreateSignatureRedeemScript(key.PublicKey),
-                ParameterList = new[] { ContractParameterType.Signature }
-            };
-
-            var account = new TestAccount(contract.ScriptHash, privateKey)
-            {
-                Contract = contract
-            };
+            var account = new TestAccount(key);
             AddAccount(account);
             return account;
         }
