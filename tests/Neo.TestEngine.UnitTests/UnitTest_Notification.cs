@@ -38,8 +38,8 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsNull(result["error"]);
 
             // test state
-            Assert.IsTrue(result.ContainsProperty("vm_state"));
-            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+            Assert.IsTrue(result.ContainsProperty("vmstate"));
+            Assert.AreEqual(result["vmstate"].AsString(), VMState.HALT.ToString());
 
             // test result
             StackItem wantresult = 3;

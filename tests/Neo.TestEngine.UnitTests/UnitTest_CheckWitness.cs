@@ -46,8 +46,8 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsNull(result["error"]);
 
             // vm state must've faulted
-            Assert.IsTrue(result.ContainsProperty("vm_state"));
-            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+            Assert.IsTrue(result.ContainsProperty("vmstate"));
+            Assert.AreEqual(result["vmstate"].AsString(), VMState.HALT.ToString());
 
             // result stack must be empty
             StackItem wantresult = false;
@@ -73,7 +73,7 @@ namespace Neo.TestEngine.UnitTests
             json["path"] = "./TestClasses/Contract_CheckWitness.nef";
             json["method"] = "testWitness";
             json["arguments"] = new JArray() { param.ToJson() };
-            json["signerAccounts"] = new JArray() { scripthash.ToString() };
+            json["signeraccounts"] = new JArray() { scripthash.ToString() };
 
             var args = new string[] {
                 json.AsString()
@@ -85,8 +85,8 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsNull(result["error"]);
 
             // vm state must've faulted
-            Assert.IsTrue(result.ContainsProperty("vm_state"));
-            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+            Assert.IsTrue(result.ContainsProperty("vmstate"));
+            Assert.AreEqual(result["vmstate"].AsString(), VMState.HALT.ToString());
 
             // result stack must be empty
             StackItem wantresult = true;

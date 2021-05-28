@@ -17,7 +17,7 @@ namespace Neo.TestingEngine
         {
             var json = new JObject();
 
-            json["vm_state"] = testEngine.State.ToString();
+            json["vmstate"] = testEngine.State.ToString();
             json["gasconsumed"] = (new BigDecimal((decimal)testEngine.GasConsumed, NativeContract.GAS.Decimals)).ToString();
             json["resultstack"] = testEngine.ResultStack.ToJson();
 
@@ -106,14 +106,7 @@ namespace Neo.TestingEngine
                 ValidUntilBlock = tx.ValidUntilBlock
             };
 
-            JObject json = new JObject();
-            json["hash"] = simpleTx.Hash.ToString();
-            json["size"] = simpleTx.Size;
-            json["signers"] = simpleTx.Signers.Select(p => p.ToJson()).ToArray();
-            json["attributes"] = simpleTx.Attributes.Select(p => p.ToJson()).ToArray();
-            json["script"] = Convert.ToBase64String(simpleTx.Script);
-            json["witnesses"] = simpleTx.Witnesses.Select(p => p.ToJson()).ToArray();
-            return json;
+            return simpleTx.ToJson(ProtocolSettings.Default);
         }
 
         private static string GetExceptionMessage(Exception exception)

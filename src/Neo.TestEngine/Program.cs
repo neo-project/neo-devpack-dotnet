@@ -190,13 +190,13 @@ namespace Neo.TestingEngine
                 }
 
                 // set data for current tx
-                if (json.ContainsProperty("currentTx"))
+                if (json.ContainsProperty("currenttx"))
                 {
-                    smartContractTestCase.currentTx = TxFromJson(json["currentTx"]);
+                    smartContractTestCase.currentTx = TxFromJson(json["currenttx"]);
                 }
 
                 // tx signers
-                if (json.ContainsProperty("signerAccounts") && json["signerAccounts"] is JArray accounts)
+                if (json.ContainsProperty("signeraccounts") && json["signeraccounts"] is JArray accounts)
                 {
                     smartContractTestCase.signers = accounts.Select(p => UInt160.Parse(p.AsString())).ToArray();
                 }

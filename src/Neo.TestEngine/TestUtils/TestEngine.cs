@@ -125,16 +125,11 @@ namespace Neo.TestingEngine
 
         public void RunNativeContract(byte[] script, string method, StackItem[] parameters, CallFlags flags = CallFlags.All)
         {
-            VM.Types.Array paramsArray = new VM.Types.Array(parameters);
-            ByteString methodName = method;
-            Integer callFlag = (uint)flags;
-
-            var items = new StackItem[] { methodName, callFlag, paramsArray };
             var rvcount = GetMethodReturnCount(method);
-
             var contractScript = new TestScript(script);
-            var context = InvocationStack.Pop();
-            context = CreateContext(contractScript, rvcount, 0);
+
+            InvocationStack.Pop();
+            var context = CreateContext(contractScript, rvcount, 0);
             LoadContext(context);
 
             var mockedNef = new TestNefFile(script);

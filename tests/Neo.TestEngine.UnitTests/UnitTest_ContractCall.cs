@@ -43,8 +43,8 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsNull(result["error"]);
 
             // test state
-            Assert.IsTrue(result.ContainsProperty("vm_state"));
-            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+            Assert.IsTrue(result.ContainsProperty("vmstate"));
+            Assert.AreEqual(result["vmstate"].AsString(), VMState.HALT.ToString());
 
             // test result
             StackItem wantresult = new byte[] { 1, 2, 3, 4 };
@@ -81,8 +81,8 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsNull(result["error"]);
 
             // test state
-            Assert.IsTrue(result.ContainsProperty("vm_state"));
-            Assert.AreEqual(result["vm_state"].AsString(), VMState.HALT.ToString());
+            Assert.IsTrue(result.ContainsProperty("vmstate"));
+            Assert.AreEqual(result["vmstate"].AsString(), VMState.HALT.ToString());
 
             // test result
             Assert.IsTrue(result.ContainsProperty("resultstack"));
