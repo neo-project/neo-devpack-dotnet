@@ -16,7 +16,7 @@ namespace Neo.TestingEngine
         {
             JObject result = Run(args);
             Console.WriteLine(result);
-            if (!result.ContainsProperty("vm_state"))
+            if (!result.ContainsProperty("vmstate"))
             {
                 return -1;
             }
