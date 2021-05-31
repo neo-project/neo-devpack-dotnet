@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.4.194</Version>
+      <Version>3.4.205</Version>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
