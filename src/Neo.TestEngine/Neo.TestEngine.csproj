@@ -1,19 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2015-2021 The Neo Project</Copyright>
     <AssemblyTitle>Neo.TestEngine</AssemblyTitle>
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>rc2</VersionSuffix>
-    <Authors>The Neo Project</Authors>
-    <TargetFramework>net5.0</TargetFramework>
     <OutputType>Exe</OutputType>
+    <PackageId>Neo.TestEngine</PackageId>
+    <RootNamespace>Neo.TestingEngine</RootNamespace>
+    <Nullable>enable</Nullable>
     <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
-    <RootNamespace>Neo.TestingEngine</RootNamespace>
     <Company>The Neo Project</Company>
     <Product>TestingEngine</Product>
     <Description>TestingEngine</Description>
@@ -21,7 +18,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.0-CI01279" />
+    <PackageReference Include="Neo" Version="3.0.0-rc3" />
   </ItemGroup>
 
   <ItemGroup>
