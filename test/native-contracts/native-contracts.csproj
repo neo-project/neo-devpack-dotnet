@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\build-tasks\build-tasks.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>native_contracts</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- <Compile Remove="./out/*.cs" /> -->
+  </ItemGroup>
+
+</Project>
