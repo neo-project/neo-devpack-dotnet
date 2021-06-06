@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -131,8 +132,13 @@ namespace NeoTestHarness
                     return GetContractName(type.DeclaringType ?? throw new Exception("reflection IsNested DeclaringType returned null"));
                 }
 
-                var attrib = ContractAttribute.GetCustomAttribute(type, typeof(ContractAttribute)) as ContractAttribute;
-                return attrib?.Name ?? type.FullName ?? throw new Exception("reflection - FullName returned null");
+                var contractAttrib = ContractAttribute.GetCustomAttribute(type, typeof(ContractAttribute)) as ContractAttribute;
+                if (contractAttrib != null) return contractAttrib.Name;
+
+                var descriptionAttrib = ContractAttribute.GetCustomAttribute(type, typeof(DescriptionAttribute)) as DescriptionAttribute;
+                if (descriptionAttrib != null) return descriptionAttrib.Description;
+
+                throw new Exception("reflection - FullName returned null");
             }
         }
 
