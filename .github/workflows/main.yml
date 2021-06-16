@@ -113,6 +113,6 @@ jobs:
       if: steps.check_tag.outputs.statusCode == '404'
       run: |
         dotnet pack -o out -c Release
-        dotnet nuget push out/*.nupkg -s https://api.nuget.org/v3/index.json -k ${NUGET_TOKEN}
+        dotnet nuget push "out/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${NUGET_TOKEN}
       env:
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
