@@ -56,21 +56,26 @@ namespace Neo.TestEngine.UnitTests
             Assert.IsInstanceOfType(result["notifications"], typeof(JArray));
 
             var notifications = result["notifications"] as JArray;
-            Assert.IsTrue(notifications.Count == 2);
+            Assert.IsTrue(notifications.Count == 3);
 
+            // emitted Deploy notification when the contract was deployed
             Assert.IsTrue(notifications[0].ContainsProperty("value"));
             Assert.IsTrue(notifications[0].ContainsProperty("eventname"));
-            Assert.AreEqual(notifications[0]["eventname"].AsString(), "event");
-            Assert.IsTrue(notifications[0].ContainsProperty("value"));
-            var firstNotifications = notifications[0]["value"];
-            Assert.IsTrue(firstNotifications.ContainsProperty("value"));
-            Assert.AreEqual((firstNotifications["value"] as JArray)[0].AsString(), arg1.ToJson().ToString());
+            Assert.AreEqual(notifications[0]["eventname"].AsString(), "Deploy");
 
             Assert.IsTrue(notifications[1].ContainsProperty("value"));
             Assert.IsTrue(notifications[1].ContainsProperty("eventname"));
             Assert.AreEqual(notifications[1]["eventname"].AsString(), "event");
             Assert.IsTrue(notifications[1].ContainsProperty("value"));
-            var secondNotifications = notifications[1]["value"];
+            var firstNotifications = notifications[1]["value"];
+            Assert.IsTrue(firstNotifications.ContainsProperty("value"));
+            Assert.AreEqual((firstNotifications["value"] as JArray)[0].AsString(), arg1.ToJson().ToString());
+
+            Assert.IsTrue(notifications[2].ContainsProperty("value"));
+            Assert.IsTrue(notifications[2].ContainsProperty("eventname"));
+            Assert.AreEqual(notifications[2]["eventname"].AsString(), "event");
+            Assert.IsTrue(notifications[2].ContainsProperty("value"));
+            var secondNotifications = notifications[2]["value"];
             Assert.IsTrue(secondNotifications.ContainsProperty("value"));
             Assert.AreEqual((secondNotifications["value"] as JArray)[0].AsString(), arg2.ToJson().ToString());
         }

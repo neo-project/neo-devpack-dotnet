@@ -10,6 +10,8 @@ namespace Neo.TestingEngine
     public class BuildScript
     {
         public bool Success => !FromCompilation || (Context != null && Context.Success);
+
+        public UInt160 ScriptHash { get; private set; }
         public NefFile Nef { get; protected set; }
         public JObject Manifest { get; protected set; }
         public JObject DebugInfo { get; protected set; }
@@ -17,10 +19,16 @@ namespace Neo.TestingEngine
 
         private bool FromCompilation { get; set; }
 
-        public BuildScript(NefFile nefFile, JObject manifestJson)
+        public BuildScript(NefFile nefFile, JObject manifestJson, UInt160 originHash = null)
         {
             Nef = nefFile;
             Manifest = manifestJson;
+
+            if (originHash is null && nefFile != null)
+            {
+                originHash = Nef.Script.ToScriptHash();
+            }
+            ScriptHash = originHash;
         }
 
         internal static BuildScript Build(List<MetadataReference> references = null, params string[] files)

@@ -8,6 +8,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.Wallets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -80,22 +81,60 @@ namespace Neo.TestingEngine
                 ContractState state;
                 if (!snapshot.ContainsContract(hash))
                 {
-                    state = new ContractState()
+                    DeployContract(engine.ScriptContext);
+                    state = NativeContract.ContractManagement.GetContract(snapshot, hash);
+                    if (state is null)
                     {
-                        Id = snapshot.GetNextAvailableId(),
-                        Hash = hash,
-                        Nef = engine.Nef,
-                        Manifest = ContractManifest.FromJson(engine.Manifest),
-                    };
-                    snapshot.TryContractAdd(state);
+                        state = new ContractState()
+                        {
+                            Id = snapshot.GetNextAvailableId(),
+                            Hash = hash,
+                            Nef = engine.Nef,
+                            Manifest = ContractManifest.FromJson(engine.Manifest),
+                        };
+                        snapshot.TryContractAdd(state);
+                    }
                 }
                 else
                 {
                     state = NativeContract.ContractManagement.GetContract(snapshot, hash);
-                    engine.AddEntryScript(new BuildScript(state.Nef, state.Manifest.ToJson()));
+                    engine.AddEntryScript(new BuildScript(state.Nef, state.Manifest.ToJson(), hash));
                 }
             }
             return engine.ScriptContext;
+        }
+
+        private void DeployContract(BuildScript scriptContext)
+        {
+            var deploy_method_name = "deploy";
+            var deploy_args = new ContractParameter[]
+            {
+                new ContractParameter(ContractParameterType.ByteArray) {
+                    Value = scriptContext.Nef.ToArray()
+                },
+                new ContractParameter(ContractParameterType.ByteArray) {
+                    Value = scriptContext.Manifest.ToByteArray(false)
+                },
+                new ContractParameter(ContractParameterType.Any)
+            };
+
+            engine.AddEntryScript(NativeContract.ContractManagement.Hash);
+            byte[] script;
+            using (ScriptBuilder scriptBuilder = new ScriptBuilder())
+            {
+                scriptBuilder.EmitDynamicCall(NativeContract.ContractManagement.Hash, deploy_method_name, deploy_args);
+                script = scriptBuilder.ToArray();
+            }
+            var stackItemsArgs = deploy_args.Select(a => a.ToStackItem()).ToArray();
+            engine.RunNativeContract(script, deploy_method_name, stackItemsArgs);
+
+            if (engine.State == VMState.FAULT && engine.FaultException.Message?.StartsWith("Contract Already Exists") != true)
+            {
+                // deploying a contract already deployed is the only error expected to happen here
+                throw engine.FaultException;
+            }
+
+            engine.SetContext(scriptContext);
         }
 
         public Engine IncreaseBlockCount(uint newHeight)

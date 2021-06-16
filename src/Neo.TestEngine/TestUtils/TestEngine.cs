@@ -23,6 +23,9 @@ namespace Neo.TestingEngine
 
         private static readonly List<MetadataReference> references = new();
 
+        private long previousGasConsumed = 0;
+        public long GasConsumedByLastExecution => GasConsumed - previousGasConsumed;
+
         public NefFile Nef { get; private set; }
         public JObject Manifest { get; private set; }
         public JObject DebugInfo { get; private set; }
@@ -69,11 +72,20 @@ namespace Neo.TestingEngine
         public CompilationContext AddEntryScript(params string[] files)
         {
             ScriptContext = BuildScript.Build(references, files);
-            if (ScriptContext.Success)
+            SetContext(ScriptContext);
+
+            return ScriptContext.Context;
+        }
+
+        public CompilationContext SetContext(BuildScript context)
+        {
+            ScriptContext = context;
+
+            if (context.Success)
             {
-                Nef = ScriptContext.Nef;
-                Manifest = ScriptContext.Manifest;
-                DebugInfo = ScriptContext.DebugInfo;
+                Nef = context.Nef;
+                Manifest = context.Manifest;
+                DebugInfo = context.DebugInfo;
                 Reset();
             }
 
@@ -206,12 +218,14 @@ namespace Neo.TestingEngine
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
         {
+            previousGasConsumed = GasConsumed;
             var context = InvocationStack.Pop();
             context = CreateContext(context.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState() { Nef = contract };
+            contextState.ScriptHash = ScriptContext.ScriptHash;
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
