@@ -287,7 +287,7 @@ namespace Neo.Compiler
                         Push(value.HexToBytes(true));
                         break;
                     case ContractParameterType.Hash160:
-                        Push(value.ToScriptHash(context.Options.AddressVersion).ToArray());
+                        Push(UInt160.TryParse(value, out var hash) ? hash.ToArray() : value.ToScriptHash(context.Options.AddressVersion).ToArray());
                         break;
                     case ContractParameterType.PublicKey:
                         Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
