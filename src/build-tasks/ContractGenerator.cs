@@ -92,16 +92,16 @@ namespace Neo.BuildTasks
             static string ConvertParameterType(string parameterType) => parameterType switch
             {
                 "Any" => "object",
-                "Array" => "object[]",
+                "Array" => "Neo.VM.Types.Array",
                 "Boolean" => "bool",
                 "ByteArray" => "byte[]",
                 "Hash160" => "Neo.UInt160",
                 "Hash256" => "Neo.UInt256",
                 "Integer" => "System.Numerics.BigInteger",
-                "InteropInterface" => throw new InvalidOperationException("InteropInterface parameter type not supported"),
+                "InteropInterface" => "Neo.VM.Types.InteropInterface",
                 "PublicKey" => "Neo.Cryptography.ECC.ECPoint",
-                "Map" => throw new NotImplementedException("Map parameter type not implemented"),
-                "Signature" => throw new NotImplementedException("Signature parameter type not implemented"),
+                "Map" => "Neo.VM.Types.Map",
+                "Signature" => "Neo.VM.Types.ByteString",
                 "String" => "string",
                 "Void" => "void",
                 _ => throw new FormatException($"Invalid parameter type {parameterType}")
