@@ -42,7 +42,7 @@ namespace NeoTestHarness
         public static Script CreateScript<T>(this DataCache snapshot, params Expression<Action<T>>[] expressions)
             where T : class
         {
-            var scriptHash = snapshot.GetContractAddress<T>();
+            var scriptHash = snapshot.GetContractScriptHash<T>();
             using var builder = new ScriptBuilder();
             for (int i = 0; i < expressions.Length; i++)
             {
@@ -115,7 +115,7 @@ namespace NeoTestHarness
         public static BigInteger ToBigInteger(this StorageItem storageItem)
             => new BigInteger(storageItem.Value);
 
-        public static UInt160 GetContractAddress<T>(this DataCache snapshot)
+        public static UInt160 GetContractScriptHash<T>(this DataCache snapshot)
             where T : class
             => snapshot.GetContract<T>().Hash;
 

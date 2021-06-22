@@ -37,6 +37,8 @@ namespace Neo.Assertions
                     bool expectedBool => BeEquivalentTo(expectedBool, because, becauseArgs),
                     UInt160 expectedHash => BeEquivalentTo(expectedHash, because, becauseArgs),
                     UInt256 expectedHash => BeEquivalentTo(expectedHash, because, becauseArgs),
+                    byte[] expectedByteArray => BeEquivalentTo(expectedByteArray.AsSpan(), because, becauseArgs),
+                    ReadOnlyMemory<byte> expectedMemory => BeEquivalentTo(expectedMemory.Span, because, becauseArgs),
                     _ => UnsupportedType(expected)
                 };
             }
@@ -170,5 +172,28 @@ namespace Neo.Assertions
 
             return new AndConstraint<StackItemAssertions>(this);
         }
+
+        public AndConstraint<StackItemAssertions> BeEquivalentTo(ReadOnlySpan<byte> expected, string because = "", params object[] becauseArgs)
+        {
+            try
+            {
+                var span = Subject.GetSpan();
+
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .ForCondition(span.SequenceEqual(expected))
+                    .FailWith("Expected {context:StackItem} to be {0}{reason}, but found {1}.", 
+                        Convert.ToHexString(expected), Convert.ToHexString(span));
+            }
+            catch (Exception ex)
+            {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .FailWith("Expected {context:StackItem} to support GetString{reason}, but GetString failed with:{0}.", ex.Message);
+            }
+
+            return new AndConstraint<StackItemAssertions>(this);
+        }
+
     }
 }
