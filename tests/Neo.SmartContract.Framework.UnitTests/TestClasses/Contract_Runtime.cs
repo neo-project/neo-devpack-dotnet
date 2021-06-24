@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static ulong GetRandom()
         {
-            return Runtime.GetRandom;
+            return Runtime.GetRandom();
         }
 
         public static long GetGasLeft()

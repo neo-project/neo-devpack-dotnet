@@ -44,12 +44,6 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
-        public static extern ulong GetRandom
-        {
-            [Syscall("System.Runtime.GetRandom")]
-            get;
-        }
-
         public static extern uint InvocationCounter
         {
             [Syscall("System.Runtime.GetInvocationCounter")]
@@ -83,5 +77,8 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.BurnGas")]
         public static extern void BurnGas(long gas);
+
+        [Syscall("System.Runtime.GetRandom")]
+        public static extern ulong GetRandom();
     }
 }
