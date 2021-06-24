@@ -139,6 +139,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_Random()
+        {
+            var result = _engine.ExecuteTestCaseStandard("getRandom");
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((byte)0, item.GetInteger());
+        }
+
+        [TestMethod]
         public void Test_GasLeft()
         {
             var result = _engine.ExecuteTestCaseStandard("getGasLeft");
