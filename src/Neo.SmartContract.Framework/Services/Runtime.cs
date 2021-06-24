@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
-        public static extern ulong Random
+        public static extern ulong GetRandom
         {
             [Syscall("System.Runtime.GetRandom")]
             get;
