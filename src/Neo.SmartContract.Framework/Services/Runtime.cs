@@ -50,7 +50,6 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
-
         public static extern uint InvocationCounter
         {
             [Syscall("System.Runtime.GetInvocationCounter")]
