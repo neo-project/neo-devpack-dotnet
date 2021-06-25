@@ -81,7 +81,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         }
         public static string concatByteString(ByteString a, ByteString b)
         {
-            return a + b;
+            return (a + b) + a.Concat(b);
         }
     }
 }

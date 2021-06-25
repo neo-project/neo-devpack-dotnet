@@ -77,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("12", item.GetString());
+            Assert.AreEqual("1212", item.GetString());
         }
 
         [TestMethod]
