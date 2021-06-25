@@ -1,3 +1,4 @@
+using System.Numerics;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
@@ -14,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Runtime.Time;
         }
 
-        public static ulong GetRandom()
+        public static BigInteger GetRandom()
         {
             return Runtime.GetRandom();
         }
