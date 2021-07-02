@@ -10,6 +10,7 @@ using Neo.VM.Types;
 using System;
 using System.IO;
 using Neo.Wallets;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -146,7 +147,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((byte)0, item.GetInteger());
+            Assert.AreEqual(BigInteger.Parse("33807291057955110206057014245126331960"), item.GetInteger());
+        }
+
+        [TestMethod]
+        public void Test_GetNetwork()
+        {
+            var result = _engine.ExecuteTestCaseStandard("getNetwork");
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(BigInteger.Parse("5195086"), item.GetInteger());
         }
 
         [TestMethod]

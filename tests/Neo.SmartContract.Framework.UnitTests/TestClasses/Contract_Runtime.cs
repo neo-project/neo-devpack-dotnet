@@ -30,6 +30,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Runtime.Platform;
         }
 
+        public static uint GetNetwork()
+        {
+            return Runtime.GetNetwork();
+        }
+
         public static byte GetTrigger()
         {
             return (byte)Runtime.Trigger;

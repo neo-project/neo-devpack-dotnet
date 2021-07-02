@@ -82,5 +82,8 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.GetRandom")]
         public static extern BigInteger GetRandom();
+
+        [Syscall("System.Runtime.GetNetwork")]
+        public static extern uint GetNetwork();
     }
 }
