@@ -7,6 +7,7 @@ namespace Neo.SmartContract.Framework.Services
         public readonly UInt256 PrevHash;
         public readonly UInt256 MerkleRoot;
         public readonly ulong Timestamp;
+        public readonly ulong Nonce;
         public readonly uint Index;
         public readonly byte PrimaryIndex;
         public readonly UInt160 NextConsensus;
