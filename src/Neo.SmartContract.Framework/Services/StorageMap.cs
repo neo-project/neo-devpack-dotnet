@@ -107,12 +107,16 @@ namespace Neo.SmartContract.Framework.Services
 
         public object GetObject(ByteString key)
         {
-            return StdLib.Deserialize(Get(key));
+            ByteString value = Get(key);
+            if (value is null) return null;
+            return StdLib.Deserialize(value);
         }
 
         public object GetObject(byte[] key)
         {
-            return StdLib.Deserialize(Get(key));
+            ByteString value = Get(key);
+            if (value is null) return null;
+            return StdLib.Deserialize(value);
         }
 
         [CallingConvention(CallingConvention.Cdecl)]

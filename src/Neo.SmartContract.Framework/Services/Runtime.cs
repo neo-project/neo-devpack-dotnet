@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Neo.SmartContract.Framework.Services
 {
     public static class Runtime
@@ -77,5 +79,11 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.BurnGas")]
         public static extern void BurnGas(long gas);
+
+        [Syscall("System.Runtime.GetRandom")]
+        public static extern BigInteger GetRandom();
+
+        [Syscall("System.Runtime.GetNetwork")]
+        public static extern uint GetNetwork();
     }
 }

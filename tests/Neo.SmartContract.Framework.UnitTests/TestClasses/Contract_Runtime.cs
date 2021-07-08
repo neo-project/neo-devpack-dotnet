@@ -1,3 +1,4 @@
+using System.Numerics;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
@@ -14,6 +15,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Runtime.Time;
         }
 
+        public static BigInteger GetRandom()
+        {
+            return Runtime.GetRandom();
+        }
+
         public static long GetGasLeft()
         {
             return Runtime.GasLeft;
@@ -22,6 +28,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static string GetPlatform()
         {
             return Runtime.Platform;
+        }
+
+        public static uint GetNetwork()
+        {
+            return Runtime.GetNetwork();
         }
 
         public static byte GetTrigger()
