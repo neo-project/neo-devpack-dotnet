@@ -43,7 +43,6 @@ namespace Neo
         /// <summary>
         /// Converts the specified script hash to an address.
         /// </summary>
-        /// <param name="scriptHash">The script hash to convert.</param>
         /// <param name="version">The address version.</param>
         /// <returns>The converted address.</returns>
         public string ToAddress(byte version)
