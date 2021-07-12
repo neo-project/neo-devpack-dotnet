@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using Neo;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -77,6 +78,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             var tuple = ("neo", "smart economy");
             return tuple;
+        }
+        public static string toAddress(UInt160 address)
+        {
+            return address.ToAddress(53);
         }
     }
 }
