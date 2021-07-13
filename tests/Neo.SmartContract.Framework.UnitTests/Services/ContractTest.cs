@@ -21,7 +21,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var system = new NeoSystem(ProtocolSettings.Default);
             _engine = new TestEngine(verificable: new Transaction()
             {
-                Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } }
+                Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
+                Witnesses = System.Array.Empty<Witness>(),
+                Attributes = System.Array.Empty<TransactionAttribute>()
             },
             snapshot: new TestDataCache(system.GenesisBlock),
             persistingBlock: system.GenesisBlock);
