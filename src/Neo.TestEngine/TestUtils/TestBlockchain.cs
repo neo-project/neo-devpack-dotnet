@@ -97,6 +97,7 @@ namespace Neo.TestingEngine
                     Version = block.Version,
                     PrevHash = block.PrevHash,
                     MerkleRoot = block.MerkleRoot,
+                    Nonce = block.Nonce,
                     Timestamp = block.Timestamp,
                     Index = block.Index,
                     NextConsensus = block.NextConsensus,

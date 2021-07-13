@@ -345,6 +345,7 @@ namespace Neo.TestingEngine
                 {
                     Index = trimmedBlock.Index + 1,
                     Timestamp = trimmedBlock.Header.Timestamp + TestBlockchain.TheNeoSystem.Settings.MillisecondsPerBlock,
+                    Nonce = trimmedBlock.Header.Nonce,
                     Witness = new Witness()
                     {
                         InvocationScript = new byte[0],
