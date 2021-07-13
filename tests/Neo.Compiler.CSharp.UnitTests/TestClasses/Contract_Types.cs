@@ -79,9 +79,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var tuple = ("neo", "smart economy");
             return tuple;
         }
-        public static string toAddress(UInt160 address)
+        public static string toAddress(UInt160 address, byte version)
         {
-            return address.ToAddress(53);
+            return address.ToAddress(version);
         }
     }
 }
