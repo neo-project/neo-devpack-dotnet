@@ -47,9 +47,9 @@ namespace Neo
         /// <returns>The converted address.</returns>
         public string ToAddress(byte version)
         {
-            ByteString data = (ByteString)new byte[] { version };
-            data = data + (ByteString)this;
-            return StdLib.Base58CheckEncode(data);
+            byte[] data = { version };
+            data = Helper.Concat(data, this);
+            return StdLib.Base58CheckEncode((ByteString)data);
         }
     }
 }
