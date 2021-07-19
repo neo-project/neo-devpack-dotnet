@@ -104,6 +104,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void toAddress_Test()
+        {
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            var result = testengine.ExecuteTestCaseStandard("toAddress", "820944cfdc70976602d71b0091445eedbc661bc5".HexToBytes().Reverse().ToArray(), 53);
+            Assert.AreEqual("NdtB8RXRmJ7Nhw1FPTm7E6HoDZGnDw37nf", result.Pop().GetString());
+        }
+
+        [TestMethod]
         public void checkEnumArg_Test()
         {
             using var testengine = new TestEngine();
