@@ -1,4 +1,5 @@
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Native;
 
 namespace Neo
 {
@@ -38,5 +39,17 @@ namespace Neo
 
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt160 value);
+
+        /// <summary>
+        /// Converts the specified script hash to an address.
+        /// </summary>
+        /// <param name="version">The address version.</param>
+        /// <returns>The converted address.</returns>
+        public string ToAddress(byte version)
+        {
+            byte[] data = { version };
+            data = Helper.Concat(data, this);
+            return StdLib.Base58CheckEncode((ByteString)data);
+        }
     }
 }
