@@ -6,6 +6,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
+using Neo.VM;
 
 namespace Neo.TestingEngine
 {
@@ -17,8 +18,6 @@ namespace Neo.TestingEngine
         const byte Prefix_BlockHash = 9;
         const byte Prefix_Transaction = 11;
         const byte Prefix_CurrentBlock = 12;
-
-        const uint MaxStackSize = 2 * 1024;
 
         static TestBlockchain()
         {
@@ -153,12 +152,12 @@ namespace Neo.TestingEngine
             var item = snapshot.GetAndChange(key, () => new StorageItem());
 
             var hashIndex = new TestHashIndexState();
-            var stack = BinarySerializer.Deserialize(item.Value, MaxStackSize);
+            var stack = BinarySerializer.Deserialize(item.Value, ExecutionEngineLimits.Default);
             hashIndex.FromStackItem(stack);
             hashIndex.Hash = hash;
             hashIndex.Index = index;
 
-            item.Value = BinarySerializer.Serialize(hashIndex.ToStackItem(null), MaxStackSize);
+            item.Value = BinarySerializer.Serialize(hashIndex.ToStackItem(null), ExecutionEngineLimits.Default.MaxStackSize);
         }
 
         public static void TransactionAddOrUpdate(this DataCache snapshot, params TransactionState[] txs)
