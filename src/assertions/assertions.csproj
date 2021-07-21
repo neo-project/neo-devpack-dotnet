@@ -9,6 +9,6 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Neo" Version="3.0.0-rc3" />
+    <PackageReference Include="Neo" Version="3.0.0-rc4" />
   </ItemGroup>
 </Project>
