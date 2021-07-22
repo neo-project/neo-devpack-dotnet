@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
+using Neo;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -82,6 +83,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static string concatByteString(ByteString a, ByteString b)
         {
             return (a + b) + a.Concat(b);
+        }
+        public static string toAddress(UInt160 address, byte version)
+        {
+            return address.ToAddress(version);
         }
     }
 }
