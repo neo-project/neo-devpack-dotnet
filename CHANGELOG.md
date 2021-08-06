@@ -13,6 +13,12 @@ will not have contiguous patch numbers. Initial major and minor releases will be
 in this file without a patch number. Patch version will be included for bug fixes, but
 may not exactly match a publicly released version.
 
+## [3.0.3] - 2021-08-06
+
+### Changed
+
+* Update dependencies for Neo 3.0.2 release
+
 ## [3.0] - 2021-08-02
 
 ### Changed
