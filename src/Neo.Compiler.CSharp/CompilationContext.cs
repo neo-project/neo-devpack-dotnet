@@ -470,13 +470,6 @@ namespace Neo.Compiler
                     model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
                 }
 
-                foreach (var modifier in method.Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Modifier)))
-                {
-                    if (modifier.AttributeConstructor == null) continue;
-                    method.AddInstruction(VM.OpCode.PUSHNULL);
-                    method.Call(model, modifier.AttributeConstructor, false, Array.Empty<ArgumentSyntax>());
-                }
-
                 method.Convert(model);
             }
             return method;

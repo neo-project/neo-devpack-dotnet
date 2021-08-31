@@ -102,7 +102,7 @@ namespace Neo.Compiler
             return instruction;
         }
 
-        internal Instruction AddInstruction(OpCode opcode)
+        private Instruction AddInstruction(OpCode opcode)
         {
             return AddInstruction(new Instruction
             {
@@ -117,6 +117,13 @@ namespace Neo.Compiler
 
         public void Convert(SemanticModel model)
         {
+            foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Modifier)))
+            {
+                if (modifier.AttributeConstructor == null) continue;
+                AddInstruction(OpCode.PUSHNULL);
+                Call(model, modifier.AttributeConstructor, false, Array.Empty<ArgumentSyntax>());
+            }
+
             if (Symbol.IsExtern || Symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
             {
                 if (Symbol.Name == "_initialize")
@@ -3645,7 +3652,7 @@ namespace Neo.Compiler
             });
         }
 
-        internal void Call(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
+        private void Call(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
         {
             if (TryProcessSystemMethods(model, symbol, null, arguments))
                 return;
