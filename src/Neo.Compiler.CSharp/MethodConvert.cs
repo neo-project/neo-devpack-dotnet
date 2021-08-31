@@ -102,7 +102,7 @@ namespace Neo.Compiler
             return instruction;
         }
 
-        private Instruction AddInstruction(OpCode opcode)
+        internal Instruction AddInstruction(OpCode opcode)
         {
             return AddInstruction(new Instruction
             {
@@ -3645,7 +3645,7 @@ namespace Neo.Compiler
             });
         }
 
-        private void Call(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
+        internal void Call(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
         {
             if (TryProcessSystemMethods(model, symbol, null, arguments))
                 return;
