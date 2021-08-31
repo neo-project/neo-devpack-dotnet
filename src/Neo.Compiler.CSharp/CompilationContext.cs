@@ -469,7 +469,6 @@ namespace Neo.Compiler
                     ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
                     model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
                 }
-
                 method.Convert(model);
             }
             return method;
