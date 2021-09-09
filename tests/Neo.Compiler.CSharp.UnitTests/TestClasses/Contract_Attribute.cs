@@ -9,6 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public SampleAttribute() { }
     }
 
+    [DisplayName("attr")]
     public class Contract_Attribute : SmartContract.Framework.SmartContract
     {
         [SampleAttribute]
