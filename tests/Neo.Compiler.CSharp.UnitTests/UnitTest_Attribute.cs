@@ -20,6 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void test()
         {
             _engine.Reset();
+            Assert.AreEqual(_engine.Manifest["name"].GetString(), "attr");
             var result = _engine.ExecuteTestCaseStandard("test");
 
             Assert.AreEqual(VMState.HALT, _engine.State);
