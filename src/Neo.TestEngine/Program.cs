@@ -171,7 +171,11 @@ namespace Neo.TestingEngine
                 }
                 else
                 {
-                    var scriptHash = UInt160.Parse(json["scripthash"].AsString());
+                    if (!UInt160.TryParse(json["scripthash"].AsString(), out var scriptHash))
+                    {
+                        throw new FormatException(GetInvalidTypeMessage("UInt160", "scripthash"));
+                    }
+
                     smartContractTestCase = new SmartContractTest(scriptHash, methodName, parameters);
                 }
 
@@ -196,7 +200,10 @@ namespace Neo.TestingEngine
                 // set the current heigh
                 if (json.ContainsProperty("height"))
                 {
-                    smartContractTestCase.currentHeight = uint.Parse(json["height"].AsString());
+                    if (!uint.TryParse(json["height"].AsString(), out smartContractTestCase.currentHeight))
+                    {
+                        throw new FormatException(GetInvalidTypeMessage("uint", "height"));
+                    }
                 }
 
                 // set data for current tx
@@ -208,7 +215,14 @@ namespace Neo.TestingEngine
                 // tx signers
                 if (json.ContainsProperty("signeraccounts") && json["signeraccounts"] is JArray accounts)
                 {
-                    smartContractTestCase.signers = accounts.Select(p => UInt160.Parse(p.AsString())).ToArray();
+                    smartContractTestCase.signers = accounts.Select(p =>
+                    {
+                        if (!UInt160.TryParse(p.AsString(), out var newAccount))
+                        {
+                            throw new FormatException(GetInvalidTypeMessage("UInt160", "signeraccounts"));
+                        }
+                        return newAccount;
+                    }).ToArray();
                 }
                 return Run(smartContractTestCase);
             }
@@ -308,9 +322,14 @@ namespace Neo.TestingEngine
                 var key = (PrimitiveType)ContractParameter.FromJson(jsonKey["key"]).ToStackItem();
                 var value = ContractParameter.FromJson(jsonValue["value"]).ToStackItem();
 
+                if (!int.TryParse(jsonKey["id"].AsString(), out var storageKeyId))
+                {
+                    throw new FormatException(GetInvalidTypeMessage("int", "storageKeyId"));
+                }
+
                 var storageKey = new StorageKey()
                 {
-                    Id = int.Parse(jsonKey["id"].AsString()),
+                    Id = storageKeyId,
                     Key = key.GetSpan().ToArray()
                 };
 
@@ -394,12 +413,22 @@ namespace Neo.TestingEngine
         private static Block BlockFromJson(JObject blockJson)
         {
             var transactions = blockJson["transactions"] as JArray;
+
+            if (!uint.TryParse(blockJson["index"].AsString(), out var blockIndex))
+            {
+                throw new FormatException(GetInvalidTypeMessage("uint", "blockIndex"));
+            }
+            if (!ulong.TryParse(blockJson["timestamp"].AsString(), out var blockTimestamp))
+            {
+                throw new FormatException(GetInvalidTypeMessage("ulong", "blockTimestamp"));
+            }
+
             return new Block()
             {
                 Header = new Header()
                 {
-                    Index = uint.Parse(blockJson["index"].AsString()),
-                    Timestamp = ulong.Parse(blockJson["timestamp"].AsString())
+                    Index = blockIndex,
+                    Timestamp = blockTimestamp
                 },
                 Transactions = transactions.Select(b => TxFromJson(b)).ToArray()
             };
@@ -413,10 +442,18 @@ namespace Neo.TestingEngine
 
             if (txJson.ContainsProperty("signers") && txJson["signers"] is JArray signersJson)
             {
-                accounts = signersJson.Select(p => new Signer()
+                accounts = signersJson.Select(p =>
                 {
-                    Account = UInt160.Parse(p["account"].AsString()),
-                    Scopes = WitnessScope.CalledByEntry
+                    if (!UInt160.TryParse(p["account"].AsString(), out var signerAccount))
+                    {
+                        throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
+                    }
+
+                    return new Signer()
+                    {
+                        Account = signerAccount,
+                        Scopes = WitnessScope.CalledByEntry
+                    };
                 }).ToArray();
             }
             else
@@ -490,12 +527,16 @@ namespace Neo.TestingEngine
 
                     if (!Enum.TryParse<OracleResponseCode>(txAttributeJson["code"].AsString(), out var responseCode))
                     {
-                        throw new ArgumentException();
+                        throw new ArgumentException(GetInvalidTypeMessage("OracleResponseCode", "oracleResponseCode"));
+                    }
+                    if (!ulong.TryParse(txAttributeJson["id"].AsString(), out var oracleId))
+                    {
+                        throw new ArgumentException(GetInvalidTypeMessage("ulong", "oracleResponseId"));
                     }
 
                     return new OracleResponse()
                     {
-                        Id = ulong.Parse(txAttributeJson["id"].AsString()),
+                        Id = oracleId,
                         Code = responseCode,
                         Result = Convert.FromBase64String(txAttributeJson["result"].AsString())
                     };
@@ -526,6 +567,18 @@ namespace Neo.TestingEngine
             var json = new JObject();
             json["error"] = message;
             return json;
+        }
+
+        private static string GetInvalidTypeMessage(string expectedType, string argumentId = null)
+        {
+            if (argumentId is null)
+            {
+                return $"Invalid value were given. Expected {expectedType}";
+            }
+            else
+            {
+                return $"Invalid value for {argumentId}. Expected {expectedType}";
+            }
         }
     }
 }
