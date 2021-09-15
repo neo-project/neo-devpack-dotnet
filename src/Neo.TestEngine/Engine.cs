@@ -190,16 +190,15 @@ namespace Neo.TestingEngine
             return this;
         }
 
-        public Engine SetSigners(UInt160[] signerAccounts)
+        public Engine SetSigners(Signer[] signers)
         {
-            if (signerAccounts.Length > 0)
+            if (signers.Length > 0)
             {
                 var newSigners = new List<Signer>();
-                foreach (var account in signerAccounts)
+                foreach (var signer in signers)
                 {
-                    var signer = new Signer() { Account = account, Scopes = WitnessScope.CalledByEntry };
                     newSigners.Add(signer);
-                    wallet.AddSignerAccount(account);
+                    wallet.AddSignerAccount(signer.Account);
                 }
                 currentTx.Signers = newSigners.Concat(currentTx.Signers).ToArray();
             }

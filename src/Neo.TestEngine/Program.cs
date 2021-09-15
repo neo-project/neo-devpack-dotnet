@@ -215,13 +215,28 @@ namespace Neo.TestingEngine
                 // tx signers
                 if (json.ContainsProperty("signeraccounts") && json["signeraccounts"] is JArray accounts)
                 {
-                    smartContractTestCase.signers = accounts.Select(p =>
+                    smartContractTestCase.signers = accounts.Select(accountJson =>
                     {
-                        if (!UInt160.TryParse(p.AsString(), out var newAccount))
+                        if (!UInt160.TryParse(accountJson["account"].AsString(), out var newAccount))
                         {
                             throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
                         }
-                        return newAccount;
+
+                        WitnessScope scopes;
+                        if (!accountJson.ContainsProperty("scopes"))
+                        {
+                            scopes = WitnessScope.CalledByEntry;
+                        }
+                        else if (!Enum.TryParse(accountJson["scopes"].AsString(), out scopes))
+                        {
+                            throw new FormatException(GetInvalidTypeMessage("WitnessScope", "signerScope"));
+                        }
+
+                        return new Signer()
+                        {
+                            Account = newAccount,
+                            Scopes = scopes
+                        };
                     }).ToArray();
                 }
                 return Run(smartContractTestCase);

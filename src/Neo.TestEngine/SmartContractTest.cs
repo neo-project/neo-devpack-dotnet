@@ -24,7 +24,7 @@ namespace Neo.TestingEngine
         public Dictionary<StorageKey, StorageItem> storage;
         public List<TestContract> contracts;
         public uint currentHeight = 0;
-        public UInt160[] signers;
+        public Signer[] signers;
         public Block[] blocks;
         public Transaction currentTx;
 
@@ -44,7 +44,7 @@ namespace Neo.TestingEngine
             methodParameters = parameters;
             storage = new Dictionary<StorageKey, StorageItem>();
             contracts = new List<TestContract>();
-            signers = new UInt160[] { };
+            signers = new Signer[] { };
             blocks = new Block[] { };
         }
     }
