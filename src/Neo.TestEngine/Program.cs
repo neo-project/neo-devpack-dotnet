@@ -219,7 +219,7 @@ namespace Neo.TestingEngine
                     {
                         if (!UInt160.TryParse(p.AsString(), out var newAccount))
                         {
-                            throw new FormatException(GetInvalidTypeMessage("UInt160", "signeraccounts"));
+                            throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
                         }
                         return newAccount;
                     }).ToArray();
