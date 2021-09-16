@@ -73,7 +73,10 @@ namespace Neo.TestEngine.UnitTests
             json["path"] = "./TestClasses/Contract_CheckWitness.nef";
             json["method"] = "testWitness";
             json["arguments"] = new JArray() { param.ToJson() };
-            json["signeraccounts"] = new JArray() { scripthash.ToString() };
+
+            var signer = new JObject();
+            signer["account"] = scripthash.ToString();
+            json["signeraccounts"] = new JArray() { signer };
 
             var args = new string[] {
                 json.AsString()
