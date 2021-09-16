@@ -408,8 +408,8 @@ namespace Neo.Compiler
                         case nameof(scfx.Neo.SmartContract.Framework.ContractSourceCodeAttribute):
                             SourceCodeURL ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ContractVersionAttribute):
-                            Version ??= (string)attribute.ConstructorArguments[0].Value!;
+                        case nameof(scfx.Neo.SmartContract.Framework.CompilerVersionAttribute):
+                            CompilerVersion ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
