@@ -11,6 +11,7 @@ namespace ProjectName
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("Email", "dev@neo.org")]
     [ManifestExtra("Description", "This is a contract example")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
     public class Contract1 : SmartContract
     {
         //TODO: Replace it with your own address.
