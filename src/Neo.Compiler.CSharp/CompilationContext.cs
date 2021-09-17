@@ -51,8 +51,7 @@ namespace Neo.Compiler
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName { get; private set; }
-        public string? SourceCodeURL { get; private set; }
-        public string? CompilerVersion { get; private set; }
+        public string? Source { get; private set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
@@ -241,7 +240,8 @@ namespace Neo.Compiler
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
                 Tokens = methodTokens.ToArray(),
-                Script = Script
+                Script = Script,
+                Source = Source,
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
@@ -287,8 +287,6 @@ namespace Neo.Compiler
                 ["groups"] = new JArray(),
                 ["features"] = new JObject(),
                 ["supportedstandards"] = supportedStandards.OrderBy(p => p).Select(p => (JString)p).ToArray(),
-                ["sourcecode"] = SourceCodeURL,
-                ["compilerversion"] = CompilerVersion,
                 ["abi"] = new JObject
                 {
                     ["methods"] = methodsExported.Select(p => new JObject
@@ -406,10 +404,7 @@ namespace Neo.Compiler
                             trusts.Add(trust);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.ContractSourceCodeAttribute):
-                            SourceCodeURL ??= (string)attribute.ConstructorArguments[0].Value!;
-                            break;
-                        case nameof(scfx.Neo.SmartContract.Framework.CompilerVersionAttribute):
-                            CompilerVersion ??= (string)attribute.ConstructorArguments[0].Value!;
+                            Source ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
