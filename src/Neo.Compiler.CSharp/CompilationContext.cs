@@ -409,7 +409,6 @@ namespace Neo.Compiler
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
                             break;
-
                     }
                 }
                 ContractName ??= symbol.Name;
