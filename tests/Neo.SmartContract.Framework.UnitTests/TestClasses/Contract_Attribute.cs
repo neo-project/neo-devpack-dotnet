@@ -5,7 +5,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class OnlyOwner : Modifier
     {
-        public OnlyOwner()
+        public OwnerOnly()
+
         {
             UInt160 owner = (UInt160)new byte[20];
             if (!Runtime.CheckWitness(owner)) throw new System.Exception();
