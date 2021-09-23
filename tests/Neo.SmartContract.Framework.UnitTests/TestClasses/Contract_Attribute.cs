@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class OnlyOwner : Modifier
+    public class OwnerOnly : Modifier
     {
         public OwnerOnly()
 
@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
     public class Contract_Attribute : SmartContract
     {
-        [OnlyOwner]
+        [OwnerOnly]
         public static bool test()
         {
             return true;
