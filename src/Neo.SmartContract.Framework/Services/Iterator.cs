@@ -8,6 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
