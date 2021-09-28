@@ -10,7 +10,7 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, AllowMultiple = true)]
     public class SyscallAttribute : Attribute

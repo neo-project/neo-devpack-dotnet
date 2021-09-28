@@ -10,7 +10,7 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ContractPermissionAttribute : Attribute

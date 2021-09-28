@@ -11,7 +11,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor)]
     class CallingConventionAttribute : Attribute

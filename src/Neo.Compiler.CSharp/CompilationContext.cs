@@ -391,22 +391,22 @@ namespace Neo.Compiler
                         case nameof(DisplayNameAttribute):
                             ContractName ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ManifestExtraAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ManifestExtraAttribute):
                             manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ContractPermissionAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractPermissionAttribute):
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ContractTrustAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractTrustAttribute):
                             string trust = (string)attribute.ConstructorArguments[0].Value!;
                             if (!ValidateContractTrust(trust))
                                 throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
                             trusts.Add(trust);
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ContractSourceCodeAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
                             Source ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
                             break;
                     }
