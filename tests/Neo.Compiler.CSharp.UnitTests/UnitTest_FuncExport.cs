@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract;
-using scfx::Neo.SmartContract.Framework;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System.IO;
 using System.Linq;
 using System.Numerics;

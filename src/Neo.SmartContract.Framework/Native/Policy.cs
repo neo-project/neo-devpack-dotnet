@@ -10,6 +10,8 @@
 
 #pragma warning disable CS0626
 
+using Neo.SmartContract.Framework.Attributes;
+
 namespace Neo.SmartContract.Framework.Native
 {
     [Contract("0xcc5e4edd9f5f8dba8bb65734541df7a1c081c67b")]

@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
+using SyscallAttribute = scfx.Neo.SmartContract.Framework.Attributes.SyscallAttribute;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {

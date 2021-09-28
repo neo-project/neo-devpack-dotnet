@@ -9,13 +9,14 @@
 // modifications are permitted.
 
 using System;
+using System.Runtime.InteropServices;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, AllowMultiple = true)]
-    public class SyscallAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor)]
+    class CallingConventionAttribute : Attribute
     {
-        public SyscallAttribute(string method)
+        public CallingConventionAttribute(CallingConvention callingConvention)
         {
         }
     }
