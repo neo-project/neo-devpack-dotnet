@@ -51,7 +51,7 @@ namespace Neo.Compiler
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName { get; private set; }
-        public string? Source { get; private set; }
+        private string? Source { get; set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
@@ -239,7 +239,7 @@ namespace Neo.Compiler
             NefFile nef = new()
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
-                Source = Source,
+                Source = Source ?? string.Empty,
                 Tokens = methodTokens.ToArray(),
                 Script = Script
             };
@@ -391,6 +391,9 @@ namespace Neo.Compiler
                         case nameof(DisplayNameAttribute):
                             ContractName ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
+                            Source = (string)attribute.ConstructorArguments[0].Value!;
+                            break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.ManifestExtraAttribute):
                             manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
@@ -402,9 +405,6 @@ namespace Neo.Compiler
                             if (!ValidateContractTrust(trust))
                                 throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
                             trusts.Add(trust);
-                            break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
-                            Source ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
