@@ -239,9 +239,9 @@ namespace Neo.Compiler
             NefFile nef = new()
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
-                Tokens = methodTokens.ToArray(),
-                Script = Script,
                 Source = Source,
+                Tokens = methodTokens.ToArray(),
+                Script = Script
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
