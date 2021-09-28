@@ -19,10 +19,4 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Attributes\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Attributes\" />
-  </ItemGroup>
 </Project>
