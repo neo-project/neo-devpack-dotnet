@@ -69,8 +69,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetInteger());
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual(manifest.Name, item.GetString());
 
             // Destroy
 
@@ -132,6 +132,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Call & Update
 
             Console.WriteLine("Update");
+            manifestUpdate.Name += "_updated";
             _engine.Reset();
             nef.Script = engine.Nef.Script;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
@@ -141,8 +142,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetInteger());
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual(manifest.Name, item.GetString());
 
             // Call Again
 
@@ -153,8 +154,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, result.Count);
 
             item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(124, item.GetInteger());
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual(manifest.Name, item.GetString());
 
             // Check again for failures
 
