@@ -10,13 +10,10 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class SupportedStandardsAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class SafeAttribute : Attribute
     {
-        public SupportedStandardsAttribute(params string[] supportedStandards)
-        {
-        }
     }
 }

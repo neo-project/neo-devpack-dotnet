@@ -10,12 +10,12 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class ContractTrustAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class ContractSourceCodeAttribute : Attribute
     {
-        public ContractTrustAttribute(string contractOrGroup)
+        public ContractSourceCodeAttribute(string url)
         {
         }
     }

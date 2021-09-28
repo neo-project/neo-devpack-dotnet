@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework.Attributes;
+
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     [ManifestExtra("Author", "Neo")]
