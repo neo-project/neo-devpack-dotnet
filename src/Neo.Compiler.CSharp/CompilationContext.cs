@@ -47,6 +47,7 @@ namespace Neo.Compiler
         private readonly Dictionary<IFieldSymbol, byte> staticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> vtables = new();
         private byte[]? script;
+        private string sourceUrl = string.Empty;
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
@@ -239,7 +240,8 @@ namespace Neo.Compiler
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
                 Tokens = methodTokens.ToArray(),
-                Script = Script
+                Script = Script,
+                Source = sourceUrl,
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return nef;
@@ -403,6 +405,9 @@ namespace Neo.Compiler
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.ContractUrlAttribute):
+                            sourceUrl = attribute.ConstructorArguments[0].Value as string ?? String.Empty;
                             break;
                     }
                 }

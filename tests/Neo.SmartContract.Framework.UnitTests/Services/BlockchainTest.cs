@@ -370,7 +370,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 {
                     Script = new byte[] { 0x01, 0x02, 0x03 },
                     Compiler = "neon-test",
-                    Tokens = System.Array.Empty<MethodToken>()
+                    Tokens = System.Array.Empty<MethodToken>(),
+                    Source = string.Empty,
                 },
                 Manifest = new ContractManifest()
                 {
