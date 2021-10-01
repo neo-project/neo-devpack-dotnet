@@ -7,7 +7,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     {
         public static string NewContract()
         {
-            Policy.GetFeePerByte();
             return ContractManagement.GetContract(Runtime.ExecutingScriptHash).Manifest.Name;
         }
     }
