@@ -39,7 +39,7 @@ namespace NeoTestHarness
             }
             while (Directory.Exists(checkpointTempPath));
 
-            var metadata = RocksDbStorageProvider.RestoreCheckpoint(checkpointPath, checkpointTempPath);
+            var metadata = RocksDbUtility.RestoreCheckpoint(checkpointPath, checkpointTempPath);
             this.ProtocolSettings = ProtocolSettings.Default with
             {
                 Network = metadata.magic,
@@ -55,7 +55,7 @@ namespace NeoTestHarness
         }
 
         public CheckpointStorageProvider GetStorageProvider()
-            => new CheckpointStorageProvider(rocksProvider, disposeRocksDbProvider: false);
+            => new CheckpointStorageProvider(rocksProvider, disposeStorageProvider: false);
 
         public ExpressChain FindChain(string fileName = Constants.DEFAULT_EXPRESS_FILENAME, IFileSystem? fileSystem = null, string? searchFolder = null)
             => (fileSystem ?? defaultFileSystem.Value).FindChain(fileName, searchFolder);

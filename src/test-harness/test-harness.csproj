@@ -8,6 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Neo.BlockchainToolkit.Library" Version="3.0.4" />
+    <PackageReference Include="Neo.BlockchainToolkit.Library" Version="3.0.13" />
   </ItemGroup>
 </Project>
