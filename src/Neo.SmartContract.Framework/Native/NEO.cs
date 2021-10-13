@@ -11,6 +11,7 @@
 #pragma warning disable CS0626
 
 using Neo.Cryptography.ECC;
+using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Native

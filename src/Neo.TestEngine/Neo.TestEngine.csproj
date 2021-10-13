@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyTitle>Neo.TestEngine</AssemblyTitle>
@@ -18,7 +18,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.0.2" />
+    <PackageReference Include="Neo" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>

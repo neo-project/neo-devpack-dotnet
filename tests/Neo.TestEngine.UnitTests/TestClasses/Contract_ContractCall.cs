@@ -1,4 +1,5 @@
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.TestEngine.UnitTests.TestClasses
 {

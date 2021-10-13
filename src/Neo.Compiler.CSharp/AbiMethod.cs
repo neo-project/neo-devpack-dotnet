@@ -27,7 +27,7 @@ namespace Neo.Compiler
             : base(symbol, symbol.GetDisplayName(true), symbol.Parameters.Select(p => p.ToAbiParameter()).ToArray())
         {
             Symbol = symbol;
-            Safe = symbol.GetAttributes().Any(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.SafeAttribute));
+            Safe = symbol.GetAttributes().Any(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
             ReturnType = symbol.ReturnType.GetContractParameterType();
         }
     }

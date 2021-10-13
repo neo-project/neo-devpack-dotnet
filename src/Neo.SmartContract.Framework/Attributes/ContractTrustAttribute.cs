@@ -10,10 +10,13 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class SafeAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class ContractTrustAttribute : Attribute
     {
+        public ContractTrustAttribute(string contractOrGroup)
+        {
+        }
     }
 }

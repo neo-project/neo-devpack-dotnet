@@ -11,6 +11,7 @@
 #pragma warning disable CS0169
 #pragma warning disable IDE0051
 
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using System.Numerics;
 using System.Runtime.InteropServices;

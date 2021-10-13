@@ -10,12 +10,12 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    public class InitialValueAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, AllowMultiple = true)]
+    public class SyscallAttribute : Attribute
     {
-        public InitialValueAttribute(string value, ContractParameterType type)
+        public SyscallAttribute(string method)
         {
         }
     }
