@@ -1970,9 +1970,40 @@ namespace Neo.Compiler
             bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
             if (needCreateObject)
             {
-                CreateObject(model, type, expression.Initializer);
+                CreateObject(model, type, null);
             }
             Call(model, constructor, needCreateObject, arguments);
+            if (expression.Initializer is not null)
+            {
+                ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+            }
+        }
+
+        private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
+        {
+            foreach (ExpressionSyntax e in initializer.Expressions)
+            {
+                if (e is not AssignmentExpressionSyntax ae)
+                    throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
+                switch (symbol)
+                {
+                    case IFieldSymbol field:
+                        AddInstruction(OpCode.DUP);
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        Push(index);
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.SETITEM);
+                        break;
+                    case IPropertySymbol property:
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.OVER);
+                        Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                        break;
+                    default:
+                        throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                }
+            }
         }
 
         private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
