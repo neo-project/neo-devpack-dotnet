@@ -1,3 +1,13 @@
+// Copyright (C) 2015-2021 The Neo Project.
+// 
+// The Neo.Compiler.CSharp is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
@@ -249,7 +259,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.InitialValueAttribute));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -324,7 +334,7 @@ namespace Neo.Compiler
         private void ConvertExtern()
         {
             _inline = true;
-            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.ContractAttribute));
+            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractAttribute));
             if (contractAttribute is null)
             {
                 bool emitted = false;
@@ -332,7 +342,7 @@ namespace Neo.Compiler
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
-                        case nameof(scfx.Neo.SmartContract.Framework.OpCodeAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.OpCodeAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -344,7 +354,7 @@ namespace Neo.Compiler
                                 Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes(true)
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.SyscallAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.SyscallAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -356,7 +366,7 @@ namespace Neo.Compiler
                                 Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.CallingConventionAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.CallingConventionAttribute):
                             emitted = true;
                             _callingConvention = (CallingConvention)attribute.ConstructorArguments[0].Value!;
                             break;
@@ -367,7 +377,7 @@ namespace Neo.Compiler
             else
             {
                 UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
-                AttributeData? attribute = Symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.ContractHashAttribute));
+                AttributeData? attribute = Symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractHashAttribute));
                 if (attribute is null)
                 {
                     string method = Symbol.GetDisplayName(true);

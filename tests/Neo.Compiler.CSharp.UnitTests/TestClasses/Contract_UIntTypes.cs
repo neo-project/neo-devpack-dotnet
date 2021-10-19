@@ -1,5 +1,6 @@
 using Neo.SmartContract;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {

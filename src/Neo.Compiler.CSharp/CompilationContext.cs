@@ -1,3 +1,13 @@
+// Copyright (C) 2015-2021 The Neo Project.
+// 
+// The Neo.Compiler.CSharp is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
@@ -41,6 +51,7 @@ namespace Neo.Compiler
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName { get; private set; }
+        private string? Source { get; set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
@@ -252,6 +263,7 @@ namespace Neo.Compiler
             NefFile nef = new()
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
+                Source = Source ?? string.Empty,
                 Tokens = methodTokens.ToArray(),
                 Script = Script
             };
@@ -403,19 +415,22 @@ namespace Neo.Compiler
                         case nameof(DisplayNameAttribute):
                             ContractName ??= (string)attribute.ConstructorArguments[0].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ManifestExtraAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
+                            Source = (string)attribute.ConstructorArguments[0].Value!;
+                            break;
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ManifestExtraAttribute):
                             manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ContractPermissionAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractPermissionAttribute):
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.ContractTrustAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractTrustAttribute):
                             string trust = (string)attribute.ConstructorArguments[0].Value!;
                             if (!ValidateContractTrust(trust))
                                 throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
                             trusts.Add(trust);
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.SupportedStandardsAttribute):
+                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
                             supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
                             break;
                     }
