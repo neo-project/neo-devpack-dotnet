@@ -16,8 +16,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Linq;
-using Neo.IO;
 using Neo.Persistence;
+using Neo.SmartContract.Iterators;
 
 namespace Neo.TestingEngine
 {
@@ -46,7 +46,30 @@ namespace Neo.TestingEngine
 
         public static JObject ToJson(this EvaluationStack stack)
         {
-            return new JArray(stack.Select(p => p.ToJson()));
+            JArray jarr = new();
+            foreach (var item in stack)
+            {
+                if (item is InteropInterface interopInterface && interopInterface.GetInterface<object>() is IIterator iterator)
+                {
+                    var max = 100;
+                    JObject json = item.ToJson();
+                    JArray array = new();
+                    while (max > 0 && iterator.Next())
+                    {
+                        array.Add(iterator.Value().ToJson());
+                        max--;
+                    }
+                    json["iterator"] = array;
+                    json["truncated"] = iterator.Next();
+                    jarr.Add(json);
+                }
+                else
+                {
+                    jarr.Add(item.ToJson());
+                }
+            }
+
+            return jarr;
         }
 
         public static JObject ToJson(this NotifyEventArgs notification)
