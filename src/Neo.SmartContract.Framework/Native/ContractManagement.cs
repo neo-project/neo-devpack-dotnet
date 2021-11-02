@@ -10,6 +10,7 @@
 
 #pragma warning disable CS0626
 
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.Native

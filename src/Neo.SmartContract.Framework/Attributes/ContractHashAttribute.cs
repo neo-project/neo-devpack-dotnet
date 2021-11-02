@@ -10,13 +10,10 @@
 
 using System;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, AllowMultiple = true)]
-    public class OpCodeAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class ContractHashAttribute : Attribute
     {
-        public OpCodeAttribute(OpCode opCode, string opData = "")
-        {
-        }
     }
 }

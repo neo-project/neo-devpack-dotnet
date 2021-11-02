@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 
 namespace Neo

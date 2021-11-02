@@ -9,14 +9,13 @@
 // modifications are permitted.
 
 using System;
-using System.Runtime.InteropServices;
 
-namespace Neo.SmartContract.Framework
+namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor)]
-    class CallingConventionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class ManifestExtraAttribute : Attribute
     {
-        public CallingConventionAttribute(CallingConvention callingConvention)
+        public ManifestExtraAttribute(string key, string value)
         {
         }
     }
