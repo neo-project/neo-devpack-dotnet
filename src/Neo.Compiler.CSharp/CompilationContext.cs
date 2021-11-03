@@ -146,7 +146,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    SmartContract.Manifest.ContractAbi.FromJson(manifest["abi"]);
+                    SmartContract.Helper.Check(Script, SmartContract.Manifest.ContractAbi.FromJson(manifest["abi"]));
                 }
                 catch
                 {
