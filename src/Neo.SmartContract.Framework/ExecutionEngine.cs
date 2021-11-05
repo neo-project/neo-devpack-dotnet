@@ -28,11 +28,9 @@ namespace Neo.SmartContract.Framework
         /// <param name="message">The error message</param>
         public static void Assert(bool condition, string message)
         {
-            if (!condition)
-            {
-                Services.Runtime.Log(message);
-                Assert(condition);
-            }
+            if (condition) return;
+            Services.Runtime.Log(message);
+            Assert(false);
         }
 
         /// <summary>
