@@ -97,26 +97,29 @@ namespace Neo.SmartContract.Framework.UnitTests
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(item.GetInteger(), 5);
-            Assert.AreEqual(logList.Count, 1);
-            Assert.AreEqual(logList[0], "ERROR");
-            ApplicationEngine.Log -= logsMethod;
+            Assert.AreEqual(logList.Count, 0);
 
-            _engine.Reset();
+            _engine.Reset(); logList.Clear();
             result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(false));
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(logList.Count, 1);
+            Assert.AreEqual(logList[0], "ERROR");
 
             // Void With extension
 
-            _engine.Reset();
+            _engine.Reset(); logList.Clear();
             result = _engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(true));
             Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(logList.Count, 0);
             Assert.AreEqual(0, result.Count);
 
-            _engine.Reset();
+            _engine.Reset(); logList.Clear();
             result = _engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(false));
             Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(logList.Count, 0);
             Assert.AreEqual(0, result.Count);
+            ApplicationEngine.Log -= logsMethod;
         }
 
         [TestMethod]
