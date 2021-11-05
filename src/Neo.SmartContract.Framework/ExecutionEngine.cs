@@ -18,9 +18,22 @@ namespace Neo.SmartContract.Framework
         /// Faults if `condition` is false
         /// </summary>
         /// <param name="condition">Condition that MUST meet</param>
-        /// <param name="message">The error message</param>
         [OpCode(OpCode.ASSERT)]
-        public static extern void Assert(bool condition, string message = "");
+        public static extern void Assert(bool condition);
+
+        /// <summary>
+        /// Faults if `condition` is false
+        /// </summary>
+        /// <param name="condition">Condition that MUST meet</param>
+        /// <param name="message">The error message</param>
+        public static void Assert(bool condition, string message)
+        {
+            if (!condition)
+            {
+                Services.Runtime.Log(message);
+                Assert(condition);
+            }
+        }
 
         /// <summary>
         /// Abort the execution
