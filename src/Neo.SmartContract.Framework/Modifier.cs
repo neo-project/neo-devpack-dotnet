@@ -4,6 +4,6 @@ namespace Neo.SmartContract.Framework
 {
     public abstract class Modifier : Attribute
     {
-        public Modifier() { }
+        public abstract void Validate();
     }
 }
