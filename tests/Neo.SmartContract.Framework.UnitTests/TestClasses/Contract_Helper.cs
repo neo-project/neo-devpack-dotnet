@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static int AssertCall(bool value)
         {
-            ExecutionEngine.Assert(value == true);
+            ExecutionEngine.Assert(value == true, "ERROR");
             return 5;
         }
 

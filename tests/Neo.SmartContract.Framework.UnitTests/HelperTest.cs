@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -87,13 +88,18 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestAssert()
         {
             // With extension
-
+            var logList = new List<string>();
+            var logsMethod = new System.EventHandler<LogEventArgs>((object sender, LogEventArgs e) => { logList.Add(e.Message); });
+            ApplicationEngine.Log += logsMethod;
             var result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(true));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(item.GetInteger(), 5);
+            Assert.AreEqual(logList.Count, 1);
+            Assert.AreEqual(logList[0], "ERROR");
+            ApplicationEngine.Log -= logsMethod;
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(false));
