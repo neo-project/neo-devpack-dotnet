@@ -11,6 +11,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
     public class Contract_Array : SmartContract.Framework.SmartContract
     {
+        public static int[][] TestJaggedArray()
+        {
+            int[] array1 = new int[] { 1, 2, 3, 4 };
+            int[] array2 = new int[] { 5, 6, 7, 8 };
+            int[] array3 = new int[] { 1, 3, 2, 1 };
+            int[] array4 = new int[] { 5, 4, 3, 2 };
+            return new int[][] { array1, array2, array3, array4 };
+        }
+
         public static object TestIntArray()
         {
             var arrobj = new int[3];
