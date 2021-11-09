@@ -20,6 +20,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return new int[][] { array1, array2, array3, array4 };
         }
 
+        public static byte[][] TestJaggedByteArray()
+        {
+            byte[] array1 = new byte[] { 1, 2, 3, 4 };
+            byte[] array2 = new byte[] { 5, 6, 7, 8 };
+            byte[] array3 = new byte[] { 1, 3, 2, 1 };
+            byte[] array4 = new byte[] { 5, 4, 3, 2 };
+            return new byte[][] { array1, array2, array3, array4 };
+        }
+
         public static object TestIntArray()
         {
             var arrobj = new int[3];

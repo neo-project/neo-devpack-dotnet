@@ -22,6 +22,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_JaggedByteArray()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testJaggedByteArray");
+
+            var arr = result.Pop<Array>();
+            Assert.AreEqual(4, arr.Count);
+            var element0 = (Buffer)arr[0];
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, element0.InnerBuffer);
+        }
+
+        [TestMethod]
         public void Test_IntArray()
         {
             var testengine = new TestEngine();
