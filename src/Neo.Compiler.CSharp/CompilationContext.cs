@@ -146,7 +146,7 @@ namespace Neo.Compiler
 
                 try
                 {
-                    SmartContract.Helper.Check(Script, SmartContract.Manifest.ContractAbi.FromJson(manifest["abi"]));
+                    SmartContract.Manifest.ContractAbi.FromJson(manifest["abi"]);
                 }
                 catch
                 {
@@ -464,7 +464,10 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            eventsExported.Add(new AbiEvent(symbol));
+            AbiEvent ev = new AbiEvent(symbol);
+            if (eventsExported.Any(u => u.Name == ev.Name))
+                throw new CompilationException(symbol, DiagnosticId.InvalidAbi, $"Duplicate event {symbol.Name}.");
+            eventsExported.Add(ev);
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
