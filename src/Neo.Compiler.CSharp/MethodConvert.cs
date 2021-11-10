@@ -1244,8 +1244,6 @@ namespace Neo.Compiler
 
         private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
         {
-            if (expression.Type.RankSpecifiers.Count != 1)
-                throw new CompilationException(expression.Type, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.Type.RankSpecifiers}");
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
             if (specifier.Rank != 1)
                 throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
@@ -1256,7 +1254,7 @@ namespace Neo.Compiler
                 if (type.ElementType.SpecialType == SpecialType.System_Byte)
                     AddInstruction(OpCode.NEWBUFFER);
                 else
-                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
+                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
             }
             else
             {
