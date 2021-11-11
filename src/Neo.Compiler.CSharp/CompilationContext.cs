@@ -140,22 +140,11 @@ namespace Neo.Compiler
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
 
-                var manifest = CreateManifest();
-
                 // Verify manifest
 
                 try
                 {
-                    SmartContract.Manifest.ContractAbi.FromJson(manifest["abi"]);
-                }
-                catch
-                {
-                    diagnostics.Add(new CompilationException(DiagnosticId.InvalidAbi, $"The generated Abi it's not valid.").Diagnostic);
-                    return;
-                }
-
-                try
-                {
+                    var manifest = CreateManifest();
                     SmartContract.Manifest.ContractManifest.Parse(manifest.ToString(false));
                 }
                 catch
