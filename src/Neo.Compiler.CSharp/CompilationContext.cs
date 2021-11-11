@@ -442,7 +442,7 @@ namespace Neo.Compiler
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
             AbiEvent ev = new(symbol);
             if (eventsExported.Any(u => u.Name == ev.Name))
-                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {symbol.Name}.");
+                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
             eventsExported.Add(ev);
         }
 
@@ -460,7 +460,7 @@ namespace Neo.Compiler
             {
                 AbiMethod method = new(symbol);
                 if (methodsExported.Any(u => u.Name == method.Name))
-                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method name: {symbol.Name}.");
+                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method name: {method.Name}.");
                 methodsExported.Add(method);
             }
             MethodConvert convert = ConvertMethod(model, symbol);
