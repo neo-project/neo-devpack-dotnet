@@ -442,7 +442,7 @@ namespace Neo.Compiler
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
             AbiEvent ev = new AbiEvent(symbol);
             if (eventsExported.Any(u => u.Name == ev.Name))
-                throw new CompilationException(symbol, DiagnosticId.InvalidAbi, $"Duplicate event {symbol.Name}.");
+                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event {symbol.Name}.");
             eventsExported.Add(ev);
         }
 

@@ -45,7 +45,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var testengine = new TestEngine();
             var context = testengine.AddEntryScript("./TestClasses/Contract_DuplicateNames.cs");
             Assert.IsFalse(context.Success);
-            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.InvalidAbi));
+            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.EventNameConflict));
         }
 
         [TestMethod]
