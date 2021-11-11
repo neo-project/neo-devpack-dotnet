@@ -440,9 +440,9 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            AbiEvent ev = new AbiEvent(symbol);
+            AbiEvent ev = new(symbol);
             if (eventsExported.Any(u => u.Name == ev.Name))
-                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event {symbol.Name}.");
+                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {symbol.Name}.");
             eventsExported.Add(ev);
         }
 
@@ -456,7 +456,13 @@ namespace Neo.Compiler
                 if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
                     return;
             }
-            if (export) methodsExported.Add(new AbiMethod(symbol));
+            if (export)
+            {
+                AbiMethod method = new(symbol);
+                if (methodsExported.Any(u => u.Name == method.Name))
+                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method name: {symbol.Name}.");
+                methodsExported.Add(method);
+            }
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)
             {
