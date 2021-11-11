@@ -32,6 +32,5 @@ namespace Neo.Compiler
         public const string InvalidInitialValueType = "NC3001";
         public const string InvalidMethodName = "NC3002";
         public const string InvalidAbi = "NC3003";
-        public const string InvalidManifest = "NC3004";
     }
 }
