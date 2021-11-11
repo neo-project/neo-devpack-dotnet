@@ -139,19 +139,6 @@ namespace Neo.Compiler
                 instructions.RebuildOffsets();
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
-
-                // Verify manifest
-
-                try
-                {
-                    var manifest = CreateManifest();
-                    SmartContract.Manifest.ContractManifest.Parse(manifest.ToString(false));
-                }
-                catch
-                {
-                    diagnostics.Add(new CompilationException(DiagnosticId.InvalidManifest, $"The generated manifest it's not valid.").Diagnostic);
-                    return;
-                }
             }
         }
 
