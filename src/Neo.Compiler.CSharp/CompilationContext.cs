@@ -459,8 +459,8 @@ namespace Neo.Compiler
             if (export)
             {
                 AbiMethod method = new(symbol);
-                if (methodsExported.Any(u => u.Name == method.Name))
-                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method name: {method.Name}.");
+                if (methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
+                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                 methodsExported.Add(method);
             }
             MethodConvert convert = ConvertMethod(model, symbol);
