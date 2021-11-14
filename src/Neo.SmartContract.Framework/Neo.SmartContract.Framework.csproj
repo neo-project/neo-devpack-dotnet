@@ -4,7 +4,6 @@
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
     <PackageId>Neo.SmartContract.Framework</PackageId>
-    <TargetFramework>net6.0</TargetFramework>
     <PackageTags>NEO;Blockchain</PackageTags>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

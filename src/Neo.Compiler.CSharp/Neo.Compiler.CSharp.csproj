@@ -4,7 +4,6 @@
     <AssemblyTitle>Neo.Compiler.CSharp</AssemblyTitle>
     <AssemblyName>nccs</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
     <PackageId>Neo.Compiler.CSharp</PackageId>
     <PackAsTool>true</PackAsTool>
     <RootNamespace>Neo.Compiler</RootNamespace>
