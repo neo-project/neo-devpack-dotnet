@@ -26,6 +26,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
 {
@@ -34,7 +35,7 @@ namespace Neo.Compiler
         private static readonly MetadataReference[] commonReferences;
         private readonly Compilation compilation;
         private bool scTypeFound;
-        private readonly List<Microsoft.CodeAnalysis.Diagnostic> diagnostics = new();
+        private readonly List<Diagnostic> diagnostics = new();
         private readonly HashSet<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
         private readonly List<AbiEvent> eventsExported = new();
@@ -49,7 +50,7 @@ namespace Neo.Compiler
         private byte[]? script;
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
-        public IReadOnlyList<Microsoft.CodeAnalysis.Diagnostic> Diagnostics => diagnostics;
+        public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName { get; private set; }
         private string? Source { get; set; }
         internal Options Options { get; private set; }
@@ -131,7 +132,7 @@ namespace Neo.Compiler
             {
                 if (!scTypeFound)
                 {
-                    diagnostics.Add(Microsoft.CodeAnalysis.Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
+                    diagnostics.Add(Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
                     return;
                 }
                 RemoveEmptyInitialize();
