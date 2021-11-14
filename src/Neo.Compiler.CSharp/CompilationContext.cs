@@ -26,6 +26,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
 {
