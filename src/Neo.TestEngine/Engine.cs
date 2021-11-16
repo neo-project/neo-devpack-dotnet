@@ -26,7 +26,7 @@ namespace Neo.TestingEngine
 {
     public class Engine
     {
-        private static Engine instance = null;
+        private static Engine? instance = null;
         public static Engine Instance
         {
             get
@@ -39,10 +39,10 @@ namespace Neo.TestingEngine
             }
         }
 
-        private TestEngine engine = null;
-        private Transaction currentTx = null;
+        private TestEngine? engine = null;
+        private Transaction? currentTx = null;
         private ECPoint PubKey => wallet.DefaultAccount.GetKey().PublicKey;
-        private TestWallet wallet = null;
+        private TestWallet? wallet = null;
 
         private Engine()
         {
@@ -153,7 +153,7 @@ namespace Neo.TestingEngine
             if (snapshot.Blocks().Count <= newHeight)
             {
                 Block newBlock;
-                Block lastBlock = null;
+                Block? lastBlock = null;
                 if (snapshot.Blocks().Count == 0)
                 {
                     newBlock = TestBlockchain.TheNeoSystem.GenesisBlock;
@@ -214,7 +214,7 @@ namespace Neo.TestingEngine
         {
             if (engine.Snapshot is TestDataCache snapshot)
             {
-                Block currentBlock = null;
+                Block? currentBlock = null;
                 if (Height < block.Index || snapshot.Blocks().Count == 0)
                 {
                     IncreaseBlockCount(block.Index);
@@ -334,9 +334,9 @@ namespace Neo.TestingEngine
             return engine;
         }
 
-        private Block CreateBlock(Block originBlock = null)
+        private Block CreateBlock(Block? originBlock = null)
         {
-            TrimmedBlock trimmedBlock = null;
+            TrimmedBlock? trimmedBlock = null;
             var blocks = engine.Snapshot.Blocks();
             if (blocks.Count > 0)
             {

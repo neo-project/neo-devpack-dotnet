@@ -348,7 +348,7 @@ namespace Neo.TestingEngine
                     Key = key.GetSpan().ToArray()
                 };
 
-                StorageItem storageItem = null;
+                StorageItem? storageItem = null;
                 if (value != StackItem.Null)
                 {
                     storageItem = new StorageItem(value.GetSpan().ToArray());
@@ -524,7 +524,7 @@ namespace Neo.TestingEngine
             };
         }
 
-        private static TransactionAttribute TxAttributeFromJson(JObject txAttributeJson)
+        private static TransactionAttribute? TxAttributeFromJson(JObject txAttributeJson)
         {
             if (!txAttributeJson.ContainsProperty("type"))
             {
@@ -584,7 +584,7 @@ namespace Neo.TestingEngine
             return json;
         }
 
-        private static string GetInvalidTypeMessage(string expectedType, string argumentId = null)
+        private static string GetInvalidTypeMessage(string expectedType, string? argumentId = null)
         {
             if (argumentId is null)
             {

@@ -41,7 +41,7 @@ namespace Neo.TestingEngine
             ScriptHash = originHash;
         }
 
-        internal static BuildScript Build(List<MetadataReference> references = null, params string[] files)
+        internal static BuildScript Build(List<MetadataReference>? references = null, params string[] files)
         {
             BuildScript script;
             if (files.Length == 1 && Path.GetExtension(files[0]).ToLowerInvariant() == ".nef")
@@ -61,9 +61,9 @@ namespace Neo.TestingEngine
             }
             else
             {
-                NefFile nef = null;
-                JObject manifest = null;
-                JObject debuginfo = null;
+                NefFile? nef = null;
+                JObject? manifest = null;
+                JObject? debuginfo = null;
 
                 var options = new Options
                 {

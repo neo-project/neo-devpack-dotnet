@@ -34,7 +34,7 @@ namespace Neo.TestingEngine
             TheNeoSystem = new NeoSystem(ProtocolSettings.Default);
         }
 
-        public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable key = null)
+        public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable? key = null)
         {
             var k = new KeyBuilder(contract.Id, prefix);
             if (key != null) k = k.Add(key);

@@ -42,7 +42,7 @@ namespace Neo.TestingEngine
             }
         }
 
-        public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
+        public static void DeployNativeContracts(this DataCache snapshot, Block? persistingBlock = null)
         {
             persistingBlock ??= new NeoSystem(ProtocolSettings.Default).GenesisBlock;
             var method = typeof(ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

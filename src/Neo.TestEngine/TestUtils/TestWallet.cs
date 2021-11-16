@@ -57,7 +57,7 @@ namespace Neo.TestingEngine
             return account;
         }
 
-        public override WalletAccount CreateAccount(Contract contract, KeyPair key = null)
+        public override WalletAccount CreateAccount(Contract contract, KeyPair? key = null)
         {
             throw new NotImplementedException();
         }
@@ -86,7 +86,7 @@ namespace Neo.TestingEngine
             return accounts.Remove(scriptHash);
         }
 
-        public override WalletAccount GetAccount(UInt160 scriptHash)
+        public override WalletAccount? GetAccount(UInt160 scriptHash)
         {
             if (!this.accounts.ContainsKey(scriptHash))
             {
