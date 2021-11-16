@@ -26,6 +26,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
 {
@@ -453,7 +454,10 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            eventsExported.Add(new AbiEvent(symbol));
+            AbiEvent ev = new(symbol);
+            if (eventsExported.Any(u => u.Name == ev.Name))
+                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            eventsExported.Add(ev);
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
@@ -466,7 +470,13 @@ namespace Neo.Compiler
                 if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
                     return;
             }
-            if (export) methodsExported.Add(new AbiMethod(symbol));
+            if (export)
+            {
+                AbiMethod method = new(symbol);
+                if (methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
+                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
+                methodsExported.Add(method);
+            }
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)
             {

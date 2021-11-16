@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  DOTNET_VERSION: 5.0.100
+  DOTNET_VERSION: 6.0.x
 
 jobs:
 
@@ -21,16 +21,13 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Check format
       run: |
-        dotnet tool install --version 5.0.142902 --tool-path ./ dotnet-format --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
-        ./dotnet-format . --check -v diagnostic
+        dotnet format --verify-no-changes --verbosity diagnostic
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.CSharp.UnitTests
       run: dotnet test tests/Neo.Compiler.CSharp.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: dotnet test tests/Neo.SmartContract.Framework.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\" /p:CoverletOutputFormat=lcov
-    - name: Test Neo.TestEngine.UnitTests
-      run: dotnet test tests/Neo.TestEngine.UnitTests /p:CollectCoverage=true /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov /p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json /p:Exclude=\"[Neo.SmartContract.*]*,[Neo.Compiler.MSIL.UnitTests]*,[Neo.Compiler.MSIL.UnitTests.*]*\" /p:CoverletOutputFormat=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:

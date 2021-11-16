@@ -74,8 +74,8 @@ namespace Neo.TestingEngine
             }
         }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null)
-             : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, SmartContract.Diagnostic diagnostic = null)
+             : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas, diagnostic)
         {
         }
 
