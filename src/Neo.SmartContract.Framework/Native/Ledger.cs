@@ -24,6 +24,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern Block GetBlock(uint index);
         public static extern Block GetBlock(UInt256 hash);
         public static extern Transaction GetTransaction(UInt256 hash);
+        public static extern int GetTransactionVMState(UInt256 hash);
         public static extern Transaction GetTransactionFromBlock(UInt256 blockHash, int txIndex);
         public static extern Transaction GetTransactionFromBlock(uint blockHeight, int txIndex);
         public static extern int GetTransactionHeight(UInt256 hash);

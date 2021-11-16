@@ -55,6 +55,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return GetTxInfo(tx, whatReturn);
         }
 
+        public static object GetTxVMState(UInt256 hash)
+        {
+            return Ledger.GetTransactionVMState(hash);
+        }
+
         public static object GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
         {
             var tx = Ledger.GetTransactionFromBlock(blockHash, txIndex);
