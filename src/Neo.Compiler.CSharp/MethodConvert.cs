@@ -24,6 +24,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -3897,6 +3898,17 @@ namespace Neo.Compiler
             }
             switch (symbol.ToString())
             {
+                case "bool.ToString()":
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    JumpTarget trueTarget = new();
+                    JumpTarget falseTarget = new();
+                    Jump(OpCode.JMPIF_L, trueTarget);
+                    Push(false.ToString(CultureInfo.InvariantCulture));
+                    Jump(OpCode.JMP_L, falseTarget);
+                    trueTarget.Instruction = Push(true.ToString(CultureInfo.InvariantCulture));
+                    falseTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
                 case "System.Numerics.BigInteger.One.get":
                     Push(1);
                     return true;
