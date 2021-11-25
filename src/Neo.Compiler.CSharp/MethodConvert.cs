@@ -4219,6 +4219,18 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);
                     return true;
+                case "bool.ToString()":
+                    {
+                        JumpTarget trueTarget = new(), endTarget = new();
+                        if (instanceExpression is not null)
+                            ConvertExpression(model, instanceExpression);
+                        Jump(OpCode.JMPIF_L, trueTarget);
+                        Push("False");
+                        Jump(OpCode.JMP_L, endTarget);
+                        trueTarget.Instruction = Push("True");
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    return true;
                 case "sbyte.ToString()":
                 case "byte.ToString()":
                 case "short.ToString()":
