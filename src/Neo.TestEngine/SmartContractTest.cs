@@ -17,7 +17,7 @@ namespace Neo.TestingEngine
 {
     public class SmartContractTest
     {
-        public readonly UInt160 scriptHash = null;
+        public readonly UInt160? scriptHash = null;
         public readonly string? nefPath = null;
         public readonly string methodName;
         public JArray methodParameters;

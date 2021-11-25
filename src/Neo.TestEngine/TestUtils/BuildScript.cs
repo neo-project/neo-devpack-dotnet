@@ -29,7 +29,7 @@ namespace Neo.TestingEngine
 
         private bool FromCompilation { get; set; }
 
-        public BuildScript(NefFile nefFile, JObject manifestJson, UInt160 originHash = null)
+        public BuildScript(NefFile nefFile, JObject manifestJson, UInt160? originHash = null)
         {
             Nef = nefFile;
             Manifest = manifestJson;

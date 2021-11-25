@@ -23,22 +23,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
-    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+      <Aliases>scfx</Aliases>
+    </ProjectReference>
   </ItemGroup>
-
-  <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
-    <!--
-    The unified Neo domain model defines types with the same fully namespace qualified name in different assemblies.
-    Specifying a reference alias allows us to disambiguate types with colliding names.
-    Official docs: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/extern-alias
-
-    For NuGet imported packages, specifying an alias requires this target tag to work properly.
-    -->
-    <ItemGroup>
-      <ReferencePath Condition="'%(FileName)' == 'Neo.SmartContract.Framework'">
-        <Aliases>neo</Aliases>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
 
 </Project>

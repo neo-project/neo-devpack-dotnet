@@ -21,7 +21,7 @@ namespace Neo.TestingEngine
         private Dictionary<UInt160, WalletAccount> accounts;
         public WalletAccount DefaultAccount { get; private set; }
 
-        public TestWallet(UInt160 scriptHash = null) : base("", ProtocolSettings.Default, "TestWallet")
+        public TestWallet(UInt160? scriptHash = null) : base("", ProtocolSettings.Default, "TestWallet")
         {
             this.accounts = new Dictionary<UInt160, WalletAccount>();
             if (scriptHash == null)
