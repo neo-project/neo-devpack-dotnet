@@ -385,7 +385,7 @@ namespace Neo.Compiler
             {
                 if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
                 scTypeFound = true;
-                foreach (var attribute in symbol.GetAttributes())
+                foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
