@@ -15,6 +15,8 @@
     <Product>TestingEngine</Product>
     <Description>TestingEngine</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>neotest</ToolCommandName>
   </PropertyGroup>
   
   <ItemGroup>
