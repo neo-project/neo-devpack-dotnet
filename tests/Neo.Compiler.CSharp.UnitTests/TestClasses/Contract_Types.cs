@@ -25,6 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             public string Value;
         }
 
+        public static string checkBoolString(bool value) { return value.ToString(); }
         public static object checkNull() { return null; }
         public static bool checkBoolTrue() { return true; }
         public static bool checkBoolFalse() { return false; }
