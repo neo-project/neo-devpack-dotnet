@@ -24,7 +24,6 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -3898,17 +3897,6 @@ namespace Neo.Compiler
             }
             switch (symbol.ToString())
             {
-                case "bool.ToString()":
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
-                    JumpTarget trueTarget = new();
-                    JumpTarget falseTarget = new();
-                    Jump(OpCode.JMPIF_L, trueTarget);
-                    Push(false.ToString(CultureInfo.InvariantCulture));
-                    Jump(OpCode.JMP_L, falseTarget);
-                    trueTarget.Instruction = Push(true.ToString(CultureInfo.InvariantCulture));
-                    falseTarget.Instruction = AddInstruction(OpCode.NOP);
-                    return true;
                 case "System.Numerics.BigInteger.One.get":
                     Push(1);
                     return true;
@@ -4230,6 +4218,18 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);
+                    return true;
+                case "bool.ToString()":
+                    {
+                        JumpTarget trueTarget = new(), endTarget = new();
+                        if (instanceExpression is not null)
+                            ConvertExpression(model, instanceExpression);
+                        Jump(OpCode.JMPIF_L, trueTarget);
+                        Push("False");
+                        Jump(OpCode.JMP_L, endTarget);
+                        trueTarget.Instruction = Push("True");
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
                     return true;
                 case "sbyte.ToString()":
                 case "byte.ToString()":
