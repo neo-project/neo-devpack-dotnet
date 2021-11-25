@@ -17,7 +17,7 @@ namespace Neo.TestingEngine
 {
     public class TestHashIndexState : IInteroperable
     {
-        public UInt256 Hash;
+        public UInt256? Hash;
         public uint Index;
 
         internal void FromStackItem(StackItem stackItem)
@@ -32,7 +32,7 @@ namespace Neo.TestingEngine
             this.FromStackItem(stackItem);
         }
 
-        internal StackItem ToStackItem(ReferenceCounter referenceCounter)
+        internal StackItem ToStackItem(ReferenceCounter? referenceCounter)
         {
             return new Struct(referenceCounter) { Hash.ToArray(), Index };
         }

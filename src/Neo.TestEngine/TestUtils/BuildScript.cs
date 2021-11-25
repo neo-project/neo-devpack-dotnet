@@ -21,11 +21,11 @@ namespace Neo.TestingEngine
     {
         public bool Success => !FromCompilation || (Context != null && Context.Success);
 
-        public UInt160 ScriptHash { get; private set; }
+        public UInt160? ScriptHash { get; private set; }
         public NefFile Nef { get; protected set; }
         public JObject Manifest { get; protected set; }
-        public JObject DebugInfo { get; protected set; }
-        public CompilationContext Context { get; protected set; }
+        public JObject? DebugInfo { get; protected set; }
+        public CompilationContext? Context { get; protected set; }
 
         private bool FromCompilation { get; set; }
 

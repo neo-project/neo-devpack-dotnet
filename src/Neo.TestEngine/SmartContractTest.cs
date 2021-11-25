@@ -26,7 +26,7 @@ namespace Neo.TestingEngine
         public uint currentHeight = 0;
         public Signer[] signers;
         public Block[] blocks;
-        public Transaction currentTx;
+        public Transaction? currentTx;
 
         public SmartContractTest(string path, string method, JArray parameters) : this(method, parameters)
         {

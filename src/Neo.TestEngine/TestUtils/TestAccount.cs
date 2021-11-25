@@ -30,7 +30,7 @@ namespace Neo.TestingEngine
             };
         }
 
-        public override KeyPair GetKey()
+        public override KeyPair? GetKey()
         {
             return this.key;
         }

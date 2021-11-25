@@ -36,15 +36,15 @@ namespace Neo.TestingEngine
         private long previousGasConsumed = 0;
         public long GasConsumedByLastExecution => GasConsumed - previousGasConsumed;
 
-        public NefFile Nef { get; private set; }
-        public JObject Manifest { get; private set; }
-        public JObject DebugInfo { get; private set; }
+        public NefFile? Nef { get; private set; }
+        public JObject? Manifest { get; private set; }
+        public JObject? DebugInfo { get; private set; }
 
-        internal BuildScript ScriptContext { get; set; }
+        internal BuildScript? ScriptContext { get; set; }
 
         public void ClearNotifications()
         {
-            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, null);
+            typeof(ApplicationEngine).GetField("notifications", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(this, null);
         }
 
         static TestEngine()
@@ -79,7 +79,7 @@ namespace Neo.TestingEngine
         {
         }
 
-        public CompilationContext AddEntryScript(params string[] files)
+        public CompilationContext? AddEntryScript(params string[] files)
         {
             ScriptContext = BuildScript.Build(references, files);
             SetContext(ScriptContext);
@@ -87,7 +87,7 @@ namespace Neo.TestingEngine
             return ScriptContext.Context;
         }
 
-        public CompilationContext SetContext(BuildScript context)
+        public CompilationContext? SetContext(BuildScript context)
         {
             ScriptContext = context;
 

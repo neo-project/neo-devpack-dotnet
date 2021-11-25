@@ -39,16 +39,16 @@ namespace Neo.TestingEngine
             }
         }
 
-        private TestEngine? engine = null;
+        private TestEngine engine;
         private Transaction? currentTx = null;
         private ECPoint PubKey => wallet.DefaultAccount.GetKey().PublicKey;
-        private TestWallet? wallet = null;
+        private TestWallet wallet;
 
         private Engine()
         {
             var _ = TestBlockchain.TheNeoSystem;
             wallet = new TestWallet();
-            Reset();
+            engine = SetupNativeContracts();
         }
 
         public uint Height => NativeContract.Ledger.CurrentIndex(engine.Snapshot);
@@ -79,7 +79,7 @@ namespace Neo.TestingEngine
             return this;
         }
 
-        private object AddSmartContract(string path)
+        private object? AddSmartContract(string path)
         {
             engine.AddEntryScript(path);
 
