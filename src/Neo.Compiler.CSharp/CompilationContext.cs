@@ -390,7 +390,7 @@ namespace Neo.Compiler
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            ContractName ??= (string)attribute.ConstructorArguments[0].Value!;
+                            ContractName = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
