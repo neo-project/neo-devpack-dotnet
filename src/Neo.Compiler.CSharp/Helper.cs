@@ -130,6 +130,57 @@ namespace Neo.Compiler
             };
         }
 
+        public static IEnumerable<AttributeData> GetAttributesWithInherited(this INamedTypeSymbol symbol)
+        {
+            foreach (var attribute in symbol.GetAttributes())
+            {
+                yield return attribute;
+            }
+
+            var baseType = symbol.BaseType;
+            while (baseType != null)
+            {
+                foreach (var attribute in baseType.GetAttributes())
+                {
+                    if (IsInherited(attribute))
+                    {
+                        yield return attribute;
+                    }
+                }
+
+                baseType = baseType.BaseType;
+            }
+        }
+
+        private static bool IsInherited(this AttributeData attribute)
+        {
+            if (attribute.AttributeClass == null)
+            {
+                return false;
+            }
+
+            foreach (var attributeAttribute in attribute.AttributeClass.GetAttributes())
+            {
+                var @class = attributeAttribute.AttributeClass;
+                if (@class != null && @class.Name == nameof(AttributeUsageAttribute) &&
+                    @class.ContainingNamespace?.Name == "System")
+                {
+                    foreach (var kvp in attributeAttribute.NamedArguments)
+                    {
+                        if (kvp.Key == nameof(AttributeUsageAttribute.Inherited))
+                        {
+                            return (bool)kvp.Value.Value!;
+                        }
+                    }
+
+                    // Default value of Inherited is true
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static ISymbol[] GetAllMembers(this ITypeSymbol type)
         {
             return GetAllMembersInternal(type).ToArray();
