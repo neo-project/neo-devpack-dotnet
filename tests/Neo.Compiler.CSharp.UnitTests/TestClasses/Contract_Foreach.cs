@@ -158,8 +158,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             int[] a = new int[] { 1, 2, 3, 4 };
             int sum = 0;
-
-            for (int i = 0; i < a.Length; i++)
+            int i;
+            for (i = 0; i < a.Length; i++)
             {
                 sum += a[i];
             }
