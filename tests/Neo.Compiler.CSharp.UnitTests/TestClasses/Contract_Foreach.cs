@@ -153,5 +153,17 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             catch { }
             return sum;
         }
+
+        public static int IntForloop()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                sum += a[i];
+            }
+            return sum;
+        }
     }
 }
