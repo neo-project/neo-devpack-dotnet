@@ -1,10 +1,9 @@
+using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.Wallets;
-using System;
-using System.IO;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -25,12 +24,21 @@ namespace Neo.SmartContract.Framework.UnitTests
             public void SerializeUnsigned(BinaryWriter writer) { }
         }
 
+        private NeoSystem _system;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _system = TestBlockchain.TheNeoSystem;
+        }
+
         [TestMethod]
         public void attribute_test()
         {
             var verificable = new DummyVerificable(new UInt160(new byte[20]));
+            var snapshot = _system.GetSnapshot().CreateSnapshot();
 
-            using var testengine = new TestEngine(TriggerType.Application, verificable);
+            using var testengine = new TestEngine(TriggerType.Application, verificable, snapshot: snapshot);
             Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
 
             var result = testengine.ExecuteTestCaseStandard("test");

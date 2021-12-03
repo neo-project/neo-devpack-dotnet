@@ -120,8 +120,25 @@ namespace Neo.Compiler
             foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Modifier)))
             {
                 if (modifier.AttributeConstructor == null) continue;
-                AddInstruction(OpCode.PUSHNULL);
-                Call(model, modifier.AttributeConstructor, false, Array.Empty<ArgumentSyntax>());
+
+                var validateMethod = modifier.AttributeClass!.GetMembers("Validate")
+                    .Where(u => u is IMethodSymbol m && m.Parameters.Length == 0)
+                    .Cast<IMethodSymbol>()
+                    .FirstOrDefault();
+                if (validateMethod is null) continue;
+
+                // Send arguments
+                AddInstruction(OpCode.NEWARRAY0);   // this
+                AddInstruction(OpCode.DUP);         // this
+                foreach (var arg in modifier.ConstructorArguments.Reverse()) Push(arg.Value);
+                Push(modifier.ConstructorArguments.Length);
+                AddInstruction(OpCode.ROLL);        // DUP-this
+                // Call constructor
+                MethodConvert convert = context.ConvertMethod(model, modifier.AttributeConstructor);
+                EmitCall(convert);
+                // Call validate
+                convert = context.ConvertMethod(model, validateMethod);
+                EmitCall(convert);
             }
 
             if (Symbol.IsExtern || Symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)

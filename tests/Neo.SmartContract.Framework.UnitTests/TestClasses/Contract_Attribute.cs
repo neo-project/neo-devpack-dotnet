@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public OwnerOnly(string hex)
         {
-            UInt160 owner = (UInt160)(byte[])StdLib.Base64Decode(hex);
+            owner = (UInt160)(byte[])StdLib.Base64Decode(hex);
         }
 
         public override void Validate()
