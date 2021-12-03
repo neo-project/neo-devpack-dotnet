@@ -839,11 +839,14 @@ namespace Neo.Compiler
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
-            foreach (var init in syntax.Initializers)
-            {
-                ConvertExpression(model, init);
-                AddInstruction(OpCode.DROP);
-            }
+            foreach (ExpressionSyntax expression in syntax.Initializers)
+                using (InsertSequencePoint(expression))
+                {
+                    ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                    ConvertExpression(model, expression);
+                    if (type.SpecialType != SpecialType.System_Void)
+                        AddInstruction(OpCode.DROP);
+                }
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
