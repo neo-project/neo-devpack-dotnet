@@ -128,11 +128,12 @@ namespace Neo.Compiler
                 if (validateMethod is null) continue;
 
                 // Send arguments
-                AddInstruction(OpCode.NEWARRAY0);   // this
-                AddInstruction(OpCode.DUP);         // this
+                AddInstruction(OpCode.PUSHNULL);
+                AddInstruction(OpCode.PUSH1);
+                AddInstruction(OpCode.PACK);   // this
                 foreach (var arg in modifier.ConstructorArguments.Reverse()) Push(arg.Value);
                 Push(modifier.ConstructorArguments.Length);
-                AddInstruction(OpCode.ROLL);        // DUP-this
+                AddInstruction(OpCode.PICK);        // DUP-this
                 // Call constructor
                 MethodConvert convert = context.ConvertMethod(model, modifier.AttributeConstructor);
                 EmitCall(convert);
