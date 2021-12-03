@@ -839,6 +839,14 @@ namespace Neo.Compiler
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
+            foreach (ExpressionSyntax expression in syntax.Initializers)
+                using (InsertSequencePoint(expression))
+                {
+                    ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                    ConvertExpression(model, expression);
+                    if (type.SpecialType != SpecialType.System_Void)
+                        AddInstruction(OpCode.DROP);
+                }
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -4218,6 +4226,18 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);
+                    return true;
+                case "bool.ToString()":
+                    {
+                        JumpTarget trueTarget = new(), endTarget = new();
+                        if (instanceExpression is not null)
+                            ConvertExpression(model, instanceExpression);
+                        Jump(OpCode.JMPIF_L, trueTarget);
+                        Push("False");
+                        Jump(OpCode.JMP_L, endTarget);
+                        trueTarget.Instruction = Push("True");
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
                     return true;
                 case "sbyte.ToString()":
                 case "byte.ToString()":
