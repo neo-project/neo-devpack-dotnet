@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var verificable = new DummyVerificable(new UInt160(new byte[20]));
 
             using var testengine = new TestEngine(TriggerType.Application, verificable);
-            testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs");
+            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
 
             var result = testengine.ExecuteTestCaseStandard("test");
             Assert.AreEqual(1, result.Count);

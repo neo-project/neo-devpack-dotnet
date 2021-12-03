@@ -62,6 +62,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 DebugInfo = context.CreateDebugInformation();
                 Reset();
             }
+            else
+            {
+                foreach (var error in context.Diagnostics)
+                    Console.WriteLine(error.ToString());
+            }
             return context;
         }
 
@@ -152,7 +157,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             {
                 var bfault = (this.State & VMState.FAULT) > 0;
                 var bhalt = (this.State & VMState.HALT) > 0;
-                if (bfault || bhalt) break;
+                if (bfault || bhalt)
+                {
+                    if (FaultException != null) Console.WriteLine(FaultException);
+                    break;
+                }
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
