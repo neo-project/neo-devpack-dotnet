@@ -26,12 +26,14 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
 {
     public class CompilationContext
     {
         private static readonly MetadataReference[] commonReferences;
+        private static readonly Dictionary<string, MetadataReference> metaReferences = new();
         private readonly Compilation compilation;
         private bool scTypeFound;
         private readonly List<Diagnostic> diagnostics = new();
@@ -179,12 +181,24 @@ namespace Neo.Compiler
             })!.WaitForExit();
             string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             JObject assets = JObject.Parse(File.ReadAllBytes(assetsPath));
-            string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
             foreach (var (name, package) in assets["targets"][0].Properties)
+            {
+                MetadataReference? reference = GetReference(name, package, assets, folder, options);
+                if (reference is not null) references.Add(reference);
+            }
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, options);
+        }
+
+        private static MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, CSharpCompilationOptions options)
+        {
+            string assemblyName = Path.GetDirectoryName(name)!;
+            if (!metaReferences.TryGetValue(assemblyName, out var reference))
             {
                 switch (assets["libraries"][name]["type"].GetString())
                 {
                     case "package":
+                        string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
                         string namePath = assets["libraries"][name]["path"].GetString();
                         string[] files = assets["libraries"][name]["files"].GetArray()
                             .Select(p => p.GetString())
@@ -193,33 +207,35 @@ namespace Neo.Compiler
                         if (files.Length == 0)
                         {
                             JObject dllFiles = package["compile"] ?? package["runtime"];
-                            if (dllFiles is null) continue;
+                            if (dllFiles is null) return null;
                             foreach (var (file, _) in dllFiles.Properties)
                             {
                                 if (file.EndsWith("_._")) continue;
                                 string path = Path.Combine(packagesPath, namePath, file);
                                 if (!File.Exists(path)) continue;
-                                references.Add(MetadataReference.CreateFromFile(path));
+                                reference = MetadataReference.CreateFromFile(path);
+                                break;
                             }
+                            if (reference is null) return null;
                         }
                         else
                         {
                             IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-                            CSharpCompilation cr = CSharpCompilation.Create(Path.GetDirectoryName(namePath), st, commonReferences, options);
-                            references.Add(cr.ToMetadataReference());
+                            CSharpCompilation cr = CSharpCompilation.Create(assemblyName, st, commonReferences, options);
+                            reference = cr.ToMetadataReference();
                         }
                         break;
                     case "project":
                         string msbuildProject = assets["libraries"][name]["msbuildProject"].GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
-                        references.Add(GetCompilation(msbuildProject, out _).ToMetadataReference());
+                        reference = GetCompilation(msbuildProject, out _).ToMetadataReference();
                         break;
                     default:
                         throw new NotSupportedException();
                 }
+                metaReferences.Add(assemblyName, reference);
             }
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, options);
+            return reference;
         }
 
         public static CompilationContext CompileProject(string csproj, Options options)
@@ -384,12 +400,12 @@ namespace Neo.Compiler
             {
                 if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
                 scTypeFound = true;
-                foreach (var attribute in symbol.GetAttributes())
+                foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            ContractName ??= (string)attribute.ConstructorArguments[0].Value!;
+                            ContractName = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
@@ -440,7 +456,10 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            eventsExported.Add(new AbiEvent(symbol));
+            AbiEvent ev = new(symbol);
+            if (eventsExported.Any(u => u.Name == ev.Name))
+                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            eventsExported.Add(ev);
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
@@ -453,7 +472,13 @@ namespace Neo.Compiler
                 if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
                     return;
             }
-            if (export) methodsExported.Add(new AbiMethod(symbol));
+            if (export)
+            {
+                AbiMethod method = new(symbol);
+                if (methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
+                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
+                methodsExported.Add(method);
+            }
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)
             {

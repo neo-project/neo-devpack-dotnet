@@ -864,6 +864,14 @@ namespace Neo.Compiler
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
+            foreach (ExpressionSyntax expression in syntax.Initializers)
+                using (InsertSequencePoint(expression))
+                {
+                    ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                    ConvertExpression(model, expression);
+                    if (type.SpecialType != SpecialType.System_Void)
+                        AddInstruction(OpCode.DROP);
+                }
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -1269,8 +1277,6 @@ namespace Neo.Compiler
 
         private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
         {
-            if (expression.Type.RankSpecifiers.Count != 1)
-                throw new CompilationException(expression.Type, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.Type.RankSpecifiers}");
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
             if (specifier.Rank != 1)
                 throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
@@ -1281,7 +1287,7 @@ namespace Neo.Compiler
                 if (type.ElementType.SpecialType == SpecialType.System_Byte)
                     AddInstruction(OpCode.NEWBUFFER);
                 else
-                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
+                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
             }
             else
             {
@@ -4245,6 +4251,18 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);
+                    return true;
+                case "bool.ToString()":
+                    {
+                        JumpTarget trueTarget = new(), endTarget = new();
+                        if (instanceExpression is not null)
+                            ConvertExpression(model, instanceExpression);
+                        Jump(OpCode.JMPIF_L, trueTarget);
+                        Push("False");
+                        Jump(OpCode.JMP_L, endTarget);
+                        trueTarget.Instruction = Push("True");
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
                     return true;
                 case "sbyte.ToString()":
                 case "byte.ToString()":

@@ -1,16 +1,13 @@
-using System;
 using System.ComponentModel;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class SampleAttribute : System.Attribute
-    {
-        public SampleAttribute() { }
-    }
+    public class SampleAttribute : System.Attribute { }
 
     [DisplayName("attr")]
-    public class Contract_Attribute : SmartContract.Framework.SmartContract
+    public abstract class A : SmartContract.Framework.SmartContract { }
+
+    public class Contract_Attribute : A
     {
         [SampleAttribute]
         public static bool test() => true;
