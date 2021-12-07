@@ -7,7 +7,7 @@
     <Copyright>2015-2021 The Neo Project</Copyright>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
-    <LangVersion>9</LangVersion>
+    <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
     <PackageIcon>ngdsea.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -16,11 +16,18 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/ngdenterprise/neo-test</RepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(CI)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NeoVersion>3.1.0</NeoVersion>
+    <BlockchainToolkitLibraryVersion>3.1.21</BlockchainToolkitLibraryVersion>
+    <BlockchainToolkitLibraryLocalPath>..\..\..\lib-bctk</BlockchainToolkitLibraryLocalPath>
+    <!-- <BlockchainToolkitLibraryVersion>local</BlockchainToolkitLibraryVersion> -->
   </PropertyGroup>
 
   <ItemGroup>

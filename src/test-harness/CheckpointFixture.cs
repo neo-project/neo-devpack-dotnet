@@ -5,15 +5,17 @@ using Neo;
 using Neo.BlockchainToolkit;
 using Neo.BlockchainToolkit.Models;
 using Neo.BlockchainToolkit.Persistence;
+using Neo.Persistence;
 
 namespace NeoTestHarness
 {
     public abstract class CheckpointFixture : IDisposable
     {
         readonly static Lazy<IFileSystem> defaultFileSystem = new Lazy<IFileSystem>(() => new FileSystem());
-        readonly string checkpointTempPath;
-        readonly RocksDbStorageProvider rocksProvider;
-        public readonly ProtocolSettings ProtocolSettings;
+        readonly CheckpointStore checkpointStore;
+
+        public IReadOnlyStore CheckpointStore => checkpointStore;
+        public ProtocolSettings ProtocolSettings => checkpointStore.Settings;
 
         public CheckpointFixture(string checkpointPath)
         {
@@ -33,29 +35,13 @@ namespace NeoTestHarness
                 checkpointPath = tempPath;
             }
 
-            do
-            {
-                checkpointTempPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            }
-            while (Directory.Exists(checkpointTempPath));
-
-            var metadata = RocksDbUtility.RestoreCheckpoint(checkpointPath, checkpointTempPath);
-            this.ProtocolSettings = ProtocolSettings.Default with
-            {
-                Network = metadata.magic,
-                AddressVersion = metadata.addressVersion,
-            };
-            rocksProvider = RocksDbStorageProvider.OpenReadOnly(checkpointTempPath);
+            checkpointStore = new CheckpointStore(checkpointPath);
         }
 
         public void Dispose()
         {
-            rocksProvider.Dispose();
-            if (Directory.Exists(checkpointTempPath)) Directory.Delete(checkpointTempPath, true);
+            checkpointStore.Dispose();
         }
-
-        public CheckpointStorageProvider GetStorageProvider()
-            => new CheckpointStorageProvider(rocksProvider, disposeStorageProvider: false);
 
         public ExpressChain FindChain(string fileName = Constants.DEFAULT_EXPRESS_FILENAME, IFileSystem? fileSystem = null, string? searchFolder = null)
             => (fileSystem ?? defaultFileSystem.Value).FindChain(fileName, searchFolder);

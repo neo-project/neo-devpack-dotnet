@@ -14,12 +14,6 @@
     <PackageReference Include="Nito.Disposables" Version="2.2.1" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <BlockchainToolkitLibraryVersion>3.1.19-preview</BlockchainToolkitLibraryVersion>
-    <BlockchainToolkitLibraryLocalPath>..\..\..\lib-bctk</BlockchainToolkitLibraryLocalPath>
-    <!-- <BlockchainToolkitLibraryVersion>local</BlockchainToolkitLibraryVersion> -->
-  </PropertyGroup>
-
   <Choose>
     <When Condition=" '$(BlockchainToolkitLibraryVersion)' == 'local'">
       <ItemGroup>

@@ -6,16 +6,6 @@
     <RootNamespace>Neo.Test.Harness</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <BlockchainToolkitLibraryVersion>3.0.13</BlockchainToolkitLibraryVersion>
-    <BlockchainToolkitLibraryLocalPath>..\..\..\lib-bctk</BlockchainToolkitLibraryLocalPath>
-    <!-- <BlockchainToolkitLibraryVersion>local</BlockchainToolkitLibraryVersion> -->
-  </PropertyGroup>
-
   <Choose>
     <When Condition=" '$(BlockchainToolkitLibraryVersion)' == 'local'">
       <ItemGroup>

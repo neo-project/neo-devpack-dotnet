@@ -15,9 +15,20 @@ may not exactly match a publicly released version.
 
 ## Unreleased
 
-Added
+### Changed
 
-* Neo.Test.Runner tool
+* Update to Neo 3.1.0, target framework net6.0 and language version 10
+* Update to BlockchainToolkitLibrary 3.1.21
+* `CheckpointFixture.ProtocolSettings` changed from read only field to get only property.
+
+### Added
+
+* Neo.Test.Runner tool (#17)
+* `CheckpointFixture.CheckpointStore` get only property.
+
+### Removed
+
+* `CheckpointFixture.GetStorageProvider` method.
 
 ## [3.0.4] - 2021-10-12
 

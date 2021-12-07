@@ -155,11 +155,9 @@ namespace NeoTestHarness
             throw new Exception($"couldn't find {contractName} contract");
         }
 
-        public static SnapshotCache GetSnapshot(this CheckpointFixture fixture, string? storeName = null)
+        public static SnapshotCache GetSnapshot(this CheckpointFixture fixture)
         {
-            var provider = fixture.GetStorageProvider();
-            var store = provider.GetStore(storeName);
-            return new SnapshotCache(store);
+            return new SnapshotCache(fixture.CheckpointStore);
         }
     }
 }
