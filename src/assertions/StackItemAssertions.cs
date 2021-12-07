@@ -182,7 +182,7 @@ namespace Neo.Assertions
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
                     .ForCondition(span.SequenceEqual(expected))
-                    .FailWith("Expected {context:StackItem} to be {0}{reason}, but found {1}.", 
+                    .FailWith("Expected {context:StackItem} to be {0}{reason}, but found {1}.",
                         Convert.ToHexString(expected), Convert.ToHexString(span));
             }
             catch (Exception ex)

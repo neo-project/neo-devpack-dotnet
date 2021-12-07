@@ -13,6 +13,12 @@ will not have contiguous patch numbers. Initial major and minor releases will be
 in this file without a patch number. Patch version will be included for bug fixes, but
 may not exactly match a publicly released version.
 
+## Unreleased
+
+Added
+
+* Neo.Test.Runner tool
+
 ## [3.0.4] - 2021-10-12
 
 ### Changed

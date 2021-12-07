@@ -91,6 +91,80 @@ public void Can_register_domain()
 }
 ```
 
+## Neo Test Runner
+
+While the Neo Test Harness and Assertions libraries described above are great, they are
+only available to C# Neo dApp developers. Developers building their contracts using other
+languages like [Python](https://github.com/CityOfZion/neo3-boa), [Java](https://neow3j.io/)
+or [Go](https://github.com/nspcc-dev/neo-go) can't use them. The Neo Test Runner is a
+stand-alone EXE, shipped as a [.NET Tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
+that can execute test scripts against an emulated Neo blockchain environment and writes the
+results to the console in an easy-to-parse JSON format.
+
+To install the test runner, use the `dotnet tool install` command:
+
+``` shell
+> dotnet tool install Neo.Test.Runner -g
+```
+
+Example Command Execution:
+``` shell
+> neo-test-runner register-sample-domain.neo-invoke.json --account bob --checkpoint contract-deployed.neoxp-checkpoint --express default.neo-express --storages registrar --nef-file src/bin/sc/registrar.nef
+```
+
+Example Output:
+``` json
+{
+  "state": "HALT",
+  "exception": null,
+  "gasconsumed": "0.0869496",
+  "logs": [],
+  "notifications": [],
+  "stack": [
+    {
+      "type": "Boolean",
+      "value": true
+    }
+  ],
+  "storages": [
+    {
+      "name": "registrar",
+      "hash": "0xc6cf77e89ff11499717c7f2c83416e2c0273b2d6",
+      "values": [
+        {
+          "key": "UmVnaXN0cmFy",
+          "value": "iAKhsjONfqImOHWgs72sXPvwO4U="
+        },
+        {
+          "key": "ZG9tYWluT3duZXJzc2FtcGxlLmRvbWFpbg==",
+          "value": "o2rCWQljs56nfcn8JzEaqt4Ql08="
+        }
+      ]
+    }
+  ],
+  "code-coverage": {
+    "contract-hash": "0xc6cf77e89ff11499717c7f2c83416e2c0273b2d6",
+    "debug-info-hash": "0xf69e5188632deb3a9273519efc86cb68da8d42b8",
+    "hit-map": {
+      "3": 0,
+      "4": 0,
+      "53": 0,
+      "59": 0,
+      "63": 1,
+      "215": 1,
+      "247": 1,
+      // emits the hit count for every statement in the contract
+    },
+    "branch-map": {
+      "14": "0-0",
+      "63": "0-1",
+      "258": "1-0",
+      // emits the hit count for each branch  in the contract
+    }
+  }
+}
+
+
 ## Contract Interface Generator
 
 Several of the Neo Test Harness extension methods and the Neo Assertion `NotifyEventArgs`

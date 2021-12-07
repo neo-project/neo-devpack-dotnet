@@ -6,7 +6,7 @@ namespace NeoTestHarness
     {
         static string GetCheckpointPath()
         {
-            var attrib = ContractAttribute.GetCustomAttribute(typeof(T), typeof(CheckpointPathAttribute)) as CheckpointPathAttribute;
+            var attrib = Attribute.GetCustomAttribute(typeof(T), typeof(CheckpointPathAttribute)) as CheckpointPathAttribute;
             return attrib?.Path ?? throw new Exception($"Missing {nameof(CheckpointPathAttribute)} on {typeof(T).Name}");
         }
 

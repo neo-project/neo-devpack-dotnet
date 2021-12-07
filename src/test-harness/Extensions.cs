@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using Neo;
-using Neo.BlockchainToolkit.SmartContract;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -19,20 +18,20 @@ namespace NeoTestHarness
 
     public static class Extensions
     {
-        public static VMState ExecuteScript<T>(this TestApplicationEngine engine, params Expression<Action<T>>[] expressions)
+        public static VMState ExecuteScript<T>(this ApplicationEngine engine, params Expression<Action<T>>[] expressions)
             where T : class
         {
             engine.LoadScript<T>(expressions);
             return engine.Execute();
         }
 
-        public static VMState ExecuteScript(this TestApplicationEngine engine, Script script)
+        public static VMState ExecuteScript(this ApplicationEngine engine, Script script)
         {
             engine.LoadScript(script);
             return engine.Execute();
         }
 
-        public static void LoadScript<T>(this TestApplicationEngine engine, params Expression<Action<T>>[] expressions)
+        public static void LoadScript<T>(this ApplicationEngine engine, params Expression<Action<T>>[] expressions)
             where T : class
         {
             var script = engine.Snapshot.CreateScript<T>(expressions);
@@ -132,10 +131,10 @@ namespace NeoTestHarness
                     return GetContractName(type.DeclaringType ?? throw new Exception("reflection IsNested DeclaringType returned null"));
                 }
 
-                var contractAttrib = ContractAttribute.GetCustomAttribute(type, typeof(ContractAttribute)) as ContractAttribute;
+                var contractAttrib = Attribute.GetCustomAttribute(type, typeof(ContractAttribute)) as ContractAttribute;
                 if (contractAttrib != null) return contractAttrib.Name;
 
-                var descriptionAttrib = ContractAttribute.GetCustomAttribute(type, typeof(DescriptionAttribute)) as DescriptionAttribute;
+                var descriptionAttrib = Attribute.GetCustomAttribute(type, typeof(DescriptionAttribute)) as DescriptionAttribute;
                 if (descriptionAttrib != null) return descriptionAttrib.Description;
 
                 throw new Exception("reflection - FullName returned null");

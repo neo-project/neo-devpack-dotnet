@@ -1,17 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <AssemblyName>neo-test-harness</AssemblyName>
-    <DebugType>embedded</DebugType>
-    <PackageId>Neo.Test.Harness</PackageId>
-    <RootNamespace>Neo.Test.Harness</RootNamespace>
+    <AssemblyName>neo-test-runner</AssemblyName>
+    <Description>neo-test-runner is a utility for executing contract unit tests in an emulated Neo blockchain environment</Description>
+    <OutputType>Exe</OutputType>
+    <PackageId>Neo.Test.Runner</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <RootNamespace>Neo.Test.Runner</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
+    <PackageReference Include="Nito.Disposables" Version="2.2.1" />
   </ItemGroup>
 
   <PropertyGroup>
-    <BlockchainToolkitLibraryVersion>3.0.13</BlockchainToolkitLibraryVersion>
+    <BlockchainToolkitLibraryVersion>3.1.19-preview</BlockchainToolkitLibraryVersion>
     <BlockchainToolkitLibraryLocalPath>..\..\..\lib-bctk</BlockchainToolkitLibraryLocalPath>
     <!-- <BlockchainToolkitLibraryVersion>local</BlockchainToolkitLibraryVersion> -->
   </PropertyGroup>
