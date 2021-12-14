@@ -13,7 +13,7 @@ will not have contiguous patch numbers. Initial major and minor releases will be
 in this file without a patch number. Patch version will be included for bug fixes, but
 may not exactly match a publicly released version.
 
-## Unreleased
+## [3.1.10] - 2021-12-14
 
 ### Changed
 
