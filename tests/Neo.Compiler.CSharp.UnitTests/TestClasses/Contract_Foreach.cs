@@ -44,8 +44,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static int ByteStringEmpty()
         {
-            ByteString byteString = ByteString.Empty;
-            return byteString.Length;
+            ByteString bytes = ByteString.Empty;
+            return bytes.Length;
         }
 
         public static ByteString ByteStringForeach()
