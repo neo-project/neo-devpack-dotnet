@@ -18,6 +18,8 @@ namespace Neo.SmartContract.Framework
 {
     public abstract class ByteString : IEnumerable<byte>
     {
+        public static extern ByteString Empty { [OpCode(OpCode.PUSHDATA1, "00")] get; }
+
         public extern byte this[int index]
         {
             [OpCode(OpCode.PICKITEM)]
