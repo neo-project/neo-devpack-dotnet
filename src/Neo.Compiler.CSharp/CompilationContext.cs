@@ -378,7 +378,7 @@ namespace Neo.Compiler
         {
             switch (syntax)
             {
-                case NamespaceDeclarationSyntax @namespace:
+                case BaseNamespaceDeclarationSyntax @namespace:
                     foreach (MemberDeclarationSyntax member in @namespace.Members)
                         ProcessMemberDeclaration(processed, model, member);
                     break;
