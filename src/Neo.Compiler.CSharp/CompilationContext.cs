@@ -147,7 +147,7 @@ namespace Neo.Compiler
         internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
             context.Compile();
@@ -169,7 +169,7 @@ namespace Neo.Compiler
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(commonReferences);
-            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary);
+            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             XDocument xml = XDocument.Load(csproj);
             assemblyName = xml.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).SingleOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
             sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
