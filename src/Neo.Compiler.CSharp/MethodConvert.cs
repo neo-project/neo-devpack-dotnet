@@ -37,15 +37,15 @@ namespace Neo.Compiler
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _initslot;
-        private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
+        private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
-        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
+        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
-        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
@@ -223,7 +223,7 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct().ToArray())
+            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct(SymbolEqualityComparer.Default).ToArray())
             {
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
