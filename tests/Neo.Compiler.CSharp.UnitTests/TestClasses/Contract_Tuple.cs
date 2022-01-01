@@ -17,10 +17,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public BigInteger height;
     }
 
-
     public class Contract_Tuple : SmartContract.Framework.SmartContract
     {
-
         public static (BigInteger, BigInteger, BigInteger, BigInteger) GetResult()
         {
             return (1, 2, 3, 4);
