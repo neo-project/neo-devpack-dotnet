@@ -8,7 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Tuple
     {
-
         [TestMethod]
         public void Test_Assign()
         {
@@ -22,6 +21,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(4, tuple[3].GetInteger());
             Assert.AreEqual(2, ((Struct)tuple[4])[1].GetInteger());
         }
-
     }
 }
