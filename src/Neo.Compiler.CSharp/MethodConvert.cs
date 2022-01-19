@@ -1449,6 +1449,9 @@ namespace Neo.Compiler
                     case IdentifierNameSyntax identifier:
                         ConvertIdentifierNameAssignment(model, identifier);
                         break;
+                    case MemberAccessExpressionSyntax memberAccess:
+                        ConvertMemberAccessAssignment(model, memberAccess);
+                        break;
                     default:
                         throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {argument}");
                 }
