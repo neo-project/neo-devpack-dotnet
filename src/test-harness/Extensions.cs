@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using Neo;
+using Neo.BlockchainToolkit;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -51,7 +52,8 @@ namespace NeoTestHarness
                 for (var x = methodCall.Arguments.Count - 1; x >= 0; x--)
                 {
                     var obj = Expression.Lambda(methodCall.Arguments[x]).Compile().DynamicInvoke();
-                    builder.EmitPush(obj);
+                    var param = ContractParameterParser.ConvertObject(obj);
+                    builder.EmitPush(param);
                 }
                 builder.EmitPush(methodCall.Arguments.Count);
                 builder.Emit(OpCode.PACK);
