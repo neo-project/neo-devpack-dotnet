@@ -223,8 +223,9 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct(SymbolEqualityComparer.Default).ToArray())
+            foreach (INamedTypeSymbol? @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct(SymbolEqualityComparer.Default).ToArray())
             {
+                if (@class is null) continue;
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
                     if (field.IsConst || !field.IsStatic) continue;
