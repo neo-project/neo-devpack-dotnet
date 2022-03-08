@@ -3811,7 +3811,10 @@ namespace Neo.Compiler
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
+            var namedArguments = arguments.OfType<ArgumentSyntax>()
+                .Where(p => p.NameColon is not null)
+                .Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression))
+                    .ToDictionary(p => p.Symbol, p => p.Expression, SymbolEqualityComparer.Default);
             IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
