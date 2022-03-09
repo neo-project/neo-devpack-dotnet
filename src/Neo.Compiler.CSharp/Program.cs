@@ -35,45 +35,53 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
-            rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[]>(Handle);
+            rootCommand.SetHandler<RootCommand, Options, string[], InvocationContext>(Handle);
             return rootCommand.Invoke(args);
         }
 
-        private static int Handle(RootCommand command, Options options, string[] paths)
+        private static void Handle(RootCommand command, Options options, string[] paths, InvocationContext context)
         {
             if (paths is null || paths.Length == 0)
             {
-                var ret = ProcessDirectory(options, Environment.CurrentDirectory);
-                if (ret == 2)
+                context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
+                if (context.ExitCode == 2)
                 {
                     // Display help without args
                     command.Invoke("--help");
                 }
-                return ret;
+                return;
             }
             paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
             if (paths.Length == 1)
             {
                 string path = paths[0];
                 if (Directory.Exists(path))
-                    return ProcessDirectory(options, path);
+                {
+                    context.ExitCode = ProcessDirectory(options, path);
+                    return;
+                }
                 if (File.Exists(path) && Path.GetExtension(path).ToLowerInvariant() == ".csproj")
-                    return ProcessCsproj(options, path);
+                {
+                    context.ExitCode = ProcessCsproj(options, path);
+                    return;
+                }
             }
             foreach (string path in paths)
             {
                 if (Path.GetExtension(path).ToLowerInvariant() != ".cs")
                 {
                     Console.Error.WriteLine("The files must have a .cs extension.");
-                    return 1;
+                    context.ExitCode = 1;
+                    return;
                 }
                 if (!File.Exists(path))
                 {
                     Console.Error.WriteLine($"The file \"{path}\" doesn't exist.");
-                    return 1;
+                    context.ExitCode = 1;
+                    return;
                 }
             }
-            return ProcessSources(options, Path.GetDirectoryName(paths[0])!, paths);
+            context.ExitCode = ProcessSources(options, Path.GetDirectoryName(paths[0])!, paths);
         }
 
         private static int ProcessDirectory(Options options, string path)
