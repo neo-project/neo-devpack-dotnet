@@ -46,8 +46,8 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection methodsConverted = new();
         private readonly MethodConvertCollection methodsForward = new();
         private readonly List<MethodToken> methodTokens = new();
-        private readonly Dictionary<IFieldSymbol, byte> staticFields = new();
-        private readonly Dictionary<ITypeSymbol, byte> vtables = new();
+        private readonly Dictionary<IFieldSymbol, byte> staticFields = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<ITypeSymbol, byte> vtables = new(SymbolEqualityComparer.Default);
         private byte[]? script;
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
@@ -114,7 +114,7 @@ namespace Neo.Compiler
 
         private void Compile()
         {
-            HashSet<INamedTypeSymbol> processed = new();
+            HashSet<INamedTypeSymbol> processed = new(SymbolEqualityComparer.Default);
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
@@ -378,7 +378,7 @@ namespace Neo.Compiler
         {
             switch (syntax)
             {
-                case NamespaceDeclarationSyntax @namespace:
+                case BaseNamespaceDeclarationSyntax @namespace:
                     foreach (MemberDeclarationSyntax member in @namespace.Members)
                         ProcessMemberDeclaration(processed, model, member);
                     break;
