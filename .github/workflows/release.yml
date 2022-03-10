@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    if: startsWith(github.ref, 'refs/heads/release/')
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -14,15 +15,14 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
-    - name: Install nbgv
-      run: dotnet tool install nbgv --tool-path ./tools
-    - name: Run nbgv
-      run: echo "NUGET_PACKAGE_VERSION=$(./tools/nbgv get-version -v NuGetPackageVersion)" >> $GITHUB_ENV
+    - name: Nerdbank.GitVersioning
+      uses: dotnet/nbgv@v0.4.0
+      id: nbgv
     - name: Install dependencies
       run: dotnet restore
     - name: Pack 
-      run: dotnet pack --output ./out --configuration Release --no-restore --verbosity normal
-    - name: Upload artifact
+      run: x
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: packages
@@ -31,8 +31,16 @@ jobs:
       uses: marvinpinto/action-automatic-releases@v1.1.1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: ${{ contains(env.NUGET_PACKAGE_VERSION, '-preview') }}
-        title: Release ${{ env.NUGET_PACKAGE_VERSION }}
-        automatic_release_tag: ${{ env.NUGET_PACKAGE_VERSION }}
+        prerelease: ${{ steps.nbgv.outputs.PrereleaseVersion != '' }}
+        title: Release ${{ steps.nbgv.outputs.NuGetPackageVersion }}
+        automatic_release_tag: ${{ steps.nbgv.outputs.NuGetPackageVersion }}
         files: |
           ./out/*
+    - name: Push to Nuget.org
+      run: dotnet nuget push ${{ format('./out/Neo.Assertions.{0}.nupkg', steps.nbgv.outputs.NuGetPackageVersion) }} --api-key ${{ secrets.NUGET_ORG_TOKEN }} --source https://api.nuget.org/v3/index.json
+    - name: Push to Nuget.org
+      run: dotnet nuget push ${{ format('./out/Neo.BuildTasks.{0}.nupkg', steps.nbgv.outputs.NuGetPackageVersion) }} --api-key ${{ secrets.NUGET_ORG_TOKEN }} --source https://api.nuget.org/v3/index.json
+    - name: Push to Nuget.org
+      run: dotnet nuget push ${{ format('./out/Neo.Test.Harness.{0}.nupkg', steps.nbgv.outputs.NuGetPackageVersion) }} --api-key ${{ secrets.NUGET_ORG_TOKEN }} --source https://api.nuget.org/v3/index.json
+    - name: Push to Nuget.org
+      run: dotnet nuget push ${{ format('./out/Neo.Test.Runner.{0}.nupkg', steps.nbgv.outputs.NuGetPackageVersion) }} --api-key ${{ secrets.NUGET_ORG_TOKEN }} --source https://api.nuget.org/v3/index.json
