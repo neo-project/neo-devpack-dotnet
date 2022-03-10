@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <AssemblyName>neo-assertions</AssemblyName>
-    <DebugType>embedded</DebugType>
     <PackageId>Neo.Assertions</PackageId>
     <RootNamespace>Neo.Assertions</RootNamespace>
   </PropertyGroup>

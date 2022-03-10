@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>neo-test-harness</AssemblyName>
-    <DebugType>embedded</DebugType>
     <PackageId>Neo.Test.Harness</PackageId>
     <RootNamespace>Neo.Test.Harness</RootNamespace>
   </PropertyGroup>
