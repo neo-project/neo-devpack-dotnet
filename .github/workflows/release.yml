@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Pack 
-      run: x
+      run: dotnet pack --output ./out --configuration Release --no-restore --verbosity normal
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
