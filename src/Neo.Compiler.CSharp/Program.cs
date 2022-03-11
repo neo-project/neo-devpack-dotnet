@@ -126,25 +126,27 @@ namespace Neo.Compiler
             if (context.Success)
             {
                 folder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                var contractName = string.IsNullOrEmpty(options.ContractName)
+                    ? context.ContractName : options.ContractName;
                 Directory.CreateDirectory(folder);
-                string path = Path.Combine(folder, $"{context.ContractName}.nef");
+                string path = Path.Combine(folder, $"{contractName}.nef");
                 File.WriteAllBytes(path, context.CreateExecutable().ToArray());
                 Console.WriteLine($"Created {path}");
-                path = Path.Combine(folder, $"{context.ContractName}.manifest.json");
+                path = Path.Combine(folder, $"{contractName}.manifest.json");
                 File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
-                    path = Path.Combine(folder, $"{context.ContractName}.nefdbgnfo");
+                    path = Path.Combine(folder, $"{contractName}.nefdbgnfo");
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
-                    using Stream stream = archive.CreateEntry($"{context.ContractName}.debug.json").Open();
+                    using Stream stream = archive.CreateEntry($"{contractName}.debug.json").Open();
                     stream.Write(context.CreateDebugInformation().ToByteArray(false));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
-                    path = Path.Combine(folder, $"{context.ContractName}.asm");
+                    path = Path.Combine(folder, $"{contractName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
                 }
