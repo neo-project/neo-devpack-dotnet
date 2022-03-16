@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Linq;
 using Neo.BlockchainToolkit;
@@ -19,7 +20,7 @@ namespace Neo.Test.Runner
 
         public static ContractParameterParser CreateContractParameterParser(this ExpressChain chain, ContractParameterParser.TryGetUInt160 tryGetContract, IFileSystem? fileSystem = null)
         {
-            ContractParameterParser.TryGetUInt160 tryGetAccount = (string name, out UInt160 scriptHash) =>
+            ContractParameterParser.TryGetUInt160 tryGetAccount = (string name, [MaybeNullWhen(false)] out UInt160 scriptHash) =>
                 {
                     if (chain.TryGetDefaultAccount(name, out var account))
                     {
@@ -61,7 +62,7 @@ namespace Neo.Test.Runner
                     .ToArray();
             }
 
-            return (string name, out UInt160 scriptHash) =>
+            return (string name, [MaybeNullWhen(false)] out UInt160 scriptHash) =>
                 {
                     for (int i = 0; i < contracts.Length; i++)
                     {
