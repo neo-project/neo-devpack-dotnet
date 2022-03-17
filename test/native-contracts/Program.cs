@@ -30,7 +30,7 @@ namespace native_contracts
             var requestContent = new ByteArrayContent(Encoding.UTF8.GetBytes(requestJson.ToString()));
 
             var client = new HttpClient();
-            var response = await client.PostAsync("http://seed5t.neo.org:20332", requestContent);
+            var response = await client.PostAsync("http://seed1t4.neo.org:20332", requestContent);
             var responseBytes = await response.Content.ReadAsByteArrayAsync();
             var responseJson = SimpleJSON.JSONObject.Parse(Encoding.UTF8.GetString(responseBytes));
 
