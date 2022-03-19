@@ -7,11 +7,11 @@ namespace Neo.BuildTasks
 {
     public static class ContractGenerator
     {
-        // generated from Roslyn C# 3.9 SyntaxFacts.GetKeywordKinds().Select(k => SyntaxFacts.GetText(k))
+        // generated from Roslyn C# 4.1 SyntaxFacts.GetKeywordKinds().Select(k => SyntaxFacts.GetText(k)).OrderBy(k => k)
         static readonly ImmutableHashSet<string> CSHARP_KEYWORDS = ImmutableHashSet.Create("__arglist", "__makeref",
             "__reftype", "__refvalue", "abstract", "add", "alias", "and", "as", "ascending", "assembly", "async",
             "await", "base", "bool", "break", "by", "byte", "case", "catch", "char", "checked", "class", "const",
-            "continue", "data", "decimal", "default", "delegate", "descending", "do", "double", "else", "enum", "equals",
+            "continue", "decimal", "default", "delegate", "descending", "do", "double", "else", "enum", "equals",
             "event", "explicit", "extern", "false", "field", "finally", "fixed", "float", "for", "foreach", "from",
             "get", "global", "goto", "group", "if", "implicit", "in", "init", "int", "interface", "internal", "into",
             "is", "join", "let", "lock", "long", "managed", "method", "module", "nameof", "namespace", "new", "not",
