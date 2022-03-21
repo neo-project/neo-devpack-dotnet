@@ -94,7 +94,7 @@
     <Message Importance="High" Text="NeoExpress Batch -> $(NeoExpressNormalizedBatchFile)" />
   </Target>
 
-  <Target Name="ConfigureNeoContractInterface">
+  <Target Name="ConfigureNeoContractInterface" BeforeTargets="$(BuildDependsOn);Build" Condition="'@(NeoContractReference)'!=''">
     <ItemGroup>
       <ProjectReference Include="@(NeoContractReference)" ReferenceOutputAssembly="false" />
     </ItemGroup>
@@ -116,7 +116,7 @@
 
   </Target>
 
-  <Target Name="GenerateNeoContractInterface" BeforeTargets="ResolveProjectReferences" 
+  <Target Name="GenerateNeoContractInterface" AfterTargets="ResolveProjectReferences" 
     DependsOnTargets="ConfigureNeoContractInterface"
     Condition="'@(NeoContractReference)'!=''"
     Inputs="%(NeoContractGeneration.ManifestPath)" Outputs="%(NeoContractGeneration.OutputPath)">
