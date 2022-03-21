@@ -19,5 +19,14 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Crypto.CheckMultisig")]
         public extern static bool CheckMultisig(Cryptography.ECC.ECPoint[] pubkey, ByteString[] signature);
+
+        [Syscall("System.Crypto.Bls12381Add")]
+        public extern static bool Bls12381Add(ByteString gt1, ByteString gt2);
+
+        [Syscall("System.Crypto.Bls12381Mul")]
+        public extern static bool Bls12381Mul(ByteString gt, int mul);
+
+        [Syscall("System.Crypto.Bls12381Pairing")]
+        public extern static bool Bls12381Pairing(ByteString g1_bytes, ByteString g2_bytes);
     }
 }
