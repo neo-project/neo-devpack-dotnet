@@ -13,6 +13,7 @@ using Neo.IO;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
-            rootCommand.SetHandler<RootCommand, Options, string[], InvocationContext>(Handle);
+            rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[], InvocationContext>(Handle);
             return rootCommand.Invoke(args);
         }
 
