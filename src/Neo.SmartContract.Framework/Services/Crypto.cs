@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern static bool Bls12381Add(ByteString gt1, ByteString gt2);
 
         [Syscall("System.Crypto.Bls12381Mul")]
-        public extern static bool Bls12381Mul(ByteString gt, int mul);
+        public extern static bool Bls12381Mul(ByteString gt, long mul);
 
         [Syscall("System.Crypto.Bls12381Pairing")]
         public extern static bool Bls12381Pairing(ByteString g1_bytes, ByteString g2_bytes);
