@@ -29,7 +29,7 @@ namespace Neo.Compiler
             {
                 new Argument<string[]>("paths", "The path of the project file, project directory or source files."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
-                new Option<string>("--contract-name", "Specifies the base name of the output files."),
+                new Option<string>("--base-name", "Specifies the base name of the output files."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
@@ -126,28 +126,27 @@ namespace Neo.Compiler
             }
             if (context.Success)
             {
+                string baseName = options.BaseName ?? context.ContractName!;
                 folder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                var contractName = string.IsNullOrEmpty(options.ContractName)
-                    ? context.ContractName : options.ContractName;
                 Directory.CreateDirectory(folder);
-                string path = Path.Combine(folder, $"{contractName}.nef");
+                string path = Path.Combine(folder, $"{baseName}.nef");
                 File.WriteAllBytes(path, context.CreateExecutable().ToArray());
                 Console.WriteLine($"Created {path}");
-                path = Path.Combine(folder, $"{contractName}.manifest.json");
+                path = Path.Combine(folder, $"{baseName}.manifest.json");
                 File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
-                    path = Path.Combine(folder, $"{contractName}.nefdbgnfo");
+                    path = Path.Combine(folder, $"{baseName}.nefdbgnfo");
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
-                    using Stream stream = archive.CreateEntry($"{contractName}.debug.json").Open();
+                    using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
                     stream.Write(context.CreateDebugInformation().ToByteArray(false));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
-                    path = Path.Combine(folder, $"{contractName}.asm");
+                    path = Path.Combine(folder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
                 }
