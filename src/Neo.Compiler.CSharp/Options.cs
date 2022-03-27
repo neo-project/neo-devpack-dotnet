@@ -13,7 +13,7 @@ namespace Neo.Compiler
     public class Options
     {
         public string? Output { get; set; }
-        public string? ContractName { get; set; }
+        public string? BaseName { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
         public bool NoOptimize { get; set; }
