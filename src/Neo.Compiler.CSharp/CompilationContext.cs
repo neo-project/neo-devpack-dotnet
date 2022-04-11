@@ -35,6 +35,7 @@ namespace Neo.Compiler
         private static readonly MetadataReference[] commonReferences;
         private static readonly Dictionary<string, MetadataReference> metaReferences = new();
         private readonly Compilation compilation;
+        private string? assemblyName, displayName, className;
         private bool scTypeFound;
         private readonly List<Diagnostic> diagnostics = new();
         private readonly HashSet<string> supportedStandards = new();
@@ -52,7 +53,7 @@ namespace Neo.Compiler
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
-        public string? ContractName { get; private set; }
+        public string? ContractName => displayName ?? assemblyName ?? className;
         private string? Source { get; set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
@@ -77,7 +78,6 @@ namespace Neo.Compiler
         {
             this.compilation = compilation;
             this.Options = options;
-            this.ContractName = options.ContractName;
         }
 
         private void RemoveEmptyInitialize()
@@ -242,7 +242,7 @@ namespace Neo.Compiler
         {
             Compilation compilation = GetCompilation(csproj, out string assemblyName);
             CompilationContext context = new(compilation, options);
-            context.ContractName ??= assemblyName;
+            context.assemblyName = assemblyName;
             context.Compile();
             return context;
         }
@@ -405,7 +405,7 @@ namespace Neo.Compiler
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            ContractName = (string)attribute.ConstructorArguments[0].Value!;
+                            displayName = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
@@ -427,7 +427,7 @@ namespace Neo.Compiler
                             break;
                     }
                 }
-                ContractName ??= symbol.Name;
+                className = symbol.Name;
             }
             foreach (ISymbol member in symbol.GetAllMembers())
             {
