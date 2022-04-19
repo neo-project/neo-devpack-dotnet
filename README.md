@@ -163,7 +163,7 @@ Example Output:
     }
   }
 }
-
+```
 
 ## Contract Interface Generator
 
