@@ -62,5 +62,16 @@ namespace Neo
             data = Helper.Concat(data, this);
             return StdLib.Base58CheckEncode((ByteString)data);
         }
+
+        /// <summary>
+        /// Converts the specified script hash to an address, using the current blockchain AddressVersion value
+        /// </summary>
+        /// <returns>The converted address.</returns>
+        public string ToAddress()
+        {
+            byte[] data = { Neo.SmartContract.Framework.Services.Runtime.AddressVersion };
+            data = Helper.Concat(data, this);
+            return StdLib.Base58CheckEncode((ByteString)data);
+        }
     }
 }

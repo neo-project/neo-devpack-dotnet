@@ -69,6 +69,12 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
+        public static extern byte AddressVersion
+        {
+            [Syscall("System.Runtime.GetAddressVersion")]
+            get;
+        }
+
         /// <summary>
         /// This method gets current invocation notifications from specific 'scriptHash'
         /// 'scriptHash' must have 20 bytes, but if it's all zero 0000...0000 it refers to all existing notifications (like a * wildcard)
