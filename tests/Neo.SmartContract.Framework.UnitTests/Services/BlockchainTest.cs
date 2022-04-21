@@ -38,7 +38,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                      new Transaction()
                      {
                           Attributes = System.Array.Empty<TransactionAttribute>(),
-                          Signers = new Signer[]{ new Signer() { Account = UInt160.Zero } },
+                          Signers = new Signer[]{ new Signer() {
+                              Account = UInt160.Zero ,
+                              AllowedContracts = System.Array.Empty<UInt160>(),
+                              AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
+                              Rules = System.Array.Empty<WitnessRule>(),
+                              Scopes =  WitnessScope.Global
+                          } },
                           Witnesses = System.Array.Empty<Witness>(),
                           Script = System.Array.Empty<byte>()
                      }
@@ -250,6 +256,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, (item as Array).Count);
+            Assert.AreEqual(6, ((item as Array)[0] as Array).Count);
         }
 
         private static StackItem[] Concat(StackItem[] a, ByteString b)
