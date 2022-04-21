@@ -23,7 +23,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (byte[])CryptoLib.murmur32((ByteString)value, seed);
         }
 
-
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
             return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256r1);
