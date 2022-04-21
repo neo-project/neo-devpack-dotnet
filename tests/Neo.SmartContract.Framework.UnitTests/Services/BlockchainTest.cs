@@ -60,7 +60,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
         }
 
-
         [TestMethod]
         public void Test_GetHeight()
         {
@@ -240,6 +239,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetSpan().ToArray());
+
+            // Signers
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Signers"))));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(1, (item as Array).Count);
         }
 
         private static StackItem[] Concat(StackItem[] a, ByteString b)

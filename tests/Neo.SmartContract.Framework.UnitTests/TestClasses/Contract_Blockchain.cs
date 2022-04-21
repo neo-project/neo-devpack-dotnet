@@ -83,6 +83,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             if (whatReturn == "SystemFee") return tx.SystemFee;
             if (whatReturn == "ValidUntilBlock") return tx.ValidUntilBlock;
             if (whatReturn == "Version") return tx.Version;
+            if (whatReturn == "Signers") return Ledger.GetTransactionSigners(tx.Hash);
 
             throw new Exception("Uknown property");
         }
