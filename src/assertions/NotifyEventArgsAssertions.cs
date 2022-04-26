@@ -4,10 +4,7 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using Neo;
-using Neo.Persistence;
 using Neo.SmartContract;
-using Neo.SmartContract.Manifest;
 
 namespace Neo.Assertions
 {

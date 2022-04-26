@@ -36,18 +36,13 @@ namespace Neo.BuildTasks
 
             ManualResetEvent completeEvent = new(false);
 
-            process.Exited += (_, _) => completeEvent.Set(); 
+            process.Exited += (_, _) => completeEvent.Set();
 
             if (!process.Start()) throw new Exception("Process failed to start");
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
             completeEvent.WaitOne();
-
-            // while (!process.HasExited)
-            // {
-            //     Thread.Sleep(50);
-            // }
 
             return new Results(process.ExitCode, output, error);
         }

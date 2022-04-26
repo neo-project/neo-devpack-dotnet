@@ -3,9 +3,7 @@ using System.Numerics;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using Neo;
 using Neo.VM.Types;
-
 
 namespace Neo.Assertions
 {

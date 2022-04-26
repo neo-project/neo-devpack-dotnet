@@ -15,6 +15,15 @@ may not exactly match a publicly released version.
 
 ## [Unreleased]
 
+### Added
+
+* NeoCsc and NeoExpressBatch MSBuild tasks (plus .targets file)
+* Abstract DotNetToolTask for invoking dotnet tools installed globally or locally
+* `ScriptBuilder.EmitContractCall` extension methods
+* `NativeContracts` static class 
+  * `NeoToken` and `GasToken` contract hashes
+* `Nep17Token` and `NeoToken` contract interfaces for use with `NeoTestHarness`
+
 ### Changed
 
 * Use ContractParameterParser.ConvertObject to convert object instances to ContractParameter in NeoTestHarness.Extensions.CreateScript (#20)

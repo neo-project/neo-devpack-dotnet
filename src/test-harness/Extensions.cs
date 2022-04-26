@@ -46,23 +46,35 @@ namespace NeoTestHarness
             using var builder = new ScriptBuilder();
             for (int i = 0; i < expressions.Length; i++)
             {
-                var methodCall = (MethodCallExpression)expressions[i].Body;
-                var operation = methodCall.Method.Name;
-
-                for (var x = methodCall.Arguments.Count - 1; x >= 0; x--)
-                {
-                    var obj = Expression.Lambda(methodCall.Arguments[x]).Compile().DynamicInvoke();
-                    var param = ContractParameterParser.ConvertObject(obj);
-                    builder.EmitPush(param);
-                }
-                builder.EmitPush(methodCall.Arguments.Count);
-                builder.Emit(OpCode.PACK);
-                builder.EmitPush(CallFlags.All);
-                builder.EmitPush(operation);
-                builder.EmitPush(scriptHash);
-                builder.EmitSysCall(ApplicationEngine.System_Contract_Call);
+                builder.EmitContractCall(scriptHash, expressions[i]);
             }
             return builder.ToArray();
+        }
+
+        public static void EmitContractCall<T>(this ScriptBuilder builder, DataCache snapshot, Expression<Action<T>> expression)
+            where T : class
+        {
+            var scriptHash = snapshot.GetContractScriptHash<T>();
+            EmitContractCall<T>(builder, scriptHash, expression);
+        }
+
+        public static void EmitContractCall<T>(this ScriptBuilder builder, UInt160 scriptHash, Expression<Action<T>> expression)
+        {
+            var methodCall = (MethodCallExpression)expression.Body;
+            var operation = methodCall.Method.Name;
+
+            for (var x = methodCall.Arguments.Count - 1; x >= 0; x--)
+            {
+                var obj = Expression.Lambda(methodCall.Arguments[x]).Compile().DynamicInvoke();
+                var param = ContractParameterParser.ConvertObject(obj);
+                builder.EmitPush(param);
+            }
+            builder.EmitPush(methodCall.Arguments.Count);
+            builder.Emit(OpCode.PACK);
+            builder.EmitPush(CallFlags.All);
+            builder.EmitPush(operation);
+            builder.EmitPush(scriptHash);
+            builder.EmitSysCall(ApplicationEngine.System_Contract_Call);
         }
 
         public static NeoStorage GetContractStorages<T>(this DataCache snapshot)
@@ -98,14 +110,14 @@ namespace NeoTestHarness
         }
 
         public static NeoStorage StorageMap(this NeoStorage storages, string prefix)
-            => storages.StorageMap(Utility.StrictUTF8.GetBytes(prefix));
+            => storages.StorageMap(Neo.Utility.StrictUTF8.GetBytes(prefix));
 
         public static NeoStorage StorageMap(this NeoStorage storages, ReadOnlyMemory<byte> prefix)
             => storages.Where(kvp => kvp.Key.Span.StartsWith(prefix.Span))
                 .ToImmutableDictionary(kvp => kvp.Key.Slice(prefix.Length), kvp => kvp.Value, MemoryEqualityComparer.Instance);
 
         public static bool TryGetValue(this NeoStorage storage, string key, [NotNullWhen(true)] out StorageItem item)
-            => storage.TryGetValue(Utility.StrictUTF8.GetBytes(key), out item!);
+            => storage.TryGetValue(Neo.Utility.StrictUTF8.GetBytes(key), out item!);
 
         public static bool TryGetValue(this NeoStorage storage, UInt160 key, [NotNullWhen(true)] out StorageItem item)
             => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item!);

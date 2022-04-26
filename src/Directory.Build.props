@@ -24,8 +24,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <NeoVersion>3.1.0</NeoVersion>
-    <BlockchainToolkitLibraryVersion>3.1.35</BlockchainToolkitLibraryVersion>
+    <NeoVersion>3.2.1</NeoVersion>
+    <BlockchainToolkitLibraryVersion>3.2.49-preview</BlockchainToolkitLibraryVersion>
     <BlockchainToolkitLibraryLocalPath>..\..\..\lib-bctk</BlockchainToolkitLibraryLocalPath>
     <!-- <BlockchainToolkitLibraryVersion>local</BlockchainToolkitLibraryVersion> -->
   </PropertyGroup>

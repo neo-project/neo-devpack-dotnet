@@ -1,4 +1,3 @@
-using Neo.Ledger;
 using Neo.SmartContract;
 using Neo.VM.Types;
 

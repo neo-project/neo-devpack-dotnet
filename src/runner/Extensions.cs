@@ -4,7 +4,6 @@ using System.IO.Abstractions;
 using System.Linq;
 using Neo.BlockchainToolkit;
 using Neo.BlockchainToolkit.Models;
-using Neo.BlockchainToolkit.SmartContract;
 using Neo.Persistence;
 using Neo.SmartContract.Native;
 

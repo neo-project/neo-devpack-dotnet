@@ -31,7 +31,7 @@ namespace Neo.BuildTasks
         public ITaskItem[] OutputFiles => outputFiles;
 
         protected override string GetArguments()
-        { 
+        {
             var builder = new StringBuilder();
             foreach (var file in Files)
             {

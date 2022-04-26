@@ -76,9 +76,8 @@
     Inputs="@(NeoCscOutput);$(NeoExpressBatchFile);$(NeoExpressTouchFile)" Outputs="$(NeoExpressTouchFile)">
 
     <PropertyGroup>
-      <NeoExpressNormalizedBatchFile>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), $(NeoExpressBatchFile)))</NeoExpressNormalizedBatchFile>
       <NeoExpressBatchReset>true</NeoExpressBatchReset>
-      <NeoExpressBatchReset Condition="'(NeoExpressBatchNoReset)'=='true'">false</NeoExpressBatchReset>
+      <NeoExpressBatchReset Condition="'$(NeoExpressBatchNoReset)'=='true'">false</NeoExpressBatchReset>
     </PropertyGroup>
 
     <NeoExpressBatch 

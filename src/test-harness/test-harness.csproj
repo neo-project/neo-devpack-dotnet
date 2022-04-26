@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>neo-test-harness</AssemblyName>
     <PackageId>Neo.Test.Harness</PackageId>
-    <RootNamespace>Neo.Test.Harness</RootNamespace>
+    <RootNamespace>NeoTestHarness</RootNamespace>
   </PropertyGroup>
 
   <Choose>
