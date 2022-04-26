@@ -257,6 +257,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, (item as Array).Count);
             Assert.AreEqual(6, ((item as Array)[0] as Array).Count);
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("FirstScope"))));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((int)WitnessScope.Global, item.GetInteger());
         }
 
         private static StackItem[] Concat(StackItem[] a, ByteString b)
