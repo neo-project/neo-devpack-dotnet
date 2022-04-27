@@ -19,6 +19,6 @@ namespace Neo.SmartContract.Framework.Native
         public WitnessScope Scopes;
         public UInt160[] AllowedContracts;
         public ECPoint[] AllowedGroups;
-        public object[] Rules;
+        public WitnessRule[] Rules;
     }
 }
