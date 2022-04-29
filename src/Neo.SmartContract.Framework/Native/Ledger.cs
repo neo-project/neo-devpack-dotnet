@@ -27,5 +27,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern Transaction GetTransactionFromBlock(UInt256 blockHash, int txIndex);
         public static extern Transaction GetTransactionFromBlock(uint blockHeight, int txIndex);
         public static extern int GetTransactionHeight(UInt256 hash);
+        public static extern Signer[] GetTransactionSigners(UInt256 hash);
     }
 }
