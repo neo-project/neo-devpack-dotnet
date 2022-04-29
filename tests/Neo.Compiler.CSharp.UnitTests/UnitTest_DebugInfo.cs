@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(testEngine.Nef.Script.ToScriptHash().ToString(), debugInfo["hash"].GetString());
             Assert.IsTrue(debugInfo.ContainsProperty("documents"));
             Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
-            Assert.AreEqual(68, (debugInfo["documents"] as JArray).Count);
+            Assert.AreEqual(78, (debugInfo["documents"] as JArray).Count);
             Assert.IsTrue((debugInfo["documents"] as JArray).All(n => n is JString), "All documents items should be string!");
             Assert.IsTrue(debugInfo.ContainsProperty("methods"));
             Assert.IsInstanceOfType(debugInfo["methods"], typeof(JArray));
