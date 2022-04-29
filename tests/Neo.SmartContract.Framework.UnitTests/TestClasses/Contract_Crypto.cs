@@ -15,12 +15,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         [DisplayName("RIPEMD160")]
         public static byte[] RIPEMD160(byte[] value)
         {
-            return (byte[])CryptoLib.ripemd160((ByteString)value);
+            return (byte[])CryptoLib.Ripemd160((ByteString)value);
         }
 
-        public static byte[] murmur32(byte[] value, uint seed)
+        public static byte[] Murmur32(byte[] value, uint seed)
         {
-            return (byte[])CryptoLib.murmur32((ByteString)value, seed);
+            return (byte[])CryptoLib.Murmur32((ByteString)value, seed);
         }
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
