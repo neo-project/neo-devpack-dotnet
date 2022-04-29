@@ -8,11 +8,12 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Cryptography.ECC;
+
 namespace Neo.SmartContract.Framework.Native
 {
-    public class WitnessRule
+    public class CalledByGroupCondition : WitnessCondition
     {
-        public WitnessRuleAction Action;
-        public WitnessCondition Condition;
+        public ECPoint Group;
     }
 }

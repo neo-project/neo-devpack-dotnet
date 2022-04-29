@@ -10,9 +10,8 @@
 
 namespace Neo.SmartContract.Framework.Native
 {
-    public class WitnessRule
+    public abstract class WitnessCondition
     {
-        public WitnessRuleAction Action;
-        public WitnessCondition Condition;
+        public WitnessConditionType Type;
     }
 }

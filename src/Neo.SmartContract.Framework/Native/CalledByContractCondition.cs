@@ -10,9 +10,8 @@
 
 namespace Neo.SmartContract.Framework.Native
 {
-    public class WitnessRule
+    public class CalledByContractCondition : WitnessCondition
     {
-        public WitnessRuleAction Action;
-        public WitnessCondition Condition;
+        public UInt160 Hash;
     }
 }

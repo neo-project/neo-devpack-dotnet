@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -7,8 +7,6 @@
 // 
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
-
-using Neo.Cryptography.ECC;
 
 namespace Neo.SmartContract.Framework.Native
 {
@@ -61,50 +59,5 @@ namespace Neo.SmartContract.Framework.Native
         /// Indicates that the condition is met when the current context is called by the specified group.
         /// </summary>
         CalledByGroup = 0x29
-    }
-
-    public abstract class WitnessCondition
-    {
-        public WitnessConditionType Type;
-    }
-
-    public class AndCondition : WitnessCondition
-    {
-        public WitnessCondition[] Expressions;
-    }
-
-    public class OrCondition : WitnessCondition
-    {
-        public WitnessCondition[] Expressions;
-    }
-
-    public class NotCondition : WitnessCondition
-    {
-        public WitnessCondition Expression;
-    }
-
-    public class BooleanCondition : WitnessCondition
-    {
-        public bool Expression;
-    }
-
-    public class CalledByContractCondition : WitnessCondition
-    {
-        public UInt160 Hash;
-    }
-
-    public class ScriptHashCondition : WitnessCondition
-    {
-        public UInt160 Hash;
-    }
-
-    public class CalledByGroupCondition : WitnessCondition
-    {
-        public ECPoint Group;
-    }
-
-    public class GroupCondition : WitnessCondition
-    {
-        public ECPoint Group;
     }
 }

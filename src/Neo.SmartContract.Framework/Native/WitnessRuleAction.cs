@@ -10,9 +10,19 @@
 
 namespace Neo.SmartContract.Framework.Native
 {
-    public class WitnessRule
+    /// <summary>
+    /// Indicates the action to be taken if the current context meets with the rule.
+    /// </summary>
+    public enum WitnessRuleAction : byte
     {
-        public WitnessRuleAction Action;
-        public WitnessCondition Condition;
+        /// <summary>
+        /// Deny the witness according to the rule.
+        /// </summary>
+        Deny = 0,
+
+        /// <summary>
+        /// Allow the witness according to the rule.
+        /// </summary>
+        Allow = 1
     }
 }
