@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             references.Add(cr.ToMetadataReference());
         }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, SmartContract.Diagnostic diagnostic = null)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, IDiagnostic diagnostic = null)
              : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas, diagnostic)
         {
         }

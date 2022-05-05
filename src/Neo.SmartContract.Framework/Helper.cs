@@ -217,5 +217,13 @@ namespace Neo.SmartContract.Framework
         /// <returns></returns>
         [OpCode(OpCode.SQRT)]
         public extern static BigInteger Sqrt(this BigInteger x);
+
+        [OpCode(OpCode.MODMUL)]
+        public extern static BigInteger ModMultiply(this BigInteger x, BigInteger y, BigInteger modulus);
+
+        public static BigInteger ModInverse(this BigInteger value, BigInteger modulus)
+        {
+            return BigInteger.ModPow(value, -1, modulus);
+        }
     }
 }

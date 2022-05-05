@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -624,6 +624,14 @@ namespace Neo.SmartContract.Framework
         /// Returns the square root of a specified number.
         /// </summary>
         SQRT = 0xA4,
+        /// <summary>
+        /// Performs modulus division on a number multiplied by another number.
+        /// </summary>
+        MODMUL = 0xA5,
+        /// <summary>
+        /// Performs modulus division on a number raised to the power of another number. If the exponent is -1, it will have the calculation of the modular inverse.
+        /// </summary>
+        MODPOW = 0xA6,
         /// <summary>
         /// Shifts a left b bits, preserving sign.
         /// </summary>
