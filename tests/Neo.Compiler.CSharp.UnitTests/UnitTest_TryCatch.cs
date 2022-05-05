@@ -1,5 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.IO;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -12,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestInitialize]
         public void Init()
         {
-            testengine = new TestEngine();
+            testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
         }
 
@@ -245,5 +248,75 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(4, array[0]);
             Assert.IsTrue(array[1] is Neo.VM.Types.Null);
         }
+
+
+        [TestMethod]
+        public void Test_TryCatch_Unsafe_Method()
+        {
+            var methods = new string[] {
+                "unsafe_Method",
+                "unsafe_Method_Static",
+                "unsafe_Block",
+                "unsafe_Block_Static",
+                "unsafe_Property",
+                "unsafe_Property_Static",
+                "unsafe_Block_In_Property",
+                "unsafe_Block_In_Property_Static"
+            };
+
+            var contract = testengine.EntryScriptHash;
+
+            testengine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = testengine.Nef,
+                Manifest = ContractManifest.FromJson(testengine.Manifest),
+            });
+
+            foreach (var method in methods)
+            {
+                testengine.Reset();
+                var result = testengine.ExecuteTestCaseStandard("tryUnsafeCall", method);
+                Console.WriteLine($"[{method}]state={testengine.State}  ; result on stack= {result.Count}");
+
+                Assert.AreEqual(VM.VMState.FAULT, testengine.State, $"[{method}]");
+                Assert.AreEqual(0, result.Count);
+                Assert.AreEqual("ABORT is executed.", testengine.FaultException?.Message, $"[{method}]");
+            }
+
+        }
+
+
+        [TestMethod]
+        public void Test_TryCatch_Unsafe_ContractCall()
+        {
+            var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
+            var _engine = new TestEngine(snapshot: new TestDataCache());
+            _engine.AddEntryScript("./TestClasses/Contract_UnsafeContract.cs");
+            testengine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = hash,
+                Nef = _engine.Nef,
+                Manifest = ContractManifest.FromJson(_engine.Manifest),
+            });
+            var contract = testengine.EntryScriptHash;
+            testengine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = testengine.Nef,
+                Manifest = ContractManifest.FromJson(testengine.Manifest),
+            });
+
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("tryUnsafe_ContractCall", hash.ToArray());
+            Console.WriteLine($"state={testengine.State}  ; result on stack= {result.Count}");
+
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual("ABORT is executed.", testengine.FaultException?.Message);
+        }
+
+
+
     }
 }

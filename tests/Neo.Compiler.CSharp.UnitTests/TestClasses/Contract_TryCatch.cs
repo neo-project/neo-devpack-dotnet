@@ -2,9 +2,13 @@ using Neo.Cryptography.ECC;
 using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
+    [ContractPermission("*")]
     public class Contract_shift : SmartContract.Framework.SmartContract
     {
         [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
@@ -404,6 +408,109 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 v++;
             }
             return v;
+        }
+
+
+        public object tryUnsafeCall(string method)
+        {
+            try
+            {
+                Contract.Call(Runtime.ExecutingScriptHash, method, CallFlags.All, new object[0]);
+            }
+            catch (System.Exception)
+            {
+
+                return -10;
+            }
+            return 10;
+        }
+
+
+
+        public unsafe void unsafe_Method()
+        {
+            throwcall();
+        }
+
+
+        public static unsafe void unsafe_Method_Static()
+        {
+            throwcall();
+        }
+
+
+        public void unsafe_Block()
+        {
+            unsafe
+            {
+                throwcall();
+            }
+        }
+
+        public static void unsafe_Block_Static()
+        {
+            unsafe
+            {
+                throwcall();
+            }
+        }
+
+        public unsafe object unsafe_Property
+        {
+            get
+            {
+                throwcall();
+                return 10;
+            }
+        }
+
+        public unsafe static object unsafe_Property_Static
+        {
+            get
+            {
+                throwcall();
+                return 10;
+            }
+        }
+
+
+        public object unsafe_Block_In_Property
+        {
+            get
+            {
+                unsafe
+                {
+                    throwcall();
+                }
+                return 10;
+            }
+        }
+
+        public static object unsafe_Block_In_Property_Static
+        {
+            get
+            {
+                unsafe
+                {
+                    throwcall();
+                }
+                return 10;
+            }
+        }
+
+
+        public object tryUnsafe_ContractCall(UInt160 hash)
+        {
+            try
+            {
+                Contract.Call(hash, "throwcall", CallFlags.All, new object[0]);
+            }
+            catch (System.Exception)
+            {
+
+                return -10;
+            }
+            return 10;
         }
 
     }
