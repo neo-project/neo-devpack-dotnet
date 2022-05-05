@@ -3706,10 +3706,10 @@ namespace Neo.Compiler
             });
         }
 
-        private void Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue)
+        private Instruction Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue)
         {
             ushort token = context.AddMethodToken(hash, method, parametersCount, hasReturnValue, CallFlags.All);
-            AddInstruction(new Instruction
+            return AddInstruction(new Instruction
             {
                 OpCode = OpCode.CALLT,
                 Operand = BitConverter.GetBytes(token)
