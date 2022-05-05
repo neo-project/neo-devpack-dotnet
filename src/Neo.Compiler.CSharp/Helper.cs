@@ -36,9 +36,9 @@ namespace Neo.Compiler
             return Convert.FromHexString(s);
         }
 
-        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName)
+        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName, bool includeThisClass = false)
         {
-            INamedTypeSymbol? baseType = type.BaseType;
+            ITypeSymbol? baseType = includeThisClass ? type : type.BaseType;
             while (baseType is not null)
             {
                 if (baseType.Name == baseTypeName)
