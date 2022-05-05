@@ -3640,6 +3640,15 @@ namespace Neo.Compiler
 
         private void Throw(SemanticModel model, ExpressionSyntax? exception)
         {
+            if (exception is not null)
+            {
+                ITypeSymbol type = model.GetTypeInfo(exception).Type!;
+                if (type.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.UncatchableException), includeThisClass: true))
+                {
+                    AddInstruction(OpCode.ABORT);
+                    return;
+                }
+            }
             switch (exception)
             {
                 case ObjectCreationExpressionSyntax expression:
