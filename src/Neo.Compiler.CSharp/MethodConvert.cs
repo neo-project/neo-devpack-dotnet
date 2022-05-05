@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -383,7 +383,9 @@ namespace Neo.Compiler
                     string method = Symbol.GetDisplayName(true);
                     ushort parametersCount = (ushort)Symbol.Parameters.Length;
                     bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-                    Call(hash, method, parametersCount, hasReturnValue);
+                    bool isUnsafe = Symbol.IsUnsafe();
+                    _inline = !isUnsafe;
+                    Call(hash, method, parametersCount, hasReturnValue, isUnsafe);
                 }
                 else
                 {
@@ -533,6 +535,9 @@ namespace Neo.Compiler
                     break;
                 case TryStatementSyntax syntax:
                     ConvertTryStatement(model, syntax);
+                    break;
+                case UnsafeStatementSyntax syntax:
+                    ConvertUnsafeStatement(model, syntax);
                     break;
                 case WhileStatementSyntax syntax:
                     ConvertWhileStatement(model, syntax);
@@ -1125,6 +1130,19 @@ namespace Neo.Compiler
                 ConvertStatement(model, syntax.Finally.Block);
                 AddInstruction(OpCode.ENDFINALLY);
             }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            _tryStack.Pop();
+        }
+
+        private void ConvertUnsafeStatement(SemanticModel model, UnsafeStatementSyntax syntax)
+        {
+            JumpTarget catchTarget = new();
+            JumpTarget endTarget = new();
+            AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = new() });
+            _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
+            ConvertStatement(model, syntax.Block);
+            Jump(OpCode.ENDTRY_L, endTarget);
+            catchTarget.Instruction = AddInstruction(OpCode.ABORT);
             endTarget.Instruction = AddInstruction(OpCode.NOP);
             _tryStack.Pop();
         }
@@ -3675,14 +3693,28 @@ namespace Neo.Compiler
             });
         }
 
-        private Instruction Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.All)
+        private void Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, bool isUnsafe = false)
         {
-            ushort token = context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
-            return AddInstruction(new Instruction
+            ushort token = context.AddMethodToken(hash, method, parametersCount, hasReturnValue, CallFlags.All);
+            Instruction instruction = new()
             {
                 OpCode = OpCode.CALLT,
                 Operand = BitConverter.GetBytes(token)
-            });
+            };
+            if (isUnsafe)
+            {
+                JumpTarget catchTarget = new();
+                JumpTarget endTarget = new();
+                AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = new() });
+                AddInstruction(instruction);
+                Jump(OpCode.ENDTRY_L, endTarget);
+                catchTarget.Instruction = AddInstruction(OpCode.ABORT);
+                endTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+            else
+            {
+                AddInstruction(instruction);
+            }
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)

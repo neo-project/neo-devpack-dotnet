@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -11,6 +11,8 @@
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -59,6 +61,24 @@ namespace Neo.Compiler
                 "_deploy" => true,
                 _ => false,
             };
+        }
+
+        public static bool IsUnsafe(this IMethodSymbol method)
+        {
+            SyntaxNode? syntax = method.DeclaringSyntaxReferences[0].GetSyntax();
+            while (syntax is not null)
+            {
+                SyntaxTokenList? modifiers = syntax switch
+                {
+                    AccessorDeclarationSyntax p => p.Modifiers,
+                    MemberDeclarationSyntax p => p.Modifiers,
+                    _ => null
+                };
+                if (modifiers?.Any(p => p.IsKind(SyntaxKind.UnsafeKeyword)) == true)
+                    return true;
+                syntax = syntax.Parent;
+            }
+            return false;
         }
 
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)

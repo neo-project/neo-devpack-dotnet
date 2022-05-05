@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Framework
             PostTransfer(account, null, amount, null);
         }
 
-        private static void PostTransfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+        private static unsafe void PostTransfer(UInt160 from, UInt160 to, BigInteger amount, object data)
         {
             OnTransfer(from, to, amount);
             if (to is not null && ContractManagement.GetContract(to) is not null)
