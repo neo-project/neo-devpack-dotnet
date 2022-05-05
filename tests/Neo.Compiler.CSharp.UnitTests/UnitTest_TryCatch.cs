@@ -249,7 +249,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(array[1] is Neo.VM.Types.Null);
         }
 
-
         [TestMethod]
         public void Test_TryCatch_Unsafe_Method()
         {
@@ -283,9 +282,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.AreEqual(0, result.Count);
                 Assert.AreEqual("ABORT is executed.", testengine.FaultException?.Message, $"[{method}]");
             }
-
         }
-
 
         [TestMethod]
         public void Test_TryCatch_Unsafe_ContractCall()
@@ -315,8 +312,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual("ABORT is executed.", testengine.FaultException?.Message);
         }
-
-
-
     }
 }

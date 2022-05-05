@@ -5,7 +5,6 @@ using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     [ContractPermission("*")]
@@ -410,7 +409,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return v;
         }
 
-
         public object tryUnsafeCall(string method)
         {
             try
@@ -425,19 +423,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return 10;
         }
 
-
-
         public unsafe void unsafe_Method()
         {
             throwcall();
         }
 
-
         public static unsafe void unsafe_Method_Static()
         {
             throwcall();
         }
-
 
         public void unsafe_Block()
         {
@@ -473,7 +467,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
         }
 
-
         public object unsafe_Block_In_Property
         {
             get
@@ -498,7 +491,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
         }
 
-
         public object tryUnsafe_ContractCall(UInt160 hash)
         {
             try
@@ -507,11 +499,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             catch (System.Exception)
             {
-
                 return -10;
             }
             return 10;
         }
-
     }
 }
