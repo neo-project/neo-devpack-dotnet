@@ -154,7 +154,13 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                ConvertSource(model);
+                if (SyntaxNode is not null)
+                {
+                    if (Symbol.IsUnsafe())
+                        ConvertUnsafe(() => ConvertSource(model));
+                    else
+                        ConvertSource(model);
+                }
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
                     _instructions.Insert(0, new Instruction
@@ -385,7 +391,10 @@ namespace Neo.Compiler
                     bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
                     bool isUnsafe = Symbol.IsUnsafe();
                     _inline = !isUnsafe;
-                    Call(hash, method, parametersCount, hasReturnValue, isUnsafe);
+                    if (isUnsafe)
+                        ConvertUnsafe(() => Call(hash, method, parametersCount, hasReturnValue));
+                    else
+                        Call(hash, method, parametersCount, hasReturnValue);
                 }
                 else
                 {
@@ -443,7 +452,6 @@ namespace Neo.Compiler
 
         private void ConvertSource(SemanticModel model)
         {
-            if (SyntaxNode is null) return;
             for (byte i = 0; i < Symbol.Parameters.Length; i++)
             {
                 IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
@@ -477,6 +485,19 @@ namespace Neo.Compiler
                     throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
             }
             _initslot = !_inline;
+        }
+
+        private void ConvertUnsafe(Action buildTryClause)
+        {
+            JumpTarget catchTarget = new();
+            JumpTarget endTarget = new();
+            AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = new() });
+            _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
+            buildTryClause();
+            Jump(OpCode.ENDTRY_L, endTarget);
+            catchTarget.Instruction = AddInstruction(OpCode.ABORT);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            _tryStack.Pop();
         }
 
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
@@ -1136,15 +1157,7 @@ namespace Neo.Compiler
 
         private void ConvertUnsafeStatement(SemanticModel model, UnsafeStatementSyntax syntax)
         {
-            JumpTarget catchTarget = new();
-            JumpTarget endTarget = new();
-            AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = new() });
-            _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
-            ConvertStatement(model, syntax.Block);
-            Jump(OpCode.ENDTRY_L, endTarget);
-            catchTarget.Instruction = AddInstruction(OpCode.ABORT);
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
-            _tryStack.Pop();
+            ConvertUnsafe(() => ConvertStatement(model, syntax.Block));
         }
 
         private void ConvertWhileStatement(SemanticModel model, WhileStatementSyntax syntax)
@@ -3693,28 +3706,14 @@ namespace Neo.Compiler
             });
         }
 
-        private void Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, bool isUnsafe = false)
+        private void Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue)
         {
             ushort token = context.AddMethodToken(hash, method, parametersCount, hasReturnValue, CallFlags.All);
-            Instruction instruction = new()
+            AddInstruction(new Instruction
             {
                 OpCode = OpCode.CALLT,
                 Operand = BitConverter.GetBytes(token)
-            };
-            if (isUnsafe)
-            {
-                JumpTarget catchTarget = new();
-                JumpTarget endTarget = new();
-                AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = new() });
-                AddInstruction(instruction);
-                Jump(OpCode.ENDTRY_L, endTarget);
-                catchTarget.Instruction = AddInstruction(OpCode.ABORT);
-                endTarget.Instruction = AddInstruction(OpCode.NOP);
-            }
-            else
-            {
-                AddInstruction(instruction);
-            }
+            });
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
