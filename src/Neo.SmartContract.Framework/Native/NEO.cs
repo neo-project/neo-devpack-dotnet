@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -27,6 +27,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
 
         public static extern BigInteger GetGasPerBlock();
+        public static extern long GetRegisterPrice();
         public static extern BigInteger UnclaimedGas(UInt160 account, uint end);
 
         public static extern bool RegisterCandidate(ECPoint pubkey);
