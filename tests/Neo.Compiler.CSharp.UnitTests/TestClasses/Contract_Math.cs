@@ -1,5 +1,4 @@
 using System;
-using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -18,6 +17,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static int sign(int a)
         {
             return Math.Sign(a);
+        }
+
+        public static int abs(int a)
+        {
+            return Math.Abs(a);
         }
     }
 }
