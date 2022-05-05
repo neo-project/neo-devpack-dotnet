@@ -210,9 +210,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.REVERSEITEMS)]
         public extern static byte[] Reverse(this Array source);
 
-        [OpCode(OpCode.NOP)]
-        public extern static Delegate ToDelegate(this byte[] source);
-
         /// <summary>
         /// Returns the square root of number x
         /// </summary>
