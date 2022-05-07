@@ -162,6 +162,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_GetAddressVersion()
+        {
+            var result = _engine.ExecuteTestCaseStandard("getAddressVersion");
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((BigInteger)ProtocolSettings.Default.AddressVersion, item.GetInteger());
+        }
+
+        [TestMethod]
         public void Test_GasLeft()
         {
             var result = _engine.ExecuteTestCaseStandard("getGasLeft");

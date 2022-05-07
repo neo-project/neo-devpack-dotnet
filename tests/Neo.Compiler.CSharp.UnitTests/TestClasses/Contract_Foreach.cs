@@ -42,9 +42,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
+        public static int ByteStringEmpty()
+        {
+            ByteString bytes = ByteString.Empty;
+            return bytes.Length;
+        }
+
         public static ByteString ByteStringForeach()
         {
-            ByteString[] list = new ByteString[] { "abc", "def", "hij" };
+            ByteString[] list = new ByteString[] { "abc", "def", "hij", ByteString.Empty, ByteString.Empty };
             string result = "";
             foreach (var item in list)
             {

@@ -37,15 +37,15 @@ namespace Neo.Compiler
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _initslot;
-        private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
+        private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
-        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
+        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
-        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
@@ -248,7 +248,7 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct().ToArray())
+            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
             {
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
@@ -1473,6 +1473,9 @@ namespace Neo.Compiler
                         break;
                     case IdentifierNameSyntax identifier:
                         ConvertIdentifierNameAssignment(model, identifier);
+                        break;
+                    case MemberAccessExpressionSyntax memberAccess:
+                        ConvertMemberAccessAssignment(model, memberAccess);
                         break;
                     default:
                         throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {argument}");
@@ -3662,6 +3665,15 @@ namespace Neo.Compiler
 
         private void Throw(SemanticModel model, ExpressionSyntax? exception)
         {
+            if (exception is not null)
+            {
+                ITypeSymbol type = model.GetTypeInfo(exception).Type!;
+                if (type.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.UncatchableException), includeThisClass: true))
+                {
+                    AddInstruction(OpCode.ABORT);
+                    return;
+                }
+            }
             switch (exception)
             {
                 case ObjectCreationExpressionSyntax expression:
@@ -3833,7 +3845,7 @@ namespace Neo.Compiler
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
+            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
             IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
