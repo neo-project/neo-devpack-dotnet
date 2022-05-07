@@ -55,7 +55,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             snapshot.TransactionAdd(new TransactionState()
             {
                 BlockIndex = _block.Index,
-                Transaction = _block.Transactions[0]
+                Transaction = _block.Transactions[0],
+                State = VMState.HALT
             });
 
             _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);
@@ -64,6 +65,32 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             method2.Invoke(NativeContract.Ledger, new object[] { _engine });
 
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
+        }
+
+        [TestMethod]
+        public void Test_GetTxVMState()
+        {
+            _engine.Reset();
+            EvaluationStack result = _engine.ExecuteTestCaseStandard("getTxVMState", UInt256.Zero.ToArray());
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((int)VMState.NONE, item.GetInteger());
+
+            // Hash
+
+            var tx = _block.Transactions[0];
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getTxVMState", tx.Hash.ToArray());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((int)VMState.HALT, item.GetInteger());
         }
 
         [TestMethod]
