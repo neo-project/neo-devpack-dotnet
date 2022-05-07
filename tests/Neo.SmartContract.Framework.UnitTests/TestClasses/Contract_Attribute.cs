@@ -1,13 +1,14 @@
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using Neo.SmartContract.Framework.Native;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class OwnerOnly : Modifier
+    public class OwnerOnlyAttribute : ModifierAttribute
     {
         UInt160 owner;
 
-        public OwnerOnly(string hex)
+        public OwnerOnlyAttribute(string hex)
         {
             owner = (UInt160)(byte[])StdLib.Base64Decode(hex);
         }

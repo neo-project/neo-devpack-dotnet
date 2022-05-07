@@ -444,29 +444,34 @@ namespace Neo.Compiler
 
         private void ConvertModifier(SemanticModel model)
         {
-            foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(ModifierAttribute)))
+            foreach (var attribute in Symbol.GetAttributesWithInherited())
             {
-                if (modifier.AttributeConstructor == null) continue;
+                if (attribute.AttributeClass?.IsSubclassOf(nameof(ModifierAttribute)) != true)
+                    continue;
 
-                var validateMethod = modifier.AttributeClass!.GetMembers("Validate")
-                    .Where(u => u is IMethodSymbol m && m.Parameters.Length == 0)
-                    .Cast<IMethodSymbol>()
-                    .FirstOrDefault();
-                if (validateMethod is null) continue;
+                JumpTarget notNullTarget = new();
+                byte fieldIndex = context.AddAnonymousStaticField();
+                AccessSlot(OpCode.LDSFLD, fieldIndex);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, notNullTarget);
 
-                // Send arguments
-                AddInstruction(OpCode.PUSHNULL);
-                AddInstruction(OpCode.PUSH1);
-                AddInstruction(OpCode.PACK);   // this
-                foreach (var arg in modifier.ConstructorArguments.Reverse()) Push(arg.Value);
-                Push(modifier.ConstructorArguments.Length);
-                AddInstruction(OpCode.PICK);        // DUP-this
-                // Call constructor
-                MethodConvert convert = context.ConvertMethod(model, modifier.AttributeConstructor);
-                EmitCall(convert);
-                // Call validate
-                convert = context.ConvertMethod(model, validateMethod);
-                EmitCall(convert);
+                MethodConvert constructor = context.ConvertMethod(model, attribute.AttributeConstructor!);
+                CreateObject(model, attribute.AttributeClass, null);
+                foreach (var arg in attribute.ConstructorArguments.Reverse())
+                    Push(arg.Value);
+                Push(attribute.ConstructorArguments.Length);
+                AddInstruction(OpCode.PICK);
+                EmitCall(constructor);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
+
+                notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+                var validateSymbol = attribute.AttributeClass.GetAllMembers()
+                    .OfType<IMethodSymbol>()
+                    .Where(p => p.Name == nameof(ModifierAttribute.Validate))
+                    .Where(u => u.Parameters.Length == 0)
+                    .First();
+                MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
+                EmitCall(validateMethod);
             }
         }
 

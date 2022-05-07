@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -48,6 +48,7 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection methodsForward = new();
         private readonly List<MethodToken> methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> staticFields = new(SymbolEqualityComparer.Default);
+        private readonly List<byte> anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> vtables = new(SymbolEqualityComparer.Default);
         private byte[]? script;
 
@@ -58,7 +59,7 @@ namespace Neo.Compiler
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
-        internal int StaticFieldCount => staticFields.Count + vtables.Count;
+        internal int StaticFieldCount => staticFields.Count + anonymousStaticFields.Count + vtables.Count;
         private byte[] Script => script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
         static CompilationContext()
@@ -527,6 +528,13 @@ namespace Neo.Compiler
                 index = (byte)StaticFieldCount;
                 staticFields.Add(symbol, index);
             }
+            return index;
+        }
+
+        internal byte AddAnonymousStaticField()
+        {
+            byte index = (byte)StaticFieldCount;
+            anonymousStaticFields.Add(index);
             return index;
         }
 
