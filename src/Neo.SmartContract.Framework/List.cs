@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -45,6 +45,9 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.VALUES)]
         public extern List<T> Clone();
+
+        [OpCode(OpCode.POPITEM)]
+        public extern T PopItem();
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
