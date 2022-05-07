@@ -18,7 +18,8 @@ namespace Neo.SmartContract.Framework.Native
     [Contract("0xda65b600f7124ce6c79950c1772a36403104f2be")]
     public class Ledger
     {
-        public static extern UInt160 Hash { [ContractHash] get; }
+        [ContractHash]
+        public static extern UInt160 Hash { get; }
         public static extern UInt256 CurrentHash { get; }
         public static extern uint CurrentIndex { get; }
         public static extern Block GetBlock(uint index);
