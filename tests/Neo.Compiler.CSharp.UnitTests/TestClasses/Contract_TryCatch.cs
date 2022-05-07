@@ -307,7 +307,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                     v++;
                 }
             }
-            return (v,data);
+            return (v, data);
         }
 
         public static (int, object) tryNULL2Uint160_1()
@@ -385,6 +385,25 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object throwcall()
         {
             throw new System.Exception();
+        }
+
+        public static object tryUncatchableException()
+        {
+            int v = 0;
+            try
+            {
+                v = 2;
+                throw new UncatchableException();
+            }
+            catch
+            {
+                v = 3;
+            }
+            finally
+            {
+                v++;
+            }
+            return v;
         }
 
     }

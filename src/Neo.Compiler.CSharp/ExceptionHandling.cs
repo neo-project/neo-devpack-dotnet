@@ -17,7 +17,7 @@ namespace Neo.Compiler
     class ExceptionHandling
     {
         public ExceptionHandlingState State;
-        public HashSet<ILabelSymbol> Labels = new();
+        public HashSet<ILabelSymbol> Labels = new(SymbolEqualityComparer.Default);
         public List<Instruction> PendingGotoStatments = new();
         public int SwitchCount = 0;
         public int ContinueTargetCount = 0;

@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2021 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -8,12 +8,17 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using System;
+using Neo.Cryptography.ECC;
 
-namespace Neo.SmartContract.Framework.Attributes
+namespace Neo.SmartContract.Framework.Native
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class ContractHashAttribute : Attribute
+    public class Signer
     {
+        public byte[] Data;
+        public UInt160 Account;
+        public WitnessScope Scopes;
+        public UInt160[] AllowedContracts;
+        public ECPoint[] AllowedGroups;
+        public WitnessRule[] Rules;
     }
 }

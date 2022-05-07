@@ -83,6 +83,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             if (whatReturn == "SystemFee") return tx.SystemFee;
             if (whatReturn == "ValidUntilBlock") return tx.ValidUntilBlock;
             if (whatReturn == "Version") return tx.Version;
+            if (whatReturn == "Signers") return Ledger.GetTransactionSigners(tx.Hash);
+            if (whatReturn == "FirstScope") return Ledger.GetTransactionSigners(tx.Hash)[0].Scopes;
 
             throw new Exception("Uknown property");
         }
@@ -108,6 +110,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             if (whatReturn == "Nef") return contract.Nef;
 
             throw new Exception("Uknown property");
+        }
+
+        public static object GetTxVMState(UInt256 hash)
+        {
+            return Ledger.GetTransactionVMState(hash);
         }
     }
 }

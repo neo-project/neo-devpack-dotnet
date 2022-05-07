@@ -61,6 +61,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void byteStringEmpty_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("byteStringEmpty");
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(0, result.Pop().GetInteger());
+        }
+
+        [TestMethod]
         public void bytestringForeach_test()
         {
             _engine.Reset();
