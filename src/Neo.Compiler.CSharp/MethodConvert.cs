@@ -390,7 +390,12 @@ namespace Neo.Compiler
                 string method = Symbol.GetDisplayName(true);
                 ushort parametersCount = (ushort)Symbol.Parameters.Length;
                 bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-                Call(hash, method, parametersCount, hasReturnValue);
+                CallFlags flags = Symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(CallFlagsAttribute)) switch
+                {
+                    AttributeData attribute => (CallFlags)attribute.ConstructorArguments[0].Value!,
+                    _ => CallFlags.All
+                };
+                Call(hash, method, parametersCount, hasReturnValue, flags);
             }
         }
 

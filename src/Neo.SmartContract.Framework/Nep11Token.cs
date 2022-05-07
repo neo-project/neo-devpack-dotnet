@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -131,7 +131,10 @@ namespace Neo.SmartContract.Framework
         {
             OnTransfer(from, to, 1, tokenId);
             if (to is not null && ContractManagement.GetContract(to) is not null)
-                Contract.Call(to, "onNEP11Payment", CallFlags.All, from, 1, tokenId, data);
+            {
+                const CallFlags flags = CallFlags.States | CallFlags.AllowCall | CallFlags.AllowNotify;
+                Contract.Call(to, "onNEP11Payment", flags, from, 1, tokenId, data);
+            }
         }
     }
 }
