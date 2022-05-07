@@ -118,31 +118,6 @@ namespace Neo.Compiler
 
         public void Convert(SemanticModel model)
         {
-            foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.Modifier)))
-            {
-                if (modifier.AttributeConstructor == null) continue;
-
-                var validateMethod = modifier.AttributeClass!.GetMembers("Validate")
-                    .Where(u => u is IMethodSymbol m && m.Parameters.Length == 0)
-                    .Cast<IMethodSymbol>()
-                    .FirstOrDefault();
-                if (validateMethod is null) continue;
-
-                // Send arguments
-                AddInstruction(OpCode.PUSHNULL);
-                AddInstruction(OpCode.PUSH1);
-                AddInstruction(OpCode.PACK);   // this
-                foreach (var arg in modifier.ConstructorArguments.Reverse()) Push(arg.Value);
-                Push(modifier.ConstructorArguments.Length);
-                AddInstruction(OpCode.PICK);        // DUP-this
-                // Call constructor
-                MethodConvert convert = context.ConvertMethod(model, modifier.AttributeConstructor);
-                EmitCall(convert);
-                // Call validate
-                convert = context.ConvertMethod(model, validateMethod);
-                EmitCall(convert);
-            }
-
             if (Symbol.IsExtern || Symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
             {
                 if (Symbol.Name == "_initialize")
@@ -180,6 +155,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
+                ConvertModifier(model);
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -463,6 +439,34 @@ namespace Neo.Compiler
                             throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
                     }
                 }
+            }
+        }
+
+        private void ConvertModifier(SemanticModel model)
+        {
+            foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.Modifier)))
+            {
+                if (modifier.AttributeConstructor == null) continue;
+
+                var validateMethod = modifier.AttributeClass!.GetMembers("Validate")
+                    .Where(u => u is IMethodSymbol m && m.Parameters.Length == 0)
+                    .Cast<IMethodSymbol>()
+                    .FirstOrDefault();
+                if (validateMethod is null) continue;
+
+                // Send arguments
+                AddInstruction(OpCode.PUSHNULL);
+                AddInstruction(OpCode.PUSH1);
+                AddInstruction(OpCode.PACK);   // this
+                foreach (var arg in modifier.ConstructorArguments.Reverse()) Push(arg.Value);
+                Push(modifier.ConstructorArguments.Length);
+                AddInstruction(OpCode.PICK);        // DUP-this
+                // Call constructor
+                MethodConvert convert = context.ConvertMethod(model, modifier.AttributeConstructor);
+                EmitCall(convert);
+                // Call validate
+                convert = context.ConvertMethod(model, validateMethod);
+                EmitCall(convert);
             }
         }
 
