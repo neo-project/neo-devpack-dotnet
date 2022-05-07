@@ -20,7 +20,8 @@ namespace Neo.SmartContract.Framework.Native
     [Contract("0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5")]
     public class NEO
     {
-        public static extern UInt160 Hash { [ContractHash] get; }
+        [ContractHash]
+        public static extern UInt160 Hash { get; }
         public static extern string Symbol { get; }
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
