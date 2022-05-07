@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -11,6 +11,7 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo
 {
@@ -52,6 +53,15 @@ namespace Neo
         public static extern explicit operator byte[](UInt160 value);
 
         /// <summary>
+        /// Converts the specified script hash to an address, using the current blockchain AddressVersion value.
+        /// </summary>
+        /// <returns>The converted address.</returns>
+        public string ToAddress()
+        {
+            return ToAddress(Runtime.AddressVersion);
+        }
+
+        /// <summary>
         /// Converts the specified script hash to an address.
         /// </summary>
         /// <param name="version">The address version.</param>
@@ -59,17 +69,6 @@ namespace Neo
         public string ToAddress(byte version)
         {
             byte[] data = { version };
-            data = Helper.Concat(data, this);
-            return StdLib.Base58CheckEncode((ByteString)data);
-        }
-
-        /// <summary>
-        /// Converts the specified script hash to an address, using the current blockchain AddressVersion value
-        /// </summary>
-        /// <returns>The converted address.</returns>
-        public string ToAddress()
-        {
-            byte[] data = { Neo.SmartContract.Framework.Services.Runtime.AddressVersion };
             data = Helper.Concat(data, this);
             return StdLib.Base58CheckEncode((ByteString)data);
         }

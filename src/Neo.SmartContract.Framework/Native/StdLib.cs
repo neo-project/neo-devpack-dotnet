@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -18,7 +18,8 @@ namespace Neo.SmartContract.Framework.Native
     [Contract("0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0")]
     public static class StdLib
     {
-        public static extern UInt160 Hash { [ContractHash] get; }
+        [ContractHash]
+        public static extern UInt160 Hash { get; }
 
         public extern static ByteString Serialize(object source);
 
