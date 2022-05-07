@@ -13,7 +13,7 @@ using System;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method, AllowMultiple = true)]
-    public abstract class Modifier : Attribute
+    public abstract class ModifierAttribute : Attribute
     {
         public abstract void Validate();
     }
