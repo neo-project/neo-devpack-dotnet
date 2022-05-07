@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -20,6 +20,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.Wallets;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -259,7 +260,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -334,7 +335,7 @@ namespace Neo.Compiler
         private void ConvertExtern()
         {
             _inline = true;
-            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractAttribute));
+            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractAttribute));
             if (contractAttribute is null)
             {
                 bool emitted = false;
@@ -342,7 +343,7 @@ namespace Neo.Compiler
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.OpCodeAttribute):
+                        case nameof(OpCodeAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -354,7 +355,7 @@ namespace Neo.Compiler
                                 Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes(true)
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.SyscallAttribute):
+                        case nameof(SyscallAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -366,7 +367,7 @@ namespace Neo.Compiler
                                 Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.CallingConventionAttribute):
+                        case nameof(CallingConventionAttribute):
                             emitted = true;
                             _callingConvention = (CallingConvention)attribute.ConstructorArguments[0].Value!;
                             break;
@@ -377,18 +378,19 @@ namespace Neo.Compiler
             else
             {
                 UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
-                AttributeData? attribute = Symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractHashAttribute));
-                if (attribute is null)
+                if (Symbol.MethodKind == MethodKind.PropertyGet)
                 {
-                    string method = Symbol.GetDisplayName(true);
-                    ushort parametersCount = (ushort)Symbol.Parameters.Length;
-                    bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-                    Call(hash, method, parametersCount, hasReturnValue);
+                    AttributeData? attribute = Symbol.AssociatedSymbol!.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractHashAttribute));
+                    if (attribute is not null)
+                    {
+                        Push(hash.ToArray());
+                        return;
+                    }
                 }
-                else
-                {
-                    Push(hash.ToArray());
-                }
+                string method = Symbol.GetDisplayName(true);
+                ushort parametersCount = (ushort)Symbol.Parameters.Length;
+                bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
+                Call(hash, method, parametersCount, hasReturnValue);
             }
         }
 

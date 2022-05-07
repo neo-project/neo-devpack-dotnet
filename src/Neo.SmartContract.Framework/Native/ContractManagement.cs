@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -18,7 +18,8 @@ namespace Neo.SmartContract.Framework.Native
     [Contract("0xfffdc93764dbaddd97c48f252a53ea4643faa3fd")]
     public class ContractManagement
     {
-        public static extern UInt160 Hash { [ContractHash] get; }
+        [ContractHash]
+        public static extern UInt160 Hash { get; }
         public static extern long GetMinimumDeploymentFee();
         public static extern Contract GetContract(UInt160 hash);
         public static extern Contract Deploy(ByteString nefFile, string manifest);
