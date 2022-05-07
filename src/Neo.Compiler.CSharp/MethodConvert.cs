@@ -117,7 +117,7 @@ namespace Neo.Compiler
 
         public void Convert(SemanticModel model)
         {
-            foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Modifier)))
+            foreach (var modifier in Symbol.GetAttributes().Where(u => u.AttributeClass?.BaseType?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.Modifier)))
             {
                 if (modifier.AttributeConstructor == null) continue;
 
