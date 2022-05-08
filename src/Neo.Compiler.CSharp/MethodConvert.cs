@@ -4243,6 +4243,15 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
+                case "System.Math.Abs(sbyte)":
+                case "System.Math.Abs(short)":
+                case "System.Math.Abs(int)":
+                case "System.Math.Abs(long)":
+                case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.ABS);
+                    return true;
                 case "System.Math.Sign(sbyte)":
                 case "System.Math.Sign(short)":
                 case "System.Math.Sign(int)":
@@ -4259,6 +4268,7 @@ namespace Neo.Compiler
                 case "System.Math.Max(uint, uint)":
                 case "System.Math.Max(long, long)":
                 case "System.Math.Max(ulong, ulong)":
+                case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MAX);
@@ -4271,6 +4281,7 @@ namespace Neo.Compiler
                 case "System.Math.Min(uint, uint)":
                 case "System.Math.Min(long, long)":
                 case "System.Math.Min(ulong, ulong)":
+                case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);

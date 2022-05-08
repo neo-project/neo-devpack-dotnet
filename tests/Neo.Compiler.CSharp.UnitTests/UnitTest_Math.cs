@@ -69,5 +69,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(0, result.Pop().GetInteger());
         }
+
+        [TestMethod]
+        public void abs_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("abs", 1);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("abs", -1);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("abs", 0);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(0, result.Pop().GetInteger());
+        }
     }
 }
