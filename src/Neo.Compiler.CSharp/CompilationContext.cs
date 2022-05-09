@@ -148,7 +148,7 @@ namespace Neo.Compiler
 
         internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
@@ -163,7 +163,7 @@ namespace Neo.Compiler
             return Compile(sourceFiles, references, options);
         }
 
-        public static Compilation GetCompilation(string csproj, out XDocument document)
+        public static Compilation GetCompilation(string csproj, Options options, out XDocument document)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
@@ -171,7 +171,7 @@ namespace Neo.Compiler
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(commonReferences);
-            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             document = XDocument.Load(csproj);
             sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
@@ -184,14 +184,14 @@ namespace Neo.Compiler
             JObject assets = JObject.Parse(File.ReadAllBytes(assetsPath));
             foreach (var (name, package) in assets["targets"][0].Properties)
             {
-                MetadataReference? reference = GetReference(name, package, assets, folder, options);
+                MetadataReference? reference = GetReference(name, package, assets, folder, options, compilationOptions);
                 if (reference is not null) references.Add(reference);
             }
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, options);
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
+            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, compilationOptions);
         }
 
-        private static MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, CSharpCompilationOptions options)
+        private static MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
         {
             string assemblyName = Path.GetDirectoryName(name)!;
             if (!metaReferences.TryGetValue(assemblyName, out var reference))
@@ -222,14 +222,14 @@ namespace Neo.Compiler
                         else
                         {
                             IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-                            CSharpCompilation cr = CSharpCompilation.Create(assemblyName, st, commonReferences, options);
+                            CSharpCompilation cr = CSharpCompilation.Create(assemblyName, st, commonReferences, compilationOptions);
                             reference = cr.ToMetadataReference();
                         }
                         break;
                     case "project":
                         string msbuildProject = assets["libraries"][name]["msbuildProject"].GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
-                        reference = GetCompilation(msbuildProject, out _).ToMetadataReference();
+                        reference = GetCompilation(msbuildProject, options, out _).ToMetadataReference();
                         break;
                     default:
                         throw new NotSupportedException();
@@ -241,7 +241,7 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileProject(string csproj, Options options)
         {
-            Compilation compilation = GetCompilation(csproj, out XDocument document);
+            Compilation compilation = GetCompilation(csproj, options, out XDocument document);
             CompilationContext context = new(compilation, options);
             context.assemblyName = document.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).FirstOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
             context.Checked = document.Root!.Elements("PropertyGroup").Elements("CheckForOverflowUnderflow").Select(p => bool.Parse(p.Value)).FirstOrDefault();
