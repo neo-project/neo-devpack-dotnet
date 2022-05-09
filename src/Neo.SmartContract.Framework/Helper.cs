@@ -188,6 +188,7 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Concat(this byte[] first, ByteString second);
 
         [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static ByteString Concat(this ByteString first, ByteString second);
 
         [OpCode(OpCode.SUBSTR)]
