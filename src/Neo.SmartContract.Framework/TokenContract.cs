@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework
             return (BigInteger)balanceMap[owner];
         }
 
-        private protected static void UpdateTotalSupply(BigInteger increment)
+        protected static void UpdateTotalSupply(BigInteger increment)
         {
             StorageContext context = Storage.CurrentContext;
             byte[] key = new byte[] { Prefix_TotalSupply };
@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Framework
             Storage.Put(context, key, totalSupply);
         }
 
-        private protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
+        protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
         {
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
             BigInteger balance = (BigInteger)balanceMap[owner];
