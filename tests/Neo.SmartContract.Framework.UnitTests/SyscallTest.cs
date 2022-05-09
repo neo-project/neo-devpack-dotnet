@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using SyscallAttribute = scfx.Neo.SmartContract.Framework.SyscallAttribute;
+using SyscallAttribute = scfx.Neo.SmartContract.Framework.Attributes.SyscallAttribute;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -65,7 +65,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             neoSyscalls.Remove("System.Contract.NativeOnPersist");
             neoSyscalls.Remove("System.Contract.NativePostPersist");
             neoSyscalls.Remove("System.Contract.CallNative");
-            neoSyscalls.Remove("System.Runtime.Notify");
 
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             MetadataReference[] references = new[]

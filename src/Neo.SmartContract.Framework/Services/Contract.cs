@@ -1,3 +1,15 @@
+// Copyright (C) 2015-2021 The Neo Project.
+// 
+// The Neo.SmartContract.Framework is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.SmartContract.Framework.Attributes;
+
 namespace Neo.SmartContract.Framework.Services
 {
     public class Contract
@@ -25,7 +37,7 @@ namespace Neo.SmartContract.Framework.Services
         /// <summary>
         /// Manifest
         /// </summary>
-        public readonly string Manifest;
+        public readonly ContractManifest Manifest;
 
         [Syscall("System.Contract.Call")]
         public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[] args);

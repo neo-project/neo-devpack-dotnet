@@ -1,3 +1,13 @@
+// Copyright (C) 2015-2021 The Neo Project.
+// 
+// The Neo.Compiler.CSharp is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 namespace Neo.Compiler
 {
     static class DiagnosticId
@@ -21,5 +31,7 @@ namespace Neo.Compiler
         public const string FormatClause = "NC2013";
         public const string InvalidInitialValueType = "NC3001";
         public const string InvalidMethodName = "NC3002";
+        public const string MethodNameConflict = "NC3003";
+        public const string EventNameConflict = "NC3004";
     }
 }

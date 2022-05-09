@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using Neo.SmartContract;
 using Neo.Cryptography.ECC;
@@ -41,9 +42,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
+        public static int ByteStringEmpty()
+        {
+            ByteString bytes = ByteString.Empty;
+            return bytes.Length;
+        }
+
         public static ByteString ByteStringForeach()
         {
-            ByteString[] list = new ByteString[] { "abc", "def", "hij" };
+            ByteString[] list = new ByteString[] { "abc", "def", "hij", ByteString.Empty, ByteString.Empty };
             string result = "";
             foreach (var item in list)
             {
@@ -150,6 +157,18 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 }
             }
             catch { }
+            return sum;
+        }
+
+        public static int IntForloop()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            int i;
+            for (i = 0; i < a.Length; i++)
+            {
+                sum += a[i];
+            }
             return sum;
         }
     }

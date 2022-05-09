@@ -35,6 +35,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Runtime.GetNetwork();
         }
 
+        public static uint GetAddressVersion()
+        {
+            return Runtime.AddressVersion;
+        }
+
         public static byte GetTrigger()
         {
             return (byte)Runtime.Trigger;

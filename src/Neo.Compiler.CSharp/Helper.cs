@@ -1,3 +1,13 @@
+// Copyright (C) 2015-2021 The Neo Project.
+// 
+// The Neo.Compiler.CSharp is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
@@ -24,9 +34,9 @@ namespace Neo.Compiler
             return Convert.FromHexString(s);
         }
 
-        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName)
+        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName, bool includeThisClass = false)
         {
-            INamedTypeSymbol? baseType = type.BaseType;
+            ITypeSymbol? baseType = includeThisClass ? type : type.BaseType;
             while (baseType is not null)
             {
                 if (baseType.Name == baseTypeName)
@@ -118,6 +128,57 @@ namespace Neo.Compiler
                 "System.Numerics.BigInteger" => StackItemType.Integer,
                 _ => throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern type: {type}")
             };
+        }
+
+        public static IEnumerable<AttributeData> GetAttributesWithInherited(this INamedTypeSymbol symbol)
+        {
+            foreach (var attribute in symbol.GetAttributes())
+            {
+                yield return attribute;
+            }
+
+            var baseType = symbol.BaseType;
+            while (baseType != null)
+            {
+                foreach (var attribute in baseType.GetAttributes())
+                {
+                    if (IsInherited(attribute))
+                    {
+                        yield return attribute;
+                    }
+                }
+
+                baseType = baseType.BaseType;
+            }
+        }
+
+        private static bool IsInherited(this AttributeData attribute)
+        {
+            if (attribute.AttributeClass == null)
+            {
+                return false;
+            }
+
+            foreach (var attributeAttribute in attribute.AttributeClass.GetAttributes())
+            {
+                var @class = attributeAttribute.AttributeClass;
+                if (@class != null && @class.Name == nameof(AttributeUsageAttribute) &&
+                    @class.ContainingNamespace?.Name == "System")
+                {
+                    foreach (var kvp in attributeAttribute.NamedArguments)
+                    {
+                        if (kvp.Key == nameof(AttributeUsageAttribute.Inherited))
+                        {
+                            return (bool)kvp.Value.Value!;
+                        }
+                    }
+
+                    // Default value of Inherited is true
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static ISymbol[] GetAllMembers(this ITypeSymbol type)
