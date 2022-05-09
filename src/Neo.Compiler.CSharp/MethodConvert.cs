@@ -1,3 +1,13 @@
+// Copyright (C) 2015-2022 The Neo Project.
+// 
+// The Neo.Compiler.CSharp is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
@@ -10,6 +20,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.Wallets;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -27,15 +38,15 @@ namespace Neo.Compiler
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _initslot;
-        private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
+        private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
-        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
+        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
-        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
@@ -213,7 +224,7 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct().ToArray())
+            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
             {
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
@@ -249,7 +260,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -324,7 +335,7 @@ namespace Neo.Compiler
         private void ConvertExtern()
         {
             _inline = true;
-            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.ContractAttribute));
+            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractAttribute));
             if (contractAttribute is null)
             {
                 bool emitted = false;
@@ -332,7 +343,7 @@ namespace Neo.Compiler
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
-                        case nameof(scfx.Neo.SmartContract.Framework.OpCodeAttribute):
+                        case nameof(OpCodeAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -344,7 +355,7 @@ namespace Neo.Compiler
                                 Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes(true)
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.SyscallAttribute):
+                        case nameof(SyscallAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -356,7 +367,7 @@ namespace Neo.Compiler
                                 Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.CallingConventionAttribute):
+                        case nameof(CallingConventionAttribute):
                             emitted = true;
                             _callingConvention = (CallingConvention)attribute.ConstructorArguments[0].Value!;
                             break;
@@ -367,18 +378,19 @@ namespace Neo.Compiler
             else
             {
                 UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
-                AttributeData? attribute = Symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.ContractHashAttribute));
-                if (attribute is null)
+                if (Symbol.MethodKind == MethodKind.PropertyGet)
                 {
-                    string method = Symbol.GetDisplayName(true);
-                    ushort parametersCount = (ushort)Symbol.Parameters.Length;
-                    bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-                    Call(hash, method, parametersCount, hasReturnValue);
+                    AttributeData? attribute = Symbol.AssociatedSymbol!.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractHashAttribute));
+                    if (attribute is not null)
+                    {
+                        Push(hash.ToArray());
+                        return;
+                    }
                 }
-                else
-                {
-                    Push(hash.ToArray());
-                }
+                string method = Symbol.GetDisplayName(true);
+                ushort parametersCount = (ushort)Symbol.Parameters.Length;
+                bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
+                Call(hash, method, parametersCount, hasReturnValue);
             }
         }
 
@@ -829,6 +841,14 @@ namespace Neo.Compiler
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
+            foreach (ExpressionSyntax expression in syntax.Initializers)
+                using (InsertSequencePoint(expression))
+                {
+                    ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                    ConvertExpression(model, expression);
+                    if (type.SpecialType != SpecialType.System_Void)
+                        AddInstruction(OpCode.DROP);
+                }
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -1234,8 +1254,6 @@ namespace Neo.Compiler
 
         private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
         {
-            if (expression.Type.RankSpecifiers.Count != 1)
-                throw new CompilationException(expression.Type, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.Type.RankSpecifiers}");
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
             if (specifier.Rank != 1)
                 throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
@@ -1246,7 +1264,7 @@ namespace Neo.Compiler
                 if (type.ElementType.SpecialType == SpecialType.System_Byte)
                     AddInstruction(OpCode.NEWBUFFER);
                 else
-                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.GetStackItemType() } });
+                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
             }
             else
             {
@@ -1432,6 +1450,9 @@ namespace Neo.Compiler
                         break;
                     case IdentifierNameSyntax identifier:
                         ConvertIdentifierNameAssignment(model, identifier);
+                        break;
+                    case MemberAccessExpressionSyntax memberAccess:
+                        ConvertMemberAccessAssignment(model, memberAccess);
                         break;
                     default:
                         throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {argument}");
@@ -1960,9 +1981,40 @@ namespace Neo.Compiler
             bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
             if (needCreateObject)
             {
-                CreateObject(model, type, expression.Initializer);
+                CreateObject(model, type, null);
             }
             Call(model, constructor, needCreateObject, arguments);
+            if (expression.Initializer is not null)
+            {
+                ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+            }
+        }
+
+        private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
+        {
+            foreach (ExpressionSyntax e in initializer.Expressions)
+            {
+                if (e is not AssignmentExpressionSyntax ae)
+                    throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
+                switch (symbol)
+                {
+                    case IFieldSymbol field:
+                        AddInstruction(OpCode.DUP);
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        Push(index);
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.SETITEM);
+                        break;
+                    case IPropertySymbol property:
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.OVER);
+                        Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                        break;
+                    default:
+                        throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                }
+            }
         }
 
         private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
@@ -3590,6 +3642,15 @@ namespace Neo.Compiler
 
         private void Throw(SemanticModel model, ExpressionSyntax? exception)
         {
+            if (exception is not null)
+            {
+                ITypeSymbol type = model.GetTypeInfo(exception).Type!;
+                if (type.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.UncatchableException), includeThisClass: true))
+                {
+                    AddInstruction(OpCode.ABORT);
+                    return;
+                }
+            }
             switch (exception)
             {
                 case ObjectCreationExpressionSyntax expression:
@@ -3761,7 +3822,7 @@ namespace Neo.Compiler
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
+            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
             IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
@@ -4148,6 +4209,15 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
+                case "System.Math.Abs(sbyte)":
+                case "System.Math.Abs(short)":
+                case "System.Math.Abs(int)":
+                case "System.Math.Abs(long)":
+                case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.ABS);
+                    return true;
                 case "System.Math.Sign(sbyte)":
                 case "System.Math.Sign(short)":
                 case "System.Math.Sign(int)":
@@ -4164,6 +4234,7 @@ namespace Neo.Compiler
                 case "System.Math.Max(uint, uint)":
                 case "System.Math.Max(long, long)":
                 case "System.Math.Max(ulong, ulong)":
+                case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MAX);
@@ -4176,9 +4247,22 @@ namespace Neo.Compiler
                 case "System.Math.Min(uint, uint)":
                 case "System.Math.Min(long, long)":
                 case "System.Math.Min(ulong, ulong)":
+                case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);
+                    return true;
+                case "bool.ToString()":
+                    {
+                        JumpTarget trueTarget = new(), endTarget = new();
+                        if (instanceExpression is not null)
+                            ConvertExpression(model, instanceExpression);
+                        Jump(OpCode.JMPIF_L, trueTarget);
+                        Push("False");
+                        Jump(OpCode.JMP_L, endTarget);
+                        trueTarget.Instruction = Push("True");
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
                     return true;
                 case "sbyte.ToString()":
                 case "byte.ToString()":

@@ -1,3 +1,13 @@
+// Copyright (C) 2015-2021 The Neo Project.
+// 
+// The Neo.SmartContract.Framework is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 namespace Neo.SmartContract.Framework
 {
     public enum OpCode : byte
@@ -679,6 +689,14 @@ namespace Neo.SmartContract.Framework
 
         #region Compound-type
 
+        /// <summary>
+        /// A value n is taken from top of main stack. The next n*2 items on main stack are removed, put inside n-sized map and this map is put on top of the main stack.
+        /// </summary>
+        PACKMAP = 0xBE,
+        /// <summary>
+        /// A value n is taken from top of main stack. The next n items on main stack are removed, put inside n-sized struct and this struct is put on top of the main stack.
+        /// </summary>
+        PACKSTRUCT = 0xBF,
         /// <summary>
         /// A value n is taken from top of main stack. The next n items on main stack are removed, put inside n-sized array and this array is put on top of the main stack.
         /// </summary>

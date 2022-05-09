@@ -35,6 +35,22 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void intForloop_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("intForloop");
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(10, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("intForeachBreak", 3);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(6, result.Pop().GetInteger());
+        }
+
+        [TestMethod]
         public void stringForeach_test()
         {
             _engine.Reset();
@@ -42,6 +58,16 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual("abcdefhij", result.Pop().GetString());
+        }
+
+        [TestMethod]
+        public void byteStringEmpty_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("byteStringEmpty");
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(0, result.Pop().GetInteger());
         }
 
         [TestMethod]

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2022 The Neo Project.
+// 
+// The Neo.SmartContract.Framework is free software distributed under the MIT 
+// software license, see the accompanying file LICENSE in the main directory 
+// of the project or http://www.opensource.org/licenses/mit-license.php 
+// for more details.
+// 
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Numerics;
 
@@ -201,9 +212,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.REVERSEITEMS)]
         public extern static byte[] Reverse(this Array source);
-
-        [OpCode(OpCode.NOP)]
-        public extern static Delegate ToDelegate(this byte[] source);
 
         /// <summary>
         /// Returns the square root of number x

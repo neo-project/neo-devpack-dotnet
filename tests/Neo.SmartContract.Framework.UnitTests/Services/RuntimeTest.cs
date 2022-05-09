@@ -7,9 +7,9 @@ using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
+using Neo.Wallets;
 using System;
 using System.IO;
-using Neo.Wallets;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -147,7 +147,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.Parse("33807291057955110206057014245126331960"), item.GetInteger());
+            Assert.AreEqual(BigInteger.Parse("89561548688769503120083555307813062965"), item.GetInteger());
         }
 
         [TestMethod]
@@ -158,7 +158,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.Parse("5195086"), item.GetInteger());
+            Assert.AreEqual(BigInteger.Parse("860833102"), item.GetInteger());
+        }
+
+        [TestMethod]
+        public void Test_GetAddressVersion()
+        {
+            var result = _engine.ExecuteTestCaseStandard("getAddressVersion");
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((BigInteger)ProtocolSettings.Default.AddressVersion, item.GetInteger());
         }
 
         [TestMethod]

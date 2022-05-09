@@ -135,6 +135,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void checkBoolString_Test()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("checkBoolString", true);
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual(true.ToString(), item.GetString());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("checkBoolString", false);
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual(false.ToString(), item.GetString());
+        }
+
+        [TestMethod]
         public void sbyte_Test()
         {
             using var testengine = new TestEngine();
