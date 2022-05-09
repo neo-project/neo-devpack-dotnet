@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
@@ -253,6 +254,13 @@ namespace Neo.Compiler
                 return symbol.Name[..1].ToLowerInvariant() + symbol.Name[1..];
             else
                 return symbol.Name;
+        }
+
+        public static T GetValue<T>(this IEnumerable<XElement> source, Func<string, T> selector, T defaultValue)
+        {
+            XElement? element = source.FirstOrDefault();
+            if (element is null) return defaultValue;
+            return selector(element.Value);
         }
 
         public static ContractParameterDefinition ToAbiParameter(this IParameterSymbol symbol)

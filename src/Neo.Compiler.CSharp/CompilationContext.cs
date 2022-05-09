@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -169,10 +169,11 @@ namespace Neo.Compiler
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(commonReferences);
-            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: NullableContextOptions.Annotations);
             XDocument xml = XDocument.Load(csproj);
             assemblyName = xml.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).SingleOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
+            NullableContextOptions nullable = xml.Root!.Elements("PropertyGroup").Elements("Nullable").GetValue(p => Enum.Parse<NullableContextOptions>(p, true), NullableContextOptions.Annotations);
             sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
+            CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: nullable);
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
