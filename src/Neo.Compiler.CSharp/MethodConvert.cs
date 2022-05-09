@@ -312,13 +312,13 @@ namespace Neo.Compiler
 
         private void ProcessConstructorInitializer(SemanticModel model)
         {
+            INamedTypeSymbol type = Symbol.ContainingType;
+            if (type.IsValueType) return;
+            INamedTypeSymbol baseType = type.BaseType!;
+            if (baseType.SpecialType == SpecialType.System_Object) return;
             ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
             if (initializer is null)
             {
-                INamedTypeSymbol type = Symbol.ContainingType;
-                if (type.IsValueType) return;
-                INamedTypeSymbol baseType = type.BaseType!;
-                if (baseType.SpecialType == SpecialType.System_Object) return;
                 IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
                 if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                     return;
