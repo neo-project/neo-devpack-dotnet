@@ -396,48 +396,151 @@ namespace Neo.Compiler
 
         private void ConvertNoBody(AccessorDeclarationSyntax syntax)
         {
-            _inline = true;
             _callingConvention = CallingConvention.Cdecl;
             IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
-            INamedTypeSymbol type = property.ContainingType;
-            IFieldSymbol[] fields = type.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+            AttributeData? attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(StorageBackedAttribute));
             using (InsertSequencePoint(syntax))
             {
+                _inline = attribute is null;
+                ConvertFieldBackedProperty(property);
+                if (attribute is not null)
+                    ConvertStorageBackedProperty(property, attribute);
+            }
+        }
+
+        private void ConvertFieldBackedProperty(IPropertySymbol property)
+        {
+            IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+            if (Symbol.IsStatic)
+            {
+                IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+                byte backingFieldIndex = context.AddStaticField(backingField);
+                switch (Symbol.MethodKind)
+                {
+                    case MethodKind.PropertyGet:
+                        AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                        break;
+                    case MethodKind.PropertySet:
+                        if (!_inline) AccessSlot(OpCode.LDARG, 0);
+                        AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                        break;
+                    default:
+                        throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
+                }
+            }
+            else
+            {
+                fields = fields.Where(p => !p.IsStatic).ToArray();
+                int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                switch (Symbol.MethodKind)
+                {
+                    case MethodKind.PropertyGet:
+                        if (!_inline) AccessSlot(OpCode.LDARG, 0);
+                        Push(backingFieldIndex);
+                        AddInstruction(OpCode.PICKITEM);
+                        break;
+                    case MethodKind.PropertySet:
+                        if (_inline)
+                        {
+                            Push(backingFieldIndex);
+                            AddInstruction(OpCode.ROT);
+                        }
+                        else
+                        {
+                            AccessSlot(OpCode.LDARG, 0);
+                            Push(backingFieldIndex);
+                            AccessSlot(OpCode.LDARG, 1);
+                        }
+                        AddInstruction(OpCode.SETITEM);
+                        break;
+                    default:
+                        throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
+                }
+            }
+        }
+
+        private void ConvertStorageBackedProperty(IPropertySymbol property, AttributeData attribute)
+        {
+            IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+            byte[] key = Encoding.UTF8.GetBytes(property.Name).Prepend((byte)attribute.ConstructorArguments[0].Value!).ToArray();
+            if (Symbol.MethodKind == MethodKind.PropertyGet)
+            {
+                JumpTarget endTarget = new();
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, endTarget);
+                Push(key);
+                Call(ApplicationEngine.System_Storage_GetReadOnlyContext);
+                Call(ApplicationEngine.System_Storage_Get);
+                switch (property.Type.Name)
+                {
+                    case "SByte":
+                    case "Short":
+                    case "Int32":
+                    case "Int64":
+                    case "Byte":
+                    case "UInt16":
+                    case "UInt32":
+                    case "UInt64":
+                    case "BigInteger":
+                        ChangeType(VM.Types.StackItemType.Integer);
+                        break;
+                    case "String":
+                    case "ByteString":
+                    case "UInt160":
+                    case "UInt256":
+                        break;
+                    default:
+                        Call(NativeContract.StdLib.Hash, "deserialize", 1, true);
+                        break;
+                }
+                AddInstruction(OpCode.DUP);
                 if (Symbol.IsStatic)
                 {
                     IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
                     byte backingFieldIndex = context.AddStaticField(backingField);
-                    switch (Symbol.MethodKind)
-                    {
-                        case MethodKind.PropertyGet:
-                            AccessSlot(OpCode.LDSFLD, backingFieldIndex);
-                            break;
-                        case MethodKind.PropertySet:
-                            AccessSlot(OpCode.STSFLD, backingFieldIndex);
-                            break;
-                        default:
-                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
-                    }
+                    AccessSlot(OpCode.STSFLD, backingFieldIndex);
                 }
                 else
                 {
                     fields = fields.Where(p => !p.IsStatic).ToArray();
                     int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                    switch (Symbol.MethodKind)
-                    {
-                        case MethodKind.PropertyGet:
-                            Push(backingFieldIndex);
-                            AddInstruction(OpCode.PICKITEM);
-                            break;
-                        case MethodKind.PropertySet:
-                            Push(backingFieldIndex);
-                            AddInstruction(OpCode.ROT);
-                            AddInstruction(OpCode.SETITEM);
-                            break;
-                        default:
-                            throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
-                    }
+                    AccessSlot(OpCode.LDARG, 0);
+                    Push(backingFieldIndex);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SETITEM);
                 }
+                endTarget.Instruction = AddInstruction(OpCode.NOP);
+            }
+            else
+            {
+                if (Symbol.IsStatic)
+                    AccessSlot(OpCode.LDARG, 0);
+                else
+                    AccessSlot(OpCode.LDARG, 1);
+                switch (property.Type.Name)
+                {
+                    case "SByte":
+                    case "Short":
+                    case "Int32":
+                    case "Int64":
+                    case "Byte":
+                    case "UInt16":
+                    case "UInt32":
+                    case "UInt64":
+                    case "BigInteger":
+                    case "String":
+                    case "ByteString":
+                    case "UInt160":
+                    case "UInt256":
+                        break;
+                    default:
+                        Call(NativeContract.StdLib.Hash, "serialize", 1, true);
+                        break;
+                }
+                Push(key);
+                Call(ApplicationEngine.System_Storage_GetContext);
+                Call(ApplicationEngine.System_Storage_Put);
             }
         }
 
