@@ -153,6 +153,27 @@ namespace Neo.Compiler
             }
         }
 
+        public static IEnumerable<AttributeData> GetAttributesWithInherited(this IMethodSymbol symbol)
+        {
+            foreach (var attribute in symbol.GetAttributes())
+            {
+                yield return attribute;
+            }
+
+            var overriddenMethod = symbol.OverriddenMethod;
+            while (overriddenMethod != null)
+            {
+                foreach (var attribute in overriddenMethod.GetAttributes())
+                {
+                    if (IsInherited(attribute))
+                    {
+                        yield return attribute;
+                    }
+                }
+                overriddenMethod = overriddenMethod.OverriddenMethod;
+            }
+        }
+
         private static bool IsInherited(this AttributeData attribute)
         {
             if (attribute.AttributeClass == null)
@@ -190,6 +211,7 @@ namespace Neo.Compiler
         private static IEnumerable<ISymbol> GetAllMembersInternal(ITypeSymbol type)
         {
             if (type.SpecialType == SpecialType.System_Object) yield break;
+            if (type.Name == nameof(Attribute)) yield break;
             List<ISymbol> myMembers = type.GetMembers().ToList();
             if (type.IsReferenceType)
                 foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
