@@ -55,6 +55,7 @@ namespace Neo.Compiler
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName => displayName ?? assemblyName ?? className;
+        public bool Checked { get; private set; } = false;
         private string? Source { get; set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
@@ -162,7 +163,7 @@ namespace Neo.Compiler
             return Compile(sourceFiles, references, options);
         }
 
-        public static Compilation GetCompilation(string csproj, out string assemblyName)
+        public static Compilation GetCompilation(string csproj, out XDocument document)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
@@ -171,9 +172,8 @@ namespace Neo.Compiler
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(commonReferences);
             CSharpCompilationOptions options = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
-            XDocument xml = XDocument.Load(csproj);
-            assemblyName = xml.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).SingleOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
-            sourceFiles.UnionWith(xml.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
+            document = XDocument.Load(csproj);
+            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
@@ -241,9 +241,10 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileProject(string csproj, Options options)
         {
-            Compilation compilation = GetCompilation(csproj, out string assemblyName);
+            Compilation compilation = GetCompilation(csproj, out XDocument document);
             CompilationContext context = new(compilation, options);
-            context.assemblyName = assemblyName;
+            context.assemblyName = document.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).FirstOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
+            context.Checked = document.Root!.Elements("PropertyGroup").Elements("CheckForOverflowUnderflow").Select(p => bool.Parse(p.Value)).FirstOrDefault();
             context.Compile();
             return context;
         }
