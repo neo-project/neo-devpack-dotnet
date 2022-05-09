@@ -157,6 +157,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
+                ConvertModifier(model);
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -440,6 +441,39 @@ namespace Neo.Compiler
                             throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntax}");
                     }
                 }
+            }
+        }
+
+        private void ConvertModifier(SemanticModel model)
+        {
+            foreach (var attribute in Symbol.GetAttributesWithInherited())
+            {
+                if (attribute.AttributeClass?.IsSubclassOf(nameof(ModifierAttribute)) != true)
+                    continue;
+
+                JumpTarget notNullTarget = new();
+                byte fieldIndex = context.AddAnonymousStaticField();
+                AccessSlot(OpCode.LDSFLD, fieldIndex);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, notNullTarget);
+
+                MethodConvert constructor = context.ConvertMethod(model, attribute.AttributeConstructor!);
+                CreateObject(model, attribute.AttributeClass, null);
+                foreach (var arg in attribute.ConstructorArguments.Reverse())
+                    Push(arg.Value);
+                Push(attribute.ConstructorArguments.Length);
+                AddInstruction(OpCode.PICK);
+                EmitCall(constructor);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
+
+                notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+                var validateSymbol = attribute.AttributeClass.GetAllMembers()
+                    .OfType<IMethodSymbol>()
+                    .Where(p => p.Name == nameof(ModifierAttribute.Validate))
+                    .Where(u => u.Parameters.Length == 0)
+                    .First();
+                MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
+                EmitCall(validateMethod);
             }
         }
 
