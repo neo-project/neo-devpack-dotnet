@@ -88,13 +88,17 @@ namespace Neo.SmartContract.Framework
 
         protected static ByteString NewTokenId()
         {
+            return NewTokenId(Runtime.ExecutingScriptHash);
+        }
+
+        protected static ByteString NewTokenId(ByteString salt)
+        {
             StorageContext context = Storage.CurrentContext;
             byte[] key = new byte[] { Prefix_TokenId };
             ByteString id = Storage.Get(context, key);
             Storage.Put(context, key, (BigInteger)id + 1);
-            ByteString data = Runtime.ExecutingScriptHash;
-            if (id is not null) data += id;
-            return CryptoLib.Sha256(data);
+            if (id is not null) salt += id;
+            return CryptoLib.Sha256(salt);
         }
 
         protected static void Mint(ByteString tokenId, TokenState token)

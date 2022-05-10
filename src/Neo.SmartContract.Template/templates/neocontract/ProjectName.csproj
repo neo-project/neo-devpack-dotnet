@@ -8,10 +8,14 @@
     <PackageReference Include="Neo.SmartContract.Framework" Version="3.1.0" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
+  </PropertyGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: $(ProjectPath)" Importance="high">
     </Message>
-    <Exec Command="nccs &quot;$(ProjectPath)&quot;" />
+    <Exec Command="nccs $(DebugArgument) &quot;$(ProjectPath)&quot;" />
   </Target>
 
 </Project>
