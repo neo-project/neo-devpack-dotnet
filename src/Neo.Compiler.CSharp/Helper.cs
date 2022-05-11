@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
-using System.Xml.Linq;
 
 namespace Neo.Compiler
 {
@@ -276,13 +275,6 @@ namespace Neo.Compiler
                 return symbol.Name[..1].ToLowerInvariant() + symbol.Name[1..];
             else
                 return symbol.Name;
-        }
-
-        public static T GetValue<T>(this IEnumerable<XElement> source, Func<string, T> selector, T defaultValue)
-        {
-            XElement? element = source.FirstOrDefault();
-            if (element is null) return defaultValue;
-            return selector(element.Value);
         }
 
         public static ContractParameterDefinition ToAbiParameter(this IParameterSymbol symbol)
