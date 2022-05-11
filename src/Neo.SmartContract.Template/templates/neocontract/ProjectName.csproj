@@ -9,13 +9,14 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <NullableArgument Condition="'$(Nullable)' != ''">--nullable $(Nullable)</NullableArgument>
     <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: $(ProjectPath)" Importance="high">
     </Message>
-    <Exec Command="nccs $(DebugArgument) &quot;$(ProjectPath)&quot;" />
+    <Exec Command="nccs $(NullableArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
   </Target>
 
 </Project>
