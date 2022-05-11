@@ -63,6 +63,16 @@ namespace Neo.SmartContract.Framework.Services
             set;
         }
 
+        [Syscall("System.Storage.GetContext")]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(byte[] prefix);
+
+        [Syscall("System.Storage.GetContext")]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(ByteString prefix);
+
         [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.NEWBUFFER)]
         [OpCode(OpCode.TUCK)]
@@ -73,6 +83,16 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
         public extern StorageMap(byte prefix);
+
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(StorageContext context, byte[] prefix);
+
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(StorageContext context, ByteString prefix);
 
         [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.NEWBUFFER)]

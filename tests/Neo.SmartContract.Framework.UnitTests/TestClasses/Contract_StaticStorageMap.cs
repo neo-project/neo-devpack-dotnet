@@ -6,8 +6,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_StaticStorageMap : SmartContract
     {
-        private static StorageMap Data = new StorageMap(Storage.CurrentContext, 0);
-        private static readonly StorageMap ReadonlyData = new StorageMap(Storage.CurrentContext, 1);
+        private static StorageMap Data = new StorageMap(Storage.CurrentContext, "data");
+        private static readonly StorageMap ReadonlyData = new StorageMap(Storage.CurrentContext, "readonlydata");
 
         public static void Put(string message)
         {
@@ -31,13 +31,13 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static void Put2(string message)
         {
-            var Data2 = new StorageMap(Storage.CurrentContext, 0);
+            var Data2 = new StorageMap(Storage.CurrentContext, "data");
             Data2.Put(message, 3);
         }
 
         public static BigInteger Get2(string msg)
         {
-            var Data2 = new StorageMap(Storage.CurrentContext, 0);
+            var Data2 = new StorageMap(Storage.CurrentContext, "data");
             return (BigInteger)Data2.Get(msg);
         }
 

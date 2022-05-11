@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public AccountStorage()
         {
-            map = new StorageMap(Storage.CurrentContext, 0);
+            map = new StorageMap(Storage.CurrentContext, nameof(AccountStorage));
         }
 
         public BigInteger this[UInt160 account]
