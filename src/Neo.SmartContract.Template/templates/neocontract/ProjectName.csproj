@@ -9,14 +9,17 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <BaseNameArgument Condition="'$(AssemblyName)' != ''">--base-name $(AssemblyName)</BaseNameArgument>
+    <BaseNameArgument Condition="'$(AssemblyName)' == ''">--base-name $(MSBuildProjectName)</BaseNameArgument>
     <NullableArgument Condition="'$(Nullable)' != ''">--nullable $(Nullable)</NullableArgument>
+    <CheckedArgument Condition="'$(CheckForOverflowUnderflow)' == 'true'">--checked</CheckedArgument>
     <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: $(ProjectPath)" Importance="high">
     </Message>
-    <Exec Command="nccs $(NullableArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
+    <Exec Command="nccs $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
   </Target>
 
 </Project>

@@ -19,6 +19,7 @@ namespace Neo.Compiler
         public string? Output { get; set; }
         public string? BaseName { get; set; }
         public NullableContextOptions Nullable { get; set; }
+        public bool Checked { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
         public bool NoOptimize { get; set; }

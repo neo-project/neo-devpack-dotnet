@@ -64,7 +64,7 @@ namespace Neo.Compiler
         {
             this.Symbol = symbol;
             this.context = context;
-            this._checkedStack.Push(context.Checked);
+            this._checkedStack.Push(context.Options.Checked);
         }
 
         private byte AddLocalVariable(ILocalSymbol symbol)
