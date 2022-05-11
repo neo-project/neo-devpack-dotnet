@@ -20,68 +20,59 @@ namespace Neo.SmartContract.Framework.Services
 {
     public class StorageMap
     {
-        private readonly StorageContext Context;
-        private readonly ByteString Prefix;
+        private readonly StorageContext context;
+        private readonly byte[] prefix;
 
         public extern ByteString this[ByteString key]
         {
-            [OpCode(OpCode.OVER)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.SWAP)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
             [OpCode(OpCode.SWAP)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
             [Syscall("System.Storage.Get")]
             get;
-            [OpCode(OpCode.PUSH2)]
-            [OpCode(OpCode.PICK)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.ROT)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
-            [OpCode(OpCode.ROT)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
+            [OpCode(OpCode.SWAP)]
             [Syscall("System.Storage.Put")]
             set;
         }
 
         public extern ByteString this[byte[] key]
         {
-            [OpCode(OpCode.OVER)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.SWAP)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
             [OpCode(OpCode.SWAP)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
             [Syscall("System.Storage.Get")]
             get;
-            [OpCode(OpCode.PUSH2)]
-            [OpCode(OpCode.PICK)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.ROT)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
-            [OpCode(OpCode.ROT)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
+            [OpCode(OpCode.SWAP)]
             [Syscall("System.Storage.Put")]
             set;
         }
 
-        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.NEWBUFFER)]
+        [OpCode(OpCode.TUCK)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.SETITEM)]
+        [Syscall("System.Storage.GetContext")]
         [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
-        public extern StorageMap(StorageContext context, byte[] prefix);
-
-        [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PACK)]
-        public extern StorageMap(StorageContext context, ByteString prefix);
+        public extern StorageMap(byte prefix);
 
         [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.NEWBUFFER)]
@@ -94,25 +85,21 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PACK)]
         public extern StorageMap(StorageContext context, byte prefix);
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(ByteString key);
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(byte[] key);
 
@@ -130,85 +117,78 @@ namespace Neo.SmartContract.Framework.Services
             return StdLib.Deserialize(value);
         }
 
+        public Iterator<T> Find<T>()
+        {
+            return (Iterator<T>)Find(FindOptions.ValuesOnly | FindOptions.DeserializeValues);
+        }
+
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(FindOptions options = FindOptions.None);
 
+        public Iterator<T> Find<T>(ByteString prefix)
+        {
+            return (Iterator<T>)Find(prefix, FindOptions.ValuesOnly | FindOptions.DeserializeValues);
+        }
+
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.TUCK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(ByteString prefix, FindOptions options = FindOptions.None);
 
+        public Iterator<T> Find<T>(byte[] prefix)
+        {
+            return (Iterator<T>)Find(prefix, FindOptions.ValuesOnly | FindOptions.DeserializeValues);
+        }
+
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.TUCK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(byte[] prefix, FindOptions options = FindOptions.None);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(ByteString key, ByteString value);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(byte[] key, ByteString value);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(ByteString key, BigInteger value);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(byte[] key, BigInteger value);
 
@@ -222,25 +202,21 @@ namespace Neo.SmartContract.Framework.Services
             Put(key, StdLib.Serialize(value));
         }
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Delete")]
         public extern void Delete(ByteString key);
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Delete")]
         public extern void Delete(byte[] key);
     }

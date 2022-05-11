@@ -32,74 +32,17 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static byte[] TestOver16Bytes()
         {
             var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
-            StorageMap storageMap = new StorageMap(Storage.CurrentContext, "test_map");
+            StorageMap storageMap = new StorageMap(Storage.CurrentContext, 0);
             storageMap.Put((ByteString)new byte[] { 0x01 }, (ByteString)value);
             return (byte[])storageMap.Get((ByteString)new byte[] { 0x01 });
         }
 
         #endregion
 
-        #region String
-
-        public static bool TestPutString(byte[] key, byte[] value)
-        {
-            var prefix = "aa";
-            var storage = new StorageMap(Storage.CurrentContext, prefix);
-            storage.Put((ByteString)key, (ByteString)value);
-            return true;
-        }
-
-        public static void TestDeleteString(byte[] key)
-        {
-            var prefix = "aa";
-            var storage = new StorageMap(Storage.CurrentContext, prefix);
-            storage.Delete((ByteString)key);
-        }
-
-        public static byte[] TestGetString(byte[] key)
-        {
-            var prefix = "aa";
-            var context = Storage.CurrentReadOnlyContext;
-            var storage = new StorageMap(context, prefix);
-            var value = storage.Get((ByteString)key);
-            return (byte[])value;
-        }
-
-        #endregion
-
-        #region ByteArray
-
-        public static bool TestPutByteArray(byte[] key, byte[] value)
-        {
-            var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap(Storage.CurrentContext, prefix);
-            storage.Put((ByteString)key, (ByteString)value);
-            return true;
-        }
-
-        public static void TestDeleteByteArray(byte[] key)
-        {
-            var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap(Storage.CurrentContext, prefix);
-            storage.Delete((ByteString)key);
-        }
-
-        public static byte[] TestGetByteArray(byte[] key)
-        {
-            var prefix = new byte[] { 0x00, 0xFF };
-            var context = Storage.CurrentContext.AsReadOnly;
-            var storage = new StorageMap(context, prefix);
-            var value = storage.Get((ByteString)key);
-            return (byte[])value;
-        }
-
-        #endregion
-
         public static bool TestPutReadOnly(byte[] key, byte[] value)
         {
-            var prefix = new byte[] { 0x00, 0xFF };
             var context = Storage.CurrentContext.AsReadOnly;
-            var storage = new StorageMap(context, prefix);
+            var storage = new StorageMap(context, 3);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
@@ -113,9 +56,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static int SerializeTest(byte[] key, int value)
         {
-            var prefix = new byte[] { 0x01, 0xAA };
             var context = Storage.CurrentContext;
-            var storage = new StorageMap(context, prefix);
+            var storage = new StorageMap(context, 4);
             var val = new Value() { Val = value };
             storage.PutObject(key, val);
             val = (Value)storage.GetObject(key);
@@ -142,17 +84,15 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static bool TestIndexPut(byte[] key, byte[] value)
         {
-            var prefix = "ii";
-            var storage = new StorageMap(Storage.CurrentContext, prefix);
+            var storage = new StorageMap(Storage.CurrentContext, 5);
             storage[(ByteString)key] = (ByteString)value;
             return true;
         }
 
         public static byte[] TestIndexGet(byte[] key)
         {
-            var prefix = "ii";
             var context = Storage.CurrentReadOnlyContext;
-            var storage = new StorageMap(context, prefix);
+            var storage = new StorageMap(context, 5);
             var value = storage[(ByteString)key];
             return (byte[])value;
         }
