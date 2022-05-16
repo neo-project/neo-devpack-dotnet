@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -34,9 +34,9 @@ namespace Neo.Compiler
             return Convert.FromHexString(s);
         }
 
-        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName)
+        public static bool IsSubclassOf(this ITypeSymbol type, string baseTypeName, bool includeThisClass = false)
         {
-            INamedTypeSymbol? baseType = type.BaseType;
+            ITypeSymbol? baseType = includeThisClass ? type : type.BaseType;
             while (baseType is not null)
             {
                 if (baseType.Name == baseTypeName)
@@ -152,6 +152,27 @@ namespace Neo.Compiler
             }
         }
 
+        public static IEnumerable<AttributeData> GetAttributesWithInherited(this IMethodSymbol symbol)
+        {
+            foreach (var attribute in symbol.GetAttributes())
+            {
+                yield return attribute;
+            }
+
+            var overriddenMethod = symbol.OverriddenMethod;
+            while (overriddenMethod != null)
+            {
+                foreach (var attribute in overriddenMethod.GetAttributes())
+                {
+                    if (IsInherited(attribute))
+                    {
+                        yield return attribute;
+                    }
+                }
+                overriddenMethod = overriddenMethod.OverriddenMethod;
+            }
+        }
+
         private static bool IsInherited(this AttributeData attribute)
         {
             if (attribute.AttributeClass == null)
@@ -189,6 +210,7 @@ namespace Neo.Compiler
         private static IEnumerable<ISymbol> GetAllMembersInternal(ITypeSymbol type)
         {
             if (type.SpecialType == SpecialType.System_Object) yield break;
+            if (type.Name == nameof(Attribute)) yield break;
             List<ISymbol> myMembers = type.GetMembers().ToList();
             if (type.IsReferenceType)
                 foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
