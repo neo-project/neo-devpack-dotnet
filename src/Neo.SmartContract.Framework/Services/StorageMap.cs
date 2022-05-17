@@ -137,21 +137,11 @@ namespace Neo.SmartContract.Framework.Services
             return StdLib.Deserialize(value);
         }
 
-        public Iterator<T> Find<T>()
-        {
-            return (Iterator<T>)Find(FindOptions.ValuesOnly | FindOptions.DeserializeValues);
-        }
-
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(FindOptions options = FindOptions.None);
-
-        public Iterator<T> Find<T>(ByteString prefix)
-        {
-            return (Iterator<T>)Find(prefix, FindOptions.ValuesOnly | FindOptions.DeserializeValues);
-        }
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -161,11 +151,6 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(ByteString prefix, FindOptions options = FindOptions.None);
-
-        public Iterator<T> Find<T>(byte[] prefix)
-        {
-            return (Iterator<T>)Find(prefix, FindOptions.ValuesOnly | FindOptions.DeserializeValues);
-        }
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
