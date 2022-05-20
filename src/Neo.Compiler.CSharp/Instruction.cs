@@ -13,6 +13,7 @@ using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
@@ -21,6 +22,7 @@ using System.Text;
 
 namespace Neo.Compiler
 {
+    [DebuggerDisplay("{OpCode}")]
     class Instruction
     {
         private static readonly int[] OperandSizePrefixTable = new int[256];
