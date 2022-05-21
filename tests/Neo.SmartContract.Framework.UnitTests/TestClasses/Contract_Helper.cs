@@ -27,6 +27,21 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return new BigInteger(data);
         }
 
+        public static BigInteger ModMultiply(BigInteger value, BigInteger y, BigInteger modulus)
+        {
+            return value.ModMultiply(y, modulus);
+        }
+
+        public static BigInteger ModInverse(BigInteger value, BigInteger modulus)
+        {
+            return value.ModInverse(modulus);
+        }
+
+        public static BigInteger ModPow(BigInteger value, BigInteger exponent, BigInteger modulus)
+        {
+            return BigInteger.ModPow(value, exponent, modulus);
+        }
+
         public static BigInteger TestBigIntegerCast(byte[] data)
         {
             return (BigInteger)(ByteString)data;
