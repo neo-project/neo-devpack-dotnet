@@ -1,6 +1,7 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
+using System;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
@@ -18,10 +19,15 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
+            engine.LoadScript(Array.Empty<byte>());
             method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
+            engine.Snapshot.Commit();
 
-            var method2 = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            method2.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
+            method = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
+            engine.LoadScript(Array.Empty<byte>());
+            method.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
+            engine.Snapshot.Commit();
         }
     }
 }
