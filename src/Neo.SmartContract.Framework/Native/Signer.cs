@@ -14,7 +14,6 @@ namespace Neo.SmartContract.Framework.Native
 {
     public class Signer
     {
-        public byte[] Data;
         public UInt160 Account;
         public WitnessScope Scopes;
         public UInt160[] AllowedContracts;
