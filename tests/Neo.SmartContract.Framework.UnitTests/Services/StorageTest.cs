@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 testengine.Snapshot.GetChangeSet()
                 .Count(a =>
                     a.Key.Key.Span.SequenceEqual(Concat(prefix, key)) &&
-                    a.Item.Value.SequenceEqual(value)));
+                    a.Item.Value.Span.SequenceEqual(value)));
         }
 
         private static byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)

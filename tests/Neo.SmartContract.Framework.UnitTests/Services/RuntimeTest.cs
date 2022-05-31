@@ -23,9 +23,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             public int Size => 0;
 
-            public void Deserialize(BinaryReader reader) { }
+            public void Deserialize(ref MemoryReader reader) { }
 
-            public void DeserializeUnsigned(BinaryReader reader) { }
+            public void DeserializeUnsigned(ref MemoryReader reader) { }
 
             public UInt160[] GetScriptHashesForVerifying(DataCache snapshot)
             {
@@ -481,7 +481,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = engine.ResultStack.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual(tx.Script.ToHexString(), item.GetSpan().ToHexString());
+            Assert.AreEqual(tx.Script.Span.ToHexString(), item.GetSpan().ToHexString());
         }
 
         private static Transaction BuildTransaction(UInt160 sender, byte[] script)

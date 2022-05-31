@@ -262,7 +262,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(tx.Script, item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(tx.Script.ToArray(), item.GetSpan().ToArray());
 
             // Sender
 
