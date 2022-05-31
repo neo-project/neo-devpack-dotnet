@@ -137,7 +137,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             nef.Tokens = engine.Nef.Tokens;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All,
-                new Array(new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));
+                new Array(_engine.ReferenceCounter, new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

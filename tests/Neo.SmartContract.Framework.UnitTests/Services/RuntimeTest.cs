@@ -229,8 +229,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_GetNotificationsCount()
         {
             _engine.ClearNotifications();
-            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
-            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
+            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(_engine.ReferenceCounter, new StackItem[] { new Integer(0x01) }));
+            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(_engine.ReferenceCounter, new StackItem[] { new Integer(0x02) }));
 
             var result = _engine.ExecuteTestCaseStandard("getNotificationsCount", new VM.Types.ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
@@ -252,8 +252,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_GetNotifications()
         {
             _engine.ClearNotifications();
-            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(new StackItem[] { new Integer(0x01) }));
-            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(new StackItem[] { new Integer(0x02) }));
+            _engine.SendTestNotification(UInt160.Zero, "", new VM.Types.Array(_engine.ReferenceCounter, new StackItem[] { new Integer(0x01) }));
+            _engine.SendTestNotification(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), "", new VM.Types.Array(_engine.ReferenceCounter, new StackItem[] { new Integer(0x02) }));
 
             var result = _engine.ExecuteTestCaseStandard("getNotifications", new VM.Types.ByteString(UInt160.Parse("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").ToArray()));
             Assert.AreEqual(1, result.Count);
