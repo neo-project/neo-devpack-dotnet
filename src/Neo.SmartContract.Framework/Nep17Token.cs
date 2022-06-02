@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Framework
             PostTransfer(account, null, amount, null);
         }
 
-        private static void PostTransfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+        protected static void PostTransfer(UInt160 from, UInt160 to, BigInteger amount, object data)
         {
             OnTransfer(from, to, amount);
             if (to is not null && ContractManagement.GetContract(to) is not null)

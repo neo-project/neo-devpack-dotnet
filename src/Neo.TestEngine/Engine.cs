@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -53,7 +53,7 @@ namespace Neo.TestingEngine
 
         public uint Height => NativeContract.Ledger.CurrentIndex(engine.Snapshot);
 
-        public DataCache Snaptshot => engine.Snapshot;
+        public DataCache Snapshot => engine.Snapshot;
 
         public void Reset()
         {
@@ -149,7 +149,7 @@ namespace Neo.TestingEngine
 
         public Engine IncreaseBlockCount(uint newHeight)
         {
-            var snapshot = (TestDataCache)engine.Snapshot;
+            var snapshot = engine.Snapshot;
             if (snapshot.Blocks().Count <= newHeight)
             {
                 Block newBlock;
@@ -180,13 +180,20 @@ namespace Neo.TestingEngine
 
         public Engine SetStorage(Dictionary<StorageKey, StorageItem> storage)
         {
-            if (engine.Snapshot is TestDataCache snapshot)
+            var snapshot = (TestDataCache)engine.InitSnapshot;
+            if (engine.Snapshot is TestDataCache engineSnapshot)
+            {
+                snapshot = engineSnapshot;
+            }
+
+            if (snapshot is TestDataCache)
             {
                 foreach (var (key, value) in storage)
                 {
                     snapshot.AddForTest(key, value);
                 }
             }
+            snapshot.InnerCommit();
             return this;
         }
 
@@ -212,52 +219,61 @@ namespace Neo.TestingEngine
 
         public Engine AddBlock(Block block)
         {
-            if (engine.Snapshot is TestDataCache snapshot)
+            var snapshot = engine.Snapshot;
+            Block? currentBlock = null;
+            if (Height < block.Index || snapshot.Blocks().Count == 0)
             {
-                Block? currentBlock = null;
-                if (Height < block.Index || snapshot.Blocks().Count == 0)
+                IncreaseBlockCount(block.Index);
+                currentBlock = engine.Snapshot.GetLastBlock();
+            }
+            else
+            {
+                currentBlock = NativeContract.Ledger.GetBlock(snapshot, block.Index);
+            }
+
+            if (currentBlock != null)
+            {
+                var hash = currentBlock.Hash;
+                currentBlock.Header.Timestamp = block.Header.Timestamp;
+
+                if (currentBlock.Transactions.Length > 0)
                 {
-                    IncreaseBlockCount(block.Index);
-                    currentBlock = engine.Snapshot.GetLastBlock();
+                    var tx = currentBlock.Transactions.ToList();
+                    tx.AddRange(block.Transactions);
+                    currentBlock.Transactions = tx.ToArray();
                 }
                 else
                 {
-                    currentBlock = NativeContract.Ledger.GetBlock(snapshot, block.Index);
+                    currentBlock.Transactions = block.Transactions;
                 }
 
-                if (currentBlock != null)
+                foreach (var tx in block.Transactions)
                 {
-                    var hash = currentBlock.Hash;
-                    currentBlock.Header.Timestamp = block.Header.Timestamp;
-
-                    if (currentBlock.Transactions.Length > 0)
-                    {
-                        var tx = currentBlock.Transactions.ToList();
-                        tx.AddRange(block.Transactions);
-                        currentBlock.Transactions = tx.ToArray();
-                    }
-                    else
-                    {
-                        currentBlock.Transactions = block.Transactions;
-                    }
-
-                    foreach (var tx in block.Transactions)
-                    {
-                        tx.ValidUntilBlock = block.Index + ProtocolSettings.Default.MaxValidUntilBlockIncrement;
-                    }
-
-                    var trimmed = currentBlock.Trim();
-                    snapshot.UpdateChangedBlocks(hash, trimmed.Hash, trimmed);
+                    tx.ValidUntilBlock = block.Index + ProtocolSettings.Default.MaxValidUntilBlockIncrement;
                 }
 
-                snapshot.AddOrUpdateTransactions(block.Transactions);
+                var trimmed = currentBlock.Trim();
+                snapshot.UpdateChangedBlocks(hash, trimmed.Hash, trimmed);
             }
+
+            snapshot.AddOrUpdateTransactions(block.Transactions);
             return this;
         }
 
         public JObject Run(string method, ContractParameter[] args)
         {
-            if (engine.Snapshot is TestDataCache snapshot)
+            TestDataCache snapshot = null;
+            if (engine.Snapshot is TestDataCache engineSnapshot)
+            {
+                snapshot = engineSnapshot;
+            }
+            else if (engine.InitSnapshot is TestDataCache engineInitSnapshot)
+            {
+                engine.Snapshot.InnerCommit();
+                snapshot = engineInitSnapshot;
+            }
+
+            if (snapshot is not null)
             {
                 if (snapshot.Blocks().Count == 0)
                 {

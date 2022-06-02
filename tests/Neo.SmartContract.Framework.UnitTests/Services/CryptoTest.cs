@@ -60,6 +60,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_Murmur32()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("murmur32", "asd", 2);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Buffer));
+            Assert.AreEqual("2ad58504", item.GetSpan().ToArray().ToHexString());
+        }
+
+        [TestMethod]
         public void Test_RIPEMD160()
         {
             _engine.Reset();

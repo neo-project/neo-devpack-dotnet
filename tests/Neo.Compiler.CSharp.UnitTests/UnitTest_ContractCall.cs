@@ -15,10 +15,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestInitialize]
         public void Init()
         {
+            var snapshot = new TestDataCache();
             var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
-            _engine = new TestEngine(snapshot: new TestDataCache());
+            _engine = new TestEngine(snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract1.cs");
-            _engine.Snapshot.ContractAdd(new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
                 Nef = _engine.Nef,

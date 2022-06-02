@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -21,7 +21,7 @@ namespace Neo.TestingEngine
         private Dictionary<UInt160, WalletAccount> accounts;
         public WalletAccount DefaultAccount { get; private set; }
 
-        public TestWallet(UInt160? scriptHash = null) : base("", ProtocolSettings.Default, "TestWallet")
+        public TestWallet(UInt160? scriptHash = null) : base("", "", ProtocolSettings.Default, "TestWallet")
         {
             this.accounts = new Dictionary<UInt160, WalletAccount>();
             if (scriptHash == null)

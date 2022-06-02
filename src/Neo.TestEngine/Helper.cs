@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -30,6 +30,7 @@ namespace Neo.TestingEngine
             json["vmstate"] = testEngine.State.ToString();
             json["gasconsumed"] = (new BigDecimal((decimal)testEngine.GasConsumedByLastExecution, NativeContract.GAS.Decimals)).ToString();
             json["resultstack"] = testEngine.ResultStack.ToJson();
+            json["executedscripthash"] = testEngine.executedScriptHash.ToString();
 
             json["currentblock"] = testEngine.PersistingBlock.ToSimpleJson();
             if (testEngine.ScriptContainer is Transaction tx)
@@ -56,7 +57,7 @@ namespace Neo.TestingEngine
                     JArray array = new();
                     while (max > 0 && iterator.Next())
                     {
-                        array.Add(iterator.Value().ToJson());
+                        array.Add(iterator.Value(null).ToJson());
                         max--;
                     }
                     json["iterator"] = array;

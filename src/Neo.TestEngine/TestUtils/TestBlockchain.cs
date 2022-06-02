@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -11,7 +11,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Neo.IO;
-using Neo.Ledger;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -32,6 +31,33 @@ namespace Neo.TestingEngine
         static TestBlockchain()
         {
             TheNeoSystem = new NeoSystem(ProtocolSettings.Default);
+        }
+
+        public static void InnerCommit(this DataCache snapshot)
+        {
+            bool hasInnerDataCache = true;
+            var curSnapshot = snapshot;
+            while (hasInnerDataCache)
+            {
+                try
+                {
+                    curSnapshot.Commit();
+
+                    var cache = curSnapshot.GetType()?.GetField("innerCache", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(curSnapshot);
+                    if (cache is DataCache innerCache)
+                    {
+                        curSnapshot = innerCache;
+                    }
+                    else
+                    {
+                        hasInnerDataCache = false;
+                    }
+                }
+                catch
+                {
+                    hasInnerDataCache = false;
+                }
+            }
         }
 
         public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable? key = null)
@@ -60,6 +86,7 @@ namespace Neo.TestingEngine
         {
             snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, hash));
             snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash));
+            snapshot.InnerCommit();
         }
 
         public static void TransactionAdd(this DataCache snapshot, params TransactionState[] txs)
@@ -68,18 +95,21 @@ namespace Neo.TestingEngine
             {
                 snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_Transaction, tx.Transaction.Hash), new StorageItem(tx));
             }
+            snapshot.InnerCommit();
         }
 
         public static void BlocksDelete(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
         {
             snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, block.Index));
             snapshot.Delete(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash));
+            snapshot.InnerCommit();
         }
 
         public static void BlocksAdd(this DataCache snapshot, UInt256 hash, TrimmedBlock block)
         {
             snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_BlockHash, block.Index), new StorageItem(hash.ToArray()));
             snapshot.Add(NativeContract.Ledger.CreateStorageKey(Prefix_Block, hash), new StorageItem(block.ToArray()));
+            snapshot.InnerCommit();
         }
 
         public static void UpdateChangedBlocks(this DataCache snapshot, UInt256 oldHash, UInt256 newHash, TrimmedBlock block)
@@ -95,6 +125,7 @@ namespace Neo.TestingEngine
                 snapshot.BlocksDelete(newHash, block);
             }
             snapshot.BlocksAdd(newHash, block);
+            snapshot.InnerCommit();
         }
 
         public static TrimmedBlock Trim(this Block block)
@@ -132,6 +163,7 @@ namespace Neo.TestingEngine
             {
                 snapshot.BlocksAdd(hash, block);
             }
+            snapshot.InnerCommit();
         }
 
         public static List<TrimmedBlock> Blocks(this DataCache snapshot)
@@ -168,6 +200,7 @@ namespace Neo.TestingEngine
             hashIndex.Index = index;
 
             item.Value = BinarySerializer.Serialize(hashIndex.ToStackItem(null), ExecutionEngineLimits.Default.MaxStackSize);
+            snapshot.InnerCommit();
         }
 
         public static void TransactionAddOrUpdate(this DataCache snapshot, params TransactionState[] txs)
@@ -182,6 +215,7 @@ namespace Neo.TestingEngine
                 }
                 snapshot.Add(key, new StorageItem(tx));
             }
+            snapshot.InnerCommit();
         }
 
         public static bool ContainsTransaction(this DataCache snapshot, Transaction tx)
@@ -216,6 +250,7 @@ namespace Neo.TestingEngine
             }
 
             snapshot.TransactionAddOrUpdate(states.ToArray());
+            snapshot.InnerCommit();
         }
     }
 }

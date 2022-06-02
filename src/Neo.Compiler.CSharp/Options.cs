@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -8,16 +8,31 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis.CSharp;
+using System.Collections.Generic;
+
 namespace Neo.Compiler
 {
     public class Options
     {
         public string? Output { get; set; }
-        public string? ContractName { get; set; }
+        public string? BaseName { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
         public bool NoOptimize { get; set; }
         public bool NoInline { get; set; }
         public byte AddressVersion { get; set; }
+
+        private CSharpParseOptions? parseOptions = null;
+        public CSharpParseOptions GetParseOptions()
+        {
+            if (parseOptions is null)
+            {
+                List<string> preprocessorSymbols = new();
+                if (Debug) preprocessorSymbols.Add("DEBUG");
+                parseOptions = new CSharpParseOptions(preprocessorSymbols: preprocessorSymbols);
+            }
+            return parseOptions;
+        }
     }
 }

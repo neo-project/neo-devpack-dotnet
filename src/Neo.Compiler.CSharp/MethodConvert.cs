@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -20,6 +20,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.Wallets;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -37,21 +38,22 @@ namespace Neo.Compiler
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _initslot;
-        private readonly Dictionary<IParameterSymbol, byte> _parameters = new();
+        private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
-        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new();
+        private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly JumpTarget _startTarget = new();
-        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new();
+        private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
+        private readonly Stack<bool> _checkedStack = new();
 
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
@@ -62,6 +64,7 @@ namespace Neo.Compiler
         {
             this.Symbol = symbol;
             this.context = context;
+            this._checkedStack.Push(context.Checked);
         }
 
         private byte AddLocalVariable(ILocalSymbol symbol)
@@ -154,6 +157,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
+                ConvertModifier(model);
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -223,7 +227,7 @@ namespace Neo.Compiler
 
         private void ProcessStaticFields(SemanticModel model)
         {
-            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct().ToArray())
+            foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
             {
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
@@ -259,7 +263,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -311,13 +315,13 @@ namespace Neo.Compiler
 
         private void ProcessConstructorInitializer(SemanticModel model)
         {
+            INamedTypeSymbol type = Symbol.ContainingType;
+            if (type.IsValueType) return;
+            INamedTypeSymbol baseType = type.BaseType!;
+            if (baseType.SpecialType == SpecialType.System_Object) return;
             ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
             if (initializer is null)
             {
-                INamedTypeSymbol type = Symbol.ContainingType;
-                if (type.IsValueType) return;
-                INamedTypeSymbol baseType = type.BaseType!;
-                if (baseType.SpecialType == SpecialType.System_Object) return;
                 IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
                 if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                     return;
@@ -334,7 +338,7 @@ namespace Neo.Compiler
         private void ConvertExtern()
         {
             _inline = true;
-            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractAttribute));
+            AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractAttribute));
             if (contractAttribute is null)
             {
                 bool emitted = false;
@@ -342,7 +346,7 @@ namespace Neo.Compiler
                 {
                     switch (attribute.AttributeClass!.Name)
                     {
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.OpCodeAttribute):
+                        case nameof(OpCodeAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -354,7 +358,7 @@ namespace Neo.Compiler
                                 Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes(true)
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.SyscallAttribute):
+                        case nameof(SyscallAttribute):
                             if (!emitted)
                             {
                                 emitted = true;
@@ -366,7 +370,7 @@ namespace Neo.Compiler
                                 Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
                             });
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.CallingConventionAttribute):
+                        case nameof(CallingConventionAttribute):
                             emitted = true;
                             _callingConvention = (CallingConvention)attribute.ConstructorArguments[0].Value!;
                             break;
@@ -377,18 +381,19 @@ namespace Neo.Compiler
             else
             {
                 UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
-                AttributeData? attribute = Symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractHashAttribute));
-                if (attribute is null)
+                if (Symbol.MethodKind == MethodKind.PropertyGet)
                 {
-                    string method = Symbol.GetDisplayName(true);
-                    ushort parametersCount = (ushort)Symbol.Parameters.Length;
-                    bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-                    Call(hash, method, parametersCount, hasReturnValue);
+                    AttributeData? attribute = Symbol.AssociatedSymbol!.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractHashAttribute));
+                    if (attribute is not null)
+                    {
+                        Push(hash.ToArray());
+                        return;
+                    }
                 }
-                else
-                {
-                    Push(hash.ToArray());
-                }
+                string method = Symbol.GetDisplayName(true);
+                ushort parametersCount = (ushort)Symbol.Parameters.Length;
+                bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
+                Call(hash, method, parametersCount, hasReturnValue);
             }
         }
 
@@ -439,6 +444,39 @@ namespace Neo.Compiler
             }
         }
 
+        private void ConvertModifier(SemanticModel model)
+        {
+            foreach (var attribute in Symbol.GetAttributesWithInherited())
+            {
+                if (attribute.AttributeClass?.IsSubclassOf(nameof(ModifierAttribute)) != true)
+                    continue;
+
+                JumpTarget notNullTarget = new();
+                byte fieldIndex = context.AddAnonymousStaticField();
+                AccessSlot(OpCode.LDSFLD, fieldIndex);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, notNullTarget);
+
+                MethodConvert constructor = context.ConvertMethod(model, attribute.AttributeConstructor!);
+                CreateObject(model, attribute.AttributeClass, null);
+                foreach (var arg in attribute.ConstructorArguments.Reverse())
+                    Push(arg.Value);
+                Push(attribute.ConstructorArguments.Length);
+                AddInstruction(OpCode.PICK);
+                EmitCall(constructor);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
+
+                notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+                var validateSymbol = attribute.AttributeClass.GetAllMembers()
+                    .OfType<IMethodSymbol>()
+                    .Where(p => p.Name == nameof(ModifierAttribute.Validate))
+                    .Where(u => u.Parameters.Length == 0)
+                    .First();
+                MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
+                EmitCall(validateMethod);
+            }
+        }
+
         private void ConvertSource(SemanticModel model)
         {
             if (SyntaxNode is null) return;
@@ -486,6 +524,9 @@ namespace Neo.Compiler
                     break;
                 case BreakStatementSyntax syntax:
                     ConvertBreakStatement(syntax);
+                    break;
+                case CheckedStatementSyntax syntax:
+                    ConvertCheckedStatement(model, syntax);
                     break;
                 case ContinueStatementSyntax syntax:
                     ConvertContinueStatement(syntax);
@@ -562,6 +603,13 @@ namespace Neo.Compiler
                     Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
                 else
                     Jump(OpCode.JMP_L, _breakTargets.Peek());
+        }
+
+        private void ConvertCheckedStatement(SemanticModel model, CheckedStatementSyntax syntax)
+        {
+            _checkedStack.Push(syntax.Keyword.IsKind(SyntaxKind.CheckedKeyword));
+            ConvertBlockStatement(model, syntax.Block);
+            _checkedStack.Pop();
         }
 
         private void ConvertContinueStatement(ContinueStatementSyntax syntax)
@@ -1175,6 +1223,9 @@ namespace Neo.Compiler
                     break;
                 case CastExpressionSyntax expression:
                     ConvertCastExpression(model, expression);
+                    break;
+                case CheckedExpressionSyntax expression:
+                    ConvertCheckedExpression(model, expression);
                     break;
                 case ConditionalAccessExpressionSyntax expression:
                     ConvertConditionalAccessExpression(model, expression);
@@ -2051,26 +2102,78 @@ namespace Neo.Compiler
                 return;
             ConvertExpression(model, expression.Left);
             ConvertExpression(model, expression.Right);
-            AddInstruction(expression.OperatorToken.ValueText switch
+            (OpCode opcode, bool checkResult) = expression.OperatorToken.ValueText switch
             {
-                "+" => OpCode.ADD,
-                "-" => OpCode.SUB,
-                "*" => OpCode.MUL,
-                "/" => OpCode.DIV,
-                "%" => OpCode.MOD,
-                "<<" => OpCode.SHL,
-                ">>" => OpCode.SHR,
-                "|" => OpCode.OR,
-                "&" => OpCode.AND,
-                "^" => OpCode.XOR,
-                "==" => OpCode.EQUAL,
-                "!=" => OpCode.NOTEQUAL,
-                "<" => OpCode.LT,
-                "<=" => OpCode.LE,
-                ">" => OpCode.GT,
-                ">=" => OpCode.GE,
+                "+" => (OpCode.ADD, true),
+                "-" => (OpCode.SUB, true),
+                "*" => (OpCode.MUL, true),
+                "/" => (OpCode.DIV, false),
+                "%" => (OpCode.MOD, false),
+                "<<" => (OpCode.SHL, true),
+                ">>" => (OpCode.SHR, false),
+                "|" => (OpCode.OR, false),
+                "&" => (OpCode.AND, false),
+                "^" => (OpCode.XOR, false),
+                "==" => (OpCode.EQUAL, false),
+                "!=" => (OpCode.NOTEQUAL, false),
+                "<" => (OpCode.LT, false),
+                "<=" => (OpCode.LE, false),
+                ">" => (OpCode.GT, false),
+                ">=" => (OpCode.GE, false),
                 _ => throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}")
-            });
+            };
+            AddInstruction(opcode);
+            if (checkResult)
+            {
+                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                EnsureIntegerInRange(type);
+            }
+        }
+
+        private void EnsureIntegerInRange(ITypeSymbol type)
+        {
+            if (type.Name == "BigInteger") return;
+            var (minValue, maxValue, mask) = type.Name switch
+            {
+                "SByte" => ((BigInteger)sbyte.MinValue, (BigInteger)sbyte.MaxValue, (BigInteger)0xff),
+                "Int16" => (short.MinValue, short.MaxValue, 0xffff),
+                "Int32" => (int.MinValue, int.MaxValue, 0xffffffff),
+                "Int64" => (long.MinValue, long.MaxValue, 0xffffffffffffffff),
+                "Byte" => (byte.MinValue, byte.MaxValue, 0xff),
+                "UInt16" => (ushort.MinValue, ushort.MaxValue, 0xffff),
+                "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
+                "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
+                _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type: {type}")
+            };
+            JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
+            AddInstruction(OpCode.DUP);
+            Push(minValue);
+            Jump(OpCode.JMPGE_L, checkUpperBoundTarget);
+            if (_checkedStack.Peek())
+                AddInstruction(OpCode.THROW);
+            else
+                Jump(OpCode.JMP_L, adjustTarget);
+            checkUpperBoundTarget.Instruction = AddInstruction(OpCode.DUP);
+            Push(maxValue);
+            Jump(OpCode.JMPLE_L, endTarget);
+            if (_checkedStack.Peek())
+            {
+                AddInstruction(OpCode.THROW);
+            }
+            else
+            {
+                adjustTarget.Instruction = Push(mask);
+                AddInstruction(OpCode.AND);
+                if (minValue < 0)
+                {
+                    AddInstruction(OpCode.DUP);
+                    Push(maxValue);
+                    Jump(OpCode.JMPLE_L, endTarget);
+                    Push(mask + 1);
+                    AddInstruction(OpCode.SUB);
+                }
+            }
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
         private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -2136,228 +2239,106 @@ namespace Neo.Compiler
             ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
             ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
             IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-            if (method is null)
-            {
-                ConvertExpression(model, expression.Expression);
-                switch ((sType.Name, tType.Name))
-                {
-                    case ("ByteString", "ECPoint"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.ISNULL);
-                            Jump(OpCode.JMPIF_L, endTarget);
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.SIZE);
-                            Push(33);
-                            Jump(OpCode.JMPEQ_L, endTarget);
-                            AddInstruction(OpCode.THROW);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("ByteString", "UInt160"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.ISNULL);
-                            Jump(OpCode.JMPIF_L, endTarget);
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.SIZE);
-                            Push(20);
-                            Jump(OpCode.JMPEQ_L, endTarget);
-                            AddInstruction(OpCode.THROW);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("ByteString", "UInt256"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.ISNULL);
-                            Jump(OpCode.JMPIF_L, endTarget);
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.SIZE);
-                            Push(32);
-                            Jump(OpCode.JMPEQ_L, endTarget);
-                            AddInstruction(OpCode.THROW);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("SByte", "Byte"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(0);
-                            Jump(OpCode.JMPGE_L, endTarget);
-                            Push(256);
-                            AddInstruction(OpCode.ADD);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("Byte", "SByte"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(127);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(256);
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("SByte", "UInt16"):
-                    case ("Int16", "UInt16"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(0);
-                            Jump(OpCode.JMPGE_L, endTarget);
-                            Push(65536);
-                            AddInstruction(OpCode.ADD);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("UInt16", "Int16"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(32767);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(65536);
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("SByte", "UInt32"):
-                    case ("Int16", "UInt32"):
-                    case ("Int32", "UInt32"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(0);
-                            Jump(OpCode.JMPGE_L, endTarget);
-                            Push(4294967296);
-                            AddInstruction(OpCode.ADD);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("UInt32", "Int32"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(2147483647);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(4294967296);
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("SByte", "UInt64"):
-                    case ("Int16", "UInt64"):
-                    case ("Int32", "UInt64"):
-                    case ("Int64", "UInt64"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(0);
-                            Jump(OpCode.JMPGE_L, endTarget);
-                            Push(BigInteger.Parse("18446744073709551616"));
-                            AddInstruction(OpCode.ADD);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("UInt64", "Int64"):
-                        {
-                            JumpTarget endTarget = new();
-                            AddInstruction(OpCode.DUP);
-                            Push(9223372036854775807);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(BigInteger.Parse("18446744073709551616"));
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("Int16", "SByte"):
-                    case ("UInt16", "SByte"):
-                    case ("Int32", "SByte"):
-                    case ("UInt32", "SByte"):
-                    case ("Int64", "SByte"):
-                    case ("UInt64", "SByte"):
-                        {
-                            JumpTarget endTarget = new();
-                            Push(255);
-                            AddInstruction(OpCode.AND);
-                            AddInstruction(OpCode.DUP);
-                            Push(127);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(256);
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("Int16", "Byte"):
-                    case ("UInt16", "Byte"):
-                    case ("Int32", "Byte"):
-                    case ("UInt32", "Byte"):
-                    case ("Int64", "Byte"):
-                    case ("UInt64", "Byte"):
-                        {
-                            Push(255);
-                            AddInstruction(OpCode.AND);
-                        }
-                        break;
-                    case ("Int32", "Int16"):
-                    case ("UInt32", "Int16"):
-                    case ("Int64", "Int16"):
-                    case ("UInt64", "Int16"):
-                        {
-                            JumpTarget endTarget = new();
-                            Push(65535);
-                            AddInstruction(OpCode.AND);
-                            AddInstruction(OpCode.DUP);
-                            Push(32767);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(65536);
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("Int32", "UInt16"):
-                    case ("UInt32", "UInt16"):
-                    case ("Int64", "UInt16"):
-                    case ("UInt64", "UInt16"):
-                        {
-                            Push(65535);
-                            AddInstruction(OpCode.AND);
-                        }
-                        break;
-                    case ("Int64", "Int32"):
-                    case ("UInt64", "Int32"):
-                        {
-                            JumpTarget endTarget = new();
-                            Push(4294967295);
-                            AddInstruction(OpCode.AND);
-                            AddInstruction(OpCode.DUP);
-                            Push(2147483647);
-                            Jump(OpCode.JMPLE_L, endTarget);
-                            Push(4294967296);
-                            AddInstruction(OpCode.SUB);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case ("Int64", "UInt32"):
-                    case ("UInt64", "UInt32"):
-                        {
-                            Push(4294967295);
-                            AddInstruction(OpCode.AND);
-                        }
-                        break;
-                }
-            }
-            else
+            if (method is not null)
             {
                 Call(model, method, null, expression.Expression);
+                return;
             }
+            ConvertExpression(model, expression.Expression);
+            switch ((sType.Name, tType.Name))
+            {
+                case ("ByteString", "ECPoint"):
+                    {
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.ISNULL);
+                        Jump(OpCode.JMPIF_L, endTarget);
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.SIZE);
+                        Push(33);
+                        Jump(OpCode.JMPEQ_L, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    break;
+                case ("ByteString", "UInt160"):
+                    {
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.ISNULL);
+                        Jump(OpCode.JMPIF_L, endTarget);
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.SIZE);
+                        Push(20);
+                        Jump(OpCode.JMPEQ_L, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    break;
+                case ("ByteString", "UInt256"):
+                    {
+                        JumpTarget endTarget = new();
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.ISNULL);
+                        Jump(OpCode.JMPIF_L, endTarget);
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.SIZE);
+                        Push(32);
+                        Jump(OpCode.JMPEQ_L, endTarget);
+                        AddInstruction(OpCode.THROW);
+                        endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    break;
+                case ("SByte", "Byte"):
+                case ("SByte", "UInt16"):
+                case ("SByte", "UInt32"):
+                case ("SByte", "UInt64"):
+                case ("Int16", "SByte"):
+                case ("Int16", "Byte"):
+                case ("Int16", "UInt16"):
+                case ("Int16", "UInt32"):
+                case ("Int16", "UInt64"):
+                case ("Int32", "SByte"):
+                case ("Int32", "Int16"):
+                case ("Int32", "Byte"):
+                case ("Int32", "UInt16"):
+                case ("Int32", "UInt32"):
+                case ("Int32", "UInt64"):
+                case ("Int64", "SByte"):
+                case ("Int64", "Int16"):
+                case ("Int64", "Int32"):
+                case ("Int64", "Byte"):
+                case ("Int64", "UInt16"):
+                case ("Int64", "UInt32"):
+                case ("Int64", "UInt64"):
+                case ("Byte", "SByte"):
+                case ("UInt16", "SByte"):
+                case ("UInt16", "Int16"):
+                case ("UInt16", "Byte"):
+                case ("UInt32", "SByte"):
+                case ("UInt32", "Int16"):
+                case ("UInt32", "Int32"):
+                case ("UInt32", "Byte"):
+                case ("UInt32", "UInt16"):
+                case ("UInt64", "SByte"):
+                case ("UInt64", "Int16"):
+                case ("UInt64", "Int32"):
+                case ("UInt64", "Int64"):
+                case ("UInt64", "Byte"):
+                case ("UInt64", "UInt16"):
+                case ("UInt64", "UInt32"):
+                    {
+                        EnsureIntegerInRange(tType);
+                    }
+                    break;
+            }
+        }
+
+        private void ConvertCheckedExpression(SemanticModel model, CheckedExpressionSyntax expression)
+        {
+            _checkedStack.Push(expression.Keyword.IsKind(SyntaxKind.CheckedKeyword));
+            ConvertExpression(model, expression.Expression);
+            _checkedStack.Pop();
         }
 
         private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
@@ -3640,6 +3621,15 @@ namespace Neo.Compiler
 
         private void Throw(SemanticModel model, ExpressionSyntax? exception)
         {
+            if (exception is not null)
+            {
+                ITypeSymbol type = model.GetTypeInfo(exception).Type!;
+                if (type.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.UncatchableException), includeThisClass: true))
+                {
+                    AddInstruction(OpCode.ABORT);
+                    return;
+                }
+            }
             switch (exception)
             {
                 case ObjectCreationExpressionSyntax expression:
@@ -3811,7 +3801,7 @@ namespace Neo.Compiler
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression);
+            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
             IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
@@ -3938,6 +3928,11 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.POW);
+                    return true;
+                case "System.Numerics.BigInteger.ModPow(System.Numerics.BigInteger, System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MODPOW);
                     return true;
                 case "System.Numerics.BigInteger.ToByteArray()":
                     if (instanceExpression is not null)
@@ -4198,6 +4193,15 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
+                case "System.Math.Abs(sbyte)":
+                case "System.Math.Abs(short)":
+                case "System.Math.Abs(int)":
+                case "System.Math.Abs(long)":
+                case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.ABS);
+                    return true;
                 case "System.Math.Sign(sbyte)":
                 case "System.Math.Sign(short)":
                 case "System.Math.Sign(int)":
@@ -4214,6 +4218,7 @@ namespace Neo.Compiler
                 case "System.Math.Max(uint, uint)":
                 case "System.Math.Max(long, long)":
                 case "System.Math.Max(ulong, ulong)":
+                case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MAX);
@@ -4226,6 +4231,7 @@ namespace Neo.Compiler
                 case "System.Math.Min(uint, uint)":
                 case "System.Math.Min(long, long)":
                 case "System.Math.Min(ulong, ulong)":
+                case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MIN);

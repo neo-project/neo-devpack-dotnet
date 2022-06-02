@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -41,7 +41,7 @@ namespace Neo.TestingEngine
             ScriptHash = originHash;
         }
 
-        internal static BuildScript Build(List<MetadataReference>? references = null, params string[] files)
+        internal static BuildScript Build(List<MetadataReference>? references = null, bool debug = true, params string[] files)
         {
             BuildScript script;
             if (files.Length == 1 && Path.GetExtension(files[0]).ToLowerInvariant() == ".nef")
@@ -67,7 +67,8 @@ namespace Neo.TestingEngine
 
                 var options = new Options
                 {
-                    AddressVersion = ProtocolSettings.Default.AddressVersion
+                    AddressVersion = ProtocolSettings.Default.AddressVersion,
+                    Debug = debug
                 };
 
                 CompilationContext context;

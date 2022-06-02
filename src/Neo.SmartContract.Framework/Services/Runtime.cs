@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -69,6 +69,12 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
+        public static extern byte AddressVersion
+        {
+            [Syscall("System.Runtime.GetAddressVersion")]
+            get;
+        }
+
         /// <summary>
         /// This method gets current invocation notifications from specific 'scriptHash'
         /// 'scriptHash' must have 20 bytes, but if it's all zero 0000...0000 it refers to all existing notifications (like a * wildcard)
@@ -87,6 +93,9 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);
+
+        [Syscall("System.Runtime.Notify")]
+        public static extern void Notify(string eventName, object[] state);
 
         [Syscall("System.Runtime.BurnGas")]
         public static extern void BurnGas(long gas);

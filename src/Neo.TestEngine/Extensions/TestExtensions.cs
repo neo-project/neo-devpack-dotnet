@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -13,6 +13,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
+using System;
 using System.Linq;
 
 namespace Neo.TestingEngine
@@ -25,6 +26,7 @@ namespace Neo.TestingEngine
         {
             var key = new KeyBuilder(-1, 8).Add(contract.Hash);
             snapshot.Add(key, new StorageItem(contract));
+            snapshot.InnerCommit();
         }
 
         public static bool ContainsContract(this DataCache snapshot, UInt160 hash)
@@ -40,17 +42,24 @@ namespace Neo.TestingEngine
                 var key = new KeyBuilder(NativeContract.ContractManagement.Id, 8).Add(hash);
                 snapshot.Delete(key);
             }
+            snapshot.InnerCommit();
         }
 
         public static void DeployNativeContracts(this DataCache snapshot, Block? persistingBlock = null)
         {
             persistingBlock ??= new NeoSystem(ProtocolSettings.Default).GenesisBlock;
+
             var method = typeof(ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
+            engine.LoadScript(Array.Empty<byte>());
             method.Invoke(NativeContract.ContractManagement, new object[] { engine });
+            engine.Snapshot.InnerCommit();
 
             var method2 = typeof(LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
+            engine.LoadScript(Array.Empty<byte>());
             method2.Invoke(NativeContract.Ledger, new object[] { engine });
+            engine.Snapshot.InnerCommit();
         }
 
         public static bool TryContractAdd(this DataCache snapshot, ContractState contract)
@@ -62,6 +71,7 @@ namespace Neo.TestingEngine
             }
 
             snapshot.Add(key, new StorageItem(contract));
+            snapshot.InnerCommit();
             return true;
         }
         public static int GetNextAvailableId(this DataCache snapshot)

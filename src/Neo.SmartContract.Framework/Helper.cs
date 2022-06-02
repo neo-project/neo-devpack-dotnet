@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -187,6 +187,10 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, ByteString second);
 
+        [OpCode(OpCode.CAT)]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        public extern static ByteString Concat(this ByteString first, ByteString second);
+
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
@@ -210,9 +214,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.REVERSEITEMS)]
         public extern static byte[] Reverse(this Array source);
 
-        [OpCode(OpCode.NOP)]
-        public extern static Delegate ToDelegate(this byte[] source);
-
         /// <summary>
         /// Returns the square root of number x
         /// </summary>
@@ -220,5 +221,13 @@ namespace Neo.SmartContract.Framework
         /// <returns></returns>
         [OpCode(OpCode.SQRT)]
         public extern static BigInteger Sqrt(this BigInteger x);
+
+        [OpCode(OpCode.MODMUL)]
+        public extern static BigInteger ModMultiply(this BigInteger x, BigInteger y, BigInteger modulus);
+
+        public static BigInteger ModInverse(this BigInteger value, BigInteger modulus)
+        {
+            return BigInteger.ModPow(value, -1, modulus);
+        }
     }
 }

@@ -232,9 +232,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void NullCollationAndCollation()
         {
-            var _testengine = new TestEngine(snapshot: new TestDataCache());
+            var snapshot = new TestDataCache();
+            var _testengine = new TestEngine(snapshot: snapshot);
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
-            _testengine.Snapshot.ContractAdd(new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
                 Nef = testengine.Nef,
@@ -249,9 +250,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void NullCollationAndCollation2()
         {
-            var _testengine = new TestEngine(snapshot: new TestDataCache());
+            var snapshot = new TestDataCache();
+            var _testengine = new TestEngine(snapshot: snapshot);
             _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
-            _testengine.Snapshot.ContractAdd(new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
                 Nef = testengine.Nef,

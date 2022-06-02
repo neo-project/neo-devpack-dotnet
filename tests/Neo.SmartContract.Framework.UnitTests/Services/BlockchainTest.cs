@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
@@ -15,13 +16,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     public class BlockchainTest
     {
         private Block _block;
+        private DataCache snapshot;
         private TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
             var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot().CreateSnapshot();
+            snapshot = system.GetSnapshot().CreateSnapshot();
 
             _block = new Block()
             {
@@ -38,7 +40,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                      new Transaction()
                      {
                           Attributes = System.Array.Empty<TransactionAttribute>(),
-                          Signers = new Signer[]{ new Signer() { Account = UInt160.Zero } },
+                          Signers = new Signer[]{ new Signer() {
+                              Account = UInt160.Zero ,
+                              AllowedContracts = System.Array.Empty<UInt160>(),
+                              AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
+                              Rules = System.Array.Empty<WitnessRule>(),
+                              Scopes =  WitnessScope.Global
+                          } },
                           Witnesses = System.Array.Empty<Witness>(),
                           Script = System.Array.Empty<byte>()
                      }
@@ -49,7 +57,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             snapshot.TransactionAdd(new TransactionState()
             {
                 BlockIndex = _block.Index,
-                Transaction = _block.Transactions[0]
+                Transaction = _block.Transactions[0],
+                State = VMState.HALT
             });
 
             _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);
@@ -60,6 +69,31 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
         }
 
+        [TestMethod]
+        public void Test_GetTxVMState()
+        {
+            _engine.Reset();
+            EvaluationStack result = _engine.ExecuteTestCaseStandard("getTxVMState", UInt256.Zero.ToArray());
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((int)VMState.NONE, item.GetInteger());
+
+            // Hash
+
+            var tx = _block.Transactions[0];
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("getTxVMState", tx.Hash.ToArray());
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((int)VMState.HALT, item.GetInteger());
+        }
 
         [TestMethod]
         public void Test_GetHeight()
@@ -240,6 +274,27 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetSpan().ToArray());
+
+            // Signers
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Signers"))));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(1, (item as Array).Count);
+            Assert.AreEqual(6, ((item as Array)[0] as Array).Count);
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("FirstScope"))));
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual((int)WitnessScope.Global, item.GetInteger());
         }
 
         private static StackItem[] Concat(StackItem[] a, ByteString b)
@@ -387,7 +442,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                     },
                 }
             };
-            _engine.Snapshot.ContractAdd(contract);
+            snapshot.ContractAdd(contract);
 
             // Not found
 

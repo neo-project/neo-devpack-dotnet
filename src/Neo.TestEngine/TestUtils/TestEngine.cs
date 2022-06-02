@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2022 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -34,6 +34,7 @@ namespace Neo.TestingEngine
         private static readonly List<MetadataReference> references = new();
 
         private long previousGasConsumed = 0;
+        internal UInt160 executedScriptHash { get; private set; }
         public long GasConsumedByLastExecution => GasConsumed - previousGasConsumed;
 
         public NefFile? Nef { get; private set; }
@@ -41,6 +42,7 @@ namespace Neo.TestingEngine
         public JObject? DebugInfo { get; private set; }
 
         internal BuildScript? ScriptContext { get; set; }
+        internal DataCache InitSnapshot { get; private set; }
 
         public void ClearNotifications()
         {
@@ -74,14 +76,21 @@ namespace Neo.TestingEngine
             }
         }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable? verificable = null, DataCache? snapshot = null, Block? persistingBlock = null, SmartContract.Diagnostic? diagnostic = null)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, IDiagnostic diagnostic = null)
              : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas, diagnostic)
         {
+            this.InitSnapshot = this.Snapshot;
+            this.executedScriptHash = UInt160.Zero;
         }
 
         public CompilationContext? AddEntryScript(params string[] files)
         {
-            ScriptContext = BuildScript.Build(references, files);
+            return AddEntryScript(false, files);
+        }
+
+        public CompilationContext? AddEntryScript(bool debug = true, params string[] files)
+        {
+            ScriptContext = BuildScript.Build(references, debug, files);
             SetContext(ScriptContext);
 
             return ScriptContext.Context;
@@ -228,6 +237,7 @@ namespace Neo.TestingEngine
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
         {
+            executedScriptHash = EntryScriptHash;
             previousGasConsumed = GasConsumed;
             var context = InvocationStack.Pop();
             context = CreateContext(context.Script, rvcount, offset);

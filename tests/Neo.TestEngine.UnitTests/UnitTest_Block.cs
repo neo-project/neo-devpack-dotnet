@@ -138,7 +138,7 @@ namespace Neo.TestEngine.UnitTests
             Assert.AreEqual(height, Engine.Instance.Height);
 
             // test result
-            var block = NativeContract.Ledger.GetBlock(Engine.Instance.Snaptshot, Engine.Instance.Height);
+            var block = NativeContract.Ledger.GetBlock(Engine.Instance.Snapshot, Engine.Instance.Height);
             Assert.IsNotNull(block);
             Assert.AreEqual(block.Transactions.Length, ((JArray)blockJson["transactions"]).Count);
         }
