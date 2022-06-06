@@ -37,8 +37,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Serialize
 
             _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("serialize", new Array(new StackItem[]{
-                 StackItem.Null, new Boolean(true), new ByteString(Encoding.ASCII.GetBytes("asd"))
+            result = _engine.ExecuteTestCaseStandard("serialize", new Array(_engine.ReferenceCounter, new StackItem[]{
+                 StackItem.Null, StackItem.True, new ByteString(Encoding.ASCII.GetBytes("asd"))
             }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
