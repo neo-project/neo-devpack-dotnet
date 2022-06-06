@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
-using System.Numerics;
 using Neo.VM.Types;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -169,7 +169,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(VMState.HALT, _engine.State);
             var array = result.Pop() as VM.Types.Array;
             Assert.AreEqual(array.Count, 3);
-            ByteString firstitem = (array[0] as VM.Types.Buffer).InnerBuffer;
+            ByteString firstitem = (array[0] as VM.Types.Buffer).InnerBuffer.ToArray();
             ByteString bytearray = new byte[] { 0x01, 0x02 };
             Assert.IsTrue(VM.Types.ByteString.Equals(firstitem, bytearray));
             Assert.AreEqual(array[1].GetString(), "test");

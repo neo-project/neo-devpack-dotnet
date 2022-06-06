@@ -19,11 +19,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             public int Size => 0;
 
-            public void Deserialize(BinaryReader reader)
+            public void Deserialize(ref MemoryReader reader)
             {
             }
 
-            public void DeserializeUnsigned(BinaryReader reader)
+            public void DeserializeUnsigned(ref MemoryReader reader)
             {
             }
 
@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             _engine = new TestEngine(TriggerType.Application, new DummyVerificable());
             _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
-            scriptHash = _engine.Nef.Script.ToScriptHash().ToArray().ToHexString();
+            scriptHash = _engine.Nef.Script.Span.ToScriptHash().ToArray().ToHexString();
         }
 
         [TestMethod]
