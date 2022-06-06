@@ -39,10 +39,19 @@ stages:
         feedsToUse: 'select'
         vstsFeed: 'c96908c2-e4b5-4c77-b955-4b690f24380b/9e84eb49-63f0-4b48-a8c4-039901073643'
     - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        arguments: '--no-restore'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        arguments: '--no-build'
+    - task: DotNetCoreCLI@2
       displayName: 'dotnet pack'
       inputs:
         command: 'pack'
         packagesToPack: 'src/**/*.csproj'
+        nobuild: true
         includesymbols: true
         versioningScheme: 'off'
     - publish: '$(Build.ArtifactStagingDirectory)'
