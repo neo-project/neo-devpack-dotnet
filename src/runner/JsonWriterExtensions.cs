@@ -51,13 +51,13 @@ namespace Neo.Test.Runner
             await writer.WritePropertyNameAsync("values");
 
             await writer.WriteStartArrayAsync();
-            foreach (var kvp in snapshot.Find(keyPrefix))
+            foreach (var (key, value) in snapshot.Find(keyPrefix))
             {
                 await writer.WriteStartObjectAsync();
                 await writer.WritePropertyNameAsync("key");
-                await writer.WriteValueAsync(Convert.ToBase64String(kvp.Key.Key));
+                await writer.WriteValueAsync(Convert.ToBase64String(key.Key.Span));
                 await writer.WritePropertyNameAsync("value");
-                await writer.WriteValueAsync(Convert.ToBase64String(kvp.Value.Value));
+                await writer.WriteValueAsync(Convert.ToBase64String(value.Value.Span));
                 await writer.WriteEndObjectAsync();
             }
             await writer.WriteEndArrayAsync();
@@ -127,7 +127,7 @@ namespace Neo.Test.Runner
                         await writer.WriteStartArrayAsync();
                         while (maxIteratorCount-- > 0 && iterator.Next())
                         {
-                            await writer.WriteStackItemAsync(iterator.Value(), maxIteratorCount, context);
+                            await writer.WriteStackItemAsync(iterator.Value(null), maxIteratorCount, context);
                         }
                         await writer.WriteEndArrayAsync();
                         await writer.WritePropertyNameAsync("truncated");

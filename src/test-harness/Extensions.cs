@@ -84,7 +84,7 @@ namespace NeoTestHarness
             var prefix = StorageKey.CreateSearchPrefix(contract.Id, default);
 
             return snapshot.Find(prefix)
-                .ToImmutableDictionary(s => (ReadOnlyMemory<byte>)s.Key.Key.AsMemory(), s => s.Value, MemoryEqualityComparer.Instance);
+                .ToImmutableDictionary(s => s.Key.Key, s => s.Value, MemoryEqualityComparer.Instance);
         }
 
         class MemoryEqualityComparer : IEqualityComparer<ReadOnlyMemory<byte>>
@@ -124,9 +124,6 @@ namespace NeoTestHarness
 
         public static bool TryGetValue(this NeoStorage storage, UInt256 key, [NotNullWhen(true)] out StorageItem item)
             => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item!);
-
-        public static BigInteger ToBigInteger(this StorageItem storageItem)
-            => new BigInteger(storageItem.Value);
 
         public static UInt160 GetContractScriptHash<T>(this DataCache snapshot)
             where T : class

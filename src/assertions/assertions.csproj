@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.6.0" />
+    <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="Neo" Version="$(NeoVersion)" />
   </ItemGroup>
 

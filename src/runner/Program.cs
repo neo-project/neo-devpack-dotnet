@@ -208,7 +208,7 @@ namespace Neo.Test.Runner
             {
                 var contract = engine.ExecutedScripts.Values
                     .Where(s => s.IsT0).Select(s => s.AsT0)
-                    .SingleOrDefault(c => c.Script.ToScriptHash() == debugInfo.ScriptHash);
+                    .SingleOrDefault(c => c.Script.Span.ToScriptHash() == debugInfo.ScriptHash);
 
                 if (contract != null)
                 {
