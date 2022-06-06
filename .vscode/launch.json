@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/runner/bin/Debug/net5.0/neo-test-runner.dll",
+            "program": "${workspaceFolder}/src/runner/bin/Debug/net6.0/neo-test-runner.dll",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "stopAtEntry": false
