@@ -14,7 +14,9 @@ namespace Neo.BuildTasks
         protected abstract string Command { get; }
         protected abstract string PackageId { get; }
         protected abstract string GetArguments();
+        protected virtual bool ValidateVersion(NugetPackageVersion version) => true;
 
+        readonly IProcessRunner processRunner;
         DotNetToolType toolType;
 
         [Output]
@@ -27,6 +29,11 @@ namespace Neo.BuildTasks
         public string ToolVersion { get; set; } = string.Empty;
 
         public ITaskItem? WorkingDirectory { get; set; }
+
+        protected DotNetToolTask(IProcessRunner? processRunner = null)
+        {
+            this.processRunner = processRunner ?? new ProcessRunner();
+        }
 
         protected virtual void ExecutionSuccess(IReadOnlyCollection<string> output)
         {
@@ -48,7 +55,7 @@ namespace Neo.BuildTasks
             if (FindTool(packageId, directory, out var toolType, out var version))
             {
                 this.toolType = toolType;
-                this.ToolVersion = version;
+                this.ToolVersion = version.ToString();
                 Log.LogMessage(MessageImportance.High, "Found {0} tool package {1} version {2}",
                     toolType, packageId, version);
 
@@ -74,12 +81,13 @@ namespace Neo.BuildTasks
             return false;
         }
 
-        internal bool FindTool(string package, ITaskItem? directory, out DotNetToolType toolType, out string version)
+        internal bool FindTool(string package, ITaskItem? directory, out DotNetToolType toolType, out NugetPackageVersion version)
         {
             if (directory is not null)
             {
                 if (TryExecute("dotnet", "tool list --local", directory, out var output)
-                    && ContainsPackage(output, package, out version))
+                    && ContainsPackage(output, package, out version)
+                    && ValidateVersion(version))
                 {
                     toolType = DotNetToolType.Local;
                     return true;
@@ -88,7 +96,8 @@ namespace Neo.BuildTasks
 
             {
                 if (TryExecute("dotnet", "tool list --global", directory, out var output)
-                    && ContainsPackage(output, package, out version))
+                    && ContainsPackage(output, package, out version)
+                    && ValidateVersion(version))
                 {
                     toolType = DotNetToolType.Global;
                     return true;
@@ -96,13 +105,13 @@ namespace Neo.BuildTasks
             }
 
             toolType = DotNetToolType.Local;
-            version = string.Empty;
+            version = default;
             return false;
         }
 
         internal bool TryExecute(string command, string arguments, ITaskItem? directory, out IReadOnlyCollection<string> output)
         {
-            var results = ProcessRunner.Run(command, arguments, directory?.ItemSpec);
+            var results = processRunner.Run(command, arguments, directory?.ItemSpec);
 
             if (results.ExitCode != 0 || results.Error.Any())
             {
@@ -128,20 +137,20 @@ namespace Neo.BuildTasks
             return true;
         }
 
-        internal static bool ContainsPackage(IReadOnlyCollection<string> output, string package, out string version)
+        internal static bool ContainsPackage(IReadOnlyCollection<string> output, string package, out NugetPackageVersion version)
         {
             foreach (var o in output.Skip(2))
             {
                 var row = ParseTableRow(o);
                 if (row.Count < 2) continue;
-                if (row[0].Equals(package, StringComparison.InvariantCultureIgnoreCase))
+                if (row[0].Equals(package, StringComparison.InvariantCultureIgnoreCase)
+                    && NugetPackageVersion.TryParse(row[1], out version))
                 {
-                    version = row[1];
                     return true;
                 }
             }
 
-            version = string.Empty;
+            version = default;
             return false;
         }
 

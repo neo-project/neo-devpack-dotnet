@@ -13,6 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="test-build-tasks" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="build\*" PackagePath="build\" />
     <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />
   </ItemGroup>

@@ -2,16 +2,19 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Neo.BuildTasks
 {
-    // https://github.com/jamesmanning/RunProcessAsTask
-    class ProcessRunner
+    public interface IProcessRunner
     {
-        public record struct Results(int ExitCode, IReadOnlyCollection<string> Output, IReadOnlyCollection<string> Error);
+        record struct Results(int ExitCode, IReadOnlyCollection<string> Output, IReadOnlyCollection<string> Error);
+        Results Run(string command, string arguments, string? workingDirectory = null);
+    }
 
-        public static Results Run(string command, string arguments, string? workingDirectory = null)
+    // https://github.com/jamesmanning/RunProcessAsTask
+    class ProcessRunner : IProcessRunner
+    {
+        public IProcessRunner.Results Run(string command, string arguments, string? workingDirectory = null)
         {
             var startInfo = new System.Diagnostics.ProcessStartInfo(command, arguments)
             {
@@ -44,7 +47,7 @@ namespace Neo.BuildTasks
 
             completeEvent.WaitOne();
 
-            return new Results(process.ExitCode, output, error);
+            return new IProcessRunner.Results(process.ExitCode, output, error);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Neo.BuildTasks
 {
     public class NeoCsc : DotNetToolTask
     {
+        readonly static NugetPackageVersion REQUIRED_VERSION = new NugetPackageVersion(3, 3, 0);
         const string PACKAGE_ID = "Neo.Compiler.CSharp";
         const string COMMAND = "nccs";
         const byte DEFAULT_ADDRESS_VERSION = 53;
@@ -29,6 +30,16 @@ namespace Neo.BuildTasks
 
         [Output]
         public ITaskItem[] OutputFiles => outputFiles;
+
+        protected override bool ValidateVersion(NugetPackageVersion version)
+        {
+            if (version < REQUIRED_VERSION)
+            {
+                Log.LogWarning($"{nameof(NeoCsc)} requires {REQUIRED_VERSION}. {version} found");
+                return false;
+            }
+            return true;
+        }
 
         protected override string GetArguments()
         {
