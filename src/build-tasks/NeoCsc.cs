@@ -19,9 +19,9 @@ namespace Neo.BuildTasks
         protected override string Command => COMMAND;
         protected override string PackageId => PACKAGE_ID;
 
-        public ITaskItem[] Files { get; set; } = Array.Empty<ITaskItem>();
+        public ITaskItem[] Sources { get; set; } = Array.Empty<ITaskItem>();
         public ITaskItem? Output { get; set; }
-        public string ContractName { get; set; } = "";
+        public string BaseFileName { get; set; } = "";
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
         public bool Optimize { get; set; }
@@ -44,7 +44,7 @@ namespace Neo.BuildTasks
         protected override string GetArguments()
         {
             var builder = new StringBuilder();
-            foreach (var file in Files)
+            foreach (var file in Sources)
             {
                 builder.AppendFormat(" {0}", file.ItemSpec);
             }
@@ -54,9 +54,9 @@ namespace Neo.BuildTasks
                 builder.AppendFormat(" --output {0}", Output.ItemSpec);
             }
 
-            if (!string.IsNullOrEmpty(ContractName))
+            if (!string.IsNullOrEmpty(BaseFileName))
             {
-                builder.AppendFormat(" --contract-name {0}", ContractName);
+                builder.AppendFormat(" --base-name {0}", BaseFileName);
             }
 
             if (Debug) builder.Append(" --debug");
