@@ -7,5 +7,6 @@ namespace Neo.SmartContract.Framework.Services
         public ContractParameterType ReturnType;
         public int Offset;
         public bool Safe;
+        public bool NoReentry;
     }
 }

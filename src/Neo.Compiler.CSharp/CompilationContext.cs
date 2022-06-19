@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2022 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -312,6 +312,7 @@ namespace Neo.Compiler
                         ["name"] = p.Name,
                         ["offset"] = GetAbiOffset(p.Symbol),
                         ["safe"] = p.Safe,
+                        ["noreentry"] = p.NoReentry,
                         ["returntype"] = p.ReturnType,
                         ["parameters"] = p.Parameters.Select(p => p.ToJson()).ToArray()
                     }).ToArray(),

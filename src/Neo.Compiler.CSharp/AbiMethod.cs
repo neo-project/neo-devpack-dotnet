@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2021 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -19,6 +19,7 @@ namespace Neo.Compiler
     class AbiMethod : AbiEvent
     {
         public readonly bool Safe;
+        public readonly bool NoReentry;
         public readonly ContractParameterType ReturnType;
 
         public override IMethodSymbol Symbol { get; }
@@ -28,6 +29,7 @@ namespace Neo.Compiler
         {
             Symbol = symbol;
             Safe = symbol.GetAttributes().Any(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
+            NoReentry = symbol.GetAttributes().Any(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.NoReentryAttribute));
             ReturnType = symbol.ReturnType.GetContractParameterType();
         }
     }
