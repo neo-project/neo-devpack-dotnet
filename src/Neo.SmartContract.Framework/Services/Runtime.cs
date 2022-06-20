@@ -105,5 +105,8 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.GetNetwork")]
         public static extern uint GetNetwork();
+
+        [Syscall("System.Runtime.NoReentry")]
+        public static extern ByteString NoReentry(string method, int paramCount);
     }
 }

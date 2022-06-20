@@ -157,6 +157,8 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
+
+                ConvertNoReentry();
                 ConvertModifier(model);
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
@@ -444,6 +446,21 @@ namespace Neo.Compiler
             }
         }
 
+        private void ConvertNoReentry()
+        {
+            foreach (var _ in Symbol.GetAttributes().
+                         Where(v => v.AttributeClass?.
+                             IsSubclassOf(nameof(NoReentryAttribute)) == true))
+            {
+                Push(Symbol.Name);
+                Push(_parameters.Count);
+                AddInstruction(new Instruction
+                {
+                    OpCode = OpCode.SYSCALL,
+                    Operand = Encoding.ASCII.GetBytes("Runtime.NoReentry").Sha256()[..4]
+                });
+            }
+        }
         private void ConvertModifier(SemanticModel model)
         {
             foreach (var attribute in Symbol.GetAttributesWithInherited())
