@@ -452,8 +452,8 @@ namespace Neo.Compiler
                          Where(v => v.AttributeClass?.
                              IsSubclassOf(nameof(NoReentryAttribute)) == true))
             {
-                Push(Symbol.Name);
                 Push(_parameters.Count);
+                Push(Symbol.Name);
                 AddInstruction(new Instruction
                 {
                     OpCode = OpCode.SYSCALL,
