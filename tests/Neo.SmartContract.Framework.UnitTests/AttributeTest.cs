@@ -3,7 +3,9 @@ using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Manifest;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -68,8 +70,10 @@ namespace Neo.SmartContract.Framework.UnitTests
                 Id = 123,
                 Hash = testengine.EntryScriptHash,
                 Nef = testengine.Nef,
-                Manifest = new Manifest.ContractManifest()
+                Manifest = ContractManifest.FromJson(testengine.Manifest)
             });
+
+            // Method end
 
             testengine.Reset();
             var before = snapshot.GetChangeSet().Count();
@@ -77,17 +81,27 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(before, snapshot.GetChangeSet().Count());
 
+            // return in the middle
+
             testengine.Reset();
             before = snapshot.GetChangeSet().Count();
             result = testengine.ExecuteTestCaseStandard("reentrantTest", 0);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(before, snapshot.GetChangeSet().Count());
 
+            // Reentrant test
+
+            var logs = new List<LogEventArgs>();
+            EventHandler<LogEventArgs> logHandler = (object sender, LogEventArgs e) => logs.Add(e);
+            ApplicationEngine.Log += logHandler;
+
             testengine.Reset();
             before = snapshot.GetChangeSet().Count();
             result = testengine.ExecuteTestCaseStandard("reentrantTest", 123);
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
-            Assert.AreEqual(before, snapshot.GetChangeSet().Count());
+            Assert.AreEqual(before + 1, snapshot.GetChangeSet().Count());
+            Assert.AreEqual("Already entered", logs.First().Message);
+            ApplicationEngine.Log -= logHandler;
         }
     }
 }
