@@ -157,7 +157,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                ConvertModifier(model);
+                var disposableModifiers = ConvertModifier(model).Where(u => u is IDisposable).ToArray();
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -444,7 +444,7 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertModifier(SemanticModel model)
+        private IEnumerable<AttributeData> ConvertModifier(SemanticModel model)
         {
             foreach (var attribute in Symbol.GetAttributesWithInherited())
             {
@@ -474,6 +474,7 @@ namespace Neo.Compiler
                     .First();
                 MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
                 EmitCall(validateMethod);
+                yield return attribute;
             }
         }
 
