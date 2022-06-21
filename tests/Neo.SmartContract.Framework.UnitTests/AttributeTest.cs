@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Reentrant test
 
             var logs = new List<LogEventArgs>();
-            EventHandler<LogEventArgs> logHandler = (object sender, LogEventArgs e) => logs.Add(e);
+            void logHandler(object sender, LogEventArgs e) => logs.Add(e);
             ApplicationEngine.Log += logHandler;
 
             testengine.Reset();
