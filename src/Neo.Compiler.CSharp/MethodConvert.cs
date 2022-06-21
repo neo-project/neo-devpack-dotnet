@@ -187,7 +187,6 @@ namespace Neo.Compiler
                     if (disposeInstruction is not null && _returnTarget.Instruction is null)
                     {
                         _returnTarget.Instruction = disposeInstruction;
-                        AddInstruction(OpCode.RET);
                     }
                 }
             }
@@ -202,6 +201,11 @@ namespace Neo.Compiler
                 {
                     _returnTarget.Instruction = AddInstruction(OpCode.RET);
                 }
+            }
+            else
+            {
+                // it comes from modifier clean up
+                AddInstruction(OpCode.RET);
             }
             if (!context.Options.NoOptimize)
                 Optimizer.RemoveNops(_instructions);
