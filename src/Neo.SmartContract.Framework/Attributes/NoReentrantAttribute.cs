@@ -14,14 +14,14 @@ using Neo.SmartContract.Framework.Services;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public abstract class NoReentrantAttribute : ModifierAttribute, IDisposable
+    public class NoReentrantAttribute : ModifierAttribute, IDisposable
     {
         private readonly StorageMap _context;
         private const string _key = "noReentrant";
 
         public NoReentrantAttribute(byte prefix = 0xFF)
         {
-            _context = new StorageMap(prefix);
+            _context = new StorageMap(Storage.CurrentContext, prefix);
         }
 
         public override void Validate()

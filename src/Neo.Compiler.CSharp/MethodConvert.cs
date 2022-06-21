@@ -157,7 +157,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                var disposableModifiers = ConvertModifier(model).Where(u => u is IDisposable).ToArray();
+                var disposableModifiers = ConvertModifier(model).ToArray();
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -180,6 +180,10 @@ namespace Neo.Compiler
                             Operand = new[] { lc, pc }
                         });
                     }
+                }
+                foreach (var (fieldIndex, attribute) in disposableModifiers)
+                {
+                    DisposeAttribute(model, fieldIndex, attribute);
                 }
             }
             if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
@@ -444,7 +448,7 @@ namespace Neo.Compiler
             }
         }
 
-        private IEnumerable<AttributeData> ConvertModifier(SemanticModel model)
+        private IEnumerable<(byte fieldIndex, AttributeData attribute)> ConvertModifier(SemanticModel model)
         {
             foreach (var attribute in Symbol.GetAttributesWithInherited())
             {
@@ -474,8 +478,23 @@ namespace Neo.Compiler
                     .First();
                 MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
                 EmitCall(validateMethod);
-                yield return attribute;
+                yield return (fieldIndex, attribute);
             }
+        }
+
+        private void DisposeAttribute(SemanticModel model, byte fieldIndex, AttributeData attribute)
+        {
+            if (attribute.AttributeClass?.Interfaces.Any(u => u.Name == nameof(IDisposable)) != true)
+                return;
+
+            AccessSlot(OpCode.LDSFLD, fieldIndex);
+            var disposeSymbol = attribute.AttributeClass.GetAllMembers()
+                .OfType<IMethodSymbol>()
+                .Where(p => p.Name == nameof(IDisposable.Dispose))
+                .Where(u => u.Parameters.Length == 0)
+                .First();
+            MethodConvert disposeMethod = context.ConvertMethod(model, disposeSymbol);
+            EmitCall(disposeMethod);
         }
 
         private void ConvertSource(SemanticModel model)
