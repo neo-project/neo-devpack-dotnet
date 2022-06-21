@@ -31,8 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public void reentrantTest(int value)
         {
             if (value == 0) return;
-            if (value == 1) return;
-            if (value == 2)
+            if (value == 123)
             {
                 reentrantTest(0);
             }

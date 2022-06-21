@@ -157,7 +157,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                var disposableModifiers = ConvertModifier(model).ToArray();
+                var modifiers = ConvertModifier(model).ToArray();
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -181,7 +181,7 @@ namespace Neo.Compiler
                         });
                     }
                 }
-                foreach (var (fieldIndex, attribute) in disposableModifiers)
+                foreach (var (fieldIndex, attribute) in modifiers)
                 {
                     DisposeAttribute(model, fieldIndex, attribute);
                 }
