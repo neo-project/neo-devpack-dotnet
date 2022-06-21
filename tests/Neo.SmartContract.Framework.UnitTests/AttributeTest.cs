@@ -73,19 +73,19 @@ namespace Neo.SmartContract.Framework.UnitTests
                 Manifest = ContractManifest.FromJson(testengine.Manifest)
             });
 
-            // Method end
-
-            testengine.Reset();
-            var before = snapshot.GetChangeSet().Count();
-            var result = testengine.ExecuteTestCaseStandard("reentrantTest", 1);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(before, snapshot.GetChangeSet().Count());
-
             // return in the middle
 
             testengine.Reset();
+            var before = snapshot.GetChangeSet().Count();
+            var result = testengine.ExecuteTestCaseStandard("reentrantTest", 0);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(before, snapshot.GetChangeSet().Count());
+
+            // Method end
+
+            testengine.Reset();
             before = snapshot.GetChangeSet().Count();
-            result = testengine.ExecuteTestCaseStandard("reentrantTest", 0);
+            result = testengine.ExecuteTestCaseStandard("reentrantTest", 1);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(before, snapshot.GetChangeSet().Count());
 

@@ -183,17 +183,25 @@ namespace Neo.Compiler
                 }
                 foreach (var (fieldIndex, attribute) in modifiers)
                 {
-                    DisposeAttribute(model, fieldIndex, attribute);
+                    var disposeInstruction = DisposeAttribute(model, fieldIndex, attribute);
+                    if (disposeInstruction is not null && _returnTarget.Instruction is null)
+                    {
+                        _returnTarget.Instruction = disposeInstruction;
+                        AddInstruction(OpCode.RET);
+                    }
                 }
             }
-            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+            if (_returnTarget.Instruction is null)
             {
-                _instructions[^1].OpCode = OpCode.RET;
-                _returnTarget.Instruction = _instructions[^1];
-            }
-            else
-            {
-                _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+                {
+                    _instructions[^1].OpCode = OpCode.RET;
+                    _returnTarget.Instruction = _instructions[^1];
+                }
+                else
+                {
+                    _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                }
             }
             if (!context.Options.NoOptimize)
                 Optimizer.RemoveNops(_instructions);
@@ -482,12 +490,12 @@ namespace Neo.Compiler
             }
         }
 
-        private void DisposeAttribute(SemanticModel model, byte fieldIndex, AttributeData attribute)
+        private Instruction? DisposeAttribute(SemanticModel model, byte fieldIndex, AttributeData attribute)
         {
             if (attribute.AttributeClass?.Interfaces.Any(u => u.Name == nameof(IDisposable)) != true)
-                return;
+                return null;
 
-            AccessSlot(OpCode.LDSFLD, fieldIndex);
+            var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
             var disposeSymbol = attribute.AttributeClass.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .Where(p => p.Name == nameof(IDisposable.Dispose))
@@ -495,6 +503,7 @@ namespace Neo.Compiler
                 .First();
             MethodConvert disposeMethod = context.ConvertMethod(model, disposeSymbol);
             EmitCall(disposeMethod);
+            return instruction;
         }
 
         private void ConvertSource(SemanticModel model)
