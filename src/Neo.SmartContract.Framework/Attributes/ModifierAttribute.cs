@@ -15,6 +15,7 @@ namespace Neo.SmartContract.Framework.Attributes
     [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method, AllowMultiple = true)]
     public abstract class ModifierAttribute : Attribute
     {
-        public abstract void Validate();
+        public abstract void Enter();
+        public abstract void Exit();
     }
 }

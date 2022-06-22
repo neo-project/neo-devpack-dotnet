@@ -183,7 +183,7 @@ namespace Neo.Compiler
                 }
                 foreach (var (fieldIndex, attribute) in modifiers)
                 {
-                    var disposeInstruction = DisposeAttribute(model, fieldIndex, attribute);
+                    var disposeInstruction = ExitModifier(model, fieldIndex, attribute);
                     if (disposeInstruction is not null && _returnTarget.Instruction is null)
                     {
                         _returnTarget.Instruction = disposeInstruction;
@@ -483,29 +483,22 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.STSFLD, fieldIndex);
 
                 notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
-                var validateSymbol = attribute.AttributeClass.GetAllMembers()
+                var enterSymbol = attribute.AttributeClass.GetAllMembers()
                     .OfType<IMethodSymbol>()
-                    .Where(p => p.Name == nameof(ModifierAttribute.Validate))
-                    .Where(u => u.Parameters.Length == 0)
-                    .First();
-                MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
+                    .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
+                MethodConvert validateMethod = context.ConvertMethod(model, enterSymbol);
                 EmitCall(validateMethod);
                 yield return (fieldIndex, attribute);
             }
         }
 
-        private Instruction? DisposeAttribute(SemanticModel model, byte fieldIndex, AttributeData attribute)
+        private Instruction? ExitModifier(SemanticModel model, byte fieldIndex, AttributeData attribute)
         {
-            if (attribute.AttributeClass?.Interfaces.Any(u => u.Name == nameof(IDisposable)) != true)
-                return null;
-
             var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
-            var disposeSymbol = attribute.AttributeClass.GetAllMembers()
+            var exitSymbol = attribute.AttributeClass!.GetAllMembers()
                 .OfType<IMethodSymbol>()
-                .Where(p => p.Name == nameof(IDisposable.Dispose))
-                .Where(u => u.Parameters.Length == 0)
-                .First();
-            MethodConvert disposeMethod = context.ConvertMethod(model, disposeSymbol);
+                .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
+            MethodConvert disposeMethod = context.ConvertMethod(model, exitSymbol);
             EmitCall(disposeMethod);
             return instruction;
         }

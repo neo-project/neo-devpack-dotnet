@@ -14,7 +14,7 @@ using Neo.SmartContract.Framework.Services;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class NoReentrantAttribute : ModifierAttribute, IDisposable
+    public class NoReentrantAttribute : ModifierAttribute
     {
         private readonly StorageMap _context;
         private const string _key = "noReentrant";
@@ -24,16 +24,14 @@ namespace Neo.SmartContract.Framework.Attributes
             _context = new StorageMap(Storage.CurrentContext, prefix);
         }
 
-        public override void Validate()
+        public override void Enter()
         {
             var data = _context.Get(_key);
             ExecutionEngine.Assert(data == null, "Already entered");
             _context.Put(_key, 1);
         }
 
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
-        public void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+        public override void Exit()
         {
             _context.Delete(_key);
         }
