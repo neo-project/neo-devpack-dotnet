@@ -489,21 +489,21 @@ namespace Neo.Compiler
                 var enterSymbol = attribute.AttributeClass.GetAllMembers()
                     .OfType<IMethodSymbol>()
                     .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
-                MethodConvert validateMethod = context.ConvertMethod(model, enterSymbol);
-                if (!validateMethod.IsEmpty) EmitCall(validateMethod);
+                MethodConvert enterMethod = context.ConvertMethod(model, enterSymbol);
+                EmitCall(enterMethod);
                 yield return (fieldIndex, attribute);
             }
         }
 
         private Instruction? ExitModifier(SemanticModel model, byte fieldIndex, AttributeData attribute)
         {
-            var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
             var exitSymbol = attribute.AttributeClass!.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
-            MethodConvert disposeMethod = context.ConvertMethod(model, exitSymbol);
-            if (disposeMethod.IsEmpty) return null;
-            EmitCall(disposeMethod);
+            MethodConvert exitMethod = context.ConvertMethod(model, exitSymbol);
+            if (exitMethod.IsEmpty) return null;
+            var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+            EmitCall(exitMethod);
             return instruction;
         }
 
