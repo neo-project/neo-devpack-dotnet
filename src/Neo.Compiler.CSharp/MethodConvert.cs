@@ -59,6 +59,9 @@ namespace Neo.Compiler
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
         public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
+        public bool IsEmpty => _instructions.Count == 0
+            || (_instructions.Count == 1 && _instructions[^1].OpCode == OpCode.RET)
+            || (_instructions.Count == 2 && _instructions[^1].OpCode == OpCode.RET && _instructions[0].OpCode == OpCode.INITSLOT);
 
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
@@ -487,7 +490,7 @@ namespace Neo.Compiler
                     .OfType<IMethodSymbol>()
                     .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
                 MethodConvert validateMethod = context.ConvertMethod(model, enterSymbol);
-                EmitCall(validateMethod);
+                if (!validateMethod.IsEmpty) EmitCall(validateMethod);
                 yield return (fieldIndex, attribute);
             }
         }
@@ -499,6 +502,7 @@ namespace Neo.Compiler
                 .OfType<IMethodSymbol>()
                 .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
             MethodConvert disposeMethod = context.ConvertMethod(model, exitSymbol);
+            if (disposeMethod.IsEmpty) return null;
             EmitCall(disposeMethod);
             return instruction;
         }
