@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Framework
         {
             if (condition) return;
 
-            if (!isNotify)
+            if (isNotify)
             {
                 Services.Runtime.Notify("Fault", new object[] { message });
                 Abort();
