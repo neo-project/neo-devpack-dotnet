@@ -21,26 +21,30 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.ASSERT)]
         public static extern void Assert(bool condition);
 
+
         /// <summary>
         /// Faults if `condition` is false
         /// </summary>
         /// <param name="condition">Condition that MUST meet</param>
         /// <param name="message">The error message</param>
-        /// <param name="isNotify">in a notify manner</param>
-        public static void Assert(bool condition, string message, bool isNotify = false)
+        public static void Assert(bool condition, string message)
         {
             if (condition) return;
 
-            if (isNotify)
-            {
-                Services.Runtime.Notify("Fault", new object[] { message });
-                Abort();
-            }
-            else
-            {
-                Services.Runtime.Log(message);
-                Assert(false);
-            }
+            Services.Runtime.Log(message);
+            Assert(false);
+        }
+
+        /// <summary>
+        /// Abort if `condition` is false
+        /// </summary>
+        /// <param name="condition">Condition that MUST meet</param>
+        /// <param name="message">The error message</param>
+        public static void Require(bool condition, string message)
+        {
+            if (condition) return;
+            Services.Runtime.Notify("Fault", new object[] { message });
+            Abort();
         }
 
         /// <summary>
