@@ -1,17 +1,17 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Numerics;
 using Neo;
 using Neo.BlockchainToolkit;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using static Neo.Utility;
 
 namespace NeoTestHarness
 {
@@ -84,40 +84,46 @@ namespace NeoTestHarness
             var prefix = StorageKey.CreateSearchPrefix(contract.Id, default);
 
             return snapshot.Find(prefix)
-                .ToImmutableDictionary(s => s.Key.Key, s => s.Value, MemoryEqualityComparer.Instance);
+                .ToDictionary(s => s.Key.Key, s => s.Value, MemorySequenceComparer.Default);
         }
 
-        class MemoryEqualityComparer : IEqualityComparer<ReadOnlyMemory<byte>>
+        public static NeoStorage StorageMap(this NeoStorage storages, byte prefix)
         {
-            public static MemoryEqualityComparer Instance = new MemoryEqualityComparer();
-
-            private MemoryEqualityComparer() { }
-
-            public bool Equals([AllowNull] ReadOnlyMemory<byte> x, [AllowNull] ReadOnlyMemory<byte> y) => x.Span.SequenceEqual(y.Span);
-
-            public int GetHashCode([DisallowNull] ReadOnlyMemory<byte> obj)
+            byte[]? buffer = null;
+            try
             {
-                unchecked
-                {
-                    int hash = 17;
-                    for (var i = 0; i < obj.Length; i++)
-                    {
-                        hash = hash * 23 + obj.Span[i].GetHashCode();
-                    }
-                    return hash;
-                }
+                buffer = ArrayPool<byte>.Shared.Rent(1);
+                buffer[0] = prefix;
+                return storages.StorageMap(buffer.AsMemory(0, 1));
+            }
+            finally
+            {
+                if (buffer != null) ArrayPool<byte>.Shared.Return(buffer);
             }
         }
 
         public static NeoStorage StorageMap(this NeoStorage storages, string prefix)
-            => storages.StorageMap(Neo.Utility.StrictUTF8.GetBytes(prefix));
+        {
+            byte[]? buffer = null;
+            try
+            {
+                var count = StrictUTF8.GetByteCount(prefix);
+                buffer = ArrayPool<byte>.Shared.Rent(count);
+                count = StrictUTF8.GetBytes(prefix, buffer);
+                return storages.StorageMap(buffer.AsMemory(0, count));
+            }
+            finally
+            {
+                if (buffer != null) ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
 
         public static NeoStorage StorageMap(this NeoStorage storages, ReadOnlyMemory<byte> prefix)
             => storages.Where(kvp => kvp.Key.Span.StartsWith(prefix.Span))
-                .ToImmutableDictionary(kvp => kvp.Key.Slice(prefix.Length), kvp => kvp.Value, MemoryEqualityComparer.Instance);
+                .ToDictionary(kvp => kvp.Key.Slice(prefix.Length), kvp => kvp.Value, MemorySequenceComparer.Default);
 
         public static bool TryGetValue(this NeoStorage storage, string key, [NotNullWhen(true)] out StorageItem item)
-            => storage.TryGetValue(Neo.Utility.StrictUTF8.GetBytes(key), out item!);
+            => storage.TryGetValue(StrictUTF8.GetBytes(key), out item!);
 
         public static bool TryGetValue(this NeoStorage storage, UInt160 key, [NotNullWhen(true)] out StorageItem item)
             => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item!);
