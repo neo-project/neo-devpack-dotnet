@@ -8,7 +8,19 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
-    <PackageReference Include="Neo" Version="$(NeoVersion)" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(BlockchainToolkitLibraryVersion)' == 'local'">
+      <ItemGroup>
+        <ProjectReference Include="$(NeoMonorepoPath)\core\src\neo\neo.csproj" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Neo" Version="$(NeoVersion)" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
 </Project>

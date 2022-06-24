@@ -79,12 +79,12 @@ namespace build_tasks
             Assert.Equal(expectedVersion, version);
         }
 
-        
+
         [Fact]
         public void find_valid_prerel_version()
         {
             var expectedVersion = new NugetPackageVersion(3, 3, 1037, "storage-schema-preview");
-            Func<NugetPackageVersion, bool> validate = ver => ver >= new NugetPackageVersion(3,3,0);
+            Func<NugetPackageVersion, bool> validate = ver => ver >= new NugetPackageVersion(3, 3, 0);
 
             var processRunner = GetProcRunner(sspOutput);
             var taskItem = new Mock<Microsoft.Build.Framework.ITaskItem>();
