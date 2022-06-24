@@ -165,18 +165,78 @@ Example Output:
 }
 ```
 
-## Contract Interface Generator
+## Neo Build Tasks
 
-Several of the Neo Test Harness extension methods and the Neo Assertion `NotifyEventArgs`
-`BeEquivalentTo` method take a contract interface as a type parameter. Currently,
-this contract interface is hand written, but eventually it will be generated from the
-contract manifest.
+For C# developers, the `Neo.BuildTasks` package includes multiple MSBuild tasks to make
+Neo smart contract development easier. These tasks include:
 
-Note, since this contract interface is generated from the contract manifest, it is
-possible to generate a contract interface for any Neo contract, including Native
-Contracts.
+* NeoCsc - run `nccs` C# contract compiler
+* NeoExpressBatch - run `neoxp batch`
+* NeoContractInterface - generate a C# interface from contract manifest for use in tests
 
-Example contract interface:
+> Note: both NeoCsc and NeoExpressBatch tasks assume the associated
+> [.NET tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
+> is installed either globally or locally. If installed both globally and locally, the
+> locally installed version will be used.
+
+These tasks can be enabled simply by adding a PackageReference with `PrivateAssets="All"`
+then setting MSBuild properties and/or items.
+
+* To enable NeoCsc task, set `<NeoContractName>` property to the name you want the 
+  contract to have. Typically, this is set to `$(AssemblyName)`. 
+* To enable NeoExpressBatch task, set `<NeoExpressBatchFile>` property to the path
+  of the NeoExpress batch file you want to execute
+* To enable NeoContractInterface task, set a `<NeoContractReference>` item in your test
+  project with a path to the contract project.
+
+Example Contract .csproj file:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NeoContractName>$(AssemblyName)</NeoContractName>
+    <NeoExpressBatchFile>..\express.batch</NeoExpressBatchFile>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.3.1" />
+    <PackageReference Include="Neo.BuildTasks" Version="3.3.10-preview" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>
+```
+
+Example Contract Test .csproj file:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <NeoContractReference Include="..\src\registrar.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="3.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="Neo.Assertions" Version="3.3.10-preview" />
+    <PackageReference Include="Neo.BuildTasks" Version="3.3.10-preview" PrivateAssets="All" />
+    <PackageReference Include="Neo.Test.Harness" Version="3.3.10-preview" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>
+```
+
+Example generated contract interface:
 
 ``` csharp 
 // CSharp 
