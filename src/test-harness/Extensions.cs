@@ -122,14 +122,43 @@ namespace NeoTestHarness
             => storages.Where(kvp => kvp.Key.Span.StartsWith(prefix.Span))
                 .ToDictionary(kvp => kvp.Key.Slice(prefix.Length), kvp => kvp.Value, MemorySequenceComparer.Default);
 
-        public static bool TryGetValue(this NeoStorage storage, string key, [NotNullWhen(true)] out StorageItem item)
-            => storage.TryGetValue(StrictUTF8.GetBytes(key), out item!);
 
-        public static bool TryGetValue(this NeoStorage storage, UInt160 key, [NotNullWhen(true)] out StorageItem item)
-            => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item!);
+        public static bool TryGetValue(this NeoStorage storages, byte key, [MaybeNullWhen(false)] out StorageItem item)
+        {
+            byte[]? buffer = null;
+            try
+            {
+                buffer = ArrayPool<byte>.Shared.Rent(1);
+                buffer[0] = key;
+                return storages.TryGetValue(buffer.AsMemory(0, 1), out item);
+            }
+            finally
+            {
+                if (buffer != null) ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
 
-        public static bool TryGetValue(this NeoStorage storage, UInt256 key, [NotNullWhen(true)] out StorageItem item)
-            => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item!);
+        public static bool TryGetValue(this NeoStorage storages, string key, [MaybeNullWhen(false)] out StorageItem item)
+        {
+            byte[]? buffer = null;
+            try
+            {
+                var count = StrictUTF8.GetByteCount(key);
+                buffer = ArrayPool<byte>.Shared.Rent(count);
+                count = StrictUTF8.GetBytes(key, buffer);
+                return storages.TryGetValue(buffer.AsMemory(0, count), out item);
+            }
+            finally
+            {
+                if (buffer != null) ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
+
+        public static bool TryGetValue(this NeoStorage storage, UInt160 key, [MaybeNullWhen(false)] out StorageItem item)
+            => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item);
+
+        public static bool TryGetValue(this NeoStorage storage, UInt256 key, [MaybeNullWhen(false)] out StorageItem item)
+            => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item);
 
         public static UInt160 GetContractScriptHash<T>(this DataCache snapshot)
             where T : class
