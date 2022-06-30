@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework.Services
         public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[] args);
 
         [Syscall("System.Contract.GetCallFlags")]
-        public static extern byte GetCallFlags();
+        public static extern CallFlags GetCallFlags();
 
         [Syscall("System.Contract.CreateStandardAccount")]
         public static extern UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);

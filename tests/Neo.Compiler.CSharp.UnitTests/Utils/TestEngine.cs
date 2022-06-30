@@ -21,6 +21,8 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
         private static readonly List<MetadataReference> references = new();
 
+        public event EventHandler<ExecutionContext> OnPreExecuteTestCaseStandard;
+
         public NefFile Nef { get; private set; }
         public JObject Manifest { get; private set; }
         public JObject DebugInfo { get; private set; }
@@ -147,6 +149,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState() { Nef = contract };
+            OnPreExecuteTestCaseStandard?.Invoke(this, context);
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");

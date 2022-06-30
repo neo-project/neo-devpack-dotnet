@@ -135,7 +135,19 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual(logList.Count, 1);
-            Assert.AreEqual(logList[0], "ERROR");
+            Assert.AreEqual(logList[0], "UT-ERROR-123");
+
+            // Test without notification right
+
+            _engine.Reset(); logList.Clear();
+            _engine.OnPreExecuteTestCaseStandard += RemoveAllowNotifyCallFlag;
+            result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.False);
+            _engine.OnPreExecuteTestCaseStandard += RemoveAllowNotifyCallFlag;
+
+            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(logList.Count, 0);
+            Assert.IsTrue(_engine.FaultException.Message.Contains("UT-ERROR-123"));
 
             // Void With extension
 
@@ -151,6 +163,11 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(logList.Count, 0);
             Assert.AreEqual(0, result.Count);
             ApplicationEngine.Log -= logsMethod;
+        }
+
+        private void RemoveAllowNotifyCallFlag(object sender, ExecutionContext e)
+        {
+            e.GetState<ExecutionContextState>().CallFlags &= ~CallFlags.AllowNotify;
         }
 
         [TestMethod]

@@ -8,6 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework
@@ -29,8 +30,17 @@ namespace Neo.SmartContract.Framework
         public static void Assert(bool condition, string message)
         {
             if (condition) return;
-            Services.Runtime.Log(message);
-            Assert(false);
+
+            if ((Services.Contract.GetCallFlags() & Services.CallFlags.AllowNotify) == 0)
+            {
+                // NOTE: This is catcheable, but without notification states we don't have a different solution
+                throw new Exception(message);
+            }
+            else
+            {
+                Services.Runtime.Log(message);
+                Assert(false);
+            }
         }
 
         /// <summary>
