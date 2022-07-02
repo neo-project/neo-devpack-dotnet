@@ -39,6 +39,10 @@ namespace NeoTestHarness
             engine.LoadScript(script);
         }
 
+        public static Script CreateScript<T>(this ApplicationEngine engine, params Expression<Action<T>>[] expressions)
+            where T : class
+            => CreateScript<T>(engine.Snapshot, expressions);
+
         public static Script CreateScript<T>(this DataCache snapshot, params Expression<Action<T>>[] expressions)
             where T : class
         {
@@ -50,6 +54,10 @@ namespace NeoTestHarness
             }
             return builder.ToArray();
         }
+
+        public static void EmitContractCall<T>(this ScriptBuilder builder, ApplicationEngine engine, Expression<Action<T>> expression)
+            where T : class 
+            => EmitContractCall<T>(builder, engine.Snapshot, expression);
 
         public static void EmitContractCall<T>(this ScriptBuilder builder, DataCache snapshot, Expression<Action<T>> expression)
             where T : class
@@ -76,6 +84,9 @@ namespace NeoTestHarness
             builder.EmitPush(scriptHash);
             builder.EmitSysCall(ApplicationEngine.System_Contract_Call);
         }
+
+        public static NeoStorage GetContractStorages<T>(this ApplicationEngine engine) where T : class
+            => GetContractStorages<T>(engine.Snapshot);
 
         public static NeoStorage GetContractStorages<T>(this DataCache snapshot)
             where T : class
@@ -160,9 +171,17 @@ namespace NeoTestHarness
         public static bool TryGetValue(this NeoStorage storage, UInt256 key, [MaybeNullWhen(false)] out StorageItem item)
             => storage.TryGetValue(Neo.IO.Helper.ToArray(key), out item);
 
+        public static UInt160 GetContractScriptHash<T>(this ApplicationEngine engine)
+            where T : class
+            => GetContractScriptHash<T>(engine.Snapshot);
+
         public static UInt160 GetContractScriptHash<T>(this DataCache snapshot)
             where T : class
             => snapshot.GetContract<T>().Hash;
+
+        public static ContractState GetContract<T>(this ApplicationEngine engine)
+            where T : class
+            => GetContract<T>(engine.Snapshot);
 
         public static ContractState GetContract<T>(this DataCache snapshot)
             where T : class
@@ -186,6 +205,9 @@ namespace NeoTestHarness
                 throw new Exception("reflection - FullName returned null");
             }
         }
+
+        public static ContractState GetContract(this ApplicationEngine engine, string contractName)
+            => GetContract(engine.Snapshot, contractName);
 
         public static ContractState GetContract(this DataCache snapshot, string contractName)
         {
