@@ -15,6 +15,12 @@ may not exactly match a publicly released version.
 
 ## [Unreleased]
 
+### Fixed
+
+* `NeoContractInterface` fails if generated contract interface name isn't a valid C# type name
+
+## [3.3] - 2022-06-28
+
 ### Added
 
 * NeoCsc and NeoExpressBatch MSBuild tasks (plus .targets file)
@@ -24,7 +30,6 @@ may not exactly match a publicly released version.
 * `NativeContracts` static class 
   * `NeoToken` and `GasToken` contract hashes
 * `Nep17Token` and `NeoToken` contract interfaces for use with `NeoTestHarness`
-
 
 ### Changed
 

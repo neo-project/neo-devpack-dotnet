@@ -15,12 +15,26 @@ namespace Neo.BuildTasks
             }
             else
             {
-                var manifest = NeoManifest.Load(ManifestFile);
-                var source = ContractGenerator.GenerateContractInterface(manifest, RootNamespace);
-                if (!string.IsNullOrEmpty(source))
+                try
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(this.OutputFile));
-                    FileOperationWithRetry(() => File.WriteAllText(this.OutputFile, source));
+                    var manifest = NeoManifest.Load(ManifestFile);
+                    var source = ContractGenerator.GenerateContractInterface(manifest, RootNamespace);
+                    if (!string.IsNullOrEmpty(source))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(this.OutputFile));
+                        FileOperationWithRetry(() => File.WriteAllText(this.OutputFile, source));
+                    }
+                }
+                catch (AggregateException ex)
+                {
+                    foreach (var inner in ex.InnerExceptions)
+                    {
+                        Log.LogError(inner.Message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError(ex.Message);
                 }
             }
             return !Log.HasLoggedErrors;

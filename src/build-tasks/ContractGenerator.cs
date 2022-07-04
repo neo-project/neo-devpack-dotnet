@@ -1,29 +1,19 @@
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static Neo.BuildTasks.CSharpHelpers;
 
 namespace Neo.BuildTasks
 {
     public static class ContractGenerator
     {
-        // generated from Roslyn C# 4.1 SyntaxFacts.GetKeywordKinds().Select(k => SyntaxFacts.GetText(k)).OrderBy(k => k)
-        static readonly ImmutableHashSet<string> CSHARP_KEYWORDS = ImmutableHashSet.Create("__arglist", "__makeref",
-            "__reftype", "__refvalue", "abstract", "add", "alias", "and", "as", "ascending", "assembly", "async",
-            "await", "base", "bool", "break", "by", "byte", "case", "catch", "char", "checked", "class", "const",
-            "continue", "decimal", "default", "delegate", "descending", "do", "double", "else", "enum", "equals",
-            "event", "explicit", "extern", "false", "field", "finally", "fixed", "float", "for", "foreach", "from",
-            "get", "global", "goto", "group", "if", "implicit", "in", "init", "int", "interface", "internal", "into",
-            "is", "join", "let", "lock", "long", "managed", "method", "module", "nameof", "namespace", "new", "not",
-            "null", "object", "on", "operator", "or", "orderby", "out", "override", "param", "params", "partial",
-            "private", "property", "protected", "public", "readonly", "record", "ref", "remove", "return", "sbyte",
-            "sealed", "select", "set", "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this",
-            "throw", "true", "try", "type", "typeof", "typevar", "uint", "ulong", "unchecked", "unmanaged", "unsafe",
-            "ushort", "using", "virtual", "void", "volatile", "when", "where", "while", "with", "yield");
-
         public static string GenerateContractInterface(NeoManifest manifest, string @namespace = "")
         {
             var contractName = Regex.Replace(manifest.Name, "^.*\\.", string.Empty);
+            if (!IsValidTypeName(contractName)) 
+            {
+                throw new Exception($"\"{contractName}\" is not a valid C# type name");
+            }
 
             var builder = new IndentedStringBuilder();
 
@@ -57,7 +47,7 @@ namespace Neo.BuildTasks
                 if (method.Name.StartsWith("_")) continue;
 
                 builder.Append($"{ConvertParameterType(method.ReturnType)} {method.Name}(");
-                builder.Append(string.Join(", ", method.Parameters.Select(p => $"{ConvertParameterType(p.Type)} {ConvertIdentifier(p.Name)}")));
+                builder.Append(string.Join(", ", method.Parameters.Select(p => $"{ConvertParameterType(p.Type)} {CreateEscapedIdentifier(p.Name)}")));
                 builder.AppendLine(");");
             }
 
@@ -69,7 +59,7 @@ namespace Neo.BuildTasks
                 {
                     var @event = manifest.Events[i];
                     builder.Append($"void {@event.Name}(");
-                    builder.Append(string.Join(", ", @event.Parameters.Select(p => $"{ConvertParameterType(p.Type)} {ConvertIdentifier(p.Name)}")));
+                    builder.Append(string.Join(", ", @event.Parameters.Select(p => $"{ConvertParameterType(p.Type)} {CreateEscapedIdentifier(p.Name)}")));
                     builder.AppendLine($");");
                 }
                 builder.DecrementIndent();
@@ -86,8 +76,6 @@ namespace Neo.BuildTasks
             }
 
             return builder.ToString();
-
-            static string ConvertIdentifier(string text) => CSHARP_KEYWORDS.Contains(text) ? $"@{text}" : text;
 
             static string ConvertParameterType(string parameterType) => parameterType switch
             {
