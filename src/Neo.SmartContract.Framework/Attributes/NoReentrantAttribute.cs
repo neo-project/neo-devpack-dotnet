@@ -17,10 +17,11 @@ namespace Neo.SmartContract.Framework.Attributes
     public class NoReentrantAttribute : ModifierAttribute
     {
         private readonly StorageMap _context;
-        private const string _key = "noReentrant";
+        private readonly string _key;
 
-        public NoReentrantAttribute(byte prefix = 0xFF)
+        public NoReentrantAttribute(byte prefix = 0xFF, string key = "noReentrant")
         {
+            _key = key;
             _context = new StorageMap(Storage.CurrentContext, prefix);
         }
 
