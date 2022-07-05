@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 using System;
+using System.Runtime.CompilerServices;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.Attributes
@@ -19,7 +20,7 @@ namespace Neo.SmartContract.Framework.Attributes
         private readonly StorageMap _context;
         private readonly string _key;
 
-        public NoReentrantAttribute(byte prefix = 0xFF, string key = "noReentrant")
+        public NoReentrantAttribute(byte prefix = 0xFF, [CallerMemberName] string key = "noReentrant")
         {
             _key = key;
             _context = new StorageMap(Storage.CurrentContext, prefix);
