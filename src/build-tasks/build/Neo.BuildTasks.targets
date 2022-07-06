@@ -95,37 +95,73 @@
     <Message Importance="High" Text="NeoExpress Batch -> $(NeoExpressNormalizedBatchFile)" />
   </Target>
 
-  <Target Name="ConfigureNeoContractInterface" BeforeTargets="$(BuildDependsOn);Build" Condition="'@(NeoContractReference)'!=''">
+  <!-- 
+    dotnet build happens in two phases: Restore and Build
+
+    Restore phase
+      _GetAllRestoreProjectPathItems target recursively invokes the _GenerateRestoreProjectPathWalk target on the current project
+      _GenerateRestoreProjectPathWalk depends eventually depends on _GenerateRestoreProjectPathItemsPerFramework target which takes @(ProjectReference) as input
+    RestoreNeoContractReferences adds NeoContractReference items to ProjectReference items before _GenerateRestoreProjectPathItemsPerFramework runs
+
+    Build phase
+      ResolveProjectReferences will build all projects in @(_MSBuildProjectReferenceExistent)
+      ResolveProjectReferences depends on PrepareProjectReferences, which in turn depends on AssignProjectConfiguration
+    RestoreNeoContractReferences adds NeoContractReference items to ProjectReference items before AssignProjectConfiguration runs
+  -->
+
+  <Target Name="RestoreNeoContractReferences"
+          Condition="'@(NeoContractReference)'!=''"
+          BeforeTargets="_GenerateRestoreProjectPathItemsPerFramework;AssignProjectConfiguration">
     <ItemGroup>
       <ProjectReference Include="@(NeoContractReference)" ReferenceOutputAssembly="false" />
     </ItemGroup>
- 
+  </Target>
+
+  <Target Name="PrepareNeoContractReferences"
+          Condition="'@(NeoContractReference)'!=''"
+          BeforeTargets="ResolveProjectReferences">
+
     <MSBuild Projects="@(NeoContractReference)" Targets="GetNeoContractInfo">
-      <Output TaskParameter="TargetOutputs" ItemName="NeoContractInfo" />
+      <Output TaskParameter="TargetOutputs" ItemName="_NeoContractReferenceInfo" />
     </MSBuild>
 
-    <Message Importance="High" Text="NeoContractInfo @(NeoContractInfo) -> %(ManifestPath)" />
-
     <ItemGroup>
-      <NeoContractGeneration Include="%(NeoContractInfo.Identity)">
-        <ManifestPath>%(NeoContractInfo.ManifestPath)</ManifestPath>
-        <OutputPath>$(IntermediateOutputPath)%(Identity).contract-interface.cs</OutputPath>
+      <NeoContractGeneration Include="%(_NeoContractReferenceInfo.Identity)">
+        <ManifestPath>%(ManifestPath)</ManifestPath>
+        <ContractNameOverride>$([MSBuild]::ValueOrDefault('%(_NeoContractReferenceInfo.ContractNameOverride)', ''))</ContractNameOverride>
       </NeoContractGeneration>
     </ItemGroup>
 
-    <Message Importance="High" Text="Generating %(NeoContractGeneration.Identity) contract interface" />
+    <Message Importance="High" Text="PrepareNeoContractReferences @(_NeoContractReferenceInfo) -> %(ManifestPath)" />
+  </Target>
+
+  <Target Name="PrepareNeoContractGeneration"
+          Condition="'@(NeoContractGeneration)'!=''"
+          BeforeTargets="GenerateNeoContractInterface"
+          AfterTargets="PrepareNeoContractReferences">
+
+    <ItemGroup>
+      <NeoContractGeneration Include="@(NeoContractGeneration)">
+        <OutputPath>$([MSBuild]::ValueOrDefault('%(NeoContractGeneration.OutputPath)', '$(IntermediateOutputPath)%(Identity).contract-interface.cs'))</OutputPath>
+        <ContractNameOverride>$([MSBuild]::ValueOrDefault('%(NeoContractGeneration.ContractNameOverride)', ''))</ContractNameOverride>
+      </NeoContractGeneration>
+    </ItemGroup>
 
   </Target>
 
-  <Target Name="GenerateNeoContractInterface" AfterTargets="ResolveProjectReferences" 
-    DependsOnTargets="ConfigureNeoContractInterface"
-    Condition="'@(NeoContractReference)'!=''"
-    Inputs="%(NeoContractGeneration.ManifestPath)" Outputs="%(NeoContractGeneration.OutputPath)">
+  <Target Name="GenerateNeoContractInterface" 
+          AfterTargets="ResolveProjectReferences"
+          DependsOnTargets="PrepareNeoContractGeneration"
+          Inputs="%(NeoContractGeneration.ManifestPath)" 
+          Outputs="%(NeoContractGeneration.OutputPath)">
+
+    <Message Importance="High" Text="Generating %(NeoContractGeneration.OutputPath)" />
 
     <NeoContractInterface
       ManifestFile="%(NeoContractGeneration.ManifestPath)"
       OutputFile="%(NeoContractGeneration.OutputPath)"
-      RootNamespace="$(RootNamespace)"/>
+      RootNamespace="$(RootNamespace)"
+      ContractNameOverride="%(ContractNameOverride)" />
 
     <ItemGroup>
       <Compile Include="%(NeoContractGeneration.OutputPath)" />

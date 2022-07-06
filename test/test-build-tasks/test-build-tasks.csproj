@@ -8,16 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\build-tasks\build-tasks.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+     <EmbeddedResource Include="testFiles/*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\src\build-tasks\build\**"
           Link="build\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\src\build-tasks\buildMultiTargeting\**"
           Link="buildMultiTargeting\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\build-tasks\build-tasks.csproj" />
   </ItemGroup>
 
   <ItemGroup>
