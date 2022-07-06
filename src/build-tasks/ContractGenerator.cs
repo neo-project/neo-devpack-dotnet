@@ -7,10 +7,13 @@ namespace Neo.BuildTasks
 {
     public static class ContractGenerator
     {
-        public static string GenerateContractInterface(NeoManifest manifest, string @namespace = "")
+        public static string GenerateContractInterface(NeoManifest manifest, string contractNameOverride, string @namespace)
         {
-            var contractName = Regex.Replace(manifest.Name, "^.*\\.", string.Empty);
-            if (!IsValidTypeName(contractName)) 
+            var contractName = string.IsNullOrEmpty(contractNameOverride)
+                ? Regex.Replace(manifest.Name, "^.*\\.", string.Empty)
+                : contractNameOverride;
+
+            if (!IsValidTypeName(contractName) || contractName.Contains('.')) 
             {
                 throw new Exception($"\"{contractName}\" is not a valid C# type name");
             }

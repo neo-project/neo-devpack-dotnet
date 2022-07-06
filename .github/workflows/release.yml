@@ -3,6 +3,10 @@ name: Release
 on:
   workflow_dispatch:
 
+env:
+  CONFIGURATION: 'Release'
+  DOTNET_VERSION: '6.0.x'
+
 jobs:
   build:
     if: startsWith(github.ref, 'refs/heads/release/')
@@ -14,14 +18,18 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Nerdbank.GitVersioning
       uses: dotnet/nbgv@v0.4.0
       id: nbgv
-    - name: Install dependencies
-      run: dotnet restore
+    - name: Restore and Build
+      run: |
+        dotnet restore
+        dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore --verbosity normal
+    - name: test 
+      run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
     - name: Pack 
-      run: dotnet pack --output ./out --configuration Release --no-restore --verbosity normal
+      run: dotnet pack --output ./out --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:

@@ -18,7 +18,7 @@ namespace Neo.BuildTasks
                 try
                 {
                     var manifest = NeoManifest.Load(ManifestFile);
-                    var source = ContractGenerator.GenerateContractInterface(manifest, RootNamespace);
+                    var source = ContractGenerator.GenerateContractInterface(manifest, ContractNameOverride, RootNamespace);
                     if (!string.IsNullOrEmpty(source))
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(this.OutputFile));
@@ -47,6 +47,8 @@ namespace Neo.BuildTasks
         public string ManifestFile { get; set; } = "";
 
         public string RootNamespace { get; set; } = "";
+
+        public string ContractNameOverride { get; set; } = "";
 
         static void FileOperationWithRetry(Action operation)
         {

@@ -1,0 +1,113 @@
+{
+    "name": "DevHawk.Registrar",
+    "groups": [],
+    "features": {},
+    "supportedstandards": [],
+    "abi": {
+        "methods": [
+            {
+                "name": "query",
+                "offset": 960,
+                "safe": false,
+                "returntype": "Hash160",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "String"
+                    }
+                ]
+            },
+            {
+                "name": "register",
+                "offset": 972,
+                "safe": false,
+                "returntype": "Boolean",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "String"
+                    },
+                    {
+                        "name": "owner",
+                        "type": "Hash160"
+                    }
+                ]
+            },
+            {
+                "name": "transfer",
+                "offset": 984,
+                "safe": false,
+                "returntype": "Boolean",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "String"
+                    },
+                    {
+                        "name": "to",
+                        "type": "Hash160"
+                    }
+                ]
+            },
+            {
+                "name": "delete",
+                "offset": 996,
+                "safe": false,
+                "returntype": "Boolean",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "type": "String"
+                    }
+                ]
+            },
+            {
+                "name": "_deploy",
+                "offset": 1008,
+                "safe": false,
+                "returntype": "Void",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "type": "Any"
+                    },
+                    {
+                        "name": "update",
+                        "type": "Boolean"
+                    }
+                ]
+            },
+            {
+                "name": "update",
+                "offset": 831,
+                "safe": false,
+                "returntype": "Void",
+                "parameters": [
+                    {
+                        "name": "nefFile",
+                        "type": "ByteArray"
+                    },
+                    {
+                        "name": "manifest",
+                        "type": "String"
+                    }
+                ]
+            }
+        ],
+        "events": []
+    },
+    "permissions": [
+        {
+            "contract": "0xfffdc93764dbaddd97c48f252a53ea4643faa3fd",
+            "methods": [
+                "update"
+            ]
+        }
+    ],
+    "trusts": [],
+    "extra": {
+        "Author": "Harry Pierson",
+        "Email": "harrypierson@hotmail.com",
+        "Description": "This is an example contract"
+    }
+}

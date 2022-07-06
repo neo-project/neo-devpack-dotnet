@@ -15,9 +15,16 @@ may not exactly match a publicly released version.
 
 ## [Unreleased]
 
-### Fixed
+### Added
+* Adds `ContractNameOverride` property to `NeoContractReference` items to control the name of the generated contract interface (#35)
 
-* `NeoContractInterface` fails if generated contract interface name isn't a valid C# type name
+### Changed
+* Pass .csproj file instead of .cs sources to NeoCsc task due to [existing nccs issue](https://github.com/neo-project/neo-devpack-dotnet/issues/759) (#34)
+
+### Fixed
+* `NeoContractInterface` fails if generated contract interface name isn't a valid C# type name (#33)
+* Test projects that specify `NeoContractReference` items correctly build referenced projects first (#35)
+
 
 ## [3.3] - 2022-06-28
 
