@@ -4,12 +4,12 @@
   <PropertyGroup>
     <NeoBuildTasksFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netstandard2.0</NeoBuildTasksFolder>
     <NeoBuildTasksFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</NeoBuildTasksFolder>
-    <NeoBuildTasksAssembly>$(MSBuildThisFileDirectory)..\tasks\$(NeoBuildTasksFolder)\neo-build-tasks.dll</NeoBuildTasksAssembly>
+    <_NeoBuildTasksAssemblyPath>$([MSBuild]::ValueOrDefault('$(NeoBuildTasksAssembly)', '$(MSBuildThisFileDirectory)..\tasks\$(NeoBuildTasksFolder)\neo-build-tasks.dll'))</_NeoBuildTasksAssemblyPath>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(NeoBuildTasksAssembly)" TaskName="Neo.BuildTasks.NeoContractInterface"/>
-  <UsingTask AssemblyFile="$(NeoBuildTasksAssembly)" TaskName="Neo.BuildTasks.NeoCsc"/>
-  <UsingTask AssemblyFile="$(NeoBuildTasksAssembly)" TaskName="Neo.BuildTasks.NeoExpressBatch"/>
+  <UsingTask AssemblyFile="$(_NeoBuildTasksAssemblyPath)" TaskName="Neo.BuildTasks.NeoContractInterface"/>
+  <UsingTask AssemblyFile="$(_NeoBuildTasksAssemblyPath)" TaskName="Neo.BuildTasks.NeoCsc"/>
+  <UsingTask AssemblyFile="$(_NeoBuildTasksAssemblyPath)" TaskName="Neo.BuildTasks.NeoExpressBatch"/>
 
   <Target Name="ConfigureNeoCsc">
     <PropertyGroup>
@@ -47,7 +47,7 @@
       Inline="$(NeoCscOptimize)"
       Optimize="$(NeoCscOptimize)"
       Output="$(NeoContractOutput)"
-      Sources="@(Compile)"
+      Sources="$(MSBuildProjectFullPath)"
       WorkingDirectory="$(MSBuildProjectDirectory)"/>
   </Target>
 

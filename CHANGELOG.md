@@ -15,9 +15,13 @@ may not exactly match a publicly released version.
 
 ## [Unreleased]
 
+### Changed
+* Pass .csproj file instead of .cs sources to NeoCsc task due to [existing nccs issue](https://github.com/neo-project/neo-devpack-dotnet/issues/759) (#34)
+
 ### Fixed
 
-* `NeoContractInterface` fails if generated contract interface name isn't a valid C# type name
+* `NeoContractInterface` fails if generated contract interface name isn't a valid C# type name (#33)
+
 
 ## [3.3] - 2022-06-28
 
