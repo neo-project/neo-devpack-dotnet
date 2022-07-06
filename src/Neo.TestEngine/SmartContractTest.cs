@@ -25,7 +25,7 @@ namespace Neo.TestingEngine
         public List<TestContract> contracts;
         public uint currentHeight = 0;
         public Signer[] signers;
-        public Block[] blocks;
+        public TestBlock[] blocks;
         public Transaction? currentTx;
 
         public SmartContractTest(string path, string method, JArray parameters) : this(method, parameters)
@@ -45,7 +45,7 @@ namespace Neo.TestingEngine
             storage = new Dictionary<StorageKey, StorageItem>();
             contracts = new List<TestContract>();
             signers = new Signer[] { };
-            blocks = new Block[] { };
+            blocks = new TestBlock[] { };
         }
     }
 }

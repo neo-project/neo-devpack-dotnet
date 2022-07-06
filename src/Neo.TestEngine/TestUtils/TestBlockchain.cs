@@ -252,5 +252,23 @@ namespace Neo.TestingEngine
             snapshot.TransactionAddOrUpdate(states.ToArray());
             snapshot.InnerCommit();
         }
+
+        public static void AddOrUpdateTransactionState(this DataCache snapshot, Transaction tx, VMState state, int blockIndex = -1)
+        {
+            uint index = blockIndex >= 0 ? (uint)blockIndex : NativeContract.Ledger.CurrentIndex(snapshot);
+            var transaction = tx;
+            if (snapshot.ContainsTransaction(tx))
+            {
+                transaction = NativeContract.Ledger.GetTransaction(snapshot, tx.Hash);
+            }
+
+            var txState = new TransactionState()
+            {
+                BlockIndex = index,
+                State = state,
+                Transaction = tx
+            };
+            snapshot.TransactionAddOrUpdate(new TransactionState[] { txState });
+        }
     }
 }

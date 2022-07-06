@@ -35,7 +35,7 @@ namespace Neo.TestingEngine
             json["currentblock"] = testEngine.PersistingBlock.ToSimpleJson();
             if (testEngine.ScriptContainer is Transaction tx)
             {
-                json["transaction"] = tx.ToSimpleJson();
+                json["transaction"] = tx.ToSimpleJson(testEngine.State);
             }
 
             json["storage"] = testEngine.Snapshot.ToJson();
@@ -128,7 +128,7 @@ namespace Neo.TestingEngine
             return json;
         }
 
-        public static JObject ToSimpleJson(this Transaction tx)
+        public static JObject ToSimpleJson(this Transaction tx, VMState txState = VMState.NONE)
         {
             // build a tx with the mutable fields to have a consistent hash between program input and output
             var simpleTx = new Transaction()
@@ -140,7 +140,10 @@ namespace Neo.TestingEngine
                 ValidUntilBlock = tx.ValidUntilBlock
             };
 
-            return simpleTx.ToJson(ProtocolSettings.Default);
+            var json = simpleTx.ToJson(ProtocolSettings.Default);
+            json["state"] = txState.ToString();
+
+            return json;
         }
 
         private static string GetExceptionMessage(Exception exception)

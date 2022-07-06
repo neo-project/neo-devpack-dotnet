@@ -11,6 +11,7 @@
 using Neo.IO.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -235,7 +236,10 @@ namespace Neo.TestingEngine
                         return new Signer()
                         {
                             Account = newAccount,
-                            Scopes = scopes
+                            Scopes = scopes,
+                            AllowedContracts = new UInt160[] { },
+                            AllowedGroups = new Cryptography.ECC.ECPoint[] { },
+                            Rules = new WitnessRule[] { }
                         };
                     }).ToArray();
                 }
@@ -266,7 +270,7 @@ namespace Neo.TestingEngine
                     Engine.Instance.AddSmartContract(contract);
                 }
 
-                foreach (var block in smartContractTest.blocks.OrderBy(b => b.Index))
+                foreach (var block in smartContractTest.blocks.OrderBy(b => b.Block.Index))
                 {
                     Engine.Instance.AddBlock(block);
                 }
@@ -425,7 +429,7 @@ namespace Neo.TestingEngine
             return items.ToArray();
         }
 
-        private static Block BlockFromJson(JObject blockJson)
+        private static TestBlock BlockFromJson(JObject blockJson)
         {
             var transactions = blockJson["transactions"] as JArray;
 
@@ -438,15 +442,18 @@ namespace Neo.TestingEngine
                 throw new FormatException(GetInvalidTypeMessage("ulong", "blockTimestamp"));
             }
 
-            return new Block()
+            var txStates = transactions.Select(tx => TxStateFromJson(tx)).ToArray();
+            var block = new Block()
             {
                 Header = new Header()
                 {
                     Index = blockIndex,
                     Timestamp = blockTimestamp
                 },
-                Transactions = transactions.Select(b => TxFromJson(b)).ToArray()
+                Transactions = txStates.Select(tx => tx.Transaction).ToArray()
             };
+
+            return new TestBlock(block, txStates);
         }
 
         private static Transaction TxFromJson(JObject txJson)
@@ -467,7 +474,10 @@ namespace Neo.TestingEngine
                     return new Signer()
                     {
                         Account = signerAccount,
-                        Scopes = WitnessScope.CalledByEntry
+                        Scopes = WitnessScope.CalledByEntry,
+                        AllowedContracts = new UInt160[] { },
+                        AllowedGroups = new Cryptography.ECC.ECPoint[] { },
+                        Rules = new WitnessRule[] { }
                     };
                 }).ToArray();
             }
@@ -521,6 +531,27 @@ namespace Neo.TestingEngine
                 Signers = accounts,
                 Witnesses = witnesses,
                 Attributes = attributes.ToArray()
+            };
+        }
+
+        private static TransactionState TxStateFromJson(JObject txJson)
+        {
+            Transaction tx = TxFromJson(txJson);
+
+            VMState state;
+            if (!txJson.ContainsProperty("state"))
+            {
+                state = VMState.NONE;
+            }
+            else if (!Enum.TryParse(txJson["state"].AsString(), out state))
+            {
+                throw new FormatException(GetInvalidTypeMessage("VMState", "transactionState"));
+            }
+
+            return new TransactionState()
+            {
+                Transaction = tx,
+                State = state
             };
         }
 

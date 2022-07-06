@@ -217,6 +217,17 @@ namespace Neo.TestingEngine
             currentTx.Attributes = attributes.Where(attr => attr != null).ToArray();
         }
 
+        public Engine AddBlock(TestBlock block)
+        {
+            var snapshot = engine.Snapshot;
+            var result = AddBlock(block.Block);
+            foreach (var txState in block.Transactions)
+            {
+                snapshot.AddOrUpdateTransactionState(txState.Transaction, txState.State);
+            }
+            return result;
+        }
+
         public Engine AddBlock(Block block)
         {
             var snapshot = engine.Snapshot;
@@ -320,6 +331,7 @@ namespace Neo.TestingEngine
             currentTx.ValidUntilBlock = engine.Snapshot.GetLastBlock().Index + ProtocolSettings.Default.MaxValidUntilBlockIncrement;
             currentTx.SystemFee = engine.GasConsumed;
             currentTx.NetworkFee = wallet.CalculateNetworkFee(engine.Snapshot, currentTx);
+            engine.Snapshot.AddOrUpdateTransactionState(currentTx, engine.State);
 
             return engine.ToJson();
         }
@@ -330,7 +342,15 @@ namespace Neo.TestingEngine
             {
                 Attributes = new TransactionAttribute[0],
                 Script = new byte[0],
-                Signers = new Signer[] { new Signer() { Account = wallet.DefaultAccount.ScriptHash, Scopes = WitnessScope.CalledByEntry } },
+                Signers = new Signer[] {
+                    new Signer() {
+                        Account = wallet.DefaultAccount.ScriptHash,
+                        Scopes = WitnessScope.CalledByEntry,
+                        AllowedContracts = new UInt160[] { },
+                        AllowedGroups = new ECPoint[] { },
+                        Rules = new WitnessRule[] { }
+                    }
+                },
                 Witnesses = new Witness[0],
                 NetworkFee = 1,
                 Nonce = 2,
