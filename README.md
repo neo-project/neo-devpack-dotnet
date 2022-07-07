@@ -189,7 +189,7 @@ then setting MSBuild properties and/or items.
 * To enable NeoContractInterface task, set a `<NeoContractReference>` item in your test
   project with a path to the contract project.
 
-Example Contract .csproj file:
+### Example Contract .csproj file:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -209,7 +209,7 @@ Example Contract .csproj file:
 </Project>
 ```
 
-Example Contract Test .csproj file:
+### Example Contract Test .csproj file:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -236,7 +236,7 @@ Example Contract Test .csproj file:
 </Project>
 ```
 
-Example generated contract interface:
+### Example generated contract interface:
 
 ``` csharp 
 // CSharp 
