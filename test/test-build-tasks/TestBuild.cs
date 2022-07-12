@@ -144,6 +144,31 @@ using Neo.SmartContract.Framework;
             Assert.True(File.Exists(generatedCodePath), "contract interface not generated");
         }
 
+        [Theory, CombinatorialData]
+        public void debug_info_generation([CombinatorialValues("Debug", "Release")]string config, bool generateDebugInfo)
+        {
+            using var testRootPath = new TestRootPath();
+            InstallNccs(testRootPath);
+
+            var source = TestFiles.GetString("registrar.source");
+            File.WriteAllText(Path.Combine(testRootPath, "contract.cs"), source);
+            var creator = CreateDotNetSixProject(testRootPath, "registrar.csproj")
+                .Property("NeoContractName", "$(AssemblyName)")
+                .ImportNeoBuildTools()
+                .ReferenceNeoScFx();
+
+            if (!generateDebugInfo)
+            {
+                creator.Property("NeoCscDebugInfo", "false");
+            }
+
+            var globalProps = new Dictionary<string, string>() { ["Configuration"] = config };
+            creator.TryBuild(true, "Build", globalProps, out var result, out var output);
+
+            var debugInfoPath = Path.Combine(testRootPath, "bin/sc/registrar.nefdbgnfo");
+            Assert.Equal(generateDebugInfo, File.Exists(debugInfoPath));
+        }
+
         public static ProjectCreator CreateDotNetSixProject(string directory, string projectName = "project.csproj")
         {
             return ProjectCreator.Templates.SdkCsproj(

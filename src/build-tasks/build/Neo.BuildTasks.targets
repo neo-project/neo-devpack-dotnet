@@ -23,14 +23,13 @@
 
       <NeoCscOptimize>true</NeoCscOptimize>
       <NeoCscOptimize Condition="'$(Configuration)'=='Debug'">false</NeoCscOptimize>
-      <NeoCscDebug>false</NeoCscDebug>
-      <NeoCscDebug Condition="'$(Configuration)'=='Debug'">true</NeoCscDebug>
+      <NeoCscDebugInfo Condition="'$(NeoCscDebugInfo)'==''">true</NeoCscDebugInfo>
     </PropertyGroup>
 
     <ItemGroup>
       <NeoCscOutput Include="$(NeoCscContractPath)" />
       <NeoCscOutput Include="$(NeoCscManifestPath)" />
-      <NeoCscOutput Include="$(NeoCscDebugInfoPath)" Condition="'$(NeoCscDebug)'=='true'" />
+      <NeoCscOutput Include="$(NeoCscDebugInfoPath)" Condition="'$(NeoCscDebugInfo)'=='true'" />
       <NeoCscOutput Include="$(NeoCscAssemblyPath)" Condition="'$(NeoContractAssembly)'=='true'"/>
     </ItemGroup>
   </Target>
@@ -43,7 +42,7 @@
     <NeoCsc 
       Assembly="$(NeoContractAssembly)"
       BaseFileName="$(NeoContractName)"
-      Debug="$(NeoCscDebug)"
+      Debug="$(NeoCscDebugInfo)"
       Inline="$(NeoCscOptimize)"
       Optimize="$(NeoCscOptimize)"
       Output="$(NeoContractOutput)"
