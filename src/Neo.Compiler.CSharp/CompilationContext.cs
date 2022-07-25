@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Cryptography.ECC;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
@@ -181,8 +181,8 @@ namespace Neo.Compiler
                 WorkingDirectory = folder
             })!.WaitForExit();
             string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
-            JObject assets = JObject.Parse(File.ReadAllBytes(assetsPath));
-            foreach (var (name, package) in assets["targets"][0].Properties)
+            var assets = JObject.Parse(File.ReadAllBytes(assetsPath));
+            foreach (var (name, package) in ((JObject)assets["targets"][0]).Properties)
             {
                 MetadataReference? reference = GetReference(name, package, assets, folder, options, compilationOptions);
                 if (reference is not null) references.Add(reference);
@@ -191,7 +191,7 @@ namespace Neo.Compiler
             return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, compilationOptions);
         }
 
-        private static MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
+        private static MetadataReference? GetReference(string name, JToken package, JToken assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
         {
             string assemblyName = Path.GetDirectoryName(name)!;
             if (!metaReferences.TryGetValue(assemblyName, out var reference))
@@ -201,13 +201,13 @@ namespace Neo.Compiler
                     case "package":
                         string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
                         string namePath = assets["libraries"][name]["path"].GetString();
-                        string[] files = assets["libraries"][name]["files"].GetArray()
+                        string[] files = ((JArray)assets["libraries"][name]["files"])
                             .Select(p => p.GetString())
                             .Where(p => p.StartsWith("src/"))
                             .ToArray();
                         if (files.Length == 0)
                         {
-                            JObject dllFiles = package["compile"] ?? package["runtime"];
+                            JObject dllFiles = (JObject)(package["compile"] ?? package["runtime"]);
                             if (dllFiles is null) return null;
                             foreach (var (file, _) in dllFiles.Properties)
                             {
