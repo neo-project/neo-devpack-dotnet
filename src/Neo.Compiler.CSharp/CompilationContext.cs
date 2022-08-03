@@ -181,14 +181,14 @@ namespace Neo.Compiler
                 WorkingDirectory = folder
             })!.WaitForExit();
             string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
-            var assets = JObject.Parse(File.ReadAllBytes(assetsPath));
-            foreach (var (name, package) in ((JObject)assets["targets"][0]).Properties)
+            var assets = JToken.Parse(File.ReadAllBytes(assetsPath));
+            foreach (var (name, package) in ((JObject)assets!["targets"]![0]!).Properties)
             {
                 MetadataReference? reference = GetReference(name, package, assets, folder, options, compilationOptions);
                 if (reference is not null) references.Add(reference);
             }
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
-            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, compilationOptions);
+            return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
         }
 
         private static MetadataReference? GetReference(string name, JToken package, JToken assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
@@ -196,13 +196,13 @@ namespace Neo.Compiler
             string assemblyName = Path.GetDirectoryName(name)!;
             if (!metaReferences.TryGetValue(assemblyName, out var reference))
             {
-                switch (assets["libraries"][name]["type"].GetString())
+                switch (assets["libraries"]![name]!["type"]!.GetString())
                 {
                     case "package":
-                        string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
-                        string namePath = assets["libraries"][name]["path"].GetString();
-                        string[] files = ((JArray)assets["libraries"][name]["files"])
-                            .Select(p => p.GetString())
+                        string packagesPath = assets["project"]!["restore"]!["packagesPath"]!.GetString();
+                        string namePath = assets["libraries"]![name]!["path"]!.GetString();
+                        string[] files = ((JArray)assets["libraries"]![name]!["files"]!)
+                            .Select(p => p!.GetString())
                             .Where(p => p.StartsWith("src/"))
                             .ToArray();
                         if (files.Length == 0)
@@ -227,7 +227,7 @@ namespace Neo.Compiler
                         }
                         break;
                     case "project":
-                        string msbuildProject = assets["libraries"][name]["msbuildProject"].GetString();
+                        string msbuildProject = assets["libraries"]![name]!["msbuildProject"]!.GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
                         reference = GetCompilation(msbuildProject, options, out _).ToMetadataReference();
                         break;
