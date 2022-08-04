@@ -262,7 +262,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(tx.Script, item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(tx.Script.ToArray(), item.GetSpan().ToArray());
 
             // Sender
 
@@ -285,7 +285,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, (item as Array).Count);
-            Assert.AreEqual(6, ((item as Array)[0] as Array).Count);
+            Assert.AreEqual(5, ((item as Array)[0] as Array).Count);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("FirstScope"))));

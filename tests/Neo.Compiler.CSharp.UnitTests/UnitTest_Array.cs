@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var arr = result.Pop<Array>();
             Assert.AreEqual(4, arr.Count);
             var element0 = (Buffer)arr[0];
-            CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, element0.InnerBuffer);
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, element0.InnerBuffer.ToArray());
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testByteArrayOwner");
 
             var bts = result.Pop() as Buffer;
-            ByteString rt = bts.InnerBuffer;
+            ByteString rt = bts.InnerBuffer.ToArray();
             ByteString test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
             Assert.IsTrue(ByteString.Equals(rt, test));
         }
@@ -134,11 +134,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             var arr = (Buffer)result.Pop().ConvertTo(StackItemType.Buffer);
 
             Assert.AreEqual(5, arr.Size);
-            Assert.AreEqual(0, arr.InnerBuffer[0]);
-            Assert.AreEqual(0, arr.InnerBuffer[1]);
-            Assert.AreEqual(0, arr.InnerBuffer[2]);
-            Assert.AreEqual(0, arr.InnerBuffer[3]);
-            Assert.AreEqual(0, arr.InnerBuffer[4]);
+            Assert.AreEqual(0, arr.InnerBuffer.Span[0]);
+            Assert.AreEqual(0, arr.InnerBuffer.Span[1]);
+            Assert.AreEqual(0, arr.InnerBuffer.Span[2]);
+            Assert.AreEqual(0, arr.InnerBuffer.Span[3]);
+            Assert.AreEqual(0, arr.InnerBuffer.Span[4]);
         }
 
         [TestMethod]

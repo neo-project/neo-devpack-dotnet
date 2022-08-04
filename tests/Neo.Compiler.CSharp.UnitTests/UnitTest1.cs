@@ -53,7 +53,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract1.cs");
-            Assert.IsTrue(Encoding.ASCII.GetString(testengine.Nef.Script).Contains("NEO3"));
+            Assert.IsTrue(Encoding.ASCII.GetString(testengine.Nef.Script.Span).Contains("NEO3"));
         }
 
         [TestMethod]

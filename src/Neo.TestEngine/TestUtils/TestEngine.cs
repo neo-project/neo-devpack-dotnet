@@ -136,7 +136,7 @@ namespace Neo.TestingEngine
 
         public bool AddEntryScript(BuildScript script)
         {
-            var contractHash = script.Nef.Script.ToScriptHash();
+            var contractHash = script.Nef.Script.Span.ToScriptHash();
             var contract = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
 
             if (contract != null)

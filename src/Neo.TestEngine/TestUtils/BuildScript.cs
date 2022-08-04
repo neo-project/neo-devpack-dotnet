@@ -10,6 +10,7 @@
 
 using Microsoft.CodeAnalysis;
 using Neo.Compiler;
+using Neo.IO;
 using Neo.IO.Json;
 using Neo.SmartContract;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace Neo.TestingEngine
 
             if (originHash is null && nefFile != null)
             {
-                originHash = Nef.Script.ToScriptHash();
+                originHash = Nef.Script.Span.ToScriptHash();
             }
             ScriptHash = originHash;
         }
@@ -47,17 +48,16 @@ namespace Neo.TestingEngine
             if (files.Length == 1 && Path.GetExtension(files[0]).ToLowerInvariant() == ".nef")
             {
                 var filename = files[0];
-                using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+                MemoryReader reader = new(File.ReadAllBytes(filename));
+
+                NefFile neffile = new NefFile();
+                neffile.Deserialize(ref reader);
+                var fileNameManifest = filename.Replace(".nef", ".manifest.json");
+                string manifestFile = File.ReadAllText(fileNameManifest);
+                script = new BuildScript(neffile, JObject.Parse(manifestFile))
                 {
-                    NefFile neffile = new NefFile();
-                    neffile.Deserialize(reader);
-                    var fileNameManifest = filename.Replace(".nef", ".manifest.json");
-                    string manifestFile = File.ReadAllText(fileNameManifest);
-                    script = new BuildScript(neffile, JObject.Parse(manifestFile))
-                    {
-                        FromCompilation = false
-                    };
-                }
+                    FromCompilation = false
+                };
             }
             else
             {

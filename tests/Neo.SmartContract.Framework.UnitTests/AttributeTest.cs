@@ -1,9 +1,12 @@
-using System;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.TestingEngine;
+using Neo.IO;
+using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
+using System;
+using System.IO;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -17,8 +20,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             public int Size => 0;
 
             public DummyVerificable(params UInt160[] hashes) { Hashes = hashes; }
-            public void Deserialize(BinaryReader reader) { }
-            public void DeserializeUnsigned(BinaryReader reader) { }
+            public void Deserialize(ref MemoryReader reader) { }
+            public void DeserializeUnsigned(ref MemoryReader reader) { }
             public UInt160[] GetScriptHashesForVerifying(DataCache snapshot) => Hashes;
             public void Serialize(BinaryWriter writer) { }
             public void SerializeUnsigned(BinaryWriter writer) { }

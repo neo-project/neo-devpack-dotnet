@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
             Assert.IsTrue(_engine.AddEntryScript("./TestClasses/Contract_StdLib.cs").Success);
-            scriptHash = _engine.Nef.Script.ToScriptHash();
+            scriptHash = _engine.Nef.Script.Span.ToScriptHash();
 
             snapshot.ContractAdd(new ContractState()
             {
