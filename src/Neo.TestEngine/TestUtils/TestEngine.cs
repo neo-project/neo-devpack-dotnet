@@ -35,6 +35,7 @@ namespace Neo.TestingEngine
 
         private long previousGasConsumed = 0;
         internal UInt160 executedScriptHash { get; private set; }
+        internal UInt160 callingScriptHash { get; set; }
         public long GasConsumedByLastExecution => GasConsumed - previousGasConsumed;
 
         public NefFile? Nef { get; private set; }
@@ -154,6 +155,12 @@ namespace Neo.TestingEngine
             return true;
         }
 
+        public bool SetCallingScript(UInt160 contractHash)
+        {
+            callingScriptHash = CallingScriptHash;
+            return true;
+        }
+
         public void RunNativeContract(byte[] script, string method, StackItem[] parameters, CallFlags flags = CallFlags.All)
         {
             var rvcount = GetMethodReturnCount(method);
@@ -245,7 +252,8 @@ namespace Neo.TestingEngine
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState() { Nef = contract };
-            contextState.ScriptHash = ScriptContext.ScriptHash;
+            contextState.ScriptHash = ScriptContext?.ScriptHash;
+            contextState.CallingScriptHash = callingScriptHash;
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");

@@ -25,6 +25,7 @@ namespace Neo.TestingEngine
         public List<TestContract> contracts;
         public uint currentHeight = 0;
         public Signer[] signers;
+        public UInt160? callingScriptHash = null;
         public TestBlock[] blocks;
         public Transaction? currentTx;
 

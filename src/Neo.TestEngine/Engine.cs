@@ -72,6 +72,12 @@ namespace Neo.TestingEngine
             return this;
         }
 
+        public Engine SetCallingScript(UInt160 contractHash)
+        {
+            engine.callingScriptHash = contractHash;
+            return this;
+        }
+
         public Engine AddSmartContract(TestContract contract)
         {
             var state = AddSmartContract(contract.nefPath);

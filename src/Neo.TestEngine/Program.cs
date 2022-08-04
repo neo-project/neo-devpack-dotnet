@@ -243,6 +243,18 @@ namespace Neo.TestingEngine
                         };
                     }).ToArray();
                 }
+
+                // calling script hash
+                if (json.ContainsProperty("callingscripthash"))
+                {
+                    UInt160? callingScriptHash = null;
+                    if (json["callingscripthash"] != null && !UInt160.TryParse(json["callingscripthash"].AsString(), out callingScriptHash))
+                    {
+                        throw new FormatException(GetInvalidTypeMessage("UInt160", "callingscripthash"));
+                    }
+
+                    smartContractTestCase.callingScriptHash = callingScriptHash;
+                }
                 return Run(smartContractTestCase);
             }
             catch (Exception e)
@@ -291,6 +303,11 @@ namespace Neo.TestingEngine
                 else
                 {
                     Engine.Instance.SetEntryScript(smartContractTest.scriptHash);
+                }
+
+                if (smartContractTest.callingScriptHash != null)
+                {
+                    Engine.Instance.SetCallingScript(smartContractTest.callingScriptHash);
                 }
 
                 var stackParams = GetStackItemParameters(smartContractTest.methodParameters);

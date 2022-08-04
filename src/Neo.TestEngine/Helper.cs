@@ -31,6 +31,7 @@ namespace Neo.TestingEngine
             json["gasconsumed"] = (new BigDecimal((decimal)testEngine.GasConsumedByLastExecution, NativeContract.GAS.Decimals)).ToString();
             json["resultstack"] = testEngine.ResultStack.ToJson();
             json["executedscripthash"] = testEngine.executedScriptHash.ToString();
+            json["callingscripthash"] = testEngine.callingScriptHash?.ToString();
 
             json["currentblock"] = testEngine.PersistingBlock.ToSimpleJson();
             if (testEngine.ScriptContainer is Transaction tx)
