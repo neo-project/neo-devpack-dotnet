@@ -77,7 +77,7 @@ namespace Neo.Compiler
                     permissions.Add(new JObject
                     {
                         ["contract"] = group.Key,
-                        ["methods"] = new JArray(group.OrderBy(p => p).Select(p => (JString)p))
+                        ["methods"] = new JArray(group.OrderBy(p => p).Select(p => (JString)p!))
                     });
                 foreach (string hash in wildcardHashes.OrderBy(p => p))
                     permissions.Add(new JObject
@@ -89,7 +89,7 @@ namespace Neo.Compiler
                     permissions.Add(new JObject
                     {
                         ["contract"] = "*",
-                        ["methods"] = new JArray(wildcardMethods.OrderBy(p => p).Select(p => (JString)p))
+                        ["methods"] = new JArray(wildcardMethods.OrderBy(p => p).Select(p => (JString)p!))
                     });
             }
             return permissions;

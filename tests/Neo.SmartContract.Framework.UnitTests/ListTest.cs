@@ -111,7 +111,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             var json = System.Text.Encoding.UTF8.GetString(item.GetSpan());
-            return JObject.Parse(json);
+            return JToken.Parse(json);
         }
     }
 }

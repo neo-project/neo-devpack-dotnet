@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.Json;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -21,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             testEngine.Reset();
             var abi = testEngine.Manifest["abi"];
-            var property = ((JArray)abi["methods"])[0];
+            var property = abi["methods"][0];
             Assert.AreEqual("symbol", property["name"].GetString());
         }
     }
