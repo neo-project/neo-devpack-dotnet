@@ -30,10 +30,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Locator" Version="1.4.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
+    <PackageReference Include="Moq" Version="4.18.2" />
     <PackageReference Include="MSBuild.ProjectCreation" Version="8.2.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="Xunit.Combinatorial" Version="1.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -41,4 +41,16 @@
     </PackageReference>
   </ItemGroup>
 
+<!-- 
+    workaround for NuGet.Frameworks FileLoadException issue,
+       see https://github.com/dotnet/roslyn/issues/61454#issuecomment-1191209761 
+       and https://github.com/jeffkl/MSBuildProjectCreator/issues/178
+-->
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(MSBuildSDKsPath)\..\NuGet.Frameworks.dll"
+          DestinationFolder="$(OutputPath)"
+          ContinueOnError="false" />
+  </Target>
+  
 </Project>

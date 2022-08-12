@@ -56,7 +56,7 @@ namespace NeoTestHarness
         }
 
         public static void EmitContractCall<T>(this ScriptBuilder builder, ApplicationEngine engine, Expression<Action<T>> expression)
-            where T : class 
+            where T : class
             => EmitContractCall<T>(builder, engine.Snapshot, expression);
 
         public static void EmitContractCall<T>(this ScriptBuilder builder, DataCache snapshot, Expression<Action<T>> expression)

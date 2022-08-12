@@ -9,6 +9,8 @@ namespace build_tasks
 {
     public partial class TestBuild : MSBuildTestBase
     {
+        const string CURRENT_NEO_VERSION = "3.4.0";
+
         readonly ITestOutputHelper output;
 
         public TestBuild(ITestOutputHelper output)
@@ -50,7 +52,7 @@ using Neo.SmartContract.Framework;
         void test_BuildContract(string source, string sourceName = "contract.cs")
         {
             using var testRootPath = new TestRootPath();
-            InstallNccs(testRootPath);
+            InstallNccs(testRootPath, CURRENT_NEO_VERSION);
 
             var sourcePath = Path.Combine(testRootPath, sourceName);
             File.WriteAllText(sourcePath, source);
@@ -58,7 +60,7 @@ using Neo.SmartContract.Framework;
             var creator = CreateDotNetSixProject(testRootPath)
                 .Property("NeoContractName", "$(AssemblyName)")
                 .ImportNeoBuildTools()
-                .ItemPackageReference("Neo.SmartContract.Framework", version: "3.3.0")
+                .ReferenceNeoScFx(CURRENT_NEO_VERSION)
                 .AssertBuild(output);
         }
 
@@ -90,7 +92,7 @@ using Neo.SmartContract.Framework;
 
             var creator = CreateDotNetSixProject(testRootPath)
                 .ImportNeoBuildTools()
-                .ReferenceNeo()
+                .ReferenceNeo(CURRENT_NEO_VERSION)
                 .ItemInclude("NeoContractGeneration", "registrar", metadata: metadata)
                 .AssertBuild(output);
 
@@ -116,7 +118,7 @@ using Neo.SmartContract.Framework;
 
         void test_NeoContractReference(string testRootPath, string source, string contractNameOverride = "")
         {
-            InstallNccs(testRootPath);
+            InstallNccs(testRootPath, CURRENT_NEO_VERSION);
 
             var srcDir = Path.Combine(testRootPath, "src");
             if (!Directory.Exists(srcDir)) Directory.CreateDirectory(srcDir);
@@ -125,7 +127,7 @@ using Neo.SmartContract.Framework;
             var srcCreator = CreateDotNetSixProject(testRootPath, "src/registrar.csproj")
                 .Property("NeoContractName", "$(AssemblyName)")
                 .ImportNeoBuildTools()
-                .ReferenceNeoScFx()
+                .ReferenceNeoScFx(CURRENT_NEO_VERSION)
                 .Save();
 
             var metadata = new Dictionary<string, string?>();
@@ -136,7 +138,7 @@ using Neo.SmartContract.Framework;
 
             var testCreator = CreateDotNetSixProject(testRootPath, "test/registrarTests.csproj")
                 .ImportNeoBuildTools()
-                .ReferenceNeo()
+                .ReferenceNeo(CURRENT_NEO_VERSION)
                 .ItemInclude("NeoContractReference", srcCreator.FullPath, metadata: metadata)
                 .AssertBuild(output);
 
@@ -145,17 +147,17 @@ using Neo.SmartContract.Framework;
         }
 
         [Theory, CombinatorialData]
-        public void debug_info_generation([CombinatorialValues("Debug", "Release")]string config, bool generateDebugInfo)
+        public void debug_info_generation([CombinatorialValues("Debug", "Release")] string config, bool generateDebugInfo)
         {
             using var testRootPath = new TestRootPath();
-            InstallNccs(testRootPath);
+            InstallNccs(testRootPath, CURRENT_NEO_VERSION);
 
             var source = TestFiles.GetString("registrar.source");
             File.WriteAllText(Path.Combine(testRootPath, "contract.cs"), source);
             var creator = CreateDotNetSixProject(testRootPath, "registrar.csproj")
                 .Property("NeoContractName", "$(AssemblyName)")
                 .ImportNeoBuildTools()
-                .ReferenceNeoScFx();
+                .ReferenceNeoScFx(CURRENT_NEO_VERSION);
 
             if (!generateDebugInfo)
             {
@@ -176,7 +178,7 @@ using Neo.SmartContract.Framework;
                 targetFramework: "net6.0");
         }
 
-        static void InstallNccs(string path, string version = "3.3.0")
+        static void InstallNccs(string path, string version)
         {
             var runner = new ProcessRunner();
             runner.RunThrow("dotnet", "new tool-manifest", path);

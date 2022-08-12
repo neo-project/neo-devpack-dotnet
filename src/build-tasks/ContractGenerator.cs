@@ -13,7 +13,7 @@ namespace Neo.BuildTasks
                 ? Regex.Replace(manifest.Name, "^.*\\.", string.Empty)
                 : contractNameOverride;
 
-            if (!IsValidTypeName(contractName) || contractName.Contains('.')) 
+            if (!IsValidTypeName(contractName) || contractName.Contains('.'))
             {
                 throw new Exception($"\"{contractName}\" is not a valid C# type name");
             }

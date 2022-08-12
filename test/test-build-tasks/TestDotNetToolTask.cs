@@ -6,7 +6,7 @@ using Xunit;
 
 namespace build_tasks
 {
-    public class TestDotNetToolTask  : MSBuildTestBase
+    public class TestDotNetToolTask : MSBuildTestBase
     {
         class TestTask : DotNetToolTask
         {
@@ -15,7 +15,7 @@ namespace build_tasks
 
             readonly Func<NugetPackageVersion, bool>? validator;
 
-            public TestTask(IProcessRunner processRunner, Func<NugetPackageVersion, bool> ?validator = null) : base(processRunner)
+            public TestTask(IProcessRunner processRunner, Func<NugetPackageVersion, bool>? validator = null) : base(processRunner)
             {
                 this.validator = validator;
             }

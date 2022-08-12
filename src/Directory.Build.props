@@ -24,10 +24,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BlockchainToolkitLibraryVersion>3.4.8-preview</BlockchainToolkitLibraryVersion>
+    <BlockchainToolkitLibraryVersion>3.4.13</BlockchainToolkitLibraryVersion>
     <!-- <BlockchainToolkitLibraryVersion>local</BlockchainToolkitLibraryVersion> -->
     <BlockchainToolkitLibraryLocalPath>..\..\..\lib-bctk</BlockchainToolkitLibraryLocalPath>
-    <NeoVersion>3.3.1</NeoVersion>
+    <NeoVersion>3.4.0</NeoVersion>
     <NeoMonorepoPath>..\..\..\..\official\3neo-monorepo</NeoMonorepoPath>
 
   </PropertyGroup>

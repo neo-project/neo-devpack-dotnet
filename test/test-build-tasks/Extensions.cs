@@ -86,12 +86,12 @@ namespace build_tasks
                 .Import(targetsPath);
         }
 
-        public static ProjectCreator ReferenceNeo(this ProjectCreator @this, string version = "3.3.1")
+        public static ProjectCreator ReferenceNeo(this ProjectCreator @this, string version)
         {
             return @this.ItemPackageReference("Neo", version: version);
         }
 
-        public static ProjectCreator ReferenceNeoScFx(this ProjectCreator @this, string version = "3.3.0")
+        public static ProjectCreator ReferenceNeoScFx(this ProjectCreator @this, string version)
         {
             return @this.ItemPackageReference("Neo.SmartContract.Framework", version: version);
         }
