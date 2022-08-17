@@ -13,11 +13,12 @@ will not have contiguous patch numbers. Initial major and minor releases will be
 in this file without a patch number. Patch version will be included for bug fixes, but
 may not exactly match a publicly released version.
 
-## [Unreleased]
+## [3.4.14] - 2022-08-17
 
 ### Changed
-* Always generate debug info, regardless of configuration property, unless `NeoCscDebugInfo` property is false (#37)
 
+* Always generate debug info, regardless of configuration property, unless `NeoCscDebugInfo` property is false ([#37](https://github.com/ngdenterprise/neo-test/pull/37))
+* Updated to Neo 3.4 ([#39](https://github.com/ngdenterprise/neo-test/pull/39))
 
 ## [3.3.23] - 2022-07-06
 
