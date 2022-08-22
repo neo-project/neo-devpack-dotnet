@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.TestingEngine;
 using Neo.IO;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;

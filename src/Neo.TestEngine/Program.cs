@@ -8,7 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -52,7 +52,7 @@ namespace Neo.TestingEngine
                     {
                         jsonString = args[0];
                     }
-                    input = JObject.Parse(jsonString);
+                    input = (JObject)JToken.Parse(jsonString);
                 }
                 catch
                 {
@@ -116,7 +116,7 @@ namespace Neo.TestingEngine
                 JArray parameters = new JArray();
                 if (jsonParams.Length > 0)
                 {
-                    var json = JObject.Parse(jsonParams);
+                    var json = JToken.Parse(jsonParams);
                     if (json is JArray array)
                     {
                         parameters = array;
@@ -216,8 +216,9 @@ namespace Neo.TestingEngine
                 // tx signers
                 if (json.ContainsProperty("signeraccounts") && json["signeraccounts"] is JArray accounts)
                 {
-                    smartContractTestCase.signers = accounts.Select(accountJson =>
+                    smartContractTestCase.signers = accounts.Select(account =>
                     {
+                        JObject accountJson = (JObject)account;
                         if (!UInt160.TryParse(accountJson["account"].AsString(), out var newAccount))
                         {
                             throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
@@ -324,7 +325,7 @@ namespace Neo.TestingEngine
         /// </summary>
         /// <param name="jsonStorage">json array with the map values to be converted</param>
         /// <returns>Returns the built dictionary</returns>
-        private static Dictionary<StorageKey, StorageItem> GetStorageFromJson(JObject jsonStorage)
+        private static Dictionary<StorageKey, StorageItem> GetStorageFromJson(JToken jsonStorage)
         {
             if (!(jsonStorage is JArray storage))
             {
@@ -333,13 +334,13 @@ namespace Neo.TestingEngine
 
             var missingFieldMessage = "Missing field '{0}'";
             var items = new Dictionary<StorageKey, StorageItem>();
-            foreach (var pair in storage)
+            foreach (JObject pair in storage)
             {
                 if (!pair.ContainsProperty("key"))
                 {
                     throw new Exception(string.Format(missingFieldMessage, "key"));
                 }
-                var jsonKey = pair["key"];
+                var jsonKey = (JObject)pair["key"];
                 if (!jsonKey.ContainsProperty("id") || !jsonKey.ContainsProperty("key"))
                 {
                     throw new Exception(string.Format(missingFieldMessage, "key"));
@@ -349,14 +350,14 @@ namespace Neo.TestingEngine
                 {
                     throw new Exception(string.Format(missingFieldMessage, "value"));
                 }
-                var jsonValue = pair["value"];
+                var jsonValue = (JObject)pair["value"];
                 if (!jsonValue.ContainsProperty("isconstant") || !jsonValue.ContainsProperty("value"))
                 {
                     throw new Exception(string.Format(missingFieldMessage, "value"));
                 }
 
-                var key = (PrimitiveType)ContractParameter.FromJson(jsonKey["key"]).ToStackItem();
-                var value = ContractParameter.FromJson(jsonValue["value"]).ToStackItem();
+                var key = (PrimitiveType)ContractParameter.FromJson((JObject)jsonKey["key"]).ToStackItem();
+                var value = ContractParameter.FromJson((JObject)jsonValue["value"]).ToStackItem();
 
                 if (!int.TryParse(jsonKey["id"].AsString(), out var storageKeyId))
                 {
@@ -385,7 +386,7 @@ namespace Neo.TestingEngine
         /// </summary>
         /// <param name="jsonContracts">json array with the contracts' paths to be converted</param>
         /// <returns>Returns a list of smart contracts for test</returns>
-        private static List<TestContract> GetContractsFromJson(JObject jsonContracts)
+        private static List<TestContract> GetContractsFromJson(JToken jsonContracts)
         {
             if (!(jsonContracts is JArray contracts))
             {
@@ -393,7 +394,7 @@ namespace Neo.TestingEngine
             }
 
             var items = new List<TestContract>();
-            foreach (var pair in contracts)
+            foreach (JObject pair in contracts)
             {
                 if (!pair.ContainsProperty("nef"))
                 {
@@ -446,7 +447,7 @@ namespace Neo.TestingEngine
             return items.ToArray();
         }
 
-        private static TestBlock BlockFromJson(JObject blockJson)
+        private static TestBlock BlockFromJson(JToken blockJson)
         {
             var transactions = blockJson["transactions"] as JArray;
 
@@ -473,13 +474,14 @@ namespace Neo.TestingEngine
             return new TestBlock(block, txStates);
         }
 
-        private static Transaction TxFromJson(JObject txJson)
+        private static Transaction TxFromJson(JToken txJson)
         {
+            JObject txJsonObject = (JObject)txJson;
             Signer[] accounts;
             Witness[] witnesses;
             List<TransactionAttribute> attributes = new List<TransactionAttribute>();
 
-            if (txJson.ContainsProperty("signers") && txJson["signers"] is JArray signersJson)
+            if (txJsonObject.ContainsProperty("signers") && txJsonObject["signers"] is JArray signersJson)
             {
                 accounts = signersJson.Select(p =>
                 {
@@ -503,7 +505,7 @@ namespace Neo.TestingEngine
                 accounts = new Signer[0];
             }
 
-            if (txJson.ContainsProperty("witnesses") && txJson["witnesses"] is JArray witnessesJson)
+            if (txJsonObject.ContainsProperty("witnesses") && txJsonObject["witnesses"] is JArray witnessesJson)
             {
                 witnesses = witnessesJson.Select(w => new Witness()
                 {
@@ -516,7 +518,7 @@ namespace Neo.TestingEngine
                 witnesses = new Witness[0];
             }
 
-            if (txJson.ContainsProperty("attributes") && txJson["attributes"] is JArray attributesJson)
+            if (txJsonObject.ContainsProperty("attributes") && txJsonObject["attributes"] is JArray attributesJson)
             {
                 foreach (var attr in attributesJson)
                 {
@@ -529,9 +531,9 @@ namespace Neo.TestingEngine
             }
 
             byte[] script;
-            if (txJson.ContainsProperty("script"))
+            if (txJsonObject.ContainsProperty("script"))
             {
-                script = Convert.FromBase64String(txJson["script"].AsString());
+                script = Convert.FromBase64String(txJsonObject["script"].AsString());
             }
             else if (attributes.Any(attribute => attribute is OracleResponse oracleAttr))
             {
@@ -551,16 +553,17 @@ namespace Neo.TestingEngine
             };
         }
 
-        private static TransactionState TxStateFromJson(JObject txJson)
+        private static TransactionState TxStateFromJson(JToken txJson)
         {
-            Transaction tx = TxFromJson(txJson);
+            JObject txJsonObject = (JObject)txJson;
+            Transaction tx = TxFromJson(txJsonObject);
 
             VMState state;
-            if (!txJson.ContainsProperty("state"))
+            if (!txJsonObject.ContainsProperty("state"))
             {
                 state = VMState.NONE;
             }
-            else if (!Enum.TryParse(txJson["state"].AsString(), out state))
+            else if (!Enum.TryParse(txJsonObject["state"].AsString(), out state))
             {
                 throw new FormatException(GetInvalidTypeMessage("VMState", "transactionState"));
             }
@@ -572,14 +575,15 @@ namespace Neo.TestingEngine
             };
         }
 
-        private static TransactionAttribute? TxAttributeFromJson(JObject txAttributeJson)
+        private static TransactionAttribute? TxAttributeFromJson(JToken txAttributeJson)
         {
-            if (!txAttributeJson.ContainsProperty("type"))
+            JObject txAttributeJsonObject = (JObject)txAttributeJson;
+            if (!txAttributeJsonObject.ContainsProperty("type"))
             {
                 return null;
             }
 
-            if (!Enum.TryParse<TransactionAttributeType>(txAttributeJson["type"].AsString(), out var type))
+            if (!Enum.TryParse<TransactionAttributeType>(txAttributeJsonObject["type"].AsString(), out var type))
             {
                 return null;
             }
@@ -588,11 +592,11 @@ namespace Neo.TestingEngine
             {
                 case TransactionAttributeType.OracleResponse:
 
-                    if (!Enum.TryParse<OracleResponseCode>(txAttributeJson["code"].AsString(), out var responseCode))
+                    if (!Enum.TryParse<OracleResponseCode>(txAttributeJsonObject["code"].AsString(), out var responseCode))
                     {
                         throw new ArgumentException(GetInvalidTypeMessage("OracleResponseCode", "oracleResponseCode"));
                     }
-                    if (!ulong.TryParse(txAttributeJson["id"].AsString(), out var oracleId))
+                    if (!ulong.TryParse(txAttributeJsonObject["id"].AsString(), out var oracleId))
                     {
                         throw new ArgumentException(GetInvalidTypeMessage("ulong", "oracleResponseId"));
                     }
@@ -601,7 +605,7 @@ namespace Neo.TestingEngine
                     {
                         Id = oracleId,
                         Code = responseCode,
-                        Result = Convert.FromBase64String(txAttributeJson["result"].AsString())
+                        Result = Convert.FromBase64String(txAttributeJsonObject["result"].AsString())
                     };
                 case TransactionAttributeType.HighPriority:
                     return new HighPriorityAttribute();

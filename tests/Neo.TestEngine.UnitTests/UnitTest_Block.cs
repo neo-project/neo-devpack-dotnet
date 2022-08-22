@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.SmartContract.Native;
 using Neo.TestEngine.UnitTests.Utils;
 using Neo.TestingEngine;
@@ -86,7 +86,6 @@ namespace Neo.TestEngine.UnitTests
 
             var resultStack = result["resultstack"] as JArray;
             Assert.IsTrue(resultStack.Count == 1);
-            Assert.IsTrue(resultStack[0].ContainsProperty("value"));
             Assert.AreEqual(resultStack[0]["value"].AsString(), wantresult.ToJson()["value"].AsString());
         }
 

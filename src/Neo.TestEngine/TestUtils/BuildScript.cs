@@ -11,7 +11,7 @@
 using Microsoft.CodeAnalysis;
 using Neo.Compiler;
 using Neo.IO;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.SmartContract;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +54,7 @@ namespace Neo.TestingEngine
                 neffile.Deserialize(ref reader);
                 var fileNameManifest = filename.Replace(".nef", ".manifest.json");
                 string manifestFile = File.ReadAllText(fileNameManifest);
-                script = new BuildScript(neffile, JObject.Parse(manifestFile))
+                script = new BuildScript(neffile, (JObject)JToken.Parse(manifestFile))
                 {
                     FromCompilation = false
                 };

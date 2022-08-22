@@ -8,7 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -46,7 +46,7 @@ namespace Neo.TestingEngine
             return json;
         }
 
-        public static JObject ToJson(this EvaluationStack stack)
+        public static JToken ToJson(this EvaluationStack stack)
         {
             JArray jarr = new();
             foreach (var item in stack)
@@ -74,7 +74,7 @@ namespace Neo.TestingEngine
             return jarr;
         }
 
-        public static JObject ToJson(this NotifyEventArgs notification)
+        public static JToken ToJson(this NotifyEventArgs notification)
         {
             var json = new JObject();
             json["eventname"] = notification.EventName;
@@ -83,7 +83,7 @@ namespace Neo.TestingEngine
             return json;
         }
 
-        public static JObject ToJson(this DataCache storage)
+        public static JToken ToJson(this DataCache storage)
         {
             var jsonStorage = new JArray();
             // had to filter which data should be returned back, since everything is in the storage now
@@ -119,7 +119,7 @@ namespace Neo.TestingEngine
             return jsonStorage;
         }
 
-        public static JObject ToSimpleJson(this Block block)
+        public static JToken ToSimpleJson(this Block block)
         {
             JObject json = new JObject();
             json["hash"] = block.Hash.ToString();

@@ -11,7 +11,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Neo.Compiler;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -38,9 +38,9 @@ namespace Neo.TestingEngine
         internal UInt160 callingScriptHash { get; set; }
         public long GasConsumedByLastExecution => GasConsumed - previousGasConsumed;
 
-        public NefFile? Nef { get; private set; }
-        public JObject? Manifest { get; private set; }
-        public JObject? DebugInfo { get; private set; }
+        public NefFile Nef { get; private set; }
+        public JObject Manifest { get; private set; }
+        public JObject DebugInfo { get; private set; }
 
         internal BuildScript? ScriptContext { get; set; }
         internal DataCache InitSnapshot { get; private set; }
@@ -247,13 +247,26 @@ namespace Neo.TestingEngine
             executedScriptHash = EntryScriptHash;
             previousGasConsumed = GasConsumed;
             var context = InvocationStack.Pop();
+            ExecutionContext? callingContext = null;
+
+            // Mock Calling Script Hash
+            if (callingScriptHash is not null)
+            {
+                callingContext = context;
+                var callingState = context.GetState<ExecutionContextState>();
+                callingState.Contract ??= new ContractState() { Hash = callingScriptHash };
+                callingState.ScriptHash = callingScriptHash;
+            }
+
             context = CreateContext(context.Script, rvcount, offset);
             LoadContext(context);
+
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState() { Nef = contract };
             contextState.ScriptHash = ScriptContext?.ScriptHash;
-            contextState.CallingScriptHash = callingScriptHash;
+            contextState.CallingContext = callingContext;
+
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
@@ -269,7 +282,7 @@ namespace Neo.TestingEngine
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
-                this.CurrentContext.CurrentInstruction.OpCode);
+                this.CurrentContext.CurrentInstruction?.OpCode);
                 this.ExecuteNext();
             }
             return this.ResultStack;

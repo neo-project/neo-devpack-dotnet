@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             testEngine.Reset();
             var abi = testEngine.Manifest["abi"];
-            var property = abi["methods"].GetArray()[0];
+            var property = abi["methods"][0];
             Assert.AreEqual("symbol", property["name"].GetString());
         }
     }

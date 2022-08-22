@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.TestingEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
