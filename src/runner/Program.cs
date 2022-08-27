@@ -22,7 +22,7 @@ using Nito.Disposables;
 namespace Neo.Test.Runner
 {
     [Command("neo-test-runner", Description = "Neo N3 smart contract runner for unit testing", UsePagerForHelpText = false)]
-
+    [VersionOption(ThisAssembly.AssemblyInformationalVersion)]
     class Program
     {
         static Task<int> Main(string[] args)
@@ -62,19 +62,10 @@ namespace Neo.Test.Runner
         [Option(Description = "Contracts to include in storage results")]
         public string[] Storages { get; } = Array.Empty<string>();
 
-        [Option("--version", Description = "Show version information.")]
-        bool Version { get; }
-
         internal async Task<int> OnExecuteAsync(CommandLineApplication app, IConsole console, IFileSystem fileSystem)
         {
             try
             {
-                if (Version)
-                {
-                    await app.Out.WriteLineAsync(ThisAssembly.AssemblyInformationalVersion);
-                    return 0;
-                }
-
                 DebugInfo? debugInfo = string.IsNullOrEmpty(NefFile)
                     ? null
                     : (await DebugInfo.LoadAsync(NefFile, fileSystem: fileSystem))
