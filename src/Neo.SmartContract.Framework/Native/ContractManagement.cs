@@ -22,6 +22,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern UInt160 Hash { get; }
         public static extern long GetMinimumDeploymentFee();
         public static extern Contract GetContract(UInt160 hash);
+        public static extern bool HasMethod(UInt160 hash, string method, int pcount);
         public static extern Contract Deploy(ByteString nefFile, string manifest);
         public static extern Contract Deploy(ByteString nefFile, string manifest, object data);
         public static extern void Update(ByteString nefFile, string manifest);
