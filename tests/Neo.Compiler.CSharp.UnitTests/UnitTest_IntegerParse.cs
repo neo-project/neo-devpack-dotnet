@@ -299,7 +299,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.AddEntryScript("./TestClasses/Contract_IntegerParse.cs");
             string methodname = "testLongparse";
 
-            var result = testengine.ExecuteTestCaseStandard(methodname, " -9223372036854775808");
+            var result = testengine.ExecuteTestCaseStandard(methodname, "-9223372036854775808");
             var value = result.Pop().GetInteger();
             Assert.AreEqual(long.MinValue, value);
 
