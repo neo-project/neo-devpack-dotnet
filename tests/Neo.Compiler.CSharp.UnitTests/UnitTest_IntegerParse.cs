@@ -16,26 +16,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "127");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(127, value);
+            Assert.AreEqual(sbyte.MaxValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-128");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(-128, value);
+            Assert.AreEqual(sbyte.MinValue, value);
 
             //test backspace trip
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "128");
@@ -77,26 +73,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "0");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
+            Assert.AreEqual(byte.MinValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "255");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(255, value);
+            Assert.AreEqual(byte.MaxValue, value);
 
             //test backspace trip
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-1");
@@ -138,26 +130,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "0");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
+            Assert.AreEqual(ushort.MinValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "65535");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(65535, value);
+            Assert.AreEqual(ushort.MaxValue, value);
 
             //test backspace trip
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-1");
@@ -199,26 +187,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "-32768");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(-32768, value);
+            Assert.AreEqual(short.MinValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "32767");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(32767, value);
+            Assert.AreEqual(short.MaxValue, value);
 
             //test backspace trip
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-32769");
@@ -260,26 +244,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "18446744073709551615");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(18446744073709551615, value);
+            Assert.AreEqual(ulong.MaxValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "0");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
+            Assert.AreEqual(ulong.MinValue, value);
 
             //test backspace trip
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "18446744073709551616");
@@ -321,27 +301,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, " -9223372036854775808");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(-9223372036854775808, value);
+            Assert.AreEqual(long.MinValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "9223372036854775807");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(9223372036854775807, value);
+            Assert.AreEqual(long.MaxValue, value);
 
             //test backspace trip
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
-
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-9223372036854775809");
@@ -383,25 +358,21 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "4294967295");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(4294967295, value);
+            Assert.AreEqual(uint.MaxValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "0");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
+            Assert.AreEqual(uint.MinValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-1");
@@ -443,25 +414,21 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "2147483647");
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(2147483647, value);
+            Assert.AreEqual(int.MaxValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "-2147483648");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(-2147483648, value);
+            Assert.AreEqual(int.MinValue, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(20, value);
+            Assert.AreEqual(VMState.FAULT, testengine.State);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard(methodname, "2147483648");
