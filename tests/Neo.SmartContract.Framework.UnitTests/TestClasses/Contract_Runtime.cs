@@ -139,7 +139,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static int DynamicSum(int a, int b)
         {
             ByteString script = (ByteString)new byte[] { 0x9E }; // ADD
-            return (int)Runtime.LoadScript(script, CallFlags.All, a, b);
+            return (int)Runtime.LoadScript(script, CallFlags.All, new object[] { a, b });
         }
     }
 }
