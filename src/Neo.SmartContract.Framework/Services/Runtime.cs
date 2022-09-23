@@ -105,5 +105,8 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.GetNetwork")]
         public static extern uint GetNetwork();
+
+        [Syscall("System.Runtime.LoadScript")]
+        public static extern object LoadScript(ByteString script, CallFlags flags, params object[] args);
     }
 }

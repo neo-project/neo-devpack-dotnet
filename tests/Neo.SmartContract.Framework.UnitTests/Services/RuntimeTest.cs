@@ -107,6 +107,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_LoadScript()
+        {
+            var result = _engine.ExecuteTestCaseStandard("dynamicSum", new StackItem[] { new Integer(1), new Integer(3) });
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(4, item.GetInteger());
+        }
+
+        [TestMethod]
         public void Test_Time()
         {
             var result = _engine.ExecuteTestCaseStandard("getTime");
