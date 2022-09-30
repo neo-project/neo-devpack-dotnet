@@ -449,15 +449,22 @@ namespace Neo.TestingEngine
 
         private static TestBlock BlockFromJson(JToken blockJson)
         {
-            var transactions = blockJson["transactions"] as JArray;
+            JObject blockJsonObject = (JObject)blockJson;
+            var transactions = blockJsonObject["transactions"] as JArray;
 
-            if (!uint.TryParse(blockJson["index"].AsString(), out var blockIndex))
+            if (!uint.TryParse(blockJsonObject["index"].AsString(), out var blockIndex))
             {
                 throw new FormatException(GetInvalidTypeMessage("uint", "blockIndex"));
             }
-            if (!ulong.TryParse(blockJson["timestamp"].AsString(), out var blockTimestamp))
+            if (!ulong.TryParse(blockJsonObject["timestamp"].AsString(), out var blockTimestamp))
             {
                 throw new FormatException(GetInvalidTypeMessage("ulong", "blockTimestamp"));
+            }
+
+            UInt256? blockHash;
+            if (!blockJsonObject.ContainsProperty("hash") || !UInt256.TryParse(blockJsonObject["hash"].AsString(), out blockHash))
+            {
+                blockHash = null;
             }
 
             var txStates = transactions.Select(tx => TxStateFromJson(tx)).ToArray();
@@ -471,7 +478,7 @@ namespace Neo.TestingEngine
                 Transactions = txStates.Select(tx => tx.Transaction).ToArray()
             };
 
-            return new TestBlock(block, txStates);
+            return new TestBlock(block, txStates, blockHash);
         }
 
         private static Transaction TxFromJson(JToken txJson)

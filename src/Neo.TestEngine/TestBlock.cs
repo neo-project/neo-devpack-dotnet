@@ -16,11 +16,13 @@ namespace Neo.TestingEngine
     public class TestBlock
     {
         internal Block Block { get; }
+        internal UInt256? Hash { get; }
         internal TransactionState[] Transactions { get; }
 
-        public TestBlock(Block block, TransactionState[] txs)
+        public TestBlock(Block block, TransactionState[] txs, UInt256? blockHash = null)
         {
             Block = block;
+            Hash = blockHash;
             Transactions = txs;
         }
     }
