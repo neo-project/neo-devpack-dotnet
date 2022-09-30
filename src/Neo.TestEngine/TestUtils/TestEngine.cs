@@ -15,6 +15,7 @@ using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;
@@ -171,7 +172,7 @@ namespace Neo.TestingEngine
             LoadContext(context);
 
             var mockedNef = new TestNefFile(script);
-            ExecuteTestCaseStandard(0, (ushort)rvcount, mockedNef, new StackItem[0]);
+            ExecuteTestCaseStandard(0, (ushort)rvcount, mockedNef, new ContractManifest(), new StackItem[0]);
         }
 
         public void Reset()
@@ -225,24 +226,29 @@ namespace Neo.TestingEngine
 
         public EvaluationStack ExecuteTestCaseStandard(string methodname, params StackItem[] args)
         {
-            return ExecuteTestCaseStandard(methodname, Nef, args);
+            return ExecuteTestCaseStandard(methodname, Nef, ContractManifest.FromJson(Manifest), args);
         }
 
         public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, params StackItem[] args)
+        {
+            return ExecuteTestCaseStandard(methodname, contract, ContractManifest.FromJson(Manifest), args);
+        }
+
+        public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, ContractManifest manifest, params StackItem[] args)
         {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
             var rvcount = GetMethodReturnCount(methodname);
             if (rvcount == -1) throw new Exception("Can't find method return count : " + methodname);
-            return ExecuteTestCaseStandard(offset, (ushort)rvcount, contract, args);
+            return ExecuteTestCaseStandard(offset, (ushort)rvcount, contract, manifest, args);
         }
 
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, params StackItem[] args)
         {
-            return ExecuteTestCaseStandard(offset, rvcount, Nef, args);
+            return ExecuteTestCaseStandard(offset, rvcount, Nef, ContractManifest.FromJson(Manifest), args);
         }
 
-        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, ContractManifest manifest, params StackItem[] args)
         {
             executedScriptHash = EntryScriptHash;
             previousGasConsumed = GasConsumed;
@@ -263,7 +269,7 @@ namespace Neo.TestingEngine
 
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
-            contextState.Contract ??= new ContractState() { Nef = contract };
+            contextState.Contract ??= new ContractState() { Nef = contract, Manifest = manifest };
             contextState.ScriptHash = ScriptContext?.ScriptHash;
             contextState.CallingContext = callingContext;
 
