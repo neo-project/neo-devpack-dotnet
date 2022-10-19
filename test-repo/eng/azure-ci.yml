@@ -1,0 +1,64 @@
+variables:
+  isMainBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  isReleaseBranch: $[startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')]
+  azureArtifactsBranch: $[or(eq(variables.isMainBranch, true), eq(variables.isReleaseBranch, true))]
+  nugetOrgBranch: $[eq(variables.isReleaseBranch, true)]
+
+trigger:
+  batch: false
+  branches:
+    include:
+    - main
+    - release/*
+  paths:
+    include:
+    - '*'
+    exclude:
+    - 'readme.md'
+    - 'changelog.md'
+    - 'docs/*'
+
+stages:
+- stage: build
+  variables:
+    buildConfiguration: Release
+  jobs:
+  - job:
+    pool:
+      vmImage: 'ubuntu-20.04'
+    workspace:
+      clean: all
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: 'restore'
+        feedsToUse: 'select'
+        vstsFeed: 'c96908c2-e4b5-4c77-b955-4b690f24380b/9e84eb49-63f0-4b48-a8c4-039901073643'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        command: 'test'
+        arguments: '--no-restore'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet pack'
+      inputs:
+        command: 'pack'
+        packagesToPack: 'src/**/*.csproj'
+        includesymbols: true
+        versioningScheme: 'off'
+    - publish: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'publish build artifact'
+      artifact: NugetPackage
+    - task: NuGetCommand@2
+      displayName: 'publish packages to azure artifacts'
+      condition: and(succeeded(), eq(variables.azureArtifactsBranch, true))
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: 'c96908c2-e4b5-4c77-b955-4b690f24380b/9e84eb49-63f0-4b48-a8c4-039901073643'

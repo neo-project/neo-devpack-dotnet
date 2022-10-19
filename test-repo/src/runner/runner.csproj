@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>neo-test-runner</AssemblyName>
+    <Description>neo-test-runner is a utility for executing contract unit tests in an emulated Neo blockchain environment</Description>
+    <OutputType>Exe</OutputType>
+    <PackageId>Neo.Test.Runner</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <RootNamespace>Neo.Test.Runner</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.1" />
+    <PackageReference Include="Nito.Disposables" Version="2.3.0" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(BlockchainToolkitLibraryVersion)' == 'local'">
+      <ItemGroup>
+        <ProjectReference Include="$(BlockchainToolkitLibraryLocalPath)\src\bctklib\bctklib.csproj" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Neo.BlockchainToolkit.Library" Version="$(BlockchainToolkitLibraryVersion)" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+</Project>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="NeoBuildTasksFolder;NeoBuildTasksAssembly">
+
+  <PropertyGroup>
+    <NeoBuildTasksFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netstandard2.0</NeoBuildTasksFolder>
+    <NeoBuildTasksFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</NeoBuildTasksFolder>
+    <_NeoBuildTasksAssemblyPath>$([MSBuild]::ValueOrDefault('$(NeoBuildTasksAssembly)', '$(MSBuildThisFileDirectory)..\tasks\$(NeoBuildTasksFolder)\neo-build-tasks.dll'))</_NeoBuildTasksAssemblyPath>
+  </PropertyGroup>
+
+  <UsingTask AssemblyFile="$(_NeoBuildTasksAssemblyPath)" TaskName="Neo.BuildTasks.NeoContractInterface"/>
+  <UsingTask AssemblyFile="$(_NeoBuildTasksAssemblyPath)" TaskName="Neo.BuildTasks.NeoCsc"/>
+  <UsingTask AssemblyFile="$(_NeoBuildTasksAssemblyPath)" TaskName="Neo.BuildTasks.NeoExpressBatch"/>
+
+  <Target Name="ConfigureNeoCsc">
+    <PropertyGroup>
+      <NeoCscOutputFolder Condition="'$(NeoContractOutput)'==''">$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), 'bin\sc'))</NeoCscOutputFolder>
+      <NeoCscOutputFolder Condition="'$(NeoContractOutput)'!=''">$(NeoContractOutput)</NeoCscOutputFolder>
+
+      <NeoCscContractPath>$([MSBuild]::NormalizePath($(NeoCscOutputFolder), '$(NeoContractName).nef'))</NeoCscContractPath>
+      <NeoCscManifestPath>$([MSBuild]::NormalizePath($(NeoCscOutputFolder), '$(NeoContractName).manifest.json'))</NeoCscManifestPath>
+      <NeoCscDebugInfoPath>$([MSBuild]::NormalizePath($(NeoCscOutputFolder), '$(NeoContractName).nefdbgnfo'))</NeoCscDebugInfoPath>
+      <NeoCscAssemblyPath>$([MSBuild]::NormalizePath($(NeoCscOutputFolder), '$(NeoContractName).asm'))</NeoCscAssemblyPath>
+
+      <NeoCscOptimize>true</NeoCscOptimize>
+      <NeoCscOptimize Condition="'$(Configuration)'=='Debug'">false</NeoCscOptimize>
+      <NeoCscDebugInfo Condition="'$(NeoCscDebugInfo)'==''">true</NeoCscDebugInfo>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <NeoCscOutput Include="$(NeoCscContractPath)" />
+      <NeoCscOutput Include="$(NeoCscManifestPath)" />
+      <NeoCscOutput Include="$(NeoCscDebugInfoPath)" Condition="'$(NeoCscDebugInfo)'=='true'" />
+      <NeoCscOutput Include="$(NeoCscAssemblyPath)" Condition="'$(NeoContractAssembly)'=='true'"/>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ExecuteNeoCsc" AfterTargets="Compile" 
+    DependsOnTargets="ConfigureNeoCsc"
+    Condition="'$(NeoContractName)'!=''"
+    Inputs="$(MSBuildProjectFullPath);@(Compile);" Outputs="@(NeoCscOutput)">
+
+    <NeoCsc 
+      Assembly="$(NeoContractAssembly)"
+      BaseFileName="$(NeoContractName)"
+      Debug="$(NeoCscDebugInfo)"
+      Inline="$(NeoCscOptimize)"
+      Optimize="$(NeoCscOptimize)"
+      Output="$(NeoContractOutput)"
+      Sources="$(MSBuildProjectFullPath)"
+      WorkingDirectory="$(MSBuildProjectDirectory)"/>
+  </Target>
+
+  <Target Name="NeoCscMessage" AfterTargets="ExecuteNeoCsc" Condition="'$(NeoContractName)'!=''">
+    <Message Importance="High" Text="$(NeoContractName) -&gt; $(NeoCscContractPath)" />
+  </Target>
+
+  <Target Name="GetNeoContractInfo" Returns="@(NeoContractInfo)" DependsOnTargets="ConfigureNeoCsc">
+    <ItemGroup Condition="'$(NeoContractName)'!=''" >
+      <NeoContractInfo Include="$(NeoContractName)">
+        <NefPath>$(NeoCscContractPath)</NefPath>
+        <ManifestPath>$(NeoCscManifestPath)</ManifestPath>
+      </NeoContractInfo>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ConfigureNeoExpressBatch">
+    <PropertyGroup>
+      <NeoExpressTouchFile>$([MSBuild]::NormalizePath($(IntermediateOutputPath), '$(NeoExpressBatchFile).neoxp.touch'))</NeoExpressTouchFile>
+      <NeoExpressNormalizedBatchFile>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), $(NeoExpressBatchFile)))</NeoExpressNormalizedBatchFile>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="ExecuteNeoExpressBatch"
+    AfterTargets="Build" 
+    DependsOnTargets="ConfigureNeoExpressBatch;ExecuteNeoCsc"
+    Condition="'$(NeoExpressBatchFile)'!=''"
+    Inputs="@(NeoCscOutput);$(NeoExpressBatchFile);$(NeoExpressTouchFile)" Outputs="$(NeoExpressTouchFile)">
+
+    <PropertyGroup>
+      <NeoExpressBatchReset>true</NeoExpressBatchReset>
+      <NeoExpressBatchReset Condition="'$(NeoExpressBatchNoReset)'=='true'">false</NeoExpressBatchReset>
+    </PropertyGroup>
+
+    <NeoExpressBatch 
+      BatchFile="$(NeoExpressNormalizedBatchFile)" 
+      InputFile="$(NeoExpressBatchInputFile)"
+      Reset="$(NeoExpressBatchReset)"
+      Checkpoint="$(NeoExpressBatchCheckpoint)"
+      Trace="$(NeoExpressBatchTrace)"
+      StackTrace="$(NeoExpressBatchStackTrace)"
+      WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Touch Files="$(NeoExpressTouchFile)" AlwaysCreate="true" />
+
+    <Message Importance="High" Text="NeoExpress Batch -> $(NeoExpressNormalizedBatchFile)" />
+  </Target>
+
+  <!-- 
+    dotnet build happens in two phases: Restore and Build
+
+    Restore phase
+      _GetAllRestoreProjectPathItems target recursively invokes the _GenerateRestoreProjectPathWalk target on the current project
+      _GenerateRestoreProjectPathWalk depends eventually depends on _GenerateRestoreProjectPathItemsPerFramework target which takes @(ProjectReference) as input
+    RestoreNeoContractReferences adds NeoContractReference items to ProjectReference items before _GenerateRestoreProjectPathItemsPerFramework runs
+
+    Build phase
+      ResolveProjectReferences will build all projects in @(_MSBuildProjectReferenceExistent)
+      ResolveProjectReferences depends on PrepareProjectReferences, which in turn depends on AssignProjectConfiguration
+    RestoreNeoContractReferences adds NeoContractReference items to ProjectReference items before AssignProjectConfiguration runs
+  -->
+
+  <Target Name="RestoreNeoContractReferences"
+          Condition="'@(NeoContractReference)'!=''"
+          BeforeTargets="_GenerateRestoreProjectPathItemsPerFramework;AssignProjectConfiguration">
+    <ItemGroup>
+      <ProjectReference Include="@(NeoContractReference)" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PrepareNeoContractReferences"
+          Condition="'@(NeoContractReference)'!=''"
+          BeforeTargets="ResolveProjectReferences">
+
+    <MSBuild Projects="@(NeoContractReference)" Targets="GetNeoContractInfo">
+      <Output TaskParameter="TargetOutputs" ItemName="_NeoContractReferenceInfo" />
+    </MSBuild>
+
+    <ItemGroup>
+      <NeoContractGeneration Include="%(_NeoContractReferenceInfo.Identity)">
+        <ManifestPath>%(ManifestPath)</ManifestPath>
+        <ContractNameOverride>$([MSBuild]::ValueOrDefault('%(_NeoContractReferenceInfo.ContractNameOverride)', ''))</ContractNameOverride>
+      </NeoContractGeneration>
+    </ItemGroup>
+
+    <Message Importance="High" Text="PrepareNeoContractReferences @(_NeoContractReferenceInfo) -> %(ManifestPath)" />
+  </Target>
+
+  <Target Name="PrepareNeoContractGeneration"
+          Condition="'@(NeoContractGeneration)'!=''"
+          BeforeTargets="GenerateNeoContractInterface"
+          AfterTargets="PrepareNeoContractReferences">
+
+    <ItemGroup>
+      <NeoContractGeneration Include="@(NeoContractGeneration)">
+        <OutputPath>$([MSBuild]::ValueOrDefault('%(NeoContractGeneration.OutputPath)', '$(IntermediateOutputPath)%(Identity).contract-interface.cs'))</OutputPath>
+        <ContractNameOverride>$([MSBuild]::ValueOrDefault('%(NeoContractGeneration.ContractNameOverride)', ''))</ContractNameOverride>
+      </NeoContractGeneration>
+    </ItemGroup>
+
+  </Target>
+
+  <Target Name="GenerateNeoContractInterface" 
+          AfterTargets="ResolveProjectReferences"
+          DependsOnTargets="PrepareNeoContractGeneration"
+          Inputs="%(NeoContractGeneration.ManifestPath)" 
+          Outputs="%(NeoContractGeneration.OutputPath)">
+
+    <Message Importance="High" Text="Generating %(NeoContractGeneration.OutputPath)" />
+
+    <NeoContractInterface
+      ManifestFile="%(NeoContractGeneration.ManifestPath)"
+      OutputFile="%(NeoContractGeneration.OutputPath)"
+      RootNamespace="$(RootNamespace)"
+      ContractNameOverride="%(ContractNameOverride)" />
+
+    <ItemGroup>
+      <Compile Include="%(NeoContractGeneration.OutputPath)" />
+    </ItemGroup>
+
+  </Target>
+
+</Project>

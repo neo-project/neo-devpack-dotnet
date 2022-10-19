@@ -1,0 +1,202 @@
+using System;
+using Xunit;
+
+namespace build_tasks
+{
+    public class TestNeoManifest
+    {
+        [Fact]
+        public void parse_sample_manifest()
+        {
+            var json = SimpleJSON.JSON.Parse(MANIFEST) ?? throw new InvalidOperationException();
+            var manifest = Neo.BuildTasks.NeoManifest.FromManifestJson(json);
+            Assert.Equal("DevHawk.Contracts.ApocToken", manifest.Name);
+            Assert.Equal(13, manifest.Methods.Count);
+            Assert.Equal(1, manifest.Events.Count);
+        }
+
+        const string MANIFEST = @"{
+    ""groups"": [],
+    ""abi"": {
+        ""methods"": [
+            {
+                ""name"": ""_initialize"",
+                ""offset"": ""0"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""balanceOf"",
+                ""offset"": ""95"",
+                ""safe"": false,
+                ""parameters"": [
+                    {
+                        ""name"": ""account"",
+                        ""type"": ""Hash160""
+                    }
+                ],
+                ""returntype"": ""Integer""
+            },
+            {
+                ""name"": ""decimals"",
+                ""offset"": ""213"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Integer""
+            },
+            {
+                ""name"": ""deploy"",
+                ""offset"": ""236"",
+                ""safe"": false,
+                ""parameters"": [
+                    {
+                        ""name"": ""update"",
+                        ""type"": ""Boolean""
+                    }
+                ],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""destroy"",
+                ""offset"": ""455"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""disablePayment"",
+                ""offset"": ""578"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""enablePayment"",
+                ""offset"": ""667"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""onPayment"",
+                ""offset"": ""1245"",
+                ""safe"": false,
+                ""parameters"": [
+                    {
+                        ""name"": ""from"",
+                        ""type"": ""Hash160""
+                    },
+                    {
+                        ""name"": ""amount"",
+                        ""type"": ""Integer""
+                    },
+                    {
+                        ""name"": ""data"",
+                        ""type"": ""Any""
+                    }
+                ],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""symbol"",
+                ""offset"": ""1705"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""String""
+            },
+            {
+                ""name"": ""totalSupply"",
+                ""offset"": ""1712"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Integer""
+            },
+            {
+                ""name"": ""transfer"",
+                ""offset"": ""1719"",
+                ""safe"": false,
+                ""parameters"": [
+                    {
+                        ""name"": ""from"",
+                        ""type"": ""Hash160""
+                    },
+                    {
+                        ""name"": ""to"",
+                        ""type"": ""Hash160""
+                    },
+                    {
+                        ""name"": ""amount"",
+                        ""type"": ""Integer""
+                    },
+                    {
+                        ""name"": ""data"",
+                        ""type"": ""Any""
+                    }
+                ],
+                ""returntype"": ""Boolean""
+            },
+            {
+                ""name"": ""update"",
+                ""offset"": ""2098"",
+                ""safe"": false,
+                ""parameters"": [
+                    {
+                        ""name"": ""nefFile"",
+                        ""type"": ""ByteArray""
+                    },
+                    {
+                        ""name"": ""manifest"",
+                        ""type"": ""String""
+                    }
+                ],
+                ""returntype"": ""Void""
+            },
+            {
+                ""name"": ""verify"",
+                ""offset"": ""2214"",
+                ""safe"": false,
+                ""parameters"": [],
+                ""returntype"": ""Boolean""
+            }
+        ],
+        ""events"": [
+            {
+                ""name"": ""Transfer"",
+                ""parameters"": [
+                    {
+                        ""name"": ""arg1"",
+                        ""type"": ""Hash160""
+                    },
+                    {
+                        ""name"": ""arg2"",
+                        ""type"": ""Hash160""
+                    },
+                    {
+                        ""name"": ""arg3"",
+                        ""type"": ""Integer""
+                    }
+                ]
+            }
+        ]
+    },
+    ""permissions"": [
+        {
+            ""contract"": ""*"",
+            ""methods"": ""*""
+        }
+    ],
+    ""trusts"": [],
+    ""name"": ""DevHawk.Contracts.ApocToken"",
+    ""supportedstandards"": [
+        ""NEP17"",
+        ""NEP10""
+    ],
+    ""extra"": {
+        ""Author"": ""Harry Pierson"",
+        ""Email"": ""harrypierson@hotmail.com"",
+        ""Description"": ""This is a NEP17 example""
+    }
+}";
+    }
+}
