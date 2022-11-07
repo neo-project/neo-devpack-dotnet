@@ -91,7 +91,7 @@ namespace Neo.TestingEngine
 
             if (engine.ScriptContext?.Success == true)
             {
-                var hash = engine.Nef.Script.Span.ToScriptHash();
+                var hash = TestHelper.GetContractHash(engine.Nef.CheckSum, ContractManifest.FromJson(engine.Manifest).Name);
                 var snapshot = engine.Snapshot;
 
                 ContractState state;

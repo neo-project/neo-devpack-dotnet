@@ -13,6 +13,7 @@ using Neo.Compiler;
 using Neo.IO;
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System.Collections.Generic;
 using System.IO;
 
@@ -37,7 +38,8 @@ namespace Neo.TestingEngine
 
             if (originHash is null && nefFile != null)
             {
-                originHash = Nef.Script.Span.ToScriptHash();
+                ContractManifest parsedManifest = ContractManifest.FromJson(manifestJson);
+                originHash = TestHelper.GetContractHash(nefFile.CheckSum, parsedManifest.Name);
             }
             ScriptHash = originHash;
         }

@@ -137,7 +137,7 @@ namespace Neo.TestingEngine
 
         public bool AddEntryScript(BuildScript script)
         {
-            var contractHash = script.Nef.Script.Span.ToScriptHash();
+            var contractHash = TestHelper.GetContractHash(script.Nef.CheckSum, ContractManifest.FromJson(script.Manifest).Name);
             var contract = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
 
             if (contract != null)
@@ -188,7 +188,11 @@ namespace Neo.TestingEngine
                 this.LoadScript(Nef.Script);
                 // Mock contract
                 var contextState = CurrentContext.GetState<ExecutionContextState>();
-                contextState.Contract ??= new ContractState { Nef = Nef };
+                var contractManifest = ContractManifest.FromJson(Manifest);
+                var contractHash = TestHelper.GetContractHash(Nef.CheckSum, contractManifest.Name);
+
+                contextState.Contract ??= new ContractState { Nef = Nef, Manifest = contractManifest, Hash = contractHash };
+                contextState.ScriptHash = contractHash;
             }
         }
 
