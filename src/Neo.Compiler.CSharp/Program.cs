@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2022 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -127,26 +127,26 @@ namespace Neo.Compiler
             if (context.Success)
             {
                 string baseName = options.BaseName ?? context.ContractName!;
-                folder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                Directory.CreateDirectory(folder);
-                string path = Path.Combine(folder, $"{baseName}.nef");
+                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                Directory.CreateDirectory(outputFolder);
+                string path = Path.Combine(outputFolder, $"{baseName}.nef");
                 File.WriteAllBytes(path, context.CreateExecutable().ToArray());
                 Console.WriteLine($"Created {path}");
-                path = Path.Combine(folder, $"{baseName}.manifest.json");
+                path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
                 File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
-                    path = Path.Combine(folder, $"{baseName}.nefdbgnfo");
+                    path = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                     using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
-                    stream.Write(context.CreateDebugInformation().ToByteArray(false));
+                    stream.Write(context.CreateDebugInformation(folder).ToByteArray(false));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
-                    path = Path.Combine(folder, $"{baseName}.asm");
+                    path = Path.Combine(outputFolder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
                 }
