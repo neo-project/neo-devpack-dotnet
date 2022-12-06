@@ -21,6 +21,14 @@ namespace Neo.SmartContract.Framework
         PUSHINT128 = 0x04,
         PUSHINT256 = 0x05,
         /// <summary>
+        /// Pushes the boolean value <see langword="true"/> onto the stack.
+        /// </summary>
+        PUSHT = 0x08,
+        /// <summary>
+        /// Pushes the boolean value <see langword="false"/> onto the stack.
+        /// </summary>
+        PUSHF = 0x09,
+        /// <summary>
         /// Convert the next four bytes to an address, and push the address onto the stack.
         /// </summary>
         PUSHA = 0x0A,
