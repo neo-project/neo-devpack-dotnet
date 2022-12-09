@@ -463,23 +463,19 @@ namespace Neo.TestingEngine
                 throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
             }
 
-            WitnessScope scopes;
             if (!accountJson.ContainsProperty("scopes"))
             {
-                scopes = WitnessScope.CalledByEntry;
-            }
-            else if (!Enum.TryParse(accountJson["scopes"].AsString(), out scopes))
-            {
-                throw new FormatException(GetInvalidTypeMessage("WitnessScope", "signerScope"));
+                accountJson["scopes"] = WitnessScope.CalledByEntry.ToString();
             }
 
+            var parsedSigner = Signer.FromJson(accountJson);
             return new Signer()
             {
-                Account = signerAccount,
-                Scopes = scopes,
-                AllowedContracts = new UInt160[] { },
-                AllowedGroups = new Cryptography.ECC.ECPoint[] { },
-                Rules = new WitnessRule[] { }
+                Account = parsedSigner.Account,
+                Scopes = parsedSigner.Scopes,
+                AllowedContracts = parsedSigner.AllowedContracts ?? new UInt160[0],
+                AllowedGroups = parsedSigner.AllowedGroups ?? new Cryptography.ECC.ECPoint[0],
+                Rules = parsedSigner.Rules ?? new WitnessRule[0]
             };
         }
 
