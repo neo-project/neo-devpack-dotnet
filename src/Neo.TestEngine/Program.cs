@@ -216,33 +216,7 @@ namespace Neo.TestingEngine
                 // tx signers
                 if (json.ContainsProperty("signeraccounts") && json["signeraccounts"] is JArray accounts)
                 {
-                    smartContractTestCase.signers = accounts.Select(account =>
-                    {
-                        JObject accountJson = (JObject)account;
-                        if (!UInt160.TryParse(accountJson["account"].AsString(), out var newAccount))
-                        {
-                            throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
-                        }
-
-                        WitnessScope scopes;
-                        if (!accountJson.ContainsProperty("scopes"))
-                        {
-                            scopes = WitnessScope.CalledByEntry;
-                        }
-                        else if (!Enum.TryParse(accountJson["scopes"].AsString(), out scopes))
-                        {
-                            throw new FormatException(GetInvalidTypeMessage("WitnessScope", "signerScope"));
-                        }
-
-                        return new Signer()
-                        {
-                            Account = newAccount,
-                            Scopes = scopes,
-                            AllowedContracts = new UInt160[] { },
-                            AllowedGroups = new Cryptography.ECC.ECPoint[] { },
-                            Rules = new WitnessRule[] { }
-                        };
-                    }).ToArray();
+                    smartContractTestCase.signers = accounts.Select(account => SignerFromJson(account)).ToArray();
                 }
 
                 // calling script hash
@@ -481,6 +455,34 @@ namespace Neo.TestingEngine
             return new TestBlock(block, txStates, blockHash);
         }
 
+        private static Signer SignerFromJson(JToken signerJson)
+        {
+            JObject accountJson = (JObject)signerJson;
+            if (!UInt160.TryParse(accountJson["account"].AsString(), out var signerAccount))
+            {
+                throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
+            }
+
+            WitnessScope scopes;
+            if (!accountJson.ContainsProperty("scopes"))
+            {
+                scopes = WitnessScope.CalledByEntry;
+            }
+            else if (!Enum.TryParse(accountJson["scopes"].AsString(), out scopes))
+            {
+                throw new FormatException(GetInvalidTypeMessage("WitnessScope", "signerScope"));
+            }
+
+            return new Signer()
+            {
+                Account = signerAccount,
+                Scopes = scopes,
+                AllowedContracts = new UInt160[] { },
+                AllowedGroups = new Cryptography.ECC.ECPoint[] { },
+                Rules = new WitnessRule[] { }
+            };
+        }
+
         private static Transaction TxFromJson(JToken txJson)
         {
             JObject txJsonObject = (JObject)txJson;
@@ -490,22 +492,7 @@ namespace Neo.TestingEngine
 
             if (txJsonObject.ContainsProperty("signers") && txJsonObject["signers"] is JArray signersJson)
             {
-                accounts = signersJson.Select(p =>
-                {
-                    if (!UInt160.TryParse(p["account"].AsString(), out var signerAccount))
-                    {
-                        throw new FormatException(GetInvalidTypeMessage("UInt160", "signerAccount"));
-                    }
-
-                    return new Signer()
-                    {
-                        Account = signerAccount,
-                        Scopes = WitnessScope.CalledByEntry,
-                        AllowedContracts = new UInt160[] { },
-                        AllowedGroups = new Cryptography.ECC.ECPoint[] { },
-                        Rules = new WitnessRule[] { }
-                    };
-                }).ToArray();
+                accounts = signersJson.Select(p => SignerFromJson(p)).ToArray();
             }
             else
             {

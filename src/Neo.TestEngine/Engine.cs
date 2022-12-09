@@ -213,7 +213,7 @@ namespace Neo.TestingEngine
                     newSigners.Add(signer);
                     wallet.AddSignerAccount(signer.Account);
                 }
-                currentTx.Signers = newSigners.Concat(currentTx.Signers).ToArray();
+                currentTx.Signers = newSigners.ToArray();
             }
             return this;
         }

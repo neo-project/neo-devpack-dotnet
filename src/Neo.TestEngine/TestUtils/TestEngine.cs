@@ -257,15 +257,18 @@ namespace Neo.TestingEngine
             executedScriptHash = EntryScriptHash;
             previousGasConsumed = GasConsumed;
             var context = InvocationStack.Pop();
-            ExecutionContext? callingContext = null;
+            ExecutionContext? callingContext = context;
+            var callingState = context.GetState<ExecutionContextState>();
 
             // Mock Calling Script Hash
             if (callingScriptHash is not null)
             {
-                callingContext = context;
-                var callingState = context.GetState<ExecutionContextState>();
                 callingState.Contract ??= new ContractState() { Hash = callingScriptHash };
                 callingState.ScriptHash = callingScriptHash;
+            }
+            else if (ScriptContainer is Transaction currentTx)  // Mock Signer Script Hash
+            {
+                callingState.ScriptHash = currentTx.Signers[0].Account;
             }
 
             context = CreateContext(context.Script, rvcount, offset);
