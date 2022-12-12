@@ -13,14 +13,49 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
+using Neo.VM;
+using Neo.VM.Types;
 using System;
 using System.Linq;
+using Array = Neo.VM.Types.Array;
 
 namespace Neo.TestingEngine
 {
     public static class TestExtensions
     {
         private const byte Prefix_NextAvailableId = 15;
+
+        public static StackItem ToStackItem(this ContractParameter parameter, ReferenceCounter referenceCounter)
+        {
+            var stackItem = parameter.ToStackItem();
+            return SetReferenceCounter(stackItem, referenceCounter);
+        }
+
+        private static StackItem SetReferenceCounter(StackItem stackItem, ReferenceCounter referenceCounter)
+        {
+            if (stackItem is CompoundType)
+            {
+                if (stackItem is Map map)
+                {
+                    var newStackItem = new Map(referenceCounter);
+                    foreach (var (key, value) in map)
+                    {
+                        newStackItem[key] = value;
+                    }
+                    stackItem = newStackItem;
+                }
+                else if (stackItem is Array array)
+                {
+                    stackItem = new Array(referenceCounter, array.SubItems);
+                }
+                else if (stackItem is Struct stackStruct)
+                {
+                    stackItem = new Struct(referenceCounter, stackStruct);
+                }
+            }
+
+            return stackItem;
+        }
 
         public static void ContractAdd(this DataCache snapshot, ContractState contract)
         {
@@ -51,13 +86,13 @@ namespace Neo.TestingEngine
 
             var method = typeof(ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
-            engine.LoadScript(Array.Empty<byte>());
+            engine.LoadScript(System.Array.Empty<byte>());
             method.Invoke(NativeContract.ContractManagement, new object[] { engine });
             engine.Snapshot.InnerCommit();
 
             var method2 = typeof(LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
-            engine.LoadScript(Array.Empty<byte>());
+            engine.LoadScript(System.Array.Empty<byte>());
             method2.Invoke(NativeContract.Ledger, new object[] { engine });
             engine.Snapshot.InnerCommit();
         }

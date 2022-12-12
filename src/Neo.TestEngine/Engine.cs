@@ -313,7 +313,7 @@ namespace Neo.TestingEngine
                 snapshot.SetCurrentBlockHash(lastBlock.Index, lastBlock.Hash);
             }
 
-            var stackItemsArgs = args.Select(a => a.ToStackItem()).ToArray();
+            var stackItemsArgs = args.Select(a => a.ToStackItem(engine.ReferenceCounter)).ToArray();
             if (engine.ScriptContext is BuildNative native)
             {
                 byte[] script;

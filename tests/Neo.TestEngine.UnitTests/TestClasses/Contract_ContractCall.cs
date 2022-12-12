@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.TestEngine.UnitTests.TestClasses
 {
-    [Contract("0x4281dd379f0831b4131f9bc3433299e4fda02e68")]
+    [Contract("0xfaf5e0e43f3fdeb58cdae3c1630a1db650b05403")]
     public class Contract1
     {
         public static extern byte[] testArgs1(byte a);
