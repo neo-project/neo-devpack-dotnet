@@ -263,7 +263,6 @@ namespace Neo.TestingEngine
                 }
 
                 Engine.Instance.IncreaseBlockCount(smartContractTest.currentHeight);
-                Engine.Instance.SetSigners(smartContractTest.signers);
 
                 if (smartContractTest.currentTx != null)
                 {
@@ -280,6 +279,7 @@ namespace Neo.TestingEngine
                     Engine.Instance.SetEntryScript(smartContractTest.scriptHash);
                 }
 
+                Engine.Instance.SetSigners(smartContractTest.signers);
                 if (smartContractTest.callingScriptHash != null)
                 {
                     Engine.Instance.SetCallingScript(smartContractTest.callingScriptHash);
