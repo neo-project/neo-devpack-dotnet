@@ -9,6 +9,7 @@ namespace Neo.TestingEngine
         {
             using var sb = new ScriptBuilder();
             sb.Emit(OpCode.ABORT);
+            sb.EmitPush(Engine.Instance.Sender);
             sb.EmitPush(nefCheckSum);
             sb.EmitPush(name);
 

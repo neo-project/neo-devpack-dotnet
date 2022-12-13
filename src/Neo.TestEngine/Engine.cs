@@ -41,6 +41,7 @@ namespace Neo.TestingEngine
 
         private TestEngine engine;
         private Transaction? currentTx = null;
+        public UInt160 Sender => currentTx?.Sender;
         private ECPoint PubKey => wallet.DefaultAccount.GetKey().PublicKey;
         private TestWallet wallet;
 
