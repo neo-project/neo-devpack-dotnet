@@ -100,16 +100,16 @@ namespace Neo.SmartContract.Framework.Services
         public static extern Iterator Find(StorageContext context, byte[] prefix, FindOptions options = FindOptions.None);
 
 #pragma Interface with default Context
-        public static ByteString Get(ByteString key)=> Get(CurrentContext, key);
-        public static ByteString Get(byte[] key)=> Get(CurrentContext, key);
-        public static void Put(ByteString key, ByteString value)=> Put(CurrentContext, key, value);
-        public static void Put(byte[] key, ByteString value)=> Put(CurrentContext, key, value);
-        public static void Put(byte[] key, byte[] value)=> Put(CurrentContext, key, value);
-        public static void Put(ByteString key, BigInteger value)=> Put(CurrentContext, key, value);
-        public static void Put(byte[] key, BigInteger value)=> Put(CurrentContext, key, value);
-        public static void Delete(ByteString key)=> Delete(CurrentContext, key);
-        public static void Delete(byte[] key)=> Delete(CurrentContext, key);
-        public static Iterator Find(ByteString prefix, FindOptions options = FindOptions.None)=> Find(CurrentContext, prefix, options);
-        public static Iterator Find(byte[] prefix, FindOptions options = FindOptions.None)=> Find(CurrentContext, prefix, options);
+        public static ByteString Get(ByteString key) => Get(CurrentContext, key);
+        public static ByteString Get(byte[] key) => Get(CurrentContext, key);
+        public static void Put(ByteString key, ByteString value) => Put(CurrentContext, key, value);
+        public static void Put(byte[] key, ByteString value) => Put(CurrentContext, key, value);
+        public static void Put(byte[] key, byte[] value) => Put(CurrentContext, key, value);
+        public static void Put(ByteString key, BigInteger value) => Put(CurrentContext, key, value);
+        public static void Put(byte[] key, BigInteger value) => Put(CurrentContext, key, value);
+        public static void Delete(ByteString key) => Delete(CurrentContext, key);
+        public static void Delete(byte[] key) => Delete(CurrentContext, key);
+        public static Iterator Find(ByteString prefix, FindOptions options = FindOptions.None) => Find(CurrentContext, prefix, options);
+        public static Iterator Find(byte[] prefix, FindOptions options = FindOptions.None) => Find(CurrentContext, prefix, options);
     }
 }
