@@ -99,7 +99,7 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Storage.Find")]
         public static extern Iterator Find(StorageContext context, byte[] prefix, FindOptions options = FindOptions.None);
 
-#pragma Interface with default Context
+#region Interface with default Context
         public static ByteString Get(ByteString key) => Get(CurrentReadOnlyContext, key);
         public static ByteString Get(byte[] key) => Get(CurrentReadOnlyContext, key);
         public static void Put(ByteString key, ByteString value) => Put(CurrentContext, key, value);
@@ -111,5 +111,6 @@ namespace Neo.SmartContract.Framework.Services
         public static void Delete(byte[] key) => Delete(CurrentContext, key);
         public static Iterator Find(ByteString prefix, FindOptions options = FindOptions.None) => Find(CurrentReadOnlyContext, prefix, options);
         public static Iterator Find(byte[] prefix, FindOptions options = FindOptions.None) => Find(CurrentReadOnlyContext, prefix, options);
+#endregion
     }
 }
