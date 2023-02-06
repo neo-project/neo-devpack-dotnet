@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.SmartContract;
 using System.Linq;
 
@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             testEngine.AddEntryScript("./TestClasses/Contract_Event.cs");
 
             var debugInfo = testEngine.DebugInfo;
-            Assert.AreEqual(testEngine.Nef.Script.ToScriptHash().ToString(), debugInfo["hash"].GetString());
+            Assert.AreEqual(testEngine.Nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"].GetString());
             Assert.IsTrue(debugInfo.ContainsProperty("documents"));
             Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
             Assert.IsTrue((debugInfo["documents"] as JArray).Count > 0);

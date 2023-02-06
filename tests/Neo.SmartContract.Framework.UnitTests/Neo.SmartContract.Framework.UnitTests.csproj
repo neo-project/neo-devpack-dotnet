@@ -1,15 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <IsPackable>false</IsPackable>
     <RootNamespace>Neo.SmartContract.Framework.UnitTests</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageReference Include="Moq" Version="4.17.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj" />

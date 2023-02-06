@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
@@ -485,7 +485,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse(item.GetBoolean());
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new VM.Types.Boolean(true));
+            result = testengine.ExecuteTestCaseStandard("validateAddress", StackItem.True);
             Assert.AreEqual(1, result.Count);
             item = result.Pop();
             Assert.IsFalse(item.GetBoolean());

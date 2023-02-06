@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -3928,6 +3928,11 @@ namespace Neo.Compiler
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.POW);
+                    return true;
+                case "System.Numerics.BigInteger.ModPow(System.Numerics.BigInteger, System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MODPOW);
                     return true;
                 case "System.Numerics.BigInteger.ToByteArray()":
                     if (instanceExpression is not null)
