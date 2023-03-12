@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj" />
+    <ProjectReference Include="..\..\src\Neo.UnitTest.Framework\Neo.UnitTest.Framework.csproj"/>
     <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyTitle>Neo.UnitTest.Framework</AssemblyTitle>
+        <AssemblyName>Neo.UnitTest.Framework</AssemblyName>
+        <PackageId>Neo.UnitTest.Framework</PackageId>
+        <PackageTags>NEO;Blockchain</PackageTags>
+        <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
+        <Description>Neo.UnitTest.Framework</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj"/>
+        <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+            <Aliases>scfx</Aliases>
+        </ProjectReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="**/*.cs">
+            <Pack>true</Pack>
+            <PackagePath>src</PackagePath>
+        </Compile>
+    </ItemGroup>
+
+</Project>
