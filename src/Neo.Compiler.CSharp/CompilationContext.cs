@@ -149,6 +149,12 @@ namespace Neo.Compiler
 
         internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
+            if (IsSingleAbstractClass(sourceFiles))
+            {
+                Console.Error.WriteLine("The source file does not contain a valid neo Smart Contract");
+                Environment.Exit(-2);
+            };
+
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
@@ -565,6 +571,17 @@ namespace Neo.Compiler
                 vtables.Add(type, index);
             }
             return index;
+        }
+
+        private static bool IsSingleAbstractClass(IEnumerable<string> sourceFiles)
+        {
+            if (sourceFiles.Count() != 1) return false;
+
+            var sourceFile = sourceFiles.Single();
+            var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(sourceFile));
+            var classDeclarations = tree.GetCompilationUnitRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
+
+            return classDeclarations.Count == 1 && classDeclarations[0].Modifiers.Any(SyntaxKind.AbstractKeyword);
         }
     }
 }
