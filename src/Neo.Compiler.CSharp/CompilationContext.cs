@@ -149,11 +149,7 @@ namespace Neo.Compiler
 
         internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
-            if (IsSingleAbstractClass(sourceFiles))
-            {
-                Console.Error.WriteLine("The source file does not contain a valid neo Smart Contract");
-                Environment.Exit(-2);
-            };
+            if (IsSingleAbstractClass(sourceFiles)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
 
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
