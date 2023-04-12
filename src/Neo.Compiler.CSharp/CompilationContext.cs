@@ -149,9 +149,9 @@ namespace Neo.Compiler
 
         internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
-            if (IsSingleAbstractClass(sourceFiles)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
-
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
+            if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
+
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
@@ -569,12 +569,11 @@ namespace Neo.Compiler
             return index;
         }
 
-        private static bool IsSingleAbstractClass(IEnumerable<string> sourceFiles)
+        private static bool IsSingleAbstractClass(IEnumerable<SyntaxTree> syntaxTrees)
         {
-            if (sourceFiles.Count() != 1) return false;
+            if (syntaxTrees.Count() != 1) return false;
 
-            var sourceFile = sourceFiles.Single();
-            var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(sourceFile));
+            var tree = syntaxTrees.First();
             var classDeclarations = tree.GetCompilationUnitRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
 
             return classDeclarations.Count == 1 && classDeclarations[0].Modifiers.Any(SyntaxKind.AbstractKeyword);
