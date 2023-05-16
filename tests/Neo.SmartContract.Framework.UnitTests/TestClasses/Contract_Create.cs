@@ -3,8 +3,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-
-    public class Contract_Create : SmartContract
+   public class Contract_Create : SmartContract
     {
         public static string OldContract()
         {
