@@ -9,5 +9,17 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return ContractManagement.GetContract(Runtime.ExecutingScriptHash).Manifest.Name;
         }
+
+        public static Contract GetContractById(int id)
+        {
+            return ContractManagement.GetContractById(id);
+        }
+
+        public static object GetContractHashes()
+        {
+            var iter = ContractManagement.GetContractHashes();
+            iter.Next();
+            return iter.Value.Item2;
+        }
     }
 }
