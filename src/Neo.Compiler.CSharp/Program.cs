@@ -54,7 +54,7 @@ namespace Neo.Compiler
                         command.Invoke("--help");
                     }
                 }
-                catch (Exception)
+                catch (UnauthorizedAccessException)
                 {
                     Console.Error.WriteLine("Unauthorized to access the project directory, or no project is specified. Please ensure you have the proper permissions and a project is specified.");
                 }
