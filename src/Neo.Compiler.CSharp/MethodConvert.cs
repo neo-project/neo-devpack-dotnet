@@ -59,6 +59,9 @@ namespace Neo.Compiler
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
         public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
+        public bool IsEmpty => _instructions.Count == 0
+            || (_instructions.Count == 1 && _instructions[^1].OpCode == OpCode.RET)
+            || (_instructions.Count == 2 && _instructions[^1].OpCode == OpCode.RET && _instructions[0].OpCode == OpCode.INITSLOT);
 
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
@@ -157,7 +160,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                ConvertModifier(model);
+                var modifiers = ConvertModifier(model).ToArray();
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -181,15 +184,31 @@ namespace Neo.Compiler
                         });
                     }
                 }
+                foreach (var (fieldIndex, attribute) in modifiers)
+                {
+                    var disposeInstruction = ExitModifier(model, fieldIndex, attribute);
+                    if (disposeInstruction is not null && _returnTarget.Instruction is null)
+                    {
+                        _returnTarget.Instruction = disposeInstruction;
+                    }
+                }
             }
-            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+            if (_returnTarget.Instruction is null)
             {
-                _instructions[^1].OpCode = OpCode.RET;
-                _returnTarget.Instruction = _instructions[^1];
+                if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+                {
+                    _instructions[^1].OpCode = OpCode.RET;
+                    _returnTarget.Instruction = _instructions[^1];
+                }
+                else
+                {
+                    _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                }
             }
             else
             {
-                _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                // it comes from modifier clean up
+                AddInstruction(OpCode.RET);
             }
             if (!context.Options.NoOptimize)
                 Optimizer.RemoveNops(_instructions);
@@ -444,7 +463,7 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertModifier(SemanticModel model)
+        private IEnumerable<(byte fieldIndex, AttributeData attribute)> ConvertModifier(SemanticModel model)
         {
             foreach (var attribute in Symbol.GetAttributesWithInherited())
             {
@@ -467,14 +486,25 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.STSFLD, fieldIndex);
 
                 notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
-                var validateSymbol = attribute.AttributeClass.GetAllMembers()
+                var enterSymbol = attribute.AttributeClass.GetAllMembers()
                     .OfType<IMethodSymbol>()
-                    .Where(p => p.Name == nameof(ModifierAttribute.Validate))
-                    .Where(u => u.Parameters.Length == 0)
-                    .First();
-                MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
-                EmitCall(validateMethod);
+                    .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
+                MethodConvert enterMethod = context.ConvertMethod(model, enterSymbol);
+                EmitCall(enterMethod);
+                yield return (fieldIndex, attribute);
             }
+        }
+
+        private Instruction? ExitModifier(SemanticModel model, byte fieldIndex, AttributeData attribute)
+        {
+            var exitSymbol = attribute.AttributeClass!.GetAllMembers()
+                .OfType<IMethodSymbol>()
+                .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
+            MethodConvert exitMethod = context.ConvertMethod(model, exitSymbol);
+            if (exitMethod.IsEmpty) return null;
+            var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+            EmitCall(exitMethod);
+            return instruction;
         }
 
         private void ConvertSource(SemanticModel model)

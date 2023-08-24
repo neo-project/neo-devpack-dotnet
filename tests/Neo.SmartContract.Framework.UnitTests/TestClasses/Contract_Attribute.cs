@@ -13,10 +13,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             owner = (UInt160)(byte[])StdLib.Base64Decode(hex);
         }
 
-        public override void Validate()
+        public override void Enter()
         {
             if (!Runtime.CheckWitness(owner)) throw new System.Exception();
         }
+
+        public override void Exit() { }
     }
 
     public class Contract_Attribute : SmartContract
@@ -25,6 +27,16 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static bool test()
         {
             return true;
+        }
+
+        [NoReentrant]
+        public void reentrantTest(int value)
+        {
+            if (value == 0) return;
+            if (value == 123)
+            {
+                reentrantTest(0);
+            }
         }
     }
 }
