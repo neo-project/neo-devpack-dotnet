@@ -44,12 +44,21 @@ namespace Neo.Compiler
         {
             if (paths is null || paths.Length == 0)
             {
-                context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
-                if (context.ExitCode == 2)
+                // catch Unhandled exception: System.Reflection.TargetInvocationException
+                try
                 {
-                    // Display help without args
-                    command.Invoke("--help");
+                    context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
+                    if (context.ExitCode == 2)
+                    {
+                        // Display help without args
+                        command.Invoke("--help");
+                    }
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.Error.WriteLine("Unauthorized to access the project directory, or no project is specified. Please ensure you have the proper permissions and a project is specified.");
+                }
+
                 return;
             }
             paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
