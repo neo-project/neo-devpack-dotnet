@@ -67,6 +67,37 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void TestModPow()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("modMultiply", 4, 7, 6);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(4, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("modInverse", 3, 26);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(9, item.GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("modPow", 23895, 15, 14189);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(344, item.GetInteger());
+        }
+
+        [TestMethod]
         public void TestBigIntegerParseandCast()
         {
             _engine.Reset();
@@ -91,7 +122,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var logList = new List<string>();
             var logsMethod = new System.EventHandler<LogEventArgs>((object sender, LogEventArgs e) => { logList.Add(e.Message); });
             ApplicationEngine.Log += logsMethod;
-            var result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(true));
+            var result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.True);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
@@ -100,7 +131,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(logList.Count, 0);
 
             _engine.Reset(); logList.Clear();
-            result = _engine.ExecuteTestCaseStandard("assertCall", new Boolean(false));
+            result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.False);
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
             Assert.AreEqual(logList.Count, 1);
@@ -109,13 +140,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Void With extension
 
             _engine.Reset(); logList.Clear();
-            result = _engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(true));
+            result = _engine.ExecuteTestCaseStandard("voidAssertCall", StackItem.True);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(logList.Count, 0);
             Assert.AreEqual(0, result.Count);
 
             _engine.Reset(); logList.Clear();
-            result = _engine.ExecuteTestCaseStandard("voidAssertCall", new Boolean(false));
+            result = _engine.ExecuteTestCaseStandard("voidAssertCall", StackItem.False);
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(logList.Count, 0);
             Assert.AreEqual(0, result.Count);

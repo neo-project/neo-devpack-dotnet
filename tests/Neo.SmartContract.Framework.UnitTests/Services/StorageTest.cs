@@ -21,8 +21,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1,
                 testengine.Snapshot.GetChangeSet()
                 .Count(a =>
-                    a.Key.Key.SequenceEqual(Concat(prefix, key)) &&
-                    a.Item.Value.SequenceEqual(value)));
+                    a.Key.Key.Span.SequenceEqual(Concat(prefix, key)) &&
+                    a.Item.Value.Span.SequenceEqual(value)));
         }
 
         private static byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var rItem = result.Pop();
             Assert.IsInstanceOfType(rItem, typeof(VM.Types.Buffer));
             ReadOnlySpan<byte> data = rItem.GetSpan();
-            Assert.AreEqual(1, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
+            Assert.AreEqual(1, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.Span.SequenceEqual(Concat(prefix, key))));
             return data.ToArray();
         }
 
@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var result = testengine.ExecuteTestCaseStandard(method, new VM.Types.ByteString(key));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(0, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.SequenceEqual(Concat(prefix, key))));
+            Assert.AreEqual(0, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.Span.SequenceEqual(Concat(prefix, key))));
         }
 
         private TestEngine testengine;
@@ -51,11 +51,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Init()
         {
             var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot();
+            var snapshot = system.GetSnapshot().CreateSnapshot();
 
-            testengine = new TestEngine(snapshot: snapshot.CreateSnapshot());
+            testengine = new TestEngine(snapshot: snapshot);
             testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
-            testengine.Snapshot.ContractAdd(new ContractState()
+            snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
                 Nef = testengine.Nef,

@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
-            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().AsSerializable<NefFile>().ToJson().AsString()); // Nef
+            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
             var ritem = new ContractManifest();
             ((IInteroperable)ritem).FromStackItem(itemArray[4]);
             Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
@@ -71,6 +71,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual(manifest.Name, item.GetString());
+
+            //getContractById
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "getContractById", (byte)CallFlags.All, new Array() { 1 });
+            itemArray = result.Pop() as Array;
+            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
+            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
+            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
+            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
+
+            //getContractHashes
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "getContractHashes", (byte)CallFlags.All, new Array());
+            Assert.AreEqual(hash.ToArray(), result.Pop()); // Hash
 
             // Destroy
 
@@ -124,7 +138,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
             Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
             Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
-            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().AsSerializable<NefFile>().ToJson().AsString()); // Nef
+            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
             var ritem = new ContractManifest();
             ((IInteroperable)ritem).FromStackItem(itemArray[4]);
             Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
@@ -137,7 +151,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             nef.Tokens = engine.Nef.Tokens;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All,
-                new Array(new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));
+                new Array(_engine.ReferenceCounter, new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
 

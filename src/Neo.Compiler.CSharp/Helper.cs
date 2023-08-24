@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -130,6 +130,23 @@ namespace Neo.Compiler
             };
         }
 
+        public static AttributeData? GetAttributeFromSelfOrParent(this IMethodSymbol symbol, string name)
+        {
+            ISymbol? i = symbol;
+            do
+            {
+                (AttributeData? attribute, i) = i switch
+                {
+                    IMethodSymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.MethodKind == MethodKind.PropertyGet || s.MethodKind == MethodKind.PropertySet ? s.AssociatedSymbol : s.ContainingSymbol),
+                    IPropertySymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.ContainingSymbol),
+                    INamedTypeSymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.ContainingSymbol),
+                    _ => (i.GetAttributes().FirstOrDefault(p => p.AttributeClass?.Name == name), i.ContainingSymbol),
+                };
+                if (attribute != null) return attribute;
+            } while (i != null);
+            return null;
+        }
+
         public static IEnumerable<AttributeData> GetAttributesWithInherited(this INamedTypeSymbol symbol)
         {
             foreach (var attribute in symbol.GetAttributes())
@@ -170,6 +187,27 @@ namespace Neo.Compiler
                     }
                 }
                 overriddenMethod = overriddenMethod.OverriddenMethod;
+            }
+        }
+
+        public static IEnumerable<AttributeData> GetAttributesWithInherited(this IPropertySymbol symbol)
+        {
+            foreach (var attribute in symbol.GetAttributes())
+            {
+                yield return attribute;
+            }
+
+            var overriddenProperty = symbol.OverriddenProperty;
+            while (overriddenProperty != null)
+            {
+                foreach (var attribute in overriddenProperty.GetAttributes())
+                {
+                    if (IsInherited(attribute))
+                    {
+                        yield return attribute;
+                    }
+                }
+                overriddenProperty = overriddenProperty.OverriddenProperty;
             }
         }
 

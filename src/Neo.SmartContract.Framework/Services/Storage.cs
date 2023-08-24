@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -98,5 +98,19 @@ namespace Neo.SmartContract.Framework.Services
         /// </summary>
         [Syscall("System.Storage.Find")]
         public static extern Iterator Find(StorageContext context, byte[] prefix, FindOptions options = FindOptions.None);
+
+        #region Interface with default Context
+        public static ByteString Get(ByteString key) => Get(CurrentReadOnlyContext, key);
+        public static ByteString Get(byte[] key) => Get(CurrentReadOnlyContext, key);
+        public static void Put(ByteString key, ByteString value) => Put(CurrentContext, key, value);
+        public static void Put(byte[] key, ByteString value) => Put(CurrentContext, key, value);
+        public static void Put(byte[] key, byte[] value) => Put(CurrentContext, key, value);
+        public static void Put(ByteString key, BigInteger value) => Put(CurrentContext, key, value);
+        public static void Put(byte[] key, BigInteger value) => Put(CurrentContext, key, value);
+        public static void Delete(ByteString key) => Delete(CurrentContext, key);
+        public static void Delete(byte[] key) => Delete(CurrentContext, key);
+        public static Iterator Find(ByteString prefix, FindOptions options = FindOptions.None) => Find(CurrentReadOnlyContext, prefix, options);
+        public static Iterator Find(byte[] prefix, FindOptions options = FindOptions.None) => Find(CurrentReadOnlyContext, prefix, options);
+        #endregion
     }
 }

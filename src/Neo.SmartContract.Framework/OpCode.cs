@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -20,6 +20,14 @@ namespace Neo.SmartContract.Framework
         PUSHINT64 = 0x03,
         PUSHINT128 = 0x04,
         PUSHINT256 = 0x05,
+        /// <summary>
+        /// Pushes the boolean value <see langword="true"/> onto the stack.
+        /// </summary>
+        PUSHT = 0x08,
+        /// <summary>
+        /// Pushes the boolean value <see langword="false"/> onto the stack.
+        /// </summary>
+        PUSHF = 0x09,
         /// <summary>
         /// Convert the next four bytes to an address, and push the address onto the stack.
         /// </summary>
@@ -624,6 +632,14 @@ namespace Neo.SmartContract.Framework
         /// Returns the square root of a specified number.
         /// </summary>
         SQRT = 0xA4,
+        /// <summary>
+        /// Performs modulus division on a number multiplied by another number.
+        /// </summary>
+        MODMUL = 0xA5,
+        /// <summary>
+        /// Performs modulus division on a number raised to the power of another number. If the exponent is -1, it will have the calculation of the modular inverse.
+        /// </summary>
+        MODPOW = 0xA6,
         /// <summary>
         /// Shifts a left b bits, preserving sign.
         /// </summary>
