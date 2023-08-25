@@ -2027,7 +2027,9 @@ namespace Neo.Compiler
         private void EmitComplexAssignmentOperator(ITypeSymbol type, SyntaxToken operatorToken)
         {
             bool isBoolean = type.SpecialType == SpecialType.System_Boolean;
-            bool isString = type.GetStackItemType() == VM.Types.StackItemType.ByteString;
+            var itemType = type.GetStackItemType();
+            bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
+            bool isString = itemType == VM.Types.StackItemType.ByteString;
             AddInstruction(operatorToken.ValueText switch
             {
                 "+=" => isString ? OpCode.CAT : OpCode.ADD,
