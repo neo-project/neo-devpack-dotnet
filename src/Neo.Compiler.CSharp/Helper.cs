@@ -109,9 +109,12 @@ namespace Neo.Compiler
                 SpecialType.System_UInt32 => StackItemType.Integer,
                 SpecialType.System_Int64 => StackItemType.Integer,
                 SpecialType.System_UInt64 => StackItemType.Integer,
+                SpecialType.System_String => StackItemType.ByteString,
                 _ => type.Name switch
                 {
+                    "byte[]" => StackItemType.Buffer,
                     nameof(BigInteger) => StackItemType.Integer,
+                    nameof(ByteString) => StackItemType.ByteString,
                     _ => StackItemType.Any
                 }
             };
