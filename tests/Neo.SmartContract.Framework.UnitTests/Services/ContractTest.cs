@@ -72,6 +72,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual(manifest.Name, item.GetString());
 
+            //getContractById
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "getContractById", (byte)CallFlags.All, new Array() { 1 });
+            itemArray = result.Pop() as Array;
+            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
+            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
+            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
+            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
+
+            //getContractHashes
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "getContractHashes", (byte)CallFlags.All, new Array());
+            Assert.AreEqual(hash.ToArray(), result.Pop()); // Hash
+
             // Destroy
 
             _engine.Reset();

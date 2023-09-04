@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -20,6 +20,14 @@ namespace Neo.SmartContract.Framework
         PUSHINT64 = 0x03,
         PUSHINT128 = 0x04,
         PUSHINT256 = 0x05,
+        /// <summary>
+        /// Pushes the boolean value <see langword="true"/> onto the stack.
+        /// </summary>
+        PUSHT = 0x08,
+        /// <summary>
+        /// Pushes the boolean value <see langword="false"/> onto the stack.
+        /// </summary>
+        PUSHF = 0x09,
         /// <summary>
         /// Convert the next four bytes to an address, and push the address onto the stack.
         /// </summary>

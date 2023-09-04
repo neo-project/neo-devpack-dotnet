@@ -1,10 +1,10 @@
-// Copyright (C) 2015-2021 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+// Copyright (C) 2015-2023 The Neo Project.
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -44,12 +44,21 @@ namespace Neo.Compiler
         {
             if (paths is null || paths.Length == 0)
             {
-                context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
-                if (context.ExitCode == 2)
+                // catch Unhandled exception: System.Reflection.TargetInvocationException
+                try
                 {
-                    // Display help without args
-                    command.Invoke("--help");
+                    context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
+                    if (context.ExitCode == 2)
+                    {
+                        // Display help without args
+                        command.Invoke("--help");
+                    }
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.Error.WriteLine("Unauthorized to access the project directory, or no project is specified. Please ensure you have the proper permissions and a project is specified.");
+                }
+
                 return;
             }
             paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
@@ -127,26 +136,26 @@ namespace Neo.Compiler
             if (context.Success)
             {
                 string baseName = options.BaseName ?? context.ContractName!;
-                folder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                Directory.CreateDirectory(folder);
-                string path = Path.Combine(folder, $"{baseName}.nef");
+                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                Directory.CreateDirectory(outputFolder);
+                string path = Path.Combine(outputFolder, $"{baseName}.nef");
                 File.WriteAllBytes(path, context.CreateExecutable().ToArray());
                 Console.WriteLine($"Created {path}");
-                path = Path.Combine(folder, $"{baseName}.manifest.json");
+                path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
                 File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
-                    path = Path.Combine(folder, $"{baseName}.nefdbgnfo");
+                    path = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                     using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
-                    stream.Write(context.CreateDebugInformation().ToByteArray(false));
+                    stream.Write(context.CreateDebugInformation(folder).ToByteArray(false));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
-                    path = Path.Combine(folder, $"{baseName}.asm");
+                    path = Path.Combine(outputFolder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
                 }

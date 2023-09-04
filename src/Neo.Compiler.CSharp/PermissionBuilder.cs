@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -8,7 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.IO.Json;
+using Neo.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -77,7 +77,7 @@ namespace Neo.Compiler
                     permissions.Add(new JObject
                     {
                         ["contract"] = group.Key,
-                        ["methods"] = new JArray(group.OrderBy(p => p).Select(p => (JString)p))
+                        ["methods"] = new JArray(group.OrderBy(p => p).Select(p => (JString)p!))
                     });
                 foreach (string hash in wildcardHashes.OrderBy(p => p))
                     permissions.Add(new JObject
@@ -89,7 +89,7 @@ namespace Neo.Compiler
                     permissions.Add(new JObject
                     {
                         ["contract"] = "*",
-                        ["methods"] = new JArray(wildcardMethods.OrderBy(p => p).Select(p => (JString)p))
+                        ["methods"] = new JArray(wildcardMethods.OrderBy(p => p).Select(p => (JString)p!))
                     });
             }
             return permissions;

@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -109,9 +109,12 @@ namespace Neo.Compiler
                 SpecialType.System_UInt32 => StackItemType.Integer,
                 SpecialType.System_Int64 => StackItemType.Integer,
                 SpecialType.System_UInt64 => StackItemType.Integer,
+                SpecialType.System_String => StackItemType.ByteString,
                 _ => type.Name switch
                 {
+                    "byte[]" => StackItemType.Buffer,
                     nameof(BigInteger) => StackItemType.Integer,
+                    nameof(ByteString) => StackItemType.ByteString,
                     _ => StackItemType.Any
                 }
             };

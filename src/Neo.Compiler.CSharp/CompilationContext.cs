@@ -1,10 +1,10 @@
-// Copyright (C) 2015-2022 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+// Copyright (C) 2015-2023 The Neo Project.
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -13,8 +13,9 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using Neo.Cryptography.ECC;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.SmartContract;
 using System;
 using System.Collections.Generic;
@@ -149,6 +150,8 @@ namespace Neo.Compiler
         internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
+            if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
+
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
@@ -181,14 +184,14 @@ namespace Neo.Compiler
                 WorkingDirectory = folder
             })!.WaitForExit();
             string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
-            JObject assets = JObject.Parse(File.ReadAllBytes(assetsPath));
-            foreach (var (name, package) in assets["targets"][0].Properties)
+            JObject assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
+            foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
             {
-                MetadataReference? reference = GetReference(name, package, assets, folder, options, compilationOptions);
+                MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, options, compilationOptions);
                 if (reference is not null) references.Add(reference);
             }
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
-            return CSharpCompilation.Create(assets["project"]["restore"]["projectName"].GetString(), syntaxTrees, references, compilationOptions);
+            return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
         }
 
         private static MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
@@ -196,18 +199,18 @@ namespace Neo.Compiler
             string assemblyName = Path.GetDirectoryName(name)!;
             if (!metaReferences.TryGetValue(assemblyName, out var reference))
             {
-                switch (assets["libraries"][name]["type"].GetString())
+                switch (assets["libraries"]![name]!["type"]!.GetString())
                 {
                     case "package":
-                        string packagesPath = assets["project"]["restore"]["packagesPath"].GetString();
-                        string namePath = assets["libraries"][name]["path"].GetString();
-                        string[] files = assets["libraries"][name]["files"].GetArray()
-                            .Select(p => p.GetString())
+                        string packagesPath = assets["project"]!["restore"]!["packagesPath"]!.GetString();
+                        string namePath = assets["libraries"]![name]!["path"]!.GetString();
+                        string[] files = ((JArray)assets["libraries"]![name]!["files"]!)
+                            .Select(p => p!.GetString())
                             .Where(p => p.StartsWith("src/"))
                             .ToArray();
                         if (files.Length == 0)
                         {
-                            JObject dllFiles = package["compile"] ?? package["runtime"];
+                            JObject? dllFiles = (JObject?)(package["compile"] ?? package["runtime"]);
                             if (dllFiles is null) return null;
                             foreach (var (file, _) in dllFiles.Properties)
                             {
@@ -227,7 +230,7 @@ namespace Neo.Compiler
                         }
                         break;
                     case "project":
-                        string msbuildProject = assets["libraries"][name]["msbuildProject"].GetString();
+                        string msbuildProject = assets["libraries"]![name]!["msbuildProject"]!.GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
                         reference = GetCompilation(msbuildProject, options, out _).ToMetadataReference();
                         break;
@@ -304,7 +307,7 @@ namespace Neo.Compiler
                 ["name"] = ContractName,
                 ["groups"] = new JArray(),
                 ["features"] = new JObject(),
-                ["supportedstandards"] = supportedStandards.OrderBy(p => p).Select(p => (JString)p).ToArray(),
+                ["supportedstandards"] = supportedStandards.OrderBy(p => p).Select(p => (JString)p!).ToArray(),
                 ["abi"] = new JObject
                 {
                     ["methods"] = methodsExported.Select(p => new JObject
@@ -327,47 +330,64 @@ namespace Neo.Compiler
             };
         }
 
-        public JObject CreateDebugInformation()
+        public JObject CreateDebugInformation(string folder = "")
         {
-            string[] sourceLocations = GetSourceLocations(compilation).Distinct().ToArray();
-            return new JObject
+            List<string> documents = new();
+            List<JObject> methods = new();
+            foreach (var m in methodsConverted.Where(p => p.SyntaxNode is not null))
             {
-                ["hash"] = Script.ToScriptHash().ToString(),
-                ["documents"] = sourceLocations.Select(p => (JString)p).ToArray(),
-                ["static-variables"] = staticFields.OrderBy(p => p.Value).Select(p => (JString)$"{p.Key.Name},{p.Key.Type.GetContractParameterType()},{p.Value}").ToArray(),
-                ["methods"] = methodsConverted.Where(p => p.SyntaxNode is not null).Select(m => new JObject
+                List<JString> sequencePoints = new();
+                foreach (var ins in m.Instructions.Where(i => i.SourceLocation is not null))
+                {
+                    var doc = ins.SourceLocation!.SourceTree!.FilePath;
+                    if (!string.IsNullOrEmpty(folder))
+                    {
+                        doc = Path.GetRelativePath(folder, doc);
+                    }
+
+                    var index = documents.IndexOf(doc);
+                    if (index == -1)
+                    {
+                        index = documents.Count;
+                        documents.Add(doc);
+                    }
+
+                    FileLinePositionSpan span = ins.SourceLocation!.GetLineSpan();
+                    var str = $"{ins.Offset}[{index}]{ToRangeString(span.StartLinePosition)}-{ToRangeString(span.EndLinePosition)}";
+                    sequencePoints.Add(new JString(str));
+
+                    static string ToRangeString(LinePosition pos) => $"{pos.Line + 1}:{pos.Character + 1}";
+                }
+
+                methods.Add(new JObject
                 {
                     ["id"] = m.Symbol.ToString(),
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
                     ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : new string[] { "this,Any" })
                         .Concat(m.Symbol.Parameters.Select(p => $"{p.Name},{p.Type.GetContractParameterType()}"))
-                        .Select((p, i) => (JString)$"{p},{i}")
+                        .Select((p, i) => ((JString)$"{p},{i}")!)
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
-                    ["variables"] = m.Variables.Select(p => (JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}").ToArray(),
-                    ["sequence-points"] = m.Instructions.Where(p => p.SourceLocation is not null).Select(p =>
-                    {
-                        FileLinePositionSpan span = p.SourceLocation!.GetLineSpan();
-                        return (JString)$"{p.Offset}[{Array.IndexOf(sourceLocations, p.SourceLocation.SourceTree!.FilePath)}]{span.StartLinePosition.Line + 1}:{span.StartLinePosition.Character + 1}-{span.EndLinePosition.Line + 1}:{span.EndLinePosition.Character + 1}";
-                    }).ToArray()
-                }).ToArray(),
+                    ["variables"] = m.Variables.Select(p => ((JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}")!).ToArray(),
+                    ["sequence-points"] = sequencePoints.ToArray(),
+                });
+            }
+
+            return new JObject
+            {
+                ["hash"] = Script.ToScriptHash().ToString(),
+                ["documents"] = documents.Select(p => (JString)p!).ToArray(),
+                ["document-root"] = string.IsNullOrEmpty(folder) ? JToken.Null : folder,
+                ["static-variables"] = staticFields.OrderBy(p => p.Value).Select(p => ((JString)$"{p.Key.Name},{p.Key.Type.GetContractParameterType()},{p.Value}")!).ToArray(),
+                ["methods"] = methods.ToArray(),
                 ["events"] = eventsExported.Select(e => new JObject
                 {
                     ["id"] = e.Name,
                     ["name"] = $"{e.Symbol.ContainingType},{e.Symbol.Name}",
-                    ["params"] = e.Parameters.Select((p, i) => (JString)$"{p.Name},{p.Type},{i}").ToArray()
+                    ["params"] = e.Parameters.Select((p, i) => ((JString)$"{p.Name},{p.Type},{i}")!).ToArray()
                 }).ToArray()
             };
-        }
-
-        private static IEnumerable<string> GetSourceLocations(Compilation compilation)
-        {
-            foreach (SyntaxTree syntaxTree in compilation.SyntaxTrees)
-                yield return syntaxTree.FilePath;
-            foreach (CompilationReference reference in compilation.References.OfType<CompilationReference>())
-                foreach (string path in GetSourceLocations(reference.Compilation))
-                    yield return path;
         }
 
         private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)
@@ -547,6 +567,16 @@ namespace Neo.Compiler
                 vtables.Add(type, index);
             }
             return index;
+        }
+
+        private static bool IsSingleAbstractClass(IEnumerable<SyntaxTree> syntaxTrees)
+        {
+            if (syntaxTrees.Count() != 1) return false;
+
+            var tree = syntaxTrees.First();
+            var classDeclarations = tree.GetCompilationUnitRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
+
+            return classDeclarations.Count == 1 && classDeclarations[0].Modifiers.Any(SyntaxKind.AbstractKeyword);
         }
     }
 }

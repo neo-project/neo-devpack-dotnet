@@ -3,8 +3,11 @@ using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Manifest;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -36,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void attribute_test()
         {
-            var verificable = new DummyVerificable(new UInt160(new byte[20]));
+            var verificable = new DummyVerificable(UInt160.Zero);
             var snapshot = _system.GetSnapshot().CreateSnapshot();
 
             using var testengine = new TestEngine(TriggerType.Application, verificable, snapshot: snapshot);
@@ -53,7 +56,52 @@ namespace Neo.SmartContract.Framework.UnitTests
             result = testengine.ExecuteTestCaseStandard("test");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(0, result.Count);
-            testengine.Dispose();
+        }
+
+        [TestMethod]
+        public void reentrant_test()
+        {
+            var snapshot = _system.GetSnapshot().CreateSnapshot();
+            using var testengine = new TestEngine(TriggerType.Application, snapshot: snapshot);
+
+            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
+            snapshot.ContractAdd(new ContractState()
+            {
+                Id = 123,
+                Hash = testengine.EntryScriptHash,
+                Nef = testengine.Nef,
+                Manifest = ContractManifest.FromJson(testengine.Manifest)
+            });
+
+            // return in the middle
+
+            testengine.Reset();
+            var before = snapshot.GetChangeSet().Count();
+            var result = testengine.ExecuteTestCaseStandard("reentrantTest", 0);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(before, snapshot.GetChangeSet().Count());
+
+            // Method end
+
+            testengine.Reset();
+            before = snapshot.GetChangeSet().Count();
+            result = testengine.ExecuteTestCaseStandard("reentrantTest", 1);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(before, snapshot.GetChangeSet().Count());
+
+            // Reentrant test
+
+            var logs = new List<LogEventArgs>();
+            void logHandler(object sender, LogEventArgs e) => logs.Add(e);
+            ApplicationEngine.Log += logHandler;
+
+            testengine.Reset();
+            before = snapshot.GetChangeSet().Count();
+            result = testengine.ExecuteTestCaseStandard("reentrantTest", 123);
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+            Assert.AreEqual(before + 1, snapshot.GetChangeSet().Count());
+            Assert.AreEqual("Already entered", logs.First().Message);
+            ApplicationEngine.Log -= logHandler;
         }
     }
 }

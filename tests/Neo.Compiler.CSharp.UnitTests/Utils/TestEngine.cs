@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract;
@@ -165,7 +165,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
-                this.CurrentContext.CurrentInstruction.OpCode);
+                this.CurrentContext.CurrentInstruction?.OpCode);
                 this.ExecuteNext();
             }
             return this.ResultStack;

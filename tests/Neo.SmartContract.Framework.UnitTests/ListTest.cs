@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.IO.Json;
+using Neo.Json;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -107,11 +107,11 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
         }
 
-        static JObject ParseJson(StackItem item)
+        static JToken ParseJson(StackItem item)
         {
             Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
             var json = System.Text.Encoding.UTF8.GetString(item.GetSpan());
-            return JObject.Parse(json);
+            return JToken.Parse(json);
         }
     }
 }
