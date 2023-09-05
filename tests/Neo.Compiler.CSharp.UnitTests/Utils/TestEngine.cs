@@ -1,17 +1,18 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Neo.Json;
-using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.SmartContract;
-using Neo.VM;
-using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Neo.Json;
+using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
+using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
@@ -20,6 +21,8 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         public const long TestGas = 2000_00000000;
 
         private static readonly List<MetadataReference> references = new();
+
+        public event EventHandler<ExecutionContext> OnPreExecuteTestCaseStandard;
 
         public NefFile Nef { get; private set; }
         public JObject Manifest { get; private set; }
@@ -146,7 +149,12 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
-            contextState.Contract ??= new ContractState() { Nef = contract };
+            contextState.Contract ??= new ContractState()
+            {
+                Nef = contract,
+                Manifest = Manifest is not null ? ContractManifest.FromJson(Manifest) : null
+            };
+            OnPreExecuteTestCaseStandard?.Invoke(this, context);
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
