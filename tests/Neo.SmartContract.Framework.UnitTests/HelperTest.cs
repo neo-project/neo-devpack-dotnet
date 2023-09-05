@@ -142,7 +142,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             _engine.Reset(); logList.Clear();
             _engine.OnPreExecuteTestCaseStandard += RemoveAllowNotifyCallFlag;
             result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.False);
-            _engine.OnPreExecuteTestCaseStandard += RemoveAllowNotifyCallFlag;
+            _engine.OnPreExecuteTestCaseStandard -= RemoveAllowNotifyCallFlag;
 
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
