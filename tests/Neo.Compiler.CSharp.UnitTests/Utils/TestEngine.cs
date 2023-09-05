@@ -12,6 +12,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Block = Neo.Network.P2P.Payloads.Block;
+using ContractManifest = Neo.SmartContract.Manifest.ContractManifest;
+using TriggerType = Neo.SmartContract.TriggerType;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
@@ -146,7 +149,8 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
-            contextState.Contract ??= new ContractState() { Nef = contract };
+            ContractManifest manifest = ContractManifest.FromJson(Manifest);
+            contextState.Contract ??= new ContractState() { Nef = contract, Manifest = manifest };
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
