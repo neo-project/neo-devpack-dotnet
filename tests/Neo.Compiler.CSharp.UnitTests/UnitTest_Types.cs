@@ -417,18 +417,18 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
             Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(0, testengine.Notifications.Count);
+            Assert.AreEqual(1, result.Count); // Hash can be retrived here
 
             testengine.Reset();
 
             result = testengine.ExecuteTestCaseStandard("call", hash.ToArray(), "checkEvent", (int)CallFlags.All, new Array());
             //result = testengine.ExecuteTestCaseStandard("checkEvent");
             Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(1, testengine.Notifications.Count);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(Null.Null, result.Pop());
+            Assert.AreEqual(2, testengine.Notifications.Count);
 
-            var item = testengine.Notifications.First();
+            var item = testengine.Notifications.Last();
 
             Assert.AreEqual(1, item.State.Count);
             Assert.AreEqual("dummyEvent", item.EventName);
