@@ -91,17 +91,12 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Reentrant test
 
-            var logs = new List<LogEventArgs>();
-            void logHandler(object sender, LogEventArgs e) => logs.Add(e);
-            ApplicationEngine.Log += logHandler;
-
             testengine.Reset();
             before = snapshot.GetChangeSet().Count();
             result = testengine.ExecuteTestCaseStandard("reentrantTest", 123);
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
             Assert.AreEqual(before + 1, snapshot.GetChangeSet().Count());
-            Assert.AreEqual("Already entered", logs.First().Message);
-            ApplicationEngine.Log -= logHandler;
+            Assert.IsTrue(testengine.FaultException.Message.Contains("Already entered"));
         }
     }
 }

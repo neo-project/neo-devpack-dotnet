@@ -44,10 +44,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             var result = testengine.ExecuteTestCaseStandard("sum", 9, 5);
 
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(1, testengine.Notifications.Count);
-            Assert.AreEqual("OnSum", testengine.Notifications[0].EventName);
-            Assert.AreEqual(14, testengine.Notifications[0].State[0].GetInteger());
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(0, testengine.Notifications.Count);
+            Assert.AreEqual(14, result.Pop().GetInteger());
         }
 
         [TestMethod]
