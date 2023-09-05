@@ -134,8 +134,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.False);
             Assert.AreEqual(VMState.FAULT, _engine.State);
             Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(logList.Count, 1);
-            Assert.AreEqual(logList[0], "UT-ERROR-123");
+            Assert.AreEqual(logList.Count, 0);
+            Assert.IsTrue(_engine.FaultException.Message.Contains("UT-ERROR-123"));
 
             // Test without notification right
 
