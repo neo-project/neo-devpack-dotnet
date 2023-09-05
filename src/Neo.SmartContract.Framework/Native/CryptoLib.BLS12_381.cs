@@ -14,18 +14,18 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework.Native
 {
-    [Contract("0x726cb6e0cd8628a1350a611384688911ab75f51b")]
     public static partial class CryptoLib
     {
-        [ContractHash]
-        public static extern UInt160 Hash { get; }
+        public static extern byte[] Bls12381Serialize(object data);
 
-        public static extern ByteString Sha256(ByteString value);
+        public static extern object Bls12381Deserialize(byte[] data);
 
-        public static extern ByteString Ripemd160(ByteString value);
+        public static extern bool Bls12381Equal(object x, object y);
 
-        public static extern ByteString Murmur32(ByteString value, uint seed);
+        public static extern object Bls12381Add(object x, object y);
 
-        public static extern bool VerifyWithECDsa(ByteString message, Cryptography.ECC.ECPoint pubkey, ByteString signature, NamedCurve curve);
+        public static extern object Bls12381Mul(object x, byte[] mul, bool neg);
+
+        public static extern object Bls12381Pairing(object g1, object g2);
     }
 }
