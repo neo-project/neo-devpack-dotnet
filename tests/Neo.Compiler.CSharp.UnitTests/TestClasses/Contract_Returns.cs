@@ -4,15 +4,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Returns : SmartContract.Framework.SmartContract
     {
-        public delegate void delOnSum(int total);
-        public static event delOnSum OnSum;
-
         /// <summary>
         /// No return
         /// </summary>
-        public static void Sum(int a, int b)
+        public static int Sum(int a, int b)
         {
-            OnSum(a + b);
+            return a + b;
         }
 
         /// <summary>

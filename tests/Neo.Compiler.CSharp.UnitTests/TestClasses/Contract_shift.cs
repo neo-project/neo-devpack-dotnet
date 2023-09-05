@@ -5,17 +5,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_shift : SmartContract.Framework.SmartContract
     {
-        [DisplayName("event")]
-        public static event Action<int> notify;
-
-        public static object Main()
+        public static int[] Main()
         {
             int v = 8;
             var v1 = v << 1;
             var v2 = v >> 1;
-            notify(v1);
-            notify(v2);
-            return false;
+            return new int[] { v1, v2 };
         }
     }
 }
