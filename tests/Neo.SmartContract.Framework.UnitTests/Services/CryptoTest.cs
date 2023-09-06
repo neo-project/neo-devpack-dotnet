@@ -118,5 +118,91 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsTrue(item.GetBoolean());
         }
+
+        [TestMethod]
+        public void Test_Bls12381Serialize_And_Deserialize()
+        {
+            _engine.Reset();
+            byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
+            var result = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            _engine.Reset();
+            var result2 = _engine.ExecuteTestCaseStandard("bls12381Serialize", item);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result2.Count);
+        }
+
+        [TestMethod]
+        public void Test_Bls12381Equal()
+        {
+            _engine.Reset();
+            byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
+            var result1 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            var item1 = result1.Pop();
+
+            _engine.Reset();
+            var result2 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            var item2 = result2.Pop();
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("bls12381Equal", item1, item2);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_Bls12381Add()
+        {
+            _engine.Reset();
+            byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
+            var result1 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            var item1 = result1.Pop();
+
+            _engine.Reset();
+            var result2 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            var item2 = result2.Pop();
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("bls12381Add", item1, item2);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_Bls12381Mul()
+        {
+            _engine.Reset();
+            byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
+            byte[] mul = "0300000000000000000000000000000000000000000000000000000000000000".ToLower().HexToBytes();
+            var result1 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            var item1 = result1.Pop();
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("bls12381Mul", item1, mul, true);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_Bls12381Pairing()
+        {
+            _engine.Reset();
+            byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
+            byte[] g2 = "93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8".ToLower().HexToBytes();
+            var result1 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
+            var item1 = result1.Pop();
+
+            _engine.Reset();
+            var result2 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g2);
+            var item2 = result2.Pop();
+
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("bls12381Pairing", item1, item2);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Count);
+        }
     }
 }
