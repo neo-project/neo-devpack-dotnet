@@ -10,7 +10,6 @@
 
 #pragma warning disable CS0626
 
-
 namespace Neo.SmartContract.Framework.Native
 {
     public static partial class CryptoLib
