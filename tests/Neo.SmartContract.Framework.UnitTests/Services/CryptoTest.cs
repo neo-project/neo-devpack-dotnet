@@ -130,7 +130,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             _engine.Reset();
-            var result2=_engine.ExecuteTestCaseStandard("bls12381Serialize", item);
+            var result2 = _engine.ExecuteTestCaseStandard("bls12381Serialize", item);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result2.Count);
         }
@@ -166,7 +166,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var item2 = result2.Pop();
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("bls12381Add", item1,item2);
+            var result = _engine.ExecuteTestCaseStandard("bls12381Add", item1, item2);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
         }
@@ -176,11 +176,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             _engine.Reset();
             byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
+            byte[] mul = "0300000000000000000000000000000000000000000000000000000000000000".ToLower().HexToBytes();
             var result1 = _engine.ExecuteTestCaseStandard("bls12381Deserialize", g1);
             var item1 = result1.Pop();
 
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("bls12381Mul", item1, new ByteString(new byte[] { 3}), true);
+            var result = _engine.ExecuteTestCaseStandard("bls12381Mul", item1, mul, true);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
         }
