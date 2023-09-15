@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Get the string length by elements
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="str">String value</param>
         /// <returns>Number of elements in the string</returns>
         /// <example>
         ///        string a = "A"; // return 1
