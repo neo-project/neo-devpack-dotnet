@@ -72,5 +72,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern string[] StringSplit(string str, string separator);
 
         public static extern string[] StringSplit(string str, string separator, bool removeEmptyEntries);
+
+        public static extern int StrLen(string str);
     }
 }
