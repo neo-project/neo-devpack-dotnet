@@ -72,5 +72,17 @@ namespace Neo.SmartContract.Framework.Native
         public static extern string[] StringSplit(string str, string separator);
 
         public static extern string[] StringSplit(string str, string separator, bool removeEmptyEntries);
+
+        /// <summary>
+        /// Get the string length by elements
+        /// </summary>
+        /// <param name="str">String value</param>
+        /// <returns>Number of elements in the string</returns>
+        /// <example>
+        ///        string a = "A"; // return 1
+        ///        string tilde = "ã"; // return 1
+        ///        string duck = "🦆"; //return 1
+        /// </example>
+        public static extern int StrLen(string str);
     }
 }
