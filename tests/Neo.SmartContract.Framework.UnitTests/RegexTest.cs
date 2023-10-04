@@ -60,6 +60,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var item = result.Pop<Boolean>();
             Assert.IsTrue(item.GetBoolean());
         }
+
         [TestMethod]
         public void TestAlphabetOnly()
         {
