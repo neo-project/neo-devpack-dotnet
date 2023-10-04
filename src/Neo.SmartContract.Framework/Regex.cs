@@ -3,7 +3,12 @@ namespace Neo.SmartContract.Framework;
 
 public class Regex
 {
-    public static bool NumberOnly(ByteString byteString)
+    /// <summary>
+    ///  Denotes whether provided character is a number.
+    /// </summary>
+    /// <param name="byteString">Input to check</param>
+    /// <returns>True if is number</returns>
+    public static bool IsNumber(ByteString byteString)
     {
         foreach (var value in byteString)
         {
@@ -13,7 +18,12 @@ public class Regex
         return true;
     }
 
-    public static bool AlphabetOnly(ByteString byteString)
+    /// <summary>
+    ///  Denotes whether provided character is a lowercase letter.
+    /// </summary>
+    /// <param name="byteString">Input to check</param>
+    /// <returns>True if is Alpha character</returns>
+    public static bool IsAlphabet(ByteString byteString)
     {
         foreach (var value in byteString)
         {
@@ -22,7 +32,6 @@ public class Regex
         }
         return true;
     }
-
 
     /// <summary>
     /// Returns the index of the first occurrence of a given value in an array.
