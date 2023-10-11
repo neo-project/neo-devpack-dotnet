@@ -23,5 +23,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern uint GetExecFeeFactor();
         public static extern uint GetStoragePrice();
         public static extern bool IsBlocked(UInt160 account);
+        public static extern uint GetAttributeFee(TransactionAttributeType attributeType);
+        public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
     }
 }
