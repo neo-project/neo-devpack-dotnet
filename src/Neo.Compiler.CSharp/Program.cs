@@ -135,10 +135,11 @@ namespace Neo.Compiler
             }
             if (context.Success)
             {
+                string outputFolder, path;
                 string baseName = options.BaseName ?? context.ContractName!;
-                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc"), path;
                 try
                 {
+                    outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
                     Directory.CreateDirectory(outputFolder);
                     path = Path.Combine(outputFolder, $"{baseName}.nef");
                     File.WriteAllBytes(path, context.CreateExecutable().ToArray());
