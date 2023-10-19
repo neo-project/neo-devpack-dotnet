@@ -61,7 +61,7 @@ namespace Neo.Compiler
 
                 return;
             }
-            paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
+            paths = paths.Select(Path.GetFullPath).ToArray();
             if (paths.Length == 1)
             {
                 string path = paths[0];
@@ -135,11 +135,20 @@ namespace Neo.Compiler
             }
             if (context.Success)
             {
+                string outputFolder, path;
                 string baseName = options.BaseName ?? context.ContractName!;
-                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                Directory.CreateDirectory(outputFolder);
-                string path = Path.Combine(outputFolder, $"{baseName}.nef");
-                File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                try
+                {
+                    outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                    Directory.CreateDirectory(outputFolder);
+                    path = Path.Combine(outputFolder, $"{baseName}.nef");
+                    File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                }
+                catch
+                {
+                    Console.Error.WriteLine("Can't create {path}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
                 path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
                 File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
