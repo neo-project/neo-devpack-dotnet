@@ -316,6 +316,9 @@ namespace Neo.Compiler
                 ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
                 switch (type)
                 {
+                    case ContractParameterType.String:
+                        Push(value);
+                        break;
                     case ContractParameterType.ByteArray:
                         Push(value.HexToBytes(true));
                         break;

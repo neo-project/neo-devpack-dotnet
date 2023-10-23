@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Copyright>2015-2023 The Neo Project</Copyright>
-    <VersionPrefix>3.5.0</VersionPrefix>
+    <VersionPrefix>3.6.0</VersionPrefix>
     <TargetFramework>net7.0</TargetFramework>
     <Authors>The Neo Project</Authors>
   </PropertyGroup>

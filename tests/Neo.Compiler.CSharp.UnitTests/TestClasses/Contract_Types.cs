@@ -2,6 +2,8 @@ using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -88,6 +90,16 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static string toAddress(UInt160 address, byte version)
         {
             return address.ToAddress(version);
+        }
+
+        public static object Call(UInt160 scriptHash, string method, CallFlags flag, object[] args)
+        {
+            return Contract.Call(scriptHash, method, flag, args);
+        }
+
+        public static object Create(byte[] nef, string manifest)
+        {
+            return ContractManagement.Deploy((ByteString)nef, manifest, null);
         }
     }
 }
