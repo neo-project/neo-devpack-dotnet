@@ -151,7 +151,15 @@ namespace Neo.Compiler
                 }
                 Console.WriteLine($"Created {path}");
                 path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
-                File.WriteAllBytes(path, context.CreateManifest().ToJson().ToByteArray(false));
+                try
+                {
+                    File.WriteAllBytes(path, context.CreateManifest().ToJson().ToByteArray(false));
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
