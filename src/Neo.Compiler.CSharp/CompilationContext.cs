@@ -335,7 +335,7 @@ namespace Neo.Compiler
                 ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
-
+            // Ensure that is serializable
             return ContractManifest.Parse(json.ToString(false));
         }
 
