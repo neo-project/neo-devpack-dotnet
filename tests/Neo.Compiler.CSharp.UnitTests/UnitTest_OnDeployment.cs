@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(2, args.Length);
             Assert.AreEqual(args[0].Name, "data");
-            Assert.AreEqual(args[0].Type,  SmartContract.ContractParameterType.Any);
+            Assert.AreEqual(args[0].Type, SmartContract.ContractParameterType.Any);
             Assert.AreEqual(args[1].Name, "update");
             Assert.AreEqual(args[1].Type, SmartContract.ContractParameterType.Boolean);
         }
