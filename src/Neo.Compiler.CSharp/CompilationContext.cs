@@ -18,6 +18,7 @@ using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -306,9 +307,9 @@ namespace Neo.Compiler
             return builder.ToString();
         }
 
-        public JObject CreateManifest()
+        public ContractManifest CreateManifest()
         {
-            return new JObject
+            JObject json = new()
             {
                 ["name"] = ContractName,
                 ["groups"] = new JArray(),
@@ -334,6 +335,8 @@ namespace Neo.Compiler
                 ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
+
+            return ContractManifest.Parse(json.ToString(false));
         }
 
         public JObject CreateDebugInformation(string folder = "")

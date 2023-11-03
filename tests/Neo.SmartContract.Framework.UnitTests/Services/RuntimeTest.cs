@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest,
             });
 
             using (ScriptBuilder sb = new())
@@ -296,7 +296,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -323,7 +323,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -349,7 +349,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -375,7 +375,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -402,7 +402,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -429,7 +429,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -456,7 +456,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
@@ -483,7 +483,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = contract,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest
             });
             engine.LoadScript(sb.ToArray());
 
