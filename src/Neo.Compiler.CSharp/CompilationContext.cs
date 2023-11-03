@@ -163,10 +163,8 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileSources(string[] sourceFiles, Options options)
         {
-            List<MetadataReference> references = new(commonReferences)
-            {
-                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
-            };
+            List<MetadataReference> references = new(commonReferences);
+            references.Add(MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location));
             return Compile(sourceFiles, references, options);
         }
 
@@ -249,11 +247,9 @@ namespace Neo.Compiler
         public static CompilationContext CompileProject(string csproj, Options options)
         {
             Compilation compilation = GetCompilation(csproj, options, out XDocument document);
-            CompilationContext context = new(compilation, options)
-            {
-                assemblyName = document.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).FirstOrDefault() ?? Path.GetFileNameWithoutExtension(csproj),
-                Checked = document.Root!.Elements("PropertyGroup").Elements("CheckForOverflowUnderflow").Select(p => bool.Parse(p.Value)).FirstOrDefault()
-            };
+            CompilationContext context = new(compilation, options);
+            context.assemblyName = document.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).FirstOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
+            context.Checked = document.Root!.Elements("PropertyGroup").Elements("CheckForOverflowUnderflow").Select(p => bool.Parse(p.Value)).FirstOrDefault();
             context.Compile();
             return context;
         }
