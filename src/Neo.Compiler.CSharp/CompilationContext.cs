@@ -15,8 +15,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Neo.Cryptography.ECC;
+using Neo.IO;
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -265,7 +267,8 @@ namespace Neo.Compiler
                 Script = Script
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
-            return nef;
+            // Ensure that is serializable
+            return nef.ToArray().AsSerializable<NefFile>();
         }
 
         public string CreateAssembly()
@@ -300,9 +303,9 @@ namespace Neo.Compiler
             return builder.ToString();
         }
 
-        public JObject CreateManifest()
+        public ContractManifest CreateManifest()
         {
-            return new JObject
+            JObject json = new()
             {
                 ["name"] = ContractName,
                 ["groups"] = new JArray(),
@@ -328,6 +331,8 @@ namespace Neo.Compiler
                 ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
+            // Ensure that is serializable
+            return ContractManifest.Parse(json.ToString(false));
         }
 
         public JObject CreateDebugInformation(string folder = "")

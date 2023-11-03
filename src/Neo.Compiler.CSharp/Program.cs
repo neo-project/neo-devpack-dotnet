@@ -135,23 +135,31 @@ namespace Neo.Compiler
             }
             if (context.Success)
             {
-                string outputFolder, path;
+                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
                 try
                 {
-                    outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
                     Directory.CreateDirectory(outputFolder);
-                    path = Path.Combine(outputFolder, $"{baseName}.nef");
+                    path = Path.Combine(path, $"{baseName}.nef");
                     File.WriteAllBytes(path, context.CreateExecutable().ToArray());
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Console.Error.WriteLine("Can't create {path}.");
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
                     return 1;
                 }
                 Console.WriteLine($"Created {path}");
                 path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
-                File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
+                try
+                {
+                    File.WriteAllBytes(path, context.CreateManifest().ToJson().ToByteArray(false));
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
