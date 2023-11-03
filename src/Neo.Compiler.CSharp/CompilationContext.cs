@@ -271,8 +271,7 @@ namespace Neo.Compiler
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             // Ensure that is serializable
-            _ = nef.ToArray().AsSerializable<NefFile>();
-            return nef;
+            return nef.ToArray().AsSerializable<NefFile>();
         }
 
         public string CreateAssembly()
