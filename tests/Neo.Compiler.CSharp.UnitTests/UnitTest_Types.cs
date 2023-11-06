@@ -1,15 +1,14 @@
+using System.Linq;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
-using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
-using System.Linq;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -138,9 +137,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var methods = (JArray)testengine.Manifest["abi"]["methods"];
-            var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
-            Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
+            var methods = testengine.Manifest.Abi.Methods;
+            var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").FirstOrDefault();
+            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
 
         [TestMethod]
@@ -411,7 +410,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
 
-            var manifest = ContractManifest.FromJson(testengine.Manifest);
+            var manifest = testengine.Manifest;
             var nef = new NefFile() { Script = testengine.Nef.Script, Compiler = testengine.Nef.Compiler, Source = testengine.Nef.Source, Tokens = testengine.Nef.Tokens };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 

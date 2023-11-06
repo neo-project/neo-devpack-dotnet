@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract;
-using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -23,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 Hash = hash,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest),
+                Manifest = _engine.Manifest,
             });
 
             // will ContractCall 0102030405060708090A0102030405060708090A

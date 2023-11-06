@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ExtraAttribute.cs");
 
-            var extra = testengine.Manifest["extra"];
+            var extra = testengine.Manifest.Extra;
 
             Assert.AreEqual("Neo", extra["Author"].GetString());
             Assert.AreEqual("dev@neo.org", extra["E-mail"].GetString());
