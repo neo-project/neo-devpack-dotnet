@@ -116,6 +116,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(456, item.GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("convertFromChar");
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(65, item.GetInteger());
         }
 
         [TestMethod]

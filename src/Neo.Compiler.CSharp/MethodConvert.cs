@@ -4082,6 +4082,7 @@ namespace Neo.Compiler
                         endTarget.Instruction = AddInstruction(OpCode.NOP);
                     }
                     return true;
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(char)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(sbyte)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(byte)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(short)":
