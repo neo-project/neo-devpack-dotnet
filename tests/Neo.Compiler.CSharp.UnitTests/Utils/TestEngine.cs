@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         public event EventHandler<ExecutionContext> OnPreExecuteTestCaseStandard;
 
         public NefFile Nef { get; private set; }
-        public JObject Manifest { get; private set; }
+        public ContractManifest Manifest { get; private set; }
         public JObject DebugInfo { get; private set; }
 
         static TestEngine()
@@ -94,12 +94,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         private int GetMethodEntryOffset(string methodname)
         {
             if (Manifest is null) return -1;
-            var methods = Manifest["abi"]["methods"] as JArray;
-            foreach (var item in methods)
+            foreach (var method in Manifest.Abi.Methods)
             {
-                var method = item as JObject;
-                if (method["name"].AsString() == methodname)
-                    return int.Parse(method["offset"].AsString());
+                if (method.Name == methodname)
+                    return method.Offset;
             }
             return -1;
         }
@@ -107,14 +105,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         private int GetMethodReturnCount(string methodname)
         {
             if (Manifest is null) return -1;
-            var methods = Manifest["abi"]["methods"] as JArray;
-            foreach (var item in methods)
+            foreach (var method in Manifest.Abi.Methods)
             {
-                var method = item as JObject;
-                if (method["name"].AsString() == methodname)
+                if (method.Name == methodname)
                 {
-                    var returntype = method["returntype"].AsString();
-                    if (returntype == "Null" || returntype == "Void")
+                    if (method.ReturnType == ContractParameterType.Void)
                         return 0;
                     else
                         return 1;
@@ -152,7 +147,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             contextState.Contract ??= new ContractState()
             {
                 Nef = contract,
-                Manifest = Manifest is not null ? ContractManifest.FromJson(Manifest) : null
+                Manifest = Manifest
             };
             OnPreExecuteTestCaseStandard?.Invoke(this, context);
             for (var i = args.Length - 1; i >= 0; i--)

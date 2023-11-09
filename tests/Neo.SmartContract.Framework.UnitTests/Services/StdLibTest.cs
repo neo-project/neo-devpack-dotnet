@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 Hash = scriptHash,
                 Nef = _engine.Nef,
-                Manifest = ContractManifest.FromJson(_engine.Manifest)
+                Manifest = _engine.Manifest
             });
         }
 

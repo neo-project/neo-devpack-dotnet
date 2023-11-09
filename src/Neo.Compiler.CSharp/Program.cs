@@ -61,7 +61,7 @@ namespace Neo.Compiler
 
                 return;
             }
-            paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
+            paths = paths.Select(Path.GetFullPath).ToArray();
             if (paths.Length == 1)
             {
                 string path = paths[0];
@@ -135,14 +135,31 @@ namespace Neo.Compiler
             }
             if (context.Success)
             {
-                string baseName = options.BaseName ?? context.ContractName!;
                 string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                Directory.CreateDirectory(outputFolder);
-                string path = Path.Combine(outputFolder, $"{baseName}.nef");
-                File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                string path = outputFolder;
+                string baseName = options.BaseName ?? context.ContractName!;
+                try
+                {
+                    Directory.CreateDirectory(outputFolder);
+                    path = Path.Combine(path, $"{baseName}.nef");
+                    File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
                 path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
-                File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
+                try
+                {
+                    File.WriteAllBytes(path, context.CreateManifest().ToJson().ToByteArray(false));
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {

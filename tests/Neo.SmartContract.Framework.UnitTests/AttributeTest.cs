@@ -70,7 +70,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 Id = 123,
                 Hash = testengine.EntryScriptHash,
                 Nef = testengine.Nef,
-                Manifest = ContractManifest.FromJson(testengine.Manifest)
+                Manifest = testengine.Manifest
             });
 
             // return in the middle
