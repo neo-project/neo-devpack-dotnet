@@ -38,7 +38,7 @@ namespace Neo.Compiler
         private static readonly MetadataReference[] commonReferences;
         private static readonly Dictionary<string, MetadataReference> metaReferences = new();
         private readonly Compilation compilation;
-        private string? assemblyName, displayName, className;
+        private string? displayName, className;
         private bool scTypeFound;
         private readonly List<Diagnostic> diagnostics = new();
         private readonly HashSet<string> supportedStandards = new();
@@ -57,8 +57,7 @@ namespace Neo.Compiler
 
         public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
-        public string? ContractName => displayName ?? assemblyName ?? className;
-        public bool Checked { get; private set; } = false;
+        public string? ContractName => displayName ?? Options.BaseName ?? className;
         private string? Source { get; set; }
         internal Options Options { get; private set; }
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
@@ -153,8 +152,7 @@ namespace Neo.Compiler
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
-
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: options.Nullable);
             CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             CompilationContext context = new(compilation, options);
             context.Compile();
@@ -168,7 +166,7 @@ namespace Neo.Compiler
             return Compile(sourceFiles, references, options);
         }
 
-        public static Compilation GetCompilation(string csproj, Options options, out XDocument document)
+        public static Compilation GetCompilation(string csproj, Options options)
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
@@ -176,8 +174,8 @@ namespace Neo.Compiler
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(commonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true);
-            document = XDocument.Load(csproj);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: options.Nullable);
+            XDocument document = XDocument.Load(csproj);
             sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
             {
@@ -234,7 +232,7 @@ namespace Neo.Compiler
                     case "project":
                         string msbuildProject = assets["libraries"]![name]!["msbuildProject"]!.GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
-                        reference = GetCompilation(msbuildProject, options, out _).ToMetadataReference();
+                        reference = GetCompilation(msbuildProject, options).ToMetadataReference();
                         break;
                     default:
                         throw new NotSupportedException();
@@ -246,10 +244,8 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileProject(string csproj, Options options)
         {
-            Compilation compilation = GetCompilation(csproj, options, out XDocument document);
+            Compilation compilation = GetCompilation(csproj, options);
             CompilationContext context = new(compilation, options);
-            context.assemblyName = document.Root!.Elements("PropertyGroup").Elements("AssemblyName").Select(p => p.Value).FirstOrDefault() ?? Path.GetFileNameWithoutExtension(csproj);
-            context.Checked = document.Root!.Elements("PropertyGroup").Elements("CheckForOverflowUnderflow").Select(p => bool.Parse(p.Value)).FirstOrDefault();
             context.Compile();
             return context;
         }
