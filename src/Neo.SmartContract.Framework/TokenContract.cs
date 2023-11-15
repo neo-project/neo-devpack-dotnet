@@ -17,13 +17,14 @@ namespace Neo.SmartContract.Framework
 {
     public abstract class TokenContract : SmartContract
     {
+        protected const byte Prefix_TotalSupply = 0x00;
         protected const byte Prefix_Balance = 0x01;
 
         public abstract string Symbol { [Safe] get; }
 
         public abstract byte Decimals { [Safe] get; }
 
-        [StorageBacked]
+        [StorageBacked(Prefix_TotalSupply)]
         public static BigInteger TotalSupply { [Safe] get; protected set; }
 
         [Safe]
