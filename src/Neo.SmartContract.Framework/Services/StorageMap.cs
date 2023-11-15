@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -20,58 +20,69 @@ namespace Neo.SmartContract.Framework.Services
 {
     public class StorageMap
     {
-        private readonly StorageContext Context;
-        private readonly ByteString Prefix;
+        private readonly StorageContext context;
+        private readonly byte[] prefix;
 
         public extern ByteString this[ByteString key]
         {
-            [OpCode(OpCode.OVER)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.SWAP)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
             [OpCode(OpCode.SWAP)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
             [Syscall("System.Storage.Get")]
             get;
-            [OpCode(OpCode.PUSH2)]
-            [OpCode(OpCode.PICK)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.ROT)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
-            [OpCode(OpCode.ROT)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
+            [OpCode(OpCode.SWAP)]
             [Syscall("System.Storage.Put")]
             set;
         }
 
         public extern ByteString this[byte[] key]
         {
-            [OpCode(OpCode.OVER)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.SWAP)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
             [OpCode(OpCode.SWAP)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
             [Syscall("System.Storage.Get")]
             get;
-            [OpCode(OpCode.PUSH2)]
-            [OpCode(OpCode.PICK)]
-            [OpCode(OpCode.PUSH1)]
-            [OpCode(OpCode.PICKITEM)]
-            [OpCode(OpCode.ROT)]
+            [CallingConvention(CallingConvention.Cdecl)]
+            [OpCode(OpCode.UNPACK)]
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.REVERSE3)]
             [OpCode(OpCode.CAT)]
-            [OpCode(OpCode.ROT)]
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.PICKITEM)]
+            [OpCode(OpCode.SWAP)]
             [Syscall("System.Storage.Put")]
             set;
         }
+
+        [Syscall("System.Storage.GetContext")]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(byte[] prefix);
+
+        [Syscall("System.Storage.GetContext")]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(ByteString prefix);
+
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.NEWBUFFER)]
+        [OpCode(OpCode.TUCK)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.ROT)]
+        [OpCode(OpCode.SETITEM)]
+        [Syscall("System.Storage.GetContext")]
+        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PACK)]
+        public extern StorageMap(byte prefix);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.PUSH2)]
@@ -94,25 +105,21 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PACK)]
         public extern StorageMap(StorageContext context, byte prefix);
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(ByteString key);
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Get")]
         public extern ByteString Get(byte[] key);
 
@@ -131,84 +138,62 @@ namespace Neo.SmartContract.Framework.Services
         }
 
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(FindOptions options = FindOptions.None);
 
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.TUCK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(ByteString prefix, FindOptions options = FindOptions.None);
 
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.TUCK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Find")]
         public extern Iterator Find(byte[] prefix, FindOptions options = FindOptions.None);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(ByteString key, ByteString value);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(byte[] key, ByteString value);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(ByteString key, BigInteger value);
 
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PICK)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.ROT)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
+        [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Put")]
         public extern void Put(byte[] key, BigInteger value);
 
@@ -222,25 +207,21 @@ namespace Neo.SmartContract.Framework.Services
             Put(key, StdLib.Serialize(value));
         }
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Delete")]
         public extern void Delete(ByteString key);
 
-        [OpCode(OpCode.OVER)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.PICKITEM)]
-        [OpCode(OpCode.SWAP)]
+        [CallingConvention(CallingConvention.Cdecl)]
+        [OpCode(OpCode.UNPACK)]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.REVERSE3)]
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Delete")]
         public extern void Delete(byte[] key);
     }

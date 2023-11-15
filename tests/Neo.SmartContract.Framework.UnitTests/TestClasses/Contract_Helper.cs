@@ -18,13 +18,28 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static int AssertCall(bool value)
         {
-            ExecutionEngine.Assert(value == true, "ERROR");
+            ExecutionEngine.Assert(value == true, "UT-ERROR-123");
             return 5;
         }
 
         public static BigInteger TestToBigInteger(byte[] data)
         {
             return new BigInteger(data);
+        }
+
+        public static BigInteger ModMultiply(BigInteger value, BigInteger y, BigInteger modulus)
+        {
+            return value.ModMultiply(y, modulus);
+        }
+
+        public static BigInteger ModInverse(BigInteger value, BigInteger modulus)
+        {
+            return value.ModInverse(modulus);
+        }
+
+        public static BigInteger ModPow(BigInteger value, BigInteger exponent, BigInteger modulus)
+        {
+            return BigInteger.ModPow(value, exponent, modulus);
         }
 
         public static BigInteger TestBigIntegerCast(byte[] data)

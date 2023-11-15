@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.IO.Json;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -13,42 +12,38 @@ namespace Neo.Compiler.CSharp.UnitTests
             var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_OnDeployment1.cs");
 
-            var methods = (testengine.Manifest["abi"]["methods"] as JArray);
+            Assert.AreEqual(1, testengine.Manifest.Abi.Methods.Length);
+            Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Name, "_deploy");
+            Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Offset, 0);
+            Assert.AreEqual(testengine.Manifest.Abi.Methods[0].ReturnType, SmartContract.ContractParameterType.Void);
 
-            Assert.AreEqual(1, methods.Count);
-            Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
-            Assert.AreEqual(methods[0]["offset"].AsString(), "0");
-            Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
+            var args = testengine.Manifest.Abi.Methods[0].Parameters;
 
-            var args = (methods[0]["parameters"] as JArray);
-
-            Assert.AreEqual(2, args.Count);
-            Assert.AreEqual(args[0]["name"].AsString(), "data");
-            Assert.AreEqual(args[0]["type"].AsString(), "Any");
-            Assert.AreEqual(args[1]["name"].AsString(), "update");
-            Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
+            Assert.AreEqual(2, args.Length);
+            Assert.AreEqual(args[0].Name, "data");
+            Assert.AreEqual(args[0].Type, SmartContract.ContractParameterType.Any);
+            Assert.AreEqual(args[1].Name, "update");
+            Assert.AreEqual(args[1].Type, SmartContract.ContractParameterType.Boolean);
         }
 
         [TestMethod]
         public void Test_OnDeployment2()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_OnDeployment1.cs");
+            testengine.AddEntryScript("./TestClasses/Contract_OnDeployment2.cs");
 
-            var methods = (testengine.Manifest["abi"]["methods"] as JArray);
+            Assert.AreEqual(1, testengine.Manifest.Abi.Methods.Length);
+            Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Name, "_deploy");
+            Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Offset, 0);
+            Assert.AreEqual(testengine.Manifest.Abi.Methods[0].ReturnType, SmartContract.ContractParameterType.Void);
 
-            Assert.AreEqual(1, methods.Count);
-            Assert.AreEqual(methods[0]["name"].AsString(), "_deploy");
-            Assert.AreEqual(methods[0]["offset"].AsString(), "0");
-            Assert.AreEqual(methods[0]["returntype"].AsString(), "Void");
+            var args = testengine.Manifest.Abi.Methods[0].Parameters;
 
-            var args = (methods[0]["parameters"] as JArray);
-
-            Assert.AreEqual(2, args.Count);
-            Assert.AreEqual(args[0]["name"].AsString(), "data");
-            Assert.AreEqual(args[0]["type"].AsString(), "Any");
-            Assert.AreEqual(args[1]["name"].AsString(), "update");
-            Assert.AreEqual(args[1]["type"].AsString(), "Boolean");
+            Assert.AreEqual(2, args.Length);
+            Assert.AreEqual(args[0].Name, "data");
+            Assert.AreEqual(args[0].Type, SmartContract.ContractParameterType.Any);
+            Assert.AreEqual(args[1].Name, "update");
+            Assert.AreEqual(args[1].Type, SmartContract.ContractParameterType.Boolean);
         }
     }
 }

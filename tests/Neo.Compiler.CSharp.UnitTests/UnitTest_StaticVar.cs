@@ -9,9 +9,18 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_StaticVar
     {
         [TestMethod]
+        public void Test_InitialValue()
+        {
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
+            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs").Success);
+            var result = testengine.ExecuteTestCaseStandard("testinitalvalue");
+
+            Assert.AreEqual("hello world", result.Pop().GetString());
+        }
+
+        [TestMethod]
         public void Test_StaticVar()
         {
-
             using var testengine = new TestEngine(snapshot: new TestDataCache());
             testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("main");

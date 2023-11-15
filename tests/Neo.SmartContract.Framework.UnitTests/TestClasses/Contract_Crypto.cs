@@ -32,5 +32,35 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256k1);
         }
+
+        public static byte[] Bls12381Serialize(object data)
+        {
+            return CryptoLib.Bls12381Serialize(data);
+        }
+
+        public static object Bls12381Deserialize(byte[] data)
+        {
+            return CryptoLib.Bls12381Deserialize(data);
+        }
+
+        public static object Bls12381Equal(object x, object y)
+        {
+            return CryptoLib.Bls12381Equal(x, y);
+        }
+
+        public static object Bls12381Add(object x, object y)
+        {
+            return CryptoLib.Bls12381Add(x, y);
+        }
+
+        public static object Bls12381Mul(object x, byte[] mul, bool neg)
+        {
+            return CryptoLib.Bls12381Mul(x, mul, neg);
+        }
+
+        public static object Bls12381Pairing(object g1, object g2)
+        {
+            return CryptoLib.Bls12381Pairing(g1, g2);
+        }
     }
 }

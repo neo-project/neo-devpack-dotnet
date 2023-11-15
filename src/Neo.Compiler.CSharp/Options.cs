@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -8,6 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Generic;
 
@@ -17,6 +18,8 @@ namespace Neo.Compiler
     {
         public string? Output { get; set; }
         public string? BaseName { get; set; }
+        public NullableContextOptions Nullable { get; set; }
+        public bool Checked { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
         public bool NoOptimize { get; set; }

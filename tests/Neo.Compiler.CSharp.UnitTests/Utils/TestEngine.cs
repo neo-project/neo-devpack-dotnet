@@ -1,17 +1,18 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Neo.IO.Json;
-using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.SmartContract;
-using Neo.VM;
-using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Neo.Json;
+using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
+using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests.Utils
 {
@@ -21,8 +22,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
         private static readonly List<MetadataReference> references = new();
 
+        public event EventHandler<ExecutionContext> OnPreExecuteTestCaseStandard;
+
         public NefFile Nef { get; private set; }
-        public JObject Manifest { get; private set; }
+        public ContractManifest Manifest { get; private set; }
         public JObject DebugInfo { get; private set; }
 
         static TestEngine()
@@ -44,7 +47,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             references.Add(cr.ToMetadataReference());
         }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, SmartContract.Diagnostic diagnostic = null)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, IDiagnostic diagnostic = null)
              : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas, diagnostic)
         {
         }
@@ -91,12 +94,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         private int GetMethodEntryOffset(string methodname)
         {
             if (Manifest is null) return -1;
-            var methods = Manifest["abi"]["methods"] as JArray;
-            foreach (var item in methods)
+            foreach (var method in Manifest.Abi.Methods)
             {
-                var method = item as JObject;
-                if (method["name"].AsString() == methodname)
-                    return int.Parse(method["offset"].AsString());
+                if (method.Name == methodname)
+                    return method.Offset;
             }
             return -1;
         }
@@ -104,14 +105,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         private int GetMethodReturnCount(string methodname)
         {
             if (Manifest is null) return -1;
-            var methods = Manifest["abi"]["methods"] as JArray;
-            foreach (var item in methods)
+            foreach (var method in Manifest.Abi.Methods)
             {
-                var method = item as JObject;
-                if (method["name"].AsString() == methodname)
+                if (method.Name == methodname)
                 {
-                    var returntype = method["returntype"].AsString();
-                    if (returntype == "Null" || returntype == "Void")
+                    if (method.ReturnType == ContractParameterType.Void)
                         return 0;
                     else
                         return 1;
@@ -146,7 +144,12 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext.GetState<ExecutionContextState>();
-            contextState.Contract ??= new ContractState() { Nef = contract };
+            contextState.Contract ??= new ContractState()
+            {
+                Nef = contract,
+                Manifest = Manifest
+            };
+            OnPreExecuteTestCaseStandard?.Invoke(this, context);
             for (var i = args.Length - 1; i >= 0; i--)
                 this.Push(args[i]);
             var initializeOffset = GetMethodEntryOffset("_initialize");
@@ -162,7 +165,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
-                this.CurrentContext.CurrentInstruction.OpCode);
+                this.CurrentContext.CurrentInstruction?.OpCode);
                 this.ExecuteNext();
             }
             return this.ResultStack;

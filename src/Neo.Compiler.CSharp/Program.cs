@@ -1,10 +1,10 @@
-// Copyright (C) 2015-2021 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+// Copyright (C) 2015-2023 The Neo Project.
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -30,6 +30,8 @@ namespace Neo.Compiler
                 new Argument<string[]>("paths", "The path of the project file, project directory or source files."),
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<string>("--base-name", "Specifies the base name of the output files."),
+                new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
+                new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
@@ -44,15 +46,24 @@ namespace Neo.Compiler
         {
             if (paths is null || paths.Length == 0)
             {
-                context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
-                if (context.ExitCode == 2)
+                // catch Unhandled exception: System.Reflection.TargetInvocationException
+                try
                 {
-                    // Display help without args
-                    command.Invoke("--help");
+                    context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
+                    if (context.ExitCode == 2)
+                    {
+                        // Display help without args
+                        command.Invoke("--help");
+                    }
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.Error.WriteLine("Unauthorized to access the project directory, or no project is specified. Please ensure you have the proper permissions and a project is specified.");
+                }
+
                 return;
             }
-            paths = paths.Select(p => Path.GetFullPath(p)).ToArray();
+            paths = paths.Select(Path.GetFullPath).ToArray();
             if (paths.Length == 1)
             {
                 string path = paths[0];
@@ -126,27 +137,44 @@ namespace Neo.Compiler
             }
             if (context.Success)
             {
+                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
-                folder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                Directory.CreateDirectory(folder);
-                string path = Path.Combine(folder, $"{baseName}.nef");
-                File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                try
+                {
+                    Directory.CreateDirectory(outputFolder);
+                    path = Path.Combine(path, $"{baseName}.nef");
+                    File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
-                path = Path.Combine(folder, $"{baseName}.manifest.json");
-                File.WriteAllBytes(path, context.CreateManifest().ToByteArray(false));
+                path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
+                try
+                {
+                    File.WriteAllBytes(path, context.CreateManifest().ToJson().ToByteArray(false));
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
+                    return 1;
+                }
                 Console.WriteLine($"Created {path}");
                 if (options.Debug)
                 {
-                    path = Path.Combine(folder, $"{baseName}.nefdbgnfo");
+                    path = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                     using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
-                    stream.Write(context.CreateDebugInformation().ToByteArray(false));
+                    stream.Write(context.CreateDebugInformation(folder).ToByteArray(false));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
-                    path = Path.Combine(folder, $"{baseName}.asm");
+                    path = Path.Combine(outputFolder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
                 }

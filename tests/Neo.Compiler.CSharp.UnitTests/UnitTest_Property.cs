@@ -19,9 +19,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestABIOffsetWithoutOptimizer()
         {
             testEngine.Reset();
-            var abi = testEngine.Manifest["abi"];
-            var property = abi["methods"].GetArray()[0];
-            Assert.AreEqual("symbol", property["name"].GetString());
+            var property = testEngine.Manifest.Abi.Methods[0];
+            Assert.AreEqual("symbol", property.Name);
         }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework.Services
         public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[] args);
 
         [Syscall("System.Contract.GetCallFlags")]
-        public static extern byte GetCallFlags();
+        public static extern CallFlags GetCallFlags();
 
         [Syscall("System.Contract.CreateStandardAccount")]
         public static extern UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);

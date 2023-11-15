@@ -5,6 +5,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public abstract class A : SmartContract.Framework.SmartContract
     {
+        public A() : base() { }
+
         public int sum(int a, int b)
         {
             return a + b;
@@ -16,6 +18,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
     public abstract class B : A
     {
+        public B() : base() { }
+
         public int mul(int a, int b)
         {
             return a * b;

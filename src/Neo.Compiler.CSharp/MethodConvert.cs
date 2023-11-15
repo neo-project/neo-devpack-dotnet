@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.Compiler.CSharp is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -59,12 +59,15 @@ namespace Neo.Compiler
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
         public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
+        public bool IsEmpty => _instructions.Count == 0
+            || (_instructions.Count == 1 && _instructions[^1].OpCode == OpCode.RET)
+            || (_instructions.Count == 2 && _instructions[^1].OpCode == OpCode.RET && _instructions[0].OpCode == OpCode.INITSLOT);
 
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
             this.Symbol = symbol;
             this.context = context;
-            this._checkedStack.Push(context.Checked);
+            this._checkedStack.Push(context.Options.Checked);
         }
 
         private byte AddLocalVariable(ILocalSymbol symbol)
@@ -157,7 +160,7 @@ namespace Neo.Compiler
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                ConvertModifier(model);
+                var modifiers = ConvertModifier(model).ToArray();
                 ConvertSource(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
                 {
@@ -181,15 +184,31 @@ namespace Neo.Compiler
                         });
                     }
                 }
+                foreach (var (fieldIndex, attribute) in modifiers)
+                {
+                    var disposeInstruction = ExitModifier(model, fieldIndex, attribute);
+                    if (disposeInstruction is not null && _returnTarget.Instruction is null)
+                    {
+                        _returnTarget.Instruction = disposeInstruction;
+                    }
+                }
             }
-            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+            if (_returnTarget.Instruction is null)
             {
-                _instructions[^1].OpCode = OpCode.RET;
-                _returnTarget.Instruction = _instructions[^1];
+                if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+                {
+                    _instructions[^1].OpCode = OpCode.RET;
+                    _returnTarget.Instruction = _instructions[^1];
+                }
+                else
+                {
+                    _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                }
             }
             else
             {
-                _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                // it comes from modifier clean up
+                AddInstruction(OpCode.RET);
             }
             if (!context.Options.NoOptimize)
                 Optimizer.RemoveNops(_instructions);
@@ -297,6 +316,9 @@ namespace Neo.Compiler
                 ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
                 switch (type)
                 {
+                    case ContractParameterType.String:
+                        Push(value);
+                        break;
                     case ContractParameterType.ByteArray:
                         Push(value.HexToBytes(true));
                         break;
@@ -315,13 +337,13 @@ namespace Neo.Compiler
 
         private void ProcessConstructorInitializer(SemanticModel model)
         {
+            INamedTypeSymbol type = Symbol.ContainingType;
+            if (type.IsValueType) return;
+            INamedTypeSymbol baseType = type.BaseType!;
+            if (baseType.SpecialType == SpecialType.System_Object) return;
             ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
             if (initializer is null)
             {
-                INamedTypeSymbol type = Symbol.ContainingType;
-                if (type.IsValueType) return;
-                INamedTypeSymbol baseType = type.BaseType!;
-                if (baseType.SpecialType == SpecialType.System_Object) return;
                 IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
                 if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                     return;
@@ -547,7 +569,7 @@ namespace Neo.Compiler
             }
         }
 
-        private void ConvertModifier(SemanticModel model)
+        private IEnumerable<(byte fieldIndex, AttributeData attribute)> ConvertModifier(SemanticModel model)
         {
             foreach (var attribute in Symbol.GetAttributesWithInherited())
             {
@@ -570,14 +592,25 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.STSFLD, fieldIndex);
 
                 notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
-                var validateSymbol = attribute.AttributeClass.GetAllMembers()
+                var enterSymbol = attribute.AttributeClass.GetAllMembers()
                     .OfType<IMethodSymbol>()
-                    .Where(p => p.Name == nameof(ModifierAttribute.Validate))
-                    .Where(u => u.Parameters.Length == 0)
-                    .First();
-                MethodConvert validateMethod = context.ConvertMethod(model, validateSymbol);
-                EmitCall(validateMethod);
+                    .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
+                MethodConvert enterMethod = context.ConvertMethod(model, enterSymbol);
+                EmitCall(enterMethod);
+                yield return (fieldIndex, attribute);
             }
+        }
+
+        private Instruction? ExitModifier(SemanticModel model, byte fieldIndex, AttributeData attribute)
+        {
+            var exitSymbol = attribute.AttributeClass!.GetAllMembers()
+                .OfType<IMethodSymbol>()
+                .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
+            MethodConvert exitMethod = context.ConvertMethod(model, exitSymbol);
+            if (exitMethod.IsEmpty) return null;
+            var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+            EmitCall(exitMethod);
+            return instruction;
         }
 
         private void ConvertSource(SemanticModel model)
@@ -2099,8 +2132,9 @@ namespace Neo.Compiler
 
         private void EmitComplexAssignmentOperator(ITypeSymbol type, SyntaxToken operatorToken)
         {
-            bool isBoolean = type.SpecialType == SpecialType.System_Boolean;
-            bool isString = type.SpecialType == SpecialType.System_String;
+            var itemType = type.GetStackItemType();
+            bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
+            bool isString = itemType == VM.Types.StackItemType.ByteString;
             AddInstruction(operatorToken.ValueText switch
             {
                 "+=" => isString ? OpCode.CAT : OpCode.ADD,
@@ -4032,6 +4066,11 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.POW);
                     return true;
+                case "System.Numerics.BigInteger.ModPow(System.Numerics.BigInteger, System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MODPOW);
+                    return true;
                 case "System.Numerics.BigInteger.ToByteArray()":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -4149,6 +4188,7 @@ namespace Neo.Compiler
                         endTarget.Instruction = AddInstruction(OpCode.NOP);
                     }
                     return true;
+                case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(char)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(sbyte)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(byte)":
                 case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(short)":

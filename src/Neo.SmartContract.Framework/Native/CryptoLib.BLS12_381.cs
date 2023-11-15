@@ -10,15 +10,20 @@
 
 #pragma warning disable CS0626
 
-using Neo.SmartContract.Framework.Attributes;
-
 namespace Neo.SmartContract.Framework.Native
 {
-    [Contract("0x49cf4e5378ffcd4dec034fd98a174c5491e395e2")]
-    public class RoleManagement
+    public static partial class CryptoLib
     {
-        [ContractHash]
-        public static extern UInt160 Hash { get; }
-        public static extern Cryptography.ECC.ECPoint[] GetDesignatedByRole(Role role, uint index);
+        public static extern byte[] Bls12381Serialize(object data);
+
+        public static extern object Bls12381Deserialize(byte[] data);
+
+        public static extern bool Bls12381Equal(object x, object y);
+
+        public static extern object Bls12381Add(object x, object y);
+
+        public static extern object Bls12381Mul(object x, byte[] mul, bool neg);
+
+        public static extern object Bls12381Pairing(object g1, object g2);
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -221,5 +221,13 @@ namespace Neo.SmartContract.Framework
         /// <returns></returns>
         [OpCode(OpCode.SQRT)]
         public extern static BigInteger Sqrt(this BigInteger x);
+
+        [OpCode(OpCode.MODMUL)]
+        public extern static BigInteger ModMultiply(this BigInteger x, BigInteger y, BigInteger modulus);
+
+        public static BigInteger ModInverse(this BigInteger value, BigInteger modulus)
+        {
+            return BigInteger.ModPow(value, -1, modulus);
+        }
     }
 }

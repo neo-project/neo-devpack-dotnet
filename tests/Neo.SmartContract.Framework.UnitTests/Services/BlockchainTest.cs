@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
@@ -15,13 +16,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     public class BlockchainTest
     {
         private Block _block;
+        private DataCache snapshot;
         private TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
             var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot().CreateSnapshot();
+            snapshot = system.GetSnapshot().CreateSnapshot();
 
             _block = new Block()
             {
@@ -260,7 +262,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(tx.Script, item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(tx.Script.ToArray(), item.GetSpan().ToArray());
 
             // Sender
 
@@ -283,7 +285,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, (item as Array).Count);
-            Assert.AreEqual(6, ((item as Array)[0] as Array).Count);
+            Assert.AreEqual(5, ((item as Array)[0] as Array).Count);
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("FirstScope"))));
@@ -440,7 +442,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                     },
                 }
             };
-            _engine.Snapshot.ContractAdd(contract);
+            snapshot.ContractAdd(contract);
 
             // Not found
 

@@ -1,12 +1,14 @@
+using System.Linq;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
-using Neo.IO.Json;
+using Neo.Json;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
-using System.Linq;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -113,6 +115,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(456, item.GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("convertFromChar");
+            item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(65, item.GetInteger());
         }
 
         [TestMethod]
@@ -129,9 +137,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             using var testengine = new TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var methods = (JArray)testengine.Manifest["abi"]["methods"];
-            var checkEnumArg = methods.Where(u => u["name"].AsString() == "checkEnumArg").FirstOrDefault();
-            Assert.AreEqual(checkEnumArg["parameters"].ToString(), @"[{""name"":""arg"",""type"":""Integer""}]");
+            var methods = testengine.Manifest.Abi.Methods;
+            var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").FirstOrDefault();
+            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
 
         [TestMethod]
@@ -390,13 +398,42 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void event_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkEvent");
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(1, testengine.Notifications.Count);
+            var system = new NeoSystem(ProtocolSettings.Default);
+            using var testengine = new TestEngine(verificable: new Transaction()
+            {
+                Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
+                Witnesses = System.Array.Empty<Witness>(),
+                Attributes = System.Array.Empty<TransactionAttribute>()
+            },
+            snapshot: new TestDataCache(system.GenesisBlock),
+            persistingBlock: system.GenesisBlock);
 
-            var item = testengine.Notifications.First();
+            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+
+            var manifest = testengine.Manifest;
+            var nef = new NefFile() { Script = testengine.Nef.Script, Compiler = testengine.Nef.Compiler, Source = testengine.Nef.Source, Tokens = testengine.Nef.Tokens };
+            nef.CheckSum = NefFile.ComputeChecksum(nef);
+
+            var hash = SmartContract.Helper.GetContractHash((testengine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
+
+            // Deploy because notify require a contract
+
+            testengine.Reset();
+
+            var result = testengine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count); // Hash can be retrived here
+
+            testengine.Reset();
+
+            result = testengine.ExecuteTestCaseStandard("call", hash.ToArray(), "checkEvent", (int)CallFlags.All, new Array());
+            //result = testengine.ExecuteTestCaseStandard("checkEvent");
+            Assert.AreEqual(VMState.HALT, testengine.State);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(Null.Null, result.Pop());
+            Assert.AreEqual(2, testengine.Notifications.Count);
+
+            var item = testengine.Notifications.Last();
 
             Assert.AreEqual(1, item.State.Count);
             Assert.AreEqual("dummyEvent", item.EventName);
@@ -485,7 +522,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse(item.GetBoolean());
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new VM.Types.Boolean(true));
+            result = testengine.ExecuteTestCaseStandard("validateAddress", StackItem.True);
             Assert.AreEqual(1, result.Count);
             item = result.Pop();
             Assert.IsFalse(item.GetBoolean());

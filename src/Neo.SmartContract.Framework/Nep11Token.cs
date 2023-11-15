@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2021 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -31,6 +31,7 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_Token = 0x03;
         protected const byte Prefix_AccountToken = 0x04;
 
+        [Safe]
         public sealed override byte Decimals => 0;
 
         [Safe]

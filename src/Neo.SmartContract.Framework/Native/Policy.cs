@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -23,5 +23,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern uint GetExecFeeFactor();
         public static extern uint GetStoragePrice();
         public static extern bool IsBlocked(UInt160 account);
+        public static extern uint GetAttributeFee(TransactionAttributeType attributeType);
+        public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
     }
 }

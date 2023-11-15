@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2022 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 // 
 // The Neo.SmartContract.Framework is free software distributed under the MIT 
 // software license, see the accompanying file LICENSE in the main directory 
@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services
@@ -105,5 +106,11 @@ namespace Neo.SmartContract.Framework.Services
 
         [Syscall("System.Runtime.GetNetwork")]
         public static extern uint GetNetwork();
+
+        [Syscall("System.Runtime.LoadScript")]
+        public static extern object LoadScript(ByteString script, CallFlags flags, params object[] args);
+
+        [Syscall("System.Runtime.CurrentSigners")]
+        public static extern Signer[] CurrentSigners();
     }
 }
