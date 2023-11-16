@@ -517,7 +517,7 @@ namespace Neo.Compiler
             if (Symbol.MethodKind == MethodKind.PropertyGet)
             {
                 JumpTarget endTarget = new();
-                AddInstruction(OpCode.DUP);
+                // AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.ISNULL);
                 Jump(OpCode.JMPIFNOT_L, endTarget);
                 Push(key);
