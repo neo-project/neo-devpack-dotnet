@@ -17,6 +17,21 @@ namespace Neo.SmartContract.Framework.Attributes
     [AttributeUsage(AttributeTargets.Property, Inherited = false)]
     public class StorageBackedAttribute : Attribute
     {
-        public StorageBackedAttribute(byte prefix = 0) { }
+        /// <summary>
+        /// The property will be backed in the storage using the specific key using the property name as storage key
+        /// </summary>
+        public StorageBackedAttribute() { }
+
+        /// <summary>
+        /// The property will be backed in the storage using the specific key
+        /// </summary>
+        /// <param name="storageKey">Storage key</param>
+        public StorageBackedAttribute(byte storageKey) { }
+
+        /// <summary>
+        /// The property will be backed in the storage using the specific key
+        /// </summary>
+        /// <param name="storageKey">Storage key</param>
+        public StorageBackedAttribute(string storageKey) { }
     }
 }

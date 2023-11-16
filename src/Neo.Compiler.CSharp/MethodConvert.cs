@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace Neo.Compiler
@@ -484,10 +485,36 @@ namespace Neo.Compiler
             }
         }
 
+        private byte[] GetStorageBackedKey(IPropertySymbol property, AttributeData attribute)
+        {
+            byte[] key;
+
+            if (attribute.ConstructorArguments.Length == 0)
+            {
+                key = Utility.StrictUTF8.GetBytes(property.Name);
+            }
+            else
+            {
+                if (attribute.ConstructorArguments[0].Value is byte b)
+                {
+                    key = new byte[] { b };
+                }
+                else if (attribute.ConstructorArguments[0].Value is string s)
+                {
+                    key = Utility.StrictUTF8.GetBytes(s);
+                }
+                else
+                {
+                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unknown StorageBacked constructor: {Symbol}");
+                }
+            }
+            return key;
+        }
+
         private void ConvertStorageBackedProperty(IPropertySymbol property, AttributeData attribute)
         {
             IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-            byte[] key = Encoding.UTF8.GetBytes(property.Name).Prepend((byte)attribute.ConstructorArguments[0].Value!).ToArray();
+            byte[] key = GetStorageBackedKey(property, attribute);
             if (Symbol.MethodKind == MethodKind.PropertyGet)
             {
                 JumpTarget endTarget = new();
