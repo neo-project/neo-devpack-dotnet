@@ -28,7 +28,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace Neo.Compiler

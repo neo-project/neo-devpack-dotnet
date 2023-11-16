@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,20 +33,33 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test()
         {
             Assert.AreEqual(0, _engine.Snapshot.GetChangeSet().Where(u => u.Key.Id == 0).Count());
+
             Test_Kind("WithoutConstructor");
             Test_Kind("WithKey");
             Test_Kind("WithString");
+
             Assert.AreEqual(3, _engine.Snapshot.GetChangeSet().Where(u => u.Key.Id == 0).Count());
         }
 
         public void Test_Kind(string kind)
         {
+            Console.WriteLine("GET");
             _engine.Reset();
+
+            var result = _engine.ExecuteTestCaseStandard("get" + kind);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(new BigInteger(0), result.Pop().GetInteger());
+
+            Console.WriteLine("PUT");
+            _engine.Reset();
+
             _engine.ExecuteTestCaseStandard("put" + kind, 123);
             Assert.AreEqual(VMState.HALT, _engine.State);
 
+            Console.WriteLine("GET");
             _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("get" + kind);
+
+            result = _engine.ExecuteTestCaseStandard("get" + kind);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
         }

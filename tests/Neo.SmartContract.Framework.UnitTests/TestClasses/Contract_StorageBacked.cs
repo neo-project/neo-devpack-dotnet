@@ -8,15 +8,15 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     public class Contract_StorageBacked : SmartContract
     {
         [StorageBacked]
-        public static BigInteger ValueA { [Safe] get; protected set; }
+        public BigInteger ValueA { [Safe] get; protected set; }
 
-        public static void putWithoutConstructor(BigInteger value)
+        public void putWithoutConstructor(BigInteger value)
         {
             ValueA = value;
         }
 
         [Safe]
-        public static BigInteger getWithoutConstructor() => ValueA;
+        public BigInteger getWithoutConstructor() => ValueA;
 
         // ---
 
