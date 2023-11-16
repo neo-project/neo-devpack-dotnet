@@ -48,7 +48,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var result = _engine.ExecuteTestCaseStandard("get" + kind);
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(new BigInteger(0), result.Pop().GetInteger());
+            Assert.IsTrue(result.Pop().IsNull);
 
             Console.WriteLine("PUT");
             _engine.Reset();
