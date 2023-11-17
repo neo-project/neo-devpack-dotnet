@@ -62,6 +62,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             result = _engine.ExecuteTestCaseStandard("get" + kind);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
+
+            // Test public getter
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard(kind[0].ToString().ToLowerInvariant() + kind[1..]);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
         }
     }
 }
