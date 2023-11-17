@@ -45,5 +45,13 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         [Safe]
         public static BigInteger getWithString() => WithString;
+
+
+        [StorageBacked("testMe")]
+        public static BigInteger PrivateGetterPublicSetter { [Safe] private get; set; }
+
+        [Safe]
+        public static BigInteger getPrivateGetterPublicSetter() => WithString;
+
     }
 }
