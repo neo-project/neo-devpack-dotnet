@@ -43,12 +43,23 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
         public void Test_Kind(string kind)
         {
+            // Read initial value
+
             Console.WriteLine("GET");
             _engine.Reset();
 
             var result = _engine.ExecuteTestCaseStandard("get" + kind);
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.IsTrue(result.Pop().IsNull);
+
+            // Test public getter
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard(kind[0].ToString().ToLowerInvariant() + kind[1..]);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.IsTrue(result.Pop().IsNull);
+
+            // Put
 
             Console.WriteLine("PUT");
             _engine.Reset();
