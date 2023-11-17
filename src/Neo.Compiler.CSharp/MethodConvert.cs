@@ -517,9 +517,18 @@ namespace Neo.Compiler
             if (Symbol.MethodKind == MethodKind.PropertyGet)
             {
                 JumpTarget endTarget = new();
-                // AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
-                Jump(OpCode.JMPIFNOT_L, endTarget);
+                if (Symbol.IsStatic)
+                {
+                    // AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    // Ensure that no object was sent
+                    Jump(OpCode.JMPIFNOT_L, endTarget);
+                }
+                else
+                {
+                    // Check class
+                    Jump(OpCode.JMPIF_L, endTarget);
+                }
                 Push(key);
                 Call(ApplicationEngine.System_Storage_GetReadOnlyContext);
                 Call(ApplicationEngine.System_Storage_Get);
