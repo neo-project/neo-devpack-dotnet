@@ -34,6 +34,9 @@ namespace Neo.Compiler
 {
     class MethodConvert
     {
+
+        #region Fields
+
         private readonly CompilationContext context;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
@@ -55,6 +58,10 @@ namespace Neo.Compiler
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
         private readonly Stack<bool> _checkedStack = new();
 
+        #endregion
+
+        #region Properties
+
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
@@ -63,12 +70,20 @@ namespace Neo.Compiler
             || (_instructions.Count == 1 && _instructions[^1].OpCode == OpCode.RET)
             || (_instructions.Count == 2 && _instructions[^1].OpCode == OpCode.RET && _instructions[0].OpCode == OpCode.INITSLOT);
 
+        #endregion
+
+        #region Constructors
+
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
             this.Symbol = symbol;
             this.context = context;
             this._checkedStack.Push(context.Options.Checked);
         }
+
+        #endregion
+
+        #region Variables
 
         private byte AddLocalVariable(ILocalSymbol symbol)
         {
@@ -102,6 +117,10 @@ namespace Neo.Compiler
                 _localVariables.Remove(symbol);
         }
 
+        #endregion
+
+        #region Instructions
+
         private Instruction AddInstruction(Instruction instruction)
         {
             _instructions.Add(instruction);
@@ -120,6 +139,10 @@ namespace Neo.Compiler
         {
             return new SequencePointInserter(_instructions, syntax);
         }
+
+        #endregion
+
+        #region Convert
 
         public void Convert(SemanticModel model)
         {
@@ -685,7 +708,9 @@ namespace Neo.Compiler
             }
             _initslot = !_inline;
         }
+        #endregion
 
+        #region ConvertStatement
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
         {
             switch (statement)
@@ -1366,6 +1391,10 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
         }
+
+        #endregion
+
+        #region ConvertExpression
 
         private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax)
         {
@@ -3381,6 +3410,21 @@ namespace Neo.Compiler
             RemoveAnonymousVariable(anonymousIndex);
         }
 
+        private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
+        {
+            AddInstruction(OpCode.NEWSTRUCT0);
+            foreach (ArgumentSyntax argument in expression.Arguments)
+            {
+                AddInstruction(OpCode.DUP);
+                ConvertExpression(model, argument.Expression);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+
+        #endregion
+
+        #region ConvertPattern
+
         private void ConvertPattern(SemanticModel model, PatternSyntax pattern, byte localIndex)
         {
             switch (pattern)
@@ -3506,16 +3550,11 @@ namespace Neo.Compiler
             AddInstruction(OpCode.NOT);
         }
 
-        private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
-        {
-            AddInstruction(OpCode.NEWSTRUCT0);
-            foreach (ArgumentSyntax argument in expression.Arguments)
-            {
-                AddInstruction(OpCode.DUP);
-                ConvertExpression(model, argument.Expression);
-                AddInstruction(OpCode.APPEND);
-            }
-        }
+        #endregion
+
+
+
+        #region StackHelpers
 
         private void Push(bool value)
         {
@@ -3648,6 +3687,8 @@ namespace Neo.Compiler
             });
         }
 
+        #region LabelsAndTargets
+
         private JumpTarget AddLabel(ILabelSymbol symbol, bool checkTryStack)
         {
             if (!_labels.TryGetValue(symbol, out JumpTarget? target))
@@ -3661,6 +3702,8 @@ namespace Neo.Compiler
             }
             return target;
         }
+
+        #endregion
 
         private void PushSwitchLabels((SwitchLabelSyntax, JumpTarget)[] labels)
         {
@@ -3703,6 +3746,9 @@ namespace Neo.Compiler
             if (_tryStack.TryPeek(out ExceptionHandling? result))
                 result.BreakTargetCount--;
         }
+        #endregion
+
+        #region SlotHelpers
 
         private Instruction AccessSlot(OpCode opcode, byte index)
         {
@@ -3710,6 +3756,7 @@ namespace Neo.Compiler
                 ? AddInstruction(new Instruction { OpCode = opcode, Operand = new[] { index } })
                 : AddInstruction(opcode - 7 + index);
         }
+        #endregion
 
         private Instruction IsType(VM.Types.StackItemType type)
         {
@@ -3827,6 +3874,8 @@ namespace Neo.Compiler
             }
             AddInstruction(OpCode.THROW);
         }
+
+        #region CallHelpers
 
         private Instruction Call(InteropDescriptor descriptor)
         {
@@ -4543,6 +4592,7 @@ namespace Neo.Compiler
             AddInstruction(OpCode.PICKITEM);
             AddInstruction(OpCode.CALLA);
         }
+        #endregion
     }
 
     class MethodConvertCollection : KeyedCollection<IMethodSymbol, MethodConvert>
