@@ -70,6 +70,35 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
         }
 
+        [TestMethod]
+        public void Test_Non_Static_Private_Getter_Public_Setter()
+        {
+            // Read initial value
+            Console.WriteLine("GET");
+            _engine.Reset();
+
+            // Test private getter
+
+            var result = _engine.ExecuteTestCaseStandard("getNonStaticPrivateGetterPublicSetter");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.IsTrue(result.Pop().IsNull);
+
+
+            // Test public setter
+            _engine.Reset();
+            _engine.ExecuteTestCaseStandard("setNonStaticPrivateGetterPublicSetter", 123);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+
+            // check public setter
+
+            Console.WriteLine("GET");
+            _engine.Reset();
+
+            result = _engine.ExecuteTestCaseStandard("getNonStaticPrivateGetterPublicSetter");
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
+        }
+
         public void Test_Kind(string kind)
         {
             // Read initial value
