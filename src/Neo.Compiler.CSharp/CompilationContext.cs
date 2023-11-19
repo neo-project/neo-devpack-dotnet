@@ -414,6 +414,7 @@ namespace Neo.Compiler
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
         {
+            // skip attribute class
             if (symbol.IsSubclassOf(nameof(Attribute))) return;
             bool isPublic = symbol.DeclaredAccessibility == Accessibility.Public;
             bool isAbstract = symbol.IsAbstract;
@@ -421,7 +422,7 @@ namespace Neo.Compiler
             bool isSmartContract = isPublic && !isAbstract && isContractType;
             if (isSmartContract)
             {
-                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
+                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, "Only one smart contract is allowed.");
                 scTypeFound = true;
                 foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
@@ -487,17 +488,22 @@ namespace Neo.Compiler
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
         {
+            // abstract method is not processed
             if (symbol.IsAbstract) return;
             if (symbol.MethodKind != MethodKind.StaticConstructor)
             {
+                // only public methods of public classes are exported to abimethod
+                // public methods of the non-public contract are not exported
                 if (symbol.DeclaredAccessibility != Accessibility.Public)
                     export = false;
+                // only ordinary, property get and property set methods are processed
                 if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
                     return;
             }
             if (export)
             {
                 AbiMethod method = new(symbol);
+                // methods with the same name (case sensitive) and parameter count are considered the same methods
                 if (methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                 methodsExported.Add(method);
@@ -513,17 +519,16 @@ namespace Neo.Compiler
 
         internal MethodConvert ConvertMethod(SemanticModel model, IMethodSymbol symbol)
         {
-            if (!methodsConverted.TryGetValue(symbol, out MethodConvert? method))
+            // only method that is not converted will be converted
+            if (methodsConverted.TryGetValue(symbol, out MethodConvert? method)) return method;
+            method = new MethodConvert(this, symbol);
+            methodsConverted.Add(method);
+            if (!symbol.DeclaringSyntaxReferences.IsEmpty)
             {
-                method = new MethodConvert(this, symbol);
-                methodsConverted.Add(method);
-                if (!symbol.DeclaringSyntaxReferences.IsEmpty)
-                {
-                    ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
-                    model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
-                }
-                method.Convert(model);
+                ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
+                model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
             }
+            method.Convert(model);
             return method;
         }
 

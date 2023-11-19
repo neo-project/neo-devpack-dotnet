@@ -433,13 +433,18 @@ namespace Neo.Compiler
         /// <param name="postInitialize">Action to run after initialization</param>
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
+            // Check if the field has an [InitialValue] attribute
             AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
+
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
                 SyntaxNode syntaxNode;
+
+                // Check if the field has declaring syntax references (source code references)
                 if (field.DeclaringSyntaxReferences.IsEmpty)
                 {
+                    // If the field is associated with a property, get the property's syntax
                     if (field.AssociatedSymbol is not IPropertySymbol property) return;
                     PropertyDeclarationSyntax syntax = (PropertyDeclarationSyntax)property.DeclaringSyntaxReferences[0].GetSyntax();
                     syntaxNode = syntax;
@@ -447,41 +452,56 @@ namespace Neo.Compiler
                 }
                 else
                 {
+                    // Get the syntax for the field declaration
                     VariableDeclaratorSyntax syntax = (VariableDeclaratorSyntax)field.DeclaringSyntaxReferences[0].GetSyntax();
                     syntaxNode = syntax;
                     initializer = syntax.Initializer;
                 }
+
+                // If there is no initializer, return
                 if (initializer is null) return;
+
+                // Get the semantic model for the syntax tree containing the field declaration
                 model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+
+                // Insert a sequence point for debugging purposes
                 using (InsertSequencePoint(syntaxNode))
                 {
-                    preInitialize?.Invoke();
-                    ConvertExpression(model, initializer.Value);
-                    postInitialize?.Invoke();
+                    preInitialize?.Invoke();                     // Invoke the pre-initialization action if provided
+                    ConvertExpression(model, initializer.Value); // Convert the initializer expression
+                    postInitialize?.Invoke();                    // Invoke the post-initialization action if provided
                 }
             }
             else
             {
-                preInitialize?.Invoke();
+                preInitialize?.Invoke(); // Invoke the pre-initialization action if provided
+
+                // Get the initial value and type from the [InitialValue] attribute
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
                 ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+
+                // Handle different initial value types
                 switch (type)
                 {
                     case ContractParameterType.String:
-                        Push(value);
+                        Push(value); // Push the string value onto the evaluation stack
                         break;
                     case ContractParameterType.ByteArray:
+                        // Push the byte array value onto the evaluation stack
                         Push(value.HexToBytes(true));
                         break;
                     case ContractParameterType.Hash160:
-                        Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(_context.Options.AddressVersion)).ToArray());
+                        Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(_context.Options.AddressVersion)).ToArray()); // Push the Hash160 value onto the evaluation stack
                         break;
                     case ContractParameterType.PublicKey:
+                        // Push the public key value onto the evaluation stack
                         Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                         break;
                     default:
                         throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
                 }
+
+                // Invoke the post-initialization action if provided
                 postInitialize?.Invoke();
             }
         }
