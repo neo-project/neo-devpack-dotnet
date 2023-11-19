@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -37,7 +37,7 @@ namespace Neo.Compiler
 
         #region Fields
 
-        // Stores context of the compilation, possibly including syntax trees and semantic models.
+        // Stores context of the compilation, including syntax trees and semantic models.
         private readonly CompilationContext _context;
 
         // Default calling convention for method invocations.
@@ -58,7 +58,7 @@ namespace Neo.Compiler
         // Maps local variable symbols to their indices, used for managing local variables within methods.
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
 
-        // A list of anonymous variables, possibly used for temporary or intermediate values during conversion.
+        // A list of anonymous variables, used for temporary or intermediate values during conversion.
         private readonly List<byte> _anonymousVariables = new();
 
         // Counter for the number of local variables.
