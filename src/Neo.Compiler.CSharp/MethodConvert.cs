@@ -915,7 +915,12 @@ namespace Neo.Compiler
                     ConvertIfStatement(model, syntax);
                     break;
                 case LabeledStatementSyntax syntax:
-                    // Example: LabelName: Console.WriteLine("Label");
+                    // Example:
+                    // labelName:
+                    //     // Some code here
+                    //
+                    // // Elsewhere in the code
+                    // goto labelName;
                     ConvertLabeledStatement(model, syntax);
                     break;
                 case LocalDeclarationStatementSyntax syntax:
@@ -950,6 +955,12 @@ namespace Neo.Compiler
                 // Example: using (var resource = new SomeDisposableResource()) { resource.DoSomething(); }
                 case FixedStatementSyntax:
                 // Example: fixed (int* ptr = &someVariable) { *ptr = 42; }
+                case LockStatementSyntax:
+                // Convert lock statement
+                //C# Example: lock (syncObject) { /* critical section */ }
+                case YieldStatementSyntax:
+                // Convert yield statement
+                // C# Example: yield return value;
                 default:
                     // If the syntax type is not supported, throw an exception
                     throw new CompilationException(statement, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {statement}");
@@ -1421,10 +1432,7 @@ namespace Neo.Compiler
             {
                 if (syntax.Expression is not null)
                     ConvertExpression(model, syntax.Expression);
-                if (_tryStack.Count > 0)
-                    Jump(OpCode.ENDTRY_L, _returnTarget);
-                else
-                    Jump(OpCode.JMP_L, _returnTarget);
+                Jump(_tryStack.Count > 0 ? OpCode.ENDTRY_L : OpCode.JMP_L, _returnTarget);
             }
         }
 
@@ -2722,31 +2730,64 @@ namespace Neo.Compiler
             Jump(OpCode.PUSHA, convert._startTarget);
         }
 
+        /// <summary>
+        /// Converts a binary expression (e.g., arithmetic, logical, comparison) into a series of low-level instructions.
+        /// This method handles various types of binary operations including logical, comparison, and arithmetic.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The binary expression to be converted.</param>
         private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
         {
+            // The first switch statement handles specific complex binary operators
+            // that require specialized logic for conversion. This includes operators like
+            // ||, &&, is, as, and ??. These operators involve more than simple arithmetic or
+            // comparison; they include short-circuiting logic (|| and &&) or type checking (is and as).
             switch (expression.OperatorToken.ValueText)
             {
                 case "||":
+                    // Example: condition1 || condition2
+                    // Converts a logical OR expression.
                     ConvertLogicalOrExpression(model, expression.Left, expression.Right);
                     return;
+
                 case "&&":
+                    // Example: condition1 && condition2
+                    // Converts a logical AND expression.
                     ConvertLogicalAndExpression(model, expression.Left, expression.Right);
                     return;
+
                 case "is":
+                    // Example: variable is Type
+                    // Converts an 'is' type-checking expression.
                     ConvertIsExpression(model, expression.Left, expression.Right);
                     return;
+
                 case "as":
+                    // Example: object as Type
+                    // Converts an 'as' type-casting expression.
                     ConvertAsExpression(model, expression.Left, expression.Right);
                     return;
+
                 case "??":
+                    // Example: variable ?? value
+                    // Converts a null coalescing expression.
                     ConvertCoalesceExpression(model, expression.Left, expression.Right);
                     return;
             }
+
+            // The second switch statement handles general binary operators such as
+            // arithmetic (+, -, *, /, %), bitwise (<<, >>, &, |, ^), and comparison (==, !=, <, <=, >, >=) operators.
+            // These operators map directly to corresponding low-level instructions
+            // and do not require the specialized logic needed for the operators in the first switch.
             IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
             if (symbol is not null && TryProcessSystemOperators(model, symbol, expression.Left, expression.Right))
                 return;
+
+            // Convert the left and right operands for other binary operators.
             ConvertExpression(model, expression.Left);
             ConvertExpression(model, expression.Right);
+
+            // Process various binary operators.
             (OpCode opcode, bool checkResult) = expression.OperatorToken.ValueText switch
             {
                 "+" => (OpCode.ADD, true),
@@ -2768,11 +2809,9 @@ namespace Neo.Compiler
                 _ => throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}")
             };
             AddInstruction(opcode);
-            if (checkResult)
-            {
-                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-                EnsureIntegerInRange(type);
-            }
+            if (!checkResult) return;
+            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+            EnsureIntegerInRange(type);
         }
 
         private void EnsureIntegerInRange(ITypeSymbol type)
@@ -3009,7 +3048,7 @@ namespace Neo.Compiler
                 return;
             }
             ConvertExpression(model, expression.Expression);
-            switch ((sType.Name, tType.Name))
+            switch (sType.Name, tType.Name)
             {
                 case ("ByteString", "ECPoint"):
                     {
@@ -3053,6 +3092,21 @@ namespace Neo.Compiler
                         endTarget.Instruction = AddInstruction(OpCode.NOP);
                     }
                     break;
+                // int -> Int32
+                // uint -> UInt32
+                // short -> Int16
+                // ushort -> UInt16
+                // long -> Int64
+                // ulong -> UInt64
+                // byte -> Byte
+                // sbyte -> SByte
+                // float -> Single
+                // double -> Double
+                // char -> Char
+                // bool -> Boolean
+                // object -> Object
+                // string -> String
+                // decimal -> Decimal
                 case ("SByte", "Byte"):
                 case ("SByte", "UInt16"):
                 case ("SByte", "UInt32"):
