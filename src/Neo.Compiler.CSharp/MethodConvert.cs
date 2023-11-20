@@ -3373,36 +3373,73 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a prefix unary expression into a series of low-level instructions.
+        /// This method handles various unary operators like +, -, ~, !, ++, --, and ^.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The prefix unary expression to be converted.</param>
         private void ConvertPrefixUnaryExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
         {
             switch (expression.OperatorToken.ValueText)
             {
                 case "+":
+                    // Example: +x
+                    // If x = 5, '+x' simply refers to '5'.
+                    // Converts the operand x without additional instructions.
                     ConvertExpression(model, expression.Operand);
                     break;
+
                 case "-":
+                    // Example: -x
+                    // If x = 5, '-x' is '-5'.
+                    // Converts the operand x and adds a NEGATE instruction to negate the value.
                     ConvertExpression(model, expression.Operand);
                     AddInstruction(OpCode.NEGATE);
                     break;
+
                 case "~":
+                    // Example: ~x
+                    // If x = 5 (binary 0101), '~x' results in binary 1010 (decimal -6).
+                    // Converts the operand x and adds an INVERT instruction for bitwise negation.
                     ConvertExpression(model, expression.Operand);
                     AddInstruction(OpCode.INVERT);
                     break;
+
                 case "!":
+                    // Example: !x
+                    // If x = 5 (non-zero), '!x' results in 'false'.
+                    // Converts the operand x and adds a NOT instruction for logical negation.
                     ConvertExpression(model, expression.Operand);
                     AddInstruction(OpCode.NOT);
                     break;
+
                 case "++":
-                case "--":
+                    // Example: ++x
+                    // If x = 5, '++x' increments x to 6.
+                    // Handles the pre-increment operation of x.
                     ConvertPreIncrementOrDecrementExpression(model, expression);
                     break;
-                case "^":
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.SIZE);
-                    ConvertExpression(model, expression.Operand);
-                    AddInstruction(OpCode.SUB);
+
+                case "--":
+                    // Example: --x
+                    // If x = 5, '--x' decrements x to 4.
+                    // Handles the pre-decrement operation of x.
+                    ConvertPreIncrementOrDecrementExpression(model, expression);
                     break;
+
+                case "^":
+                    // Example: ^x
+                    // If x = 2 in a sequence of length 5, '^x' refers to the third element from the end.
+                    // The operations might involve duplicating the sequence length, converting the operand x, and then performing subtraction to calculate the index.
+                    AddInstruction(OpCode.DUP);     // Duplicate the sequence length
+                    AddInstruction(OpCode.SIZE);    // Get the size (context-dependent)
+                    ConvertExpression(model, expression.Operand); // Convert the operand x
+                    AddInstruction(OpCode.SUB);     // Perform subtraction to get the index
+                    break;
+
                 default:
+                    // Throws a compilation exception for unsupported operators.
                     throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
             }
         }
