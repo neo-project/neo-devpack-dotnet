@@ -1718,26 +1718,64 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts an anonymous object creation expression into a series of low-level instructions.
+        /// This method handles the creation of anonymous objects, typically with a set of initializers.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The anonymous object creation expression to be converted.</param>
         private void ConvertAnonymousObjectCreationExpression(SemanticModel model, AnonymousObjectCreationExpressionSyntax expression)
         {
+            // Example: new { Property1 = value1, Property2 = value2 }
+            // This expression creates an anonymous object with 'Property1' and 'Property2' initialized to 'value1' and 'value2', respectively.
+
+            // Add an instruction to create a new array (representing the anonymous object).
             AddInstruction(OpCode.NEWARRAY0);
+
+            // Iterate through each initializer in the anonymous object creation expression.
             foreach (AnonymousObjectMemberDeclaratorSyntax initializer in expression.Initializers)
             {
+                // Duplicate the array (anonymous object) for each new property to be appended.
                 AddInstruction(OpCode.DUP);
+
+                // Convert the expression that initializes the property.
                 ConvertExpression(model, initializer.Expression);
+
+                // Add an instruction to append the property value to the anonymous object.
                 AddInstruction(OpCode.APPEND);
             }
         }
 
+
+        /// <summary>
+        /// Converts an array creation expression into a series of low-level instructions.
+        /// This method handles the creation of new arrays, either with a specified size or with an initializer.
+        /// Multidimensional arrays are not supported in this implementation.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The array creation expression to be converted.</param>
         private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
         {
+            // Example: new int[10] or new int[] { 1, 2, 3 }
+            // This expression creates a new array of integers, either with a specified size (10) or with an initializer.
+
+            // Retrieve the rank specifier to determine the dimensions of the array.
             ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
+
+            // Throw an exception if the array is multidimensional.
             if (specifier.Rank != 1)
                 throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
+
+            // Retrieve the type information of the array.
             IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression.Type).Type!;
+
             if (expression.Initializer is null)
             {
-                ConvertExpression(model, specifier.Sizes[0]);
+                // Handle array creation with a specified size.
+                ConvertExpression(model, specifier.Sizes[0]); // Convert the size expression.
+
+                // Add an instruction to create the array.
+                // Special handling for byte arrays.
                 if (type.ElementType.SpecialType == SpecialType.System_Byte)
                     AddInstruction(OpCode.NEWBUFFER);
                 else
@@ -1745,9 +1783,11 @@ namespace Neo.Compiler
             }
             else
             {
+                // Handle array creation with an initializer.
                 ConvertInitializerExpression(model, type, expression.Initializer);
             }
         }
+
 
         private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
         {
@@ -1765,31 +1805,60 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a simple assignment expression (e.g., =) into a series of low-level instructions.
+        /// This method handles different types of left-hand expressions such as variables, properties,
+        /// array elements, and tuples, assigning them the value from the right-hand expression.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The assignment expression to be converted.</param>
         private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
         {
+            // Example: variable = value
+            // This expression assigns 'value' to 'variable'.
+
+            // Convert the right-hand side of the assignment and duplicate the value for further operations.
             ConvertExpression(model, expression.Right);
             AddInstruction(OpCode.DUP);
+
             switch (expression.Left)
             {
                 case DeclarationExpressionSyntax left:
+                    // Example: var (x, y) = tuple
+                    // Handles assignment in a declaration, typically used with tuples.
                     ConvertDeclarationAssignment(model, left);
                     break;
+
                 case ElementAccessExpressionSyntax left:
+                    // Example: array[index] = value
+                    // Handles assignment to an array element.
                     ConvertElementAccessAssignment(model, left);
                     break;
+
                 case IdentifierNameSyntax left:
+                    // Example: variable = value
+                    // Handles assignment to a variable or field.
                     ConvertIdentifierNameAssignment(model, left);
                     break;
+
                 case MemberAccessExpressionSyntax left:
+                    // Example: object.Property = value
+                    // Handles assignment to a property of an object.
                     ConvertMemberAccessAssignment(model, left);
                     break;
+
                 case TupleExpressionSyntax left:
+                    // Example: (x, y) = tuple
+                    // Handles assignment to multiple variables in a tuple deconstruction.
                     ConvertTupleAssignment(model, left);
                     break;
+
                 default:
+                    // Throw an exception for unsupported types of assignments.
                     throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {expression.Left}");
             }
         }
+
 
         private void ConvertDeclarationAssignment(SemanticModel model, DeclarationExpressionSyntax left)
         {
@@ -1937,23 +2006,44 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a null coalesce assignment expression (??=) into a series of low-level instructions.
+        /// This method handles expressions where an existing value is preserved if it's not null,
+        /// otherwise, it's assigned a new value from the right-hand side of the expression.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The coalesce assignment expression to be converted.</param>
         private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
         {
+            // Example: variable ??= value
+            // This expression checks if 'variable' is null, and if so, assigns 'value' to 'variable'.
+
             switch (expression.Left)
             {
                 case ElementAccessExpressionSyntax left:
+                    // Example: array[index] ??= value
+                    // Handles coalesce assignment to an array element.
                     ConvertElementAccessCoalesceAssignment(model, left, expression.Right);
                     break;
+
                 case IdentifierNameSyntax left:
+                    // Example: variable ??= value
+                    // Handles coalesce assignment to a variable or field.
                     ConvertIdentifierNameCoalesceAssignment(model, left, expression.Right);
                     break;
+
                 case MemberAccessExpressionSyntax left:
+                    // Example: object.Property ??= value
+                    // Handles coalesce assignment to a property of an object.
                     ConvertMemberAccessCoalesceAssignment(model, left, expression.Right);
                     break;
+
                 default:
+                    // Throw an exception for unsupported coalesce assignment expressions.
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported coalesce assignment: {expression}");
             }
         }
+
 
         private void ConvertElementAccessCoalesceAssignment(SemanticModel model, ElementAccessExpressionSyntax left, ExpressionSyntax right)
         {
@@ -2214,24 +2304,44 @@ namespace Neo.Compiler
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+        /// <summary>
+        /// Converts a complex assignment expression (like +=, -=, etc.) into a series of low-level instructions.
+        /// This method handles various forms of complex assignments to different types of expressions such as
+        /// element access, identifiers, or member access.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The complex assignment expression to be converted.</param>
         private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
         {
+            // Retrieve the type information for the left-hand side of the assignment.
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+
             switch (expression.Left)
             {
                 case ElementAccessExpressionSyntax left:
+                    // Example: array[index] += value
+                    // Handles complex assignment to an array element, where 'array[index]' is modified by 'value'.
                     ConvertElementAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                     break;
+
                 case IdentifierNameSyntax left:
+                    // Example: variable += value
+                    // Handles complex assignment to an identifier, like a variable or field, where 'variable' is modified by 'value'.
                     ConvertIdentifierNameComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                     break;
+
                 case MemberAccessExpressionSyntax left:
+                    // Example: object.Property += value
+                    // Handles complex assignment to a member of an object, such as a property, where 'object.Property' is modified by 'value'.
                     ConvertMemberAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                     break;
+
                 default:
+                    // Throw an exception for unsupported complex assignment expressions.
                     throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment expression: {expression}");
             }
         }
+
 
         private void ConvertElementAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ElementAccessExpressionSyntax left, ExpressionSyntax right)
         {
@@ -2266,27 +2376,49 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a complex assignment (like +=, -=, etc.) to an identifier (field, local variable, parameter, or property)
+        /// into a series of low-level instructions.
+        /// This method handles expressions where an identifier is being modified using an operator
+        /// (e.g., variable += value) rather than being simply assigned a new value.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="type">The type of the left-hand side of the assignment.</param>
+        /// <param name="operatorToken">The operator token (e.g., +=, -=).</param>
+        /// <param name="left">The left-hand side of the assignment, which is an identifier name syntax.</param>
+        /// <param name="right">The right-hand side of the assignment, which is the value being assigned.</param>
         private void ConvertIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IdentifierNameSyntax left, ExpressionSyntax right)
         {
+            // Example: variable += value
+            // This expression adds 'value' to 'variable' and then sets 'variable' to the new value.
+
+            // Retrieve the symbol information for the identifier.
             ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
+
             switch (symbol)
             {
                 case IFieldSymbol field:
+                    // Handle complex assignment to a field.
                     ConvertFieldIdentifierNameComplexAssignment(model, type, operatorToken, field, right);
                     break;
                 case ILocalSymbol local:
+                    // Handle complex assignment to a local variable.
                     ConvertLocalIdentifierNameComplexAssignment(model, type, operatorToken, local, right);
                     break;
                 case IParameterSymbol parameter:
+                    // Handle complex assignment to a parameter.
                     ConvertParameterIdentifierNameComplexAssignment(model, type, operatorToken, parameter, right);
                     break;
                 case IPropertySymbol property:
+                    // Handle complex assignment to a property.
                     ConvertPropertyIdentifierNameComplexAssignment(model, type, operatorToken, property, right);
                     break;
                 default:
+                    // Throw an exception for unsupported symbols.
                     throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
+
 
         private void ConvertFieldIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IFieldSymbol left, ExpressionSyntax right)
         {
@@ -2400,27 +2532,45 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a complex assignment (like +=, -=, etc.) to a property into a series of low-level instructions.
+        /// This method handles expressions where a property is being modified using an operator
+        /// (e.g., property += value) rather than being simply assigned a new value.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="type">The type of the left-hand side of the assignment.</param>
+        /// <param name="operatorToken">The operator token (e.g., +=, -=).</param>
+        /// <param name="left">The left-hand side of the assignment, which is a member access expression.</param>
+        /// <param name="right">The right-hand side of the assignment, which is the value being assigned.</param>
+        /// <param name="property">The property symbol being accessed.</param>
         private void ConvertPropertyMemberAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
         {
+            // Example: objectInstance.Property += value
+            // This expression retrieves the current value of 'Property', adds 'value' to it,
+            // and then sets 'Property' to the new value.
+
             if (property.IsStatic)
             {
-                Call(model, property.GetMethod!);
-                ConvertExpression(model, right);
-                EmitComplexAssignmentOperator(type, operatorToken);
-                AddInstruction(OpCode.DUP);
-                Call(model, property.SetMethod!);
+                // Handle static property complex assignment.
+                Call(model, property.GetMethod!); // Get the current value of the static property.
+                ConvertExpression(model, right); // Convert the right-hand expression (value to add/subtract/etc.).
+                EmitComplexAssignmentOperator(type, operatorToken); // Apply the operator (e.g., addition).
+                AddInstruction(OpCode.DUP); // Duplicate the result for setting the property.
+                Call(model, property.SetMethod!); // Set the new value to the static property.
             }
             else
             {
-                ConvertExpression(model, left.Expression);
-                AddInstruction(OpCode.DUP);
-                Call(model, property.GetMethod!);
-                ConvertExpression(model, right);
-                EmitComplexAssignmentOperator(type, operatorToken);
-                AddInstruction(OpCode.TUCK);
-                Call(model, property.SetMethod!, CallingConvention.StdCall);
+                // Handle instance property complex assignment.
+                ConvertExpression(model, left.Expression); // Convert the expression to access the object instance.
+                AddInstruction(OpCode.DUP); // Duplicate the object instance reference.
+                Call(model, property.GetMethod!); // Get the current value of the instance property.
+                ConvertExpression(model, right); // Convert the right-hand expression (value to add/subtract/etc.).
+                EmitComplexAssignmentOperator(type, operatorToken); // Apply the operator (e.g., addition).
+                AddInstruction(OpCode.TUCK); // Tuck the result beneath the object instance reference.
+                Call(model, property.SetMethod!, CallingConvention.StdCall); // Set the new value to the instance property.
             }
         }
+
 
         private void EmitComplexAssignmentOperator(ITypeSymbol type, SyntaxToken operatorToken)
         {
@@ -2444,65 +2594,131 @@ namespace Neo.Compiler
             if (isString) ChangeType(VM.Types.StackItemType.ByteString);
         }
 
+        /// <summary>
+        /// Converts an object creation expression into a series of low-level instructions.
+        /// This method handles the instantiation of objects, including delegates, and calls the appropriate constructor.
+        /// It also handles object initializers for setting fields or properties after object creation.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The object creation expression to be converted.</param>
         private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
+            // Example: new ClassName(arguments) { Property = value }
+            // This expression creates a new instance of 'ClassName', calls its constructor with 'arguments',
+            // and sets 'Property' to 'value'.
+
+            // Retrieve the type information of the object being created.
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+
+            // Handle delegate creation separately.
             if (type.TypeKind == TypeKind.Delegate)
             {
                 ConvertDelegateCreationExpression(model, expression);
                 return;
             }
+
+            // Retrieve the symbol for the constructor being called.
             IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
             IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
+
+            // Process system constructors (like array creation) if applicable.
             if (TryProcessSystemConstructors(model, constructor, arguments))
                 return;
+
+            // Determine if an object creation instruction is needed (for non-extern types).
             bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
+
             if (needCreateObject)
             {
+                // Create the object if necessary.
                 CreateObject(model, type, null);
             }
+
+            // Call the constructor.
             Call(model, constructor, needCreateObject, arguments);
+
+            // If there is an initializer, process it to set fields or properties.
             if (expression.Initializer is not null)
             {
                 ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
             }
         }
 
+
+        /// <summary>
+        /// Converts an object creation expression initializer into a series of low-level instructions.
+        /// This method handles the initialization of object fields or properties using an initializer list.
+        /// Each initializer in the list must be an assignment expression for a field or property.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="initializer">The initializer expression syntax to be converted.</param>
         private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
         {
+            // Example: new ClassName { Field = value1, Property = value2 }
+            // This initializer sets the 'Field' and 'Property' of a newly created object.
+
             foreach (ExpressionSyntax e in initializer.Expressions)
             {
+                // Ensure each initializer expression is an assignment.
                 if (e is not AssignmentExpressionSyntax ae)
                     throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+
+                // Retrieve the symbol for the left-hand side of the assignment (field or property).
                 ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
+
                 switch (symbol)
                 {
                     case IFieldSymbol field:
-                        AddInstruction(OpCode.DUP);
+                        // Handle field initializations.
+                        AddInstruction(OpCode.DUP); // Duplicate the object reference for field setting.
                         int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                        Push(index);
-                        ConvertExpression(model, ae.Right);
-                        AddInstruction(OpCode.SETITEM);
+                        Push(index); // Push the field index.
+                        ConvertExpression(model, ae.Right); // Convert the value to be assigned to the field.
+                        AddInstruction(OpCode.SETITEM); // Set the field value.
                         break;
+
                     case IPropertySymbol property:
-                        ConvertExpression(model, ae.Right);
-                        AddInstruction(OpCode.OVER);
-                        Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                        // Handle property initializations.
+                        ConvertExpression(model, ae.Right); // Convert the value to be assigned to the property.
+                        AddInstruction(OpCode.OVER); // Duplicate the object reference for property setting.
+                        Call(model, property.SetMethod!, CallingConvention.Cdecl); // Call the property's set method.
                         break;
+
                     default:
+                        // Throw an exception for unsupported symbols.
                         throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
                 }
             }
         }
 
+
+        /// <summary>
+        /// Converts a delegate creation expression into a series of low-level instructions.
+        /// This method handles expressions that create delegates, typically from method references.
+        /// Only static methods are supported for delegate creation in this implementation.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The delegate creation expression to be converted.</param>
         private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
+            // Example: new Action(MethodName)
+            // This expression creates a delegate pointing to the static method 'MethodName'.
+
+            // Check if exactly one argument (the method reference) is provided for the delegate.
             if (expression.ArgumentList!.Arguments.Count != 1)
                 throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported delegate: {expression}");
+
+            // Retrieve the method symbol from the argument.
             IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
+
+            // Throw an exception if the method is not static, as only static methods are supported.
             if (!symbol.IsStatic)
                 throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");
+
+            // Convert the method reference into a delegate.
             MethodConvert convert = _context.ConvertMethod(model, symbol);
+
+            // Push the address of the method onto the stack as a delegate.
             Jump(OpCode.PUSHA, convert._startTarget);
         }
 
@@ -2605,63 +2821,182 @@ namespace Neo.Compiler
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+        /// <summary>
+        /// Converts a logical OR expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'left || right', evaluating the left operand first
+        /// and only evaluating the right operand if the left operand is false.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="left">The left-hand operand of the logical OR expression.</param>
+        /// <param name="right">The right-hand operand of the logical OR expression.</param>
         private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
         {
+            // Example: condition1 || condition2
+            // This expression evaluates 'condition1' and if it is true, returns true without evaluating 'condition2';
+            // otherwise, it evaluates 'condition2'.
+
             JumpTarget rightTarget = new();
             JumpTarget endTarget = new();
+
+            // Convert and evaluate the left-hand expression.
             ConvertExpression(model, left);
+
+            // Jump to the right-hand expression if the left-hand expression is false.
             Jump(OpCode.JMPIFNOT_L, rightTarget);
+
+            // If the left-hand expression is true, push true and jump to the end.
             Push(true);
             Jump(OpCode.JMP_L, endTarget);
+
+            // Mark the beginning of the right-hand expression evaluation.
             rightTarget.Instruction = AddInstruction(OpCode.NOP);
+
+            // Convert and evaluate the right-hand expression.
             ConvertExpression(model, right);
+
+            // Mark the end of the logical OR expression.
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+        /// <summary>
+        /// Converts a logical AND expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'left && right', evaluating the left operand first
+        /// and only evaluating the right operand if the left operand is true.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="left">The left-hand operand of the logical AND expression.</param>
+        /// <param name="right">The right-hand operand of the logical AND expression.</param>
         private void ConvertLogicalAndExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
         {
+            // Example: condition1 && condition2
+            // This expression evaluates 'condition1' and if it is false, returns false without evaluating 'condition2';
+            // otherwise, it evaluates 'condition2'.
+
             JumpTarget rightTarget = new();
             JumpTarget endTarget = new();
+
+            // Convert and evaluate the left-hand expression.
             ConvertExpression(model, left);
+
+            // Jump to the right-hand expression if the left-hand expression is true.
             Jump(OpCode.JMPIF_L, rightTarget);
+
+            // If the left-hand expression is false, push false and jump to the end.
             Push(false);
             Jump(OpCode.JMP_L, endTarget);
+
+            // Mark the beginning of the right-hand expression evaluation.
             rightTarget.Instruction = AddInstruction(OpCode.NOP);
+
+            // Convert and evaluate the right-hand expression.
             ConvertExpression(model, right);
+
+            // Mark the end of the logical AND expression.
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+        /// <summary>
+        /// Converts an 'is' type-checking expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'left is right', which checks
+        /// whether the left-hand operand is of the type specified by the right-hand operand.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="left">The expression whose type is being checked.</param>
+        /// <param name="right">The type against which the expression is being checked.</param>
         private void ConvertIsExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
         {
+            // Example: expression is Type
+            // This expression evaluates whether 'expression' is an instance of 'Type'.
+
+            // Retrieve the type information for the right-hand operand (the type to check against).
             ITypeSymbol type = model.GetTypeInfo(right).Type!;
+
+            // Convert the left-hand expression (the expression to check).
             ConvertExpression(model, left);
+
+            // Check if the left-hand expression is of the specified type.
             IsType(type.GetPatternType());
         }
 
+
+        /// <summary>
+        /// Converts an 'as' type-casting expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'left as right', which attempts to cast
+        /// the left-hand operand to the type specified by the right-hand operand and returns null
+        /// if the cast is not possible.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="left">The expression to be casted.</param>
+        /// <param name="right">The type to which the expression is casted.</param>
         private void ConvertAsExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
         {
+            // Example: expression as Type
+            // This expression attempts to cast 'expression' to 'Type', returning null if the cast is not valid.
+
+            // Create a jump target for the end of the 'as' expression.
             JumpTarget endTarget = new();
+
+            // Retrieve the type information for the right-hand operand (the target type).
             ITypeSymbol type = model.GetTypeInfo(right).Type!;
+
+            // Convert the left-hand expression.
             ConvertExpression(model, left);
+
+            // Duplicate the result of the left-hand expression for type checking.
             AddInstruction(OpCode.DUP);
+
+            // Check if the left-hand expression is of the specified type.
             IsType(type.GetPatternType());
+
+            // Jump to the end if the type check is successful.
             Jump(OpCode.JMPIF_L, endTarget);
+
+            // If the type check fails, drop the value and push null onto the stack.
             AddInstruction(OpCode.DROP);
             Push((object?)null);
+
+            // Mark the end of the 'as' expression.
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+
+        /// <summary>
+        /// Converts a null coalescing expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'left ?? right', which returns the left-hand operand
+        /// if it is not null; otherwise, it returns the right-hand operand.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="left">The left-hand operand of the null coalescing expression.</param>
+        /// <param name="right">The right-hand operand of the null coalescing expression.</param>
         private void ConvertCoalesceExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
         {
+            // Example: left ?? right
+            // This expression evaluates 'left' and if it is not null, returns it;
+            // otherwise, it evaluates and returns 'right'.
+
+            // Create a jump target for the end of the coalesce expression.
             JumpTarget endTarget = new();
+
+            // Convert the left-hand expression.
             ConvertExpression(model, left);
+
+            // Duplicate the result of the left-hand expression and check if it's null.
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
+
+            // Jump to the end if the left-hand expression is not null.
             Jump(OpCode.JMPIFNOT_L, endTarget);
+
+            // If the left-hand expression is null, drop the null value from the stack.
             AddInstruction(OpCode.DROP);
+
+            // Convert the right-hand expression (used when the left-hand expression is null).
             ConvertExpression(model, right);
+
+            // Mark the end of the null coalescing expression.
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
+
 
         private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
         {
@@ -2763,97 +3098,182 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a checked expression into a series of low-level instructions.
+        /// This method handles expressions within 'checked' or 'unchecked' contexts,
+        /// which determine whether arithmetic operations check for overflow.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The checked expression to be converted.</param>
         private void ConvertCheckedExpression(SemanticModel model, CheckedExpressionSyntax expression)
         {
+            // Example: checked(expression) or unchecked(expression)
+            // In a 'checked' context, arithmetic operations will check for overflow and
+            // throw an exception if an overflow occurs. In an 'unchecked' context,
+            // arithmetic operations ignore overflow.
+
+            // Push the current checked context state (true for 'checked', false for 'unchecked').
             _checkedStack.Push(expression.Keyword.IsKind(SyntaxKind.CheckedKeyword));
+
+            // Convert the inner expression within the checked/unchecked context.
             ConvertExpression(model, expression.Expression);
+
+            // Pop the checked context state to restore the previous state.
             _checkedStack.Pop();
         }
 
+
+        /// <summary>
+        /// Converts a conditional access expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'expression?.WhenNotNull', which evaluates 'expression'
+        /// and only continues to evaluate 'WhenNotNull' if 'expression' is not null.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The conditional access expression to be converted.</param>
         private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
         {
+            // Example: objectInstance?.Method() or objectInstance?.Property
+            // This expression evaluates 'objectInstance' and if it is not null,
+            // it evaluates 'Method()' or accesses 'Property'.
+
+            // Retrieve the type information of the expression.
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+
+            // Create a jump target for the null case.
             JumpTarget nullTarget = new();
+
+            // Convert the primary expression (e.g., 'objectInstance').
             ConvertExpression(model, expression.Expression);
+
+            // Duplicate the result and check if it's null.
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
+
+            // Jump to the null target if the result is null.
             Jump(OpCode.JMPIF_L, nullTarget);
+
+            // Convert the expression to evaluate if the primary expression is not null.
             ConvertExpression(model, expression.WhenNotNull);
+
             if (type.SpecialType == SpecialType.System_Void)
             {
+                // If the expression type is void, handle the null case differently.
                 JumpTarget endTarget = new();
-                Jump(OpCode.JMP_L, endTarget);
-                nullTarget.Instruction = AddInstruction(OpCode.DROP);
-                endTarget.Instruction = AddInstruction(OpCode.NOP);
+                Jump(OpCode.JMP_L, endTarget);  // Jump to the end after evaluating 'WhenNotNull'.
+                nullTarget.Instruction = AddInstruction(OpCode.DROP);  // Drop the null value.
+                endTarget.Instruction = AddInstruction(OpCode.NOP);    // Mark the end target.
             }
             else
             {
+                // For non-void types, just mark the null target.
                 nullTarget.Instruction = AddInstruction(OpCode.NOP);
             }
         }
 
+
+        /// <summary>
+        /// Converts a conditional (ternary) expression into a series of low-level instructions.
+        /// This method handles expressions of the form 'condition ? whenTrue : whenFalse'.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The conditional expression to be converted.</param>
         private void ConvertConditionalExpression(SemanticModel model, ConditionalExpressionSyntax expression)
         {
+            // Example: condition ? valueIfTrue : valueIfFalse
+            // This ternary expression evaluates 'condition' and returns 'valueIfTrue' if the condition is true,
+            // otherwise it returns 'valueIfFalse'.
+
+            // Create jump targets for the false branch and the end of the expression.
             JumpTarget falseTarget = new();
             JumpTarget endTarget = new();
+
+            // Convert the condition part of the expression.
             ConvertExpression(model, expression.Condition);
+
+            // Jump to the false branch if the condition is not true.
             Jump(OpCode.JMPIFNOT_L, falseTarget);
+
+            // Convert the expression to execute if the condition is true.
             ConvertExpression(model, expression.WhenTrue);
+
+            // Jump to the end after executing the 'whenTrue' expression.
             Jump(OpCode.JMP_L, endTarget);
+
+            // Mark the beginning of the false branch.
             falseTarget.Instruction = AddInstruction(OpCode.NOP);
+
+            // Convert the expression to execute if the condition is false.
             ConvertExpression(model, expression.WhenFalse);
+
+            // Mark the end of the conditional expression.
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+
+        /// <summary>
+        /// Converts an element access expression (e.g., array indexing) into a series of low-level instructions.
+        /// This method handles accessing elements from arrays or properties with indexers.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The element access expression to be converted.</param>
         private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
         {
+            // Example: array[index] or object.Property[index]
+            // Handles array indexing or accessing indexed properties.
+
+            // Throws an exception for multi-dimensional arrays or indexers.
             if (expression.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
+
+            // Handle property access with indexer.
             if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
             {
                 Call(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
             }
             else
             {
+                // Handle array access.
                 ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-                ConvertExpression(model, expression.Expression);
-                ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+                ConvertExpression(model, expression.Expression);                                   // Convert the array or object expression.
+                ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression); // Convert the index or range expression.
             }
         }
 
+        /// <summary>
+        /// Converts an element binding expression into a series of low-level instructions.
+        /// This method is used for handling array or collection access using binding expressions.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The element binding expression to be converted.</param>
         private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
         {
+            // Example: array[index] in a binding context.
+            // Handles accessing elements in arrays or collections in a binding expression.
+
+            // Throws an exception for multi-dimensional array or collection access.
             if (expression.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
+
+            // Handle the array or collection access.
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-            ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+            ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression); // Convert the index or range expression.
         }
 
+        /// <summary>
+        /// Converts an index or range expression into low-level instructions.
+        /// This method handles both single index access and range access in arrays or strings.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="type">The type of the array or string being accessed.</param>
+        /// <param name="indexOrRange">The index or range expression to be converted.</param>
         private void ConvertIndexOrRange(SemanticModel model, ITypeSymbol type, ExpressionSyntax indexOrRange)
         {
+            // Example: array[start..end] or string[start..end]
+            // Handles range access in arrays or strings.
+
             if (indexOrRange is RangeExpressionSyntax range)
             {
-                if (range.RightOperand is null)
-                {
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.SIZE);
-                }
-                else
-                {
-                    ConvertExpression(model, range.RightOperand);
-                }
-                AddInstruction(OpCode.SWAP);
-                if (range.LeftOperand is null)
-                {
-                    Push(0);
-                }
-                else
-                {
-                    ConvertExpression(model, range.LeftOperand);
-                }
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.OVER);
-                AddInstruction(OpCode.SUB);
+                // Special handling based on the type (e.g., byte array or string).
                 switch (type.ToString())
                 {
                     case "byte[]":
@@ -2869,84 +3289,163 @@ namespace Neo.Compiler
             }
             else
             {
+                // Handle single index access.
+                // Example: array[index] or string[index]
                 ConvertExpression(model, indexOrRange);
                 AddInstruction(OpCode.PICKITEM);
             }
         }
 
+
+        /// <summary>
+        /// Converts an identifier name expression into a series of low-level instructions.
+        /// This method handles different types of symbols that an identifier might represent,
+        /// such as fields, local variables, methods, parameters, and properties.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The identifier name expression to be converted.</param>
         private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
         {
+            // Retrieve the symbol information of the identifier.
             ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
+
             switch (symbol)
             {
                 case IFieldSymbol field:
+                    // Example: ClassName.StaticField or objectInstance.InstanceField
                     if (field.IsConst)
                     {
+                        // Handles constant fields.
                         Push(field.ConstantValue);
                     }
                     else if (field.IsStatic)
                     {
+                        // Handles static fields.
                         byte index = _context.AddStaticField(field);
                         AccessSlot(OpCode.LDSFLD, index);
                     }
                     else
                     {
+                        // Handles instance fields.
                         int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                        AddInstruction(OpCode.LDARG0);
+                        AddInstruction(OpCode.LDARG0); // Load the instance of the object
                         Push(index);
                         AddInstruction(OpCode.PICKITEM);
                     }
                     break;
+
                 case ILocalSymbol local:
+                    // Example: localVariable
+                    // Handles local variables within methods.
                     if (local.IsConst)
+                    {
+                        // Handles constant local variables.
                         Push(local.ConstantValue);
+                    }
                     else
+                    {
+                        // Handles non-constant local variables.
                         AccessSlot(OpCode.LDLOC, _localVariables[local]);
+                    }
                     break;
+
                 case IMethodSymbol method:
+                    // Example: ClassName.StaticMethod
+                    // Handles method references, typically for delegate creation.
                     if (!method.IsStatic)
+                    {
+                        // Throws an exception if a non-static method is treated as a delegate.
                         throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
+                    }
                     MethodConvert convert = _context.ConvertMethod(model, method);
                     Jump(OpCode.PUSHA, convert._startTarget);
                     break;
+
                 case IParameterSymbol parameter:
+                    // Example: methodParameter
+                    // Handles parameters passed to methods.
                     AccessSlot(OpCode.LDARG, _parameters[parameter]);
                     break;
+
                 case IPropertySymbol property:
+                    // Example: ClassName.StaticProperty or objectInstance.InstanceProperty
+                    // Handles property accesses.
                     if (property.IsStatic)
                     {
-                        Call(model, property.GetMethod!);
+                        Call(model, property.GetMethod!); // Static property access
                     }
                     else
                     {
-                        AddInstruction(OpCode.LDARG0);
-                        Call(model, property.GetMethod!);
+                        AddInstruction(OpCode.LDARG0); // Load the instance of the object
+                        Call(model, property.GetMethod!); // Instance property access
                     }
                     break;
+
                 default:
+                    // Throws a compilation exception for unsupported symbols.
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
+
+        /// <summary>
+        /// Converts an implicit array creation expression into a series of low-level instructions.
+        /// This method is used for handling array creation where the array type is inferred from the initializer expressions.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The implicit array creation expression to be converted.</param>
         private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
         {
+            // Example: new[] { 1, 2, 3 }
+            // This expression creates an array with an implicit type, inferred to be int[] in this case.
+
+            // Retrieves the type information of the array, inferred from the initializer expressions.
             IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+
+            // Calls the method to handle the conversion of the initializer expression.
+            // The type of the array is passed along with the initializer for proper handling.
             ConvertInitializerExpression(model, type, expression.Initializer);
         }
 
+
+        /// <summary>
+        /// Converts an initializer expression into a series of low-level instructions.
+        /// This overload serves as an entry point to handle array initializers.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The initializer expression to be converted.</param>
         private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
         {
+            // Example: new int[] { 1, 2, 3 }
+            // This initializer expression creates an array of integers.
+
+            // Retrieves the type information of the initializer expression, expected to be an array type.
             IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+
+            // Calls the overloaded method to handle the conversion of the initializer expression.
             ConvertInitializerExpression(model, type, expression);
         }
 
+        /// <summary>
+        /// Converts an initializer expression for a specific array type into a series of low-level instructions.
+        /// This method handles the conversion of array initializers, differentiating between byte arrays and other types.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="type">The array type symbol of the initializer expression.</param>
+        /// <param name="expression">The initializer expression to be converted.</param>
         private void ConvertInitializerExpression(SemanticModel model, IArrayTypeSymbol type, InitializerExpressionSyntax expression)
         {
+            // Example: new byte[] { 1, 2, 3 }
+            // This initializer expression creates a byte array.
+
             if (type.ElementType.SpecialType == SpecialType.System_Byte)
             {
+                // Special handling for byte array initializers.
                 Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
+
                 if (values.Any(p => !p.HasValue))
                 {
+                    // If any value is not a constant, create a buffer and set each item individually.
                     Push(values.Length);
                     AddInstruction(OpCode.NEWBUFFER);
                     for (int i = 0; i < expression.Expressions.Count; i++)
@@ -2959,6 +3458,7 @@ namespace Neo.Compiler
                 }
                 else
                 {
+                    // If all values are constants, create and push a byte array directly.
                     byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
                     Push(data);
                     ChangeType(VM.Types.StackItemType.Buffer);
@@ -2966,6 +3466,8 @@ namespace Neo.Compiler
             }
             else
             {
+                // For non-byte arrays, convert each element and pack them into an array.
+                // Example: new int[] { 1, 2, 3 }
                 for (int i = expression.Expressions.Count - 1; i >= 0; i--)
                     ConvertExpression(model, expression.Expressions[i]);
                 Push(expression.Expressions.Count);
@@ -2973,39 +3475,84 @@ namespace Neo.Compiler
             }
         }
 
+
+        /// <summary>
+        /// Converts an interpolated string expression into a series of low-level instructions.
+        /// This method handles the construction of an interpolated string from its individual contents,
+        /// including plain text and expressions.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The interpolated string expression to be converted.</param>
         private void ConvertInterpolatedStringExpression(SemanticModel model, InterpolatedStringExpressionSyntax expression)
         {
+            // Example: $"Item1: {item1}, Item2: {item2}"
+            // This interpolated string contains plain text and expressions (item1, item2).
+
+            // Check if the interpolated string is empty.
             if (expression.Contents.Count == 0)
             {
+                // If empty, push an empty string onto the stack.
                 Push(string.Empty);
                 return;
             }
+
+            // Convert the first content of the interpolated string, which could be either text or an expression.
             ConvertInterpolatedStringContent(model, expression.Contents[0]);
+
+            // Iterate over the remaining contents of the interpolated string.
             for (int i = 1; i < expression.Contents.Count; i++)
             {
+                // Convert each content (text or expression) to a string.
                 ConvertInterpolatedStringContent(model, expression.Contents[i]);
+                // Concatenate this content with the previous one.
                 AddInstruction(OpCode.CAT);
             }
+
+            // If the interpolated string has more than one content, change the resulting type.
+            // This is relevant for languages or systems where concatenation may change the type of the result.
             if (expression.Contents.Count >= 2)
                 ChangeType(VM.Types.StackItemType.ByteString);
         }
 
+
+        /// <summary>
+        /// Converts the content of an interpolated string into a series of low-level instructions.
+        /// This method handles different components of an interpolated string, including plain text and expressions.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="content">The content of the interpolated string to be converted.</param>
         private void ConvertInterpolatedStringContent(SemanticModel model, InterpolatedStringContentSyntax content)
         {
             switch (content)
             {
                 case InterpolatedStringTextSyntax syntax:
+                    // Example: $"This is plain text: {expression}"
+                    // Handles plain text within an interpolated string.
+                    // For example, if the text is "Hello ", it just pushes "Hello " onto the stack.
                     Push(syntax.TextToken.ValueText);
                     break;
+
                 case InterpolationSyntax syntax:
+                    // Example: $"Result: {expression}"
+                    // Handles expressions within an interpolated string.
                     if (syntax.AlignmentClause is not null)
+                    {
+                        // Throws an exception if an alignment clause is used in the interpolation.
+                        // Example of unsupported syntax: $"{expression,10}"
                         throw new CompilationException(syntax.AlignmentClause, DiagnosticId.AlignmentClause, $"Alignment clause is not supported: {syntax.AlignmentClause}");
+                    }
                     if (syntax.FormatClause is not null)
+                    {
+                        // Throws an exception if a format clause is used in the interpolation.
+                        // Example of unsupported syntax: $"{expression:D}"
                         throw new CompilationException(syntax.FormatClause, DiagnosticId.FormatClause, $"Format clause is not supported: {syntax.FormatClause}");
+                    }
+                    // Converts the expression part of the interpolation to a string.
                     ConvertObjectToString(model, syntax.Expression);
                     break;
             }
         }
+
 
         private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
         {
@@ -3067,112 +3614,221 @@ namespace Neo.Compiler
             Call(ApplicationEngine.System_Runtime_Notify);
         }
 
+        /// <summary>
+        /// Converts a method invocation expression into a series of low-level instructions.
+        /// This method handles different forms of method calls including static, instance, and member binding calls.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="symbol">The method symbol representing the method being invoked.</param>
+        /// <param name="expression">The expression representing the method invocation.</param>
+        /// <param name="arguments">The arguments passed to the method.</param>
         private void ConvertMethodInvocationExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax expression, ArgumentSyntax[] arguments)
         {
             switch (expression)
             {
                 case IdentifierNameSyntax:
+                    // Example: MethodName(arg1, arg2)
+                    // Handles direct method calls where the method name is directly used.
                     Call(model, symbol, null, arguments);
                     break;
                 case MemberAccessExpressionSyntax syntax:
-                    if (symbol.IsStatic)
-                        Call(model, symbol, null, arguments);
-                    else
-                        Call(model, symbol, syntax.Expression, arguments);
+                    // Example: objectInstance.MethodName(arg1, arg2) or ClassName.StaticMethod(arg1, arg2)
+                    // Handles method calls accessed through an instance or statically through a class.
+                    Call(model, symbol, symbol.IsStatic ? null : syntax.Expression, arguments);
                     break;
                 case MemberBindingExpressionSyntax:
+                    // Example: myObject?.MethodName(arg1, arg2)
+                    // Handles method calls that are conditionally accessed on an object.
                     Call(model, symbol, true, arguments);
                     break;
                 default:
+                    // Throws a compilation exception for unsupported expressions.
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported expression: {expression}");
             }
         }
 
+        /// <summary>
+        /// Converts a delegate invocation expression into a series of low-level instructions.
+        /// This method is used for handling the invocation of delegates.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The expression representing the delegate invocation.</param>
+        /// <param name="arguments">The arguments passed to the delegate.</param>
         private void ConvertDelegateInvocationExpression(SemanticModel model, ExpressionSyntax expression, ArgumentSyntax[] arguments)
         {
+            // Example: delegateInstance(arg1, arg2)
+            // This expression invokes a delegate with the provided arguments.
+
             INamedTypeSymbol type = (INamedTypeSymbol)model.GetTypeInfo(expression).Type!;
+
+            // Prepares the arguments for the delegate's invoke method.
             PrepareArgumentsForMethod(model, type.DelegateInvokeMethod!, arguments);
+
+            // Converts the delegate expression to low-level instructions.
             ConvertExpression(model, expression);
+
+            // Adds an instruction to invoke the delegate.
             AddInstruction(OpCode.CALLA);
         }
 
+
+        /// <summary>
+        /// Converts an 'is' pattern expression into a series of low-level instructions.
+        /// This method is used for handling type checking and pattern matching in C#.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The 'is' pattern expression to be converted.</param>
         private void ConvertIsPatternExpression(SemanticModel model, IsPatternExpressionSyntax expression)
         {
+            // Example: objectInstance is MyType myVar
+            // This expression checks if objectInstance is of type MyType and, if so, assigns it to myVar.
+
+            // Adds an anonymous variable to temporarily store the value of the expression.
             byte anonymousIndex = AddAnonymousVariable();
+
+            // Converts the expression (e.g., objectInstance) to low-level instructions.
             ConvertExpression(model, expression.Expression);
+
+            // Stores the result of the expression in the anonymous variable.
             AccessSlot(OpCode.STLOC, anonymousIndex);
+
+            // Converts the pattern part of the expression (e.g., MyType myVar) and checks it against the anonymous variable.
             ConvertPattern(model, expression.Pattern, anonymousIndex);
+
+            // Removes the anonymous variable after its use.
             RemoveAnonymousVariable(anonymousIndex);
         }
 
+
+        /// <summary>
+        /// Converts a member access expression into a series of low-level instructions.
+        /// This method handles the conversion of field, method, and property accesses within an expression.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The member access expression to be converted.</param>
         private void ConvertMemberAccessExpression(SemanticModel model, MemberAccessExpressionSyntax expression)
         {
             ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
+                    // Example: ClassName.FieldName or objectInstance.FieldName
                     if (field.IsConst)
                     {
+                        // Handles constant fields.
+                        // Example: If FieldName is a constant with value 10, Push(10) is called.
                         Push(field.ConstantValue);
                     }
                     else if (field.IsStatic)
                     {
+                        // Handles static fields.
+                        // Example: Accessing a static field FieldName in ClassName.
                         byte index = _context.AddStaticField(field);
                         AccessSlot(OpCode.LDSFLD, index);
                     }
                     else
                     {
+                        // Handles instance fields.
+                        // Example: Accessing an instance field FieldName in objectInstance.
                         int index = Array.IndexOf(field.ContainingType.GetFields(), field);
                         ConvertExpression(model, expression.Expression);
                         Push(index);
                         AddInstruction(OpCode.PICKITEM);
                     }
                     break;
+
                 case IMethodSymbol method:
+                    // Example: ClassName.MethodName()
                     if (!method.IsStatic)
+                    {
+                        // Throws an exception if the method is not static.
                         throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
+                    }
+                    // Handles static methods.
+                    // Example: Invoking a static method MethodName in ClassName.
                     MethodConvert convert = _context.ConvertMethod(model, method);
                     Jump(OpCode.PUSHA, convert._startTarget);
                     break;
+
                 case IPropertySymbol property:
+                    // Example: ClassName.PropertyName or objectInstance.PropertyName
                     ExpressionSyntax? instanceExpression = property.IsStatic ? null : expression.Expression;
+                    // Handles property access.
+                    // Example: Accessing a property PropertyName, either static or in an instance.
                     Call(model, property.GetMethod!, instanceExpression);
                     break;
+
                 default:
+                    // Throws a compilation exception for unsupported symbols.
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
+
+        /// <summary>
+        /// Converts a member binding expression into a series of low-level instructions.
+        /// This method handles the conversion of field and property accesses within an expression.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The member binding expression to be converted.</param>
         private void ConvertMemberBindingExpression(SemanticModel model, MemberBindingExpressionSyntax expression)
         {
             ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
             switch (symbol)
             {
                 case IFieldSymbol field:
+                    // Example: objectInstance.FieldName
+                    // If 'FieldName' is a field of an object, this case handles accessing the field.
+                    // The field index is determined, and instructions are added to retrieve the field's value.
                     int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                    Push(index);
-                    AddInstruction(OpCode.PICKITEM);
+                    Push(index);                     // Push the index of the field onto the stack.
+                    AddInstruction(OpCode.PICKITEM); // Add an instruction to pick the item (field value) from the object.
                     break;
+
                 case IPropertySymbol property:
-                    Call(model, property.GetMethod!);
+                    // Example: objectInstance.PropertyName
+                    // If 'PropertyName' is a property of an object, this case handles accessing the property.
+                    // It calls the getter method of the property to retrieve its value.
+                    Call(model, property.GetMethod!); // Call the getter method of the property.
                     break;
+
                 default:
+                    // Throws a compilation exception for unsupported symbols.
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
             }
         }
 
+        /// <summary>
+        /// Converts a postfix unary expression into a series of low-level instructions.
+        /// This method handles various postfix unary operators like ++, --, and !.
+        /// </summary>
+        /// <param name="model">The semantic model used for conversion.</param>
+        /// <param name="expression">The postfix unary expression to be converted.</param>
         private void ConvertPostfixUnaryExpression(SemanticModel model, PostfixUnaryExpressionSyntax expression)
         {
             switch (expression.OperatorToken.ValueText)
             {
                 case "++":
+                // Example: x++
+                // If x = 5, 'x++' increments x to 6, but the expression evaluates to 5.
+                // Handles the post-increment operation of x.
                 case "--":
+                    // Example: x--
+                    // If x = 5, 'x--' decrements x to 4, but the expression evaluates to 5.
+                    // Handles the post-decrement operation of x.
                     ConvertPostIncrementOrDecrementExpression(model, expression);
                     break;
+
                 case "!":
+                    // Example: x!
+                    // This is an unusual use of the '!' operator in a postfix context.
+                    // If used, it would typically convert the operand x without additional logic.
+                    // However, its actual behavior might depend on the specific semantics defined in the context.
                     ConvertExpression(model, expression.Operand);
                     break;
+
                 default:
+                    // Throws a compilation exception for unsupported operators.
                     throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
             }
         }
