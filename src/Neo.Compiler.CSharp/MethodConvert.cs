@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -259,38 +258,75 @@ namespace Neo.Compiler
                 switch (Symbol.MethodKind)
                 {
                     case MethodKind.Constructor:
-                        ProcessFields(model);
-                        ProcessConstructorInitializer(model);
+                        // Example: public MyClass() { ... }
+                        ProcessFields(model);                 // Process fields
+                        ProcessConstructorInitializer(model); // Process constructor initializer
                         break;
                     case MethodKind.StaticConstructor:
-                        ProcessStaticFields(model);
+                        // Example: static MyClass() { ... }
+                        // Static constructors (also known as type constructors) in C#
+                        // are automatically called by the Common Language Runtime (CLR)
+                        // to initialize static class members and execute static constructor code.
+                        ProcessStaticFields(model); // Process static fields
                         break;
                     case MethodKind.AnonymousFunction:
+                    // Example: var result = delegate(int x) { return x * 2; };
+                    // Handle anonymous function
                     case MethodKind.Conversion:
+                    // Example: public static implicit operator MyType(string value) { ... }
+                    // Handle conversion operator
                     case MethodKind.DelegateInvoke:
+                    // Example: myDelegate(); // where myDelegate is a delegate instance
+                    // Handle delegate invocation
                     case MethodKind.Destructor:
+                    // Example: ~MyClass() { ... }
+                    // Handle destructor (finalizer)
                     case MethodKind.EventAdd:
+                    // Example: public event EventHandler MyEvent { add { ... } remove { ... } }
+                    // Handle event add method
                     case MethodKind.EventRaise:
+                    // Example: private void OnMyEvent(EventArgs e) { ... }
+                    // Handle event raise method
                     case MethodKind.EventRemove:
+                    // Example: public event EventHandler MyEvent { add { ... } remove { ... } }
+                    // Handle event remove method
                     case MethodKind.ExplicitInterfaceImplementation:
+                    // Example: void IMyInterface.MyMethod() { ... }
+                    // Handle explicit interface implementation
                     case MethodKind.UserDefinedOperator:
+                    // Example: public static MyType operator +(MyType left, MyType right) { ... }
+                    // Handle user-defined operator
                     case MethodKind.Ordinary:
+                    // Example: public void MyMethod() { ... }
+                    // Handle ordinary method
                     case MethodKind.PropertyGet:
+                    // Example: public int MyProperty { get { ... } }
+                    // Handle property getter method
                     case MethodKind.PropertySet:
+                    // Example: public int MyProperty { set { ... } }
+                    // Handle property setter method
                     case MethodKind.ReducedExtension:
+                    // Example: public static void MyExtensionMethod(this SomeType x) { ... }
+                    // Handle reduced extension method
                     case MethodKind.BuiltinOperator:
+                    // Example: public static bool operator ==(MyType left, MyType right) { ... }
+                    // Handle built-in operator
                     case MethodKind.DeclareMethod:
+                    // Handle declare method
                     case MethodKind.LocalFunction:
+                    // Example: void MyLocalFunction() { ... }
+                    // Handle local function
                     case MethodKind.FunctionPointerSignature:
+                    // Example: delegate*<int, int> ptr = &MyFunction;
+                    // Handle function pointer signature
                     default:
                         // Only internal core methods can start with an underscore
                         if (Symbol.Name.StartsWith("_") && !Symbol.IsInternalCoreMethod())
                             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
                         break;
                 }
-                // Common modifiers in C#:
-                // public, private, protected, internal, protected internal,
-                // static, readonly, const, virtual, override, abstract, sealed
+
+                // modifier of ModifierAttribute, specifically for neo contract
                 var modifiers = ConvertModifier(model).ToArray();
                 ConvertSourceCode(model);
                 if (Symbol.MethodKind == MethodKind.StaticConstructor && _context.StaticFieldCount > 0)
@@ -815,6 +851,7 @@ namespace Neo.Compiler
             // parameters and locals.
             _initSlot = !_inline;
         }
+
         #endregion
 
         #region ConvertStatement
@@ -3615,6 +3652,7 @@ namespace Neo.Compiler
         #endregion
 
         #region ConvertPattern
+
         /// <summary>
         /// Converts C# Pattern syntax to corresponding VM instructions.
         /// </summary>
@@ -4081,6 +4119,7 @@ namespace Neo.Compiler
             if (_tryStack.TryPeek(out ExceptionHandling? result))
                 result.BreakTargetCount--;
         }
+
         #endregion
 
         #region SlotHelpers
@@ -4097,6 +4136,7 @@ namespace Neo.Compiler
                 ? AddInstruction(new Instruction { OpCode = opcode, Operand = new[] { index } })
                 : AddInstruction(opcode - 7 + index);
         }
+
         #endregion
 
         /// <summary>
@@ -4437,7 +4477,8 @@ namespace Neo.Compiler
         /// <param name="callingConvention">Calling convention</param>
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
-            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
+            var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression))
+                .ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
             IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
                 parameters = parameters.Reverse();
@@ -5042,6 +5083,7 @@ namespace Neo.Compiler
             AddInstruction(OpCode.PICKITEM);
             AddInstruction(OpCode.CALLA);
         }
+
         #endregion
     }
 
