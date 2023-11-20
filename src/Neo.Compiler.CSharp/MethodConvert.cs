@@ -3273,7 +3273,27 @@ namespace Neo.Compiler
 
             if (indexOrRange is RangeExpressionSyntax range)
             {
-                // Special handling based on the type (e.g., byte array or string).
+                if (range.RightOperand is null)
+                {
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                }
+                else
+                {
+                    ConvertExpression(model, range.RightOperand);
+                }
+                AddInstruction(OpCode.SWAP);
+                if (range.LeftOperand is null)
+                {
+                    Push(0);
+                }
+                else
+                {
+                    ConvertExpression(model, range.LeftOperand);
+                }
+                AddInstruction(OpCode.ROT);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.SUB);
                 switch (type.ToString())
                 {
                     case "byte[]":
@@ -3289,13 +3309,10 @@ namespace Neo.Compiler
             }
             else
             {
-                // Handle single index access.
-                // Example: array[index] or string[index]
                 ConvertExpression(model, indexOrRange);
                 AddInstruction(OpCode.PICKITEM);
             }
         }
-
 
         /// <summary>
         /// Converts an identifier name expression into a series of low-level instructions.
