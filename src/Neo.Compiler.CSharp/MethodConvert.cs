@@ -858,6 +858,8 @@ namespace Neo.Compiler
 
         /// <summary>
         /// Converts a statement syntax to instructions
+        /// Based on:
+        ///     https://learn.microsoft.com/zh-cn/dotnet/api/microsoft.codeanalysis.csharp.syntax.statementsyntax?view=roslyn-dotnet-4.7.0
         /// </summary>
         /// <param name="model">Semantic model</param>
         /// <param name="statement">Statement syntax node</param>
@@ -1583,6 +1585,7 @@ namespace Neo.Compiler
 
         /// <summary>
         /// Converts an expression syntax to instructions
+        /// based on https://learn.microsoft.com/en-us/dotnet/api/case expressionsyntax?view=roslyn-dotnet-4.7.0
         /// </summary>
         /// <param name="model">Semantic model</param>
         /// <param name="syntax">Expression syntax node</param>
@@ -1720,6 +1723,36 @@ namespace Neo.Compiler
                 // Example: var type = typeof(int);
                 case SizeOfExpressionSyntax:
                 // Example: var size = sizeof(int);
+                case AnonymousFunctionExpressionSyntax:
+                // Example: () => 42
+                case AwaitExpressionSyntax:
+                // Example: await asyncMethod()
+                case CollectionExpressionSyntax:
+                // Not a standard C# Syntax; possibly a custom or framework-specific implementation
+                case DeclarationExpressionSyntax:
+                // Example: var (x, y) = (1, 2)
+                case DefaultExpressionSyntax:
+                // Example: default(int)
+                case ImplicitElementAccessSyntax:
+                // Example: myDictionary["key"]
+                case InstanceExpressionSyntax:
+                // Not a standard C# Syntax; might refer to creating an instance like 'new MyClass()'
+                case LiteralExpressionSyntax:
+                // Example: 42 or "hello"
+                case MakeRefExpressionSyntax:
+                // Example: __makeref(myVar)
+                case OmittedArraySizeExpressionSyntax:
+                // Example: new int[]
+                case RangeExpressionSyntax:
+                // Example: 1..4
+                case RefTypeExpressionSyntax:
+                // Example: __reftype(x)
+                case RefValueExpressionSyntax:
+                // Example: __refvalue(x, int)
+                case TypeSyntax:
+                // Example: int, MyClass, etc.
+                case WithExpressionSyntax:
+                // Example: myRecord with { Property = newValue }
                 default:
                     // If the syntax type is not supported, throw an exception
                     throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
@@ -1732,11 +1765,12 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="model">The semantic model used for conversion.</param>
         /// <param name="expression">The anonymous object creation expression to be converted.</param>
+        /// <example>
+        ///     new { Property1 = value1, Property2 = value2 }
+        ///     This expression creates an anonymous object with 'Property1' and 'Property2' initialized to 'value1' and 'value2', respectively.
+        /// </example>
         private void ConvertAnonymousObjectCreationExpression(SemanticModel model, AnonymousObjectCreationExpressionSyntax expression)
         {
-            // Example: new { Property1 = value1, Property2 = value2 }
-            // This expression creates an anonymous object with 'Property1' and 'Property2' initialized to 'value1' and 'value2', respectively.
-
             // Add an instruction to create a new array (representing the anonymous object).
             AddInstruction(OpCode.NEWARRAY0);
 
@@ -2021,11 +2055,12 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="model">The semantic model used for conversion.</param>
         /// <param name="expression">The coalesce assignment expression to be converted.</param>
+        /// <example>
+        ///       variable ??= value
+        ///       This expression checks if 'variable' is null, and if so, assigns 'value' to 'variable'.
+        /// </example>
         private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
         {
-            // Example: variable ??= value
-            // This expression checks if 'variable' is null, and if so, assigns 'value' to 'variable'.
-
             switch (expression.Left)
             {
                 case ElementAccessExpressionSyntax left:
@@ -4419,6 +4454,8 @@ namespace Neo.Compiler
 
         /// <summary>
         /// Converts C# Pattern syntax to corresponding VM instructions.
+        /// Based on:
+        ///     https://learn.microsoft.com/zh-cn/dotnet/api/microsoft.codeanalysis.csharp.syntax.patternsyntax?view=roslyn-dotnet-4.7.0
         /// </summary>
         /// <param name="model">The semantic model.</param>
         /// <param name="pattern">The Pattern syntax node to convert.</param>
@@ -4532,6 +4569,24 @@ namespace Neo.Compiler
                 case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                     ConvertNotPattern(model, unaryPattern, localIndex);
                     break;
+                case ListPatternSyntax:
+                // var numbers = new[] { 1, 2, 3 };
+                // if (numbers is [1, 2, 3]) { /* Matched */ }
+                case ParenthesizedPatternSyntax:
+                // var value = MyEnum.Value;
+                // if (value is (MyEnum.Value)) { /* Matched */ }
+                case RecursivePatternSyntax:
+                // var person = new Person("Alice", 30);
+                // if (person is Person { Name: "Alice", Age: 30 }) { /* Matched */ }
+                case SlicePatternSyntax:
+                // var items = new List<int> { 1, 2, 3, 4 };
+                // if (items is [.., 4]) { /* Matches if the last item is 4 */ }
+                case UnaryPatternSyntax:
+                // object? maybeNull = null;
+                // if (maybeNull is not null) { /* Matched if not null */ }
+                case VarPatternSyntax:
+                // var tuple = (1, "one");
+                // if (tuple is var (number, word)) { /* Matched and deconstructed */ }
                 default:
                     throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
             }
