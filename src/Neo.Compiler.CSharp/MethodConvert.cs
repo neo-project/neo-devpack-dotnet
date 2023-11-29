@@ -3892,7 +3892,6 @@ namespace Neo.Compiler
             if (!symbol.DeclaringSyntaxReferences.IsEmpty)
                 syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
-            // ConvertNoBody
             foreach (var attribute in symbol.GetAttributesWithInherited())
             {
                 if (attribute.ConstructorArguments.Length <= 0
