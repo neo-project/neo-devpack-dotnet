@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
@@ -27,9 +28,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 "2" => 3,
                 "3" => 4,
                 "4" => 5,
-                "5" => 6,
-                _ => 99
+                "5" => add(1, 5),
+                _ => add(1, 98),
             };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int add(int a, int b)
+        {
+            return a + b;
         }
     }
 }

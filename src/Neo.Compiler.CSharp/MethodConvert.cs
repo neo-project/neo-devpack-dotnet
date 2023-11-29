@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -3843,6 +3845,8 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, null))
                 return;
+            if (TryProcessInlineMethods(model, symbol))
+                return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
             if (symbol.IsVirtualMethod())
@@ -3880,6 +3884,66 @@ namespace Neo.Compiler
                 CallVirtual(symbol);
             else
                 EmitCall(convert);
+        }
+
+        private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol)
+        {
+            SyntaxNode syntaxNode = null;
+            if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+                syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
+
+            // ConvertNoBody
+            foreach (var attribute in symbol.GetAttributesWithInherited())
+            {
+                if (attribute.ConstructorArguments.Length <= 0
+                    || (MethodImplOptions)attribute.ConstructorArguments[0].Value != MethodImplOptions.AggressiveInlining) continue;
+
+                _inline = true;
+                _callingConvention = CallingConvention.Cdecl;
+                IPropertySymbol property = (IPropertySymbol)symbol.AssociatedSymbol!;
+                INamedTypeSymbol type = property.ContainingType;
+                IFieldSymbol[] fields = type.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+                using (InsertSequencePoint(syntaxNode))
+                {
+                    if (symbol.IsStatic)
+                    {
+                        IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+                        byte backingFieldIndex = context.AddStaticField(backingField);
+                        switch (Symbol.MethodKind)
+                        {
+                            case MethodKind.PropertyGet:
+                                AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                                break;
+                            case MethodKind.PropertySet:
+                                AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                                break;
+                            default:
+                                throw new CompilationException(syntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntaxNode}");
+                        }
+                    }
+                    else
+                    {
+                        fields = fields.Where(p => !p.IsStatic).ToArray();
+                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                        switch (Symbol.MethodKind)
+                        {
+                            case MethodKind.PropertyGet:
+                                Push(backingFieldIndex);
+                                AddInstruction(OpCode.PICKITEM);
+                                break;
+                            case MethodKind.PropertySet:
+                                Push(backingFieldIndex);
+                                AddInstruction(OpCode.ROT);
+                                AddInstruction(OpCode.SETITEM);
+                                break;
+                            default:
+                                throw new CompilationException(syntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntaxNode}");
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)

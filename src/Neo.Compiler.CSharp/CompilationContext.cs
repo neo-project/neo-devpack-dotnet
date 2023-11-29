@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
@@ -502,6 +503,9 @@ namespace Neo.Compiler
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                 methodsExported.Add(method);
             }
+
+            if (symbol.GetAttributesWithInherited().Any(p => (MethodImplOptions)p.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining))
+                return;
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)
             {
