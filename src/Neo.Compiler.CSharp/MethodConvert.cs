@@ -42,6 +42,7 @@ namespace Neo.Compiler
         private readonly CompilationContext context;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
+        private bool _internalInline;
         private bool _initslot;
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
@@ -2546,7 +2547,8 @@ namespace Neo.Compiler
                     Jump(OpCode.PUSHA, convert._startTarget);
                     break;
                 case IParameterSymbol parameter:
-                    AccessSlot(OpCode.LDARG, _parameters[parameter]);
+                    if(!_internalInline)
+                        AccessSlot(OpCode.LDARG, _parameters[parameter]);
                     break;
                 case IPropertySymbol property:
                     if (property.IsStatic)
@@ -3764,6 +3766,8 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, arguments))
                 return;
+            if (TryProcessInlineMethods(model, symbol, arguments))
+                return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
             if (symbol.IsVirtualMethod())
@@ -3806,6 +3810,8 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
                 return;
+            if (TryProcessInlineMethods(model, symbol,arguments))
+                return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
             if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
@@ -3845,7 +3851,7 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, null))
                 return;
-            if (TryProcessInlineMethods(model, symbol))
+            if (TryProcessInlineMethods(model, symbol, null))
                 return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
@@ -3886,64 +3892,25 @@ namespace Neo.Compiler
                 EmitCall(convert);
         }
 
-        private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol)
+        private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
         {
             SyntaxNode syntaxNode = null;
             if (!symbol.DeclaringSyntaxReferences.IsEmpty)
                 syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
-            // ConvertNoBody
-            foreach (var attribute in symbol.GetAttributesWithInherited())
-            {
-                if (attribute.ConstructorArguments.Length <= 0
-                    || (MethodImplOptions)attribute.ConstructorArguments[0].Value != MethodImplOptions.AggressiveInlining) continue;
+            if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
 
-                _inline = true;
-                _callingConvention = CallingConvention.Cdecl;
-                IPropertySymbol property = (IPropertySymbol)symbol.AssociatedSymbol!;
-                INamedTypeSymbol type = property.ContainingType;
-                IFieldSymbol[] fields = type.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-                using (InsertSequencePoint(syntaxNode))
-                {
-                    if (symbol.IsStatic)
-                    {
-                        IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-                        byte backingFieldIndex = context.AddStaticField(backingField);
-                        switch (Symbol.MethodKind)
-                        {
-                            case MethodKind.PropertyGet:
-                                AccessSlot(OpCode.LDSFLD, backingFieldIndex);
-                                break;
-                            case MethodKind.PropertySet:
-                                AccessSlot(OpCode.STSFLD, backingFieldIndex);
-                                break;
-                            default:
-                                throw new CompilationException(syntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntaxNode}");
-                        }
-                    }
-                    else
-                    {
-                        fields = fields.Where(p => !p.IsStatic).ToArray();
-                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                        switch (Symbol.MethodKind)
-                        {
-                            case MethodKind.PropertyGet:
-                                Push(backingFieldIndex);
-                                AddInstruction(OpCode.PICKITEM);
-                                break;
-                            case MethodKind.PropertySet:
-                                Push(backingFieldIndex);
-                                AddInstruction(OpCode.ROT);
-                                AddInstruction(OpCode.SETITEM);
-                                break;
-                            default:
-                                throw new CompilationException(syntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {syntaxNode}");
-                        }
-                    }
-                }
-                return true;
+            if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
+                    && (MethodImplOptions)attribute.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining)) return false;
+
+            _internalInline = true;
+
+            using (InsertSequencePoint(syntax))
+            {
+                if(arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+                ConvertStatement(model, syntax.Body);
             }
-            return false;
+            return true;
         }
 
         private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
