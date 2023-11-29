@@ -504,7 +504,7 @@ namespace Neo.Compiler
                 methodsExported.Add(method);
             }
 
-            if (symbol.GetAttributesWithInherited().Any(p => (MethodImplOptions)p.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining))
+            if (symbol.GetAttributesWithInherited().Any(p => p.AttributeClass is MethodImplOptions && (MethodImplOptions)p.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining))
                 return;
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)

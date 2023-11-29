@@ -2547,7 +2547,7 @@ namespace Neo.Compiler
                     Jump(OpCode.PUSHA, convert._startTarget);
                     break;
                 case IParameterSymbol parameter:
-                    if(!_internalInline)
+                    if (!_internalInline)
                         AccessSlot(OpCode.LDARG, _parameters[parameter]);
                     break;
                 case IPropertySymbol property:
@@ -3810,7 +3810,7 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
                 return;
-            if (TryProcessInlineMethods(model, symbol,arguments))
+            if (TryProcessInlineMethods(model, symbol, arguments))
                 return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
@@ -3900,13 +3900,13 @@ namespace Neo.Compiler
 
             if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
             if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
-                    && (MethodImplOptions)attribute.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining)) return false;
+                    && attribute.AttributeClass is MethodImplOptions && (MethodImplOptions)attribute.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining)) return false;
 
             _internalInline = true;
 
             using (InsertSequencePoint(syntax))
             {
-                if(arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+                if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
                 ConvertStatement(model, syntax.Body);
             }
             return true;
