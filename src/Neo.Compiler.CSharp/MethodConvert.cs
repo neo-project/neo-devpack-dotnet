@@ -3899,7 +3899,6 @@ namespace Neo.Compiler
                 syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
             if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
-
             if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
                     && (MethodImplOptions)attribute.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining)) return false;
 
