@@ -134,12 +134,18 @@ namespace Neo.Compiler.CSharp.UnitTests
                 testengine.Reset();
                 result = testengine.ExecuteTestCaseStandard("main", x.ToString());
                 Assert.AreEqual(result.Pop().GetInteger(), x + 1);
+                testengine.Reset();
+                result = testengine.ExecuteTestCaseStandard("main2", x.ToString());
+                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("main", 6.ToString());
+            Assert.AreEqual(result.Pop().GetInteger(), 99);
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("main2", 6.ToString());
             Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
     }
