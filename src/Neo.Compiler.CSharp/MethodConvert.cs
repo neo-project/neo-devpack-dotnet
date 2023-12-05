@@ -3894,20 +3894,20 @@ namespace Neo.Compiler
 
         private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
         {
-            SyntaxNode syntaxNode = null;
+            SyntaxNode? syntaxNode = null;
             if (!symbol.DeclaringSyntaxReferences.IsEmpty)
                 syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
             if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
             if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
-                    && attribute.AttributeClass?.Name == "MethodImplAttribute" && (MethodImplOptions)attribute.ConstructorArguments[0].Value == MethodImplOptions.AggressiveInlining)) return false;
+                    && attribute.AttributeClass?.Name == "MethodImplAttribute" && attribute.ConstructorArguments[0].Value is not null && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining)) return false;
 
             _internalInline = true;
 
             using (InsertSequencePoint(syntax))
             {
                 if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
-                ConvertStatement(model, syntax.Body);
+                if (syntax.Body != null) ConvertStatement(model, syntax.Body);
             }
             return true;
         }
