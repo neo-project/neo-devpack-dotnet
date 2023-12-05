@@ -3900,7 +3900,10 @@ namespace Neo.Compiler
 
             if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
             if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
-                    && attribute.AttributeClass?.Name == "MethodImplAttribute" && attribute.ConstructorArguments[0].Value is not null && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining)) return false;
+                    && attribute.AttributeClass?.Name == nameof(MethodImplAttribute)
+                    && attribute.ConstructorArguments[0].Value is not null
+                    && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+                return false;
 
             _internalInline = true;
 

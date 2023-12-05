@@ -504,8 +504,16 @@ namespace Neo.Compiler
                 methodsExported.Add(method);
             }
 
-            if (symbol.GetAttributesWithInherited().Any(p => p.AttributeClass?.Name == "MethodImplAttribute" && p.ConstructorArguments[0].Value is not null && (MethodImplOptions)p.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+            if (symbol.GetAttributesWithInherited()
+                .Any(p => p.AttributeClass?.Name == nameof(MethodImplAttribute)
+                    && p.ConstructorArguments[0].Value is not null
+                    && (MethodImplOptions)p.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+            {
+                if (export)
+                    throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: Can not set contract interface {symbol.Name} as inline.");
                 return;
+            }
+
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)
             {
