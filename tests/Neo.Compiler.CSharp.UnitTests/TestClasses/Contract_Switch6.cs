@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework;
+
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_SwitchValid : SmartContract.Framework.SmartContract
@@ -12,9 +14,22 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 case "3": return 4;
                 case "4": return 5;
                 case "5": return 6;
-
                 default: return 99;
             }
+        }
+
+        public static object Main2(string method)
+        {
+            return method switch
+            {
+                "0" => 1,
+                "1" => 2,
+                "2" => 3,
+                "3" => 4,
+                "4" => 5,
+                "5" => 6,
+                _ => 99
+            };
         }
     }
 }
