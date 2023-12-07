@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 "not_inline" => not_inline(),
                 "not_inline_with_one_parameters" => not_inline_with_one_parameters(3),
                 "not_inline_with_multi_parameters" => not_inline_with_multi_parameters(2, 3),
-                "inline_nested"=>inline_A(),
+                "inline_nested" => inline_A(),
                 _ => 99
             };
         }
@@ -37,7 +37,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return a + b;
         }
-
 
         private static int not_inline()
         {
