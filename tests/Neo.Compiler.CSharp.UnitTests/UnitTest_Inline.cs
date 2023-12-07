@@ -198,5 +198,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             // op:[0112]JMP
             // op:[0114]RET
         }
+
+        [TestMethod]
+        public void Test_NestedInline()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Inline.cs");
+
+            var result1 = testengine.ExecuteTestCaseStandard("testInline", "inline_nested").Pop();
+            Assert.AreEqual(result1.GetInteger(), 3);
+        }
     }
 }
