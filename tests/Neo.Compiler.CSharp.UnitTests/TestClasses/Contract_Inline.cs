@@ -69,6 +69,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return 3;
         }
-
     }
 }
