@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
@@ -502,6 +503,17 @@ namespace Neo.Compiler
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                 methodsExported.Add(method);
             }
+
+            if (symbol.GetAttributesWithInherited()
+                .Any(p => p.AttributeClass?.Name == nameof(MethodImplAttribute)
+                    && p.ConstructorArguments[0].Value is not null
+                    && (MethodImplOptions)p.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+            {
+                if (export)
+                    throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: Can not set contract interface {symbol.Name} as inline.");
+                return;
+            }
+
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && !symbol.IsStatic)
             {
