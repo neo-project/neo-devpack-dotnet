@@ -2918,6 +2918,7 @@ namespace Neo.Compiler
             AccessSlot(OpCode.LDLOC, index);
             AddInstruction(OpCode.DUP);
             EmitIncrementOrDecrement(operatorToken);
+            EnsureIntegerInRange(symbol.Type);
             AccessSlot(OpCode.STLOC, index);
         }
 
@@ -3146,6 +3147,7 @@ namespace Neo.Compiler
             byte index = _localVariables[symbol];
             AccessSlot(OpCode.LDLOC, index);
             EmitIncrementOrDecrement(operatorToken);
+            EnsureIntegerInRange(symbol.Type);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STLOC, index);
         }
