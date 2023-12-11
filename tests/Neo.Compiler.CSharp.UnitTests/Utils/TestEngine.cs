@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             }
             else
             {
-                context.Diagnostics.ForEach(Console.WriteLine);
+                context.Diagnostics.ForEach(Console.Error.WriteLine);
             }
             return context;
         }
