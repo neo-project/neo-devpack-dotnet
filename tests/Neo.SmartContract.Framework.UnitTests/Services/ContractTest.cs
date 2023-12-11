@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestInitialize]
         public void Init()
         {
-            var system = new NeoSystem(ProtocolSettings.Default);
+            var system = new NeoSystem(TestProtocolSettings.Default);
             _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },

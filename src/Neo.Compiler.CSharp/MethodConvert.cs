@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -45,6 +47,8 @@ namespace Neo.Compiler
         // Flag to indicate whether methods should be inlined, potentially for optimization.
         private bool _inline;
 
+        private bool _internalInline;
+      
         // Indicates whether to initialize local variable slots.
         private bool _initSlot;
 
@@ -3470,7 +3474,8 @@ namespace Neo.Compiler
                 case IParameterSymbol parameter:
                     // Example: methodParameter
                     // Handles parameters passed to methods.
-                    AccessSlot(OpCode.LDARG, _parameters[parameter]);
+                    if (!_internalInline)
+                        AccessSlot(OpCode.LDARG, _parameters[parameter]);
                     break;
 
                 case IPropertySymbol property:
@@ -5154,6 +5159,8 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, arguments))
                 return;
+            if (TryProcessInlineMethods(model, symbol, arguments))
+                return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
             if (symbol.IsVirtualMethod())
@@ -5203,6 +5210,8 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
                 return;
+            if (TryProcessInlineMethods(model, symbol, arguments))
+                return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
             if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
@@ -5248,6 +5257,8 @@ namespace Neo.Compiler
         {
             if (TryProcessSystemMethods(model, symbol, null, null))
                 return;
+            if (TryProcessInlineMethods(model, symbol, null))
+                return;
             MethodConvert? convert;
             CallingConvention methodCallingConvention;
             if (symbol.IsVirtualMethod())
@@ -5285,6 +5296,30 @@ namespace Neo.Compiler
                 CallVirtual(symbol);
             else
                 EmitCall(convert);
+        }
+
+
+        private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+        {
+            SyntaxNode? syntaxNode = null;
+            if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+                syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
+
+            if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
+            if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
+                    && attribute.AttributeClass?.Name == nameof(MethodImplAttribute)
+                    && attribute.ConstructorArguments[0].Value is not null
+                    && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+                return false;
+
+            _internalInline = true;
+
+            using (InsertSequencePoint(syntax))
+            {
+                if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+                if (syntax.Body != null) ConvertStatement(model, syntax.Body);
+            }
+            return true;
         }
 
         /// <summary>
