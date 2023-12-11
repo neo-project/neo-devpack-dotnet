@@ -3080,11 +3080,6 @@ namespace Neo.Compiler
         {
             if (operand.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
-
-
-            // ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
-            // ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
-
             if (model.GetSymbolInfo(operand).Symbol is IPropertySymbol property)
             {
                 ConvertExpression(model, operand.Expression);
