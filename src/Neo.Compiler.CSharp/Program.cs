@@ -181,11 +181,8 @@ namespace Neo.Compiler
                 Console.WriteLine("Compilation completed successfully.");
                 return 0;
             }
-            else
-            {
-                Console.Error.WriteLine("Compilation failed.");
-                return 1;
-            }
+            Console.Error.WriteLine("Compilation failed.");
+            return 1;
         }
     }
 }

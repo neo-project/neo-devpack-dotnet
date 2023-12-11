@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -16,10 +16,10 @@ namespace Neo.Compiler
 {
     class PermissionBuilder
     {
-        private readonly HashSet<(string Hash, string Method)> normalItems = new();
-        private readonly HashSet<string> wildcardHashes = new();
-        private readonly HashSet<string> wildcardMethods = new();
-        private bool isWildcard;
+        private readonly HashSet<(string Hash, string Method)> _normalItems = new();
+        private readonly HashSet<string> _wildcardHashes = new();
+        private readonly HashSet<string> _wildcardMethods = new();
+        private bool _isWildcard;
 
         public void Add(string hash, string[] methods)
         {
@@ -32,30 +32,30 @@ namespace Neo.Compiler
 
         public void Add(string hash, string method)
         {
-            if (isWildcard) return;
+            if (_isWildcard) return;
             if (hash == "*")
             {
                 if (method == "*")
                 {
-                    isWildcard = true;
+                    _isWildcard = true;
                 }
                 else
                 {
-                    if (wildcardMethods.Add(method))
-                        normalItems.RemoveWhere(p => p.Method == method);
+                    if (_wildcardMethods.Add(method))
+                        _normalItems.RemoveWhere(p => p.Method == method);
                 }
             }
             else
             {
                 if (method == "*")
                 {
-                    if (wildcardHashes.Add(hash))
-                        normalItems.RemoveWhere(p => p.Hash == hash);
+                    if (_wildcardHashes.Add(hash))
+                        _normalItems.RemoveWhere(p => p.Hash == hash);
                 }
                 else
                 {
-                    if (!wildcardHashes.Contains(hash) && !wildcardMethods.Contains(method))
-                        normalItems.Add((hash, method));
+                    if (!_wildcardHashes.Contains(hash) && !_wildcardMethods.Contains(method))
+                        _normalItems.Add((hash, method));
                 }
             }
         }
@@ -63,7 +63,7 @@ namespace Neo.Compiler
         public JArray ToJson()
         {
             JArray permissions = new();
-            if (isWildcard)
+            if (_isWildcard)
             {
                 permissions.Add(new JObject
                 {
@@ -73,23 +73,23 @@ namespace Neo.Compiler
             }
             else
             {
-                foreach (var group in normalItems.GroupBy(p => p.Hash, p => p.Method).OrderBy(p => p.Key))
+                foreach (var group in _normalItems.GroupBy(p => p.Hash, p => p.Method).OrderBy(p => p.Key))
                     permissions.Add(new JObject
                     {
                         ["contract"] = group.Key,
                         ["methods"] = new JArray(group.OrderBy(p => p).Select(p => (JString)p!))
                     });
-                foreach (string hash in wildcardHashes.OrderBy(p => p))
+                foreach (string hash in _wildcardHashes.OrderBy(p => p))
                     permissions.Add(new JObject
                     {
                         ["contract"] = hash,
                         ["methods"] = "*"
                     });
-                if (wildcardMethods.Count > 0)
+                if (_wildcardMethods.Count > 0)
                     permissions.Add(new JObject
                     {
                         ["contract"] = "*",
-                        ["methods"] = new JArray(wildcardMethods.OrderBy(p => p).Select(p => (JString)p!))
+                        ["methods"] = new JArray(_wildcardMethods.OrderBy(p => p).Select(p => (JString)p!))
                     });
             }
             return permissions;
