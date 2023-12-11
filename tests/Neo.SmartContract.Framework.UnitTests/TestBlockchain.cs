@@ -3,6 +3,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Native;
 using System.Linq;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -16,7 +17,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         static TestBlockchain()
         {
-            TheNeoSystem = new NeoSystem(ProtocolSettings.Default);
+            TheNeoSystem = new NeoSystem(TestProtocolSettings.Default);
         }
 
         public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable key = null)

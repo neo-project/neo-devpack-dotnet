@@ -49,7 +49,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, IDiagnostic diagnostic = null)
-             : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas, diagnostic)
+             : base(trigger, verificable, snapshot, persistingBlock, TestProtocolSettings.Default, TestGas, diagnostic)
         {
         }
 
