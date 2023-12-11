@@ -2848,6 +2848,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(property.Type);
                 Call(model, property.SetMethod!, CallingConvention.StdCall);
             }
             else
@@ -2861,6 +2862,8 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
                 EmitIncrementOrDecrement(operatorToken);
+                var typeSymbol = model.GetTypeInfo(operand).Type;
+                if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
                 AddInstruction(OpCode.SETITEM);
             }
         }
@@ -2895,6 +2898,7 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.DUP);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AccessSlot(OpCode.STSFLD, index);
             }
             else
@@ -2906,6 +2910,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.PICKITEM);
                 AddInstruction(OpCode.TUCK);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
                 AddInstruction(OpCode.SETITEM);
@@ -2928,6 +2933,7 @@ namespace Neo.Compiler
             AccessSlot(OpCode.LDARG, index);
             AddInstruction(OpCode.DUP);
             EmitIncrementOrDecrement(operatorToken);
+            EnsureIntegerInRange(symbol.Type);
             AccessSlot(OpCode.STARG, index);
         }
 
@@ -2938,6 +2944,7 @@ namespace Neo.Compiler
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 Call(model, symbol.SetMethod!);
             }
             else
@@ -2947,6 +2954,7 @@ namespace Neo.Compiler
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
@@ -2975,6 +2983,7 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.DUP);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AccessSlot(OpCode.STSFLD, index);
             }
             else
@@ -2986,6 +2995,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.PICKITEM);
                 AddInstruction(OpCode.TUCK);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
                 AddInstruction(OpCode.SETITEM);
@@ -2999,6 +3009,7 @@ namespace Neo.Compiler
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 Call(model, symbol.SetMethod!);
             }
             else
@@ -3008,6 +3019,7 @@ namespace Neo.Compiler
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
@@ -3068,6 +3080,11 @@ namespace Neo.Compiler
         {
             if (operand.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
+
+
+            // ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
+            // ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
+
             if (model.GetSymbolInfo(operand).Symbol is IPropertySymbol property)
             {
                 ConvertExpression(model, operand.Expression);
@@ -3076,6 +3093,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.OVER);
                 Call(model, property.GetMethod!, CallingConvention.StdCall);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(property.Type);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 Call(model, property.SetMethod!, CallingConvention.Cdecl);
@@ -3088,6 +3106,8 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.PICKITEM);
                 EmitIncrementOrDecrement(operatorToken);
+                var typeSymbol = model.GetTypeInfo(operand).Type;
+                if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
@@ -3124,6 +3144,7 @@ namespace Neo.Compiler
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.STSFLD, index);
             }
@@ -3135,6 +3156,7 @@ namespace Neo.Compiler
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
@@ -3157,6 +3179,7 @@ namespace Neo.Compiler
             byte index = _parameters[symbol];
             AccessSlot(OpCode.LDARG, index);
             EmitIncrementOrDecrement(operatorToken);
+            EnsureIntegerInRange(symbol.Type);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STARG, index);
         }
@@ -3167,6 +3190,7 @@ namespace Neo.Compiler
             {
                 Call(model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.SetMethod!);
             }
@@ -3176,6 +3200,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
@@ -3204,6 +3229,7 @@ namespace Neo.Compiler
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.STSFLD, index);
             }
@@ -3215,6 +3241,7 @@ namespace Neo.Compiler
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
@@ -3228,6 +3255,7 @@ namespace Neo.Compiler
             {
                 Call(model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.SetMethod!);
             }
@@ -3237,6 +3265,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
                 EmitIncrementOrDecrement(operatorToken);
+                EnsureIntegerInRange(symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
