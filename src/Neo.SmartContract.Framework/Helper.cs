@@ -1,16 +1,17 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Numerics;
+using Neo.SmartContract.Framework.Native;
 
 namespace Neo.SmartContract.Framework
 {
@@ -201,10 +202,28 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Take(this byte[] source, int count);
 
         /// <summary>
+        /// Returns string with first 'count' elements from string 'source'. Faults if count < 0
+        /// </summary>
+        /// <param name="source">The original string</param>
+        /// <param name="count">the number of elements to return</param>
+        /// <returns>The first 'count' elements</returns>
+        /// <example>"Neo, 2" -> "Ne"</example>
+        public static string Take(this string source, int count) => Take(source.ToByteArray(), count).ToByteString();
+
+        /// <summary>
         /// Returns byte[] with last 'count' elements from 'source'. Faults if count < 0
         /// </summary>
         [OpCode(OpCode.RIGHT)]
         public extern static byte[] Last(this byte[] source, int count);
+
+        /// <summary>
+        /// Returns string with last 'count' elements from string 'source'. Faults if count < 0
+        /// </summary>
+        /// <param name="source">The original string</param>
+        /// <param name="count">the number of elements to return</param>
+        /// <returns>The last 'count' elements</returns>
+        /// <example>"Neo, 2" -> "eo"</example>
+        public static string Last(this string source, int count) => Last(source.ToByteArray(), count).ToByteString();
 
         /// <summary>
         /// Returns a reversed copy of parameter 'source'.
@@ -213,6 +232,35 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.REVERSEITEMS)]
         public extern static byte[] Reverse(this Array source);
+
+        /// <summary>
+        /// Return a reversed copy of string parameter 'source'.
+        /// </summary>
+        /// <param name="source">The original string</param>
+        /// <returns>The reversed string</returns>
+        /// <example>NEO -> OEN</example>
+        public static string Reverse(this string source) => source.ToByteArray().Reverse().ToByteString();
+
+        /// <summary>
+        /// Replace the character in the string with the specified character.
+        /// </summary>
+        /// <param name="source">The source string</param>
+        /// <param name="oldChar">The old character to be replaced</param>
+        /// <param name="newChar">The new character to replace</param>
+        /// <returns>The new string with character replaced</returns>
+        /// <example>Neb,b,o -> Neo</example>
+        public static string Replace(this string source, byte oldChar, byte newChar)
+        {
+            var byteArray = source.ToByteArray();
+            for (var i = 0; i < byteArray.Length; i++)
+            {
+                if (byteArray[i] == oldChar)
+                {
+                    byteArray[i] = newChar;
+                }
+            }
+            return byteArray.ToByteString();
+        }
 
         /// <summary>
         /// Returns the square root of number x

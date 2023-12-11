@@ -57,5 +57,53 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("Neo3", item.GetString());
         }
+
+        [TestMethod]
+        public void TestStringReverse()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testStringReverse", "Neo");
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("oeN", item.GetString());
+        }
+
+        [TestMethod]
+        public void TestStringLast()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testStringLast", "Neo", 2);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("eo", item.GetString());
+        }
+
+        [TestMethod]
+        public void TestStringTake()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testStringTake", "Neo", 2);
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("Ne", item.GetString());
+        }
+
+        [TestMethod]
+        public void TestStringReplace()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("testStringReplace", "Neb", 'b', 'o');
+            Assert.AreEqual(1, result.Count);
+
+            var item = result.Pop();
+            Assert.IsInstanceOfType(item, typeof(ByteString));
+            Assert.AreEqual("Neo", item.GetString());
+        }
     }
 }
