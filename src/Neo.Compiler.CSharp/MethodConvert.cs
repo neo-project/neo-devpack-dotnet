@@ -2064,21 +2064,24 @@ namespace Neo.Compiler
             var itemType = type.GetStackItemType();
             bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
             bool isString = itemType == VM.Types.StackItemType.ByteString;
-            AddInstruction(operatorToken.ValueText switch
+
+            (OpCode opcode, bool checkResult) = operatorToken.ValueText switch
             {
-                "+=" => isString ? OpCode.CAT : OpCode.ADD,
-                "-=" => OpCode.SUB,
-                "*=" => OpCode.MUL,
-                "/=" => OpCode.DIV,
-                "%=" => OpCode.MOD,
-                "&=" => isBoolean ? OpCode.BOOLAND : OpCode.AND,
-                "^=" when !isBoolean => OpCode.XOR,
-                "|=" => isBoolean ? OpCode.BOOLOR : OpCode.OR,
-                "<<=" => OpCode.SHL,
-                ">>=" => OpCode.SHR,
+                "+=" => isString ? (OpCode.CAT, false) : (OpCode.ADD, true),
+                "-=" => (OpCode.SUB, true),
+                "*=" => (OpCode.MUL, true),
+                "/=" => (OpCode.DIV, true),
+                "%=" => (OpCode.MOD, true),
+                "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, true),
+                "^=" when !isBoolean => (OpCode.XOR, true),
+                "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
+                "<<=" => (OpCode.SHL, true),
+                ">>=" => (OpCode.SHR, true),
                 _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
-            });
+            };
+            AddInstruction(opcode);
             if (isString) ChangeType(VM.Types.StackItemType.ByteString);
+            if (checkResult) EnsureIntegerInRange(type);
         }
 
         private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
