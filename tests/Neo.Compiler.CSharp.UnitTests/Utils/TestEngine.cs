@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Neo.Json;
@@ -48,7 +49,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
         }
 
         public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, IDiagnostic diagnostic = null)
-             : base(trigger, verificable, snapshot, persistingBlock, ProtocolSettings.Default, TestGas, diagnostic)
+             : base(trigger, verificable, snapshot, persistingBlock, TestProtocolSettings.Default, TestGas, diagnostic)
         {
         }
 
@@ -70,6 +71,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 Manifest = context.CreateManifest();
                 DebugInfo = context.CreateDebugInformation();
                 Reset();
+            }
+            else
+            {
+                context.Diagnostics.ForEach(Console.Error.WriteLine);
             }
             return context;
         }
