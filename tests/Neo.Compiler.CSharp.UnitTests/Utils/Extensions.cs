@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
 
         public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
         {
-            persistingBlock ??= new NeoSystem(ProtocolSettings.Default).GenesisBlock;
+            persistingBlock ??= new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
 
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
