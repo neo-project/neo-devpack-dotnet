@@ -101,7 +101,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("unitTest_Right_Shift_Assign_Checked");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            var values = (Array)result.Pop();
+            Assert.AreEqual(checked(uint.MinValue >> 1), values[0].GetInteger());
+            Assert.AreEqual(checked(int.MinValue >> 1), values[1].GetInteger());
         }
 
         [TestMethod]
