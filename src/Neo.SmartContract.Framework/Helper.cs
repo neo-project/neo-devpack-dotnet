@@ -208,7 +208,7 @@ namespace Neo.SmartContract.Framework
         /// <param name="count">the number of elements to return</param>
         /// <returns>The first 'count' elements</returns>
         /// <example>"Neo, 2" -> "Ne"</example>
-        public static string Take(this string source, int count) => Take(source.ToByteArray(), count).ToByteString();
+        public static string Take(this string source, int count) => source[..count];
 
         /// <summary>
         /// Returns byte[] with last 'count' elements from 'source'. Faults if count < 0
@@ -223,7 +223,7 @@ namespace Neo.SmartContract.Framework
         /// <param name="count">the number of elements to return</param>
         /// <returns>The last 'count' elements</returns>
         /// <example>"Neo, 2" -> "eo"</example>
-        public static string Last(this string source, int count) => Last(source.ToByteArray(), count).ToByteString();
+        public static string Last(this string source, int count) => source[^count..];
 
         /// <summary>
         /// Returns a reversed copy of parameter 'source'.
