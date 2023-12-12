@@ -2847,7 +2847,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
-                EmitIncrementOrDecrement(operatorToken,property.Type);
+                EmitIncrementOrDecrement(operatorToken, property.Type);
                 Call(model, property.SetMethod!, CallingConvention.StdCall);
             }
             else
@@ -2894,7 +2894,7 @@ namespace Neo.Compiler
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AccessSlot(OpCode.STSFLD, index);
             }
             else
@@ -2905,7 +2905,7 @@ namespace Neo.Compiler
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
                 AddInstruction(OpCode.SETITEM);
@@ -2917,7 +2917,7 @@ namespace Neo.Compiler
             byte index = _localVariables[symbol];
             AccessSlot(OpCode.LDLOC, index);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken,symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AccessSlot(OpCode.STLOC, index);
         }
 
@@ -2926,7 +2926,7 @@ namespace Neo.Compiler
             byte index = _parameters[symbol];
             AccessSlot(OpCode.LDARG, index);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken,symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AccessSlot(OpCode.STARG, index);
         }
 
@@ -2936,7 +2936,7 @@ namespace Neo.Compiler
             {
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!);
             }
             else
@@ -2945,7 +2945,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
@@ -2973,7 +2973,7 @@ namespace Neo.Compiler
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AccessSlot(OpCode.STSFLD, index);
             }
             else
@@ -3006,7 +3006,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
@@ -3074,7 +3074,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.OVER);
                 Call(model, property.GetMethod!, CallingConvention.StdCall);
-                EmitIncrementOrDecrement(operatorToken,property.Type);
+                EmitIncrementOrDecrement(operatorToken, property.Type);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 Call(model, property.SetMethod!, CallingConvention.Cdecl);
@@ -3122,7 +3122,7 @@ namespace Neo.Compiler
             {
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.STSFLD, index);
             }
@@ -3133,7 +3133,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
@@ -3145,7 +3145,7 @@ namespace Neo.Compiler
         {
             byte index = _localVariables[symbol];
             AccessSlot(OpCode.LDLOC, index);
-            EmitIncrementOrDecrement(operatorToken,symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STLOC, index);
         }
@@ -3154,7 +3154,7 @@ namespace Neo.Compiler
         {
             byte index = _parameters[symbol];
             AccessSlot(OpCode.LDARG, index);
-            EmitIncrementOrDecrement(operatorToken,symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STARG, index);
         }
@@ -3164,7 +3164,7 @@ namespace Neo.Compiler
             if (symbol.IsStatic)
             {
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.SetMethod!);
             }
@@ -3173,7 +3173,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.LDARG0);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
@@ -3201,7 +3201,7 @@ namespace Neo.Compiler
             {
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.STSFLD, index);
             }
@@ -3212,7 +3212,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
@@ -3225,7 +3225,7 @@ namespace Neo.Compiler
             if (symbol.IsStatic)
             {
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.SetMethod!);
             }
@@ -3234,7 +3234,7 @@ namespace Neo.Compiler
                 ConvertExpression(model, operand.Expression);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken,symbol.Type);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
