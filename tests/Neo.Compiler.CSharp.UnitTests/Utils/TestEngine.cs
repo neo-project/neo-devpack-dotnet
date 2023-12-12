@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Neo.Json;
@@ -70,6 +71,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 Manifest = context.CreateManifest();
                 DebugInfo = context.CreateDebugInformation();
                 Reset();
+            }
+            else
+            {
+                context.Diagnostics.ForEach(Console.Error.WriteLine);
             }
             return context;
         }
