@@ -262,6 +262,119 @@ namespace Neo.SmartContract.Framework
             return byteArray.ToByteString();
         }
 
+        public static string Replace(this string source, string oldStr, string newStr)
+        {
+            var sourceBytes = source.ToByteArray();
+            var oldBytes = oldStr.ToByteArray();
+            var newBytes = newStr.ToByteArray();
+            var result = Array.Empty<byte>();
+            for (var i = 0; i < sourceBytes.Length; i++)
+            {
+                if (sourceBytes[i] == oldBytes[0])
+                {
+                    var match = true;
+                    for (var j = 0; j < oldBytes.Length; j++)
+                    {
+                        if (sourceBytes[i + j] != oldBytes[j])
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match)
+                    {
+                        result = result.Concat(newBytes);
+                        i += oldBytes.Length - 1;
+                        continue;
+                    }
+                }
+                result = result.Concat(sourceBytes[i].ToByteArray());
+            }
+            return result.ToByteString();
+        }
+
+
+        /// <summary>
+        ///  Returns true iff 'source' contains 'value'.
+        /// </summary>
+        /// <param name="source">The source string</param>
+        /// <param name="value">The string to find</param>
+        /// <returns>bool result of the check, true if end with</returns>
+        public static bool EndsWith(this string source, string value)
+        {
+            var sourceBytes = source.ToByteArray();
+            var valueBytes = value.ToByteArray();
+            if (sourceBytes.Length < valueBytes.Length)
+            {
+                return false;
+            }
+            for (var i = 0; i < valueBytes.Length; i++)
+            {
+                if (sourceBytes[sourceBytes.Length - valueBytes.Length + i] != valueBytes[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        ///  Returns the first index of the value iff 'source' contains 'value'.
+        /// </summary>
+        /// <param name="source">The string to search</param>
+        /// <param name="value">The target character to search</param>
+        /// <returns>The index of the first found value, -1 if not found</returns>
+        public static int IndexOf(this string source, byte value)
+        {
+            var sourceBytes = source.ToByteArray();
+            for (var i = 0; i < sourceBytes.Length; i++)
+            {
+                if (sourceBytes[i] == value)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+
+        /// <summary>
+        /// Converts the string to uppercase
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string ToUpper(this string source)
+        {
+            var sourceBytes = source.ToByteArray();
+            for (var i = 0; i < sourceBytes.Length; i++)
+            {
+                if (sourceBytes[i] >= 0x61 && sourceBytes[i] <= 0x7a)
+                {
+                    sourceBytes[i] = (byte)(sourceBytes[i] - 0x20);
+                }
+            }
+            return sourceBytes.ToByteString();
+        }
+
+        /// <summary>
+        /// Converts the string to lowercase
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string ToLower(this string source)
+        {
+            var sourceBytes = source.ToByteArray();
+            for (var i = 0; i < sourceBytes.Length; i++)
+            {
+                if (sourceBytes[i] >= 0x41 && sourceBytes[i] <= 0x5a)
+                {
+                    sourceBytes[i] = (byte)(sourceBytes[i] + 0x20);
+                }
+            }
+            return sourceBytes.ToByteString();
+        }
+
+
         /// <summary>
         /// Returns the square root of number x
         /// </summary>
