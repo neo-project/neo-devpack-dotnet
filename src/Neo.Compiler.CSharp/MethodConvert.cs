@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -2065,7 +2064,7 @@ namespace Neo.Compiler
             bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
             bool isString = itemType == VM.Types.StackItemType.ByteString;
 
-            (OpCode opcode, bool checkResult) = operatorToken.ValueText switch
+            var (opcode, checkResult) = operatorToken.ValueText switch
             {
                 "+=" => isString ? (OpCode.CAT, false) : (OpCode.ADD, true),
                 "-=" => (OpCode.SUB, true),
