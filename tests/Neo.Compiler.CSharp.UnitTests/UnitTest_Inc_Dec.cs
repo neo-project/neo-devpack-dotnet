@@ -83,8 +83,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(uint.MaxValue - 1, result.Pop().GetInteger());
         }
-
-
         [TestMethod]
         public void Test_Param_Inc_Checked()
         {
@@ -118,8 +116,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(uint.MaxValue - 1, result.Pop().GetInteger());
         }
-
-
         [TestMethod]
         public void Test_Not_DeadLoop()
         {

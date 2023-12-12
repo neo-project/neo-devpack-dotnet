@@ -39,6 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             return _property;
         }
+
         public static uint UnitTest_Property_Dec_UnChecked()
         {
             _property = uint.MinValue;
