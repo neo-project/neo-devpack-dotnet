@@ -258,7 +258,7 @@ namespace Neo.Compiler
             var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!;
             NefFile nef = new()
             {
-                Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
+                Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion.GetVersion()}",
                 Source = Source ?? string.Empty,
                 Tokens = methodTokens.ToArray(),
                 Script = Script
