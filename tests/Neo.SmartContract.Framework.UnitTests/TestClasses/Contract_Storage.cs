@@ -1,7 +1,9 @@
 using Neo.SmartContract.Framework.Services;
+using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
+
     public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
@@ -91,6 +93,48 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var storage = new StorageMap(context, prefix);
             var value = storage.Get((ByteString)key);
             return (byte[])value;
+        }
+
+        public static bool TestNewGetMethods()
+        {
+            var prefix = new byte[] { 0x00, 0xFF };
+            var context = Storage.CurrentContext;
+            var storage = new StorageMap(context, prefix);
+
+            var boolValue = true;
+            var intValue = 123;
+            var stringValue = "hello world";
+            var uint160Value = UInt160.Zero;
+            var uint256Value = UInt256.Zero;
+
+            storage.Put("bool", boolValue);
+            storage.Put("int", intValue);
+            storage.Put("string", stringValue);
+            storage.Put("uint160", uint160Value);
+            storage.Put("uint256", uint256Value);
+
+            var boolValue2 = storage.GetBoolean("bool");
+            var intValue2 = storage.GetInteger("int");
+            var stringValue2 = storage.GetString("string");
+            var uint160Value2 = storage.GetUInt160("uint160");
+            var uint256Value2 = storage.GetUInt256("uint256");
+
+            return boolValue == boolValue2
+                && intValue == intValue2
+                &&stringValue == stringValue2
+                && uint160Value == uint160Value2
+                && uint256Value == uint256Value2;
+        }
+
+        public static byte[] TestNewGetByteArray()
+        {
+            var prefix = new byte[] { 0x00, 0xFF };
+            var context = Storage.CurrentContext;
+            var storage = new StorageMap(context, prefix);
+            var byteArray = new byte[] { 0x00, 0x01 };
+            storage.Put("byteArray", byteArray);
+            var byteArray2 = storage.GetByteArray("byteArray");
+            return byteArray2;
         }
 
         #endregion
