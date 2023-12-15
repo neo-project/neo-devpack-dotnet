@@ -3,7 +3,6 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-
     public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
