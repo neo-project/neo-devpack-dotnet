@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -22,6 +23,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static int abs(int a)
         {
             return Math.Abs(a);
+        }
+
+        public static double pow(int a, int b)
+        {
+            return Math.Pow(a, b);
         }
     }
 }

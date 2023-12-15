@@ -91,5 +91,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(0, result.Pop().GetInteger());
         }
+
+        [TestMethod]
+        public void pow_test()
+        {
+            _engine.Reset();
+            var result = _engine.ExecuteTestCaseStandard("pow", 10, 10);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(10000000000, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("pow", 10, 0);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(1, result.Pop().GetInteger());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("pow", 100, 1);
+
+            Assert.AreEqual(VMState.HALT, _engine.State);
+            Assert.AreEqual(100, result.Pop().GetInteger());
+        }
     }
 }
