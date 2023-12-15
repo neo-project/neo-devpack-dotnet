@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString GetUInt160(ByteString key);
+        public extern UInt160 GetUInt160(ByteString key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -130,7 +130,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString GetUInt256(ByteString key);
+        public extern UInt256 GetUInt256(ByteString key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -213,7 +213,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString GetUInt160(byte[] key);
+        public extern UInt160 GetUInt160(byte[] key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -222,7 +222,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString GetUInt256(byte[] key);
+        public extern UInt256 GetUInt256(byte[] key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
