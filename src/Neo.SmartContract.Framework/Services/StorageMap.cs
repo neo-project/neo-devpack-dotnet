@@ -15,6 +15,7 @@ using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Neo.Cryptography.ECC;
 
 namespace Neo.SmartContract.Framework.Services
 {
@@ -139,7 +140,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString GetECPoint(ByteString key);
+        public extern ECPoint GetECPoint(ByteString key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -168,7 +169,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern int GetInteger(ByteString key);
+        public extern BigInteger GetInteger(ByteString key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -195,7 +196,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.JMP, "0x04")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern int GetIntegerOrZero(ByteString key);
+        public extern BigInteger GetIntegerOrZero(ByteString key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -231,7 +232,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString GetECPoint(byte[] key);
+        public extern ECPoint GetECPoint(byte[] key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -260,7 +261,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern int GetInteger(byte[] key);
+        public extern BigInteger GetInteger(byte[] key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -287,7 +288,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.PUSH0)]
         [OpCode(OpCode.JMP, "0x04")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern int GetIntegerOrZero(byte[] key);
+        public extern BigInteger GetIntegerOrZero(byte[] key);
 
         public object GetObject(ByteString key)
         {
