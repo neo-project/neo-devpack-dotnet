@@ -175,5 +175,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             }
             return this.ResultStack;
         }
+
+        protected override void OnSysCall(InteropDescriptor descriptor)
+        {
+            Console.WriteLine("syscall:[" + descriptor.Name + "]");
+            base.OnSysCall(descriptor);
+        }
     }
 }
