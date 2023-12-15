@@ -4182,6 +4182,7 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.SIGN);
                     return true;
                 case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
+                case "System.Math.Pow(double, double)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.POW);
