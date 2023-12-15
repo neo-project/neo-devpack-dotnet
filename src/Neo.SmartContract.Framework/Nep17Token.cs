@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Framework
             if (amount.Sign < 0) throw new ArgumentOutOfRangeException(nameof(amount));
             if (amount.IsZero) return;
             UpdateBalance(account, +amount);
-            UpdateTotalSupply(+amount);
+            TotalSupply += amount;
             PostTransfer(null, account, amount, null);
         }
 
@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Framework
             if (amount.IsZero) return;
             if (!UpdateBalance(account, -amount))
                 throw new InvalidOperationException();
-            UpdateTotalSupply(-amount);
+            TotalSupply -= amount;
             PostTransfer(account, null, amount, null);
         }
 
