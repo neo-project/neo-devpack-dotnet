@@ -93,7 +93,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var values = (Array)result.Pop();
             Assert.AreEqual(unchecked(uint.MaxValue << 1), values[0].GetInteger());
             Assert.AreEqual(unchecked(int.MaxValue << 1), values[1].GetInteger());
-
         }
 
         [TestMethod]
@@ -117,7 +116,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(unchecked(uint.MinValue >> 1), values[0].GetInteger());
             Assert.AreEqual(unchecked(int.MinValue >> 1), values[1].GetInteger());
         }
-
-
     }
 }

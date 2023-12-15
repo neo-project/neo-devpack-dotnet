@@ -124,6 +124,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             return (value1, value2);
         }
-
     }
 }
