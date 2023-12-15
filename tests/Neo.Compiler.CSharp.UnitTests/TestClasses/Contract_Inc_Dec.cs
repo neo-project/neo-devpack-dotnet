@@ -278,6 +278,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             for (uint i = 5; i < 7; i--) ;
         }
-
     }
 }
