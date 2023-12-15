@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -2202,21 +2201,24 @@ namespace Neo.Compiler
             var itemType = type.GetStackItemType();
             bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
             bool isString = itemType == VM.Types.StackItemType.ByteString;
-            AddInstruction(operatorToken.ValueText switch
+
+            var (opcode, checkResult) = operatorToken.ValueText switch
             {
-                "+=" => isString ? OpCode.CAT : OpCode.ADD,
-                "-=" => OpCode.SUB,
-                "*=" => OpCode.MUL,
-                "/=" => OpCode.DIV,
-                "%=" => OpCode.MOD,
-                "&=" => isBoolean ? OpCode.BOOLAND : OpCode.AND,
-                "^=" when !isBoolean => OpCode.XOR,
-                "|=" => isBoolean ? OpCode.BOOLOR : OpCode.OR,
-                "<<=" => OpCode.SHL,
-                ">>=" => OpCode.SHR,
+                "+=" => isString ? (OpCode.CAT, false) : (OpCode.ADD, true),
+                "-=" => (OpCode.SUB, true),
+                "*=" => (OpCode.MUL, true),
+                "/=" => (OpCode.DIV, true),
+                "%=" => (OpCode.MOD, true),
+                "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, true),
+                "^=" when !isBoolean => (OpCode.XOR, true),
+                "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
+                "<<=" => (OpCode.SHL, true),
+                ">>=" => (OpCode.SHR, true),
                 _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
-            });
+            };
+            AddInstruction(opcode);
             if (isString) ChangeType(VM.Types.StackItemType.ByteString);
+            if (checkResult) EnsureIntegerInRange(type);
         }
 
         private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
@@ -2985,7 +2987,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, property.Type);
                 Call(model, property.SetMethod!, CallingConvention.StdCall);
             }
             else
@@ -2998,7 +3000,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
                 AddInstruction(OpCode.SETITEM);
             }
         }
@@ -3032,7 +3034,7 @@ namespace Neo.Compiler
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AccessSlot(OpCode.STSFLD, index);
             }
             else
@@ -3043,7 +3045,7 @@ namespace Neo.Compiler
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
                 AddInstruction(OpCode.SETITEM);
@@ -3055,7 +3057,7 @@ namespace Neo.Compiler
             byte index = _localVariables[symbol];
             AccessSlot(OpCode.LDLOC, index);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AccessSlot(OpCode.STLOC, index);
         }
 
@@ -3064,7 +3066,7 @@ namespace Neo.Compiler
             byte index = _parameters[symbol];
             AccessSlot(OpCode.LDARG, index);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AccessSlot(OpCode.STARG, index);
         }
 
@@ -3074,7 +3076,7 @@ namespace Neo.Compiler
             {
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!);
             }
             else
@@ -3083,7 +3085,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
@@ -3111,7 +3113,7 @@ namespace Neo.Compiler
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AccessSlot(OpCode.STSFLD, index);
             }
             else
@@ -3122,7 +3124,7 @@ namespace Neo.Compiler
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
                 AddInstruction(OpCode.SETITEM);
@@ -3135,7 +3137,7 @@ namespace Neo.Compiler
             {
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.DUP);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!);
             }
             else
@@ -3144,7 +3146,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
                 AddInstruction(OpCode.TUCK);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
@@ -3212,7 +3214,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.OVER);
                 Call(model, property.GetMethod!, CallingConvention.StdCall);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, property.Type);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 Call(model, property.SetMethod!, CallingConvention.Cdecl);
@@ -3224,7 +3226,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
@@ -3260,7 +3262,7 @@ namespace Neo.Compiler
             {
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.STSFLD, index);
             }
@@ -3271,7 +3273,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
@@ -3283,7 +3285,7 @@ namespace Neo.Compiler
         {
             byte index = _localVariables[symbol];
             AccessSlot(OpCode.LDLOC, index);
-            EmitIncrementOrDecrement(operatorToken);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STLOC, index);
         }
@@ -3292,7 +3294,7 @@ namespace Neo.Compiler
         {
             byte index = _parameters[symbol];
             AccessSlot(OpCode.LDARG, index);
-            EmitIncrementOrDecrement(operatorToken);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STARG, index);
         }
@@ -3302,7 +3304,7 @@ namespace Neo.Compiler
             if (symbol.IsStatic)
             {
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.SetMethod!);
             }
@@ -3311,7 +3313,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.LDARG0);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
@@ -3339,7 +3341,7 @@ namespace Neo.Compiler
             {
                 byte index = context.AddStaticField(symbol);
                 AccessSlot(OpCode.LDSFLD, index);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.STSFLD, index);
             }
@@ -3350,7 +3352,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.DUP);
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Push(index);
                 AddInstruction(OpCode.SWAP);
@@ -3363,7 +3365,7 @@ namespace Neo.Compiler
             if (symbol.IsStatic)
             {
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.SetMethod!);
             }
@@ -3372,13 +3374,13 @@ namespace Neo.Compiler
                 ConvertExpression(model, operand.Expression);
                 AddInstruction(OpCode.DUP);
                 Call(model, symbol.GetMethod!);
-                EmitIncrementOrDecrement(operatorToken);
+                EmitIncrementOrDecrement(operatorToken, symbol.Type);
                 AddInstruction(OpCode.TUCK);
                 Call(model, symbol.SetMethod!, CallingConvention.StdCall);
             }
         }
 
-        private void EmitIncrementOrDecrement(SyntaxToken operatorToken)
+        private void EmitIncrementOrDecrement(SyntaxToken operatorToken, ITypeSymbol? typeSymbol)
         {
             AddInstruction(operatorToken.ValueText switch
             {
@@ -3386,6 +3388,7 @@ namespace Neo.Compiler
                 "--" => OpCode.DEC,
                 _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
             });
+            if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
         }
 
         private void ConvertSwitchExpression(SemanticModel model, SwitchExpressionSyntax expression)
