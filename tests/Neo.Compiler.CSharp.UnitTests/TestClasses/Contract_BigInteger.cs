@@ -118,5 +118,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 throw new System.Exception();
             }
         }
+
+        public static bool testIsEven(BigInteger input)
+        {
+            return input.IsEven;
+        }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
@@ -270,6 +272,37 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(VMState.FAULT, testengine.State);
             Assert.IsNotNull(testengine.FaultException);
+        }
+        [TestMethod]
+        public void Test_IsEven()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
+            // Test 0
+            var result = testengine.ExecuteTestCaseStandard("testIsEven", 0);
+            var value = result.Pop().GetBoolean();
+            Assert.AreEqual(new BigInteger(0).IsEven, value);
+            testengine.Reset();
+            // Test 1
+            result = testengine.ExecuteTestCaseStandard("testIsEven", 1);
+            value = result.Pop().GetBoolean();
+            Assert.AreEqual(new BigInteger(1).IsEven, value);
+            testengine.Reset();
+            // Test 2
+            result = testengine.ExecuteTestCaseStandard("testIsEven", 2);
+            value = result.Pop().GetBoolean();
+            Assert.AreEqual(new BigInteger(2).IsEven, value);
+            testengine.Reset();
+            // Test -1
+            result = testengine.ExecuteTestCaseStandard("testIsEven", -1);
+            value = result.Pop().GetBoolean();
+            Assert.AreEqual(new BigInteger(-1).IsEven, value);
+            testengine.Reset();
+            // Test -2
+            result = testengine.ExecuteTestCaseStandard("testIsEven", -2);
+            value = result.Pop().GetBoolean();
+            Assert.AreEqual(new BigInteger(-2).IsEven, value);
+            testengine.Reset();
         }
     }
 }
