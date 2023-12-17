@@ -9,12 +9,12 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace Neo.SmartContract.Analyzer
 {
-[DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class CollectionTypesUsageAnalyzer : DiagnosticAnalyzer
-{
-    public const string DiagnosticId = "NC4013";
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    public class CollectionTypesUsageAnalyzer : DiagnosticAnalyzer
+    {
+        public const string DiagnosticId = "NC4013";
 
-    private readonly string[] _unsupportedCollectionTypes = {
+        private readonly string[] _unsupportedCollectionTypes = {
         "System.Collections.Generic.Dictionary<TKey, TValue>",
         "System.Collections.Generic.Stack<T>",
         "System.Collections.Generic.Queue<T>",
@@ -51,34 +51,34 @@ public class CollectionTypesUsageAnalyzer : DiagnosticAnalyzer
         "System.Collections.ObjectModel.ReadOnlyObservableCollection<T>"
     };
 
-    private static readonly DiagnosticDescriptor Rule = new(
-        DiagnosticId,
-        "Unsupported collection type is used",
-        "Do not use collection type: {0}",
-        "Type",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
+        private static readonly DiagnosticDescriptor Rule = new(
+            DiagnosticId,
+            "Unsupported collection type is used",
+            "Do not use collection type: {0}",
+            "Type",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
-    public override void Initialize(AnalysisContext context)
-    {
-        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.EnableConcurrentExecution();
-        context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
-    }
-
-    private void AnalyzeOperation(OperationAnalysisContext context)
-    {
-        if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
-
-        // Check if the declared variable is of type Stack<T>
-        if (variableDeclaration.GetDeclaredVariables().Any(v => _unsupportedCollectionTypes.Contains(v.Type.OriginalDefinition.ToString())))
+        public override void Initialize(AnalysisContext context)
         {
-            var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
-            context.ReportDiagnostic(diagnostic);
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+            context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+        }
+
+        private void AnalyzeOperation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
+
+            // Check if the declared variable is of type Stack<T>
+            if (variableDeclaration.GetDeclaredVariables().Any(v => _unsupportedCollectionTypes.Contains(v.Type.OriginalDefinition.ToString())))
+            {
+                var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
+                var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
+                context.ReportDiagnostic(diagnostic);
+            }
         }
     }
-}
 }
