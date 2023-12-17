@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-namespace Neo.ContractAnalyzer.Sample
+namespace Neo.SmartContract.Analyzer.Sample
 {
     public class Examples
     {

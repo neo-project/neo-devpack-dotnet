@@ -18,6 +18,7 @@
         <Company>The Neo Project</Company>
         <Product>Neo.SmartContract.Analyzer.CSharp</Product>
         <Description>Neo.SmartContract.Analyzer.CSharp</Description>
+        <IsCIBuild>false</IsCIBuild>
     </PropertyGroup>
 
     <ItemGroup>
