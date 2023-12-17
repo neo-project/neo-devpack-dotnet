@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class OutKeywordUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3009";
+        public const string DiagnosticId = "NC4009";
         private static readonly string Title = "Out keyword usage";
         private static readonly string MessageFormat = "'out' keyword used in {0}";
         private static readonly string Description = "Checks for the usage of 'out' keywords.";

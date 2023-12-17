@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class RefKeywordUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3010";
+        public const string DiagnosticId = "NC4010";
         private static readonly string Title = "Ref keyword usage";
         private static readonly string MessageFormat = "'ref' keyword used in {0}";
         private static readonly string Description = "Checks for the usage of 'ref' keywords.";

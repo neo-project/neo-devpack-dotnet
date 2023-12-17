@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class BigIntegerCreationAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3008";
+        public const string DiagnosticId = "NC4008";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,

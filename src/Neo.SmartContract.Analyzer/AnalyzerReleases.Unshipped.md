@@ -1,14 +1,14 @@
 ### New Rules
 
-Rule ID | Category | Severity | Notes 
+Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-NC3004 | Type | Error | DoubleUsageAnalyzer
-NC3005 | Method | Error    | SystemMathUsageAnalyzer
-NC3006 | Method | Error    | BigIntegerUsageAnalyzer
-NC3007 | Method | Error    | StringMethodUsageAnalyzer
-NC3008 | Usage | Error    | BigIntegerCreationAnalyzer
-NC3009 | Usage | Error    | OutKeywordUsageAnalyzer
-NC3010 | Usage | Error    | RefKeywordUsageAnalyzer
-NC3011 | Usage | Error    | LinqUsageAnalyzer
-NC3012 | Method | Error    | CharMethodsUsageAnalyzer
-NC3013 | Type | Error    | CollectionTypesUsageAnalyzer
+NC4004 | Type | Error | DoubleUsageAnalyzer
+NC4005 | Method | Error    | SystemMathUsageAnalyzer
+NC4006 | Method | Error    | BigIntegerUsageAnalyzer
+NC4007 | Method | Error    | StringMethodUsageAnalyzer
+NC4008 | Usage | Error    | BigIntegerCreationAnalyzer
+NC4009 | Usage | Error    | OutKeywordUsageAnalyzer
+NC4010 | Usage | Error    | RefKeywordUsageAnalyzer
+NC4011 | Usage | Error    | LinqUsageAnalyzer
+NC4012 | Method | Error    | CharMethodsUsageAnalyzer
+NC4013 | Type | Error    | CollectionTypesUsageAnalyzer

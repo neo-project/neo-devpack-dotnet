@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CharMethodsUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3012";
+        public const string DiagnosticId = "NC4012";
 
         private readonly string[] _unsupportedCharMethods = {
             "CompareTo", "Equals", "GetHashCode",

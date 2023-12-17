@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class LinqUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3011";
+        public const string DiagnosticId = "NC4011";
         private static readonly string Title = "LINQ usage";
         private static readonly string MessageFormat = "LINQ method '{0}' is not supported";
         private static readonly string Description = "LINQ methods are not supported in neo smart contract.";

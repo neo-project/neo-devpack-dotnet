@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class StringMethodUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3007";
+        public const string DiagnosticId = "NC4007";
 
         // Add string method names to this array as needed
         private readonly string[] _unsupportedStringMethods =

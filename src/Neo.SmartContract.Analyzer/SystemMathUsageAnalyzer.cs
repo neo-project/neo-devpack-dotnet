@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SystemMathUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3005";
+        public const string DiagnosticId = "NC4005";
 
         private readonly string[] _unsupportedMathMethods =
         {

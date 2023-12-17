@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class BigIntegerUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC3006";
+        public const string DiagnosticId = "NC4006";
 
         private readonly string[] _unsupportedBigIntegerMethods = {
             "Add", "BitwiseAnd", "BitwiseOr",

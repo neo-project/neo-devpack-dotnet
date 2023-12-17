@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Analyzer
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class CollectionTypesUsageAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "NC3013";
+    public const string DiagnosticId = "NC4013";
 
     private readonly string[] _unsupportedCollectionTypes = {
         "System.Collections.Generic.Dictionary<TKey, TValue>",

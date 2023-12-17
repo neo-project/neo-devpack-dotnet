@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Analyzer
     public class DecimalUsageAnalyzer : DiagnosticAnalyzer
     {
         // public const string FloatingPointNumber = "NC2004";
-        public const string DiagnosticId = "NC3004";
+        public const string DiagnosticId = "NC4004";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
