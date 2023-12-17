@@ -13,6 +13,13 @@ namespace Neo.ContractAnalyzer.Sample
         {
         }
 
+        public void TestFloat()
+        {
+#pragma warning disable CS0168
+            float a = 1.5;
+#pragma warning restore CS0168
+        }
+
         public void TestDouble()
         {
 #pragma warning disable CS0168

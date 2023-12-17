@@ -2,6 +2,7 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+NC4002 | Type | Error | FloatUsageAnalyzer
 NC4003 | Type | Error | DecimalUsageAnalyzer
 NC4004 | Type | Error | DoubleUsageAnalyzer
 NC4005 | Method | Error    | SystemMathUsageAnalyzer
