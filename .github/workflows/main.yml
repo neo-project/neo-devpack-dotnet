@@ -25,6 +25,8 @@ jobs:
       run: |
         dotnet build src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
         dotnet build src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+        dotnet build tests/Neo.SmartContract.Framework.UnitTests/Neo.SmartContract.Framework.UnitTests.csproj
+        dotnet build tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
