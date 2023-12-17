@@ -2,7 +2,8 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-NC4004 | Data Type | Error | DecimalUsageAnalyzer
+NC4003 | Type | Error | DecimalUsageAnalyzer
+NC4004 | Type | Error | DoubleUsageAnalyzer
 NC4005 | Method | Error    | SystemMathUsageAnalyzer
 NC4006 | Method | Error    | BigIntegerUsageAnalyzer
 NC4007 | Method | Error    | StringMethodUsageAnalyzer

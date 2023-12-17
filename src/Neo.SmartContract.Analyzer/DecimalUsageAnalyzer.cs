@@ -9,14 +9,13 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class DecimalUsageAnalyzer : DiagnosticAnalyzer
     {
-        // public const string FloatingPointNumber = "NC2004";
-        public const string DiagnosticId = "NC4004";
+        public const string DiagnosticId = "NC4003";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             "Usage of decimal is not allowed in neo contract",
             "Neo contract does not support the decimal data type: {0}",
-            "Data Type",
+            "Type",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
