@@ -22,7 +22,9 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build
-      run: dotnet build ./neo-devpack-dotnet.sln
+      run: |
+        dotnet build src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        dotnet build src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic

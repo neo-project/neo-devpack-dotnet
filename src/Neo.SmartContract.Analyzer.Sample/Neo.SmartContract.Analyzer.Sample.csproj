@@ -2,7 +2,6 @@
     <PropertyGroup>
         <Nullable>enable</Nullable>
         <RootNamespace>Neo.SmartContract.Analyzer.Sample</RootNamespace>
-        <IsCIBuild>false</IsCIBuild>
     </PropertyGroup>
 
     <ItemGroup>
