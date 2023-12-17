@@ -5,12 +5,9 @@
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
-
         <RootNamespace>NeoContractAnalyzer</RootNamespace>
-
         <PackageId>Neo.SmartContract.Analyzer</PackageId>
     </PropertyGroup>
 

@@ -15,21 +15,28 @@ namespace Neo.ContractAnalyzer.Sample
 
         public void TestDouble()
         {
+#pragma warning disable CS0168
             double a = 10;
+#pragma warning restore CS0168
         }
 
         public void TestDecimal()
         {
+#pragma warning disable CS0168
             decimal a = 10;
+#pragma warning restore CS0168
         }
 
         public void TestNewBigInteger()
         {
+#pragma warning disable CS0168
             var a = new BigInteger(10);
+#pragma warning restore CS0168
         }
 
         public void TestBigInteger()
         {
+#pragma warning disable CS0168
             BigInteger a = new BigInteger(10);
             BigInteger b = new BigInteger(20);
 
@@ -55,10 +62,12 @@ namespace Neo.ContractAnalyzer.Sample
             var toStringResult = a.ToString();
             var tryParseResult = BigInteger.TryParse("12345", out BigInteger tryParseOut);
             var isPowerOfTwo = a.IsPowerOfTwo;
+#pragma warning restore CS0168
         }
 
         public void TestStringMethods()
         {
+#pragma warning disable CS0168
             string str1 = "Hello";
             string str2 = "World";
             char[] charArray = { 'H', 'e', 'l', 'l', 'o' };
@@ -106,10 +115,12 @@ namespace Neo.ContractAnalyzer.Sample
             var trimResult = str1.Trim();
             var trimEndResult = str1.TrimEnd('o');
             var trimStartResult = str1.TrimStart('H');
+#pragma warning restore CS0168
         }
 
         public void TestMathMethods()
         {
+#pragma warning disable CS0168
             int a = 15;
             long b = 25;
             int intResult;
@@ -140,18 +151,22 @@ namespace Neo.ContractAnalyzer.Sample
             var tanResult = (long)Math.Tan(a / 100.0);                // Casting to double
             var tanhResult = (long)Math.Tanh(a / 100.0);              // Casting to double
             var truncateResult = (long)Math.Truncate(a / 100.0);      // Casting to double
+#pragma warning restore CS0168
         }
 
         public void TestLinqOperations()
         {
+#pragma warning disable CS0168
             var testData = new List<int> { 1, 4, 2, 9, 5, 8 };
             var filtered = testData.Where(x => x > 4);
             var sorted = filtered.OrderBy(x => x);
             var projected = sorted.Select(x => x * x);
             var expected = new List<int> { 25, 64, 81 };
+#pragma warning restore CS0168
         }
         public void TestCharMethods()
         {
+#pragma warning disable CS0168
             char exampleChar = 'A';
 
             // Char to upper and lower case
@@ -184,10 +199,12 @@ namespace Neo.ContractAnalyzer.Sample
             bool isNumber = char.IsNumber('1');
             System.Globalization.UnicodeCategory unicodeCategory = char.GetUnicodeCategory(exampleChar);
             bool isSurrogatePair = char.IsSurrogatePair('\uD800', '\uDC00'); // Example surrogate pair
+#pragma warning restore CS0168
         }
 
         public void TestCollectionTypes()
         {
+#pragma warning disable CS0168
             // List
             List<int> list = new List<int> { 1, 2, 3 };
 
@@ -259,6 +276,7 @@ namespace Neo.ContractAnalyzer.Sample
 
             // ImmutableDictionary
             ImmutableDictionary<string, int> immutableDictionary = ImmutableDictionary.CreateBuilder<string, int>().ToImmutable();
+#pragma warning restore CS0168
         }
     }
 }
