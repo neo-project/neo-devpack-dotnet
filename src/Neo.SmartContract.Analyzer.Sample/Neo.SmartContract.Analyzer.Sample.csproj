@@ -8,9 +8,4 @@
         <ProjectReference Include="..\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
-
-    <PropertyGroup>
-        <NoWarn>$(NoWarn);NC4008;NC4013;NC4007;NC4011;NC4003;NC4005;NC4009;NC4012;NC4004;NC4002;NC4006</NoWarn>
-    </PropertyGroup>
-
 </Project>
