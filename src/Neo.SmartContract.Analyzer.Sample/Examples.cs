@@ -15,23 +15,23 @@ namespace Neo.ContractAnalyzer.Sample
 
         public void TestFloat()
         {
-#pragma warning disable CS0168
+#pragma warning disable CS0168,CS0219
             float a = 1.5;
-#pragma warning restore CS0168
+#pragma warning restore CS0168,CS0219
         }
 
         public void TestDouble()
         {
-#pragma warning disable CS0168
+#pragma warning disable CS0168,CS0219
             double a = 10;
-#pragma warning restore CS0168
+#pragma warning restore CS0168,CS0219
         }
 
         public void TestDecimal()
         {
-#pragma warning disable CS0168
+#pragma warning disable CS0168,CS0219
             decimal a = 10;
-#pragma warning restore CS0168
+#pragma warning restore CS0168,CS0219
         }
 
         public void TestNewBigInteger()
@@ -74,7 +74,7 @@ namespace Neo.ContractAnalyzer.Sample
 
         public void TestStringMethods()
         {
-#pragma warning disable CS0168
+#pragma warning disable CS0168,CS0618
             string str1 = "Hello";
             string str2 = "World";
             char[] charArray = { 'H', 'e', 'l', 'l', 'o' };
@@ -122,7 +122,7 @@ namespace Neo.ContractAnalyzer.Sample
             var trimResult = str1.Trim();
             var trimEndResult = str1.TrimEnd('o');
             var trimStartResult = str1.TrimStart('H');
-#pragma warning restore CS0168
+#pragma warning restore CS0168,CS0618
         }
 
         public void TestMathMethods()
@@ -158,7 +158,7 @@ namespace Neo.ContractAnalyzer.Sample
             var tanResult = (long)Math.Tan(a / 100.0);                // Casting to double
             var tanhResult = (long)Math.Tanh(a / 100.0);              // Casting to double
             var truncateResult = (long)Math.Truncate(a / 100.0);      // Casting to double
-#pragma warning restore CS0168
+#pragma warning restore CS0168,CS0219
         }
 
         public void TestLinqOperations()
