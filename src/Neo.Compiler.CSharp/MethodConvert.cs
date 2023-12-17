@@ -4176,6 +4176,14 @@ namespace Neo.Compiler
                     Push(1);
                     AddInstruction(OpCode.NUMEQUAL);
                     return true;
+                case "System.Numerics.BigInteger.IsEven.get":
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(1);
+                    AddInstruction(OpCode.AND);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
                 case "System.Numerics.BigInteger.Sign.get":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
