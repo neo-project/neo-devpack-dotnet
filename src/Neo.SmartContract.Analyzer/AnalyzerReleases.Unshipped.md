@@ -14,3 +14,7 @@ NC4010 | Usage | Warning | RefKeywordUsageAnalyzer
 NC4011 | Usage | Error    | LinqUsageAnalyzer
 NC4012 | Method | Error    | CharMethodsUsageAnalyzer
 NC4013 | Type | Error    | CollectionTypesUsageAnalyzer
+NC4014 | Usage | Warning | VolatileKeywordUsageAnalyzer
+NC4015 | Usage | Error | KeywordUsageAnalyzer
+NC4016 | Usage | Error | AnonymousFunctionUsageAnalyzer
+NC4017 | Usage | Error | BanCastMethodAnalyzer

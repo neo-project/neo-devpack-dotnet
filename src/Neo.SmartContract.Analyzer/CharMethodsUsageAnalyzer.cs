@@ -28,7 +28,6 @@ namespace Neo.SmartContract.Analyzer
             "IsSurrogatePair"
         };
 
-
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             "Unsupported Char method is used",
@@ -55,18 +54,13 @@ namespace Neo.SmartContract.Analyzer
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
 
             // Check if the method symbol belongs to the 'char' type and is in the list of unsupported methods
-            if (methodSymbol != null &&
-                methodSymbol.ContainingType != null &&
-                methodSymbol.ContainingType.SpecialType == SpecialType.System_Char &&
-                _unsupportedCharMethods.Contains(methodSymbol.Name))
-            {
-                var diagnostic = Diagnostic.Create(Rule,
-                    invocationExpression.GetLocation(),
-                    methodSymbol.Name);
+            if (methodSymbol is not { ContainingType.SpecialType: SpecialType.System_Char } ||
+                !_unsupportedCharMethods.Contains(methodSymbol.Name)) return;
+            var diagnostic = Diagnostic.Create(Rule,
+                invocationExpression.GetLocation(),
+                methodSymbol.Name);
 
-                context.ReportDiagnostic(diagnostic);
-            }
+            context.ReportDiagnostic(diagnostic);
         }
     }
-
 }

@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Analyzer
             "Exp", "GreatestCommonDivisor", "LeftShift", "Log",
             "Log10", "Multiply", "Negate", "OnesComplement", "Parse",
             "Remainder", "RightShift", "Subtract",
-            "ToByteArray", "ToString", "TryParse", "Xor",
+            "ToByteArray", "TryParse", "Xor",
             "IsPowerOfTwo",
         };
 

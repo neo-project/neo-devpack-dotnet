@@ -50,11 +50,9 @@ namespace Neo.SmartContract.Analyzer
             {
                 foreach (var argument in invocationExpression.ArgumentList.Arguments)
                 {
-                    if (argument.RefOrOutKeyword.IsKind(SyntaxKind.OutKeyword))
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation");
-                        context.ReportDiagnostic(diagnostic);
-                    }
+                    if (!argument.RefOrOutKeyword.IsKind(SyntaxKind.OutKeyword)) continue;
+                    var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation");
+                    context.ReportDiagnostic(diagnostic);
                 }
             }
         }

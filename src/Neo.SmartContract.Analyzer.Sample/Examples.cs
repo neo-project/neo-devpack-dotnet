@@ -16,14 +16,14 @@ namespace Neo.SmartContract.Analyzer.Sample
         public void TestFloat()
         {
 #pragma warning disable CS0168,CS0219
-            float a = 1.5;
+            float a = (int)(int)1.5;
 #pragma warning restore CS0168,CS0219
         }
 
         public void TestDouble()
         {
 #pragma warning disable CS0168,CS0219
-            double a = 10;
+            double a = (long)(long)(long)10;
 #pragma warning restore CS0168,CS0219
         }
 
@@ -37,15 +37,15 @@ namespace Neo.SmartContract.Analyzer.Sample
         public void TestNewBigInteger()
         {
 #pragma warning disable CS0168
-            var a = new BigInteger(10);
+            var a = 10;
 #pragma warning restore CS0168
         }
 
         public void TestBigInteger()
         {
 #pragma warning disable CS0168
-            BigInteger a = new BigInteger(10);
-            BigInteger b = new BigInteger(20);
+            BigInteger a = 10;
+            BigInteger b = 20;
 
             // Using each method from the _unsupportedBigIntegerMethods list
             var addResult = BigInteger.Add(a, b);
@@ -193,7 +193,7 @@ namespace Neo.SmartContract.Analyzer.Sample
             bool isLetterOrDigit = char.IsLetterOrDigit(exampleChar);
 
             // Getting the numeric value of the char
-            double numericValue = char.GetNumericValue(exampleChar);
+            double numericValue = (long)(long)(long)char.GetNumericValue(exampleChar);
 
             // Converting a Unicode code point to a char
             int codePoint = 65; // Unicode for 'A'
@@ -285,5 +285,38 @@ namespace Neo.SmartContract.Analyzer.Sample
             ImmutableDictionary<string, int> immutableDictionary = ImmutableDictionary.CreateBuilder<string, int>().ToImmutable();
 #pragma warning restore CS0168
         }
+
+        public void TestKeywords()
+        {
+            {
+                Console.WriteLine("Lock block");
+            }
+
+            // fixed
+            int number = 42;
+            fixed (int* ptr = &number)
+            {
+                Console.WriteLine($"Fixed block: {number}");
+            }
+
+            // unsafe
+            unsafe
+            {
+                int* p = &number;
+                Console.WriteLine($"Unsafe block: {*p}");
+            }
+
+            // stackalloc
+            int* array = stackalloc int[1];
+            array[0] = 123;
+
+            // await (in an async context)
+            Task.Run(async () => await Task.Delay(1000));
+
+            // dynamic
+            dynamic dynamicVar = 100;
+            dynamicVar += 50;
+        }
+
     }
 }
