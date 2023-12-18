@@ -16,14 +16,14 @@ namespace Neo.SmartContract.Analyzer.Sample
         public void TestFloat()
         {
 #pragma warning disable CS0168,CS0219
-            float a = (int)(int)1.5;
+            float a = 1.5;
 #pragma warning restore CS0168,CS0219
         }
 
         public void TestDouble()
         {
 #pragma warning disable CS0168,CS0219
-            double a = (long)(long)(long)10;
+            double a = 10;
 #pragma warning restore CS0168,CS0219
         }
 
@@ -318,5 +318,16 @@ namespace Neo.SmartContract.Analyzer.Sample
             dynamicVar += 50;
         }
 
+        private void TestOutParameter(out int a)
+        {
+            a = 10;
+        }
+
+        private int TestOutParameter2(out int a)
+        {
+            a = 10;
+            int b = 20;
+            return b;
+        }
     }
 }
