@@ -337,5 +337,24 @@ namespace Neo.Compiler.CSharp.UnitTests
             var value = result.Pop().GetInteger();
             Assert.AreEqual(BigInteger.Compare(123, 321), value);
         }
+
+        [TestMethod]
+        public void Test_GreatestCommonDivisor()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testCompare", 48, 18);
+            var value = result.Pop().GetInteger();
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(48, 18), value);
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testCompare", -48, -18);
+            value = result.Pop().GetInteger();
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(-48, -18), value);
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testCompare", 24, 12);
+            value = result.Pop().GetInteger();
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 12), value);
+        }
     }
 }

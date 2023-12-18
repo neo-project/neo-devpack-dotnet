@@ -4238,6 +4238,24 @@ namespace Neo.Compiler
                     AddInstruction(OpCode.SUB);
                     AddInstruction(OpCode.SIGN);
                     return true;
+                case "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    JumpTarget whileTarget = new();
+                    JumpTarget gcdTarget = new();
+                    whileTarget.Instruction = AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.EQUAL);
+                    Jump(OpCode.JMPIF, gcdTarget);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.MOD);
+                    Jump(OpCode.JMP, whileTarget);
+                    gcdTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.ABS);
+                    return true;
                 case "System.Numerics.BigInteger.ToByteArray()":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);

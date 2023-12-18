@@ -159,6 +159,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return BigInteger.Compare(x, y);
         }
 
+        public static BigInteger GreatestCommonDivisor(BigInteger x, BigInteger y)
+        {
+            return BigInteger.GreatestCommonDivisor(x, y);
+        }
 
     }
 }
