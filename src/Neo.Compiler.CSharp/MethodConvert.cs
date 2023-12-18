@@ -4199,6 +4199,45 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                     AddInstruction(OpCode.MODPOW);
                     return true;
+                case "System.Numerics.BigInteger.Add(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.ADD);
+                    return true;
+                case "System.Numerics.BigInteger.Subtract(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.SUB);
+                    return true;
+                case "System.Numerics.BigInteger.Negate(System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.NEGATE);
+                    return true;
+                case "System.Numerics.BigInteger.Multiply(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MUL);
+                    return true;
+                case "System.Numerics.BigInteger.Divide(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.DIV);
+                    return true;
+                case "System.Numerics.BigInteger.Remainder(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MOD);
+                    return true;
+                case "System.Numerics.BigInteger.Compare(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    // if left < right return -1;
+                    // if left = right return 0;
+                    // if left > right return 1;
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
                 case "System.Numerics.BigInteger.ToByteArray()":
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
