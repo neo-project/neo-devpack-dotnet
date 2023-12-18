@@ -273,8 +273,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(-2).IsEven, value);
             testengine.Reset();
         }
-
-
         [TestMethod]
         public void Test_Add()
         {
