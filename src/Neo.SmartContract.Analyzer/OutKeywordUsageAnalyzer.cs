@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Analyzer
             Title,
             MessageFormat,
             Category,
-            DiagnosticSeverity.Error,  // or DiagnosticSeverity.Error depending on your requirements
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: Description);
 
@@ -99,6 +99,8 @@ namespace Neo.SmartContract.Analyzer
                 .Where(p => p.Modifiers.Any(SyntaxKind.OutKeyword))
                 .ToList();
 
+            if (outParameters.Count == 0) return document;
+
             var originalReturnType = methodDecl.ReturnType;
 
             var newBody = UpdateMethodBody(methodDecl.Body, outParameters, originalReturnType);
@@ -118,25 +120,6 @@ namespace Neo.SmartContract.Analyzer
             var newRoot = root.ReplaceNode(methodDecl, newMethod);
 
             return document.WithSyntaxRoot(newRoot);
-        }
-
-        private TypeSyntax ConstructReturnType(MethodDeclarationSyntax methodDecl, List<ParameterSyntax> outParameters, SemanticModel semanticModel)
-        {
-            var existingReturnType = methodDecl.ReturnType;
-
-            if (outParameters.Count == 1 && existingReturnType is PredefinedTypeSyntax { Keyword: { ValueText: "void" } })
-            {
-                return outParameters.First().Type;
-            }
-
-            var returnTypes = outParameters.Select(p => p.Type).ToList();
-            if (!(existingReturnType is PredefinedTypeSyntax { Keyword: { ValueText: "void" } }))
-            {
-                returnTypes.Insert(0, existingReturnType);
-            }
-
-            var tupleElements = returnTypes.Select(t => SyntaxFactory.TupleElement(t)).ToList();
-            return SyntaxFactory.TupleType(SyntaxFactory.SeparatedList(tupleElements));
         }
 
         private BlockSyntax UpdateMethodBody(BlockSyntax originalBody, List<ParameterSyntax> outParameters, TypeSyntax originalReturnType)
@@ -176,14 +159,12 @@ namespace Neo.SmartContract.Analyzer
                 var returnExpressions = outParameters.Select(p => (ExpressionSyntax)SyntaxFactory.IdentifierName(p.Identifier)).ToList();
                 if (originalReturnType.ToString() != "void" && originalReturnExpression != null)
                 {
-                    returnExpressions.Add(originalReturnExpression);
+                    returnExpressions.Insert(0, originalReturnExpression);
                 }
                 newReturnStatement = SyntaxFactory.ReturnStatement(
                     SyntaxFactory.TupleExpression(SyntaxFactory.SeparatedList(returnExpressions.Select(SyntaxFactory.Argument))));
             }
-
             newStatements.Add(newReturnStatement);
-
             return SyntaxFactory.Block(newStatements);
         }
 

@@ -48,6 +48,7 @@ namespace Neo.SmartContract.Analyzer
             context.ReportDiagnostic(diagnostic);
         }
     }
+
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DoubleUsageCodeFixProvider)), Shared]
     public class DoubleUsageCodeFixProvider : CodeFixProvider
     {
@@ -81,31 +82,52 @@ namespace Neo.SmartContract.Analyzer
                 var initializer = variable.Initializer;
                 if (initializer != null)
                 {
-                    // Attempt to evaluate the expression as a constant
-                    var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-                    var constantValue = semanticModel.GetConstantValue(initializer.Value);
+                    // Determine if the type of the variable is explicitly double
+                    bool isDoubleType = declaration.Type.IsKind(SyntaxKind.PredefinedType) &&
+                                        ((PredefinedTypeSyntax)declaration.Type).Keyword.IsKind(SyntaxKind.DoubleKeyword);
 
-                    // Decide whether to cast to int or long
-                    TypeSyntax castType;
-                    if (constantValue.HasValue && constantValue.Value is double doubleValue)
+                    ExpressionSyntax updatedExpression = initializer.Value;
+
+                    // Check if the initializer contains a cast to long
+                    bool containsCastToLong = updatedExpression.DescendantNodesAndSelf()
+                        .OfType<CastExpressionSyntax>()
+                        .Any(cast => cast.Type is PredefinedTypeSyntax pts && pts.Keyword.IsKind(SyntaxKind.LongKeyword));
+
+                    if (isDoubleType)
                     {
-                        castType = Math.Abs(doubleValue) <= int.MaxValue ?
-                            SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)) :
-                            SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
+                        // Change the type to long for double types
+                        var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
+                        editor.ReplaceNode(declaration.Type, newType);
+
+                        // If not already casted to long, add a cast to long
+                        if (!containsCastToLong)
+                        {
+                            updatedExpression = SyntaxFactory.CastExpression(
+                                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
+                                updatedExpression);
+                        }
+
+                        var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
+                            .WithLeadingTrivia(initializer.GetLeadingTrivia())
+                            .WithTrailingTrivia(initializer.GetTrailingTrivia());
+
+                        var newVariable = variable.WithInitializer(newInitializer);
+                        editor.ReplaceNode(variable, newVariable);
                     }
-                    else
+                    else if (declaration.Type.IsVar && !containsCastToLong)
                     {
-                        // Default to long if it's not a constant or too large for int
-                        castType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
+                        // If it's a var declaration and not already casted, explicitly cast to long
+                        updatedExpression = SyntaxFactory.CastExpression(
+                            SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
+                            updatedExpression);
+
+                        var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
+                            .WithLeadingTrivia(initializer.GetLeadingTrivia())
+                            .WithTrailingTrivia(initializer.GetTrailingTrivia());
+
+                        var newVariable = variable.WithInitializer(newInitializer);
+                        editor.ReplaceNode(variable, newVariable);
                     }
-
-                    var castExpression = SyntaxFactory.CastExpression(
-                        castType,
-                        initializer.Value)
-                        .WithLeadingTrivia(initializer.Value.GetLeadingTrivia())
-                        .WithTrailingTrivia(initializer.Value.GetTrailingTrivia());
-
-                    editor.ReplaceNode(initializer.Value, castExpression);
                 }
             }
 

@@ -80,13 +80,39 @@ namespace Neo.SmartContract.Analyzer
                 var initializer = variable.Initializer;
                 if (initializer != null)
                 {
-                    var castExpression = SyntaxFactory.CastExpression(
-                        SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
-                        initializer.Value)
-                        .WithLeadingTrivia(initializer.Value.GetLeadingTrivia())
-                        .WithTrailingTrivia(initializer.Value.GetTrailingTrivia());
+                    // Determine if the type of the variable is explicitly float
+                    bool isFloatType = declaration.Type.IsKind(SyntaxKind.PredefinedType) &&
+                                       ((PredefinedTypeSyntax)declaration.Type).Keyword.IsKind(SyntaxKind.FloatKeyword);
 
-                    editor.ReplaceNode(initializer.Value, castExpression);
+                    ExpressionSyntax updatedExpression = initializer.Value;
+                    if (isFloatType)
+                    {
+                        // Change the type to int for float types
+                        var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
+                        editor.ReplaceNode(declaration.Type, newType);
+
+                        // Cast to int if the initializer is not already a cast expression
+                        if (!initializer.Value.IsKind(SyntaxKind.CastExpression))
+                        {
+                            updatedExpression = SyntaxFactory.CastExpression(
+                                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
+                                initializer.Value);
+                        }
+                    }
+                    else if (declaration.Type.IsVar)
+                    {
+                        // If it's a var declaration, explicitly cast to int
+                        updatedExpression = SyntaxFactory.CastExpression(
+                            SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
+                            initializer.Value);
+                    }
+
+                    var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
+                        .WithLeadingTrivia(initializer.GetLeadingTrivia())
+                        .WithTrailingTrivia(initializer.GetTrailingTrivia());
+
+                    var newVariable = variable.WithInitializer(newInitializer);
+                    editor.ReplaceNode(variable, newVariable);
                 }
             }
 
