@@ -9,7 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_BigInteger
     {
-
         private TestEngine testengine;
 
         [TestInitialize]
