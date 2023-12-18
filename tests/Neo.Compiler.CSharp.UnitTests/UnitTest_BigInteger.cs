@@ -334,6 +334,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testCompare", 123, 321);
             var value = result.Pop().GetInteger();
             Assert.AreEqual(BigInteger.Compare(123, 321), value);
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testCompare", 123, 123);
+            value = result.Pop().GetInteger();
+            Assert.AreEqual(BigInteger.Compare(123, 123), value);
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testCompare", 123, -321);
+            value = result.Pop().GetInteger();
+            Assert.AreEqual(BigInteger.Compare(123, -321), value);
         }
 
         [TestMethod]
