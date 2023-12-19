@@ -1,5 +1,5 @@
-using System;
 using System.Numerics;
+using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return Math.Abs(a);
         }
 
-        public static double pow(int a, int b)
+        public static BigInteger pow(int a, int b)
         {
             return Math.Pow(a, b);
         }
