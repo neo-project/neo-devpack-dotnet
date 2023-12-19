@@ -31,6 +31,8 @@ namespace Neo.SmartContract.Framework
         public static extern BigInteger Pow(ushort x, ushort y);
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(byte x, byte y);
+        [OpCode(OpCode.POW)]
+        public static extern BigInteger Pow(sbyte x, sbyte y);
 
         [OpCode(OpCode.ABS)]
         public static extern sbyte Abs(sbyte x);
