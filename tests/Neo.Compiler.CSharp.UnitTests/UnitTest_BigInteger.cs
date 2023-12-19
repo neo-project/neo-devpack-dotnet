@@ -342,17 +342,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GreatestCommonDivisor()
         {
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testCompare", 48, 18);
+            var result = testengine.ExecuteTestCaseStandard("testGreatestCommonDivisor", 48, 18);
             var value = result.Pop().GetInteger();
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(48, 18), value);
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testCompare", -48, -18);
+            result = testengine.ExecuteTestCaseStandard("testGreatestCommonDivisor", -48, -18);
             value = result.Pop().GetInteger();
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(-48, -18), value);
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testCompare", 24, 12);
+            result = testengine.ExecuteTestCaseStandard("testGreatestCommonDivisor", 24, 12);
             value = result.Pop().GetInteger();
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 12), value);
         }
