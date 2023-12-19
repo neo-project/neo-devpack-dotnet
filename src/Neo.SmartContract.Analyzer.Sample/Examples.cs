@@ -15,15 +15,13 @@ namespace Neo.SmartContract.Analyzer.Sample
 
         public void TestFloat()
         {
-#pragma warning disable CS0168,CS0219
-            float a = 1.5;
+            int a = (int)1.5;
 #pragma warning restore CS0168,CS0219
         }
 
         public void TestDouble()
         {
-#pragma warning disable CS0168,CS0219
-            double a = 10;
+            long a = (long)10;
 #pragma warning restore CS0168,CS0219
         }
 
@@ -165,7 +163,7 @@ namespace Neo.SmartContract.Analyzer.Sample
         {
 #pragma warning disable CS0168
             var testData = new List<int> { 1, 4, 2, 9, 5, 8 };
-            var filtered = testData.Where(x => x > 4);
+            var filtered = testData.Where(GeneratedMethod(x));
             var sorted = filtered.OrderBy(x => x);
             var projected = sorted.Select(x => x * x);
             var expected = new List<int> { 25, 64, 81 };
@@ -191,9 +189,7 @@ namespace Neo.SmartContract.Analyzer.Sample
             bool isSeparator = char.IsSeparator(' ');
             bool isSymbol = char.IsSymbol('+');
             bool isLetterOrDigit = char.IsLetterOrDigit(exampleChar);
-
-            // Getting the numeric value of the char
-            double numericValue = (long)(long)(long)char.GetNumericValue(exampleChar);
+            long numericValue = (long)(long)(long)char.GetNumericValue(exampleChar);
 
             // Converting a Unicode code point to a char
             int codePoint = 65; // Unicode for 'A'
@@ -318,16 +314,23 @@ namespace Neo.SmartContract.Analyzer.Sample
             dynamicVar += 50;
         }
 
-        private void TestOutParameter(out int a)
+        private int TestOutParameter()
         {
+            int a;
             a = 10;
+            return a;
         }
 
-        private int TestOutParameter2(out int a)
+        private (int, int) TestOutParameter2()
         {
+            int a;
             a = 10;
             int b = 20;
-            return b;
+            return (b, a);
+        }
+
+        private bool GeneratedMethod(int x)
+        {
         }
     }
 }

@@ -17,7 +17,7 @@ A set of neo smart contract syntax analyzers. **To see the effects of these anal
 - [RefKeywordUsageAnalyzer.cs](NeoContractAnalyzer/RefKeywordUsageAnalyzer.cs): An analyzer that flags the usage of the `ref` keyword, which might not be supported in smart contracts.
 - [StringMethodUsageAnalyzer.cs](NeoContractAnalyzer/StringMethodUsageAnalyzer.cs): An analyzer that identifies and reports specific methods of the `string` class, such as `Substring` and `Join`.
 - [SystemMathUsageAnalyzer.cs](NeoContractAnalyzer/SystemMathUsageAnalyzer.cs): An analyzer that flags certain `System.Math` method calls, such as `Math.Pow`, for being unsupported or deprecated.
-
+- [SmartContractMethodNamingAnalyzer.cs](NeoContractAnalyzer/SmartContractMethodNamingAnalyzer.cs): An analyzer that flags smart contract methods that do not follow the naming convention.
 ### NeoContractAnalyzer.Sample
 A sample project that references the NeoContract analyzers. Notice the `ProjectReference` parameters in [NeoContractAnalyzer.Sample.csproj](../NeoContractAnalyzer.Sample/NeoContractAnalyzer.Sample.csproj), which ensure that the project is referenced as a set of analyzers.
 

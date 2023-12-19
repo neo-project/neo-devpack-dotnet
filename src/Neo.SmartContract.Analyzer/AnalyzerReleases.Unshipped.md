@@ -18,3 +18,4 @@ NC4014 | Usage | Warning | VolatileKeywordUsageAnalyzer
 NC4015 | Usage | Error | KeywordUsageAnalyzer
 NC4016 | Usage | Error | AnonymousFunctionUsageAnalyzer
 NC4017 | Usage | Error | BanCastMethodAnalyzer
+NC4018 | Naming | Error | SmartContractMethodNamingAnalyzer
