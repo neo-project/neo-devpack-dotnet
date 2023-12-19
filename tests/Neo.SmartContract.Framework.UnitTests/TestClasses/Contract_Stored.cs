@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     {
         // Test non-static
 
-        [Storage]
+        [Stored]
         public BigInteger WithoutConstructor { [Safe] get; protected set; }
 
         public void putWithoutConstructor(BigInteger value)
@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         // ---
 
-        [Storage(0x01)]
+        [Stored(0x01)]
         public static BigInteger WithKey { [Safe] get; protected set; }
 
         public static void putWithKey(BigInteger value)
@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         // ---
 
-        [Storage("testMe")]
+        [Stored("testMe")]
         public static BigInteger WithString { [Safe] get; protected set; }
 
         public static void putWithString(BigInteger value)
@@ -47,14 +47,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static BigInteger getWithString() => WithString;
 
 
-        [Storage]
+        [Stored]
         public static BigInteger PrivateGetterPublicSetter { [Safe] private get; set; }
 
         [Safe]
         public static BigInteger getPrivateGetterPublicSetter() => PrivateGetterPublicSetter;
 
 
-        [Storage]
+        [Stored]
         public BigInteger NonStaticPrivateGetterPublicSetter { [Safe] private get; set; }
 
         [Safe]

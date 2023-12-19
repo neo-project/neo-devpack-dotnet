@@ -448,7 +448,7 @@ namespace Neo.Compiler
         {
             _callingConvention = CallingConvention.Cdecl;
             IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
-            AttributeData? attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(StorageBackedAttribute) || p.AttributeClass!.Name == nameof(StorageAttribute));
+            AttributeData? attribute = property.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(StoredAttribute));
             using (InsertSequencePoint(syntax))
             {
                 _inline = attribute is null;
