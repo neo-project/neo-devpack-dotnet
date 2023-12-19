@@ -4241,18 +4241,16 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                    JumpTarget whileTarget = new();
+                    // JumpTarget whileTarget = new();
                     JumpTarget gcdTarget = new();
-                    whileTarget.Instruction = AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.PUSH0);
-                    AddInstruction(OpCode.EQUAL);
-                    Jump(OpCode.JMPIF, gcdTarget);
-                    AddInstruction(OpCode.DUP);
+                    gcdTarget.Instruction = AddInstruction(OpCode.DUP);
                     AddInstruction(OpCode.REVERSE3);
                     AddInstruction(OpCode.SWAP);
                     AddInstruction(OpCode.MOD);
-                    Jump(OpCode.JMP, whileTarget);
-                    gcdTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.EQUAL);
+                    Jump(OpCode.JMPIFNOT, gcdTarget);
                     AddInstruction(OpCode.DROP);
                     AddInstruction(OpCode.ABS);
                     return true;
