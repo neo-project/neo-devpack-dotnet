@@ -10,27 +10,37 @@
 
 using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Neo.SmartContract.Framework
 {
     public class Math
     {
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(BigInteger x, BigInteger y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(long x, long y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(int x, int y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(ulong x, ulong y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(uint x, uint y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(short x, short y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(ushort x, ushort y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(byte x, byte y);
+        [CallingConvention(CallingConvention.StdCall)]
         [OpCode(OpCode.POW)]
         public static extern BigInteger Pow(sbyte x, sbyte y);
 
@@ -52,41 +62,59 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.SIGN)]
         public static extern long Sign(long x);
 
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern byte Max(byte x, byte y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern sbyte Max(sbyte x, sbyte y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern short Max(short x, short y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern ushort Max(ushort x, ushort y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern int Max(int x, int y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern uint Max(uint x, uint y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern long Max(long x, long y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern ulong Max(ulong x, ulong y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MAX)]
         public static extern BigInteger Max(BigInteger x, BigInteger y);
 
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern byte Min(byte x, byte y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern sbyte Min(sbyte x, sbyte y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern short Min(short x, short y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern ushort Min(ushort x, ushort y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern int Min(int x, int y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern uint Min(uint x, uint y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern long Min(long x, long y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern ulong Min(ulong x, ulong y);
+        [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.MIN)]
         public static extern BigInteger Min(BigInteger x, BigInteger y);
     }
