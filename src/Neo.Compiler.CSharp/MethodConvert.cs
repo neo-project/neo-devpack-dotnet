@@ -1399,8 +1399,9 @@ namespace Neo.Compiler
 
         #region ConvertExpression
 
-        private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax)
+        private void ConvertExpression(SemanticModel model, ExpressionSyntax? syntax)
         {
+            if (syntax is null) return;
             Optional<object?> constant = model.GetConstantValue(syntax);
             if (constant.HasValue)
             {
@@ -4057,8 +4058,9 @@ namespace Neo.Compiler
             return true;
         }
 
-        private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
+        private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
         {
+            if (arguments == null) return;
             var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)model.GetSymbolInfo(p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
             IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
             if (callingConvention == CallingConvention.Cdecl)
