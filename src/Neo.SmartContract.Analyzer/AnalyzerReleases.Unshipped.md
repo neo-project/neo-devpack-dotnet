@@ -19,3 +19,4 @@ NC4015 | Usage | Error | KeywordUsageAnalyzer
 NC4016 | Usage | Error | AnonymousFunctionUsageAnalyzer
 NC4017 | Usage | Error | BanCastMethodAnalyzer
 NC4018 | Naming | Error | SmartContractMethodNamingAnalyzer
+NC4019 | Usage | Error | NotifyEventNameAnalyzer

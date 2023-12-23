@@ -3,14 +3,33 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
+using Neo.SmartContract.Framework.Services;
 namespace Neo.SmartContract.Analyzer.Sample
 {
     public class Examples
     {
         public class NeoContractClass
         {
+            public delegate void OnSayHelloDelegate(string message);
+
+            [DisplayName("SayHello1")]
+            public static event OnSayHelloDelegate OnSayHello;
+
+            [DisplayName("SayHello2")]
+            public static event Action<string> SayHello;
+
+            public static void Main()
+            {
+                OnSayHello("Hello, alice");
+
+                SayHello("Hello, bob");
+
+                Runtime.Notify("SayHello3", new[] { "Hello, joe" }); // crash
+            }
         }
 
         public void TestFloat()
@@ -164,8 +183,8 @@ namespace Neo.SmartContract.Analyzer.Sample
 #pragma warning disable CS0168
             var testData = new List<int> { 1, 4, 2, 9, 5, 8 };
             var filtered = testData.Where(GeneratedMethod(x));
-            var sorted = filtered.OrderBy(x => x);
-            var projected = sorted.Select(x => x * x);
+            var sorted = filtered.OrderBy(GeneratedMethod(x));
+            var projected = sorted.Select(GeneratedMethod(x));
             var expected = new List<int> { 25, 64, 81 };
 #pragma warning restore CS0168
         }
@@ -330,6 +349,10 @@ namespace Neo.SmartContract.Analyzer.Sample
         }
 
         private bool GeneratedMethod(int x)
+        {
+        }
+
+        private? GeneratedMethod(? x)
         {
         }
     }
