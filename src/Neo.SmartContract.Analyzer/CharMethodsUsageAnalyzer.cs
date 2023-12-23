@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Neo.SmartContract.Analyzer
 {
-
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CharMethodsUsageAnalyzer : DiagnosticAnalyzer
     {
