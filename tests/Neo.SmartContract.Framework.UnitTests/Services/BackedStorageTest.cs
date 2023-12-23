@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = system.GetSnapshot().CreateSnapshot();
 
             _engine = new TestEngine(snapshot: snapshot);
-            Assert.IsTrue(_engine.AddEntryScript("./TestClasses/Contract_StorageBacked.cs").Success);
+            Assert.IsTrue(_engine.AddEntryScript("./TestClasses/Contract_Stored.cs").Success);
             snapshot.ContractAdd(new ContractState()
             {
                 Id = 0,
