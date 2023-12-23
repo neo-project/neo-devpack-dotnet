@@ -49,7 +49,7 @@ namespace Neo.SmartContract.Analyzer
         "System.Collections.ObjectModel.Collection<T>",
         "System.Collections.ObjectModel.ReadOnlyCollection<T>",
         "System.Collections.ObjectModel.ReadOnlyObservableCollection<T>"
-    };
+        };
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
