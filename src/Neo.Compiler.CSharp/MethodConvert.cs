@@ -3985,7 +3985,14 @@ namespace Neo.Compiler
             if (convert is null)
                 CallVirtual(symbol);
             else
+            {
                 EmitCall(convert);
+                // process events from calling Runtime.Notify
+                if (symbol.ToString().Contains("Services.Runtime.Notify"))
+                {
+                    CompilationContext.AddEvent(AbiEvent.CreateAbiEvent(model, symbol, arguments));
+                }
+            }
         }
 
         private void Call(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
