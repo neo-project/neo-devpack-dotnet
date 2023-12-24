@@ -44,7 +44,7 @@ namespace Neo.Compiler
         private readonly List<Diagnostic> diagnostics = new();
         private readonly HashSet<string> supportedStandards = new();
         private readonly List<AbiMethod> methodsExported = new();
-        private static readonly HashSet<AbiEvent> eventsExported = new();
+        private readonly HashSet<AbiEvent> eventsExported = new();
         private readonly PermissionBuilder permissions = new();
         private readonly HashSet<string> trusts = new();
         private readonly JObject manifestExtra = new();
@@ -66,7 +66,7 @@ namespace Neo.Compiler
         internal int StaticFieldCount => staticFields.Count + anonymousStaticFields.Count + vtables.Count;
         private byte[] Script => script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
-        public static void AddEvent(AbiEvent abiEvent) => eventsExported.Add(abiEvent);
+        public void AddEvent(AbiEvent abiEvent) => eventsExported.Add(abiEvent);
         static CompilationContext()
         {
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;

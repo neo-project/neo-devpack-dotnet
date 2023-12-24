@@ -3990,7 +3990,7 @@ namespace Neo.Compiler
                 // process events from calling Runtime.Notify
                 if (symbol.ToString().Contains("Services.Runtime.Notify"))
                 {
-                    CompilationContext.AddEvent(AbiEvent.CreateAbiEvent(model, symbol, arguments));
+                    context.AddEvent(AbiEvent.CreateAbiEvent(model, symbol, arguments));
                 }
             }
         }
