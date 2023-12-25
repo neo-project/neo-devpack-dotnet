@@ -118,5 +118,50 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 throw new System.Exception();
             }
         }
+
+        public static bool testIsEven(BigInteger input)
+        {
+            return input.IsEven;
+        }
+
+        public static BigInteger TestAdd(BigInteger x, BigInteger y)
+        {
+            return BigInteger.Add(x, y);
+        }
+
+        public static BigInteger TestSubtract(BigInteger x, BigInteger y)
+        {
+            return BigInteger.Subtract(x, y);
+        }
+
+        public static BigInteger TestNegate(BigInteger x)
+        {
+            return BigInteger.Negate(x);
+        }
+
+        public static BigInteger TestMultiply(BigInteger x, BigInteger y)
+        {
+            return BigInteger.Multiply(x, y);
+        }
+
+        public static BigInteger TestDivide(BigInteger x, BigInteger y)
+        {
+            return BigInteger.Divide(x, y);
+        }
+
+        public static BigInteger TestRemainder(BigInteger x, BigInteger y)
+        {
+            return BigInteger.Remainder(x, y);
+        }
+
+        public static int TestCompare(BigInteger x, BigInteger y)
+        {
+            return BigInteger.Compare(x, y);
+        }
+
+        public static BigInteger TestGreatestCommonDivisor(BigInteger x, BigInteger y)
+        {
+            return BigInteger.GreatestCommonDivisor(x, y);
+        }
     }
 }
