@@ -55,6 +55,5 @@ namespace Neo.Compiler
 
             return new AbiEvent(symbol, value, abiParameters);
         }
-
     }
 }

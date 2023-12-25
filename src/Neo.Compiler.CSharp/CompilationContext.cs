@@ -67,6 +67,7 @@ namespace Neo.Compiler
         private byte[] Script => script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
         public void AddEvent(AbiEvent abiEvent) => eventsExported.Add(abiEvent);
+
         static CompilationContext()
         {
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
