@@ -35,7 +35,7 @@ namespace Neo.Compiler
         {
         }
 
-        public static AbiEvent CreateAbiEvent(SemanticModel model, IMethodSymbol symbol, params SyntaxNode[] arguments)
+        internal static AbiEvent CreateAbiEvent(SemanticModel model, IMethodSymbol symbol, params SyntaxNode[] arguments)
         {
             var expression = (arguments[0] as ArgumentSyntax).Expression;
             var evenName = model.GetConstantValue(expression);
