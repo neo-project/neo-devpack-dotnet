@@ -105,24 +105,28 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var stringValue = "hello world";
             var uint160Value = UInt160.Zero;
             var uint256Value = UInt256.Zero;
+            var ecPointValue = ECPoint.Zero;
 
             storage.Put("bool", boolValue);
             storage.Put("int", intValue);
             storage.Put("string", stringValue);
             storage.Put("uint160", uint160Value);
             storage.Put("uint256", uint256Value);
+            storage.Put("ecpoint", ecPointValue);
 
             var boolValue2 = storage.GetBoolean("bool");
             var intValue2 = storage.GetInteger("int");
             var stringValue2 = storage.GetString("string");
             var uint160Value2 = storage.GetUInt160("uint160");
             var uint256Value2 = storage.GetUInt256("uint256");
+            var ecPointValue2 = storage.GetECPoint("ecpoint");
 
             return boolValue == boolValue2
                 && intValue == intValue2
-                &&stringValue == stringValue2
+                && stringValue == stringValue2
                 && uint160Value == uint160Value2
-                && uint256Value == uint256Value2;
+                && uint256Value == uint256Value2
+                && ecPointValue == ecPointValue2;
         }
 
         public static byte[] TestNewGetByteArray()
