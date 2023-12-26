@@ -196,5 +196,28 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(value, result.Pop().GetString());
         }
+
+        [TestMethod]
+        public void Test_NewGetMethods()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testNewGetMethods");
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(true, result.Pop().GetBoolean());
+        }
+
+        [TestMethod]
+        public void Test_NewGetByteArray()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testNewGetByteArray");
+            var testArr = new byte[] { 0x00, 0x01 };
+            Assert.AreEqual(1, result.Count);
+            var res = result.Pop().GetSpan().ToArray();
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(testArr[0], res[0]);
+            Assert.AreEqual(testArr[1], res[1]);
+        }
     }
 }
