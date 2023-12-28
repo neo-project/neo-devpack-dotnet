@@ -1,14 +1,14 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Editing;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Editing;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -29,6 +29,8 @@ namespace Neo.SmartContract.Analyzer
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: Description);
+
+        private static readonly string[] bannedKeywords = new[] { "lock", "fixed", "unsafe", "stackalloc", "await", "dynamic", "unmanaged", "select", "orderby", "nameof", "implicit", "explicit", "yield", "where" };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -53,8 +55,6 @@ namespace Neo.SmartContract.Analyzer
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
-            var bannedKeywords = new[] { "lock", "fixed", "unsafe", "stackalloc", "await", "dynamic", "unmanaged", "select", "orderby", "nameof", "implicit", "explicit", "yield", "where" };
-
             // Logic to check for the presence of the banned keywords
             // and report a diagnostic if found
             var nodeText = context.Node.ToString();
@@ -94,7 +94,8 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var node = root.FindToken(diagnosticSpan.Start).Parent;
+            var node = root?.FindToken(diagnosticSpan.Start).Parent;
+            if (node is null) return;
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -104,7 +105,7 @@ namespace Neo.SmartContract.Analyzer
                 diagnostic);
         }
 
-        private async Task<Document> RemoveKeywordAsync(Document document, SyntaxNode node, CancellationToken cancellationToken)
+        private static async Task<Document> RemoveKeywordAsync(Document document, SyntaxNode node, CancellationToken cancellationToken)
         {
             var editor = new SyntaxEditor(await document.GetSyntaxRootAsync(cancellationToken), document.Project.Solution.Workspace);
 

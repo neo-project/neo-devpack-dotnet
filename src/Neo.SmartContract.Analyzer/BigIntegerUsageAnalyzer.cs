@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -55,9 +55,7 @@ namespace Neo.SmartContract.Analyzer
 
         private void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocationExpression)
         {
-            var memberSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
-
-            if (memberSymbol != null &&
+            if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is IMethodSymbol memberSymbol &&
                 memberSymbol.ContainingType?.ToString() == "System.Numerics.BigInteger" &&
                 _unsupportedBigIntegerMethods.Contains(memberSymbol.Name))
             {
@@ -68,9 +66,7 @@ namespace Neo.SmartContract.Analyzer
 
         private void AnalyzeMemberAccessExpression(SyntaxNodeAnalysisContext context, MemberAccessExpressionSyntax memberAccessExpression)
         {
-            var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpression).Symbol;
-
-            if (memberSymbol is IPropertySymbol propertySymbol &&
+            if (context.SemanticModel.GetSymbolInfo(memberAccessExpression).Symbol is IPropertySymbol propertySymbol &&
                 propertySymbol.ContainingType?.ToString() == "System.Numerics.BigInteger" &&
                 _unsupportedBigIntegerMethods.Contains(propertySymbol.Name))
             {

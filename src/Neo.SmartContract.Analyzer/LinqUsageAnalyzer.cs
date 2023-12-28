@@ -1,9 +1,8 @@
-using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -16,7 +15,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly string Description = "LINQ methods are not supported in neo smart contract.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             Title,
             MessageFormat,
@@ -55,13 +54,13 @@ namespace Neo.SmartContract.Analyzer
             }
         }
 
-        private bool IsLinqMethod(IMethodSymbol methodSymbol)
+        private static bool IsLinqMethod(IMethodSymbol? methodSymbol)
         {
-            if (methodSymbol == null)
+            if (methodSymbol is null)
                 return false;
 
             var containingNamespace = methodSymbol.ContainingNamespace;
-            if (containingNamespace == null)
+            if (containingNamespace is null)
                 return false;
 
             // Check if the namespace is 'System.Linq'

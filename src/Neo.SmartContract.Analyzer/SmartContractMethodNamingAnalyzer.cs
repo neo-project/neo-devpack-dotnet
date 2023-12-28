@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+
 namespace Neo.SmartContract.Analyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -16,7 +17,7 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4018";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             "Method Naming Conflict in Smart Contract",
             "Method '{0}' has a naming conflict. Consider renaming to avoid conflict.",
@@ -62,7 +63,7 @@ namespace Neo.SmartContract.Analyzer
             }
         }
 
-        private bool InheritsFromSmartContract(INamedTypeSymbol symbol)
+        private static bool InheritsFromSmartContract(INamedTypeSymbol? symbol)
         {
             while (symbol != null)
             {
@@ -87,7 +88,8 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var methodDeclaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
+            var methodDeclaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
+            if (methodDeclaration is null) return;
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -97,21 +99,23 @@ namespace Neo.SmartContract.Analyzer
                 diagnostic);
         }
 
-        private async Task<Document> RenameConflictingMethod(Document document, MethodDeclarationSyntax methodDeclaration, CancellationToken cancellationToken)
+        private static async Task<Document> RenameConflictingMethod(Document document, MethodDeclarationSyntax methodDeclaration, CancellationToken cancellationToken)
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var symbol = semanticModel.GetDeclaredSymbol(methodDeclaration, cancellationToken);
-            var newName = GenerateNewMethodName(symbol);
+            if (symbol is null) return document;
 
             var root = await document.GetSyntaxRootAsync(cancellationToken);
+            if (root is null) return document;
+
+            var newName = GenerateNewMethodName(symbol);
             var newMethod = methodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newName))
                                              .WithTriviaFrom(methodDeclaration);
             var newRoot = root.ReplaceNode(methodDeclaration, newMethod);
-
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private string GenerateNewMethodName(IMethodSymbol methodSymbol)
+        private static string GenerateNewMethodName(IMethodSymbol methodSymbol)
         {
             var baseName = methodSymbol.Name.TrimEnd('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
             var counter = 1;
@@ -121,6 +125,4 @@ namespace Neo.SmartContract.Analyzer
             return baseName + counter;
         }
     }
-
 }
-

@@ -1,8 +1,3 @@
-using System.Collections.Immutable;
-using System.Composition;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -10,6 +5,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Editing;
+using System.Collections.Immutable;
+using System.Composition;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4008";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             "Use of BigInteger constructor",
             "Use of new BigInteger(int) is not allowed, please use BigInteger x = 0;",
@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Analyzer
 
             // Check if it is a BigInteger creation
             if (context.SemanticModel.GetTypeInfo(objectCreationExpression).Type?.ToString() == "System.Numerics.BigInteger" &&
-                objectCreationExpression.ArgumentList.Arguments.Count == 1 &&
+                objectCreationExpression.ArgumentList?.Arguments.Count == 1 &&
                 context.SemanticModel.GetTypeInfo(objectCreationExpression.ArgumentList.Arguments[0].Expression).Type?.SpecialType == SpecialType.System_Int32)
             {
                 var diagnostic = Diagnostic.Create(Rule, objectCreationExpression.GetLocation());
@@ -64,7 +64,8 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().First();
+            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().First();
+            if (declaration is null) return;
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -74,18 +75,17 @@ namespace Neo.SmartContract.Analyzer
                 diagnostic);
         }
 
-        private async Task<Document> ReplaceWithDirectAssignment(Document document, ObjectCreationExpressionSyntax objectCreation, CancellationToken cancellationToken)
+        private static async Task<Document> ReplaceWithDirectAssignment(Document document, ObjectCreationExpressionSyntax objectCreation, CancellationToken cancellationToken)
         {
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-            var typeInfo = semanticModel.GetTypeInfo(objectCreation).Type;
+            var argument = objectCreation.ArgumentList?.Arguments.First().Expression;
+            if (argument is null) return document;
 
-            var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
-            var argument = objectCreation.ArgumentList.Arguments.First().Expression;
             var newExpression = SyntaxFactory.ParseExpression(argument.ToString())
                                              .WithLeadingTrivia(objectCreation.GetLeadingTrivia())
                                              .WithTrailingTrivia(objectCreation.GetTrailingTrivia());
 
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
             editor.ReplaceNode(objectCreation, newExpression);
 
             var newRoot = editor.GetChangedRoot();

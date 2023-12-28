@@ -1,13 +1,13 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "Replace .Cast<T>() with direct type casting.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             Title,
             MessageFormat,
@@ -63,7 +63,8 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var invocationExpr = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
+            var invocationExpr = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
+            if (invocationExpr is null) return;
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -73,16 +74,15 @@ namespace Neo.SmartContract.Analyzer
                 diagnostic);
         }
 
-        private async Task<Document> ReplaceWithDirectCastAsync(Document document, InvocationExpressionSyntax invocationExpr, CancellationToken cancellationToken)
+        private static async Task<Document> ReplaceWithDirectCastAsync(Document document, InvocationExpressionSyntax invocationExpr, CancellationToken cancellationToken)
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var typeArgument = invocationExpr.DescendantNodes().OfType<TypeArgumentListSyntax>().FirstOrDefault()?.Arguments.FirstOrDefault();
-            if (typeArgument == null)
-            {
-                return document;
-            }
+            if (typeArgument is null) return document;
 
             var root = await document.GetSyntaxRootAsync(cancellationToken);
+            if (root is null) return document;
+
             var newExpr = SyntaxFactory.ParenthesizedExpression(
                 SyntaxFactory.CastExpression(typeArgument, invocationExpr.Expression)
             );

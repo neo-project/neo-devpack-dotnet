@@ -1,7 +1,3 @@
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -9,6 +5,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Editing;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -62,7 +62,8 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
+            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
+            if (declaration is null) return;
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -72,7 +73,7 @@ namespace Neo.SmartContract.Analyzer
                 diagnostic);
         }
 
-        private async Task<Document> RemoveVolatileKeywordAsync(Document document, FieldDeclarationSyntax fieldDecl, CancellationToken cancellationToken)
+        private static async Task<Document> RemoveVolatileKeywordAsync(Document document, FieldDeclarationSyntax fieldDecl, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);

@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "The name passed to Notify must match the DisplayName of an event.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             Title,
             MessageFormat,
@@ -41,37 +41,35 @@ namespace Neo.SmartContract.Analyzer
 
             if (memberAccessExpr?.Name.Identifier.ValueText == "Notify")
             {
-                var argumentList = invocationExpr.ArgumentList as ArgumentListSyntax;
-                if (argumentList?.Arguments.Count > 0)
+                if (invocationExpr.ArgumentList?.Arguments.Count > 0)
                 {
-                    var firstArgument = argumentList.Arguments[0].Expression as LiteralExpressionSyntax;
+                    var firstArgument = invocationExpr.ArgumentList.Arguments[0].Expression as LiteralExpressionSyntax;
                     var passedName = firstArgument?.Token.ValueText;
 
                     // Get all events in the containing type
                     var containingType = memberAccessExpr.FirstAncestorOrSelf<TypeDeclarationSyntax>();
-                    var events = containingType.Members.OfType<EventFieldDeclarationSyntax>();
+                    var events = containingType?.Members.OfType<EventFieldDeclarationSyntax>();
 
                     // Check if the passed name matches any event's DisplayName
-                    bool nameMatches = events.Any(ev => EventHasMatchingDisplayName(ev, passedName, context.SemanticModel));
+                    bool nameMatches = events?.Any(ev => EventHasMatchingDisplayName(ev, passedName, context.SemanticModel)) == true;
 
                     if (!nameMatches)
                     {
-                        var diagnostic = Diagnostic.Create(Rule, firstArgument.GetLocation(), passedName);
+                        var diagnostic = Diagnostic.Create(Rule, firstArgument?.GetLocation(), passedName);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
             }
         }
 
-        private bool EventHasMatchingDisplayName(EventFieldDeclarationSyntax eventDeclaration, string name, SemanticModel semanticModel)
+        private static bool EventHasMatchingDisplayName(EventFieldDeclarationSyntax eventDeclaration, string? name, SemanticModel semanticModel)
         {
             return eventDeclaration.Declaration.Variables
                 .Select(variable => semanticModel.GetDeclaredSymbol(variable) as IEventSymbol)
-                .Select(symbol => symbol?.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "DisplayNameAttribute"))
+                .Select(symbol => symbol?.GetAttributes().FirstOrDefault(attr => attr.AttributeClass?.Name == "DisplayNameAttribute"))
                 .OfType<AttributeData>()
                 .Select(displayNameAttr => displayNameAttr.ConstructorArguments.FirstOrDefault())
                 .Any(displayNameArg => displayNameArg.Value as string == name);
-
         }
     }
 }

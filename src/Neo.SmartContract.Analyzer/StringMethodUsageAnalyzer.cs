@@ -49,10 +49,9 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not InvocationExpressionSyntax invocationExpression) return;
-            var memberSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
 
             // Check if the method belongs to String class or is an Object method listed in _unsupportedStringMethods
-            if (memberSymbol == null ||
+            if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol memberSymbol ||
                 (memberSymbol.ContainingType?.SpecialType != SpecialType.System_String &&
                     memberSymbol.ContainingType?.SpecialType != SpecialType.System_Object) ||
                 !_unsupportedStringMethods.Contains(memberSymbol.Name)) return;

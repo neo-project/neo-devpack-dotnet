@@ -1,16 +1,15 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Composition;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Composition;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -23,7 +22,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly string Description = "Checks for the usage of 'out' keywords.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             Title,
             MessageFormat,
@@ -93,13 +92,14 @@ namespace Neo.SmartContract.Analyzer
         private async Task<Document> ConvertOutParameterToReturnValue(Document document, MethodDeclarationSyntax methodDecl, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+            if (root is null) return document;
 
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var outParameters = methodDecl.ParameterList.Parameters
                 .Where(p => p.Modifiers.Any(SyntaxKind.OutKeyword))
                 .ToList();
 
-            if (outParameters.Count == 0) return document;
+            if (outParameters.Count == 0 || methodDecl.Body is null) return document;
 
             var originalReturnType = methodDecl.ReturnType;
 
@@ -118,14 +118,13 @@ namespace Neo.SmartContract.Analyzer
                 .WithBody(newBody);
 
             var newRoot = root.ReplaceNode(methodDecl, newMethod);
-
             return document.WithSyntaxRoot(newRoot);
         }
 
         private BlockSyntax UpdateMethodBody(BlockSyntax originalBody, List<ParameterSyntax> outParameters, TypeSyntax originalReturnType)
         {
             var newStatements = new List<StatementSyntax>();
-            ExpressionSyntax originalReturnExpression = null;
+            ExpressionSyntax? originalReturnExpression = null;
             foreach (var outParam in outParameters)
             {
                 var localDeclaration = SyntaxFactory.LocalDeclarationStatement(
@@ -168,11 +167,11 @@ namespace Neo.SmartContract.Analyzer
             return SyntaxFactory.Block(newStatements);
         }
 
-        private TypeSyntax DetermineNewReturnType(TypeSyntax originalReturnType, List<ParameterSyntax> outParameters)
+        private static TypeSyntax DetermineNewReturnType(TypeSyntax originalReturnType, List<ParameterSyntax> outParameters)
         {
             if (originalReturnType.ToString() == "void" && outParameters.Count == 1)
             {
-                return outParameters.First().Type;
+                return outParameters.First().Type!;
             }
             if (originalReturnType.ToString() == "void" && outParameters.Count > 1)
             {
@@ -180,9 +179,9 @@ namespace Neo.SmartContract.Analyzer
                 return SyntaxFactory.TupleType(SyntaxFactory.SeparatedList(tupleElements));
             }
             var returnTypes = new List<TupleElementSyntax>
-    {
-        SyntaxFactory.TupleElement(originalReturnType)
-    };
+            {
+                SyntaxFactory.TupleElement(originalReturnType)
+            };
 
             returnTypes.AddRange(outParameters.Select(p => SyntaxFactory.TupleElement(p.Type)));
 
