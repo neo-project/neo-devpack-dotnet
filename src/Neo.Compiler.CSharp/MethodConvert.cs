@@ -4513,44 +4513,16 @@ namespace Neo.Compiler
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     Call(NativeContract.StdLib.Hash, "atoi", 1, true);
                     return true;
-                case "System.Math.Abs(sbyte)":
-                case "System.Math.Abs(short)":
-                case "System.Math.Abs(int)":
-                case "System.Math.Abs(long)":
                 case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.ABS);
                     return true;
-                case "System.Math.Sign(sbyte)":
-                case "System.Math.Sign(short)":
-                case "System.Math.Sign(int)":
-                case "System.Math.Sign(long)":
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    AddInstruction(OpCode.SIGN);
-                    return true;
-                case "System.Math.Max(byte, byte)":
-                case "System.Math.Max(sbyte, sbyte)":
-                case "System.Math.Max(short, short)":
-                case "System.Math.Max(ushort, ushort)":
-                case "System.Math.Max(int, int)":
-                case "System.Math.Max(uint, uint)":
-                case "System.Math.Max(long, long)":
-                case "System.Math.Max(ulong, ulong)":
                 case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.MAX);
                     return true;
-                case "System.Math.Min(byte, byte)":
-                case "System.Math.Min(sbyte, sbyte)":
-                case "System.Math.Min(short, short)":
-                case "System.Math.Min(ushort, ushort)":
-                case "System.Math.Min(int, int)":
-                case "System.Math.Min(uint, uint)":
-                case "System.Math.Min(long, long)":
-                case "System.Math.Min(ulong, ulong)":
                 case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
