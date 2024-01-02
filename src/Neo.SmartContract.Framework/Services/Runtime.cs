@@ -95,6 +95,7 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);
 
+        // Events not present in the ABI were disabled in HF_Basilisk
         // [Syscall("System.Runtime.Notify")]
         // public static extern void Notify(string eventName, object[] state);
 
