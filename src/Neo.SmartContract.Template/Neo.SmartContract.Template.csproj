@@ -5,10 +5,6 @@
     <PackageType>Template</PackageType>
     <PackageId>Neo.SmartContract.Template</PackageId>
     <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
-    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
     <Description>Templates to use when creating a smart contract for NEO.</Description>
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -19,6 +15,10 @@
   <ItemGroup>
     <Content Include="templates\**\*" />
     <Compile Remove="**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="templates\neocontract\dotnet-tools.json" />
   </ItemGroup>
 
 </Project>
