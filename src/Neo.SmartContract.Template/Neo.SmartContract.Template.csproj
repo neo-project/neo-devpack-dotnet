@@ -17,8 +17,4 @@
     <Compile Remove="**\*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="templates\neocontract\dotnet-tools.json" />
-  </ItemGroup>
-
 </Project>
