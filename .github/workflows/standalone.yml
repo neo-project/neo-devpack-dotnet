@@ -42,7 +42,7 @@ jobs:
         --self-contained true \
         --output ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }} \
         --verbosity normal \
-        -p:VersionPrefix=${{ github.event.inputs.version }}
+        -p:VersionPrefix=${{ github.event.inputs.version }} \
         -p:RuntimeIdentifier=${{ matrix.runtime }} \
         -p:SelfContained=true \
         -p:IncludeNativeLibrariesForSelfExtract=false \
