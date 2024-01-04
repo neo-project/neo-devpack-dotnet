@@ -19,11 +19,18 @@ namespace ProjectName
     [ContractPermission("*", "*")]
     public class Contract1 : SmartContract
     {
+        private const byte Prefix_Owner = 0xff;
+
+        public delegate void OnSetOwnerDelegate(UInt160 newOwner);
+
+        [DisplayName("SetOwner")]
+        public static event OnSetOwnerDelegate OnSetOwner;
+
         // TODO: Replace it with your own address.
         [InitialValue("<Your Address Here>", ContractParameterType.Hash160)]
-        static readonly UInt160 Owner = default;
+        private static readonly UInt160 InitialOwner = default;
 
-        private static bool IsOwner() => Runtime.CheckWitness(Owner);
+        private static bool IsOwner() => Runtime.CheckWitness(GetOwner());
 
         // When this contract address is included in the transaction signature,
         // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
@@ -59,6 +66,29 @@ namespace ProjectName
         {
             if (!IsOwner()) throw new Exception("No authorization.");
             ContractManagement.Destroy();
+        }
+
+        // Safe is for read operations Or Safe to call by everyone
+        [Safe]
+        public static UInt160 GetOwner()
+        {
+            var currentOwner = Storage.Get(new[] { Prefix_Owner });
+
+            if (currentOwner == null)
+                return InitialOwner;
+
+            return (UInt160)currentOwner;
+        }
+
+        public static void SetOwner(UInt160 newOwner)
+        {
+            if (IsOwner() == false)
+                throw new InvalidOperationException("No Authorization!");
+            if (newOwner != null && newOwner.IsValid)
+            {
+                Storage.Put(new[] { Prefix_Owner }, newOwner);
+                OnSetOwner(newOwner);
+            }
         }
     }
 }
