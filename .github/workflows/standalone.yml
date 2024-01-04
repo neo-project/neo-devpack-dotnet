@@ -1,0 +1,144 @@
+name: Build & Release (neo-cli)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: version for release
+        required: true
+
+env:
+  DOTNET_VERSION: 7.0.x
+  CONFIGURATION: Release
+  DIST_PATH: /tmp/dist
+  OUTPUT_PATH: /tmp/out
+
+jobs:
+  build-nccs:
+    name: Build (${{ matrix.runtime }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [linux-x64, linux-arm64, linux-musl-arm64, osx-x64, osx-arm64, win-x64, win-arm64]
+
+    steps:
+    - name: Checkout Repository Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: .NET Publish (nccs)
+      run: |
+        dotnet publish ./src/Neo.Compiler.CSharp \
+        --framework net7.0 \
+        --configuration ${{ env.CONFIGURATION }} \
+        --runtime ${{ matrix.runtime }} \
+        --self-contained true \
+        --output ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }} \
+        --verbosity detail \
+        -p:VersionPrefix=${{ github.event.inputs.version }}
+        -p:RuntimeIdentifier=${{ matrix.runtime }} \
+        -p:SelfContained=true \
+        -p:IncludeNativeLibrariesForSelfExtract=false \
+        -p:PublishTrimmed=false \
+        -p:PublishSingleFile=true \
+        -p:PublishReadyToRun=true \
+        -p:EnableCompressionInSingleFile=true \
+        -p:DebugType=embedded \
+        -p:ServerGarbageCollection=true
+
+    # - name: Remove Xml Comment Files
+    #   working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
+    #   run: rm -v *.xml
+
+    - name: Create Distribution Directory
+      run: mkdir -p ${{ env.DIST_PATH }}
+
+    - name: Create Tarball File (linux)
+      if: ${{ startsWith(matrix.runtime, 'linux') }}
+      working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
+      run: tar -czvf ${{ env.DIST_PATH }}/nccs.${{ github.event.inputs.version }}-${{ matrix.runtime }}.tar.gz .
+
+    - name: Create Tarball File (osx)
+      if: ${{ startsWith(matrix.runtime, 'osx') }}
+      working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
+      run: tar -cJf ${{ env.DIST_PATH }}/nccs.${{ github.event.inputs.version }}-${{ matrix.runtime }}.tar.xz .
+
+    - name: Create Zip File (win)
+      if: ${{ startsWith(matrix.runtime, 'win') }}
+      working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
+      run: zip ${{ env.DIST_PATH }}/nccs.${{ github.event.inputs.version }}-${{ matrix.runtime }}.zip -r *
+
+    - name: Output/Distribution Directory Contents
+      run: |
+        ls -l ${{ env.DIST_PATH }}
+        ls -l ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
+
+    - name: Cache Distribution
+      uses: actions/cache/save@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: ${{ matrix.runtime }}
+
+  Release-nccs:
+    name: Release nccs (github)
+    needs: [build-nccs]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get Distribution Caches (linux-x64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: linux-x64
+
+    - name: Get Distribution Caches (linux-arm64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: linux-arm64
+
+    - name: Get Distribution Caches (linux-musl-arm64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: linux-musl-arm64
+
+    - name: Get Distribution Caches (osx-x64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: osx-x64
+
+    - name: Get Distribution Caches (osx-arm64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: osx-arm64
+
+    - name: Get Distribution Caches (win-x64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: win-x64
+
+    - name: Get Distribution Caches (win-arm64)
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.DIST_PATH }}/*
+        key: win-arm64
+
+    - name: Publish Release (github)
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        title: v${{ github.event.inputs.version }}
+        automatic_release_tag: v${{ github.event.inputs.version }}
+        files: ${{ env.DIST_PATH }}/*
