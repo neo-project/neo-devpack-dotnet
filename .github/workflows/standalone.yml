@@ -1,11 +1,11 @@
-name: Build & Release (neo-cli)
+name: Build & Release (nccs)
 
 on:
   workflow_dispatch:
     inputs:
       version:
         type: string
-        description: version for release
+        description: 'Version Number (Example: 1.0.0)'
         required: true
 
 env:
