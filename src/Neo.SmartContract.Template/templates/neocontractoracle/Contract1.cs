@@ -19,6 +19,11 @@ namespace ProjectName
     [ContractPermission("*", "*")]
     public class Contract1 : SmartContract
     {
+        public delegate void OnRequestSuccessfulDelegate(string requestedUrl, object jsonValue);
+
+        [DisplayName("RequestSuccessful")]
+        public static event OnRequestSuccessfulDelegate OnRequestSuccessful;
+
         // TODO: Replace it with your own address.
         [InitialValue("<Your Address Here>", ContractParameterType.Hash160)]
         static readonly UInt160 Owner = default;
@@ -59,6 +64,46 @@ namespace ProjectName
         {
             if (!IsOwner()) throw new Exception("No authorization.");
             ContractManagement.Destroy();
+        }
+
+        // TODO: Add your own logic
+        public static void DoRequest()
+        {
+            /*
+                JSON DATA EXAMPLE
+                {
+                    "id": "6520ad3c12a5d3765988542a",
+                    "record": {
+                        "propertyName": "Hello World!"
+                    },
+                    "metadata": {
+                        "name": "HelloWorld",
+                        "readCountRemaining": 98,
+                        "timeToExpire": 86379,
+                        "createdAt": "2023-10-07T00:58:36.746Z"
+                    }
+                }
+                See JSONPath format at https://github.com/atifaziz/JSONPath
+                JSONPath = "$.record.propertyName"
+                ReturnValue = ["Hello World!"]
+                ReturnValueType = string array
+            */
+            var requestUrl = "https://api.jsonbin.io/v3/qs/6520ad3c12a5d3765988542a";
+            Oracle.Request(requestUrl, "$.record.propertyName", "onOracleResponse", null, Oracle.MinimumResponseFee);
+        }
+
+        // This method is called after the Oracle receives response from requested URL
+        public static void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse, string jsonString)
+        {
+            if (Runtime.CallingScriptHash != Oracle.Hash)
+                throw new InvalidOperationException("No Authorization!");
+            if (oracleResponse != OracleResponseCode.Success)
+                throw new Exception("Oracle response failure with code " + (byte)oracleResponse);
+
+            var jsonArrayValues = (object[])StdLib.JsonDeserialize(jsonString);
+            var jsonFirstValue = (string)jsonArrayValues[0];
+
+            OnRequestSuccessful(requestedUrl, jsonFirstValue);
         }
     }
 }

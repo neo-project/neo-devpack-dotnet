@@ -1,10 +1,10 @@
 {
   "$schema": "http://json.schemastore.org/template",
   "author": "The Neo Project",
-  "classifications": [ "NEO", "Blockchain", "Smart Contract", "Basic" ],
-  "identity": "Neo.SmartContract.Template.Basic",
-  "name": "Neo Smart Contract - Basic",
-  "shortName": "neocontract",
+  "classifications": [ "NEO", "Blockchain", "Smart Contract", "NEP-17" ],
+  "identity": "Neo.SmartContract.Template.Nep17",
+  "name": "Neo Smart Contract - NEP-17",
+  "shortName": "neocontractnep17",
   "preferNameDirectory": true,
   "tags": {
     "language": "C#",
