@@ -41,7 +41,7 @@ jobs:
         --runtime ${{ matrix.runtime }} \
         --self-contained true \
         --output ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }} \
-        --verbosity detail \
+        --verbosity detailed \
         -p:VersionPrefix=${{ github.event.inputs.version }}
         -p:RuntimeIdentifier=${{ matrix.runtime }} \
         -p:SelfContained=true \
