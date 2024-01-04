@@ -339,22 +339,29 @@ namespace Neo.Compiler
                 preInitialize?.Invoke();
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
                 ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
-                switch (type)
+                try
                 {
-                    case ContractParameterType.String:
-                        Push(value);
-                        break;
-                    case ContractParameterType.ByteArray:
-                        Push(value.HexToBytes(true));
-                        break;
-                    case ContractParameterType.Hash160:
-                        Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(context.Options.AddressVersion)).ToArray());
-                        break;
-                    case ContractParameterType.PublicKey:
-                        Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
-                        break;
-                    default:
-                        throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
+                    switch (type)
+                    {
+                        case ContractParameterType.String:
+                            Push(value);
+                            break;
+                        case ContractParameterType.ByteArray:
+                            Push(value.HexToBytes(true));
+                            break;
+                        case ContractParameterType.Hash160:
+                            Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(context.Options.AddressVersion)).ToArray());
+                            break;
+                        case ContractParameterType.PublicKey:
+                            Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
+                            break;
+                        default:
+                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
+                    }
+                }
+                catch (Exception ex) when (ex is not CompilationException)
+                {
+                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {type}");
                 }
                 postInitialize?.Invoke();
             }

@@ -33,5 +33,6 @@ namespace Neo.Compiler
         public const string InvalidMethodName = "NC3002";
         public const string MethodNameConflict = "NC3003";
         public const string EventNameConflict = "NC3004";
+        public const string InvalidInitialValue = "NC3005";
     }
 }
