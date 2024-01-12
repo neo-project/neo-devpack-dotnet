@@ -34,6 +34,5 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
         }
-
     }
 }

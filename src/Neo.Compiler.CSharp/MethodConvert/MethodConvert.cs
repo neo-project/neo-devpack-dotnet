@@ -720,6 +720,7 @@ namespace Neo.Compiler
         #endregion
 
         #region ConvertStatement
+
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
         {
             switch (statement)

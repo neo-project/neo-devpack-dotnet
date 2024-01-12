@@ -28,6 +28,5 @@ namespace Neo.Compiler
                     Jump(OpCode.JMP_L, _returnTarget);
             }
         }
-
     }
 }
