@@ -4,14 +4,9 @@
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
     <PackageId>Neo.SmartContract.Framework</PackageId>
-    <PackageTags>NEO;Blockchain</PackageTags>
-    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
+    <Description>Neo.SmartContract.Framework</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Description>Neo.SmartContract.Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>
