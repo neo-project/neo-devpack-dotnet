@@ -1,7 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
 
 namespace Neo.SmartContract.Analyzer
@@ -25,19 +26,18 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
-            context.RegisterOperationAction(AnalyzeOperation, OperationKind.MethodReference);
-            context.RegisterOperationAction(AnalyzeOperation, OperationKind.PropertyReference);
+            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.PredefinedType);
         }
 
-        private static void AnalyzeOperation(OperationAnalysisContext context)
+        private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
-            if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
-            var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            if (variableDeclaration.GetDeclaredVariables().All(p => p.Type.SpecialType != SpecialType.System_Decimal)) return;
+            var predefinedTypeSyntax = (PredefinedTypeSyntax)context.Node;
 
-            var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
-            context.ReportDiagnostic(diagnostic);
+            if (predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.DecimalKeyword))
+            {
+                var diagnostic = Diagnostic.Create(Rule, predefinedTypeSyntax.GetLocation(), predefinedTypeSyntax.ToString());
+                context.ReportDiagnostic(diagnostic);
+            }
         }
     }
 }
