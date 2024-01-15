@@ -17,7 +17,6 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class DoubleUsageAnalyzer : DiagnosticAnalyzer
     {
-        // public const string FloatingPointNumber = "NC2004";
         public const string DiagnosticId = "NC4004";
 
         private static readonly DiagnosticDescriptor Rule = new(
@@ -34,17 +33,18 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.PredefinedType);
         }
 
-        private static void AnalyzeOperation(OperationAnalysisContext context)
+        private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
-            if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
-            var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            if (variableDeclaration.GetDeclaredVariables().All(p => p.Type.SpecialType != SpecialType.System_Double)) return;
+            var predefinedTypeSyntax = (PredefinedTypeSyntax)context.Node;
 
-            var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
-            context.ReportDiagnostic(diagnostic);
+            if (predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.DoubleKeyword))
+            {
+                var diagnostic = Diagnostic.Create(Rule, predefinedTypeSyntax.GetLocation(), predefinedTypeSyntax.ToString());
+                context.ReportDiagnostic(diagnostic);
+            }
         }
     }
 
