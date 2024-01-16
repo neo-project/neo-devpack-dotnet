@@ -430,6 +430,11 @@ namespace Neo.Compiler
                             break;
                     }
                 }
+                if (Symbol.ToString().Contains("Array.Empty"))
+                {
+                    emitted = true;
+                    AddInstruction(OpCode.NEWARRAY0);
+                }
                 if (!emitted) throw new CompilationException(Symbol, DiagnosticId.ExternMethod, $"Unknown method: {Symbol}");
             }
             else
