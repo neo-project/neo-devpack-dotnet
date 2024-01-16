@@ -430,7 +430,7 @@ namespace Neo.Compiler
                             break;
                     }
                 }
-                if (Symbol.ToString().Contains("Array.Empty"))
+                if ((bool)Symbol.ToString()?.StartsWith("Array.Empty"))
                 {
                     emitted = true;
                     AddInstruction(OpCode.NEWARRAY0);
