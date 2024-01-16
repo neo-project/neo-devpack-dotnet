@@ -8,6 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using System.Numerics;
@@ -28,6 +29,7 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
+        [Obsolete("Use System.Runtime.Transaction instead")]
         public static extern object ScriptContainer
         {
             [Syscall("System.Runtime.GetScriptContainer")]
