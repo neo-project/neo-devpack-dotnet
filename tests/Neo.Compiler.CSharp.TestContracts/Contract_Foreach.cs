@@ -3,7 +3,6 @@ using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract;
 using Neo.Cryptography.ECC;
-using List = Neo.SmartContract.Framework.List;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -74,10 +73,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static List<byte> ByteArrayForeach()
+        public static Neo.SmartContract.Framework.List<byte> ByteArrayForeach()
         {
             byte[] a_bytearray = new byte[] { 0x01, 0x0a, 0x11 };
-            List<byte> result = new List<byte>();
+            SmartContract.Framework.List<byte> result = new SmartContract.Framework.List<byte>();
             foreach (var item in a_bytearray)
             {
                 result.Add(item);
@@ -85,10 +84,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static List<UInt160> UInt160Foreach()
+        public static SmartContract.Framework.List<UInt160> UInt160Foreach()
         {
             UInt160[] test = new UInt160[] { UInt160.Zero, UInt160.Zero };
-            List<UInt160> result = new List<UInt160>();
+            SmartContract.Framework.List<UInt160> result = new SmartContract.Framework.List<UInt160>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -96,10 +95,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static List<UInt256> UInt256Foreach()
+        public static SmartContract.Framework.List<UInt256> UInt256Foreach()
         {
             UInt256[] test = new UInt256[] { UInt256.Zero, UInt256.Zero };
-            List<UInt256> result = new List<UInt256>();
+            SmartContract.Framework.List<UInt256> result = new SmartContract.Framework.List<UInt256>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -107,10 +106,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static List<ECPoint> ECPointForeach()
+        public static SmartContract.Framework.List<ECPoint> ECPointForeach()
         {
             ECPoint[] test = new ECPoint[] { (ECPoint)rawECpoint, (ECPoint)rawECpoint };
-            List<ECPoint> result = new List<ECPoint>();
+            SmartContract.Framework.List<ECPoint> result = new SmartContract.Framework.List<ECPoint>();
             int i = 0;
             foreach (var item in test)
             {
@@ -119,10 +118,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static List<BigInteger> BigIntegerForeach()
+        public static SmartContract.Framework.List<BigInteger> BigIntegerForeach()
         {
             BigInteger[] test = new BigInteger[] { 10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000 };
-            List<BigInteger> result = new List<BigInteger>();
+            SmartContract.Framework.List<BigInteger> result = new SmartContract.Framework.List<BigInteger>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -130,10 +129,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static List<object> ObjectArrayForeach()
+        public static SmartContract.Framework.List<object> ObjectArrayForeach()
         {
             object[] test = new object[] { new byte[] { 0x01, 0x02 }, "test", 123 };
-            List<object> result = new List<object>();
+            SmartContract.Framework.List<object> result = new SmartContract.Framework.List<object>();
             foreach (var item in test)
             {
                 result.Add(item);

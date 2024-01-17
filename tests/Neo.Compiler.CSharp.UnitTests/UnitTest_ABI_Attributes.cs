@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAbiAttributes()
         {
             var testEngine = new TestEngine();
-            testEngine.AddEntryScript("./TestClasses/Contract_ABIAttributes.cs");
+            testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ABIAttributes.cs");
             var permissions = new JArray(testEngine.Manifest.Permissions.Select(p => p.ToJson()).ToArray()).ToString(false);
             Assert.AreEqual(@"[{""contract"":""0x01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4"",""methods"":[""a"",""b""]},{""contract"":""*"",""methods"":[""c""]}]", permissions);
             var trust = testEngine.Manifest.Trusts.ToJson(p => p.ToJson());

@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            _engine.AddEntryScript("./TestClasses/Contract_Foreach.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Foreach.cs");
         }
 
         [TestMethod]

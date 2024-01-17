@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initialize()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_BigInteger.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_BigInteger.cs");
         }
 
         [TestMethod]

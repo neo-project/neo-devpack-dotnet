@@ -1,8 +1,8 @@
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_SwitchValid : SmartContract.Framework.SmartContract
+    public class Contract_SwitchInteger : SmartContract.Framework.SmartContract
     {
-        public static object Main(int b)
+        public static object TestMain(int b)
         {
             int a = 1;
             switch (b)

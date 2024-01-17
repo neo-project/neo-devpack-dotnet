@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_InvokeCsNef.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_InvokeCsNef.cs");
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Main()
         {
             testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("main");
+            var result = testengine.ExecuteTestCaseStandard("testMain");
 
             Integer wantresult = 22;
             Assert.IsTrue(wantresult.Equals(result.Pop()));

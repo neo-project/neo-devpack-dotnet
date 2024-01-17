@@ -21,21 +21,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void float_Test()
         {
             using var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_Types_Float.cs").Success);
+            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Float.cs").Success);
         }
 
         [TestMethod]
         public void decimal_Test()
         {
             using var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_Types_Decimal.cs").Success);
+            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Decimal.cs").Success);
         }
 
         [TestMethod]
         public void double_Test()
         {
             using var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_Types_Double.cs").Success);
+            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Double.cs").Success);
         }
 
         #endregion
@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void null_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkNull");
 
             var item = result.Pop();
@@ -55,7 +55,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void bool_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
 
             var item = result.Pop();
@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void byteStringConcat_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("concatByteString", "1", "2");
 
             var item = result.Pop();
@@ -86,7 +86,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void bigInteer_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript("./TestClasses/Contract_Types_BigInteger.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_BigInteger.cs");
 
             // static vars
 
@@ -127,7 +127,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void toAddress_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("toAddress", "820944cfdc70976602d71b0091445eedbc661bc5".HexToBytes().Reverse().ToArray(), 53);
             Assert.AreEqual("NdtB8RXRmJ7Nhw1FPTm7E6HoDZGnDw37nf", result.Pop().GetString());
         }
@@ -136,7 +136,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void checkEnumArg_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var methods = testengine.Manifest.Abi.Methods;
             var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").FirstOrDefault();
             Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
@@ -146,7 +146,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void checkBoolString_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
 
             var result = testengine.ExecuteTestCaseStandard("checkBoolString", true);
             var item = result.Pop();
@@ -164,7 +164,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void sbyte_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkSbyte");
 
             var item = result.Pop();
@@ -176,7 +176,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void byte_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkByte");
 
             var item = result.Pop();
@@ -188,7 +188,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void short_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkShort");
 
             var item = result.Pop();
@@ -200,7 +200,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ushort_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUshort");
 
             var item = result.Pop();
@@ -212,7 +212,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void int_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkInt");
 
             var item = result.Pop();
@@ -224,7 +224,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void uint_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUint");
 
             var item = result.Pop();
@@ -236,7 +236,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void long_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkLong");
 
             var item = result.Pop();
@@ -248,7 +248,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ulong_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkUlong");
 
             var item = result.Pop();
@@ -260,7 +260,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void bigInteger_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkBigInteger");
 
             var item = result.Pop();
@@ -272,7 +272,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void byteArray_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkByteArray");
 
             var item = result.Pop();
@@ -284,7 +284,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void char_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkChar");
 
             var item = result.Pop();
@@ -296,7 +296,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void string_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkString");
 
             var item = result.Pop();
@@ -320,7 +320,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void arrayObj_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkArrayObj");
 
             var item = result.Pop();
@@ -333,7 +333,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void enum_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkEnum");
 
             var item = result.Pop();
@@ -345,7 +345,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void class_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkClass");
 
             var item = result.Pop();
@@ -358,7 +358,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void struct_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkStruct");
 
             var item = result.Pop();
@@ -371,7 +371,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void tuple_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple");
 
             var item = result.Pop();
@@ -385,7 +385,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void tuple2_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkTuple2");
 
             var item = result.Pop();
@@ -408,7 +408,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             snapshot: new TestDataCache(system.GenesisBlock),
             persistingBlock: system.GenesisBlock);
 
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
 
             var manifest = testengine.Manifest;
             var nef = new NefFile() { Script = testengine.Nef.Script, Compiler = testengine.Nef.Compiler, Source = testengine.Nef.Source, Tokens = testengine.Nef.Tokens };
@@ -444,7 +444,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void lambda_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkLambda");
             Assert.AreEqual(1, result.Count);
 
@@ -456,7 +456,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void delegate_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
             var result = testengine.ExecuteTestCaseStandard("checkDelegate");
             Assert.AreEqual(1, result.Count);
 
@@ -470,7 +470,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
 
             // True
 
@@ -535,7 +535,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
 
             var result = testengine.ExecuteTestCaseStandard("checkOwner", owner.ToArray());
             Assert.AreEqual(1, result.Count);
@@ -556,7 +556,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
             var result = testengine.ExecuteTestCaseStandard("checkZeroStatic", zero.ToArray());
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
@@ -575,7 +575,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_UIntTypes.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
 
             var result = testengine.ExecuteTestCaseStandard("constructUInt160", notZero.ToArray());
             Assert.AreEqual(1, result.Count);
@@ -589,7 +589,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ECPoint_test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types_ECPoint.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_ECPoint.cs");
 
             var result = testengine.ExecuteTestCaseStandard("isValid", "0102");
             Assert.AreEqual(1, result.Count);
@@ -634,7 +634,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Nameof_test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Types.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
 
             var result = testengine.ExecuteTestCaseStandard("checkNameof");
             Assert.AreEqual(1, result.Count);

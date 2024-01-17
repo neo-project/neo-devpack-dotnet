@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DebugInfo()
         {
             var testEngine = new TestEngine();
-            testEngine.AddEntryScript("./TestClasses/Contract_Event.cs");
+            testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Event.cs");
 
             var debugInfo = testEngine.DebugInfo;
             Assert.AreEqual(testEngine.Nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"].GetString());

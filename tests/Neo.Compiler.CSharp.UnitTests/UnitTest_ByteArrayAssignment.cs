@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignment()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ByteArrayAssignment.cs");
 
             var result = testengine.ExecuteTestCaseStandard("testAssignment").Pop();
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x04 }, result.GetSpan().ToArray());
@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignmentOutOfBounds()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ByteArrayAssignment.cs");
 
             testengine.ExecuteTestCaseStandard("testAssignmentOutOfBounds");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignmentOverflow()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ByteArrayAssignment.cs");
 
             var result = testengine.ExecuteTestCaseStandard("testAssignmentOverflow").Pop();
             CollectionAssert.AreEqual(new byte[] { 0xff, 0x02, 0x03 }, result.GetSpan().ToArray());
@@ -40,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignmentWrongCasting()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ByteArrayAssignment.cs");
 
             testengine.ExecuteTestCaseStandard("testAssignmentWrongCasting");
             Assert.AreEqual(VM.VMState.FAULT, testengine.State);
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignmentDynamic()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_ByteArrayAssignment.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ByteArrayAssignment.cs");
 
             var result = testengine.ExecuteTestCaseStandard("testAssignmentDynamic", 10);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);

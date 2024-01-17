@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assign()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Tuple.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Tuple.cs");
             var result = testengine.ExecuteTestCaseStandard("t1");
 
             var tuple = result.Pop<Struct>();

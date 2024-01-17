@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             _engine = new TestEngine.TestEngine(TriggerType.Application, block, new TestDataCache(block));
             _engine.Reset();
-            _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Native.cs");
         }
 
         [TestMethod]

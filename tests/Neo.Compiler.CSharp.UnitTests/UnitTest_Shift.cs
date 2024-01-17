@@ -12,9 +12,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Shift()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_shift.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_shift.cs");
             //testengine.ScriptEntry.DumpNEF();
-            var result = testengine.ExecuteTestCaseStandard("main");
+            var result = testengine.ExecuteTestCaseStandard("testMain");
             var list = ((VM.Types.Array)result.Pop()).Select(u => u.GetInteger()).ToList();
 
             CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
@@ -24,8 +24,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Shift_BigInteger()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_shift_bigint.cs");
-            var result = testengine.ExecuteTestCaseStandard("main");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_shift_bigint.cs");
+            var result = testengine.ExecuteTestCaseStandard("testMain");
             var list = ((VM.Types.Array)result.Pop()).Select(u => u.GetInteger()).ToList();
 
             CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);

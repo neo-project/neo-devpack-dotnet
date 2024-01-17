@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
         }
 
         [TestMethod]
@@ -234,7 +234,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var snapshot = new TestDataCache();
             var _testengine = new TestEngine(snapshot: snapshot);
-            _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            _testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
@@ -252,7 +252,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var snapshot = new TestDataCache();
             var _testengine = new TestEngine(snapshot: snapshot);
-            _testengine.AddEntryScript("./TestClasses/Contract_NULL.cs");
+            _testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,

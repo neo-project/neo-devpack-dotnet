@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Polymorphism.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Polymorphism.cs");
         }
 
         [TestMethod]

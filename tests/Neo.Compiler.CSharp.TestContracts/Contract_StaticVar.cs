@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static string testinitalvalue() => a4;
 
-        public static object Main()
+        public static object TestMain()
         {
             testadd();
             testmulti();

@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var snapshot = _system.GetSnapshot().CreateSnapshot();
 
             using var testengine = new TestEngine.TestEngine(TriggerType.Application, verificable, snapshot: snapshot);
-            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
+            Assert.IsTrue(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Attribute.cs").Success);
 
             var result = testengine.ExecuteTestCaseStandard("test");
             Assert.AreEqual(1, result.Count);
@@ -62,7 +62,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var snapshot = _system.GetSnapshot().CreateSnapshot();
             using var testengine = new TestEngine.TestEngine(TriggerType.Application, snapshot: snapshot);
 
-            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
+            Assert.IsTrue(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Attribute.cs").Success);
             snapshot.ContractAdd(new ContractState()
             {
                 Id = 123,

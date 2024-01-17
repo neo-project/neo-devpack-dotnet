@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Init()
         {
             _engine = new TestEngine.TestEngine(TriggerType.Application, new DummyVerificable());
-            _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ExecutionEngine.cs");
             scriptHash = _engine.Nef.Script.Span.ToScriptHash().ToArray().ToHexString();
         }
 

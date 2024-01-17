@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            _engine.AddEntryScript("./TestClasses/Contract_Inc_Dec.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Inc_Dec.cs");
         }
 
         [TestMethod]

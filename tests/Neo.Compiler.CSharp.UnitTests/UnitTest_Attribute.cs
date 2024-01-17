@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            Assert.IsTrue(_engine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
+            Assert.IsTrue(_engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Attribute.cs").Success);
         }
 
         [TestMethod]

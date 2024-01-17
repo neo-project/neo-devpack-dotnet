@@ -63,13 +63,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Transactions = System.Array.Empty<Transaction>(),
 
             });
-            _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Runtime.cs");
         }
 
         [TestMethod]
         public void Test_InvocationCounter()
         {
-            _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Runtime.cs");
 
             // We need a new TestEngine because invocationCounter it's shared between them
 

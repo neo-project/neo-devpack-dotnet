@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedArray()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testJaggedArray");
 
             var arr = result.Pop<Array>();
@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedByteArray()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testJaggedByteArray");
 
             var arr = result.Pop<Array>();
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArray()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testIntArray");
 
             //test 0,1,2
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArrayInit()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testIntArrayInit");
 
             //test 1,4,5
@@ -76,7 +76,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testStructArray");
 
             //test (1+5)*7 == 42
@@ -88,7 +88,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArrayInit()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testStructArrayInit");
 
             //test (1+5)*7 == 42
@@ -100,7 +100,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayOwner()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testByteArrayOwner");
 
             var bts = result.Pop() as Buffer;
@@ -113,7 +113,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testDynamicArrayInit", 3);
 
             var arr = (Array)result.Pop().ConvertTo(StackItemType.Array);
@@ -128,7 +128,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayStringInit()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testDynamicArrayStringInit", "hello");
 
             var arr = (Buffer)result.Pop().ConvertTo(StackItemType.Buffer);
@@ -145,7 +145,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayOwnerCall()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testByteArrayOwnerCall");
 
             var bts = result.Pop().ConvertTo(StackItemType.ByteString);
@@ -158,7 +158,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringArray()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
             var result = testengine.ExecuteTestCaseStandard("testSupportedStandards");
 
             var bts = result.Pop().ConvertTo(StackItemType.Array);

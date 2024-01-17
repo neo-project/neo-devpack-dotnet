@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Init()
         {
             _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
-            _engine.AddEntryScript("./TestClasses/Contract_Json.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Json.cs");
         }
 
         [TestMethod]

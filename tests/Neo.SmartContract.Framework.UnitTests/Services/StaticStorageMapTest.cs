@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = system.GetSnapshot().CreateSnapshot();
 
             _engine = new TestEngine.TestEngine(snapshot: snapshot);
-            _engine.AddEntryScript("./TestClasses/Contract_StaticStorageMap.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticStorageMap.cs");
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = _engine.EntryScriptHash,
