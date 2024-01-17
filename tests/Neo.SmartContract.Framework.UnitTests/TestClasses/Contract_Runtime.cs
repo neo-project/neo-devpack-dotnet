@@ -112,6 +112,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return tx?.Sender;
         }
 
+        public static object GetTransaction()
+        {
+            var tx = Runtime.Transaction;
+            return tx;
+        }
+
         public static object GetTransactionSystemFee()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
