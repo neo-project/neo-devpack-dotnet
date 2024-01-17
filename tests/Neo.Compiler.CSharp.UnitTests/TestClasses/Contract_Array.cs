@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
@@ -87,6 +88,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var sarray = new State[3];
             sarray[2] = s;
             return sarray[2];
+        }
+
+        public static object[] TestEmptyArray()
+        {
+            var sarray = Array.Empty<object>();
+            return sarray;
         }
 
         public static object TestStructArrayInit()
