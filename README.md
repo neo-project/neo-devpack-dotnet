@@ -21,3 +21,16 @@ This is the set of development tools for .NET.
 
 For detailed documentation, see [docs.neo.org](https://docs.neo.org/docs/en-us/index.html) and the [NEO whitepaper](https://docs.neo.org/docs/en-us/basic/whitepaper.html).
 
+# Build
+
+```shell
+git clone --recurse-submodules https://github.com/neo-project/neo-devpack-dotnet.git
+cd neo-devpack-dotnet
+dotnet build
+```
+
+# Test
+
+```shell
+dotnet test
+```
