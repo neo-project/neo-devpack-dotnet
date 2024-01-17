@@ -430,7 +430,8 @@ namespace Neo.Compiler
                             break;
                     }
                 }
-                if ((bool)Symbol.ToString()?.StartsWith("System.Array.Empty"))
+                var isExist = Symbol.ToString()?.StartsWith("System.Array.Empty");
+                if (isExist.HasValue && isExist.Value)
                 {
                     emitted = true;
                     AddInstruction(OpCode.NEWARRAY0);
