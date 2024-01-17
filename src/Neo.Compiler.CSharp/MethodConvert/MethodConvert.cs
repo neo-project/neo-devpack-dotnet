@@ -430,6 +430,12 @@ namespace Neo.Compiler
                             break;
                     }
                 }
+                var isExist = Symbol.ToString()?.StartsWith("System.Array.Empty");
+                if (isExist.HasValue && isExist.Value)
+                {
+                    emitted = true;
+                    AddInstruction(OpCode.NEWARRAY0);
+                }
                 if (!emitted) throw new CompilationException(Symbol, DiagnosticId.ExternMethod, $"Unknown method: {Symbol}");
             }
             else
