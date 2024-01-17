@@ -4,13 +4,13 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Framework.UnitTests.Utils;
-using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
 using System;
 using System.IO;
 using System.Numerics;
+using Array = Neo.VM.Types.Array;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -385,6 +385,31 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var item = engine.ResultStack.Pop();
             Assert.IsInstanceOfType(item, typeof(Neo.VM.Types.ByteString));
             Assert.AreEqual(tx.Sender, new UInt160(item.GetSpan()));
+        }
+
+        [TestMethod]
+        public void Test_GetTransaction()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransaction");
+            var sender = "NMA2FKN8up2cEwaJgtmAiDrZWB69ApnDfp".ToScriptHash(ProtocolSettings.Default.AddressVersion);
+            var tx = BuildTransaction(sender, sb.ToArray());
+            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = _engine.Manifest
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
         }
 
         [TestMethod]
