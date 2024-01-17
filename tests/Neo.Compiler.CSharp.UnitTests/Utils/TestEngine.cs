@@ -170,7 +170,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
-                this.CurrentContext.CurrentInstruction?.OpCode);
+                this.CurrentContext.CurrentInstruction?.OpCode + " " + this.CurrentContext.EvaluationStack);
                 this.ExecuteNext();
             }
             if (this.State == VMState.FAULT && this.FaultException != null)
