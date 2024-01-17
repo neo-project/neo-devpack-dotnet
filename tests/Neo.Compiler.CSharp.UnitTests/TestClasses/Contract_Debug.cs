@@ -1,5 +1,6 @@
 using Neo.SmartContract.Framework;
 using System.Numerics;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -8,6 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static int TestElse()
         {
 #if DEBUG
+            Runtime.Debug("DEBUG");
             return 1;
 #else
             return 2;

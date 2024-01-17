@@ -12,6 +12,8 @@ using System;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Neo.SmartContract.Framework.Services
 {
@@ -106,6 +108,14 @@ namespace Neo.SmartContract.Framework.Services
         // Events not present in the ABI were disabled in HF_Basilisk
         // [Syscall("System.Runtime.Notify")]
         // public static extern void Notify(string eventName, object[] state);
+
+        [Syscall("System.Runtime.Notify")]
+        public static extern void Debug(string eventName, object[] state);
+
+        public static void Debug(string message)
+        {
+            Debug("Debug", new object[] { message });
+        }
 
         [Syscall("System.Runtime.BurnGas")]
         public static extern void BurnGas(long gas);

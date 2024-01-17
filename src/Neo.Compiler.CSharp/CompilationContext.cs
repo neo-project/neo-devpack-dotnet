@@ -328,6 +328,23 @@ namespace Neo.Compiler
                 ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
+
+            // Debug mode
+            if (Options.Debug && eventsExported.All(p => p.Name != "Debug"))
+            {
+                json["abi"]!["events"] = ((JArray)json["abi"]!["events"] ?? new JArray()).Append(new JObject
+                {
+                    ["name"] = "Debug",
+                    ["parameters"] = new JArray
+                  {
+                      new JObject
+                      {
+                          ["name"] = "state",
+                          ["type"] = "String"
+                      }
+                  }
+                }).ToArray();
+            }
             // Ensure that is serializable
             return ContractManifest.Parse(json.ToString(false));
         }
