@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
@@ -9,12 +8,12 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class HelperTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine();
+            _engine = new TestEngine.TestEngine();
             _engine.AddEntryScript("./TestClasses/Contract_Helper.cs");
         }
 

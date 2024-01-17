@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Cryptography.ECC;
 using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class NativeTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
         private readonly byte[] pubKey = "03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa".HexToBytes();
         private readonly byte[] account = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
 
@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Transactions = System.Array.Empty<Transaction>(),
             };
 
-            _engine = new TestEngine(TriggerType.Application, block, new TestDataCache(block));
+            _engine = new TestEngine.TestEngine(TriggerType.Application, block, new TestDataCache(block));
             _engine.Reset();
             _engine.AddEntryScript("./TestClasses/Contract_Native.cs");
         }

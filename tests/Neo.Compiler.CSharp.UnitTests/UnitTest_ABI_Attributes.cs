@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Json;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {

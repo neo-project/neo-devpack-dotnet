@@ -1,11 +1,9 @@
-using System;
-using System.ComponentModel;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Services;
 using Neo.SmartContract;
 using Neo.Cryptography.ECC;
+using List = Neo.SmartContract.Framework.List;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {

@@ -1,20 +1,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Text;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
     public class JsonTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(snapshot: new TestDataCache());
+            _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
             _engine.AddEntryScript("./TestClasses/Contract_Json.cs");
         }
 

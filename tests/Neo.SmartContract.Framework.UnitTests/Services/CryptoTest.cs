@@ -1,13 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Cryptography;
-using Neo.Network.P2P;
 using Neo.Network.P2P.Payloads;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
 using System.Linq;
 using System.Security.Cryptography;
+using Neo.Network.P2P;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -15,12 +15,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     public class CryptoTest
     {
         private KeyPair _key = null;
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(TriggerType.Application, new Transaction()
+            _engine = new TestEngine.TestEngine(TriggerType.Application, new Transaction()
             {
                 Attributes = System.Array.Empty<TransactionAttribute>(),
                 Script = System.Array.Empty<byte>(),

@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 using Neo.VM.Types;
 

@@ -1,11 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using Neo.SmartContract.TestEngine;
 using Array = Neo.VM.Types.Array;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -13,13 +13,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ContractTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
             var system = new NeoSystem(TestProtocolSettings.Default);
-            _engine = new TestEngine(verificable: new Transaction()
+            _engine = new TestEngine.TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
                 Witnesses = System.Array.Empty<Witness>(),
@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Create
 
-            TestEngine engine = new();
+            TestEngine.TestEngine engine = new();
             engine.AddEntryScript("./TestClasses/Contract_Create.cs");
             var manifest = engine.Manifest;
             var nef = new NefFile() { Script = engine.Nef.Script, Compiler = engine.Nef.Compiler, Source = engine.Nef.Source, Tokens = engine.Nef.Tokens };
@@ -106,7 +106,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Create
 
-            TestEngine engine = new();
+            TestEngine.TestEngine engine = new();
             engine.AddEntryScript("./TestClasses/Contract_CreateAndUpdate.cs");
             var manifest = engine.Manifest;
             var nef = new NefFile()

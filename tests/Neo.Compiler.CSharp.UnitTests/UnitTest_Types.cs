@@ -1,11 +1,11 @@
 using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;

@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Json;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -9,12 +9,12 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class ListTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(snapshot: new TestDataCache());
+            _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
             _engine.AddEntryScript("./TestClasses/Contract_List.cs");
         }
 

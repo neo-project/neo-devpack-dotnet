@@ -1,9 +1,7 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract;
-using System;
 
-namespace Neo.Compiler.CSharp.UnitTests.Utils
+namespace Neo.SmartContract.TestEngine
 {
     public static class Extensions
     {

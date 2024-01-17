@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -9,7 +8,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestExtraAttribute()
         {
-            var testengine = new TestEngine();
+            var testengine = new TestEngine.TestEngine();
             testengine.AddEntryScript("./TestClasses/Contract_ExtraAttribute.cs");
 
             var extra = testengine.Manifest.Extra;

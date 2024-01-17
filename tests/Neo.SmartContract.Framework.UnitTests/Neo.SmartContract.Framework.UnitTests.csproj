@@ -9,11 +9,11 @@
     <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>
+    <ProjectReference Include="..\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="TestClasses\*.cs" />
-    <None Include="TestClasses\*.cs">
+    <None Include="../Neo.SmartContract.Framework.TestContracts\*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

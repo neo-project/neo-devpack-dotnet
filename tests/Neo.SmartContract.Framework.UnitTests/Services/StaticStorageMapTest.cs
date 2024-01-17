@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -7,7 +7,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class StaticStorageMapTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var system = TestBlockchain.TheNeoSystem;
             var snapshot = system.GetSnapshot().CreateSnapshot();
 
-            _engine = new TestEngine(snapshot: snapshot);
+            _engine = new TestEngine.TestEngine(snapshot: snapshot);
             _engine.AddEntryScript("./TestClasses/Contract_StaticStorageMap.cs");
             snapshot.ContractAdd(new ContractState()
             {

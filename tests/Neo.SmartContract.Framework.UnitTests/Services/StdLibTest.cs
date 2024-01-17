@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
-using Neo.SmartContract.Manifest;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -8,7 +7,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class StdLibTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
         private UInt160 scriptHash;
 
         [TestInitialize]
@@ -17,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var _ = TestBlockchain.TheNeoSystem;
             var snapshot = new TestDataCache(null);
 
-            _engine = new TestEngine(TriggerType.Application, snapshot: snapshot);
+            _engine = new TestEngine.TestEngine(TriggerType.Application, snapshot: snapshot);
             Assert.IsTrue(_engine.AddEntryScript("./TestClasses/Contract_StdLib.cs").Success);
             scriptHash = _engine.Nef.Script.Span.ToScriptHash();
 

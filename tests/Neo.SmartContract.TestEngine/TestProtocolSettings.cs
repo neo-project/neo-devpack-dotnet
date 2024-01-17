@@ -1,6 +1,6 @@
 using Neo.Cryptography.ECC;
 
-namespace Neo.Compiler.CSharp.UnitTests.Utils
+namespace Neo.SmartContract.TestEngine
 {
     public static class TestProtocolSettings
     {
