@@ -170,6 +170,10 @@ namespace Neo.SmartContract.TestEngine
                 this.CurrentContext.CurrentInstruction?.OpCode);
                 this.ExecuteNext();
             }
+            if (this.State == VMState.FAULT && this.FaultException != null)
+            {
+                Console.WriteLine("Fault Exception:\n" + this.FaultException);
+            }
             return this.ResultStack;
         }
 
