@@ -35,6 +35,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_EmptyArray()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript("./TestClasses/Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testEmptyArray");
+
+            var arr = result.Pop<Array>();
+            Assert.AreEqual(0, arr.Count);
+        }
+
+        [TestMethod]
         public void Test_IntArray()
         {
             var testengine = new TestEngine();
