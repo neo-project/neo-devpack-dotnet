@@ -17,6 +17,38 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+
+        /// <summary>
+        /// Converts a 'try-catch-finally' statement into a set of instructions for exception handling.
+        /// This method handles the translation of try blocks, catch clauses, and finally blocks
+        /// into an intermediate language.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the try statement.</param>
+        /// <param name="syntax">The syntax representation of the try statement being converted.</param>
+        /// <remarks>
+        /// The method sets up the necessary structure for a try block, including jump targets for catch
+        /// and finally blocks. It handles the conversion of each part of the try statement, including
+        /// any exception handling logic. The method currently supports only one catch block and
+        /// throws a compilation exception if multiple catches or catch filters are present.
+        /// </remarks>
+        /// <example>
+        /// Example of a 'try-catch-finally' statement syntax:
+        /// <code>
+        /// try
+        /// {
+        ///     // Try block code
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     // Catch block code
+        /// }
+        /// finally
+        /// {
+        ///     // Finally block code
+        /// }
+        /// </code>
+        /// This example demonstrates a typical try statement with one catch block and a finally block.
+        /// </example>
         private void ConvertTryStatement(SemanticModel model, TryStatementSyntax syntax)
         {
             JumpTarget catchTarget = new();

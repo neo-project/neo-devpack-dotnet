@@ -17,6 +17,31 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+        /// <summary>
+        /// Converts a block statement to a sequence of instructions. This method is used for parsing
+        /// the syntax of block statements within the context of a semantic model. A block statement
+        /// typically consists of a series of statements enclosed in braces `{}`.
+        /// </summary>
+        /// <param name="model">The semantic model that provides information about the block statement.</param>
+        /// <param name="syntax">The syntax of the block statement to be converted.</param>
+        /// <remarks>
+        /// This method starts by initializing a new list of local symbols for the current block.
+        /// It then iterates through each statement within the block, converting each to the appropriate
+        /// set of instructions. Local symbols are tracked and removed once the block is fully converted.
+        /// </remarks>
+        /// <example>
+        /// Here is an example of a block statement syntax:
+        ///
+        /// <code>
+        /// {
+        ///     string x = "Hello world.";
+        ///     Runtime.Log(x);
+        /// }
+        /// </code>
+        ///
+        /// In this example, the block contains two statements: a variable declaration and
+        /// a method call.
+        /// </example>
         private void ConvertBlockStatement(SemanticModel model, BlockSyntax syntax)
         {
             _blockSymbols.Push(new List<ILocalSymbol>());
@@ -29,5 +54,6 @@ namespace Neo.Compiler
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 RemoveLocalVariable(symbol);
         }
+
     }
 }

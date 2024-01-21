@@ -16,6 +16,32 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+
+        /// <summary>
+        /// Converts a 'do-while' loop statement into a corresponding set of instructions.
+        /// This method handles the parsing and translation of the 'do-while' loop construct,
+        /// creating the necessary control flow for the loop's execution.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the 'do-while' statement.</param>
+        /// <param name="syntax">The syntax representation of the 'do-while' statement being converted.</param>
+        /// <remarks>
+        /// The method sets up jump targets for the start, continue, and break points of the loop.
+        /// It then converts the loop's statement body and condition. The loop continues if the condition
+        /// is true, jumping back to the start. If the condition is false, the loop exits, and the control
+        /// flow moves to the break target.
+        /// </remarks>
+        /// <example>
+        /// Example of a 'do-while' loop syntax:
+        /// <code>
+        /// do
+        /// {
+        ///     // Loop body
+        /// }
+        /// while (condition);
+        /// </code>
+        /// This example shows a 'do-while' loop where the loop body is executed at least once
+        /// before evaluating the condition.
+        /// </example>
         private void ConvertDoStatement(SemanticModel model, DoStatementSyntax syntax)
         {
             JumpTarget startTarget = new();

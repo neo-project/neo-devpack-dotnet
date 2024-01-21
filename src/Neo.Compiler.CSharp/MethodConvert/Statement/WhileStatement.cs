@@ -16,6 +16,30 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+
+        /// <summary>
+        /// Converts a 'while' loop statement into a series of instructions for loop control.
+        /// This method handles the translation of the 'while' loop's condition and body into an
+        /// intermediate language, managing the loop's execution flow.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the while statement.</param>
+        /// <param name="syntax">The syntax representation of the while statement being converted.</param>
+        /// <remarks>
+        /// The method sets up jump targets for the loop's continue and break points. It evaluates the
+        /// loop's condition and generates a conditional jump based on this condition. If the condition
+        /// is true, the loop's body is executed; otherwise, control jumps to the end of the loop.
+        /// The method ensures proper loop continuation and exit behavior.
+        /// </remarks>
+        /// <example>
+        /// Example of a while loop syntax:
+        /// <code>
+        /// while (condition)
+        /// {
+        ///     // Loop body code
+        /// }
+        /// </code>
+        /// In this example, the loop continues to execute as long as the 'condition' evaluates to true.
+        /// </example>
         private void ConvertWhileStatement(SemanticModel model, WhileStatementSyntax syntax)
         {
             JumpTarget continueTarget = new();
