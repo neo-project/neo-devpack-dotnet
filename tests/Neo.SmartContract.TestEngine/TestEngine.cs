@@ -1,21 +1,18 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Numerics;
 using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Neo.Compiler;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
+using ExecutionContext = Neo.VM.ExecutionContext;
 
-namespace Neo.Compiler.CSharp.UnitTests.Utils
+namespace Neo.SmartContract.TestEngine
 {
     public class TestEngine : ApplicationEngine
     {

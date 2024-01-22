@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return 42;
         }
 
-        public static int Main()
+        public static int TestMain()
         {
             return 22;
         }

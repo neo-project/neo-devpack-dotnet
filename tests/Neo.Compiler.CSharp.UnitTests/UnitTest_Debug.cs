@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Debug
 
             var engine = new TestEngine();
-            Assert.IsTrue(engine.AddEntryScript(true, "./TestClasses/Contract_Debug.cs").Success);
+            Assert.IsTrue(engine.AddEntryScript(true, Utils.Extensions.TestContractRoot + "Contract_Debug.cs").Success);
 
             var result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);
@@ -27,7 +27,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // No debug
 
             engine = new TestEngine();
-            Assert.IsTrue(engine.AddEntryScript(false, "./TestClasses/Contract_Debug.cs").Success);
+            Assert.IsTrue(engine.AddEntryScript(false, Utils.Extensions.TestContractRoot + "Contract_Debug.cs").Success);
             result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(2, result.Pop().GetInteger());

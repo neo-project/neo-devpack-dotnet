@@ -2,9 +2,9 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_SwitchValid : SmartContract.Framework.SmartContract
+    public class Contract_Switch6 : SmartContract.Framework.SmartContract
     {
-        public static object Main(string method)
+        public static object TestMain(string method)
         {
             switch (method)
             {

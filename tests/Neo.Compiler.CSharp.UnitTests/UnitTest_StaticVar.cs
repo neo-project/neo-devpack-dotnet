@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM.Types;
 using System;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InitialValue()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs").Success);
+            Assert.IsTrue(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs").Success);
             var result = testengine.ExecuteTestCaseStandard("testinitalvalue");
 
             Assert.AreEqual("hello world", result.Pop().GetString());
@@ -22,8 +22,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StaticVar()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
-            var result = testengine.ExecuteTestCaseStandard("main");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs");
+            var result = testengine.ExecuteTestCaseStandard("testMain");
 
             //test (1+5)*7 == 42
             StackItem wantresult = 42;
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             ByteString var2;
 
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVarInit.cs");
             var result = testengine.ExecuteTestCaseStandard("staticInit");
             // static byte[] callscript = ExecutionEngine.EntryScriptHash;
             // ...
@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var1 = result.Pop() as VM.Types.Buffer;
 
             testengine.Reset();
-            testengine.AddEntryScript("./TestClasses/Contract_StaticVarInit.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVarInit.cs");
             result = testengine.ExecuteTestCaseStandard("directGet");
             // return ExecutionEngine.EntryScriptHash
             var2 = result.Pop() as ByteString;
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_testBigIntegerParse()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse");
             var var1 = result.Pop();
             Assert.IsInstanceOfType(var1, typeof(Integer));
@@ -70,7 +70,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_testBigIntegerParse2()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript("./TestClasses/Contract_StaticVar.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs");
             var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse2", "123");
             var var1 = result.Pop();
             Assert.IsInstanceOfType(var1, typeof(Integer));
@@ -84,7 +84,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             try
             {
                 using var testengine = new TestEngine();
-                testengine.AddEntryScript("./TestClasses/Contract_StaticConstruct.cs");
+                testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticConstruct.cs");
                 var result = testengine.ExecuteTestCaseStandard("testStatic");
                 // static byte[] callscript = ExecutionEngine.EntryScriptHash;
                 // ...

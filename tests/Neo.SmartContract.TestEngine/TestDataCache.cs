@@ -1,10 +1,7 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Neo.Compiler.CSharp.UnitTests.Utils
+namespace Neo.SmartContract.TestEngine
 {
     public class TestDataCache : DataCache
     {
