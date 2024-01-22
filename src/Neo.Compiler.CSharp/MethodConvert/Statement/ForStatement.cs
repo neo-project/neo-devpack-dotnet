@@ -18,6 +18,31 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+        /// <summary>
+        /// Converts a 'for' loop statement into a sequence of instructions. This method handles the parsing
+        /// and translation of the 'for' loop construct, including its initialization, condition, and
+        /// increment expressions, as well as the loop body.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the 'for' loop statement.</param>
+        /// <param name="syntax">The syntax representation of the 'for' loop statement being converted.</param>
+        /// <remarks>
+        /// The method starts by handling variable declarations and initializations. It then sets up
+        /// jump targets for managing the loop's control flow: start, continue, condition, and break.
+        /// The loop's body, condition, and increment expressions are then converted into appropriate
+        /// instructions. The method also ensures any non-void expressions that leave a value on the stack
+        /// are appropriately dropped.
+        /// </remarks>
+        /// <example>
+        /// Example of a 'for' loop syntax:
+        /// <code>
+        /// for (int i = 0; i < 10; i++)
+        /// {
+        ///     // Loop body
+        /// }
+        /// </code>
+        /// This example shows a 'for' loop where 'i' is initialized to 0, the loop continues as long
+        /// as 'i' is less than 10, and 'i' is incremented by 1 after each iteration.
+        /// </example>
         private void ConvertForStatement(SemanticModel model, ForStatementSyntax syntax)
         {
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
