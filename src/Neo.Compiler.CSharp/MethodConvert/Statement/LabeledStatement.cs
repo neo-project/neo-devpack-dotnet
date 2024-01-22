@@ -17,7 +17,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a labeled statement into a jump target and its associated instructions.
         /// This method is used for handling labeled statements, creating a target for 'goto' statements

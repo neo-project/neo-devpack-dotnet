@@ -16,7 +16,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'do-while' loop statement into a corresponding set of instructions.
         /// This method handles the parsing and translation of the 'do-while' loop construct,

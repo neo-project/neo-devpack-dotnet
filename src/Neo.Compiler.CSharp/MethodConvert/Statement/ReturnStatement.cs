@@ -16,7 +16,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'return' statement into the corresponding jump instructions.
         /// This method handles the conversion of return statements, including those with a return value,

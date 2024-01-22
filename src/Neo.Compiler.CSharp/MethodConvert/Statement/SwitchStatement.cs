@@ -17,7 +17,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'switch' statement into a set of conditional jump instructions and targets.
         /// This method handles the translation of 'switch' statements, including various forms of

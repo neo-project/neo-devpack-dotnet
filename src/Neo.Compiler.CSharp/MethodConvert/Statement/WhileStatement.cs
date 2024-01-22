@@ -16,7 +16,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'while' loop statement into a series of instructions for loop control.
         /// This method handles the translation of the 'while' loop's condition and body into an

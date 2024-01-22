@@ -17,7 +17,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'try-catch-finally' statement into a set of instructions for exception handling.
         /// This method handles the translation of try blocks, catch clauses, and finally blocks

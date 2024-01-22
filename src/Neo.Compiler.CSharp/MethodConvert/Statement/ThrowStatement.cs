@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Neo.Compiler
 {
-
     /// <summary>
     /// Converts a 'throw' statement into the corresponding throw instruction.
     /// This method handles the translation of a throw statement, typically used for exception handling,

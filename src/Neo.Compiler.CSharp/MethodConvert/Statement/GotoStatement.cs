@@ -18,7 +18,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'goto' statement into a jump instruction. This method handles both simple
         /// 'goto' statements and those used in the context of a switch statement, including 'goto case'

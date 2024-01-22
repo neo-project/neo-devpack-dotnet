@@ -15,7 +15,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a 'continue' statement into a corresponding jump instruction in the intermediate language.
         /// This method handles the conversion of the 'continue' keyword within loops, particularly

@@ -17,7 +17,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         /// <summary>
         /// Converts a local variable declaration statement into a series of instructions.
         /// This method is used for processing variable declarations, excluding those marked as 'const'.
