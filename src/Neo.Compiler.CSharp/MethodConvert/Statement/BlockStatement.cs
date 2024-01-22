@@ -54,6 +54,5 @@ namespace Neo.Compiler
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 RemoveLocalVariable(symbol);
         }
-
     }
 }
