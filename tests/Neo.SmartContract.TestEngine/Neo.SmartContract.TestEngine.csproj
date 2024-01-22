@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+            <Aliases>scfx</Aliases>
+        </ProjectReference>
+    </ItemGroup>
+
+</Project>

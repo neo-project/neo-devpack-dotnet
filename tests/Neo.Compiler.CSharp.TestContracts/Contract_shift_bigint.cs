@@ -5,7 +5,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_shift_bigint : SmartContract.Framework.SmartContract
     {
-        public static System.Numerics.BigInteger[] Main()
+        public static System.Numerics.BigInteger[] TestMain()
         {
             System.Numerics.BigInteger v = 8;
             var v1 = v << 0;

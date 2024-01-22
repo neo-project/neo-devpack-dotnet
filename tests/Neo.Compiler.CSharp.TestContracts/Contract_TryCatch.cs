@@ -5,7 +5,7 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_shift : SmartContract.Framework.SmartContract
+    public class Contract_TryCatch : SmartContract.Framework.SmartContract
     {
         [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
         private static readonly ByteString invalidECpoint = default;

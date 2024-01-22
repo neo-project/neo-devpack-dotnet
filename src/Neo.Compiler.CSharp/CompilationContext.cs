@@ -149,7 +149,7 @@ namespace Neo.Compiler
             }
         }
 
-        internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
+        public static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");

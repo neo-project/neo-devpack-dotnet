@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_Returns : SmartContract.Framework.SmartContract
+    public class Contract_ConcatByteStringAddAssign : SmartContract.Framework.SmartContract
     {
         public static ByteString ByteStringAddAssign(ByteString a, ByteString b, string c)
         {

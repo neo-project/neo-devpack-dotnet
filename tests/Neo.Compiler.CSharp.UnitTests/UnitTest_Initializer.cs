@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initializer_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Initializer.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Initializer.cs");
 
             var result = testengine.ExecuteTestCaseStandard("sum");
             var value = result.Pop().GetInteger();

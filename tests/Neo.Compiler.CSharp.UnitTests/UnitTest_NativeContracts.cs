@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Oracle()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
 
             // Minimum Response Fee
 
@@ -56,7 +56,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Designation()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
 
             // getOracleNodes
 
@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_NEO()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
 
             // NeoSymbol
 
@@ -104,7 +104,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GAS()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
 
             var result = testengine.ExecuteTestCaseStandard("gASSymbol");
 
@@ -120,7 +120,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Ledger()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot, persistingBlock: genesisBlock);
-            testengine.AddEntryScript("./TestClasses/Contract_NativeContracts.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
 
             var result = testengine.ExecuteTestCaseStandard("ledgerHash");
 

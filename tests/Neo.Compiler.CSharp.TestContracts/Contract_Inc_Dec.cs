@@ -140,7 +140,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return param;
         }
 
-          public static int UnitTest_Property_Inc_Checked_Int()
+        public static int UnitTest_Property_Inc_Checked_Int()
         {
             _intProperty = int.MaxValue;
             checked
