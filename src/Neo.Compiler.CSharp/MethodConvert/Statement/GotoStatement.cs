@@ -18,6 +18,42 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+        /// <summary>
+        /// Converts a 'goto' statement into a jump instruction. This method handles both simple
+        /// 'goto' statements and those used in the context of a switch statement, including 'goto case'
+        /// and 'goto default'.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the 'goto' statement.</param>
+        /// <param name="syntax">The syntax representation of the 'goto' statement being converted.</param>
+        /// <remarks>
+        /// For a standard 'goto', it finds the target label and adds a jump instruction to it. In
+        /// a switch statement, it identifies the correct case or default label to jump to based on
+        /// the provided expression. The method also handles jumps out of 'try' blocks by adding
+        /// necessary instructions to maintain valid control flow.
+        /// </remarks>
+        /// <example>
+        /// Example of a 'goto' statement syntax:
+        /// <code>
+        /// goto myLabel;
+        /// myLabel:
+        ///     // Code to execute after the jump
+        /// </code>
+        /// Example of 'goto case' in a switch statement:
+        /// <code>
+        /// switch (value)
+        /// {
+        ///     case 1:
+        ///         // ...
+        ///         goto case 2;
+        ///     case 2:
+        ///         // ...
+        ///         break;
+        ///     default:
+        ///         // ...
+        ///         goto default;
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertGotoStatement(SemanticModel model, GotoStatementSyntax syntax)
         {
             using (InsertSequencePoint(syntax))
