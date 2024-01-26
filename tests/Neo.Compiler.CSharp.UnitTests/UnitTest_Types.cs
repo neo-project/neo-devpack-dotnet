@@ -17,6 +17,15 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Types
     {
+        private TestEngine _engine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _engine = new TestEngine();
+            Assert.IsTrue(_engine.AddEntryScript<Contract_Types>().Success);
+        }
+
         #region Unsupported Types
 
         [TestMethod]
@@ -45,10 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void null_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkNull");
-
+            var result = _engine.ExecuteTestCaseStandard("checkNull");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Null));
         }
@@ -56,16 +62,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void bool_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
-
+            var result = _engine.ExecuteTestCaseStandard("checkBoolTrue");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.AreEqual(true, item.GetBoolean());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkBoolFalse");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("checkBoolFalse");
 
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Boolean));
@@ -75,10 +78,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void byteStringConcat_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("concatByteString", "1", "2");
-
+            var result = _engine.ExecuteTestCaseStandard("concatByteString", "1", "2");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("1212", item.GetString());
@@ -87,39 +87,39 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void bigInteer_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript<Contract_Types_BigInteger>();
+            using var _engine = new TestEngine(snapshot: new TestDataCache());
+            _engine.AddEntryScript<Contract_Types_BigInteger>();
 
             // static vars
 
-            var result = testengine.ExecuteTestCaseStandard("zero");
+            var result = _engine.ExecuteTestCaseStandard("zero");
             var item = result.Pop();
 
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(BigInteger.Zero, ((Integer)item).GetInteger());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("one");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("one");
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(BigInteger.One, ((Integer)item).GetInteger());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("minusOne");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("minusOne");
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(BigInteger.MinusOne, ((Integer)item).GetInteger());
 
             // Parse
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("parse", "456");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("parse", "456");
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(456, item.GetInteger());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("convertFromChar");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("convertFromChar");
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(65, item.GetInteger());
@@ -137,9 +137,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void checkEnumArg_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var methods = testengine.Manifest.Abi.Methods;
+            var methods = _engine.Manifest.Abi.Methods;
             var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").FirstOrDefault();
             Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
         }
@@ -147,16 +145,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void checkBoolString_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-
-            var result = testengine.ExecuteTestCaseStandard("checkBoolString", true);
+            var result = _engine.ExecuteTestCaseStandard("checkBoolString", true);
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual(true.ToString(), item.GetString());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkBoolString", false);
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("checkBoolString", false);
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual(false.ToString(), item.GetString());
@@ -165,10 +160,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void sbyte_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkSbyte");
-
+            var result = _engine.ExecuteTestCaseStandard("checkSbyte");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -177,10 +169,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void byte_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkByte");
-
+            var result = _engine.ExecuteTestCaseStandard("checkByte");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -189,10 +178,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void short_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkShort");
-
+            var result = _engine.ExecuteTestCaseStandard("checkShort");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -201,10 +187,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void ushort_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkUshort");
-
+            var result = _engine.ExecuteTestCaseStandard("checkUshort");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -213,10 +196,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void int_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkInt");
-
+            var result = _engine.ExecuteTestCaseStandard("checkInt");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -225,10 +205,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void uint_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkUint");
-
+            var result = _engine.ExecuteTestCaseStandard("checkUint");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -237,10 +214,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void long_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkLong");
-
+            var result = _engine.ExecuteTestCaseStandard("checkLong");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -249,10 +223,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void ulong_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkUlong");
-
+            var result = _engine.ExecuteTestCaseStandard("checkUlong");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -261,10 +232,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void bigInteger_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkBigInteger");
-
+            var result = _engine.ExecuteTestCaseStandard("checkBigInteger");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -273,10 +241,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void byteArray_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkByteArray");
-
+            var result = _engine.ExecuteTestCaseStandard("checkByteArray");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, ((VM.Types.Buffer)item).GetSpan().ToArray());
@@ -285,10 +250,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void char_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkChar");
-
+            var result = _engine.ExecuteTestCaseStandard("checkChar");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual((int)'n', ((Integer)item).GetInteger());
@@ -297,22 +259,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void string_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkString");
-
+            var result = _engine.ExecuteTestCaseStandard("checkString");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(ByteString));
             Assert.AreEqual("neo", item.GetString());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkStringIndex", "neo", 1);
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("checkStringIndex", "neo", 1);
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual("e", item.GetString());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkStringIndex", "neo", 2);
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("checkStringIndex", "neo", 2);
             item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual("o", item.GetString());
@@ -321,10 +280,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void arrayObj_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkArrayObj");
-
+            var result = _engine.ExecuteTestCaseStandard("checkArrayObj");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
             Assert.AreEqual(1, ((VM.Types.Array)item).Count);
@@ -334,10 +290,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void enum_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkEnum");
-
+            var result = _engine.ExecuteTestCaseStandard("checkEnum");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(5, ((Integer)item).GetInteger());
@@ -346,10 +299,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void class_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkClass");
-
+            var result = _engine.ExecuteTestCaseStandard("checkClass");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
             Assert.AreEqual(1, ((VM.Types.Array)item).Count);
@@ -359,10 +309,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void struct_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkStruct");
-
+            var result = _engine.ExecuteTestCaseStandard("checkStruct");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Struct));
             Assert.AreEqual(1, ((Struct)item).Count);
@@ -372,10 +319,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void tuple_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkTuple");
-
+            var result = _engine.ExecuteTestCaseStandard("checkTuple");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
             Assert.AreEqual(2, ((VM.Types.Array)item).Count);
@@ -386,10 +330,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void tuple2_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkTuple2");
-
+            var result = _engine.ExecuteTestCaseStandard("checkTuple2");
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
             Assert.AreEqual(2, ((VM.Types.Array)item).Count);
@@ -401,7 +342,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void event_Test()
         {
             var system = new NeoSystem(TestProtocolSettings.Default);
-            using var testengine = new TestEngine(verificable: new Transaction()
+            using var _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
                 Witnesses = System.Array.Empty<Witness>(),
@@ -410,32 +351,32 @@ namespace Neo.Compiler.CSharp.UnitTests
             snapshot: new TestDataCache(system.GenesisBlock),
             persistingBlock: system.GenesisBlock);
 
-            testengine.AddEntryScript<Contract_Types>();
+            _engine.AddEntryScript<Contract_Types>();
 
-            var manifest = testengine.Manifest;
-            var nef = new NefFile() { Script = testengine.Nef.Script, Compiler = testengine.Nef.Compiler, Source = testengine.Nef.Source, Tokens = testengine.Nef.Tokens };
+            var manifest = _engine.Manifest;
+            var nef = new NefFile() { Script = _engine.Nef.Script, Compiler = _engine.Nef.Compiler, Source = _engine.Nef.Source, Tokens = _engine.Nef.Tokens };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 
-            var hash = SmartContract.Helper.GetContractHash((testengine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
+            var hash = SmartContract.Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
 
             // Deploy because notify require a contract
 
-            testengine.Reset();
+            _engine.Reset();
 
-            var result = testengine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
-            Assert.AreEqual(VMState.HALT, testengine.State);
+            var result = _engine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
+            Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count); // Hash can be retrived here
 
-            testengine.Reset();
+            _engine.Reset();
 
-            result = testengine.ExecuteTestCaseStandard("call", hash.ToArray(), "checkEvent", (int)CallFlags.All, new Array());
-            //result = testengine.ExecuteTestCaseStandard("checkEvent");
-            Assert.AreEqual(VMState.HALT, testengine.State);
+            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "checkEvent", (int)CallFlags.All, new Array());
+            //result = _engine.ExecuteTestCaseStandard("checkEvent");
+            Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(Null.Null, result.Pop());
-            Assert.AreEqual(2, testengine.Notifications.Count);
+            Assert.AreEqual(2, _engine.Notifications.Count);
 
-            var item = testengine.Notifications.Last();
+            var item = _engine.Notifications.Last();
 
             Assert.AreEqual(1, item.State.Count);
             Assert.AreEqual("dummyEvent", item.EventName);
@@ -445,9 +386,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void lambda_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkLambda");
+            var result = _engine.ExecuteTestCaseStandard("checkLambda");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -457,9 +396,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void delegate_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-            var result = testengine.ExecuteTestCaseStandard("checkDelegate");
+            var result = _engine.ExecuteTestCaseStandard("checkDelegate");
             Assert.AreEqual(1, result.Count);
 
             var item = result.Pop();
@@ -635,10 +572,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Nameof_test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Types>();
-
-            var result = testengine.ExecuteTestCaseStandard("checkNameof");
+            var result = _engine.ExecuteTestCaseStandard("checkNameof");
             Assert.AreEqual(1, result.Count);
             var item = result.Pop();
             Assert.IsTrue(item is ByteString);

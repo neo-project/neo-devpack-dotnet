@@ -10,6 +10,15 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest1
     {
+        private TestEngine _engine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _engine = new TestEngine();
+            Assert.IsTrue(_engine.AddEntryScript<Contract1>().Success);
+        }
+
         [TestMethod]
         public void Test_Partial()
         {
@@ -53,64 +62,50 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_PrivateMethod()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            Assert.IsTrue(Encoding.ASCII.GetString(testengine.Nef.Script.Span).Contains("NEO3"));
+            Assert.IsTrue(Encoding.ASCII.GetString(_engine.Nef.Script.Span).Contains("NEO3"));
         }
 
         [TestMethod]
         public void Test_ByteArray_New()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            var result = testengine.ExecuteTestCaseStandard("unitTest_001").Pop();
+            var result = _engine.ExecuteTestCaseStandard("unitTest_001").Pop();
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, result.GetSpan().ToArray());
         }
 
         [TestMethod]
         public void Test_testArgs1()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            var result = testengine.ExecuteTestCaseStandard("testArgs1", 4).Pop();
+            var result = _engine.ExecuteTestCaseStandard("testArgs1", 4).Pop();
             Assert.AreEqual(new byte[] { 1, 2, 3, 4 }.ToHexString(), result.GetSpan().ToHexString());
         }
 
         [TestMethod]
         public void Test_testArgs2()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            var result = testengine.ExecuteTestCaseStandard("testArgs2", new byte[] { 1, 2, 3 }).Pop();
+            var result = _engine.ExecuteTestCaseStandard("testArgs2", new byte[] { 1, 2, 3 }).Pop();
             Assert.AreEqual(new byte[] { 1, 2, 3 }.ToHexString(), result.GetSpan().ToHexString());
         }
 
         [TestMethod]
         public void Test_testArgs3()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            var result = testengine.ExecuteTestCaseStandard("testArgs3", 1, 2);
-            Assert.AreEqual(testengine.State, VM.VMState.HALT);
+            var result = _engine.ExecuteTestCaseStandard("testArgs3", 1, 2);
+            Assert.AreEqual(_engine.State, VM.VMState.HALT);
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
         public void Test_testArgs4()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            var result = testengine.ExecuteTestCaseStandard("testArgs4", 1, 2).Pop();
-            Assert.AreEqual(testengine.State, VM.VMState.HALT);
+            var result = _engine.ExecuteTestCaseStandard("testArgs4", 1, 2).Pop();
+            Assert.AreEqual(_engine.State, VM.VMState.HALT);
             Assert.AreEqual(5, result.GetInteger());
         }
 
         [TestMethod]
         public void Test_testVoid()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract1>();
-            var result = testengine.ExecuteTestCaseStandard("testVoid");
+            var result = _engine.ExecuteTestCaseStandard("testVoid");
             Assert.AreEqual(0, result.Count);
         }
 
@@ -119,9 +114,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var testengine = new TestEngine();
             testengine.AddEntryScript<Contract2>();
-
             var result = testengine.ExecuteTestCaseStandard("unitTest_002", "hello", 1);
-
             Assert.AreEqual(3, result.Pop().GetInteger());
         }
     }

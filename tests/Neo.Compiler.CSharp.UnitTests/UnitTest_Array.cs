@@ -10,13 +10,19 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Array
     {
+        private TestEngine _engine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _engine = new TestEngine();
+            Assert.IsTrue(_engine.AddEntryScript<Contract_Array>().Success);
+        }
+
         [TestMethod]
         public void Test_JaggedArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testJaggedArray");
-
+            var result = _engine.ExecuteTestCaseStandard("testJaggedArray");
             var arr = result.Pop<Array>();
             Assert.AreEqual(4, arr.Count);
             var element0 = (Array)arr[0];
@@ -26,10 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_JaggedByteArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testJaggedByteArray");
-
+            var result = _engine.ExecuteTestCaseStandard("testJaggedByteArray");
             var arr = result.Pop<Array>();
             Assert.AreEqual(4, arr.Count);
             var element0 = (Buffer)arr[0];
@@ -39,10 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_EmptyArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testEmptyArray");
-
+            var result = _engine.ExecuteTestCaseStandard("testEmptyArray");
             var arr = result.Pop<Array>();
             Assert.AreEqual(0, arr.Count);
         }
@@ -50,10 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IntArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testIntArray");
-
+            var result = _engine.ExecuteTestCaseStandard("testIntArray");
             //test 0,1,2
             var arr = result.Pop<Array>();
             CollectionAssert.AreEqual(new int[] { 0, 1, 2 }, arr.Cast<PrimitiveType>().Select(u => (int)u.GetInteger()).ToArray());
@@ -62,23 +59,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IntArrayInit()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testIntArrayInit");
-
+            var result = _engine.ExecuteTestCaseStandard("testIntArrayInit");
             //test 1,4,5
             var arr = result.Pop<Array>();
             CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.GetInteger()).ToArray());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testIntArrayInit2");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testIntArrayInit2");
 
             //test 1,4,5
             arr = result.Pop<Array>();
             CollectionAssert.AreEqual(new int[] { 1, 4, 5 }, arr.Cast<Integer>().Select(u => (int)u.GetInteger()).ToArray());
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testIntArrayInit3");
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testIntArrayInit3");
 
             //test 1,4,5
             arr = result.Pop<Array>();
@@ -88,9 +82,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_StructArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testStructArray");
+            var result = _engine.ExecuteTestCaseStandard("testStructArray");
 
             //test (1+5)*7 == 42
             var bequal = result.Pop() as Struct != null;
@@ -100,9 +92,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_StructArrayInit()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testStructArrayInit");
+            var result = _engine.ExecuteTestCaseStandard("testStructArrayInit");
 
             //test (1+5)*7 == 42
             var bequal = result.Pop() as Struct != null;
@@ -112,9 +102,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ByteArrayOwner()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testByteArrayOwner");
+            var result = _engine.ExecuteTestCaseStandard("testByteArrayOwner");
 
             var bts = result.Pop() as Buffer;
             ByteString rt = bts.InnerBuffer.ToArray();
@@ -125,12 +113,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DynamicArrayInit()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testDynamicArrayInit", 3);
-
+            var result = _engine.ExecuteTestCaseStandard("testDynamicArrayInit", 3);
             var arr = (Array)result.Pop().ConvertTo(StackItemType.Array);
-
             Assert.AreEqual(3, arr.Count);
             Assert.AreEqual(0, arr[0]);
             Assert.AreEqual(1, arr[1]);
@@ -140,12 +124,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DynamicArrayStringInit()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testDynamicArrayStringInit", "hello");
-
+            var result = _engine.ExecuteTestCaseStandard("testDynamicArrayStringInit", "hello");
             var arr = (Buffer)result.Pop().ConvertTo(StackItemType.Buffer);
-
             Assert.AreEqual(5, arr.Size);
             Assert.AreEqual(0, arr.InnerBuffer.Span[0]);
             Assert.AreEqual(0, arr.InnerBuffer.Span[1]);
@@ -157,12 +137,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ByteArrayOwnerCall()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testByteArrayOwnerCall");
-
+            var result = _engine.ExecuteTestCaseStandard("testByteArrayOwnerCall");
             var bts = result.Pop().ConvertTo(StackItemType.ByteString);
-
             ByteString test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
             Assert.IsTrue(ByteString.Equals(bts, test));
         }
@@ -170,13 +146,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_StringArray()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_Array>();
-            var result = testengine.ExecuteTestCaseStandard("testSupportedStandards");
-
+            var result = _engine.ExecuteTestCaseStandard("testSupportedStandards");
             var bts = result.Pop().ConvertTo(StackItemType.Array);
             var items = bts as VM.Types.Array;
-
             Assert.AreEqual((ByteString)"NEP-5", items[0]);
             Assert.AreEqual((ByteString)"NEP-10", items[1]);
         }

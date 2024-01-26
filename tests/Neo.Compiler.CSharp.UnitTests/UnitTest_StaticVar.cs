@@ -10,22 +10,26 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StaticVar
     {
+        private TestEngine _engine;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _engine = new TestEngine(snapshot: new TestDataCache());
+            Assert.IsTrue(_engine.AddEntryScript<Contract_StaticVar>().Success);
+        }
+
         [TestMethod]
         public void Test_InitialValue()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            Assert.IsTrue(testengine.AddEntryScript<Contract_StaticVar>().Success);
-            var result = testengine.ExecuteTestCaseStandard("testinitalvalue");
-
+            var result = _engine.ExecuteTestCaseStandard("testinitalvalue");
             Assert.AreEqual("hello world", result.Pop().GetString());
         }
 
         [TestMethod]
         public void Test_StaticVar()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript<Contract_StaticVar>();
-            var result = testengine.ExecuteTestCaseStandard("testMain");
+            var result = _engine.ExecuteTestCaseStandard("testMain");
 
             //test (1+5)*7 == 42
             StackItem wantresult = 42;
@@ -38,18 +42,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             VM.Types.Buffer var1;
             ByteString var2;
-
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript<Contract_StaticVarInit>();
-            var result = testengine.ExecuteTestCaseStandard("staticInit");
+            using var _engine = new TestEngine();
+            _engine.AddEntryScript<Contract_StaticVarInit>();
+            var result = _engine.ExecuteTestCaseStandard("staticInit");
             // static byte[] callscript = ExecutionEngine.EntryScriptHash;
             // ...
             // return callscript
             var1 = result.Pop() as VM.Types.Buffer;
 
-            testengine.Reset();
-            testengine.AddEntryScript<Contract_StaticVarInit>();
-            result = testengine.ExecuteTestCaseStandard("directGet");
+            _engine.Reset();
+            _engine.AddEntryScript<Contract_StaticVarInit>();
+            result = _engine.ExecuteTestCaseStandard("directGet");
             // return ExecutionEngine.EntryScriptHash
             var2 = result.Pop() as ByteString;
 
@@ -60,9 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript<Contract_StaticVar>();
-            var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse");
+            var result = _engine.ExecuteTestCaseStandard("testBigIntegerParse");
             var var1 = result.Pop();
             Assert.IsInstanceOfType(var1, typeof(Integer));
             Assert.AreEqual(123, var1.GetInteger());
@@ -71,9 +72,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse2()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript<Contract_StaticVar>();
-            var result = testengine.ExecuteTestCaseStandard("testBigIntegerParse2", "123");
+            var result = _engine.ExecuteTestCaseStandard("testBigIntegerParse2", "123");
             var var1 = result.Pop();
             Assert.IsInstanceOfType(var1, typeof(Integer));
             Assert.AreEqual(123, var1.GetInteger());
@@ -85,9 +84,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             StackItem var1;
             try
             {
-                using var testengine = new TestEngine();
-                testengine.AddEntryScript<Contract_StaticConstruct>();
-                var result = testengine.ExecuteTestCaseStandard("testStatic");
+                using var _engine = new TestEngine();
+                _engine.AddEntryScript<Contract_StaticConstruct>();
+                var result = _engine.ExecuteTestCaseStandard("testStatic");
                 // static byte[] callscript = ExecutionEngine.EntryScriptHash;
                 // ...
                 // return callscript
