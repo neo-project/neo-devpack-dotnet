@@ -1,6 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.VM.Types;
 using System.Linq;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -12,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assign()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Tuple.cs");
+            testengine.AddEntryScript(typeof(Contract_Tuple));
             var result = testengine.ExecuteTestCaseStandard("t1");
 
             var tuple = result.Pop<Struct>();

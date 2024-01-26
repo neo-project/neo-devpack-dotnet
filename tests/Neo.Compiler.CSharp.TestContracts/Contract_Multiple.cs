@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_MultipleA : SmartContract.Framework.SmartContract
+    public class Contract_Multiple : SmartContract.Framework.SmartContract
     {
         public static bool test() => true;
     }

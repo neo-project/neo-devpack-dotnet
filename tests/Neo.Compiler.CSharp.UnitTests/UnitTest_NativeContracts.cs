@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -38,7 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Oracle()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
+            testengine.AddEntryScript(typeof(Contract_NativeContracts));
 
             // Minimum Response Fee
 
@@ -56,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Designation()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
+            testengine.AddEntryScript(typeof(Contract_NativeContracts));
 
             // getOracleNodes
 
@@ -74,7 +75,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_NEO()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
+            testengine.AddEntryScript(typeof(Contract_NativeContracts));
 
             // NeoSymbol
 
@@ -104,7 +105,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GAS()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
+            testengine.AddEntryScript(typeof(Contract_NativeContracts));
 
             var result = testengine.ExecuteTestCaseStandard("gASSymbol");
 
@@ -120,7 +121,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Ledger()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot, persistingBlock: genesisBlock);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
+            testengine.AddEntryScript(typeof(Contract_NativeContracts));
 
             var result = testengine.ExecuteTestCaseStandard("ledgerHash");
 

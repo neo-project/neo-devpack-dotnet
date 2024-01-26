@@ -6,6 +6,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.IO;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -57,7 +59,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Init()
         {
             _engine = new TestEngine.TestEngine(TriggerType.Application, new DummyVerificable());
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ExecutionEngine.cs");
+            _engine.AddEntryScript(typeof(Contract_ExecutionEngine));
             scriptHash = _engine.Nef.Script.Span.ToScriptHash().ToArray().ToHexString();
         }
 

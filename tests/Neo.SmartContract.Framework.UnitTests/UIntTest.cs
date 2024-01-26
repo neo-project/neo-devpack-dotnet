@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -12,7 +14,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Init()
         {
             _engine = new TestEngine.TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UInt.cs");
+            _engine.AddEntryScript(typeof(Contract_UInt));
         }
 
         [TestMethod]

@@ -1,6 +1,6 @@
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract_SwitchInvalid : SmartContract.Framework.SmartContract
+    public class Contract_SwitchLongLong : SmartContract.Framework.SmartContract
     {
         public static object TestMain(string test)
         {

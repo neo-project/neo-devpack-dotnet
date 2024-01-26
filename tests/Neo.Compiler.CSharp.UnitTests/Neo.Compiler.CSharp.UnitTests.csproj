@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>
+    <ProjectReference Include="..\Neo.Compiler.CSharp.TestContracts\Neo.Compiler.CSharp.TestContracts.csproj" />
     <ProjectReference Include="..\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
   </ItemGroup>
 

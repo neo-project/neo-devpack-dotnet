@@ -8,6 +8,8 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -66,7 +68,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var method2 = typeof(LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             method2.Invoke(NativeContract.Ledger, new object[] { _engine });
 
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Blockchain.cs");
+            _engine.AddEntryScript(typeof(Contract_Blockchain));
         }
 
         [TestMethod]

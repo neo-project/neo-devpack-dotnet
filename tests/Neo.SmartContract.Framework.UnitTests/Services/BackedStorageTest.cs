@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
@@ -19,7 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = system.GetSnapshot().CreateSnapshot();
 
             _engine = new TestEngine.TestEngine(snapshot: snapshot);
-            Assert.IsTrue(_engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Stored.cs").Success);
+            Assert.IsTrue(_engine.AddEntryScript(typeof(Contract_Stored)).Success);
             snapshot.ContractAdd(new ContractState()
             {
                 Id = 0,

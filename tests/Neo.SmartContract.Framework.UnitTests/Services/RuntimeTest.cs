@@ -8,6 +8,7 @@ using Neo.Wallets;
 using System;
 using System.IO;
 using System.Numerics;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
 using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Array = Neo.VM.Types.Array;
@@ -64,13 +65,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Transactions = System.Array.Empty<Transaction>(),
 
             });
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Runtime.cs");
+            _engine.AddEntryScript(typeof(Contract_Runtime));
         }
 
         [TestMethod]
         public void Test_InvocationCounter()
         {
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Runtime.cs");
+            _engine.AddEntryScript(typeof(Contract_Runtime));
 
             // We need a new TestEngine because invocationCounter it's shared between them
 

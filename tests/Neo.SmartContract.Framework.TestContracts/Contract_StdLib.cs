@@ -2,7 +2,7 @@ using Neo.SmartContract.Framework.Native;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Binary : SmartContract
+    public class Contract_StdLib : SmartContract
     {
         public static string base58CheckEncode(ByteString input)
         {

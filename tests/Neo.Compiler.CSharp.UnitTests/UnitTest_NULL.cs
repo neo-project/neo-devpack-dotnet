@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.TestEngine;
@@ -15,7 +17,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
+            testengine.AddEntryScript(typeof(Contract_NULL));
         }
 
         [TestMethod]
@@ -234,7 +236,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var snapshot = new TestDataCache();
             var _testengine = new TestEngine(snapshot: snapshot);
-            _testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
+            _testengine.AddEntryScript(typeof(Contract_NULL));
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
@@ -252,7 +254,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var snapshot = new TestDataCache();
             var _testengine = new TestEngine(snapshot: snapshot);
-            _testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
+            _testengine.AddEntryScript(typeof(Contract_NULL));
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,

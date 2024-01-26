@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
@@ -11,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Inline()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Inline.cs");
+            testengine.AddEntryScript(typeof(Contract_Inline));
 
             var result1 = testengine.ExecuteTestCaseStandard("testInline", "inline").Pop();
             testengine.Reset();
@@ -80,7 +82,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_NoInline()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Inline.cs");
+            testengine.AddEntryScript(typeof(Contract_Inline));
 
             var result1 = testengine.ExecuteTestCaseStandard("testInline", "not_inline").Pop();
             testengine.Reset();
@@ -203,7 +205,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_NestedInline()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Inline.cs");
+            testengine.AddEntryScript(typeof(Contract_Inline));
 
             var result1 = testengine.ExecuteTestCaseStandard("testInline", "inline_nested").Pop();
             Assert.AreEqual(result1.GetInteger(), 3);

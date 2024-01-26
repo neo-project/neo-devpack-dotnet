@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -10,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestError()
         {
             var testengine = new TestEngine(snapshot: null);
-            var context = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Interfaces.cs");
+            var context = testengine.AddEntryScript(typeof(Contract_Interfaces));
 
             Assert.IsFalse(context.Success);
             Assert.AreEqual(1, context.Diagnostics.Count);

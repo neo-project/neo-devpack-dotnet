@@ -5,7 +5,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_StorageBacked : SmartContract
+    public class Contract_Stored : SmartContract
     {
         // Test non-static
 

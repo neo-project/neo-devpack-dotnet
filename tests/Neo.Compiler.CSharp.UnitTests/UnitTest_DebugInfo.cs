@@ -2,6 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract;
 using System.Linq;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -13,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DebugInfo()
         {
             var testEngine = new TestEngine();
-            testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Event.cs");
+            testEngine.AddEntryScript(typeof(Contract_Event));
 
             var debugInfo = testEngine.DebugInfo;
             Assert.AreEqual(testEngine.Nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"].GetString());

@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -9,7 +11,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestExtraAttribute()
         {
             var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ExtraAttribute.cs");
+            testengine.AddEntryScript(typeof(Contract_ExtraAttribute));
 
             var extra = testengine.Manifest.Extra;
 

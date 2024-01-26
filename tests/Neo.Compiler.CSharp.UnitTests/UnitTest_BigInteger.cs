@@ -1,5 +1,7 @@
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
@@ -14,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initialize()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_BigInteger.cs");
+            testengine.AddEntryScript(typeof(Contract_BigInteger));
         }
 
         [TestMethod]

@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
@@ -11,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void SByteParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testSbyteparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "127");
@@ -68,7 +70,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testByteparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "0");
@@ -125,7 +127,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UShortParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testUshortparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "0");
@@ -182,7 +184,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ShortParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testShortparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "-32768");
@@ -239,7 +241,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ULongParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testUlongparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "18446744073709551615");
@@ -296,7 +298,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void LongParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testLongparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "-9223372036854775808");
@@ -353,7 +355,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UIntParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testUintparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "4294967295");
@@ -409,7 +411,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void IntParse_Test()
         {
             using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
+            testengine.AddEntryScript(typeof(Contract_IntegerParse));
             string methodname = "testIntparse";
 
             var result = testengine.ExecuteTestCaseStandard(methodname, "2147483647");

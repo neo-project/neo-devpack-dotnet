@@ -2,6 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.VM.Types;
 using System;
 using System.Linq;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using static Neo.Helper;
 
@@ -54,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = system.GetSnapshot().CreateSnapshot();
 
             testengine = new TestEngine.TestEngine(snapshot: snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Storage.cs");
+            testengine.AddEntryScript(typeof(Contract_Storage));
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,

@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
@@ -17,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = new TestDataCache(null);
 
             _engine = new TestEngine.TestEngine(TriggerType.Application, snapshot: snapshot);
-            Assert.IsTrue(_engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StdLib.cs").Success);
+            Assert.IsTrue(_engine.AddEntryScript(typeof(Contract_StdLib)).Success);
             scriptHash = _engine.Nef.Script.Span.ToScriptHash();
 
             snapshot.ContractAdd(new ContractState()

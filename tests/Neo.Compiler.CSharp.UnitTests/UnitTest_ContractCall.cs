@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
@@ -17,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var snapshot = new TestDataCache();
             var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
             _engine = new TestEngine(snapshot: snapshot);
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract1.cs");
+            _engine.AddEntryScript(typeof(Contract1));
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
@@ -26,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             });
 
             // will ContractCall 0102030405060708090A0102030405060708090A
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ContractCall.cs");
+            _engine.AddEntryScript(typeof(Contract_ContractCall));
         }
 
         [TestMethod]

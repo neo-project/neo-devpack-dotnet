@@ -1,5 +1,8 @@
-using Neo.VM.Types;
+using System;
+using System.Linq;
 using System.Reflection;
+using Neo.Compiler;
+using Array = Neo.VM.Types.Array;
 
 namespace Neo.SmartContract.Framework.UnitTests.Utils
 {
@@ -15,6 +18,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Utils
         public static void SendTestNotification(this ApplicationEngine engine, UInt160 hash, string eventName, Array state)
         {
             typeof(ApplicationEngine).GetMethod("SendNotification", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(engine, new object[] { hash, eventName, state });
+        }
+
+        public static CompilationContext AddEntryScript(this TestEngine.TestEngine engin, params Type[] files)
+        {
+            var sourceFiles = Neo.SmartContract.TestEngine.Extensions.GetFiles(TestContractRoot, files).ToArray();
+            return engin.AddEntryScript(sourceFiles);
         }
     }
 }

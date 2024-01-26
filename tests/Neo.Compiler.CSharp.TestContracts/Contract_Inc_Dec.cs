@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-    public class Contract2_Inc_Dec : SmartContract.Framework.SmartContract
+    public class Contract_Inc_Dec : SmartContract.Framework.SmartContract
     {
         private static uint _property;
         private static int _intProperty;

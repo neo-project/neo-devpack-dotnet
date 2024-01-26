@@ -1,3 +1,6 @@
+using System.Text.RegularExpressions;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 
@@ -26,6 +29,48 @@ namespace Neo.SmartContract.TestEngine
             engine.LoadScript(Array.Empty<byte>());
             method.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
             engine.Snapshot.Commit();
+        }
+
+        public static List<string> GetFiles(string root, Type[] types)
+        {
+            if (types.GroupBy(t => t)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList().Any()) throw new ArgumentException("Duplicate types are not allowed.");
+
+            var files = new List<string>();
+            foreach (var type in types)
+            {
+                files.AddRange(FindClassFiles(root, type));
+            }
+            return files;
+        }
+
+        private static List<string> FindClassFiles(string directory, Type type)
+        {
+            var files = Directory.GetFiles(directory, "*.cs", SearchOption.AllDirectories);
+            var regex = new Regex("^" + Regex.Escape(type.Name) + ".*\\.cs$");
+            var matchedFiles = new List<string>();
+            foreach (var file in files)
+            {
+                if (regex.IsMatch(Path.GetFileName(file)))
+                {
+                    var code = File.ReadAllText(file);
+                    var syntaxTree = CSharpSyntaxTree.ParseText(code);
+                    var root = syntaxTree.GetRoot();
+
+                    var classNodes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+                    foreach (var classNode in classNodes)
+                    {
+                        if (classNode.Identifier.Text == type.Name)
+                        {
+                            matchedFiles.Add(file);
+                            break;
+                        }
+                    }
+                }
+            }
+            return matchedFiles;
         }
     }
 }

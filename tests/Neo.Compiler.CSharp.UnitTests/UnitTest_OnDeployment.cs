@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -10,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_OnDeployment1()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_OnDeployment1.cs");
+            testengine.AddEntryScript(typeof(Contract_OnDeployment1));
 
             Assert.AreEqual(1, testengine.Manifest.Abi.Methods.Length);
             Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Name, "_deploy");
@@ -30,7 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_OnDeployment2()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_OnDeployment2.cs");
+            testengine.AddEntryScript(typeof(Contract_OnDeployment2));
 
             Assert.AreEqual(1, testengine.Manifest.Abi.Methods.Length);
             Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Name, "_deploy");

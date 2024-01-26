@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -12,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine(snapshot: null);
-            var ctx = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Instance.cs");
+            var ctx = testengine.AddEntryScript(typeof(Contract_Instance));
             Assert.AreEqual("this,Any,0", ctx.CreateDebugInformation()["methods"][0]["params"][0].AsString());
             Assert.AreEqual("this,Any,0", ctx.CreateDebugInformation()["methods"][1]["params"][0].AsString());
         }

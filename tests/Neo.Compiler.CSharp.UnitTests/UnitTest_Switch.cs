@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
+using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
@@ -15,7 +17,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             EvaluationStack result;
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLong.cs");
+            testengine.AddEntryScript(typeof(Contract_SwitchLong));
 
             // Test cases
 
@@ -37,7 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLongLong()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLongLong.cs");
+            testengine.AddEntryScript(typeof(Contract_SwitchLongLong));
 
             var resulta = testengine.ExecuteTestCaseStandard("testMain", "a").Pop();
             var awant = 2;
@@ -75,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchInteger()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchInteger.cs");
+            testengine.AddEntryScript(typeof(Contract_SwitchInteger));
 
             var result1 = testengine.ExecuteTestCaseStandard("testMain", 1).Pop();
             var onewant = 2;
@@ -102,7 +104,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             EvaluationStack result;
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLong.cs");
+            testengine.AddEntryScript(typeof(Contract_SwitchLong));
 
             // Test cases
 
@@ -125,7 +127,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             EvaluationStack result;
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Switch6.cs");
+            testengine.AddEntryScript(typeof(Contract_Switch6));
 
             // Test cases
 

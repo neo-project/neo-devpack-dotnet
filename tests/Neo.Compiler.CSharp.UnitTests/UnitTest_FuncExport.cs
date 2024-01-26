@@ -1,4 +1,5 @@
 extern alias scfx;
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,6 +8,7 @@ using scfx::Neo.SmartContract.Framework.Attributes;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Neo.Compiler.CSharp.UnitTests.TestClasses;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -16,7 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void ConvTypeTest()
         {
-            var compilation = LoadTestCompilation(Utils.Extensions.TestContractRoot + "Contract_ParameterType.cs");
+            var compilation = LoadTestCompilation(typeof(Contract_ParameterType));
 
             Assert.AreEqual(ContractParameterType.String, compilation.GetFieldContractType("_string"));
             Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_bigInteger"));
@@ -40,11 +42,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ContractParameterType.PublicKey, compilation.GetFieldContractType("_ecpoint"));
         }
 
-        private static Compilation LoadTestCompilation(string file)
+        private static Compilation LoadTestCompilation(Type file)
         {
+            var sourceFile = Utils.Extensions.TestContractRoot + file.Name + ".cs";
             var treeList = new[]
             {
-                CSharpSyntaxTree.ParseText(File.ReadAllText(file))
+                CSharpSyntaxTree.ParseText(File.ReadAllText(sourceFile))
             };
             var refs = new System.Collections.Generic.List<PortableExecutableReference>
             {

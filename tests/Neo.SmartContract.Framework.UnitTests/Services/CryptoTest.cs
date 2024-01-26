@@ -7,6 +7,8 @@ using Neo.Wallets;
 using System.Linq;
 using System.Security.Cryptography;
 using Neo.Network.P2P;
+using Neo.SmartContract.Framework.UnitTests.TestClasses;
+using Neo.SmartContract.Framework.UnitTests.Utils;
 using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -32,7 +34,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 ValidUntilBlock = 4,
                 Version = 5
             }, new TestDataCache());
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Crypto.cs");
+            _engine.AddEntryScript(typeof(Contract_Crypto));
             _key = GenerateKey(32);
         }
 
