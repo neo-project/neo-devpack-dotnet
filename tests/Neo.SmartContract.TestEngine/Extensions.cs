@@ -48,7 +48,7 @@ namespace Neo.SmartContract.TestEngine
 
         private static List<string> FindClassFiles(string directory, Type type)
         {
-            var files = Directory.GetFiles(directory, "*.cs", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(directory, "*.cs");
             var regex = new Regex("^" + Regex.Escape(type.Name) + ".*\\.cs$");
             var matchedFiles = new List<string>();
             foreach (var file in files)
