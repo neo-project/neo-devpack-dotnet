@@ -30,7 +30,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
-using scfx::Neo.SmartContract.Framework.ContractTypes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler

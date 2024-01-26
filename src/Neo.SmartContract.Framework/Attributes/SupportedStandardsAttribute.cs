@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 using System;
-using Neo.SmartContract.Framework.ContractTypes;
 
 namespace Neo.SmartContract.Framework.Attributes
 {
