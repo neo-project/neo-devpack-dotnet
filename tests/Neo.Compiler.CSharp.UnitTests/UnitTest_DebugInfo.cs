@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DebugInfo()
         {
             var testEngine = new TestEngine();
-            testEngine.AddEntryScript(typeof(Contract_Event));
+            testEngine.AddEntryScript<Contract_Event>();
 
             var debugInfo = testEngine.DebugInfo;
             Assert.AreEqual(testEngine.Nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"].GetString());

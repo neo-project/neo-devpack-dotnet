@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Init()
         {
             _engine = new TestEngine.TestEngine();
-            _engine.AddEntryScript(typeof(Contract_UInt));
+            _engine.AddEntryScript<Contract_UInt>();
         }
 
         [TestMethod]

@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Params()
         {
             TestEngine testengine = new();
-            testengine.AddEntryScript(typeof(Contract_Params));
+            testengine.AddEntryScript<Contract_Params>();
             var result = testengine.ExecuteTestCaseStandard("test");
             Assert.AreEqual(15, result.Pop());
         }

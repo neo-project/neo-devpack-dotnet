@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Good()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_Event));
+            testengine.AddEntryScript<Contract_Event>();
             var abi = testengine.Manifest.Abi;
             var events = abi.Events[0].ToJson().ToString(false);
 
@@ -24,7 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Wrong()
         {
             var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript(typeof(Contract_WrongEvent)).Success);
+            Assert.IsFalse(testengine.AddEntryScript<Contract_WrongEvent>().Success);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestError()
         {
             var testengine = new TestEngine(snapshot: null);
-            var context = testengine.AddEntryScript(typeof(Contract_Interfaces));
+            var context = testengine.AddEntryScript<Contract_Interfaces>();
 
             Assert.IsFalse(context.Success);
             Assert.AreEqual(1, context.Diagnostics.Count);

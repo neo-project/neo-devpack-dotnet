@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_Polymorphism));
+            testengine.AddEntryScript<Contract_Polymorphism>();
         }
 
         [TestMethod]

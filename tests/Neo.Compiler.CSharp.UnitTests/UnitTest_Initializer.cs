@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initializer_Test()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_Initializer));
+            testengine.AddEntryScript<Contract_Initializer>();
 
             var result = testengine.ExecuteTestCaseStandard("sum");
             var value = result.Pop().GetInteger();

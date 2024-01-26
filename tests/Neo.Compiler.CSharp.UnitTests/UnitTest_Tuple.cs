@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assign()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_Tuple));
+            testengine.AddEntryScript<Contract_Tuple>();
             var result = testengine.ExecuteTestCaseStandard("t1");
 
             var tuple = result.Pop<Struct>();

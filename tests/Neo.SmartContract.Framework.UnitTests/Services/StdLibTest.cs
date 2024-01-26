@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var snapshot = new TestDataCache(null);
 
             _engine = new TestEngine.TestEngine(TriggerType.Application, snapshot: snapshot);
-            Assert.IsTrue(_engine.AddEntryScript(typeof(Contract_StdLib)).Success);
+            Assert.IsTrue(_engine.AddEntryScript<Contract_StdLib>().Success);
             scriptHash = _engine.Nef.Script.Span.ToScriptHash();
 
             snapshot.ContractAdd(new ContractState()

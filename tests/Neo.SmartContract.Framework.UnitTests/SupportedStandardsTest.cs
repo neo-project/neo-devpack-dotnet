@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestAttribute()
         {
             var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(typeof(Contract_SupportedStandards));
+            testengine.AddEntryScript<Contract_SupportedStandards>();
             CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP10", "NEP5" });
         }
     }

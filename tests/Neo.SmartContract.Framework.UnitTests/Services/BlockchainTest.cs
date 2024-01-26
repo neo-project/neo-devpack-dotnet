@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var method2 = typeof(LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             method2.Invoke(NativeContract.Ledger, new object[] { _engine });
 
-            _engine.AddEntryScript(typeof(Contract_Blockchain));
+            _engine.AddEntryScript<Contract_Blockchain>();
         }
 
         [TestMethod]

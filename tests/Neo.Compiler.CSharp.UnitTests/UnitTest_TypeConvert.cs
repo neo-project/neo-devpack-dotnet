@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestTypeConvert()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_TypeConvert));
+            testengine.AddEntryScript<Contract_TypeConvert>();
             var result = testengine.ExecuteTestCaseStandard("testType");
 
             //test 0,1,2

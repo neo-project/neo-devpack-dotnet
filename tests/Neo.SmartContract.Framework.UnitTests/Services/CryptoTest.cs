@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 ValidUntilBlock = 4,
                 Version = 5
             }, new TestDataCache());
-            _engine.AddEntryScript(typeof(Contract_Crypto));
+            _engine.AddEntryScript<Contract_Crypto>();
             _key = GenerateKey(32);
         }
 

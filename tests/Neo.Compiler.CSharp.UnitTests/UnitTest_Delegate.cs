@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             snapshot = new TestDataCache();
             testengine = new TestEngine(snapshot: snapshot);
-            testengine.AddEntryScript(typeof(Contract_Delegate));
+            testengine.AddEntryScript<Contract_Delegate>();
         }
 
         [TestMethod]

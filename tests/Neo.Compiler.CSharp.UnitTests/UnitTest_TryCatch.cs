@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_TryCatch));
+            testengine.AddEntryScript<Contract_TryCatch>();
         }
 
         [TestMethod]

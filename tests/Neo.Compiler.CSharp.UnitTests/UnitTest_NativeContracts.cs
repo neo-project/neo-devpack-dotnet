@@ -39,7 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Oracle()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(typeof(Contract_NativeContracts));
+            testengine.AddEntryScript<Contract_NativeContracts>();
 
             // Minimum Response Fee
 
@@ -57,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Designation()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(typeof(Contract_NativeContracts));
+            testengine.AddEntryScript<Contract_NativeContracts>();
 
             // getOracleNodes
 
@@ -75,7 +75,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_NEO()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(typeof(Contract_NativeContracts));
+            testengine.AddEntryScript<Contract_NativeContracts>();
 
             // NeoSymbol
 
@@ -105,7 +105,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GAS()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(typeof(Contract_NativeContracts));
+            testengine.AddEntryScript<Contract_NativeContracts>();
 
             var result = testengine.ExecuteTestCaseStandard("gASSymbol");
 
@@ -121,7 +121,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Ledger()
         {
             var testengine = new TestEngine(TriggerType.Application, null, snapshot, persistingBlock: genesisBlock);
-            testengine.AddEntryScript(typeof(Contract_NativeContracts));
+            testengine.AddEntryScript<Contract_NativeContracts>();
 
             var result = testengine.ExecuteTestCaseStandard("ledgerHash");
 

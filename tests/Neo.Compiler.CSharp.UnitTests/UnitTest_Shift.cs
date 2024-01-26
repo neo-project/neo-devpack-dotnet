@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Shift()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_shift));
+            testengine.AddEntryScript<Contract_shift>();
             //testengine.ScriptEntry.DumpNEF();
             var result = testengine.ExecuteTestCaseStandard("testMain");
             var list = ((VM.Types.Array)result.Pop()).Select(u => u.GetInteger()).ToList();
@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Shift_BigInteger()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_shift_bigint));
+            testengine.AddEntryScript<Contract_shift_bigint>();
             var result = testengine.ExecuteTestCaseStandard("testMain");
             var list = ((VM.Types.Array)result.Pop()).Select(u => u.GetInteger()).ToList();
 

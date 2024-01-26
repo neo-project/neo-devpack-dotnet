@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var snapshot = new TestDataCache();
             var hash = UInt160.Parse("0102030405060708090A0102030405060708090A");
             _engine = new TestEngine(snapshot: snapshot);
-            _engine.AddEntryScript(typeof(Contract1));
+            _engine.AddEntryScript<Contract1>();
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = hash,
@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             });
 
             // will ContractCall 0102030405060708090A0102030405060708090A
-            _engine.AddEntryScript(typeof(Contract_ContractCall));
+            _engine.AddEntryScript<Contract_ContractCall>();
         }
 
         [TestMethod]

@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            Assert.IsTrue(_engine.AddEntryScript(typeof(Contract_CheckedUnchecked)).Success);
+            Assert.IsTrue(_engine.AddEntryScript<Contract_CheckedUnchecked>().Success);
         }
 
         [TestMethod]

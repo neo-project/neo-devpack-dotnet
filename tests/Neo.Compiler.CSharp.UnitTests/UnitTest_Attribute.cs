@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            Assert.IsTrue(_engine.AddEntryScript(typeof(Contract_Attribute)).Success);
+            Assert.IsTrue(_engine.AddEntryScript<Contract_Attribute>().Success);
         }
 
         [TestMethod]

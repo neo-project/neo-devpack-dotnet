@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             _engine = new TestEngine();
-            _engine.AddEntryScript(typeof(Contract_Extensions));
+            _engine.AddEntryScript<Contract_Extensions>();
         }
 
         [TestMethod]

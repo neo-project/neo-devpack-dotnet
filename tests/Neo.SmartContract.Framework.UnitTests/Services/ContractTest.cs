@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             },
             snapshot: new TestDataCache(system.GenesisBlock),
             persistingBlock: system.GenesisBlock);
-            _engine.AddEntryScript(typeof(Contract_Contract));
+            _engine.AddEntryScript<Contract_Contract>();
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Create
 
             TestEngine.TestEngine engine = new();
-            engine.AddEntryScript(typeof(Contract_Create));
+            engine.AddEntryScript<Contract_Create>();
             var manifest = engine.Manifest;
             var nef = new NefFile() { Script = engine.Nef.Script, Compiler = engine.Nef.Compiler, Source = engine.Nef.Source, Tokens = engine.Nef.Tokens };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
@@ -109,7 +109,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Create
 
             TestEngine.TestEngine engine = new();
-            engine.AddEntryScript(typeof(Contract_CreateAndUpdate));
+            engine.AddEntryScript<Contract_CreateAndUpdate>();
             var manifest = engine.Manifest;
             var nef = new NefFile()
             {
@@ -122,7 +122,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
 
-            engine.AddEntryScript(typeof(Contract_Update));
+            engine.AddEntryScript<Contract_Update>();
             var manifestUpdate = engine.Manifest;
             manifestUpdate.Name = manifest.Name; // Must be the same name
 

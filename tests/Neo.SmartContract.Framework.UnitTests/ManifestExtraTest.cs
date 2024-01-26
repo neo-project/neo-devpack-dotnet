@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestExtraAttribute()
         {
             var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(typeof(Contract_ExtraAttribute));
+            testengine.AddEntryScript<Contract_ExtraAttribute>();
 
             var extra = testengine.Manifest.Extra;
 

@@ -25,5 +25,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Utils
             var sourceFiles = Neo.SmartContract.TestEngine.Extensions.GetFiles(TestContractRoot, files).ToArray();
             return engin.AddEntryScript(sourceFiles);
         }
+
+        public static CompilationContext AddEntryScript<T>(this TestEngine.TestEngine engine)
+        {
+            return engine.AddEntryScript(typeof(T));
+        }
     }
 }

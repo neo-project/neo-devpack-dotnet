@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestSafe()
         {
             var testEngine = new TestEngine();
-            testEngine.AddEntryScript(typeof(Contract_ABISafe));
+            testEngine.AddEntryScript<Contract_ABISafe>();
 
             Assert.IsFalse(testEngine.Manifest.Abi.Methods[0].Safe);
             Assert.IsTrue(testEngine.Manifest.Abi.Methods[1].Safe);

@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_OnDeployment1()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_OnDeployment1));
+            testengine.AddEntryScript<Contract_OnDeployment1>();
 
             Assert.AreEqual(1, testengine.Manifest.Abi.Methods.Length);
             Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Name, "_deploy");
@@ -32,7 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_OnDeployment2()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(typeof(Contract_OnDeployment2));
+            testengine.AddEntryScript<Contract_OnDeployment2>();
 
             Assert.AreEqual(1, testengine.Manifest.Abi.Methods.Length);
             Assert.AreEqual(testengine.Manifest.Abi.Methods[0].Name, "_deploy");
