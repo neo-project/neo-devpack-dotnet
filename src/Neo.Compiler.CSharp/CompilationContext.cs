@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
@@ -447,7 +448,16 @@ namespace Neo.Compiler
                             trusts.Add(trust);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
-                            supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
+                            supportedStandards.UnionWith(
+                                attribute.ConstructorArguments[0].Values
+                                    .Select(p => p.Value)
+                                    .Select(p =>
+                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
+                                            ? ((NEPStandard)ip).ToStandard()
+                                            : p as string
+                                    )
+                                    .Where(v => v != null)! // Ensure null values are not added
+                            );
                             break;
                     }
                 }
