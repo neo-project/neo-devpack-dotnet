@@ -1,10 +1,9 @@
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    [SupportedStandards("NEP-10", "NEP-5")]
-    public class Contract_SupportedStandards : SmartContract
+    [SupportedStandards(NEPStandard.NEP11, NEPStandard.NEP17)]
+    public class ContractSupportedStandardsEnum : SmartContract
     {
         public static bool TestStandard()
         {
