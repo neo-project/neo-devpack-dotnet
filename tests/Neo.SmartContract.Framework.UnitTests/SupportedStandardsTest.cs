@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestAttribute()
         {
             var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandards.cs");
+            testengine.AddEntryScript<Contract_SupportedStandards>();
             CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-10", "NEP-5" });
         }
 
@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStandardAttributeEnum()
         {
             var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandardsEnum.cs");
+            testengine.AddEntryScript<Contract_SupportedStandardsEnum>();
             CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-11", "NEP-17" });
         }
     }
