@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Numerics;
@@ -12,8 +11,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_CreatePointer()
         {
-            var engine = new TestEngine(TriggerType.Application);
-            engine.AddEntryScript("./TestClasses/Contract_Pointers.cs");
+            var engine = new TestEngine.TestEngine(TriggerType.Application);
+            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pointers.cs");
 
             var result = engine.ExecuteTestCaseStandard("createFuncPointer");
             Assert.AreEqual(VMState.HALT, engine.State);
@@ -37,8 +36,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_ExecutePointer()
         {
-            var engine = new TestEngine(TriggerType.Application);
-            engine.AddEntryScript("./TestClasses/Contract_Pointers.cs");
+            var engine = new TestEngine.TestEngine(TriggerType.Application);
+            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pointers.cs");
 
             var result = engine.ExecuteTestCaseStandard("callFuncPointer");
             Assert.AreEqual(VMState.HALT, engine.State);
@@ -52,8 +51,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_ExecutePointerWithArgs()
         {
-            var engine = new TestEngine(TriggerType.Application);
-            engine.AddEntryScript("./TestClasses/Contract_Pointers.cs");
+            var engine = new TestEngine.TestEngine(TriggerType.Application);
+            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pointers.cs");
 
             var result = engine.ExecuteTestCaseStandard("callFuncPointerWithArg");
             Assert.AreEqual(VMState.HALT, engine.State);

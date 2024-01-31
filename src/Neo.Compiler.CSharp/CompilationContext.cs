@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
@@ -149,7 +150,7 @@ namespace Neo.Compiler
             }
         }
 
-        internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
+        public static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
@@ -447,7 +448,16 @@ namespace Neo.Compiler
                             trusts.Add(trust);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
-                            supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
+                            supportedStandards.UnionWith(
+                                attribute.ConstructorArguments[0].Values
+                                    .Select(p => p.Value)
+                                    .Select(p =>
+                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
+                                            ? ((NEPStandard)ip).ToStandard()
+                                            : p as string
+                                    )
+                                    .Where(v => v != null)! // Ensure null values are not added
+                            );
                             break;
                     }
                 }
