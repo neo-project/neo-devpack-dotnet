@@ -1,5 +1,9 @@
+using System.Text;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.VM;
+using Neo.VM.Types;
+using Array = System.Array;
 
 namespace Neo.SmartContract.TestEngine
 {
@@ -26,6 +30,46 @@ namespace Neo.SmartContract.TestEngine
             engine.LoadScript(Array.Empty<byte>());
             method.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
             engine.Snapshot.Commit();
+        }
+
+        public static bool TryGetString(this byte[] byteArray, out string? value)
+        {
+            try
+            {
+                value = Utility.StrictUTF8.GetString(byteArray);
+                return true;
+            }
+            catch (DecoderFallbackException)
+            {
+                value = default;
+                return false;
+            }
+            catch (ArgumentException)
+            {
+                value = default;
+                return false;
+            }
+        }
+
+        public static string Print(this EvaluationStack stack)
+        {
+            return $"[{string.Join(", ", stack.Select(p =>
+                {
+                    var value = p.Type switch
+                    {
+                        StackItemType.Pointer => $"({((Pointer)p).Position})",
+                        StackItemType.Boolean => $"({p.GetBoolean()})",
+                        StackItemType.Integer => $"({p.GetInteger()})",
+                        // If the bytestring is not a valid UTF-8 string, we'll just print the base64 representation
+                        StackItemType.ByteString => p.GetSpan().ToArray().TryGetString(out var str) ? $"(\"{str}\")" : $"(\"Base64: {Convert.ToBase64String(p.GetSpan())}\")",
+                        StackItemType.Array
+                            or StackItemType.Map
+                            or StackItemType.Struct => $"({((CompoundType)p).Count})",
+                        _ => ""
+                    };
+                    return $"{p.Type.ToString()}{value}";
+                }
+            ))}]";
         }
     }
 }
