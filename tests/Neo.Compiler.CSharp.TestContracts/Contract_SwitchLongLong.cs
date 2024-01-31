@@ -2,7 +2,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_SwitchInvalid : SmartContract.Framework.SmartContract
     {
-        public static object Main(string test)
+        public static object TestMain(string test)
         {
             int a = 1;
             switch (test)

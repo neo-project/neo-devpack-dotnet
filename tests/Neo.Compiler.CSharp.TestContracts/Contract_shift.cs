@@ -5,7 +5,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_shift : SmartContract.Framework.SmartContract
     {
-        public static int[] Main()
+        public static int[] TestMain()
         {
             int v = 8;
             var v1 = v << 1;

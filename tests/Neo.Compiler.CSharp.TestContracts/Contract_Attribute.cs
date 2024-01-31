@@ -5,9 +5,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     public class SampleAttribute : System.Attribute { }
 
     [DisplayName("attr")]
-    public abstract class A : SmartContract.Framework.SmartContract { }
+    public abstract class Attr : SmartContract.Framework.SmartContract { }
 
-    public class Contract_Attribute : A
+    public class Contract_Attribute : Attr
     {
         [SampleAttribute]
         public static bool test() => true;

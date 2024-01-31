@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
@@ -9,6 +8,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     {
         private Block _block;
         private DataCache snapshot;
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
@@ -61,12 +61,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 State = VMState.HALT
             });
 
-            _engine = new TestEngine(snapshot: snapshot, persistingBlock: _block);
+            _engine = new TestEngine.TestEngine(snapshot: snapshot, persistingBlock: _block);
 
             var method2 = typeof(LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             method2.Invoke(NativeContract.Ledger, new object[] { _engine });
 
-            _engine.AddEntryScript("./TestClasses/Contract_Blockchain.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Blockchain.cs");
         }
 
         [TestMethod]
