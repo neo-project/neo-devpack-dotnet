@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// <summary>
         /// A static string field initialized with the InitialValue attribute. This demonstrates initializing contract fields that cannot be directly assigned with their value at compile time.
         /// </summary>
-        [InitialValue("hello world", Neo.SmartContract.ContractParameterType.String)]
+        [InitialValue("hello world", ContractParameterType.String)]
         public static readonly string a4 = default;
 
         /// <summary>
@@ -71,6 +71,16 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static BigInteger testBigIntegerParse2(string text)
         {
             return BigInteger.Parse(text);
+        }
+
+        public static UInt160 testGetUInt160()
+        {
+            return uInt160;
+        }
+
+        public static ECPoint testGetECPoint()
+        {
+            return eCPoint;
         }
     }
 }

@@ -102,5 +102,28 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.IsTrue(err.Message.Contains("not support opcode"));
             }
         }
+
+
+        [TestMethod]
+        public void Test_GetUInt160()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs");
+            var result = testengine.ExecuteTestCaseStandard("testGetUInt160");
+            var uint160 = result.Pop().GetSpan();
+
+            Assert.Equals(uint160.ToArray(), new byte[] { 0x01, 0x0a });
+        }
+
+        [TestMethod]
+        public void Test_GetECPoint()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs");
+            var result = testengine.ExecuteTestCaseStandard("testGetECPoint");
+            var uint160 = result.Pop().GetSpan();
+
+            Assert.Equals(uint160.ToArray(), new byte[] { 0x01, 0x0a });
+        }
     }
 }
