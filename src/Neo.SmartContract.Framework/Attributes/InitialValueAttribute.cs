@@ -36,6 +36,12 @@ namespace Neo.SmartContract.Framework.Attributes
     /// [InitialValue("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925", ContractParameterType.ByteArray)]
     /// private static readonly byte[] validUInt256 = default;
     /// </code>
+    ///
+    /// Currently supported types are:
+    ///     <see cref="ContractParameterType.String"/>
+    ///     <see cref="ContractParameterType.ByteArray"/>
+    ///     <see cref="ContractParameterType.Hash160"/>
+    ///     <see cref="ContractParameterType.PublicKey"/>
     /// </remarks>
     [AttributeUsage(AttributeTargets.Field)]
     public class InitialValueAttribute : Attribute
@@ -45,9 +51,11 @@ namespace Neo.SmartContract.Framework.Attributes
         /// with the specified initial value and contract parameter type.
         /// </summary>
         /// <param name="value">The initial value to assign to the field, represented
-        /// as a string.</param>
+        /// as a string.
+        /// </param>
         /// <param name="type">The <see cref="ContractParameterType"/> indicating the
-        /// type of the field being initialized.</param>
+        /// type of the field being initialized.
+        /// </param>
         public InitialValueAttribute(string value, ContractParameterType type)
         {
         }
