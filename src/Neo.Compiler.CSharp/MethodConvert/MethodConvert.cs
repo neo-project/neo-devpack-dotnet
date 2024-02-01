@@ -353,8 +353,7 @@ namespace Neo.Compiler
                             Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(context.Options.AddressVersion)).ToArray());
                             break;
                         case ContractParameterType.PublicKey:
-                            byte[] res = ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true);
-                            Push(res);
+                            Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                             break;
                         default:
                             throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
