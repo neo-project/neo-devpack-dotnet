@@ -2,43 +2,31 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
-using static Neo.Optimizer.OpCodeTypes;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Reflection;
+using System.Threading.Tasks;
+using static Neo.Optimizer.JumpTarget;
+using static Neo.Optimizer.OpCodeTypes;
+using static Neo.Optimizer.Optimizer;
 
 namespace Neo.Optimizer
 {
-    public class AssemblyOptimizer
+    public static class Reachability
     {
-        public static int[] OperandSizePrefixTable = new int[256];
-        public static int[] OperandSizeTable = new int[256];
-        static AssemblyOptimizer()
+        [Strategy(Priority = int.MaxValue)]
+        public static (NefFile, ContractManifest, JToken) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
-            foreach (FieldInfo field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
-            {
-                OperandSizeAttribute? attribute = field.GetCustomAttribute<OperandSizeAttribute>();
-                if (attribute == null) continue;
-                int index = (int)(OpCode)field.GetValue(null)!;
-                OperandSizePrefixTable[index] = attribute.SizePrefix;
-                OperandSizeTable[index] = attribute.Size;
-            }
-        }
-
-        public static (NefFile, ContractManifest, string, JToken) RemoveUncoveredInstructions(
-    Dictionary<int, bool> coveredMap, NefFile nef, ContractManifest oldManifest, JToken oldDebugInfo)
-        {
+            Dictionary<int, bool> coveredMap = FindCoveredInstructions(nef, manifest, debugInfo);
             Script oldScript = nef.Script;
             List<(int, Instruction)> oldAddressAndInstructionsList = oldScript.EnumerateInstructions().ToList();
             Dictionary<int, Instruction> oldAddressToInstruction = new();
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
                 oldAddressToInstruction.Add(a, i);
-            Dictionary<Instruction, int> simplifiedInstructionsToAddress = new();
-            Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets = new();
-            Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
             {
@@ -49,25 +37,22 @@ namespace Neo.Optimizer
                 }
                 else
                     continue;
-                if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
-                    jumpInstructionSourceToTargets.Add(i, oldAddressToInstruction[a + i.TokenI8]);
-                if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
-                    jumpInstructionSourceToTargets.Add(i, oldAddressToInstruction[a + i.TokenI32]);
-                if (i.OpCode == OpCode.TRY)
-                    tryInstructionSourceToTargets.Add(i, (oldAddressToInstruction[a + i.TokenI8], oldAddressToInstruction[a + i.TokenI8_1]));
-                if (i.OpCode == OpCode.TRY_L)
-                    tryInstructionSourceToTargets.Add(i, (oldAddressToInstruction[a + i.TokenI32], oldAddressToInstruction[a + i.TokenI32_1]));
             }
+            (ConcurrentDictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
+            ConcurrentDictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets)
+            = FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+
             List<byte> simplifiedScript = new();
-            foreach ((Instruction i, int a) in simplifiedInstructionsToAddress)
+            foreach (DictionaryEntry item in simplifiedInstructionsToAddress)
             {
+                (Instruction i, int a) = ((Instruction)item.Key, (int)item.Value!);
                 simplifiedScript.Add((byte)i.OpCode);
                 int operandSizeLength = OperandSizePrefixTable[(int)i.OpCode];
                 simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(i.Operand.Length)[0..operandSizeLength]).ToList();
                 if (jumpInstructionSourceToTargets.ContainsKey(i))
                 {
                     Instruction dst = jumpInstructionSourceToTargets[i];
-                    int delta = simplifiedInstructionsToAddress[dst] - a;
+                    int delta = (int)simplifiedInstructionsToAddress[dst]! - a;
                     if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
                         simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
@@ -77,7 +62,7 @@ namespace Neo.Optimizer
                 if (tryInstructionSourceToTargets.ContainsKey(i))
                 {
                     (Instruction dst1, Instruction dst2) = tryInstructionSourceToTargets[i];
-                    (int delta1, int delta2) = (simplifiedInstructionsToAddress[dst1] - a, simplifiedInstructionsToAddress[dst2] - a);
+                    (int delta1, int delta2) = ((int)simplifiedInstructionsToAddress[dst1]! - a, (int)simplifiedInstructionsToAddress[dst2]! - a);
                     if (i.OpCode == OpCode.TRY)
                     {
                         simplifiedScript.Add(BitConverter.GetBytes(delta1)[0]);
@@ -93,8 +78,8 @@ namespace Neo.Optimizer
                 if (i.Operand.Length != 0)
                     simplifiedScript = simplifiedScript.Concat(i.Operand.ToArray()).ToList();
             }
-            foreach (ContractMethodDescriptor method in oldManifest.Abi.Methods)
-                method.Offset = simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]];
+            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+                method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
             Script newScript = new Script(simplifiedScript.ToArray());
             nef.Script = newScript;
             nef.Compiler = System.AppDomain.CurrentDomain.FriendlyName;
@@ -104,18 +89,18 @@ namespace Neo.Optimizer
             Dictionary<int, string> newMethodStart = new();
             Dictionary<int, string> newMethodEnd = new();
             HashSet<JToken> methodsToRemove = new();
-            foreach (JToken? method in (JArray)oldDebugInfo["methods"]!)
+            foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
                 Regex rangeRegex = new Regex(@"(\d+)\-(\d+)");
                 GroupCollection rangeGroups = rangeRegex.Match(method!["range"]!.AsString()).Groups;
                 (int oldMethodStart, int oldMethodEnd) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
-                if (!simplifiedInstructionsToAddress.ContainsKey(oldAddressToInstruction[oldMethodStart]))
+                if (!simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[oldMethodStart]))
                 {
                     methodsToRemove.Add(method);
                     continue;
                 }
-                int methodStart = simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]];
-                int methodEnd = simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]];
+                int methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
+                int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
                 newMethodStart.Add(methodStart, method["id"]!.AsString());  // TODO: same format of method name as dumpnef
                 newMethodEnd.Add(methodEnd, method["id"]!.AsString());
                 method["range"] = $"{methodStart}-{methodEnd}";
@@ -128,9 +113,9 @@ namespace Neo.Optimizer
                     GroupCollection sequencePointGroups = sequencePointRegex.Match(sequencePoint!.AsString()).Groups;
                     int startingInstructionAddress = int.Parse(sequencePointGroups[1].ToString());
                     Instruction oldInstruction = oldAddressToInstruction[startingInstructionAddress];
-                    if (simplifiedInstructionsToAddress.ContainsKey(oldInstruction))
+                    if (simplifiedInstructionsToAddress.Contains(oldInstruction))
                     {
-                        startingInstructionAddress = simplifiedInstructionsToAddress[oldInstruction];
+                        startingInstructionAddress = (int)simplifiedInstructionsToAddress[oldInstruction]!;
                         newSequencePoints.Add(new JString($"{startingInstructionAddress}{sequencePointGroups[2]}"));
                         previousSequencePoint = startingInstructionAddress;
                     }
@@ -148,43 +133,11 @@ namespace Neo.Optimizer
                 }
                 method["sequence-points"] = newSequencePoints;
             }
+            JArray methods = (JArray)debugInfo["methods"]!;
+            foreach (JToken method in methodsToRemove)
+                methods.Remove(method);
 
-            Dictionary<string, string[]> docPathToContent = new();
-            string dumpnef = "";
-            foreach ((int a, Instruction i) in newScript.EnumerateInstructions(/*print: true*/).ToList())
-            {
-                if (newMethodStart.ContainsKey(a))
-                    dumpnef += $"# Method Start {newMethodStart[a]}\n";
-                if (newMethodEnd.ContainsKey(a))
-                    dumpnef += $"# Method End {newMethodEnd[a]}\n";
-                if (newAddrToSequencePoint.ContainsKey(a))
-                {
-                    var docInfo = newAddrToSequencePoint[a];
-                    string docPath = oldDebugInfo["documents"]![docInfo.docId]!.AsString();
-                    if (oldDebugInfo["document-root"] != null)
-                        docPath = Path.Combine(oldDebugInfo["document-root"]!.AsString(), docPath);
-                    if (!docPathToContent.ContainsKey(docPath))
-                        docPathToContent.Add(docPath, File.ReadAllLines(docPath).ToArray());
-                    if (docInfo.startLine == docInfo.endLine)
-                        dumpnef += $"# Code {Path.GetFileName(docPath)} line {docInfo.startLine}: \"{docPathToContent[docPath][docInfo.startLine - 1][(docInfo.startCol - 1)..(docInfo.endCol - 1)]}\"\n";
-                    else
-                        for (int lineIndex = docInfo.startLine; lineIndex <= docInfo.endLine; lineIndex++)
-                        {
-                            string src;
-                            if (lineIndex == docInfo.startLine)
-                                src = docPathToContent[docPath][lineIndex - 1][(docInfo.startCol - 1)..].Trim();
-                            else if (lineIndex == docInfo.endLine)
-                                src = docPathToContent[docPath][lineIndex - 1][..(docInfo.endCol - 1)].Trim();
-                            else
-                                src = docPathToContent[docPath][lineIndex - 1].Trim();
-                            dumpnef += $"# Code {Path.GetFileName(docPath)} line {docInfo.startLine}: \"{src}\"\n";
-                        }
-                }
-                if (a < newScript.Length)
-                    dumpnef += $"{DumpNef.WriteInstruction(a, newScript.GetInstruction(a), newScript.GetInstructionAddressPadding(), nef.Tokens)}\n";
-            }
-
-            return (nef, oldManifest, dumpnef, oldDebugInfo);
+            return (nef, manifest, debugInfo);
         }
 
         public static Dictionary<int, bool>
@@ -199,8 +152,9 @@ namespace Neo.Optimizer
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
                 publicMethodStartingAddressToName.Add(method.Offset, method.Name);
 
-            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-                CoverInstruction(method.Offset, script, coveredMap);
+            Parallel.ForEach(manifest.Abi.Methods, method =>
+                CoverInstruction(method.Offset, script, coveredMap)
+            );
             // start from _deploy method
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -240,12 +194,12 @@ namespace Neo.Optimizer
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>
-        public static BranchType CoverInstruction(int addr, Script script, Dictionary<int, bool> coveredMap, Stack<(int returnAddr, int finallyAddr, TryStack stackType)>? stack = null, bool throwed = false)
+        public static BranchType CoverInstruction(int addr, Script script, Dictionary<int, bool> coveredMap, Stack<((int returnAddr, int finallyAddr), TryStack stackType)>? stack = null, bool throwed = false)
         {
             if (stack == null)
                 stack = new();
             if (stack.Count == 0)
-                stack.Push((-1, -1, TryStack.ENTRY));
+                stack.Push(((-1, -1), TryStack.ENTRY));
             while (stack.Count > 0)
             {
                 if (!throwed)
@@ -255,7 +209,7 @@ namespace Neo.Optimizer
                 TryStack stackType;
                 int catchAddr; int finallyAddr;
                 do
-                    (catchAddr, finallyAddr, stackType) = stack.Pop();
+                    ((catchAddr, finallyAddr), stackType) = stack.Pop();
                 while (stackType != TryStack.TRY && stack.Count > 0);
                 if (stackType == TryStack.TRY)  // goto CATCH or FINALLY
                 {
@@ -263,12 +217,12 @@ namespace Neo.Optimizer
                     if (catchAddr != -1)
                     {
                         addr = catchAddr;
-                        stack.Push((-1, finallyAddr, TryStack.CATCH));
+                        stack.Push(((-1, finallyAddr), TryStack.CATCH));
                     }
                     else if (finallyAddr != -1)
                     {
                         addr = finallyAddr;
-                        stack.Push((-1, -1, TryStack.FINALLY));
+                        stack.Push(((-1, -1), TryStack.FINALLY));
                     }
                 }
                 if (stackType == TryStack.CATCH)  // goto FINALLY
@@ -277,7 +231,7 @@ namespace Neo.Optimizer
                     if (finallyAddr != -1)
                     {
                         addr = finallyAddr;
-                        stack.Push((-1, -1, TryStack.FINALLY));
+                        stack.Push(((-1, -1), TryStack.FINALLY));
                     }
                 }
                 continue;
@@ -296,13 +250,7 @@ namespace Neo.Optimizer
                     return BranchType.ABORT;
                 if (callWithJump.Contains(instruction.OpCode))
                 {
-                    int callTarget = -1;
-                    if (instruction.OpCode == OpCode.CALL)
-                        callTarget = addr + instruction.TokenI8;
-                    if (instruction.OpCode == OpCode.CALL_L)
-                        callTarget = addr + instruction.TokenI32;
-                    if (instruction.OpCode == OpCode.CALLA)
-                        throw new NotImplementedException("CALLA is dynamic; not supported");
+                    int callTarget = ComputeJumpTarget(addr, instruction);
                     BranchType returnedType = CoverInstruction(callTarget, script, coveredMap);
                     if (returnedType == BranchType.OK)
                     {
@@ -318,32 +266,24 @@ namespace Neo.Optimizer
                     return BranchType.OK;
                 if (tryThrowFinally.Contains(instruction.OpCode))
                 {
-                    if (instruction.OpCode == OpCode.TRY)
-                        stack.Push((
-                            instruction.TokenI8 == 0 ? -1 : addr + instruction.TokenI8,
-                            instruction.TokenI8_1 == 0 ? -1 : addr + instruction.TokenI8_1,
-                            TryStack.TRY));
-                    if (instruction.OpCode == OpCode.TRY_L)
-                        stack.Push((
-                            instruction.TokenI32 == 0 ? -1 : addr + instruction.TokenI32,
-                            instruction.TokenI32_1 == 0 ? -1 : addr + instruction.TokenI32_1,
-                            TryStack.TRY));
+                    if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
+                        stack.Push((ComputeTryTarget(addr, instruction), TryStack.TRY));
                     if (instruction.OpCode == OpCode.THROW)
                         goto HANDLE_THROW;
                     if (instruction.OpCode == OpCode.ENDTRY)
                     {
-                        (catchAddr, finallyAddr, stackType) = stack.Peek();
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
                         if (stackType != TryStack.TRY && stackType != TryStack.CATCH) throw new BadScriptException("No try stack on ENDTRY");
 
                         // Visit catchAddr because there may still be exceptions at runtime
-                        Stack<(int returnAddr, int finallyAddr, TryStack stackType)> newStack = new(stack);
+                        Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack);
                         CoverInstruction(catchAddr, script, coveredMap, stack: newStack, throwed: true);
 
                         stack.Pop();
                         int endPointer = addr + instruction.TokenI8;
                         if (finallyAddr != -1)
                         {
-                            stack.Push((-1, endPointer, TryStack.FINALLY));
+                            stack.Push(((-1, endPointer), TryStack.FINALLY));
                             addr = finallyAddr;
                         }
                         else
@@ -352,12 +292,12 @@ namespace Neo.Optimizer
                     }
                     if (instruction.OpCode == OpCode.ENDTRY_L)
                     {
-                        (_, finallyAddr, stackType) = stack.Pop();
+                        ((_, finallyAddr), stackType) = stack.Pop();
                         if (stackType != TryStack.TRY) throw new BadScriptException("No try stack on ENDTRY");
                         int endPointer = addr + instruction.TokenI32;
                         if (finallyAddr != -1)
                         {
-                            stack.Push((-1, endPointer, TryStack.FINALLY));
+                            stack.Push(((-1, endPointer), TryStack.FINALLY));
                             addr = finallyAddr;
                         }
                         else
@@ -366,7 +306,7 @@ namespace Neo.Optimizer
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
-                        (_, addr, stackType) = stack.Pop();
+                        ((_, addr), stackType) = stack.Pop();
                         if (stackType != TryStack.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
                         continue;
@@ -374,18 +314,14 @@ namespace Neo.Optimizer
                 }
                 if (unconditionalJump.Contains(instruction.OpCode))
                 {
-                    if (instruction.OpCode == OpCode.JMP)
-                        addr += instruction.TokenI8;
-                    if (instruction.OpCode == OpCode.JMP_L)
-                        addr += instruction.TokenI32;
+                    addr = ComputeJumpTarget(addr, instruction);
                     continue;
                 }
                 if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                 {
-                    int jumpAddress = conditionalJump.Contains(instruction.OpCode) ?
-                        addr + instruction.TokenI8 : addr + instruction.TokenI32;
+                    int targetAddress = ComputeJumpTarget(addr, instruction);
                     BranchType noJump = CoverInstruction(addr + instruction.Size, script, coveredMap);
-                    BranchType jump = CoverInstruction(jumpAddress, script, coveredMap);
+                    BranchType jump = CoverInstruction(targetAddress, script, coveredMap);
                     if (noJump == BranchType.OK || jump == BranchType.OK)
                         return BranchType.OK;
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
