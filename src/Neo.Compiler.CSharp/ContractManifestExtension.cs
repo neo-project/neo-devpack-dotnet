@@ -161,7 +161,7 @@ namespace Neo.Compiler
             }
         }
 
-        internal static ContractManifest VerifyStandards(this ContractManifest manifest)
+        internal static ContractManifest CheckStandards(this ContractManifest manifest)
         {
             if (manifest.SupportedStandards.Contains(NEPStandard.NEP11.ToStandard()))
             {
