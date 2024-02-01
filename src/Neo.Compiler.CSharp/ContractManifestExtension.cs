@@ -22,7 +22,7 @@ namespace Neo.Compiler
 {
     internal static class ContractManifestExtensions
     {
-        private static ContractManifest IsNep11Compliant(this ContractManifest manifest)
+        private static void IsNep11Compliant(this ContractManifest manifest)
         {
             try
             {
@@ -110,11 +110,9 @@ namespace Neo.Compiler
                 throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
                     $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: Unidentified issue.");
             }
-
-            return manifest;
         }
 
-        private static ContractManifest IsNep17Compliant(this ContractManifest manifest)
+        private static void IsNep17Compliant(this ContractManifest manifest)
         {
             try
             {
@@ -161,20 +159,18 @@ namespace Neo.Compiler
             {
                 throw new CompilationException(DiagnosticId.IncorrectNEPStandard, $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: Unidentified issue.");
             }
-
-            return manifest;
         }
 
         internal static ContractManifest VerifyStandards(this ContractManifest manifest)
         {
             if (manifest.SupportedStandards.Contains(NEPStandard.NEP11.ToStandard()))
             {
-                return manifest.IsNep11Compliant();
+                manifest.IsNep11Compliant();
             }
 
             if (manifest.SupportedStandards.Contains(NEPStandard.NEP17.ToStandard()))
             {
-                return manifest.IsNep17Compliant();
+                manifest.IsNep17Compliant();
             }
 
             return manifest;
