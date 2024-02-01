@@ -10,7 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return true;
         }
 
-
         public override string Symbol { [Safe] get; }
     }
 }
