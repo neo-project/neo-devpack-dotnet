@@ -148,11 +148,10 @@ namespace Neo.Compiler
                 NefFile nef = context.CreateExecutable();
                 ContractManifest manifest = context.CreateManifest();
                 JToken debugInfo = context.CreateDebugInformation(folder);
-                string dumpnef = "";
                 if (!options.NoOptimize)
-                    (nef, manifest, dumpnef, debugInfo) = AssemblyOptimizer.RemoveUncoveredInstructions(
-                        AssemblyOptimizer.FindCoveredInstructions(nef, manifest, debugInfo),
-                        nef, manifest, debugInfo);
+                {
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+                }
 
                 try
                 {
@@ -191,12 +190,9 @@ namespace Neo.Compiler
                     path = Path.Combine(outputFolder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
-                    if (dumpnef.Length > 0)
-                    {
-                        path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
-                        File.WriteAllText(path, dumpnef);
-                        Console.WriteLine($"Created {path}");
-                    }
+                    path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
+                    File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo));
+                    Console.WriteLine($"Created {path}");
                 }
                 Console.WriteLine("Compilation completed successfully.");
                 return 0;
