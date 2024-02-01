@@ -22,7 +22,7 @@ namespace Neo.Compiler
 {
     internal static class ContractManifestExtensions
     {
-        private static void IsNep11Compliant(this ContractManifest manifest)
+        private static void CheckNep11Compliant(this ContractManifest manifest)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace Neo.Compiler
             }
         }
 
-        private static void IsNep17Compliant(this ContractManifest manifest)
+        private static void CheckNep17Compliant(this ContractManifest manifest)
         {
             try
             {
@@ -165,12 +165,12 @@ namespace Neo.Compiler
         {
             if (manifest.SupportedStandards.Contains(NEPStandard.NEP11.ToStandard()))
             {
-                manifest.IsNep11Compliant();
+                manifest.CheckNep11Compliant();
             }
 
             if (manifest.SupportedStandards.Contains(NEPStandard.NEP17.ToStandard()))
             {
-                manifest.IsNep17Compliant();
+                manifest.CheckNep17Compliant();
             }
 
             return manifest;
