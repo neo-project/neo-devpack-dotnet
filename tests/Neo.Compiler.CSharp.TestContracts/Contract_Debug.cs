@@ -1,5 +1,3 @@
-using Neo.SmartContract.Framework;
-using System.Numerics;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
@@ -9,7 +7,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static int TestElse()
         {
 #if DEBUG
-            Runtime.Debug("DEBUG");
+            Runtime.Debug("Debug compilation");
             return 1;
 #else
             return 2;
@@ -18,10 +16,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static int TestIf()
         {
+            int ret = 2;
 #if DEBUG
-            return 1;
+            ret = 1;
 #endif
-            return 2;
+            return ret;
         }
     }
 }
