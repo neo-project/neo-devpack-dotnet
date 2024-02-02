@@ -331,7 +331,7 @@ namespace Neo.Compiler
             };
 
             // Ensure that is serializable
-            return ContractManifest.Parse(json.ToString(false));
+            return ContractManifest.Parse(json.ToString(false)).CheckStandards();
         }
 
         public JObject CreateDebugInformation(string folder = "")
