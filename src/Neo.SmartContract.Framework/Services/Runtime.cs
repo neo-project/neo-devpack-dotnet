@@ -107,10 +107,12 @@ namespace Neo.SmartContract.Framework.Services
         // [Syscall("System.Runtime.Notify")]
         // public static extern void Notify(string eventName, object[] state);
 
-        //[Syscall("System.Runtime.Notify")]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PACK)]
         [OpCode(OpCode.PUSHDATA1, "054465627567")] // 0x5 - Debug
-        [OpCode(OpCode.SYSCALL, "95016f61")] // SHA256(System.Runtime.Notify)[0..4]
-        public static extern void Debug(params object[] state);
+        //[OpCode(OpCode.SYSCALL, "95016f61")] // SHA256(System.Runtime.Notify)[0..4]
+        [Syscall("System.Runtime.Notify")]
+        public static extern void Debug(string message);
 
         [Syscall("System.Runtime.BurnGas")]
         public static extern void BurnGas(long gas);

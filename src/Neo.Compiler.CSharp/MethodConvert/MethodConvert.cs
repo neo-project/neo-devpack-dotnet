@@ -25,6 +25,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.CommandLine;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -430,11 +431,14 @@ namespace Neo.Compiler
                             break;
                     }
                 }
-                var isExist = Symbol.ToString()?.StartsWith("System.Array.Empty");
-                if (isExist.HasValue && isExist.Value)
+                if (Symbol.ToString()?.StartsWith("System.Array.Empty") == true)
                 {
                     emitted = true;
                     AddInstruction(OpCode.NEWARRAY0);
+                }
+                else if (Symbol.ToString()?.Equals("Neo.SmartContract.Framework.Services.Runtime.Debug(string)") == true)
+                {
+                    context.AddEvent(new AbiEvent(Symbol, "Debug", new SmartContract.Manifest.ContractParameterDefinition() { Name = "message", Type = ContractParameterType.String }), false);
                 }
                 if (!emitted) throw new CompilationException(Symbol, DiagnosticId.ExternMethod, $"Unknown method: {Symbol}");
             }

@@ -330,22 +330,6 @@ namespace Neo.Compiler
                 ["extra"] = manifestExtra
             };
 
-            // Debug mode
-            if (Options.Debug && eventsExported.All(p => p.Name != "Debug"))
-            {
-                json["abi"]!["events"] = ((JArray)json["abi"]!["events"] ?? new JArray()).Append(new JObject
-                {
-                    ["name"] = "Debug",
-                    ["parameters"] = new JArray
-                  {
-                      new JObject
-                      {
-                          ["name"] = "state",
-                          ["type"] = "String"
-                      }
-                  }
-                }).ToArray();
-            }
             // Ensure that is serializable
             return ContractManifest.Parse(json.ToString(false));
         }
@@ -507,9 +491,16 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            AbiEvent ev = new(symbol);
+            AddEvent(new AbiEvent(symbol), true);
+        }
+
+        internal void AddEvent(AbiEvent ev, bool throwErrorIfExists)
+        {
             if (eventsExported.Any(u => u.Name == ev.Name))
-                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            {
+                if (!throwErrorIfExists) return;
+                throw new CompilationException(ev.Symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            }
             eventsExported.Add(ev);
         }
 
