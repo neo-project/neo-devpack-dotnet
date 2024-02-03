@@ -14,11 +14,19 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestStandardAttributeEnum()
+        public void TestStandardNEP11AttributeEnum()
         {
             var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandardsEnum.cs");
-            CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-11", "NEP-17" });
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandard11Enum.cs");
+            CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-11" });
+        }
+
+        [TestMethod]
+        public void TestStandardNEP17AttributeEnum()
+        {
+            var testengine = new TestEngine.TestEngine();
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandard17Enum.cs");
+            CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-17" });
         }
     }
 }
