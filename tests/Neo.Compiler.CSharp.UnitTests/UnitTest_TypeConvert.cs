@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -11,7 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestTypeConvert()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TypeConvert.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_TypeConvert.cs");
             var result = testengine.ExecuteTestCaseStandard("testType");
 
             //test 0,1,2

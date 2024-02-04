@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Good()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Event.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Event.cs");
             var abi = testengine.Manifest.Abi;
             var events = abi.Events[0].ToJson().ToString(false);
 
@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Wrong()
         {
             var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript("./TestClasses/Contract_WrongEvent.cs").Success);
+            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_WrongEvent.cs").Success);
         }
     }
 }
