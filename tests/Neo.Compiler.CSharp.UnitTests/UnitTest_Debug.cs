@@ -18,6 +18,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(1, result.Pop().GetInteger());
+            Assert.AreEqual(1, engine.Notifications.Count);
+            Assert.AreEqual("Debug", engine.Notifications[0].EventName);
+            Assert.AreEqual(1, engine.Notifications[0].State.Count);
+            Assert.AreEqual("Debug compilation", engine.Notifications[0].State[0].GetString());
 
             engine.Reset();
             result = engine.ExecuteTestCaseStandard("testIf");
@@ -31,6 +35,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(2, result.Pop().GetInteger());
+            Assert.AreEqual(0, engine.Notifications.Count);
 
             engine.Reset();
             result = engine.ExecuteTestCaseStandard("testIf");
