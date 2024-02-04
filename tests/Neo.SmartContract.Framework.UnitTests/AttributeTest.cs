@@ -1,13 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract.Manifest;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -42,8 +40,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             var verificable = new DummyVerificable(UInt160.Zero);
             var snapshot = _system.GetSnapshot().CreateSnapshot();
 
-            using var testengine = new TestEngine(TriggerType.Application, verificable, snapshot: snapshot);
-            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
+            using var testengine = new TestEngine.TestEngine(TriggerType.Application, verificable, snapshot: snapshot);
+            Assert.IsTrue(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Attribute.cs").Success);
 
             var result = testengine.ExecuteTestCaseStandard("test");
             Assert.AreEqual(1, result.Count);
@@ -62,9 +60,9 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void reentrant_test()
         {
             var snapshot = _system.GetSnapshot().CreateSnapshot();
-            using var testengine = new TestEngine(TriggerType.Application, snapshot: snapshot);
+            using var testengine = new TestEngine.TestEngine(TriggerType.Application, snapshot: snapshot);
 
-            Assert.IsTrue(testengine.AddEntryScript("./TestClasses/Contract_Attribute.cs").Success);
+            Assert.IsTrue(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Attribute.cs").Success);
             snapshot.ContractAdd(new ContractState()
             {
                 Id = 123,

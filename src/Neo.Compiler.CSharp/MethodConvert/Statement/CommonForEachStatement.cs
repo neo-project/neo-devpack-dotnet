@@ -19,6 +19,22 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
+        /// <summary>
+        /// Converts a 'foreach' statement based on the type of the collection being iterated over.
+        /// It delegates to 'ConvertIteratorForEachStatement' for iterators, and
+        /// 'ConvertArrayForEachStatement' for arrays.
+        /// </summary>
+        /// <param name="model">The semantic model providing context for the 'foreach' statement.</param>
+        /// <param name="syntax">The syntax of the 'foreach' statement.</param>
+        /// <example>
+        /// Example of 'foreach' statement syntax:
+        /// <code>
+        /// foreach (var item in collection)
+        /// {
+        ///     // Processing each item
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
         {
             ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
@@ -32,6 +48,21 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a 'foreach' statement that iterates over an iterator, handling control flow and
+        /// iterator management.
+        /// </summary>
+        /// <param name="model">The semantic model.</param>
+        /// <param name="syntax">The syntax of the 'foreach' statement.</param>
+        /// <example>
+        /// Example of 'foreach' over an iterator:
+        /// <code>
+        /// foreach (var item in iterator)
+        /// {
+        ///     // Processing each item
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertIteratorForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
         {
             ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax)!;
@@ -68,6 +99,21 @@ namespace Neo.Compiler
             PopBreakTarget();
         }
 
+        /// <summary>
+        /// Converts a 'foreach' statement with variable declarations, determining the conversion
+        /// method based on the collection type.
+        /// </summary>
+        /// <param name="model">The semantic model.</param>
+        /// <param name="syntax">The syntax of the 'foreach' variable statement.</param>
+        /// <example>
+        /// Example of 'foreach' with variable declaration:
+        /// <code>
+        /// foreach (var (key, value) in dictionary)
+        /// {
+        ///     // Processing each key and value pair
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
             ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
@@ -81,6 +127,21 @@ namespace Neo.Compiler
             }
         }
 
+        /// <summary>
+        /// Converts a 'foreach' statement (with variable declarations) that iterates over an iterator,
+        /// handling the unpacking of values into variables and managing loop control flow.
+        /// </summary>
+        /// <param name="model">The semantic model.</param>
+        /// <param name="syntax">The syntax of the 'foreach' variable statement.</param>
+        /// <example>
+        /// Example of 'foreach' over an iterator with variable declaration:
+        /// <code>
+        /// foreach (var (key, value) in iterator)
+        /// {
+        ///     // Processing each key and value
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertIteratorForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
             ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
@@ -131,6 +192,21 @@ namespace Neo.Compiler
             PopBreakTarget();
         }
 
+        /// <summary>
+        /// Converts a 'foreach' statement that iterates over an array, managing array indices and
+        /// loop control flow.
+        /// </summary>
+        /// <param name="model">The semantic model.</param>
+        /// <param name="syntax">The syntax of the 'foreach' statement.</param>
+        /// <example>
+        /// Example of 'foreach' over an array:
+        /// <code>
+        /// foreach (var item in array)
+        /// {
+        ///     // Processing each array item
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertArrayForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
         {
             ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax)!;
@@ -180,6 +256,22 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
         }
+
+        /// <summary>
+        /// Converts a 'foreach' statement (with variable declarations) that iterates over an array,
+        /// including logic for unpacking array elements into variables.
+        /// </summary>
+        /// <param name="model">The semantic model.</param>
+        /// <param name="syntax">The syntax of the 'foreach' variable statement.</param>
+        /// <example>
+        /// Example of 'foreach' over an array with variable declaration:
+        /// <code>
+        /// foreach (var (first, second) in arrayOfPairs)
+        /// {
+        ///     // Processing each pair of elements
+        /// }
+        /// </code>
+        /// </example>
         private void ConvertArrayForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
             ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();

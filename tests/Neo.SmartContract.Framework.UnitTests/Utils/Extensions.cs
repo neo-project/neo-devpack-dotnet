@@ -5,6 +5,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Utils
 {
     static class Extensions
     {
+        public static readonly string TestContractRoot = "../../../../Neo.SmartContract.Framework.TestContracts/";
+
         public static void ClearNotifications(this ApplicationEngine engine)
         {
             typeof(ApplicationEngine).GetField("notifications", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(engine, null);
