@@ -21,7 +21,7 @@ namespace Neo.Compiler
 
         public virtual ISymbol Symbol { get; }
 
-        protected AbiEvent(ISymbol symbol, string name, ContractParameterDefinition[] parameters)
+        public AbiEvent(ISymbol symbol, string name, params ContractParameterDefinition[] parameters)
         {
             Symbol = symbol;
             Name = name;
