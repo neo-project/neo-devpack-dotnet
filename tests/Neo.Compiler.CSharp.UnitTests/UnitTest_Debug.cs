@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Debug
 
             var engine = new TestEngine();
-            Assert.IsTrue(engine.AddEntryScript(true, Utils.Extensions.TestContractRoot + "Contract_Debug.cs").Success);
+            Assert.IsTrue(engine.AddEntryScript(true, true, Utils.Extensions.TestContractRoot + "Contract_Debug.cs").Success);
 
             var result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);
@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // No debug
 
             engine = new TestEngine();
-            Assert.IsTrue(engine.AddEntryScript(false, Utils.Extensions.TestContractRoot + "Contract_Debug.cs").Success);
+            Assert.IsTrue(engine.AddEntryScript(true, false, Utils.Extensions.TestContractRoot + "Contract_Debug.cs").Success);
             result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);
             Assert.AreEqual(2, result.Pop().GetInteger());

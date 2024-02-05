@@ -52,15 +52,21 @@ namespace Neo.SmartContract.TestEngine
 
         public CompilationContext AddEntryScript(params string[] files)
         {
-            return AddEntryScript(true, files);
+            return AddEntryScript(true, true, files);
         }
 
-        public CompilationContext AddEntryScript(bool debug = true, params string[] files)
+        public CompilationContext AddNoOptimizeEntryScript(params string[] files)
+        {
+            return AddEntryScript(false, true, files);
+        }
+
+        public CompilationContext AddEntryScript(bool optimize = true, bool debug = true, params string[] files)
         {
             CompilationContext context = CompilationContext.Compile(files, references, new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion,
                 Debug = debug,
+                NoOptimize = !optimize
             });
             if (context.Success)
             {
