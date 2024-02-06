@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using Neo.Compiler;
 using Array = Neo.VM.Types.Array;
@@ -22,7 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Utils
 
         public static CompilationContext AddEntryScript(this TestEngine.TestEngine engin, params Type[] files)
         {
-            var sourceFiles = Neo.SmartContract.TestEngine.Extensions.GetFiles(TestContractRoot, files).ToArray();
+            var sourceFiles = TestEngine.Extensions.GetFiles(TestContractRoot, files).ToArray();
             return engin.AddEntryScript(sourceFiles);
         }
 
