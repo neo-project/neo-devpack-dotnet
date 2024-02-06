@@ -16,6 +16,9 @@ namespace Neo.Optimizer
 {
     public static class DumpNef
     {
+        static readonly Lazy<IReadOnlyDictionary<uint, string>> sysCallNames = new(
+            () => ApplicationEngine.Services.ToImmutableDictionary(kvp => kvp.Value.Hash, kvp => kvp.Value.Name));
+
         public static string Unzip(string path)
         {
             using FileStream zippedBuffer = File.OpenRead(path);
@@ -74,49 +77,29 @@ namespace Neo.Optimizer
 
         public static IEnumerable<(int address, Instruction instruction)> EnumerateInstructions(this Script script, bool print = false)
         {
-            var address = 0;
-            var opcode = OpCode.PUSH0;
+            int address = 0;
+            OpCode opcode = OpCode.PUSH0;
             Instruction instruction;
-            while (address < script.Length)
+            for (; address < script.Length; address += instruction.Size)
             {
                 instruction = script.GetInstruction(address);
                 opcode = instruction.OpCode;
                 if (print)
                     Console.WriteLine(WriteInstruction(address, instruction, "0000", new MethodToken[] { }));
                 yield return (address, instruction);
-                address += instruction.Size;
             }
-
             if (opcode != OpCode.RET)
-            {
                 yield return (address, Instruction.RET);
-            }
         }
+
 
         public static string GetOperandString(this Instruction instruction)
         {
-            return string.Create<ReadOnlyMemory<byte>>(instruction.Operand.Length * 3 - 1,
-                instruction.Operand, (span, memory) =>
-                {
-                    var first = memory.Span[0];
-                    span[0] = GetHexValue(first / 16);
-                    span[1] = GetHexValue(first % 16);
-
-                    var index = 1;
-                    for (var i = 2; i < span.Length; i += 3)
-                    {
-                        var b = memory.Span[index++];
-                        span[i] = '-';
-                        span[i + 1] = GetHexValue(b / 16);
-                        span[i + 2] = GetHexValue(b % 16);
-                    }
-                });
-
-            static char GetHexValue(int i) => (i < 10) ? (char)(i + '0') : (char)(i - 10 + 'A');
+            string result = "";
+            foreach (byte b in instruction.Operand.Span)
+                result += $"{b.ToString("X2")}-";
+            return result.TrimEnd('-');
         }
-
-        static readonly Lazy<IReadOnlyDictionary<uint, string>> sysCallNames = new(
-            () => ApplicationEngine.Services.ToImmutableDictionary(kvp => kvp.Value.Hash, kvp => kvp.Value.Name));
 
         public static string GetComment(this Instruction instruction, int ip, MethodToken[]? tokens = null)
         {
@@ -228,9 +211,9 @@ namespace Neo.Optimizer
             Dictionary<int, string> methodStartAddrToName = new();
             Dictionary<int, string> methodEndAddrToName = new();
             Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
-            Regex documentRegex = new Regex(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)");
-            Regex rangeRegex = new Regex(@"(\d+)\-(\d+)");
-            Regex sequencePointRegex = new Regex(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)");
+            Regex documentRegex = new Regex(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
+            Regex rangeRegex = new Regex(@"(\d+)\-(\d+)", RegexOptions.Compiled);
+            Regex sequencePointRegex = new Regex(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
                 GroupCollection rangeGroups = rangeRegex.Match(method!["range"]!.AsString()).Groups;

@@ -91,7 +91,7 @@ namespace Neo.Optimizer
             HashSet<JToken> methodsToRemove = new();
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
-                Regex rangeRegex = new Regex(@"(\d+)\-(\d+)");
+                Regex rangeRegex = new Regex(@"(\d+)\-(\d+)", RegexOptions.Compiled);
                 GroupCollection rangeGroups = rangeRegex.Match(method!["range"]!.AsString()).Groups;
                 (int oldMethodStart, int oldMethodEnd) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
                 if (!simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[oldMethodStart]))
@@ -105,7 +105,7 @@ namespace Neo.Optimizer
                 newMethodEnd.Add(methodEnd, method["id"]!.AsString());
                 method["range"] = $"{methodStart}-{methodEnd}";
 
-                Regex sequencePointRegex = new Regex(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)");
+                Regex sequencePointRegex = new Regex(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
                 int previousSequencePoint = methodStart;
                 JArray newSequencePoints = new();
                 foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
@@ -121,7 +121,7 @@ namespace Neo.Optimizer
                     }
                     else
                         newSequencePoints.Add(new JString($"{previousSequencePoint}{sequencePointGroups[2]}"));
-                    Regex documentRegex = new Regex(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)");
+                    Regex documentRegex = new Regex(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
                     GroupCollection documentGroups = documentRegex.Match(sequencePointGroups[2].ToString()).Groups;
                     newAddrToSequencePoint.Add(previousSequencePoint, (
                         int.Parse(documentGroups[1].ToString()),
