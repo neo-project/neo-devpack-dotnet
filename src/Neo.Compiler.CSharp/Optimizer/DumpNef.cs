@@ -16,10 +16,10 @@ namespace Neo.Optimizer
 {
     public static class DumpNef
     {
-        public static string Unzip(byte[] zippedBuffer)
+        public static string Unzip(string path)
         {
-            using var zippedStream = new MemoryStream(zippedBuffer);
-            using var archive = new ZipArchive(zippedStream);
+            using FileStream zippedBuffer = File.OpenRead(path);
+            using var archive = new ZipArchive(zippedBuffer);
             var entry = archive.Entries.FirstOrDefault();
             if (entry != null)
             {
@@ -27,28 +27,17 @@ namespace Neo.Optimizer
                 using var ms = new MemoryStream();
                 unzippedEntryStream.CopyTo(ms);
                 var unzippedArray = ms.ToArray();
-                return Encoding.Default.GetString(unzippedArray);
+                return Encoding.UTF8.GetString(unzippedArray);
             }
             throw new ArgumentException("No file found in zip archive");
         }
 
-        public static byte[] Zip(byte[] content, string innerFilename)
+        public static void Zip(string path, byte[] content, string innerFilename)
         {
-            using (var compressedFileStream = new MemoryStream())
-            {
-                using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Update, false))
-                {
-                    var zipEntry = zipArchive.CreateEntry(innerFilename);
-                    using (var originalFileStream = new MemoryStream(content))
-                    {
-                        using (var zipEntryStream = zipEntry.Open())
-                        {
-                            originalFileStream.CopyTo(zipEntryStream);
-                        }
-                    }
-                }
-                return compressedFileStream.ToArray();
-            }
+            using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
+            using ZipArchive archive = new(fs, ZipArchiveMode.Create);
+            using Stream stream = archive.CreateEntry(innerFilename).Open();
+            stream.Write(content);
         }
 
         public static string GetInstructionAddressPadding(this Script script)
