@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 
 namespace Neo.Compiler;
+
 partial class MethodConvert
 {
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)

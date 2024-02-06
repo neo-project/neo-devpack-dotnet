@@ -472,5 +472,4 @@ partial class MethodConvert
         });
         if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
     }
-
 }

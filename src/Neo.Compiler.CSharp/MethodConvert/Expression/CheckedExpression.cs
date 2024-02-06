@@ -24,5 +24,4 @@ partial class MethodConvert
         ConvertExpression(model, expression.Expression);
         _checkedStack.Pop();
     }
-
 }
