@@ -329,8 +329,9 @@ namespace Neo.Compiler
                 ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
+
             // Ensure that is serializable
-            return ContractManifest.Parse(json.ToString(false));
+            return ContractManifest.Parse(json.ToString(false)).CheckStandards();
         }
 
         public JObject CreateDebugInformation(string folder = "")
@@ -490,9 +491,16 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            AbiEvent ev = new(symbol);
+            AddEvent(new AbiEvent(symbol), true);
+        }
+
+        internal void AddEvent(AbiEvent ev, bool throwErrorIfExists)
+        {
             if (eventsExported.Any(u => u.Name == ev.Name))
-                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            {
+                if (!throwErrorIfExists) return;
+                throw new CompilationException(ev.Symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            }
             eventsExported.Add(ev);
         }
 
