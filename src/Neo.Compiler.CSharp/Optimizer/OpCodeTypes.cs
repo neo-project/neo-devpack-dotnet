@@ -6,7 +6,7 @@ namespace Neo.Optimizer
 {
     public static class OpCodeTypes
     {
-        public static HashSet<OpCode> pushInt = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> pushInt = new HashSet<OpCode>
         {
             PUSHINT8,
             PUSHINT16,
@@ -15,17 +15,17 @@ namespace Neo.Optimizer
             PUSHINT128,
             PUSHINT256,
         };
-        public static HashSet<OpCode> pushBool = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> pushBool = new HashSet<OpCode>
         {
             PUSHT, PUSHF,
         };
-        public static HashSet<OpCode> pushData = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> pushData = new HashSet<OpCode>
         {
             PUSHDATA1,
             PUSHDATA2,
             PUSHDATA4,
         };
-        public static HashSet<OpCode> pushConst = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> pushConst = new HashSet<OpCode>
         {
             PUSHM1,
             PUSH0,
@@ -46,19 +46,19 @@ namespace Neo.Optimizer
             PUSH15,
             PUSH16,
         };
-        public static HashSet<OpCode> pushStackOps = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> pushStackOps = new HashSet<OpCode>
         {
             DEPTH,
             DUP,
             OVER,
         };
-        public static HashSet<OpCode> pushNewCompoundType = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> pushNewCompoundType = new HashSet<OpCode>
         {
             NEWARRAY0,
             NEWSTRUCT0,
             NEWMAP,
         };
-        public static HashSet<OpCode> push = new();
+        public static readonly HashSet<OpCode> push = new();
         static OpCodeTypes()
         {
             foreach (OpCode op in pushInt)
@@ -78,7 +78,7 @@ namespace Neo.Optimizer
         }
 
         // BE AWARE that PUSHA is also related to addresses
-        public static HashSet<OpCode> tryThrowFinally = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> tryThrowFinally = new HashSet<OpCode>
         {
             TRY,
             TRY_L,
@@ -87,18 +87,18 @@ namespace Neo.Optimizer
             ENDTRY_L,
             ENDFINALLY,
         };
-        public static HashSet<OpCode> unconditionalJump = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> unconditionalJump = new HashSet<OpCode>
         {
             JMP,
             JMP_L,
         };
-        public static HashSet<OpCode> callWithJump = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> callWithJump = new HashSet<OpCode>
         {
             CALL,
             CALL_L,
             CALLA,
         };
-        public static HashSet<OpCode> conditionalJump = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> conditionalJump = new HashSet<OpCode>
         {
             JMPIF,
             JMPIFNOT,
@@ -109,7 +109,7 @@ namespace Neo.Optimizer
             JMPLT,
             JMPLE,
         };
-        public static HashSet<OpCode> conditionalJump_L = new HashSet<OpCode>
+        public static readonly HashSet<OpCode> conditionalJump_L = new HashSet<OpCode>
         {
             JMPIF_L,
             JMPIFNOT_L,

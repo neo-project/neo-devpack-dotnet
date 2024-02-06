@@ -49,21 +49,20 @@ namespace Neo.Optimizer
                     throw new NotImplementedException($"Unknown instruction {instruction.OpCode}");
             }
         }
-        public static (int, int) ComputeTryTarget(int addr, Instruction instruction)
-        {
-            switch (instruction.OpCode)
-            {
-                case TRY:
-                    return (instruction.TokenI8 == 0 ? -1 : addr + instruction.TokenI8,
-                        instruction.TokenI8_1 == 0 ? -1 : addr + instruction.TokenI8_1);
-                case TRY_L:
-                    return (instruction.TokenI32 == 0 ? -1 : addr + instruction.TokenI32,
-                        instruction.TokenI32_1 == 0 ? -1 : addr + instruction.TokenI32_1);
-                default:
-                    throw new NotImplementedException($"Unknown instruction {instruction.OpCode}");
-            }
-        }
 
+        public static (int catchTarget, int finallyTarget) ComputeTryTarget(int addr, Instruction instruction)
+        {
+            return instruction.OpCode switch
+            {
+                TRY =>
+                    (instruction.TokenI8 == 0 ? -1 : addr + instruction.TokenI8,
+                        instruction.TokenI8_1 == 0 ? -1 : addr + instruction.TokenI8_1),
+                TRY_L =>
+                    (instruction.TokenI32 == 0 ? -1 : addr + instruction.TokenI32,
+                        instruction.TokenI32_1 == 0 ? -1 : addr + instruction.TokenI32_1),
+                _ => throw new NotImplementedException($"Unknown instruction {instruction.OpCode}"),
+            };
+        }
 
         public static (ConcurrentDictionary<Instruction, Instruction>,
             ConcurrentDictionary<Instruction, (Instruction, Instruction)>)
