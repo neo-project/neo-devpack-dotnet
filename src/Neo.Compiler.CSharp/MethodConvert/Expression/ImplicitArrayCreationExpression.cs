@@ -14,28 +14,27 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Neo.Compiler
-{
-    partial class MethodConvert
-    {
+namespace Neo.Compiler;
 
-        /// <summary>
-        /// Converts implicit array creation expressions to executable code.
-        /// </summary>
-        /// <param name="model">The semantic model</param>
-        /// <param name="expression">The implicit array creation expression syntax</param>
-        /// <remarks>
-        /// Handles syntax like:
-        ///
-        /// var data = new[] { 1, 2, 3 }; // handles whole new[] {1, 2, 3}
-        ///
-        /// Where array instance is created and initialized in a single expression.
-        /// Determines array type and converts the element initializer expressions.
-        /// </remarks>
-        private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
-        {
-            IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
-            ConvertInitializerExpression(model, type, expression.Initializer);
-        }
+partial class MethodConvert
+{
+
+    /// <summary>
+    /// Converts implicit array creation expressions to executable code.
+    /// </summary>
+    /// <param name="model">The semantic model</param>
+    /// <param name="expression">The implicit array creation expression syntax</param>
+    /// <remarks>
+    /// Handles syntax like:
+    ///
+    /// var data = new[] { 1, 2, 3 }; // handles whole new[] {1, 2, 3}
+    ///
+    /// Where array instance is created and initialized in a single expression.
+    /// Determines array type and converts the element initializer expressions.
+    /// </remarks>
+    private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
+    {
+        IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+        ConvertInitializerExpression(model, type, expression.Initializer);
     }
 }

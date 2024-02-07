@@ -15,50 +15,49 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 
-namespace Neo.Compiler
-{
-    partial class MethodConvert
-    {
+namespace Neo.Compiler;
 
-        /// <summary>
-        /// Converts C# array creation expressions to executable code.
-        /// </summary>
-        /// <param name="model">The semantic model</param>
-        /// <param name="expression">The array creation expression syntax node</param>
-        /// <remarks>
-        /// This converts array creation syntax like:
-        ///
-        ///   int[] arr = new int[5];
-        ///
-        ///   string[,] matrix = new string[10, 20];
-        ///
-        /// The supported syntax includes specifying the array type, rank, and dimensions.
-        ///
-        /// It also handles array initializers:
-        ///
-        ///   int[] nums = new int[] {1, 2, 3};
-        ///
-        /// The conversion process handles type inference, dimension validation,
-        /// and initializes the array instance correctly.
-        /// </remarks>
-        private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
+partial class MethodConvert
+{
+
+    /// <summary>
+    /// Converts C# array creation expressions to executable code.
+    /// </summary>
+    /// <param name="model">The semantic model</param>
+    /// <param name="expression">The array creation expression syntax node</param>
+    /// <remarks>
+    /// This converts array creation syntax like:
+    ///
+    ///   int[] arr = new int[5];
+    ///
+    ///   string[,] matrix = new string[10, 20];
+    ///
+    /// The supported syntax includes specifying the array type, rank, and dimensions.
+    ///
+    /// It also handles array initializers:
+    ///
+    ///   int[] nums = new int[] {1, 2, 3};
+    ///
+    /// The conversion process handles type inference, dimension validation,
+    /// and initializes the array instance correctly.
+    /// </remarks>
+    private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
+    {
+        ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
+        if (specifier.Rank != 1)
+            throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
+        IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression.Type).Type!;
+        if (expression.Initializer is null)
         {
-            ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];
-            if (specifier.Rank != 1)
-                throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
-            IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression.Type).Type!;
-            if (expression.Initializer is null)
-            {
-                ConvertExpression(model, specifier.Sizes[0]);
-                if (type.ElementType.SpecialType == SpecialType.System_Byte)
-                    AddInstruction(OpCode.NEWBUFFER);
-                else
-                    AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
-            }
+            ConvertExpression(model, specifier.Sizes[0]);
+            if (type.ElementType.SpecialType == SpecialType.System_Byte)
+                AddInstruction(OpCode.NEWBUFFER);
             else
-            {
-                ConvertInitializerExpression(model, type, expression.Initializer);
-            }
+                AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
+        }
+        else
+        {
+            ConvertInitializerExpression(model, type, expression.Initializer);
         }
     }
 }
