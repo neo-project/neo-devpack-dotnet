@@ -6,12 +6,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     {
         private static string privateMethod()
         {
-            BigInteger a = 0;
-            var b = a * 1000;
-            var c = a * 1_000_000;
-            var d = a * 100_000_000;
-
-            return "NEO3" + b + c + d;
+           return "NEO3";
         }
 
         public static byte[] unitTest_001()
