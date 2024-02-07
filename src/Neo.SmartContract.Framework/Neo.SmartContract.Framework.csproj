@@ -14,58 +14,6 @@
       <Pack>true</Pack>
       <PackagePath>src</PackagePath>
     </Compile>
-    <Compile Update="Type\ByteString.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\List.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\Map.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\ECPoint.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\Nep11Token.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\Nep11TokenState.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\Nep17Token.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\UInt160.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\UInt256.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\OpCode.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\SmartContract.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\TokenContract.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\ContractParameterType.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
   </ItemGroup>
 
 </Project>
