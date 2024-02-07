@@ -1,5 +1,8 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.VM;
+using Neo.VM.Types;
+using Array = System.Array;
 
 namespace Neo.SmartContract.TestEngine
 {
@@ -26,6 +29,20 @@ namespace Neo.SmartContract.TestEngine
             engine.LoadScript(Array.Empty<byte>());
             method.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
             engine.Snapshot.Commit();
+        }
+
+        public static string Print(this EvaluationStack stack)
+        {
+            return $"[{string.Join(", ", stack.Select(p =>
+                {
+                    var value = p.Type switch
+                    {
+                        StackItemType.Integer => $"({p.GetInteger()})",
+                        _ => ""
+                    };
+                    return $"{p.Type.ToString()}{value}";
+                }
+            ))}]";
         }
     }
 }

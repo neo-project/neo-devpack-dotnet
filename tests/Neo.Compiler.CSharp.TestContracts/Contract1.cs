@@ -1,10 +1,17 @@
+using System.Numerics;
+
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract1 : SmartContract.Framework.SmartContract
     {
         private static string privateMethod()
         {
-            return "NEO3";
+            BigInteger a = 0;
+            var b = a * 1000;
+            var c = a * 1_000_000;
+            var d = a * 100_000_000;
+
+            return "NEO3" + b + c + d;
         }
 
         public static byte[] unitTest_001()
@@ -27,6 +34,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static object testArgs2(byte[] a)
         {
+            BigInteger aa = 0;
+            var b = aa * 1000;
+            var c = aa * 1_000_000;
+            var d = aa * 100_000_000;
+
             return a;
         }
 

@@ -167,7 +167,7 @@ namespace Neo.SmartContract.TestEngine
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
-                this.CurrentContext.CurrentInstruction?.OpCode);
+                    this.CurrentContext.CurrentInstruction?.OpCode + " " + this.CurrentContext.EvaluationStack.Print());
                 this.ExecuteNext();
             }
             if (this.State == VMState.FAULT && this.FaultException != null)
