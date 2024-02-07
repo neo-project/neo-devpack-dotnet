@@ -9,14 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Analyzer
 {
-    enum NEPStandard
-    {
-        NEP11,
-        NEP17,
-    }
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SupportedStandardsAnalyzer : DiagnosticAnalyzer
