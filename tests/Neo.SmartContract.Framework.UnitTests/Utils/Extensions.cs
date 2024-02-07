@@ -1,7 +1,5 @@
-using System.Linq;
 using Neo.VM.Types;
 using System.Reflection;
-using Neo.VM;
 
 namespace Neo.SmartContract.Framework.UnitTests.Utils
 {
