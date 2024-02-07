@@ -52,46 +52,46 @@ partial class MethodConvert
         switch ((sType.Name, tType.Name))
         {
             case ("ByteString", "ECPoint"):
-            {
-                JumpTarget endTarget = new();
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
-                Jump(OpCode.JMPIF_L, endTarget);
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.SIZE);
-                Push(33);
-                Jump(OpCode.JMPEQ_L, endTarget);
-                AddInstruction(OpCode.THROW);
-                endTarget.Instruction = AddInstruction(OpCode.NOP);
-            }
+                {
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF_L, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    Push(33);
+                    Jump(OpCode.JMPEQ_L, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                }
                 break;
             case ("ByteString", "UInt160"):
-            {
-                JumpTarget endTarget = new();
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
-                Jump(OpCode.JMPIF_L, endTarget);
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.SIZE);
-                Push(20);
-                Jump(OpCode.JMPEQ_L, endTarget);
-                AddInstruction(OpCode.THROW);
-                endTarget.Instruction = AddInstruction(OpCode.NOP);
-            }
+                {
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF_L, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    Push(20);
+                    Jump(OpCode.JMPEQ_L, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                }
                 break;
             case ("ByteString", "UInt256"):
-            {
-                JumpTarget endTarget = new();
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
-                Jump(OpCode.JMPIF_L, endTarget);
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.SIZE);
-                Push(32);
-                Jump(OpCode.JMPEQ_L, endTarget);
-                AddInstruction(OpCode.THROW);
-                endTarget.Instruction = AddInstruction(OpCode.NOP);
-            }
+                {
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF_L, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    Push(32);
+                    Jump(OpCode.JMPEQ_L, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                }
                 break;
             case ("SByte", "Byte"):
             case ("SByte", "UInt16"):
@@ -131,9 +131,9 @@ partial class MethodConvert
             case ("UInt64", "Byte"):
             case ("UInt64", "UInt16"):
             case ("UInt64", "UInt32"):
-            {
-                EnsureIntegerInRange(tType);
-            }
+                {
+                    EnsureIntegerInRange(tType);
+                }
                 break;
         }
     }
