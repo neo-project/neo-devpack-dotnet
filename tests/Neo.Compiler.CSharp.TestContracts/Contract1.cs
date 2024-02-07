@@ -29,11 +29,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static object testArgs2(byte[] a)
         {
-            BigInteger aa = 0;
-            var b = aa * 1000;
-            var c = aa * 1_000_000;
-            var d = aa * 100_000_000;
-
             return a;
         }
 
