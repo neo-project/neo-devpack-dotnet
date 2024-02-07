@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework
     public abstract class Fee
     {
         /// <summary>
-        ///  GAS stands for NeoGas, 1 GAS = 100_000_000
+        ///  GAS stands for NeoGas, 1 GAS = 100_000_000 Satoshis
         /// </summary>
         /// <param name="amount"></param>
         /// <returns></returns>
@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Framework
         public static BigInteger Satoshi(ulong amount) => amount;
 
         /// <summary>
-        /// kSatoshi stands for kilo-Satoshi, 1 kSatoshi = 1000 Satoshi
+        /// kSatoshi stands for kilo-Satoshi, 1 kSatoshi = 1000 Satoshi or 0.00001 GAS
         /// </summary>
         /// <param name="amount"></param>
         /// <returns></returns>
@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Framework
         public extern static BigInteger kSatoshi(ulong amount);
 
         /// <summary>
-        /// mSatoshi stands for mega-Satoshi, 1 mSatoshi = 1_000_000 Satoshi
+        /// mSatoshi stands for mega-Satoshi, 1 mSatoshi = 1_000_000 Satoshi or 0.01 GAS
         /// </summary>
         /// <param name="amount"></param>
         /// <returns></returns>
