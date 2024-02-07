@@ -6,7 +6,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     {
         private static string privateMethod()
         {
-           return "NEO3";
+            return "NEO3";
         }
 
         public static byte[] unitTest_001()
