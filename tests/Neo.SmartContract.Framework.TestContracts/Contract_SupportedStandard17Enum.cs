@@ -1,5 +1,6 @@
 using Neo.SmartContract.Framework.Attributes;
 using System.ComponentModel;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
@@ -9,8 +10,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
-    [ContractPermission("*", "*")]
-    [SupportedStandards(NEPStandard.NEP17)]
+    [ContractPermission(ByteString.Wildcard, ByteString.Wildcard)]
+    [SupportedStandards(NEP.NEP17)]
     public class Contract_SupportedStandard17Enum : Nep17Token
     {
         public override string Symbol { [Safe] get; }

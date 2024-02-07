@@ -18,9 +18,5 @@ namespace Neo.SmartContract.Framework.Attributes
         public SupportedStandardsAttribute(params string[] supportedStandards)
         {
         }
-
-        public SupportedStandardsAttribute(params NEPStandard[] supportedStandards)
-        {
-        }
     }
 }

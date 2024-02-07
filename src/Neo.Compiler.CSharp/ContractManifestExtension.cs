@@ -16,7 +16,7 @@ using System;
 using System.Linq;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
-using scfx::Neo.SmartContract.Framework.Attributes;
+using scfx::Neo.SmartContract.Framework;
 
 namespace Neo.Compiler
 {
@@ -78,28 +78,28 @@ namespace Neo.Compiler
                     a.Parameters[2].Type == ContractParameterType.Integer &&
                     a.Parameters[3].Type == ContractParameterType.ByteArray);
 
-                if (!symbolValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: symbol");
-                if (!decimalsValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: decimals");
+                if (!symbolValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: symbol");
+                if (!decimalsValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: decimals");
 
-                if (!totalSupplyValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: totalSupply");
+                if (!totalSupplyValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: totalSupply");
 
-                if (!balanceOfValid1 && !balanceOfValid2) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: balanceOf");
+                if (!balanceOfValid1 && !balanceOfValid2) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: balanceOf");
 
-                if (!tokensOfValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: tokensOf");
+                if (!tokensOfValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: tokensOf");
 
-                if (!ownerOfValid1 && !ownerOfValid2) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: ownerOf");
+                if (!ownerOfValid1 && !ownerOfValid2) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: ownerOf");
 
-                if (!transferValid1 && !transferValid2) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation:transfer");
+                if (!transferValid1 && !transferValid2) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation:transfer");
 
-                if (!transferEvent) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: {nameof(transferEvent)}");
+                if (!transferEvent) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: {nameof(transferEvent)}");
             }
             catch (Exception ex) when (ex is not CompilationException)
             {
@@ -107,8 +107,8 @@ namespace Neo.Compiler
             }
             catch
             {
-                throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP11.ToStandard()} implementation: Unidentified issue.");
+                throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP11} implementation: Unidentified issue.");
             }
         }
 
@@ -144,31 +144,31 @@ namespace Neo.Compiler
                     s.Parameters[1].Type == ContractParameterType.Hash160 &&
                     s.Parameters[2].Type == ContractParameterType.Integer);
 
-                if (!symbolValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: symbol");
-                if (!decimalsValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: decimals");
-                if (!totalSupplyValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: totalSupply");
-                if (!balanceOfValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: balanceOf");
-                if (!transferValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: transfer");
+                if (!symbolValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP17} implementation: symbol");
+                if (!decimalsValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP17} implementation: decimals");
+                if (!totalSupplyValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP17} implementation: totalSupply");
+                if (!balanceOfValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP17} implementation: balanceOf");
+                if (!transferValid) throw new CompilationException(DiagnosticId.IncorrectNEP,
+                    $"Incomplete NEP standard {NEP.NEP17} implementation: transfer");
             }
             catch (Exception ex) when (ex is not CompilationException)
             {
-                throw new CompilationException(DiagnosticId.IncorrectNEPStandard, $"Incomplete NEP standard {NEPStandard.NEP17.ToStandard()} implementation: Unidentified issue.");
+                throw new CompilationException(DiagnosticId.IncorrectNEP, $"Incomplete NEP standard {NEP.NEP17} implementation: Unidentified issue.");
             }
         }
 
         internal static ContractManifest CheckStandards(this ContractManifest manifest)
         {
-            if (manifest.SupportedStandards.Contains(NEPStandard.NEP11.ToStandard()))
+            if (manifest.SupportedStandards.Contains(NEP.NEP11))
             {
                 manifest.CheckNep11Compliant();
             }
 
-            if (manifest.SupportedStandards.Contains(NEPStandard.NEP17.ToStandard()))
+            if (manifest.SupportedStandards.Contains(NEP.NEP17))
             {
                 manifest.CheckNep17Compliant();
             }

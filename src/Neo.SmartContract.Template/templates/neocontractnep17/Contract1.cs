@@ -17,8 +17,8 @@ namespace ProjectName
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
-    [ContractPermission("*", "*")]
-    [SupportedStandards("NEP-17")]
+    [ContractPermission(ByteString.Wildcard, ByteString.Wildcard)]
+    [SupportedStandards(NEP.NEP17)]
     public class Contract1 : Nep17Token
     {
         #region Owner

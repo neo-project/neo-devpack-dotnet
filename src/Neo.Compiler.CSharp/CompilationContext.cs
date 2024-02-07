@@ -452,11 +452,7 @@ namespace Neo.Compiler
                             supportedStandards.UnionWith(
                                 attribute.ConstructorArguments[0].Values
                                     .Select(p => p.Value)
-                                    .Select(p =>
-                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
-                                            ? ((NEPStandard)ip).ToStandard()
-                                            : p as string
-                                    )
+                                    .Select(p => p as string)
                                     .Where(v => v != null)! // Ensure null values are not added
                             );
                             break;
