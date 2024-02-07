@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract1 : SmartContract.Framework.SmartContract
