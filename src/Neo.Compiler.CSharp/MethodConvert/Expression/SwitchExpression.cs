@@ -15,33 +15,50 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System.Linq;
 
-namespace Neo.Compiler;
-
-partial class MethodConvert
+namespace Neo.Compiler
 {
-    private void ConvertSwitchExpression(SemanticModel model, SwitchExpressionSyntax expression)
+    partial class MethodConvert
     {
-        var arms = expression.Arms.Select(p => (p, new JumpTarget())).ToArray();
-        JumpTarget breakTarget = new();
-        byte anonymousIndex = AddAnonymousVariable();
-        ConvertExpression(model, expression.GoverningExpression);
-        AccessSlot(OpCode.STLOC, anonymousIndex);
-        foreach (var (arm, nextTarget) in arms)
+        /// <summary>
+        /// Converts C# switch expression syntax to executable code.
+        /// </summary>
+        /// <param name="model">The semantic model</param>
+        /// <param name="expression">The switch expression syntax</param>
+        /// <remarks>
+        /// Handles syntax like:
+        ///
+        /// int j = x switch {
+        ///     1 => 10,
+        ///     2 when test => 20
+        /// };
+        ///
+        /// This allows complex conditional logic in expressions using
+        /// specialized pattern matching and jumping instructions.
+        /// </remarks>
+        private void ConvertSwitchExpression(SemanticModel model, SwitchExpressionSyntax expression)
         {
-            ConvertPattern(model, arm.Pattern, anonymousIndex);
-            Jump(OpCode.JMPIFNOT_L, nextTarget);
-            if (arm.WhenClause is not null)
+            var arms = expression.Arms.Select(p => (p, new JumpTarget())).ToArray();
+            JumpTarget breakTarget = new();
+            byte anonymousIndex = AddAnonymousVariable();
+            ConvertExpression(model, expression.GoverningExpression);
+            AccessSlot(OpCode.STLOC, anonymousIndex);
+            foreach (var (arm, nextTarget) in arms)
             {
-                ConvertExpression(model, arm.WhenClause.Condition);
+                ConvertPattern(model, arm.Pattern, anonymousIndex);
                 Jump(OpCode.JMPIFNOT_L, nextTarget);
+                if (arm.WhenClause is not null)
+                {
+                    ConvertExpression(model, arm.WhenClause.Condition);
+                    Jump(OpCode.JMPIFNOT_L, nextTarget);
+                }
+                ConvertExpression(model, arm.Expression);
+                Jump(OpCode.JMP_L, breakTarget);
+                nextTarget.Instruction = AddInstruction(OpCode.NOP);
             }
-            ConvertExpression(model, arm.Expression);
-            Jump(OpCode.JMP_L, breakTarget);
-            nextTarget.Instruction = AddInstruction(OpCode.NOP);
+            AccessSlot(OpCode.LDLOC, anonymousIndex);
+            AddInstruction(OpCode.THROW);
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            RemoveAnonymousVariable(anonymousIndex);
         }
-        AccessSlot(OpCode.LDLOC, anonymousIndex);
-        AddInstruction(OpCode.THROW);
-        breakTarget.Instruction = AddInstruction(OpCode.NOP);
-        RemoveAnonymousVariable(anonymousIndex);
     }
 }

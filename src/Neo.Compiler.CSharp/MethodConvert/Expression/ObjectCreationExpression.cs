@@ -18,69 +18,79 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace Neo.Compiler;
-
-partial class MethodConvert
+namespace Neo.Compiler
 {
-    private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
+    partial class MethodConvert
     {
-        ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-        if (type.TypeKind == TypeKind.Delegate)
+        /// <summary>
+        /// Converts object creation expressions to executable code.
+        /// </summary>
+        /// <param name="model">The semantic model</param>
+        /// <param name="expression">The object creation expression syntax</param>
+        /// <remarks>
+        /// Handles `new MyType()` expressions to create class, struct
+        /// or delegate instances.
+        /// </remarks>
+        private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
         {
-            ConvertDelegateCreationExpression(model, expression);
-            return;
-        }
-        IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
-        if (TryProcessSystemConstructors(model, constructor, arguments))
-            return;
-        bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
-        if (needCreateObject)
-        {
-            CreateObject(model, type, null);
-        }
-        Call(model, constructor, needCreateObject, arguments);
-        if (expression.Initializer is not null)
-        {
-            ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
-        }
-    }
-
-    private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
-    {
-        foreach (ExpressionSyntax e in initializer.Expressions)
-        {
-            if (e is not AssignmentExpressionSyntax ae)
-                throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
-            ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
-            switch (symbol)
+            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+            if (type.TypeKind == TypeKind.Delegate)
             {
-                case IFieldSymbol field:
-                    AddInstruction(OpCode.DUP);
-                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                    Push(index);
-                    ConvertExpression(model, ae.Right);
-                    AddInstruction(OpCode.SETITEM);
-                    break;
-                case IPropertySymbol property:
-                    ConvertExpression(model, ae.Right);
-                    AddInstruction(OpCode.OVER);
-                    Call(model, property.SetMethod!, CallingConvention.Cdecl);
-                    break;
-                default:
-                    throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                ConvertDelegateCreationExpression(model, expression);
+                return;
+            }
+            IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+            IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
+            if (TryProcessSystemConstructors(model, constructor, arguments))
+                return;
+            bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
+            if (needCreateObject)
+            {
+                CreateObject(model, type, null);
+            }
+            Call(model, constructor, needCreateObject, arguments);
+            if (expression.Initializer is not null)
+            {
+                ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
             }
         }
-    }
 
-    private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
-    {
-        if (expression.ArgumentList!.Arguments.Count != 1)
-            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported delegate: {expression}");
-        IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
-        if (!symbol.IsStatic)
-            throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");
-        MethodConvert convert = context.ConvertMethod(model, symbol);
-        Jump(OpCode.PUSHA, convert._startTarget);
+        private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
+        {
+            foreach (ExpressionSyntax e in initializer.Expressions)
+            {
+                if (e is not AssignmentExpressionSyntax ae)
+                    throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
+                switch (symbol)
+                {
+                    case IFieldSymbol field:
+                        AddInstruction(OpCode.DUP);
+                        int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                        Push(index);
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.SETITEM);
+                        break;
+                    case IPropertySymbol property:
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.OVER);
+                        Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                        break;
+                    default:
+                        throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                }
+            }
+        }
+
+        private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
+        {
+            if (expression.ArgumentList!.Arguments.Count != 1)
+                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported delegate: {expression}");
+            IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
+            if (!symbol.IsStatic)
+                throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");
+            MethodConvert convert = context.ConvertMethod(model, symbol);
+            Jump(OpCode.PUSHA, convert._startTarget);
+        }
     }
 }

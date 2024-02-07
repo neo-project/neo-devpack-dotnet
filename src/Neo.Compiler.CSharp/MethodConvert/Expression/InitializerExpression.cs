@@ -16,46 +16,59 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System.Linq;
 
-namespace Neo.Compiler;
-
-partial class MethodConvert
+namespace Neo.Compiler
 {
-    private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
+    partial class MethodConvert
     {
-        IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
-        ConvertInitializerExpression(model, type, expression);
-    }
 
-    private void ConvertInitializerExpression(SemanticModel model, IArrayTypeSymbol type, InitializerExpressionSyntax expression)
-    {
-        if (type.ElementType.SpecialType == SpecialType.System_Byte)
+        /// <summary>
+        /// Converts array initializer expressions to executable code.
+        /// </summary>
+        /// <param name="model">The semantic model</param>
+        /// <param name="expression">The initializer expression syntax</param>
+        /// <remarks>
+        /// Handles syntax like:
+        ///
+        /// var data = new[] {1, 2, 3}; // focus on  {1, 2, 3}
+        /// var matrix = new int[,] {{1, 2}, {3, 4}};
+        /// </remarks>
+        private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
         {
-            Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
-            if (values.Any(p => !p.HasValue))
+            IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+            ConvertInitializerExpression(model, type, expression);
+        }
+
+        private void ConvertInitializerExpression(SemanticModel model, IArrayTypeSymbol type, InitializerExpressionSyntax expression)
+        {
+            if (type.ElementType.SpecialType == SpecialType.System_Byte)
             {
-                Push(values.Length);
-                AddInstruction(OpCode.NEWBUFFER);
-                for (int i = 0; i < expression.Expressions.Count; i++)
+                Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
+                if (values.Any(p => !p.HasValue))
                 {
-                    AddInstruction(OpCode.DUP);
-                    Push(i);
-                    ConvertExpression(model, expression.Expressions[i]);
-                    AddInstruction(OpCode.SETITEM);
+                    Push(values.Length);
+                    AddInstruction(OpCode.NEWBUFFER);
+                    for (int i = 0; i < expression.Expressions.Count; i++)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        Push(i);
+                        ConvertExpression(model, expression.Expressions[i]);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                }
+                else
+                {
+                    byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
+                    Push(data);
+                    ChangeType(VM.Types.StackItemType.Buffer);
                 }
             }
             else
             {
-                byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-                Push(data);
-                ChangeType(VM.Types.StackItemType.Buffer);
+                for (int i = expression.Expressions.Count - 1; i >= 0; i--)
+                    ConvertExpression(model, expression.Expressions[i]);
+                Push(expression.Expressions.Count);
+                AddInstruction(OpCode.PACK);
             }
-        }
-        else
-        {
-            for (int i = expression.Expressions.Count - 1; i >= 0; i--)
-                ConvertExpression(model, expression.Expressions[i]);
-            Push(expression.Expressions.Count);
-            AddInstruction(OpCode.PACK);
         }
     }
 }

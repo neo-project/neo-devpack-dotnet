@@ -14,18 +14,35 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 
-namespace Neo.Compiler;
-
-partial class MethodConvert
+namespace Neo.Compiler
 {
-    private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
+    partial class MethodConvert
     {
-        AddInstruction(OpCode.NEWSTRUCT0);
-        foreach (ArgumentSyntax argument in expression.Arguments)
+        /// <summary>
+        /// Converts tuple expressions to executable code.
+        /// </summary>
+        /// <param name="model">The semantic model</param>
+        /// <param name="expression">The tuple expression syntax</param>
+        /// <remarks>
+        /// Handles syntax like:
+        ///
+        /// (10, 20, 30)
+        /// ("Hello", name, value)
+        ///
+        /// Emits instructions to create a new array instance, duplicate
+        /// its reference, convert and append each element expression.
+        ///
+        /// This builds up the tuple array containing the element values.
+        /// </remarks>
+        private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
         {
-            AddInstruction(OpCode.DUP);
-            ConvertExpression(model, argument.Expression);
-            AddInstruction(OpCode.APPEND);
+            AddInstruction(OpCode.NEWSTRUCT0);
+            foreach (ArgumentSyntax argument in expression.Arguments)
+            {
+                AddInstruction(OpCode.DUP);
+                ConvertExpression(model, argument.Expression);
+                AddInstruction(OpCode.APPEND);
+            }
         }
     }
 }

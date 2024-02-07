@@ -852,91 +852,138 @@ namespace Neo.Compiler
             switch (syntax)
             {
                 case AnonymousObjectCreationExpressionSyntax expression:
+                    // Example: new { X = 10, Y = 15 }
                     ConvertAnonymousObjectCreationExpression(model, expression);
                     break;
                 case ArrayCreationExpressionSyntax expression:
+                    // Examples:
+                    // - new int[5]
+                    // - new[] {1, 2, 3}
                     ConvertArrayCreationExpression(model, expression);
                     break;
                 case AssignmentExpressionSyntax expression:
+                    // Examples:
+                    // x = 10
+                    // x += 10
                     ConvertAssignmentExpression(model, expression);
                     break;
                 case BaseObjectCreationExpressionSyntax expression:
+                    // Example: new MyClass()
                     ConvertObjectCreationExpression(model, expression);
                     break;
                 case BinaryExpressionSyntax expression:
+                    // Examples:
+                    // x + y
+                    // x == 10
                     ConvertBinaryExpression(model, expression);
                     break;
                 case CastExpressionSyntax expression:
+                    // Example: (int)x
                     ConvertCastExpression(model, expression);
                     break;
                 case CheckedExpressionSyntax expression:
+                    // Example: checked(x + y)
                     ConvertCheckedExpression(model, expression);
                     break;
                 case ConditionalAccessExpressionSyntax expression:
+                    // Example:
+                    // obj?.Prop
                     ConvertConditionalAccessExpression(model, expression);
                     break;
                 case ConditionalExpressionSyntax expression:
+                    // Example: x > 5 ? 10 : 20
                     ConvertConditionalExpression(model, expression);
                     break;
                 case ElementAccessExpressionSyntax expression:
+                    // Example: array[0]
                     ConvertElementAccessExpression(model, expression);
                     break;
                 case ElementBindingExpressionSyntax expression:
+                    // Example:
+                    // var x = array[0]
                     ConvertElementBindingExpression(model, expression);
                     break;
                 case IdentifierNameSyntax expression:
+                    // Examples: x, item.Count
                     ConvertIdentifierNameExpression(model, expression);
                     break;
                 case ImplicitArrayCreationExpressionSyntax expression:
+                    // Examples:
+                    // var nums = new[] { 1, 2, 3 };
+                    // var weeklyTemps = new[] { 75, 80, 77 };
                     ConvertImplicitArrayCreationExpression(model, expression);
                     break;
                 case InitializerExpressionSyntax expression:
+                    // Example: new List<int> {1, 2, 3}
                     ConvertInitializerExpression(model, expression);
                     break;
                 case InterpolatedStringExpressionSyntax expression:
+                    // Examples:
+                    // $"Hello {name}"
+                    // $"{x} + {y} = {x + y}"
                     ConvertInterpolatedStringExpression(model, expression);
                     break;
                 case InvocationExpressionSyntax expression:
+                    // Examples:
+                    // DoWork()
+                    // x.Method()
                     ConvertInvocationExpression(model, expression);
                     break;
                 case IsPatternExpressionSyntax expression:
+                    // Example: obj is String s
                     ConvertIsPatternExpression(model, expression);
                     break;
                 case MemberAccessExpressionSyntax expression:
+                    // Examples:
+                    // Class.StaticMethod
+                    // obj.InstanceMethod
                     ConvertMemberAccessExpression(model, expression);
                     break;
                 case MemberBindingExpressionSyntax expression:
+                    // Example: var x = obj.Property
                     ConvertMemberBindingExpression(model, expression);
                     break;
                 case ParenthesizedExpressionSyntax expression:
+                    // Example: (x + y)
                     ConvertExpression(model, expression.Expression);
                     break;
                 case PostfixUnaryExpressionSyntax expression:
+                    // Examples:
+                    // x++
+                    // total--
                     ConvertPostfixUnaryExpression(model, expression);
                     break;
                 case PrefixUnaryExpressionSyntax expression:
+                    // Examples:
+                    // ++x
+                    // -y
                     ConvertPrefixUnaryExpression(model, expression);
                     break;
                 case SwitchExpressionSyntax expression:
+                    // Example:
+                    // x switch { 1 => 10, 2 => 20 }
                     ConvertSwitchExpression(model, expression);
                     break;
                 case BaseExpressionSyntax:
                 case ThisExpressionSyntax:
+                    // Example: this, base
+                    // Gets current class instance reference
                     AddInstruction(OpCode.LDARG0);
                     break;
                 case ThrowExpressionSyntax expression:
+                    // Example:
+                    // throw new Exception();
                     Throw(model, expression.Expression);
                     break;
                 case TupleExpressionSyntax expression:
+                    // Example:
+                    // (10, 20, 30)
                     ConvertTupleExpression(model, expression);
                     break;
                 default:
                     throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
             }
         }
-
-
-
 
         private void EnsureIntegerInRange(ITypeSymbol type)
         {
