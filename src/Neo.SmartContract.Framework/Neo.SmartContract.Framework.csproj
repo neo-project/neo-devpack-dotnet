@@ -14,25 +14,6 @@
       <Pack>true</Pack>
       <PackagePath>src</PackagePath>
     </Compile>
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\OpCode.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\SmartContract.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="Contracts\TokenContract.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
-    <Compile Update="ContractTypes\ContractParameterType.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
   </ItemGroup>
 
 </Project>
