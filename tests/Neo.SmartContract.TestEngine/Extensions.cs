@@ -11,9 +11,9 @@ namespace Neo.SmartContract.TestEngine
             snapshot.Add(key, new StorageItem(contract));
         }
 
-        public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
+        public static void DeployNativeContracts(this DataCache snapshot, Block? persistingBlock = null)
         {
-            persistingBlock ??= new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
+            persistingBlock ??= new NeoSystem(TestProtocolSettings.Default, new MemoryStore()).GenesisBlock;
 
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
