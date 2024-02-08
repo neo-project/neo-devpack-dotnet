@@ -1,5 +1,6 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Array = System.Array;
 
 namespace Neo.SmartContract.TestEngine
 {
@@ -18,14 +19,28 @@ namespace Neo.SmartContract.TestEngine
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             engine.LoadScript(Array.Empty<byte>());
-            method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
+            method!.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
             engine.Snapshot.Commit();
 
             method = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             engine.LoadScript(Array.Empty<byte>());
-            method.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
+            method!.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
             engine.Snapshot.Commit();
+        }
+
+        public static bool TryGetString(this byte[] byteArray, out string? value)
+        {
+            try
+            {
+                value = Utility.StrictUTF8.GetString(byteArray);
+                return true;
+            }
+            catch
+            {
+                value = default;
+                return false;
+            }
         }
     }
 }
