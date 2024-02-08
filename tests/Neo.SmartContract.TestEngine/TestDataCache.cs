@@ -7,7 +7,7 @@ namespace Neo.SmartContract.TestEngine
     {
         private readonly Dictionary<StorageKey, StorageItem> dict = new();
 
-        public TestDataCache(Block persistingBlock = null)
+        public TestDataCache(Block? persistingBlock = null)
         {
             this.DeployNativeContracts(persistingBlock);
         }
@@ -27,7 +27,7 @@ namespace Neo.SmartContract.TestEngine
             return dict.ContainsKey(key);
         }
 
-        protected override StorageItem GetInternal(StorageKey key)
+        protected override StorageItem? GetInternal(StorageKey key)
         {
             if (!dict.TryGetValue(key, out var value))
             {
@@ -42,7 +42,7 @@ namespace Neo.SmartContract.TestEngine
             return dict.Select(u => (u.Key, u.Value));
         }
 
-        protected override StorageItem TryGetInternal(StorageKey key)
+        protected override StorageItem? TryGetInternal(StorageKey key)
         {
             return dict.TryGetValue(key, out var value) ? value : null;
         }
