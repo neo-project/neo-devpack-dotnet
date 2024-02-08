@@ -22,7 +22,7 @@ namespace Neo.Optimizer
         public static string Unzip(string path)
         {
             using FileStream zippedBuffer = File.OpenRead(path);
-            using var archive = new ZipArchive(zippedBuffer);
+            using var archive = new ZipArchive(zippedStream, ZipArchiveMode.Read, false, Encoding.UTF8);
             var entry = archive.Entries.FirstOrDefault();
             if (entry != null)
             {
@@ -93,13 +93,7 @@ namespace Neo.Optimizer
         }
 
 
-        public static string GetOperandString(this Instruction instruction)
-        {
-            string result = "";
-            foreach (byte b in instruction.Operand.Span)
-                result += $"{b.ToString("X2")}-";
-            return result.TrimEnd('-');
-        }
+        public static string GetOperandString(this Instruction instruction) => BitConverter.ToString(instruction.Operand.Span.ToArray());
 
         public static string GetComment(this Instruction instruction, int ip, MethodToken[]? tokens = null)
         {
