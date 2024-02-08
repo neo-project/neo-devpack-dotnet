@@ -22,7 +22,7 @@ namespace Neo.Optimizer
         public static string Unzip(string path)
         {
             using FileStream zippedBuffer = File.OpenRead(path);
-            using var archive = new ZipArchive(zippedStream, ZipArchiveMode.Read, false, Encoding.UTF8);
+            using var archive = new ZipArchive(zippedBuffer, ZipArchiveMode.Read, false, Encoding.UTF8);
             var entry = archive.Entries.FirstOrDefault();
             if (entry != null)
             {
