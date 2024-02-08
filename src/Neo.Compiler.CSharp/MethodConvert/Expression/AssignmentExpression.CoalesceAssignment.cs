@@ -21,7 +21,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     /// <summary>
     /// Converts C# null-coalescing assignment expressions to executable code.
     /// </summary>

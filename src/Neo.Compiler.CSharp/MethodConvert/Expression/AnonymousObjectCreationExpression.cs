@@ -18,7 +18,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     /// <summary>
     /// Converts C# anonymous type creation expressions to executable code.
     /// </summary>
