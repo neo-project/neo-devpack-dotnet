@@ -20,18 +20,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
-    /// <summary>
-    /// Converts array initializer expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The initializer expression syntax</param>
-    /// <remarks>
-    /// Handles syntax like:
-    ///
-    /// var data = new[] {1, 2, 3}; // focus on  {1, 2, 3}
-    /// var matrix = new int[,] {{1, 2}, {3, 4}};
-    /// </remarks>
     private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
     {
         IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;

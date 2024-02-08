@@ -21,17 +21,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
-    /// <summary>
-    /// Converts postfix unary operators like x++ and x-- to executable code.
-    /// </summary>
-    /// <remarks>
-    /// Handles syntax like:
-    ///
-    /// count++
-    /// total--
-    /// array[i]--
-    /// </remarks>
     private void ConvertPostfixUnaryExpression(SemanticModel model, PostfixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
@@ -53,15 +42,12 @@ partial class MethodConvert
         switch (expression.Operand)
         {
             case ElementAccessExpressionSyntax operand:
-                // Example: array[i]++
                 ConvertElementAccessPostIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             case IdentifierNameSyntax operand:
-                // Example: x++
                 ConvertIdentifierNamePostIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             case MemberAccessExpressionSyntax operand:
-                // Example: obj.Count++
                 ConvertMemberAccessPostIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             default:
@@ -101,34 +87,21 @@ partial class MethodConvert
         }
     }
 
-    /// <summary>
-    /// Converts identifier postfix ++/-- based on symbol type.
-    /// </summary>
-    /// <remarks>
-    /// Dispatches handling based on symbol:
-    ///
-    /// localVar--
-    /// item.Count++
-    /// </remarks>
     private void ConvertIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IdentifierNameSyntax operand)
     {
         ISymbol symbol = model.GetSymbolInfo(operand).Symbol!;
         switch (symbol)
         {
             case IFieldSymbol field:
-                // Example: item.Count--
                 ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(operatorToken, field);
                 break;
             case ILocalSymbol local:
-                // Example: localVar--
                 ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(operatorToken, local);
                 break;
             case IParameterSymbol parameter:
-                // Example: arg--
                 ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(operatorToken, parameter);
                 break;
             case IPropertySymbol property:
-                // Example: item.Count++
                 ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, property);
                 break;
             default:
@@ -199,26 +172,15 @@ partial class MethodConvert
         }
     }
 
-    /// <summary>
-    /// Converts member access postfix ++/-- based on symbol.
-    /// </summary>
-    /// <remarks>
-    /// Member could be static field, instance field, property etc:
-    ///
-    /// Class.Count--
-    /// obj.Size++
-    /// </remarks>
     private void ConvertMemberAccessPostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand)
     {
         ISymbol symbol = model.GetSymbolInfo(operand).Symbol!;
         switch (symbol)
         {
             case IFieldSymbol field:
-                // Example: Class.StaticField--
                 ConvertFieldMemberAccessPostIncrementOrDecrementExpression(model, operatorToken, operand, field);
                 break;
             case IPropertySymbol property:
-                // Example: obj.Count++
                 ConvertPropertyMemberAccessPostIncrementOrDecrementExpression(model, operatorToken, operand, property);
                 break;
             default:

@@ -18,21 +18,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts interpolated string expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The interpolated string syntax</param>
-    /// <remarks>
-    /// Handles string syntax like:
-    ///
-    /// $"Hello {name}"
-    /// $"Value is {value}"
-    ///
-    /// The contents are parsed to extract literal text
-    /// and converted expressions. Emitted code concatenates
-    /// them together correctly into the final string value.
-    /// </remarks>
     private void ConvertInterpolatedStringExpression(SemanticModel model, InterpolatedStringExpressionSyntax expression)
     {
         if (expression.Contents.Count == 0)

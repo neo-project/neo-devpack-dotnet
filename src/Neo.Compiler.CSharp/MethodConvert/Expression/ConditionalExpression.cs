@@ -18,24 +18,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
-    /// <summary>
-    /// Converts C# conditional expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The conditional expression syntax node</param>
-    /// <remarks>
-    /// This handles conversion of ternary conditional expressions like:
-    ///
-    /// result = x > 5 ? 10 : 20;
-    ///
-    /// The condition is first evaluated, followed by a jump to either the true or
-    /// false branch based on the condition value. The respective branch expression is
-    /// evaluated and leaves the final result on the stack.
-    ///
-    /// This allows if-then-else conditional logic in expressions using specialized
-    /// branching instructions.
-    /// </remarks>
     private void ConvertConditionalExpression(SemanticModel model, ConditionalExpressionSyntax expression)
     {
         JumpTarget falseTarget = new();

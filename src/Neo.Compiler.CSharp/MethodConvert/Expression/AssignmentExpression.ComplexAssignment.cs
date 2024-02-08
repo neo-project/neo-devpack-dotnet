@@ -21,32 +21,18 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
-    /// <summary>
-    /// Converts complex assignment expressions to executable instructions.
-    /// </summary>
-    /// <param name="model">The semantic model for resolving types and symbols.</param>
-    /// <param name="expression">The assignment expression syntax node to be converted.</param>
-    /// <remarks>
-    /// This method handles the conversion of various forms of complex assignment expressions,
-    /// such as compound assignments (e.g., +=, -=, *=) across different types of left-hand side expressions:
-    /// element access expressions, identifier names, and member access expressions.
-    /// </remarks>
     private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         switch (expression.Left)
         {
             case ElementAccessExpressionSyntax left:
-                // For an element access expression: array[index] += value;
                 ConvertElementAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                 break;
             case IdentifierNameSyntax left:
-                // For an identifier name: variable += value;
                 ConvertIdentifierNameComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                 break;
             case MemberAccessExpressionSyntax left:
-                // For a member access expression: object.Property += value;
                 ConvertMemberAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                 break;
             default:

@@ -19,22 +19,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts C# switch expression syntax to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The switch expression syntax</param>
-    /// <remarks>
-    /// Handles syntax like:
-    ///
-    /// int j = x switch {
-    ///     1 => 10,
-    ///     2 when test => 20
-    /// };
-    ///
-    /// This allows complex conditional logic in expressions using
-    /// specialized pattern matching and jumping instructions.
-    /// </remarks>
     private void ConvertSwitchExpression(SemanticModel model, SwitchExpressionSyntax expression)
     {
         var arms = expression.Arms.Select(p => (p, new JumpTarget())).ToArray();

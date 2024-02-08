@@ -21,46 +21,30 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts prefix unary operators like ++x and --x.
-    /// </summary>
-    /// <remarks>
-    /// Handles a variety of unary operators:
-    ///
-    /// !flag
-    /// -balance
-    /// ++index
-    /// </remarks>
     private void ConvertPrefixUnaryExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
         {
             case "+":
-                // Example: +x
                 ConvertExpression(model, expression.Operand);
                 break;
             case "-":
-                // Example: -x
                 ConvertExpression(model, expression.Operand);
                 AddInstruction(OpCode.NEGATE);
                 break;
             case "~":
-                // Example: ~x
                 ConvertExpression(model, expression.Operand);
                 AddInstruction(OpCode.INVERT);
                 break;
             case "!":
-                // Example: !x
                 ConvertExpression(model, expression.Operand);
                 AddInstruction(OpCode.NOT);
                 break;
             case "++":
             case "--":
-                // Example: ++x
                 ConvertPreIncrementOrDecrementExpression(model, expression);
                 break;
             case "^":
-                // Example: ^x
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.SIZE);
                 ConvertExpression(model, expression.Operand);
@@ -71,29 +55,17 @@ partial class MethodConvert
         }
     }
 
-    /// <summary>
-    /// Dispatches prefix ++/-- handling based on operand type.
-    /// </summary>
-    /// <remarks>
-    /// Operand could be array element access, identifier, member etc:
-    ///
-    /// ++index
-    /// --obj.Count
-    /// </remarks>
     private void ConvertPreIncrementOrDecrementExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
     {
         switch (expression.Operand)
         {
             case ElementAccessExpressionSyntax operand:
-                // Example: ++array[i]
                 ConvertElementAccessPreIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             case IdentifierNameSyntax operand:
-                // Example: --x
                 ConvertIdentifierNamePreIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             case MemberAccessExpressionSyntax operand:
-                // Example: ++obj.Count
                 ConvertMemberAccessPreIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             default:

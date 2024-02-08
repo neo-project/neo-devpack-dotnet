@@ -20,20 +20,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts member access expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The member access expression syntax</param>
-    /// <remarks>
-    /// Handles expressions accessing fields, properties etc like:
-    ///
-    /// obj.Field
-    /// Class.StaticProp
-    ///
-    /// Determines symbol type and emits instructions to load/access
-    /// the value appropriately. Handles static vs instance members.
-    /// </remarks>
     private void ConvertMemberAccessExpression(SemanticModel model, MemberAccessExpressionSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;

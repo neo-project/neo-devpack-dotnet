@@ -20,20 +20,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts array element access expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The element access expression syntax node</param>
-    /// <remarks>
-    /// Handles array access or indexer calls like:
-    ///
-    /// data[i]
-    /// vector[x, y]
-    ///
-    /// Emits code to evaluate array instance and index expression, perform
-    /// bounds checking, and access the element value.
-    /// </remarks>
     private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
     {
         if (expression.ArgumentList.Arguments.Count != 1)

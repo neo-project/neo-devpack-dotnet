@@ -17,31 +17,17 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts an assignment expression into executable instructions based on the type of assignment.
-    /// </summary>
-    /// <param name="model">The semantic model for resolving types and symbols within the current context.</param>
-    /// <param name="expression">The assignment expression syntax node to be converted.</param>
-    /// <remarks>
-    /// This method handles different types of assignment expressions by switching on the operator token:
-    /// - For simple assignments using "=".
-    /// - For null-coalescing assignments using "??=".
-    /// - For all other types of assignments, such as compound assignments (e.g., +=, -=).
-    /// </remarks>
     private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
         {
             case "=":
-                // Example: variable = value
                 ConvertSimpleAssignmentExpression(model, expression);
                 break;
             case "??=":
-                // Example: variable ??= value
                 ConvertCoalesceAssignmentExpression(model, expression);
                 break;
             default:
-                // Example: variable += value
                 ConvertComplexAssignmentExpression(model, expression);
                 break;
         }

@@ -21,22 +21,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
-    /// <summary>
-    /// Converts method, delegate or event invocation expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The invocation expression syntax</param>
-    /// <remarks>
-    /// Handles expressions like:
-    ///
-    /// DoWork(x, y);
-    /// handler(args);
-    /// somethingHappened += OnEvent;
-    ///
-    /// Determines if it is a method call, delegate call or event access based on the symbol.
-    /// Then emits appropriate instructions to execute the invocation.
-    /// </remarks>
     private void ConvertInvocationExpression(SemanticModel model, InvocationExpressionSyntax expression)
     {
         ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
@@ -44,18 +28,12 @@ partial class MethodConvert
         switch (symbol)
         {
             case IEventSymbol @event:
-                // Example event access:
-                // somethingHappened += OnEvent;
                 ConvertEventInvocationExpression(model, @event, arguments);
                 break;
             case IMethodSymbol method:
-                // Example method call:
-                // DoWork(x, y);
                 ConvertMethodInvocationExpression(model, method, expression.Expression, arguments);
                 break;
             default:
-                // Example delegate call:
-                // handler(args);
                 ConvertDelegateInvocationExpression(model, expression.Expression, arguments);
                 break;
         }

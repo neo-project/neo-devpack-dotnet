@@ -19,27 +19,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts C# array creation expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The array creation expression syntax node</param>
-    /// <remarks>
-    /// This converts array creation syntax like:
-    ///
-    ///   int[] arr = new int[5];
-    ///
-    ///   string[,] matrix = new string[10, 20];
-    ///
-    /// The supported syntax includes specifying the array type, rank, and dimensions.
-    ///
-    /// It also handles array initializers:
-    ///
-    ///   int[] nums = new int[] {1, 2, 3};
-    ///
-    /// The conversion process handles type inference, dimension validation,
-    /// and initializes the array instance correctly.
-    /// </remarks>
     private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
     {
         ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];

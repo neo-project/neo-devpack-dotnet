@@ -19,25 +19,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts a cast expression within a semantic model to its equivalent bytecode or conversion method call, depending on the context.
-    /// This includes direct casting between primitive types, special handling for conversions involving complex types like ByteString, ECPoint, UInt160, and UInt256,
-    /// and invoking custom conversion methods if available. The method ensures that type conversions adhere to specific size constraints or conversion rules.
-    /// </summary>
-    /// <param name="model">The semantic model associated with the code analysis.</param>
-    /// <param name="expression">The cast expression to be converted.</param>
-    /// <example>
-    /// Examples of cast expressions this method can handle:
-    /// 1. Direct casting between numeric types:
-    ///     (int)someByteValue;
-    /// 2. Converting a ByteString to an ECPoint, ensuring the ByteString is exactly 33 bytes long:
-    ///    ECPoint p = (ECPoint)someByteString;
-    /// 3. Converting a ByteString to a UInt160, ensuring the ByteString is exactly 20 bytes long:
-    ///    UInt160 address = (UInt160)someByteString;
-    /// 4. Converting a ByteString to a UInt256, ensuring the ByteString is exactly 32 bytes long:
-    ///    UInt256 hash = (UInt256)someByteString;
-    /// 5. Handling custom conversion methods if defined for the type cast.
-    /// </example>
     private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
     {
         ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;

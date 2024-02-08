@@ -20,21 +20,6 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
 
-    /// <summary>
-    /// Converts C# binary expression syntax to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The binary expression syntax node</param>
-    /// <remarks>
-    /// This handles a wide variety of binary operator expressions like:
-    ///
-    /// x + y
-    /// a && b
-    /// a ?? b
-    /// x is int
-    ///
-    /// The supported syntax includes arithmetic, logical, type testing, null coalescing operators.
-    /// </remarks>
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)

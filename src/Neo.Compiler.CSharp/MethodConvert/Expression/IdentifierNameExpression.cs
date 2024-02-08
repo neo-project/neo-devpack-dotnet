@@ -20,27 +20,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts identifier name expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The identifier expression syntax node</param>
-    /// <remarks>
-    /// This handles identifiers referring to fields, locals, parameters,
-    /// properties etc.
-    ///
-    /// Examples:
-    ///
-    /// myLocal
-    /// MyField
-    /// obj.Prop
-    ///
-    /// The method determines the target symbol and emits instructions
-    /// to load/access the value based on its type.
-    ///
-    /// This includes handling constant values, static vs instance
-    /// members, properties and more.
-    /// </remarks>
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;

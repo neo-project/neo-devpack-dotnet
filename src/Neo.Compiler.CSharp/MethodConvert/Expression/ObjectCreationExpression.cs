@@ -22,15 +22,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts object creation expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The object creation expression syntax</param>
-    /// <remarks>
-    /// Handles `new MyType()` expressions to create class, struct
-    /// or delegate instances.
-    /// </remarks>
     private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;

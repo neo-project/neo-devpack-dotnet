@@ -18,18 +18,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
-    /// <summary>
-    /// Converts 'is' pattern expression syntax to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The 'is' pattern expression syntax</param>
-    /// <remarks>
-    /// Handles syntax like:
-    ///
-    /// expr is Type name
-    ///
-    /// </remarks>
     private void ConvertIsPatternExpression(SemanticModel model, IsPatternExpressionSyntax expression)
     {
         byte anonymousIndex = AddAnonymousVariable();

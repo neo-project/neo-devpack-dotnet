@@ -21,40 +21,17 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts C# null-coalescing assignment expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The assignment expression syntax node</param>
-    /// <remarks>
-    /// This handles conversion of null-coalescing assignment syntax like:
-    ///
-    /// array[0] ??= 10;
-    ///
-    /// obj.Prop ??= 20;
-    ///
-    /// Where if the left hand side is null, it is assigned the right hand value.
-    ///
-    /// The method detects the kind of left hand assignment (array element, property etc)
-    /// and emits specialized instructions to implement the null check and assignment.
-    ///
-    /// For example array element coalescing has specialized logic compared to property
-    /// coalescing assignments.
-    /// </remarks>
     private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.Left)
         {
             case ElementAccessExpressionSyntax left:
-                // Example：array[index] ??= "Array Element Default";
                 ConvertElementAccessCoalesceAssignment(model, left, expression.Right);
                 break;
             case IdentifierNameSyntax left:
-                // Example：localVariable ??= "Local Variable Default";
                 ConvertIdentifierNameCoalesceAssignment(model, left, expression.Right);
                 break;
             case MemberAccessExpressionSyntax left:
-                // Example：instance.Property ??= "Property Default";
                 ConvertMemberAccessCoalesceAssignment(model, left, expression.Right);
                 break;
             default:
@@ -108,62 +85,21 @@ partial class MethodConvert
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
-    /// <summary>
-    /// Converts identifier name null-coalescing assignments to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model used for type and symbol resolution.</param>
-    /// <param name="left">The identifier name syntax node representing the variable or property on the left hand side of the assignment.</param>
-    /// <param name="right">The expression syntax node representing the right hand side of the assignment.</param>
-    /// <remarks>
-    /// This method facilitates the conversion of null-coalescing assignments involving identifier names, covering various scenarios such as:
-    ///
-    /// localVariable ??= expression;
-    /// this.Property ??= expression;
-    /// parameter ??= expression;
-    /// field ??= expression;
-    ///
-    /// Examples:
-    ///
-    /// 1. Converting a field access:
-    ///    int? field = null;
-    ///    field ??= 20;
-    ///
-    /// 2. Converting a local variable:
-    ///    int? localVariable = null;
-    ///    localVariable ??= 5;
-    ///
-    /// 3. Converting a parameter:
-    ///    void Method(int? parameter = null)
-    ///    {
-    ///        parameter ??= 30;
-    ///    }
-    ///
-    /// 4. Converting a property access:
-    ///    public int? Property { get; set; }
-    ///    Property ??= 10;
-    ///
-    /// In each case, the method checks if the identifier (local variable, property, field, or parameter) is null.
-    /// If it is null, the right-hand side value is assigned. Otherwise, the existing value is preserved.
-    /// </remarks>
     private void ConvertIdentifierNameCoalesceAssignment(SemanticModel model, IdentifierNameSyntax left, ExpressionSyntax right)
     {
         ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
         switch (symbol)
         {
             case IFieldSymbol field:
-                // Example：MyClass.MyField ??= "Default Value";
                 ConvertFieldIdentifierNameCoalesceAssignment(model, field, right);
                 break;
             case ILocalSymbol local:
-                // Example：string? localVariable = null; localVariable ??= "Local Default";
                 ConvertLocalIdentifierNameCoalesceAssignment(model, local, right);
                 break;
             case IParameterSymbol parameter:
-                // Example：public void MyMethod(string? parameter = null) { parameter ??= "Parameter Default"; }
                 ConvertParameterIdentifierNameCoalesceAssignment(model, parameter, right);
                 break;
             case IPropertySymbol property:
-                // Example：public string? MyProperty { get; set; }; MyProperty ??= "Property Default";
                 ConvertPropertyIdentifierNameCoalesceAssignment(model, property, right);
                 break;
             default:

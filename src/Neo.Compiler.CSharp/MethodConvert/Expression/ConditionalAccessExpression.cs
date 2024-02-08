@@ -19,21 +19,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    /// <summary>
-    /// Converts C# conditional access expressions to executable code.
-    /// </summary>
-    /// <param name="model">The semantic model</param>
-    /// <param name="expression">The conditional access expression syntax node</param>
-    /// <remarks>
-    /// This handles conversion of syntax like:
-    ///
-    /// obj?.Prop
-    ///
-    /// Where null conditional operator allows access to members of potentially null objects.
-    ///
-    /// The method emits logic to evaluate the target object, check if its null, and either
-    /// access the member or propagate null based on that check.
-    /// </remarks>
     private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;

@@ -22,24 +22,6 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
 
-    /// <summary>
-    /// Converts a simple assignment expression into executable instructions.
-    /// </summary>
-    /// <param name="model">The semantic model for resolving types and symbols within the current context.</param>
-    /// <param name="expression">The assignment expression syntax node to be converted.</param>
-    /// <remarks>
-    /// This method processes a simple assignment expression by evaluating the expression on the right-hand side and preparing
-    /// it for assignment to the target on the left-hand side. It supports various forms of the left-hand side expressions,
-    /// including declarations, element accesses, identifiers, member accesses, and tuples. Depending on the type of the left-hand
-    /// side expression, specific conversion methods are invoked.
-    ///
-    /// Examples for each case:
-    /// - Declaration: Handles variable declarations with assignment, e.g., <code>var x = value;</code>
-    /// - ElementAccess: Handles assignments to array or collection elements, e.g., <code>array[index] = value;</code>
-    /// - IdentifierName: Handles assignments to variables or fields, e.g., <code>variable = value;</code>
-    /// - MemberAccess: Handles assignments to object properties, e.g., <code>object.Property = value;</code>
-    /// - Tuple: Handles tuple deconstruction assignments, e.g., <code>(x, y) = (1, 2);</code>
-    /// </remarks>
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ConvertExpression(model, expression.Right);
@@ -47,24 +29,18 @@ partial class MethodConvert
         switch (expression.Left)
         {
             case DeclarationExpressionSyntax left:
-                // Example: var x = value;
-                // Processes variable declaration and assignment.
                 ConvertDeclarationAssignment(model, left);
                 break;
             case ElementAccessExpressionSyntax left:
-                // Example: array[index] = value;
                 ConvertElementAccessAssignment(model, left);
                 break;
             case IdentifierNameSyntax left:
-                // Example: variable = value;
                 ConvertIdentifierNameAssignment(model, left);
                 break;
             case MemberAccessExpressionSyntax left:
-                // Example: object.Property = value;
                 ConvertMemberAccessAssignment(model, left);
                 break;
             case TupleExpressionSyntax left:
-                // Example: (x, y) = (1, 2);
                 ConvertTupleAssignment(model, left);
                 break;
             default:
