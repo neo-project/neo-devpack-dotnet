@@ -17,6 +17,27 @@ namespace Neo.Optimizer
 {
     public static class Reachability
     {
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+        private static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
+        private static readonly Regex SequencePointRegex = new(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
+        private static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
+        public enum TryStack
+        {
+            ENTRY,
+            TRY,
+            CATCH,
+            FINALLY,
+        }
+
+        public enum BranchType
+        {
+            OK,     // One of the branches may return without exception
+            THROW,  // All branches surely has exceptions, but can be catched
+            ABORT,  // All branches abort, and cannot be catched
+        }
+
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JToken) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
@@ -80,9 +101,9 @@ namespace Neo.Optimizer
             }
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
                 method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
-            Script newScript = new Script(simplifiedScript.ToArray());
+            Script newScript = new(simplifiedScript.ToArray());
             nef.Script = newScript;
-            nef.Compiler = System.AppDomain.CurrentDomain.FriendlyName;
+            nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
@@ -91,8 +112,7 @@ namespace Neo.Optimizer
             HashSet<JToken> methodsToRemove = new();
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
-                Regex rangeRegex = new Regex(@"(\d+)\-(\d+)", RegexOptions.Compiled);
-                GroupCollection rangeGroups = rangeRegex.Match(method!["range"]!.AsString()).Groups;
+                GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
                 (int oldMethodStart, int oldMethodEnd) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
                 if (!simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[oldMethodStart]))
                 {
@@ -105,12 +125,11 @@ namespace Neo.Optimizer
                 newMethodEnd.Add(methodEnd, method["id"]!.AsString());
                 method["range"] = $"{methodStart}-{methodEnd}";
 
-                Regex sequencePointRegex = new Regex(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
                 int previousSequencePoint = methodStart;
                 JArray newSequencePoints = new();
                 foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
                 {
-                    GroupCollection sequencePointGroups = sequencePointRegex.Match(sequencePoint!.AsString()).Groups;
+                    GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
                     int startingInstructionAddress = int.Parse(sequencePointGroups[1].ToString());
                     Instruction oldInstruction = oldAddressToInstruction[startingInstructionAddress];
                     if (simplifiedInstructionsToAddress.Contains(oldInstruction))
@@ -121,8 +140,7 @@ namespace Neo.Optimizer
                     }
                     else
                         newSequencePoints.Add(new JString($"{previousSequencePoint}{sequencePointGroups[2]}"));
-                    Regex documentRegex = new Regex(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
-                    GroupCollection documentGroups = documentRegex.Match(sequencePointGroups[2].ToString()).Groups;
+                    GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
                     newAddrToSequencePoint.Add(previousSequencePoint, (
                         int.Parse(documentGroups[1].ToString()),
                         int.Parse(documentGroups[2].ToString()),
@@ -159,8 +177,8 @@ namespace Neo.Optimizer
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
                 string name = method!["name"]!.AsString();  // NFTLoan.NFTLoan,RegisterRental
-                name = name.Substring(name.LastIndexOf(',') + 1);  // RegisterRental
-                name = char.ToLower(name[0]) + name.Substring(1);  // registerRental
+                name = name[(name.LastIndexOf(',') + 1)..];  // RegisterRental
+                name = char.ToLower(name[0]) + name[1..];  // registerRental
                 if (name == "_deploy")
                 {
                     int startAddr = int.Parse(method!["range"]!.AsString().Split("-")[0]);
@@ -168,21 +186,6 @@ namespace Neo.Optimizer
                 }
             }
             return coveredMap;
-        }
-
-        public enum TryStack
-        {
-            ENTRY,
-            TRY,
-            CATCH,
-            FINALLY,
-        }
-
-        public enum BranchType
-        {
-            OK,     // One of the branches may return without exception
-            THROW,  // All branches surely has exceptions, but can be catched
-            ABORT,  // All branches abort, and cannot be catched
         }
 
         /// <summary>
@@ -196,8 +199,7 @@ namespace Neo.Optimizer
         /// <exception cref="NotImplementedException"></exception>
         public static BranchType CoverInstruction(int addr, Script script, Dictionary<int, bool> coveredMap, Stack<((int returnAddr, int finallyAddr), TryStack stackType)>? stack = null, bool throwed = false)
         {
-            if (stack == null)
-                stack = new();
+            stack ??= new();
             if (stack.Count == 0)
                 stack.Push(((-1, -1), TryStack.ENTRY));
             while (stack.Count > 0)
