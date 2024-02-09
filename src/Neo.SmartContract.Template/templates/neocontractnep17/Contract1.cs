@@ -55,11 +55,11 @@ namespace ProjectName
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newOwner != null && newOwner.IsValid)
-            {
-                Storage.Put(new[] { Prefix_Owner }, newOwner);
-                OnSetOwner(newOwner);
-            }
+
+            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
+
+            Storage.Put(new[] { Prefix_Owner }, newOwner);
+            OnSetOwner(newOwner);
         }
 
         #endregion
