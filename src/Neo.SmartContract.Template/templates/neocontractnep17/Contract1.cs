@@ -24,14 +24,13 @@ namespace ProjectName
 
         private const byte Prefix_Owner = 0xff;
 
-        // TODO: Replace it with your own address.
-        [InitialValue("<Your Address Here>", Neo.SmartContract.ContractParameterType.Hash160)]
-        private static readonly UInt160 InitialOwner = default;
-
-        // Init method
+        // Init method, you must call it with the owner or it will take the sender
         public static void _deploy(object data)
         {
+            if (data is null) data = Runtime.Transaction.Sender;
+
             UInt160 initialOwner = (UInt160)data;
+
             ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
