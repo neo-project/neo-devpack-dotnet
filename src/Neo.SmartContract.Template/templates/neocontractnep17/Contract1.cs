@@ -24,7 +24,7 @@ namespace ProjectName
 
         private const byte Prefix_Owner = 0xff;
 
-        // Init method, you must call it with the owner or it will take the sender
+        // Init method, you must deploy the contract with the owner as an argument, or it will take the sender
         public static void _deploy(object data)
         {
             if (data is null) data = Runtime.Transaction.Sender;
