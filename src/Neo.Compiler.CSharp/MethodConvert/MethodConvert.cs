@@ -244,9 +244,8 @@ namespace Neo.Compiler
         {
             INamedTypeSymbol type = Symbol.ContainingType;
             CreateObject(model, type, null);
-            IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0);
-            if (constructor is null)
-                throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
+            IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0)
+                ?? throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
             Call(model, constructor, true, Array.Empty<ArgumentSyntax>());
             _returnTarget.Instruction = Jump(OpCode.JMP_L, target._startTarget);
             _startTarget.Instruction = _instructions[0];
@@ -1825,8 +1824,10 @@ namespace Neo.Compiler
                 case "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                    JumpTarget gcdTarget = new();
-                    gcdTarget.Instruction = AddInstruction(OpCode.DUP);
+                    JumpTarget gcdTarget = new()
+                    {
+                        Instruction = AddInstruction(OpCode.DUP)
+                    };
                     AddInstruction(OpCode.REVERSE3);
                     AddInstruction(OpCode.SWAP);
                     AddInstruction(OpCode.MOD);

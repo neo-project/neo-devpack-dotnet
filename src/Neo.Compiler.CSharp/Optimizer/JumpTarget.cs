@@ -32,22 +32,14 @@ namespace Neo.Optimizer
                 return addr + instruction.TokenI8;
             if (conditionalJump_L.Contains(instruction.OpCode))
                 return addr + instruction.TokenI32;
-            switch (instruction.OpCode)
+
+            return instruction.OpCode switch
             {
-                case JMP:
-                case CALL:
-                case ENDTRY:
-                    return addr + instruction.TokenI8;
-                case PUSHA:
-                case JMP_L:
-                case CALL_L:
-                case ENDTRY_L:
-                    return addr + instruction.TokenI32;
-                case CALLA:
-                    throw new NotImplementedException("CALLA is dynamic; not supported");
-                default:
-                    throw new NotImplementedException($"Unknown instruction {instruction.OpCode}");
-            }
+                JMP or CALL or ENDTRY => addr + instruction.TokenI8,
+                PUSHA or JMP_L or CALL_L or ENDTRY_L => addr + instruction.TokenI32,
+                CALLA => throw new NotImplementedException("CALLA is dynamic; not supported"),
+                _ => throw new NotImplementedException($"Unknown instruction {instruction.OpCode}"),
+            };
         }
 
         public static (int catchTarget, int finallyTarget) ComputeTryTarget(int addr, Instruction instruction)
