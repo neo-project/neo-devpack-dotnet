@@ -81,6 +81,11 @@ namespace Neo.SmartContract.TestEngine
 
             foreach (var method in manifest.Abi.Methods)
             {
+                // This method can't be called, so avoid them
+
+                if (method.Name == "_deploy") continue;
+                if (method.Name == "_initialize") continue;
+
                 sourceCode.Append(CreateSourceMethodFromManifest(method));
             }
 

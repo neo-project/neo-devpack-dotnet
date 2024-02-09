@@ -28,7 +28,6 @@ public class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
     public abstract BigInteger totalSupply ();
     public abstract BigInteger balanceOf ();
     public abstract bool transfer ();
-    public abstract void _deploy ();
     public abstract UInt160 getOwner ();
     public abstract void setOwner ();
     public abstract void burn ();
@@ -37,9 +36,7 @@ public class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
     public abstract void onNEP17Payment ();
     public abstract bool verify ();
     public abstract string myMethod ();
-    public abstract void _deploy ();
     public abstract void update ();
-    public abstract void _initialize ();
 }
 
 ".Replace("\r\n", "\n").Trim()));

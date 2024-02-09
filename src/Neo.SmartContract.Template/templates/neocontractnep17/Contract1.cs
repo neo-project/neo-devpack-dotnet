@@ -24,19 +24,6 @@ namespace ProjectName
 
         private const byte Prefix_Owner = 0xff;
 
-        // Init method, you must deploy the contract with the owner as an argument, or it will take the sender
-        public static void _deploy(object data)
-        {
-            if (data is null) data = Runtime.Transaction.Sender;
-
-            UInt160 initialOwner = (UInt160)data;
-
-            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
-
-            Storage.Put(new[] { Prefix_Owner }, initialOwner);
-            OnSetOwner(initialOwner);
-        }
-
         [Safe]
         public static UInt160 GetOwner()
         {
@@ -141,6 +128,16 @@ namespace ProjectName
                 // This will be executed during update
                 return;
             }
+
+            // Init method, you must deploy the contract with the owner as an argument, or it will take the sender
+            if (data is null) data = Runtime.Transaction.Sender;
+
+            UInt160 initialOwner = (UInt160)data;
+
+            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
+
+            Storage.Put(new[] { Prefix_Owner }, initialOwner);
+            OnSetOwner(initialOwner);
 
             // This will be executed during deploy
             Storage.Put(Storage.CurrentContext, "Hello", "World");
