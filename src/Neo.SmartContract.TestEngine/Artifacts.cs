@@ -83,8 +83,7 @@ namespace Neo.SmartContract.TestEngine
             {
                 // This method can't be called, so avoid them
 
-                if (method.Name == "_deploy") continue;
-                if (method.Name == "_initialize") continue;
+                if (method.Name.StartsWith("_")) continue;
 
                 sourceCode.Append(CreateSourceMethodFromManifest(method));
             }
