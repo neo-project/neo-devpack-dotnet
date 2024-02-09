@@ -20,7 +20,7 @@ using System.Numerics;
 
 namespace Neo.TestEngine.Contracts;
 
-public class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
+public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
 {
 #region Constructor for internal use only
     internal Contract1(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine) : base(testEngine) {}

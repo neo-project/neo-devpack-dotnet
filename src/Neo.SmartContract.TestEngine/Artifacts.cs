@@ -71,7 +71,7 @@ namespace Neo.SmartContract.TestEngine
             sourceCode.AppendLine("");
             sourceCode.AppendLine("namespace Neo.TestEngine.Contracts;");
             sourceCode.AppendLine("");
-            sourceCode.AppendLine($"public class {manifest.Name} : Neo.SmartContract.TestEngine.Mocks.SmartContract");
+            sourceCode.AppendLine($"public abstract class {manifest.Name} : Neo.SmartContract.TestEngine.Mocks.SmartContract");
             sourceCode.AppendLine("{");
 
             // Create constructor
