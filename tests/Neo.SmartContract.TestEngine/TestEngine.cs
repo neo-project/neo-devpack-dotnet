@@ -20,11 +20,11 @@ namespace Neo.SmartContract.TestEngine
 
         private static readonly List<MetadataReference> references = new();
 
-        public event EventHandler<ExecutionContext> OnPreExecuteTestCaseStandard;
+        public event EventHandler<ExecutionContext>? OnPreExecuteTestCaseStandard;
 
         public NefFile? Nef { get; private set; }
         public ContractManifest? Manifest { get; private set; }
-        public JObject DebugInfo { get; private set; }
+        public JObject? DebugInfo { get; private set; }
 
         static TestEngine()
         {
