@@ -92,7 +92,6 @@ namespace Neo.Optimizer
                 yield return (address, Instruction.RET);
         }
 
-
         public static string GetOperandString(this Instruction instruction) => BitConverter.ToString(instruction.Operand.Span.ToArray());
 
         public static string GetComment(this Instruction instruction, int ip, MethodToken[]? tokens = null)
