@@ -6,42 +6,22 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Neo.Optimizer
 {
     public static class DumpNef
     {
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+        private static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
+        private static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
+        private static readonly Regex SequencePointRegex = new(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
         static readonly Lazy<IReadOnlyDictionary<uint, string>> sysCallNames = new(
             () => ApplicationEngine.Services.ToImmutableDictionary(kvp => kvp.Value.Hash, kvp => kvp.Value.Name));
-
-        public static string Unzip(string path)
-        {
-            using FileStream zippedBuffer = File.OpenRead(path);
-            using var archive = new ZipArchive(zippedBuffer, ZipArchiveMode.Read, false, Encoding.UTF8);
-            var entry = archive.Entries.FirstOrDefault();
-            if (entry != null)
-            {
-                using var unzippedEntryStream = entry.Open();
-                using var ms = new MemoryStream();
-                unzippedEntryStream.CopyTo(ms);
-                var unzippedArray = ms.ToArray();
-                return Encoding.UTF8.GetString(unzippedArray);
-            }
-            throw new ArgumentException("No file found in zip archive");
-        }
-
-        public static void Zip(string path, byte[] content, string innerFilename)
-        {
-            using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
-            using ZipArchive archive = new(fs, ZipArchiveMode.Create);
-            using Stream stream = archive.CreateEntry(innerFilename).Open();
-            stream.Write(content);
-        }
 
         public static string GetInstructionAddressPadding(this Script script)
         {
@@ -85,7 +65,7 @@ namespace Neo.Optimizer
                 instruction = script.GetInstruction(address);
                 opcode = instruction.OpCode;
                 if (print)
-                    Console.WriteLine(WriteInstruction(address, instruction, "0000", new MethodToken[] { }));
+                    Console.WriteLine(WriteInstruction(address, instruction, "0000", Array.Empty<MethodToken>()));
                 yield return (address, instruction);
             }
             if (opcode != OpCode.RET)
@@ -204,20 +184,18 @@ namespace Neo.Optimizer
             Dictionary<int, string> methodStartAddrToName = new();
             Dictionary<int, string> methodEndAddrToName = new();
             Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
-            Regex documentRegex = new Regex(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
-            Regex rangeRegex = new Regex(@"(\d+)\-(\d+)", RegexOptions.Compiled);
-            Regex sequencePointRegex = new Regex(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
+
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
-                GroupCollection rangeGroups = rangeRegex.Match(method!["range"]!.AsString()).Groups;
+                GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
                 (int methodStartAddr, int methodEndAddr) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
                 methodStartAddrToName.Add(methodStartAddr, method!["id"]!.AsString());  // TODO: same format of method name as dumpnef
                 methodEndAddrToName.Add(methodEndAddr, method["id"]!.AsString());
 
                 foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
                 {
-                    GroupCollection sequencePointGroups = sequencePointRegex.Match(sequencePoint!.AsString()).Groups;
-                    GroupCollection documentGroups = documentRegex.Match(sequencePointGroups[2].ToString()).Groups;
+                    GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
+                    GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
                     newAddrToSequencePoint.Add(int.Parse(sequencePointGroups[1].Value), (
                         int.Parse(documentGroups[1].ToString()),
                         int.Parse(documentGroups[2].ToString()),
@@ -238,25 +216,25 @@ namespace Neo.Optimizer
                     dumpnef += $"# Method End {methodEndAddrToName[a]}\n";
                 if (newAddrToSequencePoint.ContainsKey(a))
                 {
-                    var docInfo = newAddrToSequencePoint[a];
-                    string docPath = debugInfo["documents"]![docInfo.docId]!.AsString();
+                    var (docId, startLine, startCol, endLine, endCol) = newAddrToSequencePoint[a];
+                    string docPath = debugInfo["documents"]![docId]!.AsString();
                     if (debugInfo["document-root"] != null)
                         docPath = Path.Combine(debugInfo["document-root"]!.AsString(), docPath);
                     if (!docPathToContent.ContainsKey(docPath))
                         docPathToContent.Add(docPath, File.ReadAllLines(docPath).ToArray());
-                    if (docInfo.startLine == docInfo.endLine)
-                        dumpnef += $"# Code {Path.GetFileName(docPath)} line {docInfo.startLine}: \"{docPathToContent[docPath][docInfo.startLine - 1][(docInfo.startCol - 1)..(docInfo.endCol - 1)]}\"\n";
+                    if (startLine == endLine)
+                        dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{docPathToContent[docPath][startLine - 1][(startCol - 1)..(endCol - 1)]}\"\n";
                     else
-                        for (int lineIndex = docInfo.startLine; lineIndex <= docInfo.endLine; lineIndex++)
+                        for (int lineIndex = startLine; lineIndex <= endLine; lineIndex++)
                         {
                             string src;
-                            if (lineIndex == docInfo.startLine)
-                                src = docPathToContent[docPath][lineIndex - 1][(docInfo.startCol - 1)..].Trim();
-                            else if (lineIndex == docInfo.endLine)
-                                src = docPathToContent[docPath][lineIndex - 1][..(docInfo.endCol - 1)].Trim();
+                            if (lineIndex == startLine)
+                                src = docPathToContent[docPath][lineIndex - 1][(startCol - 1)..].Trim();
+                            else if (lineIndex == endLine)
+                                src = docPathToContent[docPath][lineIndex - 1][..(endCol - 1)].Trim();
                             else
                                 src = docPathToContent[docPath][lineIndex - 1].Trim();
-                            dumpnef += $"# Code {Path.GetFileName(docPath)} line {docInfo.startLine}: \"{src}\"\n";
+                            dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{src}\"\n";
                         }
                 }
                 if (a < script.Length)

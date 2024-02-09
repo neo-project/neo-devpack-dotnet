@@ -6,6 +6,7 @@ namespace Neo.Optimizer
     public class StrategyAttribute : Attribute
     {
         public string? Name { get; init; }
+
         public int Priority = 0;  // greater num to be executed first
     }
 }

@@ -10,9 +10,9 @@ namespace Neo.Optimizer
 {
     public class Optimizer
     {
-        public static int[] OperandSizePrefixTable = new int[256];
-        public static int[] OperandSizeTable = new int[256];
-        public static Dictionary<string, Func<NefFile, ContractManifest, JToken, (NefFile nef, ContractManifest manifest, JToken debugInfo)>> strategies = new();
+        public static readonly int[] OperandSizePrefixTable = new int[256];
+        public static readonly int[] OperandSizeTable = new int[256];
+        public static readonly Dictionary<string, Func<NefFile, ContractManifest, JToken, (NefFile nef, ContractManifest manifest, JToken debugInfo)>> strategies = new();
 
         static Optimizer()
         {
