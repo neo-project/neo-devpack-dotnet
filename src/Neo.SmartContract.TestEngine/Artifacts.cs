@@ -102,7 +102,18 @@ namespace Neo.SmartContract.TestEngine
         {
             StringBuilder sourceCode = new();
 
-            sourceCode.AppendLine($"    public abstract {TypeToSource(method.ReturnType)} {method.Name} ();");
+            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {method.Name} (");
+
+            bool isFirst = true;
+            foreach (var arg in method.Parameters)
+            {
+                if (!isFirst) sourceCode.Append(", ");
+                else isFirst = false;
+
+                sourceCode.Append($"{TypeToSource(arg.Type)} {arg.Name}");
+            }
+
+            sourceCode.AppendLine(");");
 
             return sourceCode.ToString();
         }

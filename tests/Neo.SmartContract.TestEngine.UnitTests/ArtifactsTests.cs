@@ -26,17 +26,17 @@ public class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
     public abstract string symbol ();
     public abstract BigInteger decimals ();
     public abstract BigInteger totalSupply ();
-    public abstract BigInteger balanceOf ();
-    public abstract bool transfer ();
+    public abstract BigInteger balanceOf (UInt160 owner);
+    public abstract bool transfer (UInt160 from, UInt160 to, BigInteger amount, object data);
     public abstract UInt160 getOwner ();
-    public abstract void setOwner ();
-    public abstract void burn ();
-    public abstract void mint ();
-    public abstract bool withdraw ();
-    public abstract void onNEP17Payment ();
+    public abstract void setOwner (UInt160 newOwner);
+    public abstract void burn (UInt160 account, BigInteger amount);
+    public abstract void mint (UInt160 to, BigInteger amount);
+    public abstract bool withdraw (UInt160 token, UInt160 to, BigInteger amount);
+    public abstract void onNEP17Payment (UInt160 from, BigInteger amount, object data);
     public abstract bool verify ();
     public abstract string myMethod ();
-    public abstract void update ();
+    public abstract void update (byte[] nefFile, string manifest);
 }
 
 ".Replace("\r\n", "\n").Trim()));
