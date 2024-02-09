@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Array = System.Array;
 
 namespace Neo.SmartContract.TestEngine
 {
@@ -14,20 +15,20 @@ namespace Neo.SmartContract.TestEngine
             snapshot.Add(key, new StorageItem(contract));
         }
 
-        public static void DeployNativeContracts(this DataCache snapshot, Block persistingBlock = null)
+        public static void DeployNativeContracts(this DataCache snapshot, Block? persistingBlock = null)
         {
-            persistingBlock ??= new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
+            persistingBlock ??= new NeoSystem(TestProtocolSettings.Default, new MemoryStore()).GenesisBlock;
 
             var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             engine.LoadScript(Array.Empty<byte>());
-            method.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
+            method!.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
             engine.Snapshot.Commit();
 
             method = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             engine.LoadScript(Array.Empty<byte>());
-            method.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
+            method!.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });
             engine.Snapshot.Commit();
         }
 
@@ -71,6 +72,20 @@ namespace Neo.SmartContract.TestEngine
                 }
             }
             return matchedFiles;
+        }
+      
+        public static bool TryGetString(this byte[] byteArray, out string? value)
+        {
+            try
+            {
+                value = Utility.StrictUTF8.GetString(byteArray);
+                return true;
+            }
+            catch
+            {
+                value = default;
+                return false;
+            }
         }
     }
 }

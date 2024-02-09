@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.TestEngine;
@@ -18,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Init()
         {
             snapshot = new TestDataCache();
-            genesisBlock = new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
+            genesisBlock = new NeoSystem(TestProtocolSettings.Default, new MemoryStore()).GenesisBlock;
         }
 
         [TestMethod]

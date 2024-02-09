@@ -6,6 +6,7 @@ using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.SmartContract;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
@@ -341,7 +342,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void event_Test()
         {
-            var system = new NeoSystem(TestProtocolSettings.Default);
+            var system = new NeoSystem(TestProtocolSettings.Default, new MemoryStore());
             using var _engine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
