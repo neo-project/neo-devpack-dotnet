@@ -3,6 +3,7 @@ using Neo.SmartContract.Manifest;
 using System;
 using System.CodeDom.Compiler;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -75,17 +76,41 @@ namespace Neo.SmartContract.TestEngine
 
             // Create constructor
 
+            sourceCode.AppendLine("#region Constructor for internal use only");
             sourceCode.AppendLine($"    internal {manifest.Name}(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine) : base(testEngine) {{}}");
+            sourceCode.AppendLine("#endregion");
 
             // Crete methods
 
-            foreach (var method in manifest.Abi.Methods)
+            if (manifest.Abi.Methods.Any(u => u.Safe))
             {
-                // This method can't be called, so avoid them
+                sourceCode.AppendLine("#region Safe methods");
 
-                if (method.Name.StartsWith("_")) continue;
+                foreach (var method in manifest.Abi.Methods.Where(u => u.Safe).OrderBy(u => u.Name))
+                {
+                    // This method can't be called, so avoid them
 
-                sourceCode.Append(CreateSourceMethodFromManifest(method));
+                    if (method.Name.StartsWith("_")) continue;
+
+                    sourceCode.Append(CreateSourceMethodFromManifest(method));
+                }
+
+                sourceCode.AppendLine("#endregion");
+            }
+
+            if (manifest.Abi.Methods.Any(u => !u.Safe))
+            {
+                sourceCode.AppendLine("#region Unsafe methods");
+
+                foreach (var method in manifest.Abi.Methods.Where(u => !u.Safe).OrderBy(u => u.Name))
+                {
+                    // This method can't be called, so avoid them
+
+                    if (method.Name.StartsWith("_")) continue;
+
+                    sourceCode.Append(CreateSourceMethodFromManifest(method));
+                }
+                sourceCode.AppendLine("#endregion");
             }
 
             sourceCode.AppendLine("}");
