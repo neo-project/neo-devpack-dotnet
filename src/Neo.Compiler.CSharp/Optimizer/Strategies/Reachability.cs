@@ -140,6 +140,7 @@ namespace Neo.Optimizer
             return (nef, manifest, debugInfo);
         }
 
+
         public static Dictionary<int, bool>
             FindCoveredInstructions(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
