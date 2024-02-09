@@ -1,5 +1,4 @@
 using Neo;
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -29,15 +28,20 @@ namespace ProjectName
         [InitialValue("<Your Address Here>", Neo.SmartContract.ContractParameterType.Hash160)]
         private static readonly UInt160 InitialOwner = default;
 
+        // Init method
+        public static void _deploy(object data)
+        {
+            UInt160 initialOwner = (UInt160)data;
+            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
+
+            Storage.Put(new[] { Prefix_Owner }, initialOwner);
+            OnSetOwner(initialOwner);
+        }
+
         [Safe]
         public static UInt160 GetOwner()
         {
-            var currentOwner = Storage.Get(new[] { Prefix_Owner });
-
-            if (currentOwner == null)
-                return InitialOwner;
-
-            return (UInt160)currentOwner;
+            return (UInt160)Storage.Get(new[] { Prefix_Owner });
         }
 
         private static bool IsOwner() =>
@@ -63,13 +67,11 @@ namespace ProjectName
 
         #region NEP17
 
-        // NOTE: Valid Range 0-31
-        [Safe]
-        public override byte Decimals() => 8;
-
         // TODO: Replace "EXAMPLE" with a short name all UPPERCASE 3-8 characters
-        [Safe]
-        public override string Symbol() => "EXAMPLE";
+        public override string Symbol { [Safe] get => "EXAMPLE"; }
+
+        // NOTE: Valid Range 0-31
+        public override byte Decimals { [Safe] get => 8; }
 
         public static new void Burn(UInt160 account, BigInteger amount)
         {

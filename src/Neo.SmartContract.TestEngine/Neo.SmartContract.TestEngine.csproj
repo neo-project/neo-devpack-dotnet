@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Title>Neo.SmartContract.TestEngine</Title>
+		<PackageId>Neo.SmartContract.TestEngine</PackageId>
+		<PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+		<Description>TestEngine for NEO smart contract testing.</Description>
+		<IncludeContentInPack>true</IncludeContentInPack>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<ContentTargetFolders>content</ContentTargetFolders>
+		<NoWarn>$(NoWarn);NU5128</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="4.1.0" />
+	  <PackageReference Include="System.CodeDom" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+	</ItemGroup>
+
+</Project>
