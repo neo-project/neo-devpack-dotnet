@@ -10,9 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Numerics;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace Neo.SmartContract.Testing
@@ -90,7 +88,11 @@ namespace Neo.SmartContract.Testing
             Script = System.Array.Empty<byte>(),
             Signers = new Signer[]
             {
-                new Signer() { Account=Contract.GetBFTAddress(Default.StandbyValidators) }
+                new Signer()
+                {
+                     Account = Contract.GetBFTAddress(Default.StandbyValidators),
+                     Scopes = WitnessScope.Global
+                }
             },
             Witnesses = new Witness[]
             {
@@ -241,7 +243,7 @@ namespace Neo.SmartContract.Testing
                 }
                 else
                 {
-                    //MockMethod(mock, method.Name, args);
+                    MockMethod(mock, method.Name, args);
                 }
             }
 
@@ -321,14 +323,14 @@ namespace Neo.SmartContract.Testing
                     u.GetParameters()[0].ParameterType.ToString().Contains("[System.Action`")
                     );
 
-            var setup = setupMethod.Invoke(mock, new object[] { exp });
+            var setup = setupMethod.Invoke(mock, new object[] { exp })!;
 
-            var retMethod = mock.GetType()
+            var retMethod = setup.GetType()
                .GetMethod("Callback", new Type[] { typeof(InvocationAction) })!;
 
             _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
                 {
-                    _=mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
+                    mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
                 })
             });
         }

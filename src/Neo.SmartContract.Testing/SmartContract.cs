@@ -101,7 +101,7 @@ namespace Neo.SmartContract.Testing
             }
         }
 
-        private object?[]? Convert(VM.Types.Array state, ParameterInfo[] parameterInfos)
+        private static object?[]? Convert(VM.Types.Array state, ParameterInfo[] parameterInfos)
         {
             if (parameterInfos.Length > 0)
             {
