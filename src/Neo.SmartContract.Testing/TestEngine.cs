@@ -1,12 +1,17 @@
 using Moq;
 using Neo.Cryptography.ECC;
+using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
+using Neo.VM.Types;
+using System.Collections.Generic;
 
 namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
+        private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
+
         /// <summary>
         /// Default Protocol Settings
         /// </summary>
@@ -87,6 +92,47 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        public TestEngine()
+        {
+            ApplicationEngine.Log += ApplicationEngine_Log;
+            ApplicationEngine.Notify += ApplicationEngine_Notify;
+        }
+
+        #region Invoke events
+
+        private void ApplicationEngine_Notify(object? sender, NotifyEventArgs e)
+        {
+            if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
+            {
+                foreach (var contract in contracts)
+                {
+                    contract.InvokeOnNotify(e.EventName, e.State);
+                }
+            }
+        }
+
+        private void ApplicationEngine_Log(object? sender, LogEventArgs e)
+        {
+            if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
+            {
+                foreach (var contract in contracts)
+                {
+                    contract.InvokeOnLog(e.Message);
+                }
+            }
+        }
+
+        public void Log(UInt160 scriptHash, string message) =>
+            ApplicationEngine_Log(null, new LogEventArgs(null, scriptHash, message));
+
+        public void Notify(UInt160 scriptHash, string eventName, Array state) =>
+            ApplicationEngine_Notify(null, new NotifyEventArgs(null, scriptHash, eventName, state));
+
+        #endregion
+
+        /// <summary>
         /// Deploy Smart contract
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
@@ -127,8 +173,18 @@ namespace Neo.SmartContract.Testing
                 CallBase = true
             };
 
-            // return mocked sc
+            // Cache sc
 
+            if (_contracts.TryGetValue(hash, out var result))
+            {
+                result.Add(mock.Object);
+            }
+            else
+            {
+                _contracts[hash] = new List<SmartContract>(new SmartContract[] { mock.Object });
+            }
+
+            // return mocked sc
             return mock.Object;
         }
     }
