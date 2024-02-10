@@ -43,6 +43,7 @@ namespace Neo.SmartContract.Testing
 
             using ScriptBuilder script = new();
             script.EmitDynamicCall(Hash, methodName, args);
+            _engine.Transaction.Script = script.ToArray(); // Store the script in the current transaction
 
             // Execute in neo VM
 

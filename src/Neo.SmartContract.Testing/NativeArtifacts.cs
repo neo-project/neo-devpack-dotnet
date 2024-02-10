@@ -155,6 +155,8 @@ namespace Neo.SmartContract.Testing
         /// <param name="commit">Initialize native contracts</param>
         public void Initialize(bool commit = false)
         {
+            _engine.Transaction.Script = Array.Empty<byte>(); // Store the script in the current transaction
+
             var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
             using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
 
@@ -166,7 +168,6 @@ namespace Neo.SmartContract.Testing
 
                 using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings))
                 {
-
                     engine.LoadScript(Array.Empty<byte>());
                     method!.Invoke(native, new object[] { engine });
 
