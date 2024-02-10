@@ -163,8 +163,10 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileSources(string[] sourceFiles, Options options)
         {
-            List<MetadataReference> references = new(commonReferences);
-            references.Add(MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location));
+            List<MetadataReference> references = new(commonReferences)
+            {
+                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
+            };
             return Compile(sourceFiles, references, options);
         }
 
