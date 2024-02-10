@@ -18,10 +18,8 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Ensure that the main address contains the totalSupply
 
-            var addr = Contract.GetBFTAddress(engine.ProtocolSettings.StandbyValidators);
-
             Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply());
-            Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(addr));
+            Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(engine.BFTAddress));
 
             // Test set
 
@@ -38,6 +36,8 @@ namespace Neo.SmartContract.Testing.UnitTests
                 }
             };
             engine.Native.NEO.setGasPerBlock(123);
+
+            engine.Storage.Commit(); // Bug in MemoryStore
 
             Assert.AreEqual(123, engine.Native.NEO.getGasPerBlock());
 

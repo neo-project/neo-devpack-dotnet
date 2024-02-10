@@ -170,7 +170,8 @@ namespace Neo.SmartContract.Testing
                     engine.LoadScript(Array.Empty<byte>());
                     method!.Invoke(native, new object[] { engine });
 
-                    engine.Snapshot.Commit();
+                    snapshot.Commit();
+                    engine.Snapshot.Commit(); // Bug in MemoryStore
                 }
 
                 // Mock Native.PostPersist
@@ -183,13 +184,15 @@ namespace Neo.SmartContract.Testing
                     engine.LoadScript(Array.Empty<byte>());
                     method!.Invoke(native, new object[] { engine });
 
-                    engine.Snapshot.Commit();
+                    snapshot.Commit();
+                    engine.Snapshot.Commit(); // Bug in MemoryStore
                 }
             }
 
+            snapshot.Commit();
+
             if (commit)
             {
-                snapshot.Commit();
                 _engine.Storage.Commit();
             }
         }

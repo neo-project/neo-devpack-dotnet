@@ -80,6 +80,11 @@ namespace Neo.SmartContract.Testing
         public ProtocolSettings ProtocolSettings { get; init; } = Default;
 
         /// <summary>
+        /// BFTAddress
+        /// </summary>
+        public UInt160 BFTAddress => Contract.GetBFTAddress(ProtocolSettings.StandbyValidators);
+
+        /// <summary>
         /// Transaction
         /// </summary>
         public Transaction Transaction { get; set; } = new Transaction()
@@ -127,10 +132,15 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Constructor
         /// </summary>
-        public TestEngine()
+        public TestEngine(bool initializeNativeContracts = false)
         {
             ApplicationEngine.Log += ApplicationEngine_Log;
             ApplicationEngine.Notify += ApplicationEngine_Notify;
+
+            if (initializeNativeContracts)
+            {
+                Native.Initialize(false);
+            }
         }
 
         #region Invoke events
