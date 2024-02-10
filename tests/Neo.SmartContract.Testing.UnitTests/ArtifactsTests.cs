@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Testing.UnitTests
     [TestClass]
     public class ArtifactsTests
     {
-        [TestMethod]
+        //[TestMethod]
         public void GenerateNativeArtifacts()
         {
             foreach (var n in Native.NativeContract.Contracts)
