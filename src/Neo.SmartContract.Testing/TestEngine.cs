@@ -3,9 +3,9 @@ using Neo.Cryptography.ECC;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 
-namespace Neo.SmartContract.TestEngine
+namespace Neo.SmartContract.Testing
 {
-    public class Engine
+    public class TestEngine
     {
         /// <summary>
         /// Default Protocol Settings
@@ -94,7 +94,7 @@ namespace Neo.SmartContract.TestEngine
         /// <param name="manifest">Contract manifest</param>
         /// <param name="data">Construction data</param>
         /// <returns>Mocked Smart Contract</returns>
-        public T Deploy<T>(NefFile nef, ContractManifest manifest, object data) where T : Mocks.SmartContract
+        public T Deploy<T>(NefFile nef, ContractManifest manifest, object data) where T : SmartContract
         {
             // Deploy and get the hash
 
@@ -111,14 +111,14 @@ namespace Neo.SmartContract.TestEngine
         /// <typeparam name="T">Type</typeparam>
         /// <param name="hash">Contract hash</param>
         /// <returns>Mocked Smart Contract</returns>
-        public T FromHash<T>(UInt160 hash) where T : Mocks.SmartContract
+        public T FromHash<T>(UInt160 hash) where T : SmartContract
         {
             // TODO: Ensure that the contract exists
 
             return MockContract<T>(hash);
         }
 
-        private T MockContract<T>(UInt160 hash) where T : Mocks.SmartContract
+        private T MockContract<T>(UInt160 hash) where T : SmartContract
         {
             // TODO: Mock sc here
 

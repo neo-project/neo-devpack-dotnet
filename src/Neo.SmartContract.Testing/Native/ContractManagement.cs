@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Neo.TestEngine.Contracts;
+namespace Neo.SmartContract.Testing;
 
-public abstract class ContractManagement : Neo.SmartContract.TestEngine.Mocks.SmartContract
+public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContract
 {
     #region Events
     public delegate void delDeploy(UInt160 Hash);
@@ -29,6 +29,6 @@ public abstract class ContractManagement : Neo.SmartContract.TestEngine.Mocks.Sm
     public abstract void update(byte[] nefFile, byte[] manifest, object data);
     #endregion
     #region Constructor for internal use only
-    protected ContractManagement(Neo.SmartContract.TestEngine.Engine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected ContractManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
     #endregion
 }

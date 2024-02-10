@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Neo.TestEngine.Contracts;
+namespace Neo.SmartContract.Testing;
 
-public abstract class CryptoLib : Neo.SmartContract.TestEngine.Mocks.SmartContract
+public abstract class CryptoLib : Neo.SmartContract.Testing.SmartContract
 {
     #region Safe methods
     public abstract object bls12381Add(object x, object y);
@@ -18,6 +18,6 @@ public abstract class CryptoLib : Neo.SmartContract.TestEngine.Mocks.SmartContra
     public abstract bool verifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, BigInteger curve);
     #endregion
     #region Constructor for internal use only
-    protected CryptoLib(Neo.SmartContract.TestEngine.Engine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected CryptoLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
     #endregion
 }

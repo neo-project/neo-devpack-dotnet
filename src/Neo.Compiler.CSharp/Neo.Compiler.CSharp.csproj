@@ -28,7 +28,7 @@
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>
-    <ProjectReference Include="..\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
+    <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using Neo.SmartContract.Manifest;
 using System.Linq;
 using System.Text;
 
-namespace Neo.SmartContract.TestEngine
+namespace Neo.SmartContract.Testing
 {
     public class Artifacts
     {
@@ -19,9 +19,9 @@ namespace Neo.SmartContract.TestEngine
             sourceCode.AppendLine("using System.Collections.Generic;");
             sourceCode.AppendLine("using System.Numerics;");
             sourceCode.AppendLine("");
-            sourceCode.AppendLine("namespace Neo.TestEngine.Contracts;");
+            sourceCode.AppendLine("namespace Neo.SmartContract.Testing;");
             sourceCode.AppendLine("");
-            sourceCode.AppendLine($"public abstract class {name} : Neo.SmartContract.TestEngine.Mocks.SmartContract");
+            sourceCode.AppendLine($"public abstract class {name} : Neo.SmartContract.Testing.SmartContract");
             sourceCode.AppendLine("{");
 
             // Crete events
@@ -74,7 +74,7 @@ namespace Neo.SmartContract.TestEngine
             // Create constructor
 
             sourceCode.AppendLine("#region Constructor for internal use only");
-            sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.TestEngine.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {{}}");
+            sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {{}}");
             sourceCode.AppendLine("#endregion");
 
             sourceCode.AppendLine("}");

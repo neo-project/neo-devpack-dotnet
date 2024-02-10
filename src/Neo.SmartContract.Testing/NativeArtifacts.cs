@@ -1,10 +1,8 @@
-using Neo.TestEngine.Contracts;
-
-namespace Neo.SmartContract.TestEngine
+namespace Neo.SmartContract.Testing
 {
     public class NativeArtifacts
     {
-        private readonly Engine _engine;
+        private readonly TestEngine _engine;
         private ContractManagement? _contractManagement;
         private CryptoLib? _cryptoLib;
 
@@ -36,7 +34,7 @@ namespace Neo.SmartContract.TestEngine
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
-        public NativeArtifacts(Engine engine)
+        public NativeArtifacts(TestEngine engine)
         {
             _engine = engine;
         }

@@ -32,9 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.VM", "neo\src\Neo.VM\Ne
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependency", "Dependency", "{49D5873D-7B38-48A5-B853-85146F032091}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.TestEngine", "src\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj", "{648DCE6F-A0BA-4032-951B-20CF5BBFD998}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Testing", "src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj", "{648DCE6F-A0BA-4032-951B-20CF5BBFD998}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.TestEngine.UnitTests", "tests\Neo.SmartContract.TestEngine.UnitTests\Neo.SmartContract.TestEngine.UnitTests.csproj", "{B772B8A9-9362-4C6F-A6D3-2A4138439B2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Testing.UnitTests", "tests\Neo.SmartContract.Testing.UnitTests\Neo.SmartContract.Testing.UnitTests.csproj", "{B772B8A9-9362-4C6F-A6D3-2A4138439B2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

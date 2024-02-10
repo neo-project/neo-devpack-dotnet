@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 
-namespace Neo.SmartContract.TestEngine.UnitTests
+namespace Neo.SmartContract.Testing.UnitTests
 {
     [TestClass]
     public class ArtifactsTests
@@ -10,17 +10,17 @@ namespace Neo.SmartContract.TestEngine.UnitTests
         [TestMethod]
         public void GenerateNativeArtifacts()
         {
-            var manifest = SmartContract.Native.NativeContract.ContractManagement.Manifest;
+            var manifest = Native.NativeContract.ContractManagement.Manifest;
             var contractManagement = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
 
-            manifest = SmartContract.Native.NativeContract.CryptoLib.Manifest;
+            manifest = Native.NativeContract.CryptoLib.Manifest;
             var cryptoLib = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
         }
 
         public void TestNativeContracts()
         {
-            Engine engine = new();
-            Assert.Equals(engine.Native.ContractManagement.Hash, SmartContract.Native.NativeContract.ContractManagement.Hash);
+            TestEngine engine = new();
+            Assert.Equals(engine.Native.ContractManagement.Hash, Native.NativeContract.ContractManagement.Hash);
         }
 
         [TestMethod]
@@ -37,9 +37,9 @@ namespace Neo.SmartContract.TestEngine.UnitTests
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Neo.TestEngine.Contracts;
+namespace Neo.SmartContract.Testing;
 
-public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
+public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
 {
 #region Events
     public delegate void delSetOwner(UInt160 newOwner);
@@ -66,7 +66,7 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
     public abstract bool withdraw(UInt160 token, UInt160 to, BigInteger amount);
 #endregion
 #region Constructor for internal use only
-    protected Contract1(Neo.SmartContract.TestEngine.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected Contract1(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
 #endregion
 }
 ".Replace("\r\n", "\n").Trim());
@@ -76,11 +76,11 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
         public void FromHashTest()
         {
             UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
-            Engine engine = new();
+            TestEngine engine = new();
 
             var contract = engine.FromHash<Contract1>(hash);
 
-            Assert.Equals(contract.Hash, hash);
+            Assert.AreEqual(contract.Hash, hash);
         }
     }
 }
