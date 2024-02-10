@@ -92,6 +92,11 @@ namespace Neo.SmartContract.Testing
         public Transaction Transaction { get; set; }
 
         /// <summary>
+        /// Gas
+        /// </summary>
+        public long Gas = ApplicationEngine.TestModeGas;
+
+        /// <summary>
         /// Sender
         /// </summary>
         public UInt160 Sender => Transaction.Sender;

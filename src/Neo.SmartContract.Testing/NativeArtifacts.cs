@@ -166,7 +166,7 @@ namespace Neo.SmartContract.Testing
 
                 var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings))
+                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
                 {
                     engine.LoadScript(Array.Empty<byte>());
                     method!.Invoke(native, new object[] { engine });
@@ -179,7 +179,7 @@ namespace Neo.SmartContract.Testing
 
                 method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings))
+                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
                 {
 
                     engine.LoadScript(Array.Empty<byte>());
