@@ -1,5 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.IO;
+using Neo.VM.Types;
 using System.IO;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -68,6 +71,33 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.IsTrue(contractLog);
             Assert.IsFalse(neoLog);
+        }
+
+        [TestMethod]
+        public void TestNotification()
+        {
+            UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
+            TestEngine engine = new();
+
+            var neoLog = false;
+            engine.Native.NEO.CandidateStateChanged += (pubKey, registered, votes) =>
+            {
+                neoLog = pubKey == engine.ProtocolSettings.StandbyCommittee.First() && votes == 123 && registered;
+            };
+
+            // public delegate void delCandidateStateChanged(ECPoint pubkey, bool registered, BigInteger votes);
+            // public event delCandidateStateChanged? CandidateStateChanged;
+
+            engine.Notify(engine.Native.NEO.Hash, "CandidateStateChanged",
+                new Array(new StackItem[]
+                {
+                    new ByteString(engine.ProtocolSettings.StandbyCommittee.First().ToArray()),
+                    StackItem.True,
+                    new Integer(123),
+                }
+                ));
+
+            Assert.IsTrue(neoLog);
         }
     }
 }

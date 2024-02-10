@@ -42,19 +42,24 @@ namespace Neo.SmartContract.Testing
         /// <param name="state">State</param>
         internal void InvokeOnNotify(string eventName, VM.Types.Array state)
         {
-            var type = GetType();
-            var ev = GetType().GetEvent(eventName);
+            var type = GetType().BaseType ?? GetType(); // Mock
+            var ev = type.GetEvent(eventName);
             if (ev is null) return;
 
-            var evField = type.GetField(eventName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+            var evField = type.GetField(ev.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
             if (evField is null) return;
 
-            var evDel = evField.GetValue(this) as Delegate;
-            if (evDel is null) return;
+            var del = evField.GetValue(this) as Delegate;
+            if (del is null) return;
 
             // Invoke
 
-            evDel.DynamicInvoke(Convert(state, evDel.Method.GetParameters()));
+            var args = Convert(state, del.Method.GetParameters());
+
+            foreach (var handler in del.GetInvocationList())
+            {
+                handler.Method.Invoke(handler.Target, args);
+            }
         }
 
         private object?[]? Convert(VM.Types.Array state, ParameterInfo[] parameterInfos)
@@ -65,8 +70,10 @@ namespace Neo.SmartContract.Testing
 
                 for (int x = 0; x < parameterInfos.Length; x++)
                 {
-                    args[x] = state[0].ConvertTo(parameterInfos[x].ParameterType);
+                    args[x] = state[x].ConvertTo(parameterInfos[x].ParameterType);
                 }
+
+                return args;
             }
 
             return null;

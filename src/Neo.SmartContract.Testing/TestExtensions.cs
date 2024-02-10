@@ -16,6 +16,7 @@ namespace Neo.SmartContract.Testing
         {
             if (stackItem is null) return null;
 
+            if (type == typeof(bool)) return stackItem.GetBoolean();
             if (type == typeof(string)) return stackItem.ToString();
             if (type == typeof(byte[])) return stackItem.GetSpan().ToArray();
 
