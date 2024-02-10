@@ -1,5 +1,4 @@
 using Neo.SmartContract.Manifest;
-using System;
 using System.Linq;
 using System.Text;
 

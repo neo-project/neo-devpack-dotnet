@@ -1,26 +1,29 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
-using Neo.TestEngine.Contracts;
 
 namespace Neo.SmartContract.TestEngine.UnitTests
 {
+    [TestClass]
     public class ArtifactsTests
     {
-        //[Test]
+        [TestMethod]
         public void GenerateNativeArtifacts()
         {
-            var manifest = Native.NativeContract.ContractManagement.Manifest;
-            var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+            var manifest = SmartContract.Native.NativeContract.ContractManagement.Manifest;
+            var contractManagement = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+
+            manifest = SmartContract.Native.NativeContract.CryptoLib.Manifest;
+            var cryptoLib = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
         }
 
-        [Test]
         public void TestNativeContracts()
         {
-            TestEngine engine = new();
-            Assert.That(engine.Native.ContractManagement.Hash, Is.EqualTo(Native.NativeContract.ContractManagement.Hash));
+            Engine engine = new();
+            Assert.Equals(engine.Native.ContractManagement.Hash, SmartContract.Native.NativeContract.ContractManagement.Hash);
         }
 
-        [Test]
+        [TestMethod]
         public void TestCreateSourceFromManifest()
         {
             var manifest = ContractManifest.FromJson(JToken.Parse(
@@ -30,7 +33,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests
 
             var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
 
-            Assert.That(source, Is.EqualTo(@"
+            Assert.AreEqual(source, @"
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -66,18 +69,18 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
     protected Contract1(Neo.SmartContract.TestEngine.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
 #endregion
 }
-".Replace("\r\n", "\n").Trim()));
+".Replace("\r\n", "\n").Trim());
         }
 
-        [Test]
+        [TestMethod]
         public void FromHashTest()
         {
             UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
-            TestEngine engine = new();
+            Engine engine = new();
 
             var contract = engine.FromHash<Contract1>(hash);
 
-            Assert.That(contract.Hash, Is.EqualTo(hash));
+            Assert.Equals(contract.Hash, hash);
         }
     }
 }

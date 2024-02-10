@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Neo.TestEngine.Contracts;
+namespace Neo.SmartContract.TestEngine.UnitTests;
 
 public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContract
 {
@@ -29,6 +29,6 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
     public abstract bool withdraw(UInt160 token, UInt160 to, BigInteger amount);
     #endregion
     #region Constructor for internal use only
-    protected Contract1(Neo.SmartContract.TestEngine.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected Contract1(Neo.SmartContract.TestEngine.Engine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
     #endregion
 }

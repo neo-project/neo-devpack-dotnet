@@ -2,7 +2,7 @@ namespace Neo.SmartContract.TestEngine.Mocks
 {
     public class SmartContract
     {
-        private readonly TestEngine _engine;
+        private readonly Engine _engine;
 
         /// <summary>
         /// Contract hash
@@ -14,7 +14,7 @@ namespace Neo.SmartContract.TestEngine.Mocks
         /// </summary>
         /// <param name="testEngine">TestEngine</param>
         /// <param name="hash">Contract hash</param>
-        protected SmartContract(TestEngine testEngine, UInt160 hash)
+        protected SmartContract(Engine testEngine, UInt160 hash)
         {
             _engine = testEngine;
             Hash = hash;

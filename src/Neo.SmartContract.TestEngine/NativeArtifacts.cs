@@ -4,8 +4,9 @@ namespace Neo.SmartContract.TestEngine
 {
     public class NativeArtifacts
     {
-        private readonly TestEngine _engine;
+        private readonly Engine _engine;
         private ContractManagement? _contractManagement;
+        private CryptoLib? _cryptoLib;
 
         /// <summary>
         /// ContractManagement
@@ -20,10 +21,22 @@ namespace Neo.SmartContract.TestEngine
         }
 
         /// <summary>
+        /// CryptoLib
+        /// </summary>
+        public CryptoLib CryptoLib
+        {
+            get
+            {
+                _cryptoLib ??= _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash);
+                return _cryptoLib;
+            }
+        }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
-        public NativeArtifacts(TestEngine engine)
+        public NativeArtifacts(Engine engine)
         {
             _engine = engine;
         }

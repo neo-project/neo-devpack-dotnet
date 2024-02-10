@@ -5,7 +5,7 @@ using Neo.SmartContract.Manifest;
 
 namespace Neo.SmartContract.TestEngine
 {
-    public class TestEngine
+    public class Engine
     {
         /// <summary>
         /// Default Protocol Settings
