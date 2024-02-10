@@ -1,10 +1,5 @@
-using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using Neo.SmartContract.Manifest;
-using System;
-using System.CodeDom.Compiler;
-using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 
 namespace Neo.SmartContract.TestEngine
@@ -12,57 +7,12 @@ namespace Neo.SmartContract.TestEngine
     public class Artifacts
     {
         /// <summary>
-        /// Create artifacts for NefFile
+        /// Create source code from contract Abi
         /// </summary>
-        /// <param name="manifest">Contract manifest</param>
-        /// <param name="outputPath">Ouptut path for artifacts</param>
-        public static void CreateArtifacts(ContractManifest manifest, string outputPath)
-        {
-            var dependencies = new string[] {
-                Path.GetFullPath(typeof(Artifacts).Assembly.Location),
-                Path.GetFullPath(typeof(UInt160).Assembly.Location),
-                Path.GetFullPath(typeof(BigInteger).Assembly.Location)
-            };
-
-            // Compose source code
-            var sourceCode = CreateSourceFromManifest(manifest);
-
-            // Create a C# Code Provider
-            CSharpCodeProvider codeProvider = new();
-
-            // Set compiler parameters
-            CompilerParameters parameters = new()
-            {
-                GenerateExecutable = false, // We want a DLL, not an executable
-                OutputAssembly = outputPath // Set the output path for the DLL
-            };
-
-            // Add referenced assemblies, if any
-            foreach (var dependency in dependencies)
-            {
-                parameters.ReferencedAssemblies.Add(dependency);
-            }
-
-            // Compile the code
-            CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, sourceCode);
-
-            // Check for compilation errors
-            if (results.Errors.Count > 0)
-            {
-                foreach (CompilerError error in results.Errors)
-                {
-                    Console.WriteLine("Error ({0}): {1}", error.ErrorNumber, error.ErrorText);
-                }
-                throw new InvalidOperationException("Compilation failed with errors.");
-            }
-        }
-
-        /// <summary>
-        /// Create source code from manifest
-        /// </summary>
-        /// <param name="manifest">Manifest</param>
+        /// <param name="name">Contract name</param>
+        /// <param name="abi">Abi</param>
         /// <returns>Source</returns>
-        public static string CreateSourceFromManifest(ContractManifest manifest)
+        public static string CreateSourceFromManifest(string name, ContractAbi abi)
         {
             StringBuilder sourceCode = new();
 
@@ -71,22 +21,22 @@ namespace Neo.SmartContract.TestEngine
             sourceCode.AppendLine("");
             sourceCode.AppendLine("namespace Neo.TestEngine.Contracts;");
             sourceCode.AppendLine("");
-            sourceCode.AppendLine($"public abstract class {manifest.Name} : Neo.SmartContract.TestEngine.Mocks.SmartContract");
+            sourceCode.AppendLine($"public abstract class {name} : Neo.SmartContract.TestEngine.Mocks.SmartContract");
             sourceCode.AppendLine("{");
 
             // Create constructor
 
             sourceCode.AppendLine("#region Constructor for internal use only");
-            sourceCode.AppendLine($"    internal {manifest.Name}(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine) : base(testEngine) {{}}");
+            sourceCode.AppendLine($"    internal {name}(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine) : base(testEngine) {{}}");
             sourceCode.AppendLine("#endregion");
 
             // Crete methods
 
-            if (manifest.Abi.Methods.Any(u => u.Safe))
+            if (abi.Methods.Any(u => u.Safe))
             {
                 sourceCode.AppendLine("#region Safe methods");
 
-                foreach (var method in manifest.Abi.Methods.Where(u => u.Safe).OrderBy(u => u.Name))
+                foreach (var method in abi.Methods.Where(u => u.Safe).OrderBy(u => u.Name))
                 {
                     // This method can't be called, so avoid them
 
@@ -98,11 +48,11 @@ namespace Neo.SmartContract.TestEngine
                 sourceCode.AppendLine("#endregion");
             }
 
-            if (manifest.Abi.Methods.Any(u => !u.Safe))
+            if (abi.Methods.Any(u => !u.Safe))
             {
                 sourceCode.AppendLine("#region Unsafe methods");
 
-                foreach (var method in manifest.Abi.Methods.Where(u => !u.Safe).OrderBy(u => u.Name))
+                foreach (var method in abi.Methods.Where(u => !u.Safe).OrderBy(u => u.Name))
                 {
                     // This method can't be called, so avoid them
 

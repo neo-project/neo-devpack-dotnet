@@ -18,8 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
-    <ProjectReference Include="..\..\src\Neo.SmartContract.Template\Neo.SmartContract.Template.csproj" />
     <ProjectReference Include="..\..\src\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
   </ItemGroup>
 

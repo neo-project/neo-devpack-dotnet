@@ -12,11 +12,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="4.1.0" />
-	  <PackageReference Include="System.CodeDom" Version="8.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
 	</ItemGroup>
 

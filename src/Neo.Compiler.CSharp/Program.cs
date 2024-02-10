@@ -14,6 +14,7 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.TestEngine;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -176,6 +177,12 @@ namespace Neo.Compiler
                     return 1;
                 }
                 Console.WriteLine($"Created {path}");
+                // Create artifacts
+                {
+                    path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
+                    File.WriteAllText(path, Artifacts.CreateSourceFromManifest(baseName, manifest.Abi));
+                    Console.WriteLine($"Created {path}");
+                }
                 if (options.Debug)
                 {
                     path = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
