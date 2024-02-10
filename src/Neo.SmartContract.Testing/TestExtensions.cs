@@ -93,15 +93,13 @@ namespace Neo.SmartContract.Testing
 
             if (type == typeof(List<object>))
             {
-                if (stackItem is not CompoundType cp)
+                if (stackItem is CompoundType cp)
                 {
-                    return stackItem;
+                    return new List<object>(cp.SubItems);
                 }
-
-                return new List<object>(cp.SubItems);
             }
 
-            return stackItem;
+            throw new FormatException($"Impossible to convert {stackItem} to {type}");
         }
     }
 }

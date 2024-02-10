@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestNativeContracts()
         {
-            TestEngine engine = new(true);
+            TestEngine engine = new(false);
 
             Assert.AreEqual(engine.Native.ContractManagement.Hash, Native.NativeContract.ContractManagement.Hash);
             Assert.AreEqual(engine.Native.StdLib.Hash, Native.NativeContract.StdLib.Hash);
