@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Debug
 
             var engine = new TestEngine();
-            Assert.IsTrue(engine.AddEntryScript(true, true,typeof(Contract_Debug)).Success);
+            Assert.IsTrue(engine.AddEntryScript(true, true, typeof(Contract_Debug)).Success);
 
             var result = engine.ExecuteTestCaseStandard("testElse");
             Assert.AreEqual(VMState.HALT, engine.State);

@@ -73,7 +73,7 @@ namespace Neo.SmartContract.TestEngine
             }
             return matchedFiles;
         }
-      
+
         public static bool TryGetString(this byte[] byteArray, out string? value)
         {
             try
