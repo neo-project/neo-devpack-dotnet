@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
             TestEngine engine = new();
 
-            var contract = engine.FromHash<Contract1>(hash, false);
+            var contract = engine.FromHash<ContractManagement>(hash, false);
 
             Assert.AreEqual(contract.Hash, hash);
         }
@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new();
 
             var contractLog = false;
-            var contract = engine.FromHash<Contract1>(hash, false);
+            var contract = engine.FromHash<ContractManagement>(hash, false);
             contract.OnLog += (msg) =>
             {
                 contractLog = true;
