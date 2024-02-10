@@ -65,9 +65,9 @@ namespace Neo.SmartContract.Testing
         };
 
         /// <summary>
-        /// Store
+        /// Storage
         /// </summary>
-        public IStore Store { get; init; } = new MemoryStore();
+        public TestStorage Store { get; init; } = new TestStorage(new MemoryStore());
 
         /// <summary>
         /// Protocol Settings
