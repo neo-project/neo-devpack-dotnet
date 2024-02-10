@@ -21,10 +21,19 @@ namespace Neo.SmartContract.Testing.UnitTests
             }
         }
 
+        [TestMethod]
         public void TestNativeContracts()
         {
             TestEngine engine = new();
-            Assert.Equals(engine.Native.ContractManagement.Hash, Native.NativeContract.ContractManagement.Hash);
+
+            Assert.AreEqual(engine.Native.ContractManagement.Hash, Native.NativeContract.ContractManagement.Hash);
+            Assert.AreEqual(engine.Native.StdLib.Hash, Native.NativeContract.StdLib.Hash);
+            Assert.AreEqual(engine.Native.CryptoLib.Hash, Native.NativeContract.CryptoLib.Hash);
+            Assert.AreEqual(engine.Native.GAS.Hash, Native.NativeContract.GAS.Hash);
+            Assert.AreEqual(engine.Native.NEO.Hash, Native.NativeContract.NEO.Hash);
+            Assert.AreEqual(engine.Native.Oracle.Hash, Native.NativeContract.Oracle.Hash);
+            Assert.AreEqual(engine.Native.Policy.Hash, Native.NativeContract.Policy.Hash);
+            Assert.AreEqual(engine.Native.RoleManagement.Hash, Native.NativeContract.RoleManagement.Hash);
         }
 
         [TestMethod]
