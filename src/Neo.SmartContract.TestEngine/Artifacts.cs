@@ -17,7 +17,7 @@ namespace Neo.SmartContract.TestEngine
         {
             StringBuilder sourceCode = new();
 
-            sourceCode.AppendLine("using Neo");
+            sourceCode.AppendLine("using Neo;");
             sourceCode.AppendLine("using System.Numerics;");
             sourceCode.AppendLine("");
             sourceCode.AppendLine("namespace Neo.TestEngine.Contracts;");
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.TestEngine
             // Create constructor
 
             sourceCode.AppendLine("#region Constructor for internal use only");
-            sourceCode.AppendLine($"    internal {name}(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {{}}");
+            sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.TestEngine.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {{}}");
             sourceCode.AppendLine("#endregion");
 
             sourceCode.AppendLine("}");
@@ -104,7 +104,7 @@ namespace Neo.SmartContract.TestEngine
             }
 
             sourceCode.AppendLine(");");
-            sourceCode.AppendLine($"    public event del{ev.Name} {ev.Name};");
+            sourceCode.AppendLine($"    public event del{ev.Name}? {ev.Name};");
 
             return sourceCode.ToString();
         }

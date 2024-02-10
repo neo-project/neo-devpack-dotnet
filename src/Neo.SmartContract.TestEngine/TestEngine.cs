@@ -1,3 +1,4 @@
+using Moq;
 using Neo.Cryptography.ECC;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
@@ -113,13 +114,18 @@ namespace Neo.SmartContract.TestEngine
                    BindingFlags.Instance | BindingFlags.NonPublic,
                    null, new Type[] { typeof(TestEngine), typeof(UInt160) }, null);
 
-            T sc = (T)internalConstructor.Invoke(new object[] { this, hash });
+            //T sc = (T)internalConstructor.Invoke(new object[] { this, hash });
 
             // TODO: Mock sc here
 
+            var mock = new Mock<T>(this, hash)
+            {
+                CallBase = true
+            };
+
             // return mocked sc
 
-            return sc;
+            return mock.Object;
         }
     }
 }

@@ -1,5 +1,6 @@
 using Neo.Json;
 using Neo.SmartContract.Manifest;
+using Neo.TestEngine.Contracts;
 
 namespace Neo.SmartContract.TestEngine.UnitTests
 {
@@ -16,7 +17,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests
             var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
 
             Assert.That(source, Is.EqualTo(@"
-using Neo
+using Neo;
 using System.Numerics;
 
 namespace Neo.TestEngine.Contracts;
@@ -25,9 +26,9 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
 {
 #region Events
     public delegate void delSetOwner(UInt160 newOwner);
-    public event delSetOwner SetOwner;
+    public event delSetOwner? SetOwner;
     public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount);
-    public event delTransfer Transfer;
+    public event delTransfer? Transfer;
 #endregion
 #region Safe methods
     public abstract BigInteger balanceOf(UInt160 owner);
@@ -48,10 +49,21 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
     public abstract bool withdraw(UInt160 token, UInt160 to, BigInteger amount);
 #endregion
 #region Constructor for internal use only
-    internal Contract1(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected Contract1(Neo.SmartContract.TestEngine.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
 #endregion
 }
 ".Replace("\r\n", "\n").Trim()));
+        }
+
+        [Test]
+        public void FromHashTest()
+        {
+            UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
+            TestEngine engine = new();
+
+            var contract = engine.FromHash<Contract1>(hash);
+            
+            Assert.That(contract.Hash, Is.EqualTo(hash));
         }
     }
 }
