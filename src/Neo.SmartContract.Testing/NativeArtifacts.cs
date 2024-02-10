@@ -1,3 +1,6 @@
+using Neo.Persistence;
+using System;
+
 namespace Neo.SmartContract.Testing
 {
     public class NativeArtifacts
@@ -138,9 +141,30 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Initialize native contracts
         /// </summary>
-        public void Initialize()
+        /// <param name="commit">Initialize native contracts</param>
+        public void Initialize(bool commit = false)
         {
-            // TODO: Initialize them
+            var persistingBlock = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
+            using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
+
+            foreach (var native in Native.NativeContract.Contracts)
+            {
+                var method = native.GetType().GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                using var engine = ApplicationEngine.Create(TriggerType.OnPersist, persistingBlock,
+                    snapshot, persistingBlock, _engine.ProtocolSettings);
+
+                engine.LoadScript(Array.Empty<byte>());
+                method!.Invoke(native, new object[] { engine });
+
+                engine.Snapshot.Commit();
+            }
+
+            if (commit)
+            {
+                snapshot.Commit();
+                _engine.Storage.Commit();
+            }
         }
     }
 }
