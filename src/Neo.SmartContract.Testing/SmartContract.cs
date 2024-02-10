@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Testing
 
             // Execute in neo VM
 
-            using var engine = ApplicationEngine.Create(TriggerType.OnPersist,
+            using var engine = ApplicationEngine.Create(TriggerType.Application,
                 _engine.Transaction, snapshot, block, _engine.ProtocolSettings);
 
             engine.LoadScript(script.ToArray());
