@@ -91,12 +91,9 @@ namespace Neo.SmartContract.Testing
             if (type == typeof(Cryptography.ECC.ECPoint))
                 return Cryptography.ECC.ECPoint.FromBytes(stackItem.GetSpan().ToArray(), Cryptography.ECC.ECCurve.Secp256r1);
 
-            if (type == typeof(List<object>))
+            if (type == typeof(List<object>) && stackItem is CompoundType cp)
             {
-                if (stackItem is CompoundType cp)
-                {
-                    return new List<object>(cp.SubItems);
-                }
+                return new List<object>(cp.SubItems);
             }
 
             throw new FormatException($"Impossible to convert {stackItem} to {type}");

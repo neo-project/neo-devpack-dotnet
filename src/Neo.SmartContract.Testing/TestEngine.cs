@@ -15,6 +15,7 @@ namespace Neo.SmartContract.Testing
     public class TestEngine
     {
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
+        private NativeArtifacts? _native;
 
         /// <summary>
         /// Default Protocol Settings
@@ -50,14 +51,7 @@ namespace Neo.SmartContract.Testing
                 ECPoint.Parse("02cd5a5547119e24feaa7c2a0f37b8c9366216bab7054de0065c9be42084003c8a", ECCurve.Secp256r1)
             },
             ValidatorsCount = 7,
-            SeedList = new[]
-            {
-                "seed1.neo.org:10333",
-                "seed2.neo.org:10333",
-                "seed3.neo.org:10333",
-                "seed4.neo.org:10333",
-                "seed5.neo.org:10333"
-            },
+            SeedList = System.Array.Empty<string>(),
             MillisecondsPerBlock = ProtocolSettings.Default.MillisecondsPerBlock,
             MaxTransactionsPerBlock = ProtocolSettings.Default.MaxTransactionsPerBlock,
             MemoryPoolMaxTransactions = ProtocolSettings.Default.MemoryPoolMaxTransactions,
@@ -100,8 +94,6 @@ namespace Neo.SmartContract.Testing
         /// Sender
         /// </summary>
         public UInt160 Sender => Transaction.Sender;
-
-        private NativeArtifacts? _native;
 
         /// <summary>
         /// Native artifacts
@@ -189,12 +181,6 @@ namespace Neo.SmartContract.Testing
             }
         }
 
-        public void Log(UInt160 scriptHash, string message) =>
-            ApplicationEngine_Log(null, new LogEventArgs(Transaction, scriptHash, message));
-
-        public void Notify(UInt160 scriptHash, string eventName, VM.Types.Array state) =>
-            ApplicationEngine_Notify(null, new NotifyEventArgs(Transaction, scriptHash, eventName, state));
-
         #endregion
 
         /// <summary>
@@ -253,21 +239,17 @@ namespace Neo.SmartContract.Testing
                 CallBase = true
             };
 
-            // Mock sc here
+            // Mock SmartContract
 
             foreach (var method in typeof(T).GetMethods())
             {
                 if (!method.IsAbstract) continue;
 
-                // Get methods
+                // Get args
 
-                Type[] args = new Type[method.GetParameters().Length];
-                for (int x = 0; x < args.Length; x++)
-                {
-                    args[x] = method.GetParameters()[x].ParameterType;
-                }
+                Type[] args = method.GetParameters().Select(u => u.ParameterType).ToArray();
 
-                // Mock by return type
+                // Mock by ReturnType
 
                 if (method.ReturnType != typeof(void))
                 {
@@ -292,7 +274,8 @@ namespace Neo.SmartContract.Testing
                 _contracts[hash] = new List<SmartContract>(new SmartContract[] { mock.Object });
             }
 
-            // return mocked sc
+            // return mocked SmartContract
+
             return mock.Object;
         }
     }
