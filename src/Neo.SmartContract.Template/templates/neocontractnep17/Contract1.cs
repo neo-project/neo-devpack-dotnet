@@ -1,4 +1,5 @@
 using Neo;
+using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -24,10 +25,19 @@ namespace ProjectName
 
         private const byte Prefix_Owner = 0xff;
 
+        // TODO: Replace it with your own address.
+        [InitialValue("<Your Address Here>", Neo.SmartContract.ContractParameterType.Hash160)]
+        private static readonly UInt160 InitialOwner = default;
+
         [Safe]
         public static UInt160 GetOwner()
         {
-            return (UInt160)Storage.Get(new[] { Prefix_Owner });
+            var currentOwner = Storage.Get(new[] { Prefix_Owner });
+
+            if (currentOwner == null)
+                return InitialOwner;
+
+            return (UInt160)currentOwner;
         }
 
         private static bool IsOwner() =>
@@ -42,22 +52,24 @@ namespace ProjectName
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-
-            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
-
-            Storage.Put(new[] { Prefix_Owner }, newOwner);
-            OnSetOwner(newOwner);
+            if (newOwner != null && newOwner.IsValid)
+            {
+                Storage.Put(new[] { Prefix_Owner }, newOwner);
+                OnSetOwner(newOwner);
+            }
         }
 
         #endregion
 
         #region NEP17
 
-        // TODO: Replace "EXAMPLE" with a short name all UPPERCASE 3-8 characters
-        public override string Symbol { [Safe] get => "EXAMPLE"; }
-
         // NOTE: Valid Range 0-31
-        public override byte Decimals { [Safe] get => 8; }
+        [Safe]
+        public override byte Decimals() => 8;
+
+        // TODO: Replace "EXAMPLE" with a short name all UPPERCASE 3-8 characters
+        [Safe]
+        public override string Symbol() => "EXAMPLE";
 
         public static new void Burn(UInt160 account, BigInteger amount)
         {
@@ -128,16 +140,6 @@ namespace ProjectName
                 // This will be executed during update
                 return;
             }
-
-            // Init method, you must deploy the contract with the owner as an argument, or it will take the sender
-            if (data is null) data = Runtime.Transaction.Sender;
-
-            UInt160 initialOwner = (UInt160)data;
-
-            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
-
-            Storage.Put(new[] { Prefix_Owner }, initialOwner);
-            OnSetOwner(initialOwner);
 
             // This will be executed during deploy
             Storage.Put(Storage.CurrentContext, "Hello", "World");
