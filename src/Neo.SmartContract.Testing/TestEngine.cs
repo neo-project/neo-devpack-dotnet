@@ -1,10 +1,12 @@
 using Moq;
 using Neo.Cryptography.ECC;
-using Neo.Network.P2P.Payloads;
+using Neo.IO;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Neo.SmartContract.Testing
 {
@@ -142,13 +144,19 @@ namespace Neo.SmartContract.Testing
         /// <returns>Mocked Smart Contract</returns>
         public T Deploy<T>(NefFile nef, ContractManifest manifest, object data) where T : SmartContract
         {
-            // Deploy and get the hash
+            // Deploy
 
-            UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
+            var ret = Native.ContractManagement.deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data.ConvertToStackItem());
+
+            // Parse return
+
+            ContractState state = new();
+            ((IInteroperable)state).FromStackItem(new Array(ret.Select(u => (StackItem)u)));
 
             // Mock contract
 
-            return MockContract<T>(hash);
+            //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
+            return MockContract<T>(state.Hash);
         }
 
         /// <summary>

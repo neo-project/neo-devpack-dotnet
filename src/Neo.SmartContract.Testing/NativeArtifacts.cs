@@ -134,5 +134,13 @@ namespace Neo.SmartContract.Testing
         {
             _engine = engine;
         }
+
+        /// <summary>
+        /// Initialize native contracts
+        /// </summary>
+        public void Initialize()
+        {
+            // TODO: Initialize them
+        }
     }
 }

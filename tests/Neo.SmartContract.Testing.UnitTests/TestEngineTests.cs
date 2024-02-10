@@ -76,7 +76,6 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestNotification()
         {
-            UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
             TestEngine engine = new();
 
             var neoLog = false;
