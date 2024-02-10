@@ -235,15 +235,13 @@ namespace Neo.SmartContract.Testing
 
                 // Mock by return type
 
-                if (method.GetParameters().Length != 0) continue;
-
                 if (method.ReturnType != typeof(void))
                 {
                     MockMethod(mock, method.Name, args, method.ReturnType);
                 }
                 else
                 {
-                    MockMethod(mock, method.Name, args);
+                    //MockMethod(mock, method.Name, args);
                 }
             }
 
@@ -326,7 +324,7 @@ namespace Neo.SmartContract.Testing
             var setup = setupMethod.Invoke(mock, new object[] { exp });
 
             var retMethod = mock.GetType()
-               .GetMethod("Callback", BindingFlags.Static | BindingFlags.Public)!;
+               .GetMethod("Callback", new Type[] { typeof(InvocationAction) })!;
 
             _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
                 {
