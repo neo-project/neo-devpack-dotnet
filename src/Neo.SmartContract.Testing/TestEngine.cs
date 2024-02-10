@@ -77,38 +77,22 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Protocol Settings
         /// </summary>
-        public ProtocolSettings ProtocolSettings { get; init; } = Default;
+        public ProtocolSettings ProtocolSettings { get; }
 
         /// <summary>
         /// BFTAddress
         /// </summary>
-        public UInt160 BFTAddress => Contract.GetBFTAddress(ProtocolSettings.StandbyValidators);
+        public UInt160 BFTAddress { get; }
+
+        /// <summary>
+        /// BFTAddress
+        /// </summary>
+        public Block CurrentBlock { get; }
 
         /// <summary>
         /// Transaction
         /// </summary>
-        public Transaction Transaction { get; set; } = new Transaction()
-        {
-            Attributes = System.Array.Empty<TransactionAttribute>(),
-            Script = System.Array.Empty<byte>(),
-            Signers = new Signer[]
-            {
-                new Signer()
-                {
-                     Account = Contract.GetBFTAddress(Default.StandbyValidators),
-                     Scopes = WitnessScope.Global
-                }
-            },
-            Witnesses = new Witness[]
-            {
-                new Witness()
-                {
-                     InvocationScript = Contract.CreateMultiSigRedeemScript(
-                         Default.StandbyValidators.Count - (Default.StandbyValidators.Count - 1) / 3, Default.StandbyValidators),
-                     VerificationScript = System.Array.Empty<byte>()
-                }
-            }
-        };
+        public Transaction Transaction { get; set; }
 
         /// <summary>
         /// Sender
@@ -132,8 +116,44 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Constructor
         /// </summary>
-        public TestEngine(bool initializeNativeContracts = false)
+        /// <param name="initializeNativeContracts">Initialize native contracts</param>
+        public TestEngine(bool initializeNativeContracts = false) : this(Default, initializeNativeContracts) { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="settings">Settings</param>
+        /// <param name="initializeNativeContracts">Initialize native contracts</param>
+        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = false)
         {
+            ProtocolSettings = settings;
+            CurrentBlock = NeoSystem.CreateGenesisBlock(ProtocolSettings);
+            CurrentBlock.Header.Index++;
+
+            BFTAddress = Contract.GetBFTAddress(ProtocolSettings.StandbyValidators);
+            Transaction = new Transaction()
+            {
+                Attributes = System.Array.Empty<TransactionAttribute>(),
+                Script = System.Array.Empty<byte>(),
+                Signers = new Signer[]
+                {
+                    new Signer()
+                    {
+                         Account = BFTAddress,
+                         Scopes = WitnessScope.Global
+                    }
+                },
+                Witnesses = new Witness[]
+                {
+                    new Witness()
+                    {
+                         InvocationScript = Contract.CreateMultiSigRedeemScript(
+                             settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators),
+                         VerificationScript = System.Array.Empty<byte>()
+                    }
+                }
+            };
+
             ApplicationEngine.Log += ApplicationEngine_Log;
             ApplicationEngine.Notify += ApplicationEngine_Notify;
 

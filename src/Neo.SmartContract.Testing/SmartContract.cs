@@ -38,7 +38,6 @@ namespace Neo.SmartContract.Testing
         internal StackItem Invoke(string methodName, params object[] args)
         {
             using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
-            var block = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
 
             // Compose script
 
@@ -48,7 +47,7 @@ namespace Neo.SmartContract.Testing
             // Execute in neo VM
 
             using var engine = ApplicationEngine.Create(TriggerType.Application,
-                _engine.Transaction, snapshot, block, _engine.ProtocolSettings);
+                _engine.Transaction, snapshot, _engine.CurrentBlock, _engine.ProtocolSettings);
 
             engine.LoadScript(script.ToArray());
 

@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 
 namespace Neo.SmartContract.Testing.UnitTests
@@ -20,6 +21,13 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply());
             Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(engine.BFTAddress));
+        }
+
+        [TestMethod]
+        public void TestTransfer()
+        {
+            var engine = new TestEngine(true);
+            engine.Storage.Commit(); // Bug in MemoryStore
 
             // Test set
 
@@ -31,21 +39,60 @@ namespace Neo.SmartContract.Testing.UnitTests
             {
                 new Network.P2P.Payloads.Signer()
                 {
+                     Account = engine.BFTAddress,
+                     Scopes = Network.P2P.Payloads.WitnessScope.Global
+                }
+            };
+
+            bool raisedEvent = false;
+
+            engine.Native.NEO.Transfer += (UInt160 from, UInt160 to, BigInteger amount) =>
+            {
+                raisedEvent = true;
+            };
+
+            UInt160 wallet = UInt160.Parse("0x1230000000000000000000000000000000000000");
+
+            Assert.AreEqual(0, engine.Native.NEO.balanceOf(wallet));
+            Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, wallet, 123, null));
+
+            Assert.IsTrue(raisedEvent);
+            engine.Storage.Commit(); // Bug in MemoryStore
+            Assert.AreEqual(123, engine.Native.NEO.balanceOf(wallet));
+        }
+
+        [TestMethod]
+        public void TestSignature()
+        {
+            var engine = new TestEngine(true);
+            engine.Storage.Commit(); // Bug in MemoryStore
+
+            // Test set
+
+            Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
+
+            // Fake signature
+
+            engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+            {
+                new Network.P2P.Payloads.Signer()
+                {
                      Account = engine.Native.GetCommitteeAddress(),
                      Scopes = Network.P2P.Payloads.WitnessScope.Global
                 }
             };
-            engine.Native.NEO.setGasPerBlock(123);
+
+            engine.Native.NEO.setRegisterPrice(123);
 
             engine.Storage.Commit(); // Bug in MemoryStore
 
-            Assert.AreEqual(123, engine.Native.NEO.getGasPerBlock());
+            Assert.AreEqual(123, engine.Native.NEO.getRegisterPrice());
 
             // Invalid signature
 
             engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
 
-            Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.setGasPerBlock(123));
+            Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.setRegisterPrice(123));
         }
     }
 }
