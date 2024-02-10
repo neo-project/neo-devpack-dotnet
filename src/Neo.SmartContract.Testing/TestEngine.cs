@@ -150,7 +150,7 @@ namespace Neo.SmartContract.Testing
 
             // Parse return
 
-            ContractState state = new();
+            ContractState state = new(); // Move to TestExtensions.ConvertTo?
             ((IInteroperable)state).FromStackItem(new Array(ret.Select(u => (StackItem)u)));
 
             // Mock contract
@@ -167,19 +167,26 @@ namespace Neo.SmartContract.Testing
         /// <returns>Mocked Smart Contract</returns>
         public T FromHash<T>(UInt160 hash) where T : SmartContract
         {
-            // TODO: Ensure that the contract exists
-
             return MockContract<T>(hash);
+
+            //var ret = Native.ContractManagement.getContract(hash);
+
+            //// Parse return
+
+            //ContractState state = new(); // Move to TestExtensions.ConvertTo?
+            //((IInteroperable)state).FromStackItem(new Array(ret.Select(u => (StackItem)u)));
+
+            //return MockContract<T>(state.Hash);
         }
 
         private T MockContract<T>(UInt160 hash) where T : SmartContract
         {
-            // TODO: Mock sc here
-
             var mock = new Mock<T>(this, hash)
             {
                 CallBase = true
             };
+
+            // TODO: Mock sc here
 
             // Cache sc
 

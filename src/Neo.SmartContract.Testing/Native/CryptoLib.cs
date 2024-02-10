@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Testing;
 
 public abstract class CryptoLib : Neo.SmartContract.Testing.SmartContract
 {
-#region Safe methods
+    #region Safe methods
     public abstract object bls12381Add(object x, object y);
     public abstract object bls12381Deserialize(byte[] data);
     public abstract bool bls12381Equal(object x, object y);
@@ -17,8 +17,8 @@ public abstract class CryptoLib : Neo.SmartContract.Testing.SmartContract
     public abstract byte[] ripemd160(byte[] data);
     public abstract byte[] sha256(byte[] data);
     public abstract bool verifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, BigInteger curve);
-#endregion
-#region Constructor for internal use only
-    protected CryptoLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
-#endregion
+    #endregion
+    #region Constructor for internal use only
+    protected CryptoLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    #endregion
 }

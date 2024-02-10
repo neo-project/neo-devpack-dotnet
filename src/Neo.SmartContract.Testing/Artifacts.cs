@@ -30,21 +30,21 @@ namespace Neo.SmartContract.Testing
 
             if (abi.Events.Any())
             {
-                sourceCode.AppendLine("#region Events");
+                sourceCode.AppendLine("    #region Events");
 
                 foreach (var ev in abi.Events.OrderBy(u => u.Name))
                 {
                     sourceCode.Append(CreateSourceEventFromManifest(ev));
                 }
 
-                sourceCode.AppendLine("#endregion");
+                sourceCode.AppendLine("    #endregion");
             }
 
             // Crete methods
 
             if (abi.Methods.Any(u => u.Safe))
             {
-                sourceCode.AppendLine("#region Safe methods");
+                sourceCode.AppendLine("    #region Safe methods");
 
                 foreach (var method in abi.Methods.Where(u => u.Safe).OrderBy(u => u.Name))
                 {
@@ -55,12 +55,12 @@ namespace Neo.SmartContract.Testing
                     sourceCode.Append(CreateSourceMethodFromManifest(method));
                 }
 
-                sourceCode.AppendLine("#endregion");
+                sourceCode.AppendLine("    #endregion");
             }
 
             if (abi.Methods.Any(u => !u.Safe))
             {
-                sourceCode.AppendLine("#region Unsafe methods");
+                sourceCode.AppendLine("    #region Unsafe methods");
 
                 foreach (var method in abi.Methods.Where(u => !u.Safe).OrderBy(u => u.Name))
                 {
@@ -70,14 +70,14 @@ namespace Neo.SmartContract.Testing
 
                     sourceCode.Append(CreateSourceMethodFromManifest(method));
                 }
-                sourceCode.AppendLine("#endregion");
+                sourceCode.AppendLine("    #endregion");
             }
 
             // Create constructor
 
-            sourceCode.AppendLine("#region Constructor for internal use only");
+            sourceCode.AppendLine("    #region Constructor for internal use only");
             sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {{}}");
-            sourceCode.AppendLine("#endregion");
+            sourceCode.AppendLine("    #endregion");
 
             sourceCode.AppendLine("}");
 

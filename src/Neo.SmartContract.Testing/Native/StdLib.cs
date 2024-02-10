@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Testing;
 
 public abstract class StdLib : Neo.SmartContract.Testing.SmartContract
 {
-#region Safe methods
+    #region Safe methods
     public abstract BigInteger atoi(string value);
     public abstract BigInteger atoi(string value, BigInteger @base);
     public abstract byte[] base58CheckDecode(string s);
@@ -28,8 +28,8 @@ public abstract class StdLib : Neo.SmartContract.Testing.SmartContract
     public abstract List<object> stringSplit(string str, string separator);
     public abstract List<object> stringSplit(string str, string separator, bool removeEmptyEntries);
     public abstract BigInteger strLen(string str);
-#endregion
-#region Constructor for internal use only
-    protected StdLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
-#endregion
+    #endregion
+    #region Constructor for internal use only
+    protected StdLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    #endregion
 }
