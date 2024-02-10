@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Utils
             var sourceFiles = files.Select(p => TestContractRoot + p.Name + ".cs").ToArray();
             return engin.AddEntryScript(true, debug, sourceFiles);
         }
-        
+
         public static CompilationContext AddEntryScript(this TestEngine engin, bool optimize, bool debug, params Type[] files)
         {
             var sourceFiles = files.Select(p => TestContractRoot + p.Name + ".cs").ToArray();
