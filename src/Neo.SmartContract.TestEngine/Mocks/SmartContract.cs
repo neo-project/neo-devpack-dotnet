@@ -5,12 +5,19 @@ namespace Neo.SmartContract.TestEngine.Mocks
         private readonly TestEngine _engine;
 
         /// <summary>
+        /// Contract hash
+        /// </summary>
+        public UInt160 Hash { get; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="testEngine">TestEngine</param>
-        protected SmartContract(TestEngine testEngine)
+        /// <param name="hash">Contract hash</param>
+        protected SmartContract(TestEngine testEngine, UInt160 hash)
         {
             _engine = testEngine;
+            Hash = hash;
         }
     }
 }

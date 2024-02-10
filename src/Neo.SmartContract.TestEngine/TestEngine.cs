@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using Neo.Persistence;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Reflection;
 
@@ -68,19 +69,51 @@ namespace Neo.SmartContract.TestEngine
         public ProtocolSettings ProtocolSettings { get; init; } = Default;
 
         /// <summary>
-        /// Create Smart contract
+        /// Sender
+        /// </summary>
+        public UInt160 Sender { get; } = UInt160.Zero;
+
+        /// <summary>
+        /// Deploy Smart contract
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Contract manifest</param>
+        /// <param name="data">Construction data</param>
         /// <returns>Mocked Smart Contract</returns>
-        public T CreateSmartContract<T>() where T : Mocks.SmartContract
+        public T Deploy<T>(NefFile nef, ContractManifest manifest, object data) where T : Mocks.SmartContract
         {
+            // Deploy and get the hash
+
+            UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
+
+            // Mock contract
+
+            return MockContract<T>(hash);
+        }
+
+        /// <summary>
+        /// Deploy Smart contract
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="hash">Contract hash</param>
+        /// <returns>Mocked Smart Contract</returns>
+        public T FromHash<T>(UInt160 hash) where T : Mocks.SmartContract
+        {
+            return MockContract<T>(hash);
+        }
+
+        private T MockContract<T>(UInt160 hash) where T : Mocks.SmartContract
+        {
+            // Create object
+
             Type classType = typeof(T);
 
             ConstructorInfo internalConstructor = classType.GetConstructor(
                    BindingFlags.Instance | BindingFlags.NonPublic,
-                   null, new Type[] { typeof(TestEngine) }, null);
+                   null, new Type[] { typeof(TestEngine), typeof(UInt160) }, null);
 
-            T sc = (T)internalConstructor.Invoke(new object[] { this });
+            T sc = (T)internalConstructor.Invoke(new object[] { this, hash });
 
             // TODO: Mock sc here
 

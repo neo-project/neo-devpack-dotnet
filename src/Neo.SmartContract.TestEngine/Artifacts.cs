@@ -1,4 +1,5 @@
 using Neo.SmartContract.Manifest;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -24,11 +25,19 @@ namespace Neo.SmartContract.TestEngine
             sourceCode.AppendLine($"public abstract class {name} : Neo.SmartContract.TestEngine.Mocks.SmartContract");
             sourceCode.AppendLine("{");
 
-            // Create constructor
+            // Crete events
 
-            sourceCode.AppendLine("#region Constructor for internal use only");
-            sourceCode.AppendLine($"    internal {name}(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine) : base(testEngine) {{}}");
-            sourceCode.AppendLine("#endregion");
+            if (abi.Events.Any())
+            {
+                sourceCode.AppendLine("#region Events");
+
+                foreach (var ev in abi.Events.OrderBy(u => u.Name))
+                {
+                    sourceCode.Append(CreateSourceEventFromManifest(ev));
+                }
+
+                sourceCode.AppendLine("#endregion");
+            }
 
             // Crete methods
 
@@ -63,7 +72,39 @@ namespace Neo.SmartContract.TestEngine
                 sourceCode.AppendLine("#endregion");
             }
 
+            // Create constructor
+
+            sourceCode.AppendLine("#region Constructor for internal use only");
+            sourceCode.AppendLine($"    internal {name}(Neo.SmartContract.TestEngine.Mocks.SmartContract.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {{}}");
+            sourceCode.AppendLine("#endregion");
+
             sourceCode.AppendLine("}");
+
+            return sourceCode.ToString();
+        }
+
+        /// <summary>
+        /// Create source code from event
+        /// </summary>
+        /// <param name="ev">Event</param>
+        /// <returns>Source</returns>
+        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev)
+        {
+            StringBuilder sourceCode = new();
+
+            sourceCode.Append($"    public delegate void del{ev.Name}(");
+
+            bool isFirst = true;
+            foreach (var arg in ev.Parameters)
+            {
+                if (!isFirst) sourceCode.Append(", ");
+                else isFirst = false;
+
+                sourceCode.Append($"{TypeToSource(arg.Type)} {arg.Name}");
+            }
+
+            sourceCode.AppendLine(");");
+            sourceCode.AppendLine($"    public event del{ev.Name} {ev.Name};");
 
             return sourceCode.ToString();
         }
@@ -77,7 +118,7 @@ namespace Neo.SmartContract.TestEngine
         {
             StringBuilder sourceCode = new();
 
-            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {method.Name} (");
+            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {method.Name}(");
 
             bool isFirst = true;
             foreach (var arg in method.Parameters)
