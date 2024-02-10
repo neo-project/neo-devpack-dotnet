@@ -1,4 +1,5 @@
 using Neo.SmartContract.Manifest;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -16,6 +17,7 @@ namespace Neo.SmartContract.Testing
         {
             StringBuilder sourceCode = new();
 
+            sourceCode.AppendLine("using Neo.Cryptography.ECC;");
             sourceCode.AppendLine("using System.Collections.Generic;");
             sourceCode.AppendLine("using System.Numerics;");
             sourceCode.AppendLine("");
@@ -99,7 +101,7 @@ namespace Neo.SmartContract.Testing
                 if (!isFirst) sourceCode.Append(", ");
                 else isFirst = false;
 
-                sourceCode.Append($"{TypeToSource(arg.Type)} {arg.Name}");
+                sourceCode.Append($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
             }
 
             sourceCode.AppendLine(");");
@@ -125,12 +127,31 @@ namespace Neo.SmartContract.Testing
                 if (!isFirst) sourceCode.Append(", ");
                 else isFirst = false;
 
-                sourceCode.Append($"{TypeToSource(arg.Type)} {arg.Name}");
+                sourceCode.Append($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
             }
 
             sourceCode.AppendLine(");");
 
             return sourceCode.ToString();
+        }
+
+        /// <summary>
+        /// Escape name
+        /// </summary>
+        /// <param name="name">Name</param>
+        /// <returns>Escaped name</returns>
+        private static string EscapeName(string name)
+        {
+            return name switch
+            {
+                "base" => "@" + name,
+                "lock" => "@" + name,
+                "params" => "@" + name,
+                "struct" => "@" + name,
+                "class" => "@" + name,
+
+                _ => name
+            };
         }
 
         /// <summary>

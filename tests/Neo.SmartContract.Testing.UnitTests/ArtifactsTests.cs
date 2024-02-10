@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
+using System.IO;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -10,11 +11,14 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void GenerateNativeArtifacts()
         {
-            var manifest = Native.NativeContract.ContractManagement.Manifest;
-            var contractManagement = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+            foreach (var n in Native.NativeContract.Contracts)
+            {
+                var manifest = n.Manifest;
+                var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+                var fullPath = Path.GetFullPath($"../../../../../src/Neo.SmartContract.Testing/Native/{manifest.Name}.cs");
 
-            manifest = Native.NativeContract.CryptoLib.Manifest;
-            var cryptoLib = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+                File.WriteAllText(fullPath, source);
+            }
         }
 
         public void TestNativeContracts()
@@ -34,6 +38,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
 
             Assert.AreEqual(source, @"
+using Neo.Cryptography.ECC;
 using System.Collections.Generic;
 using System.Numerics;
 
