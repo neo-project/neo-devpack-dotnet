@@ -1,6 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.VM.Types;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -23,9 +25,21 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         [TestMethod]
+        public void TestHashExists()
+        {
+            TestEngine engine = new(false);
+
+            Assert.ThrowsException<KeyNotFoundException>(() => engine.FromHash<NeoToken>(engine.Native.NEO.Hash, true));
+
+            engine.Native.Initialize(true);
+
+            Assert.IsInstanceOfType<NeoToken>(engine.FromHash<NeoToken>(engine.Native.NEO.Hash, true));
+        }
+
+        [TestMethod]
         public void TestNativeContracts()
         {
-            TestEngine engine = new();
+            TestEngine engine = new(true);
 
             Assert.AreEqual(engine.Native.ContractManagement.Hash, Native.NativeContract.ContractManagement.Hash);
             Assert.AreEqual(engine.Native.StdLib.Hash, Native.NativeContract.StdLib.Hash);
@@ -90,7 +104,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // public event delCandidateStateChanged? CandidateStateChanged;
 
             engine.Notify(engine.Native.NEO.Hash, "CandidateStateChanged",
-                new Array(new StackItem[]
+                new VM.Types.Array(new StackItem[]
                 {
                     new ByteString(engine.ProtocolSettings.StandbyCommittee.First().ToArray()),
                     StackItem.True,

@@ -1,5 +1,4 @@
 using Moq;
-using Moq.Protected;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
@@ -9,8 +8,6 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 
 namespace Neo.SmartContract.Testing
@@ -211,7 +208,7 @@ namespace Neo.SmartContract.Testing
 
             // Parse return
 
-            ContractState state = new(); // Move to TestExtensions.ConvertTo?
+            ContractState state = new();
             ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
 
             // Mock contract
@@ -238,7 +235,7 @@ namespace Neo.SmartContract.Testing
 
             // Parse return
 
-            ContractState state = new(); // Move to TestExtensions.ConvertTo?
+            ContractState state = new();
             ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
 
             return MockContract<T>(state.Hash);
@@ -269,11 +266,11 @@ namespace Neo.SmartContract.Testing
 
                 if (method.ReturnType != typeof(void))
                 {
-                    MockMethod(mock, method.Name, args, method.ReturnType);
+                    mock.MockMethodWithReturn(method.Name, args, method.ReturnType);
                 }
                 else
                 {
-                    MockMethod(mock, method.Name, args);
+                    mock.MockMethod(method.Name, args);
                 }
             }
 
@@ -292,77 +289,6 @@ namespace Neo.SmartContract.Testing
 
             // return mocked sc
             return mock.Object;
-        }
-
-        private static readonly MethodInfo isAnyMethod = typeof(It).GetMethod(nameof(It.IsAny), BindingFlags.Public | BindingFlags.Static)!;
-
-        private static MethodCallExpression BuildIsAnyExpressions(Type type)
-        {
-            return Expression.Call(isAnyMethod.MakeGenericMethod(type));
-        }
-
-        private Expression BuildIsAnyExpressions<T>(Mock<T> mock, string name, Type[] args)
-            where T : SmartContract
-        {
-            var mockType = mock.Object.GetType().BaseType!;
-            var expArgs = args.Select(BuildIsAnyExpressions).ToArray();
-
-            var instanceParam = Expression.Parameter(mockType, "x");
-
-            var metodoInfo = mockType.GetMethod(name, args)!;
-            var callExpression = Expression.Call(instanceParam, metodoInfo, expArgs);
-            var parameterExpression = Expression.Parameter(mockType, "x");
-
-            return Expression.Lambda(callExpression, parameterExpression);
-        }
-
-        private void MockMethod<T>(Mock<T> mock, string name, Type[] args, Type returnType)
-            where T : SmartContract
-        {
-            Expression exp = BuildIsAnyExpressions(mock, name, args);
-
-            var setupMethod = mock.GetType()
-               .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-               .First(u => u.Name == nameof(IProtectedMock<T>.Setup) &&
-                    u.GetParameters().Length == 1 &&
-                    u.GetParameters()[0].ParameterType.ToString().Contains("[System.Func`")
-                    )
-               .MakeGenericMethod(returnType);
-
-            var setup = setupMethod.Invoke(mock, new object[] { exp })!;
-
-            var retMethod = setup.GetType()
-               .GetMethod("Returns", new Type[] { typeof(InvocationFunc) })!;
-
-            _ = retMethod.Invoke(setup, new object[] { new InvocationFunc(invocation =>
-                {
-                    return mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
-                })
-            });
-        }
-
-        private void MockMethod<T>(Mock<T> mock, string name, Type[] args)
-            where T : SmartContract
-        {
-            Expression exp = BuildIsAnyExpressions(mock, name, args);
-
-            var setupMethod = mock.GetType()
-               .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-               .First(u => u.Name == nameof(IProtectedMock<T>.Setup) &&
-                    u.GetParameters().Length == 1 &&
-                    u.GetParameters()[0].ParameterType.ToString().Contains("[System.Action`")
-                    );
-
-            var setup = setupMethod.Invoke(mock, new object[] { exp })!;
-
-            var retMethod = setup.GetType()
-               .GetMethod("Callback", new Type[] { typeof(InvocationAction) })!;
-
-            _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
-                {
-                    mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
-                })
-            });
         }
     }
 }

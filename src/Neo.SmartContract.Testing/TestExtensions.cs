@@ -91,6 +91,16 @@ namespace Neo.SmartContract.Testing
             if (type == typeof(Cryptography.ECC.ECPoint))
                 return Cryptography.ECC.ECPoint.FromBytes(stackItem.GetSpan().ToArray(), Cryptography.ECC.ECCurve.Secp256r1);
 
+            if (type == typeof(List<object>))
+            {
+                if (stackItem is not CompoundType cp)
+                {
+                    return stackItem;
+                }
+
+                return new List<object>(cp.SubItems);
+            }
+
             return stackItem;
         }
     }
