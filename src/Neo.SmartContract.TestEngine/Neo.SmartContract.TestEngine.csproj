@@ -8,6 +8,7 @@
 		<IncludeContentInPack>true</IncludeContentInPack>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<ContentTargetFolders>content</ContentTargetFolders>
+		<Nullable>enable</Nullable>
 		<NoWarn>$(NoWarn);NU5128</NoWarn>
 	</PropertyGroup>
 

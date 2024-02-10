@@ -6,6 +6,20 @@ namespace Neo.SmartContract.TestEngine.UnitTests
 {
     public class ArtifactsTests
     {
+        //[Test]
+        public void GenerateNativeArtifacts()
+        {
+            var manifest = Native.NativeContract.ContractManagement.Manifest;
+            var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+        }
+
+        [Test]
+        public void TestNativeContracts()
+        {
+            TestEngine engine = new();
+            Assert.That(engine.Native.ContractManagement.Hash, Is.EqualTo(Native.NativeContract.ContractManagement.Hash));
+        }
+
         [Test]
         public void TestCreateSourceFromManifest()
         {
@@ -17,7 +31,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests
             var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
 
             Assert.That(source, Is.EqualTo(@"
-using Neo;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Neo.TestEngine.Contracts;
@@ -62,7 +76,7 @@ public abstract class Contract1 : Neo.SmartContract.TestEngine.Mocks.SmartContra
             TestEngine engine = new();
 
             var contract = engine.FromHash<Contract1>(hash);
-            
+
             Assert.That(contract.Hash, Is.EqualTo(hash));
         }
     }

@@ -2,8 +2,6 @@ using Moq;
 using Neo.Cryptography.ECC;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
-using System;
-using System.Reflection;
 
 namespace Neo.SmartContract.TestEngine
 {
@@ -74,6 +72,20 @@ namespace Neo.SmartContract.TestEngine
         /// </summary>
         public UInt160 Sender { get; } = UInt160.Zero;
 
+        private NativeArtifacts? _native;
+
+        /// <summary>
+        /// Native artifacts
+        /// </summary>
+        public NativeArtifacts Native
+        {
+            get
+            {
+                _native ??= new NativeArtifacts(this);
+                return _native;
+            }
+        }
+
         /// <summary>
         /// Deploy Smart contract
         /// </summary>
@@ -101,21 +113,13 @@ namespace Neo.SmartContract.TestEngine
         /// <returns>Mocked Smart Contract</returns>
         public T FromHash<T>(UInt160 hash) where T : Mocks.SmartContract
         {
+            // TODO: Ensure that the contract exists
+
             return MockContract<T>(hash);
         }
 
         private T MockContract<T>(UInt160 hash) where T : Mocks.SmartContract
         {
-            // Create object
-
-            Type classType = typeof(T);
-
-            ConstructorInfo internalConstructor = classType.GetConstructor(
-                   BindingFlags.Instance | BindingFlags.NonPublic,
-                   null, new Type[] { typeof(TestEngine), typeof(UInt160) }, null);
-
-            //T sc = (T)internalConstructor.Invoke(new object[] { this, hash });
-
             // TODO: Mock sc here
 
             var mock = new Mock<T>(this, hash)

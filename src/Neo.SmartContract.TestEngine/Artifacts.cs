@@ -17,7 +17,7 @@ namespace Neo.SmartContract.TestEngine
         {
             StringBuilder sourceCode = new();
 
-            sourceCode.AppendLine("using Neo;");
+            sourceCode.AppendLine("using System.Collections.Generic;");
             sourceCode.AppendLine("using System.Numerics;");
             sourceCode.AppendLine("");
             sourceCode.AppendLine("namespace Neo.TestEngine.Contracts;");
