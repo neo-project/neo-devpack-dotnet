@@ -1,5 +1,5 @@
 using System.Numerics;
-using Neo.SmartContract.Framework;
+using Math = Neo.SmartContract.Framework.Math;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
