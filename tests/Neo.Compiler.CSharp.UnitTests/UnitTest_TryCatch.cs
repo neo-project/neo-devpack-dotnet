@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using System;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_TryCatch.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_TryCatch.cs");
         }
 
         [TestMethod]

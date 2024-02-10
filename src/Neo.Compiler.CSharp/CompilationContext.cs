@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
@@ -149,7 +150,7 @@ namespace Neo.Compiler
             }
         }
 
-        internal static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
+        public static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
             if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
@@ -162,8 +163,10 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileSources(string[] sourceFiles, Options options)
         {
-            List<MetadataReference> references = new(commonReferences);
-            references.Add(MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location));
+            List<MetadataReference> references = new(commonReferences)
+            {
+                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
+            };
             return Compile(sourceFiles, references, options);
         }
 
@@ -328,8 +331,9 @@ namespace Neo.Compiler
                 ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
                 ["extra"] = manifestExtra
             };
+
             // Ensure that is serializable
-            return ContractManifest.Parse(json.ToString(false));
+            return ContractManifest.Parse(json.ToString(false)).CheckStandards();
         }
 
         public JObject CreateDebugInformation(string folder = "")
@@ -447,7 +451,16 @@ namespace Neo.Compiler
                             trusts.Add(trust);
                             break;
                         case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
-                            supportedStandards.UnionWith(attribute.ConstructorArguments[0].Values.Select(p => (string)p.Value!));
+                            supportedStandards.UnionWith(
+                                attribute.ConstructorArguments[0].Values
+                                    .Select(p => p.Value)
+                                    .Select(p =>
+                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
+                                            ? ((NEPStandard)ip).ToStandard()
+                                            : p as string
+                                    )
+                                    .Where(v => v != null)! // Ensure null values are not added
+                            );
                             break;
                     }
                 }
@@ -480,9 +493,16 @@ namespace Neo.Compiler
             INamedTypeSymbol type = (INamedTypeSymbol)symbol.Type;
             if (!type.DelegateInvokeMethod!.ReturnsVoid)
                 throw new CompilationException(symbol, DiagnosticId.EventReturns, $"Event return value is not supported.");
-            AbiEvent ev = new(symbol);
+            AddEvent(new AbiEvent(symbol), true);
+        }
+
+        internal void AddEvent(AbiEvent ev, bool throwErrorIfExists)
+        {
             if (eventsExported.Any(u => u.Name == ev.Name))
-                throw new CompilationException(symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            {
+                if (!throwErrorIfExists) return;
+                throw new CompilationException(ev.Symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
+            }
             eventsExported.Add(ev);
         }
 

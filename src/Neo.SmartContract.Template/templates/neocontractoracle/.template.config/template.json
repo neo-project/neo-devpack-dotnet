@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "The Neo Project",
+  "classifications": [ "NEO", "Blockchain", "Smart Contract", "Oracle" ],
+  "identity": "Neo.SmartContract.Template.Oracle",
+  "name": "Neo Smart Contract - Oracle",
+  "shortName": "neocontractoracle",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "ProjectName",
+  "symbols": {
+    "NeoVersion": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "3.6.0"
+        },
+        {
+          "choice": "3.6.2"
+        }
+      ],
+      "defaultValue": "3.6.2",
+      "replaces": "TemplateNeoVersion"
+    }
+  }
+}

@@ -1,16 +1,16 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract.Framework.UnitTests.Utils;
-using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using Neo.Wallets;
 using System;
 using System.IO;
 using System.Numerics;
+using Neo.SmartContract.Framework.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
+using Array = Neo.VM.Types.Array;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -40,12 +40,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             public void SerializeUnsigned(BinaryWriter writer) { }
         }
 
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(TriggerType.Application, new DummyVerificable(), persistingBlock: new Block()
+            _engine = new TestEngine.TestEngine(TriggerType.Application, new DummyVerificable(), persistingBlock: new Block()
             {
                 Header = new Header()
                 {
@@ -64,18 +64,18 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Transactions = System.Array.Empty<Transaction>(),
 
             });
-            _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Runtime.cs");
         }
 
         [TestMethod]
         public void Test_InvocationCounter()
         {
-            _engine.AddEntryScript("./TestClasses/Contract_Runtime.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Runtime.cs");
 
             // We need a new TestEngine because invocationCounter it's shared between them
 
             var contract = _engine.EntryScriptHash;
-            var engine = new TestEngine(TriggerType.Application, new DummyVerificable(), new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, new DummyVerificable(), new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -291,7 +291,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             sb.EmitDynamicCall(contract, "getTransactionHash");
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -318,7 +318,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
             tx.Version = 77;
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -344,7 +344,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             sb.EmitDynamicCall(contract, "getTransactionNonce");
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -370,7 +370,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             sb.EmitDynamicCall(contract, "getTransactionSender");
             var sender = "NMA2FKN8up2cEwaJgtmAiDrZWB69ApnDfp".ToScriptHash(ProtocolSettings.Default.AddressVersion);
             var tx = BuildTransaction(sender, sb.ToArray());
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -388,6 +388,31 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_GetTransaction()
+        {
+            var contract = _engine.EntryScriptHash;
+
+            using ScriptBuilder sb = new();
+            sb.EmitDynamicCall(contract, "getTransaction");
+            var sender = "NMA2FKN8up2cEwaJgtmAiDrZWB69ApnDfp".ToScriptHash(ProtocolSettings.Default.AddressVersion);
+            var tx = BuildTransaction(sender, sb.ToArray());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
+            engine.Snapshot.ContractAdd(new ContractState()
+            {
+                Hash = contract,
+                Nef = _engine.Nef,
+                Manifest = _engine.Manifest
+            });
+            engine.LoadScript(sb.ToArray());
+
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+
+            var item = engine.ResultStack.Pop();
+            Assert.IsInstanceOfType(item, typeof(Array));
+        }
+
+        [TestMethod]
         public void Test_GetTransactionSystemFee()
         {
             var contract = _engine.EntryScriptHash;
@@ -397,7 +422,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
             tx.SystemFee = 10;
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -424,7 +449,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
             tx.NetworkFee = 200;
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -451,7 +476,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
             tx.ValidUntilBlock = 1111;
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
@@ -478,7 +503,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var tx = BuildTransaction(UInt160.Zero, sb.ToArray());
             tx.NetworkFee = 200;
-            var engine = new TestEngine(TriggerType.Application, tx, new TestDataCache());
+            var engine = new TestEngine.TestEngine(TriggerType.Application, tx, new TestDataCache());
             engine.Snapshot.ContractAdd(new ContractState()
             {
                 Hash = contract,
