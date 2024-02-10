@@ -15,7 +15,12 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.Native.Initialize(true);
 
-            Assert.AreEqual(35, engine.Storage.Store.Seek(System.Array.Empty<byte>(), Persistence.SeekDirection.Forward).Count());
+            // Ensure that the main address contains the totalSupply
+
+            var addr = Contract.GetBFTAddress(engine.ProtocolSettings.StandbyValidators);
+
+            Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply());
+            Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(addr));
         }
     }
 }

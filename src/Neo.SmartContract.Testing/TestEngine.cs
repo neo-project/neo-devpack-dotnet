@@ -1,11 +1,18 @@
 using Moq;
+using Moq.Protected;
 using Neo.Cryptography.ECC;
 using Neo.IO;
+using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Numerics;
+using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace Neo.SmartContract.Testing
@@ -75,9 +82,31 @@ namespace Neo.SmartContract.Testing
         public ProtocolSettings ProtocolSettings { get; init; } = Default;
 
         /// <summary>
+        /// Transaction
+        /// </summary>
+        public Transaction Transaction { get; set; } = new Transaction()
+        {
+            Attributes = System.Array.Empty<TransactionAttribute>(),
+            Script = System.Array.Empty<byte>(),
+            Signers = new Signer[]
+            {
+                new Signer() { Account=Contract.GetBFTAddress(Default.StandbyValidators) }
+            },
+            Witnesses = new Witness[]
+            {
+                new Witness()
+                {
+                     InvocationScript = Contract.CreateMultiSigRedeemScript(
+                         Default.StandbyValidators.Count - (Default.StandbyValidators.Count - 1) / 3, Default.StandbyValidators),
+                     VerificationScript = System.Array.Empty<byte>()
+                }
+            }
+        };
+
+        /// <summary>
         /// Sender
         /// </summary>
-        public UInt160 Sender { get; } = UInt160.Zero;
+        public UInt160 Sender => Transaction.Sender;
 
         private NativeArtifacts? _native;
 
@@ -127,10 +156,10 @@ namespace Neo.SmartContract.Testing
         }
 
         public void Log(UInt160 scriptHash, string message) =>
-            ApplicationEngine_Log(null, new LogEventArgs(null, scriptHash, message));
+            ApplicationEngine_Log(null, new LogEventArgs(Transaction, scriptHash, message));
 
-        public void Notify(UInt160 scriptHash, string eventName, Array state) =>
-            ApplicationEngine_Notify(null, new NotifyEventArgs(null, scriptHash, eventName, state));
+        public void Notify(UInt160 scriptHash, string eventName, VM.Types.Array state) =>
+            ApplicationEngine_Notify(null, new NotifyEventArgs(Transaction, scriptHash, eventName, state));
 
         #endregion
 
@@ -151,7 +180,7 @@ namespace Neo.SmartContract.Testing
             // Parse return
 
             ContractState state = new(); // Move to TestExtensions.ConvertTo?
-            ((IInteroperable)state).FromStackItem(new Array(ret.Select(u => (StackItem)u)));
+            ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
 
             // Mock contract
 
@@ -164,19 +193,23 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="hash">Contract hash</param>
+        /// <param name="checkExistence">Check existence (default: true)</param>
         /// <returns>Mocked Smart Contract</returns>
-        public T FromHash<T>(UInt160 hash) where T : SmartContract
+        public T FromHash<T>(UInt160 hash, bool checkExistence = true) where T : SmartContract
         {
-            return MockContract<T>(hash);
+            if (!checkExistence)
+            {
+                return MockContract<T>(hash);
+            }
 
-            //var ret = Native.ContractManagement.getContract(hash);
+            var ret = Native.ContractManagement.getContract(hash);
 
-            //// Parse return
+            // Parse return
 
-            //ContractState state = new(); // Move to TestExtensions.ConvertTo?
-            //((IInteroperable)state).FromStackItem(new Array(ret.Select(u => (StackItem)u)));
+            ContractState state = new(); // Move to TestExtensions.ConvertTo?
+            ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
 
-            //return MockContract<T>(state.Hash);
+            return MockContract<T>(state.Hash);
         }
 
         private T MockContract<T>(UInt160 hash) where T : SmartContract
@@ -186,7 +219,35 @@ namespace Neo.SmartContract.Testing
                 CallBase = true
             };
 
-            // TODO: Mock sc here
+            // Mock sc here
+
+            foreach (var method in typeof(T).GetMethods())
+            {
+                if (!method.IsAbstract) continue;
+
+                // Get methods
+
+                Type[] args = new Type[method.GetParameters().Length];
+                for (int x = 0; x < args.Length; x++)
+                {
+                    args[x] = method.GetParameters()[x].ParameterType;
+                }
+
+                // Mock by return type
+
+                if (method.GetParameters().Length != 0) continue;
+
+                if (method.ReturnType != typeof(void))
+                {
+                    MockMethod(mock, method.Name, args, method.ReturnType);
+                }
+                else
+                {
+                    MockMethod(mock, method.Name, args);
+                }
+            }
+
+            mock.Verify();
 
             // Cache sc
 
@@ -201,6 +262,77 @@ namespace Neo.SmartContract.Testing
 
             // return mocked sc
             return mock.Object;
+        }
+
+        private static readonly MethodInfo isAnyMethod = typeof(It).GetMethod(nameof(It.IsAny), BindingFlags.Public | BindingFlags.Static)!;
+
+        private static MethodCallExpression BuildIsAnyExpressions(Type type)
+        {
+            return Expression.Call(isAnyMethod.MakeGenericMethod(type));
+        }
+
+        private Expression BuildIsAnyExpressions<T>(Mock<T> mock, string name, Type[] args)
+            where T : SmartContract
+        {
+            var mockType = mock.Object.GetType().BaseType!;
+            var expArgs = args.Select(BuildIsAnyExpressions).ToArray();
+
+            var instanceParam = Expression.Parameter(mockType, "x");
+
+            var metodoInfo = mockType.GetMethod(name, args)!;
+            var callExpression = Expression.Call(instanceParam, metodoInfo, expArgs);
+            var parameterExpression = Expression.Parameter(mockType, "x");
+
+            return Expression.Lambda(callExpression, parameterExpression);
+        }
+
+        private void MockMethod<T>(Mock<T> mock, string name, Type[] args, Type returnType)
+            where T : SmartContract
+        {
+            Expression exp = BuildIsAnyExpressions(mock, name, args);
+
+            var setupMethod = mock.GetType()
+               .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+               .First(u => u.Name == nameof(IProtectedMock<T>.Setup) &&
+                    u.GetParameters().Length == 1 &&
+                    u.GetParameters()[0].ParameterType.ToString().Contains("[System.Func`")
+                    )
+               .MakeGenericMethod(returnType);
+
+            var setup = setupMethod.Invoke(mock, new object[] { exp })!;
+
+            var retMethod = setup.GetType()
+               .GetMethod("Returns", new Type[] { typeof(InvocationFunc) })!;
+
+            _ = retMethod.Invoke(setup, new object[] { new InvocationFunc(invocation =>
+                {
+                    return mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
+                })
+            });
+        }
+
+        private void MockMethod<T>(Mock<T> mock, string name, Type[] args)
+            where T : SmartContract
+        {
+            Expression exp = BuildIsAnyExpressions(mock, name, args);
+
+            var setupMethod = mock.GetType()
+               .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+               .First(u => u.Name == nameof(IProtectedMock<T>.Setup) &&
+                    u.GetParameters().Length == 1 &&
+                    u.GetParameters()[0].ParameterType.ToString().Contains("[System.Action`")
+                    );
+
+            var setup = setupMethod.Invoke(mock, new object[] { exp });
+
+            var retMethod = mock.GetType()
+               .GetMethod("Callback", BindingFlags.Static | BindingFlags.Public)!;
+
+            _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
+                {
+                    _=mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
+                })
+            });
         }
     }
 }

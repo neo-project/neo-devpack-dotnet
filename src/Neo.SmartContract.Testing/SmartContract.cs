@@ -1,3 +1,6 @@
+using Neo.Persistence;
+using Neo.VM;
+using Neo.VM.Types;
 using System;
 using System.Reflection;
 
@@ -24,6 +27,42 @@ namespace Neo.SmartContract.Testing
         {
             _engine = testEngine;
             Hash = hash;
+        }
+
+        /// <summary>
+        /// Invoke to NeoVM
+        /// </summary>
+        /// <param name="methodName">Method name</param>
+        /// <param name="args">Arguments</param>
+        /// <returns>Object</returns>
+        internal StackItem Invoke(string methodName, params object[] args)
+        {
+            using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
+            var block = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
+
+            // Compose script
+
+            using ScriptBuilder script = new();
+            script.EmitDynamicCall(Hash, methodName, args);
+
+            // Execute in neo VM
+
+            using var engine = ApplicationEngine.Create(TriggerType.OnPersist,
+                _engine.Transaction, snapshot, block, _engine.ProtocolSettings);
+
+            engine.LoadScript(script.ToArray());
+
+            if (engine.Execute() != VMState.HALT)
+            {
+                throw engine.FaultException ?? new Exception($"Error while executing {methodName}");
+            }
+
+            engine.Snapshot.Commit();
+
+            // Return
+
+            if (engine.ResultStack.Count == 0) return StackItem.Null;
+            return engine.ResultStack.Pop();
         }
 
         /// <summary>

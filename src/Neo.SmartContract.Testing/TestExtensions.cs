@@ -76,15 +76,15 @@ namespace Neo.SmartContract.Testing
             if (type == typeof(string)) return stackItem.ToString();
             if (type == typeof(byte[])) return stackItem.GetSpan().ToArray();
 
-            if (type == typeof(byte) || type == typeof(sbyte) ||
-                type == typeof(short) || type == typeof(ushort) ||
-                type == typeof(int) || type == typeof(uint) ||
-                type == typeof(long) || type == typeof(ulong) ||
-                type == typeof(BigInteger)
-                )
-            {
-                return stackItem.GetInteger();
-            }
+            if (type == typeof(byte)) return (byte)stackItem.GetInteger();
+            if (type == typeof(sbyte)) return (sbyte)stackItem.GetInteger();
+            if (type == typeof(short)) return (short)stackItem.GetInteger();
+            if (type == typeof(ushort)) return (ushort)stackItem.GetInteger();
+            if (type == typeof(int)) return (int)stackItem.GetInteger();
+            if (type == typeof(uint)) return (uint)stackItem.GetInteger();
+            if (type == typeof(long)) return (long)stackItem.GetInteger();
+            if (type == typeof(ulong)) return (ulong)stackItem.GetInteger();
+            if (type == typeof(BigInteger)) return stackItem.GetInteger();
 
             if (type == typeof(UInt160)) return new UInt160(stackItem.GetSpan().ToArray());
             if (type == typeof(UInt256)) return new UInt256(stackItem.GetSpan().ToArray());

@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
             TestEngine engine = new();
 
-            var contract = engine.FromHash<Contract1>(hash);
+            var contract = engine.FromHash<Contract1>(hash, false);
 
             Assert.AreEqual(contract.Hash, hash);
         }
@@ -55,13 +55,14 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new();
 
             var contractLog = false;
-            var contract = engine.FromHash<Contract1>(hash);
+            var contract = engine.FromHash<Contract1>(hash, false);
             contract.OnLog += (msg) =>
             {
                 contractLog = true;
             };
 
             var neoLog = false;
+            engine.Native.Initialize();
             engine.Native.NEO.OnLog += (msg) =>
                 {
                     neoLog = true;
@@ -79,6 +80,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new();
 
             var neoLog = false;
+            engine.Native.Initialize();
             engine.Native.NEO.CandidateStateChanged += (pubKey, registered, votes) =>
             {
                 neoLog = pubKey == engine.ProtocolSettings.StandbyCommittee.First() && votes == 123 && registered;

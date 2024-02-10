@@ -1,5 +1,6 @@
 using Neo.Persistence;
 using System;
+using System.Reflection;
 
 namespace Neo.SmartContract.Testing
 {
@@ -28,7 +29,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _contractManagement ??= _engine.FromHash<ContractManagement>(Native.NativeContract.ContractManagement.Hash);
+                _contractManagement ??= _engine.FromHash<ContractManagement>(Native.NativeContract.ContractManagement.Hash, false);
                 return _contractManagement;
             }
         }
@@ -40,7 +41,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _cryptoLib ??= _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash);
+                _cryptoLib ??= _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash, false);
                 return _cryptoLib;
             }
         }
@@ -52,7 +53,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _gas ??= _engine.FromHash<GasToken>(Native.NativeContract.GAS.Hash);
+                _gas ??= _engine.FromHash<GasToken>(Native.NativeContract.GAS.Hash, false);
                 return _gas;
             }
         }
@@ -64,7 +65,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _neo ??= _engine.FromHash<NeoToken>(Native.NativeContract.NEO.Hash);
+                _neo ??= _engine.FromHash<NeoToken>(Native.NativeContract.NEO.Hash, false);
                 return _neo;
             }
         }
@@ -76,7 +77,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _ledger ??= _engine.FromHash<LedgerContract>(Native.NativeContract.Ledger.Hash);
+                _ledger ??= _engine.FromHash<LedgerContract>(Native.NativeContract.Ledger.Hash, false);
                 return _ledger;
             }
         }
@@ -88,7 +89,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _oracle ??= _engine.FromHash<OracleContract>(Native.NativeContract.Oracle.Hash);
+                _oracle ??= _engine.FromHash<OracleContract>(Native.NativeContract.Oracle.Hash, false);
                 return _oracle;
             }
         }
@@ -100,7 +101,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _policy ??= _engine.FromHash<PolicyContract>(Native.NativeContract.Policy.Hash);
+                _policy ??= _engine.FromHash<PolicyContract>(Native.NativeContract.Policy.Hash, false);
                 return _policy;
             }
         }
@@ -112,7 +113,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _roleManagement ??= _engine.FromHash<RoleManagement>(Native.NativeContract.RoleManagement.Hash);
+                _roleManagement ??= _engine.FromHash<RoleManagement>(Native.NativeContract.RoleManagement.Hash, false);
                 return _roleManagement;
             }
         }
@@ -124,7 +125,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _stdLib ??= _engine.FromHash<StdLib>(Native.NativeContract.StdLib.Hash);
+                _stdLib ??= _engine.FromHash<StdLib>(Native.NativeContract.StdLib.Hash, false);
                 return _stdLib;
             }
         }
@@ -144,20 +145,36 @@ namespace Neo.SmartContract.Testing
         /// <param name="commit">Initialize native contracts</param>
         public void Initialize(bool commit = false)
         {
-            var persistingBlock = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
+            var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
             using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
 
             foreach (var native in Native.NativeContract.Contracts)
             {
-                var method = native.GetType().GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                // Mock Native.OnPersist
 
-                using var engine = ApplicationEngine.Create(TriggerType.OnPersist, persistingBlock,
-                    snapshot, persistingBlock, _engine.ProtocolSettings);
+                var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                engine.LoadScript(Array.Empty<byte>());
-                method!.Invoke(native, new object[] { engine });
+                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings))
+                {
 
-                engine.Snapshot.Commit();
+                    engine.LoadScript(Array.Empty<byte>());
+                    method!.Invoke(native, new object[] { engine });
+
+                    engine.Snapshot.Commit();
+                }
+
+                // Mock Native.PostPersist
+
+                method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings))
+                {
+
+                    engine.LoadScript(Array.Empty<byte>());
+                    method!.Invoke(native, new object[] { engine });
+
+                    engine.Snapshot.Commit();
+                }
             }
 
             if (commit)
