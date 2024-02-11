@@ -1,6 +1,6 @@
 # Neo.SmartContract.Testing
 
-The **Neo.SmartContract.Testing** project is designed to facilitate the development of unit tests for smart contract developers in neo, it does not require the project to be done in C#, as it is possible to export artifacts from a `NefFile`.
+The **Neo.SmartContract.Testing** project is designed to facilitate the development of unit tests for smart contract developers in neo, it does not require the project to be done in C#, as it is possible to export artifacts from an `Abi`.
 
 ## Table of Contents
 
