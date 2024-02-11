@@ -7,24 +7,24 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
 - [Installation and configuration](#installation-and-configuration)
     - [Generating Artifacts](#generating-artifacts)
         - [Example of use](#example-of-use)
-    - [TestEngine](#testengine)
-        - [Properties](#properties)
-        - [Methods](#methods)
-        - [Example of use](#example-of-use)
-    - [NativeArtifacts](#nativeartifacts)
-        - [Methods](#methods)
-        - [Example of use](#example-of-use)
-    - [SmartContractStorage](#smartcontractstorage)
-        - [Methods](#methods)
-        - [Example of use](#example-of-use)
-    - [Custom mocks](#custom-mocks)
-        - [Example of use](#example-of-use)
-    - [Forging signatures](#forging-signatures)
-        - [Example of use](#example-of-use)
+- [TestEngine](#testengine)
+    - [Properties](#properties)
+    - [Methods](#methods)
+    - [Example of use](#example-of-use)
+- [NativeArtifacts](#nativeartifacts)
+    - [Methods](#methods)
+    - [Example of use](#example-of-use)
+- [SmartContractStorage](#smartcontractstorage)
+    - [Methods](#methods)
+    - [Example of use](#example-of-use)
+- [Custom mocks](#custom-mocks)
+    - [Example of use](#example-of-use)
+- [Forging signatures](#forging-signatures)
+    - [Example of use](#example-of-use)
 
-## Installation and configuration
+### Installation and configuration
 
-### Generating Artifacts
+#### Generating Artifacts
 
 The process of generating the artifacts, or the source code necessary to interact with the contract, is extremely simple. There are two main ways to do it:
 
@@ -32,7 +32,7 @@ The process of generating the artifacts, or the source code necessary to interac
 
 2. Through the Neo C# compiler, automatically when compiling a contract in C#, the necessary source code to interact with the contract is generated. This is available in the same path as the generated .nef file, and its
 
-#### Example of use
+##### Example of use
 
 ```csharp
 [TestClass]
