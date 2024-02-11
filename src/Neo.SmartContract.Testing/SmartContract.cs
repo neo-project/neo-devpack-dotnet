@@ -1,3 +1,4 @@
+using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
 using System;

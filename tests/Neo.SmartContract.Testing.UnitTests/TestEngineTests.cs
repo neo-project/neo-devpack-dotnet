@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.Extensions;
 using System.Collections.Generic;
 using System.IO;
 

@@ -1,11 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Extensions;
 
-namespace Neo.SmartContract.Testing.UnitTests
+namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
 {
     [TestClass]
-    public class ArtifactsTests
+    public class ArtifactExtensionsTests
     {
         [TestMethod]
         public void TestGetArtifactsSource()

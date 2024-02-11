@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Extensions
 {
     public static class TestExtensions
     {
@@ -22,15 +22,15 @@ namespace Neo.SmartContract.Testing
             if (data is byte[] d) return (ByteString)d;
             if (data is ReadOnlyMemory<byte> r) return (ByteString)r;
 
-            if (data is byte by) return (VM.Types.Integer)by;
-            if (data is sbyte sby) return (VM.Types.Integer)sby;
-            if (data is short i16) return (VM.Types.Integer)i16;
-            if (data is ushort ui16) return (VM.Types.Integer)ui16;
-            if (data is int i32) return (VM.Types.Integer)i32;
-            if (data is uint ui32) return (VM.Types.Integer)ui32;
-            if (data is long i64) return (VM.Types.Integer)i64;
-            if (data is ulong ui64) return (VM.Types.Integer)ui64;
-            if (data is BigInteger bi) return (VM.Types.Integer)bi;
+            if (data is byte by) return (Integer)by;
+            if (data is sbyte sby) return (Integer)sby;
+            if (data is short i16) return (Integer)i16;
+            if (data is ushort ui16) return (Integer)ui16;
+            if (data is int i32) return (Integer)i32;
+            if (data is uint ui32) return (Integer)ui32;
+            if (data is long i64) return (Integer)i64;
+            if (data is ulong ui64) return (Integer)ui64;
+            if (data is BigInteger bi) return (Integer)bi;
 
             if (data is UInt160 u160) return (ByteString)u160.ToArray();
             if (data is UInt256 u256) return (ByteString)u256.ToArray();
@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Testing
 
                 foreach (object o in arr)
                 {
-                    ar.Add(ConvertToStackItem(o));
+                    ar.Add(o.ConvertToStackItem());
                 }
 
                 return ar;
@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Testing
 
                 foreach (object o in iarr)
                 {
-                    ar.Add(ConvertToStackItem(o));
+                    ar.Add(o.ConvertToStackItem());
                 }
 
                 return ar;

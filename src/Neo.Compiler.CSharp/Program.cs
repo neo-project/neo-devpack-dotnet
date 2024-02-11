@@ -14,7 +14,7 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Extensions;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;

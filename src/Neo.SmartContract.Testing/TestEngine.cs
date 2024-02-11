@@ -4,6 +4,7 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Extensions;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;

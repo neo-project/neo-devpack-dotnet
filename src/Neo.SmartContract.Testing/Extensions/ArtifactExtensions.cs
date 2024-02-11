@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {

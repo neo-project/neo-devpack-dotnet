@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Extensions
 {
     internal static class MockExtensions
     {
