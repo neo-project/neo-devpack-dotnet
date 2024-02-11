@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void ConvTypeTest()
         {
-            var compilation = LoadTestCompilation("./TestClasses/Contract_ParameterType.cs");
+            var compilation = LoadTestCompilation(Utils.Extensions.TestContractRoot + "Contract_ParameterType.cs");
 
             Assert.AreEqual(ContractParameterType.String, compilation.GetFieldContractType("_string"));
             Assert.AreEqual(ContractParameterType.Integer, compilation.GetFieldContractType("_bigInteger"));

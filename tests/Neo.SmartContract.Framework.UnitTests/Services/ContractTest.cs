@@ -1,11 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using Neo.Persistence;
+using Neo.SmartContract.TestEngine;
 using Array = Neo.VM.Types.Array;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -13,13 +14,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ContractTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            var system = new NeoSystem(TestProtocolSettings.Default);
-            _engine = new TestEngine(verificable: new Transaction()
+            var system = new NeoSystem(TestProtocolSettings.Default, new MemoryStore());
+            _engine = new TestEngine.TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
                 Witnesses = System.Array.Empty<Witness>(),
@@ -27,7 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             },
             snapshot: new TestDataCache(system.GenesisBlock),
             persistingBlock: system.GenesisBlock);
-            _engine.AddEntryScript("./TestClasses/Contract_Contract.cs");
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Contract.cs");
         }
 
         [TestMethod]
@@ -35,8 +36,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Create
 
-            TestEngine engine = new();
-            engine.AddEntryScript("./TestClasses/Contract_Create.cs");
+            TestEngine.TestEngine engine = new();
+            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Create.cs");
             var manifest = engine.Manifest;
             var nef = new NefFile() { Script = engine.Nef.Script, Compiler = engine.Nef.Compiler, Source = engine.Nef.Source, Tokens = engine.Nef.Tokens };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
@@ -106,8 +107,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Create
 
-            TestEngine engine = new();
-            engine.AddEntryScript("./TestClasses/Contract_CreateAndUpdate.cs");
+            TestEngine.TestEngine engine = new();
+            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_CreateAndUpdate.cs");
             var manifest = engine.Manifest;
             var nef = new NefFile()
             {
@@ -120,7 +121,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
 
-            engine.AddEntryScript("./TestClasses/Contract_Update.cs");
+            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Update.cs");
             var manifestUpdate = engine.Manifest;
             manifestUpdate.Name = manifest.Name; // Must be the same name
 

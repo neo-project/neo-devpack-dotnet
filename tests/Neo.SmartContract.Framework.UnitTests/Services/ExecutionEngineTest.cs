@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
@@ -51,14 +50,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             }
         }
 
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
         private string scriptHash;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(TriggerType.Application, new DummyVerificable());
-            _engine.AddEntryScript("./TestClasses/Contract_ExecutionEngine.cs");
+            _engine = new TestEngine.TestEngine(TriggerType.Application, new DummyVerificable());
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ExecutionEngine.cs");
             scriptHash = _engine.Nef.Script.Span.ToScriptHash().ToArray().ToHexString();
         }
 
@@ -99,7 +98,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
-            //test by this way is bad idea? how to sure got a fix hash always? 
+            //test by this way is bad idea? how to sure got a fix hash always?
             var gothash = item.GetSpan().ToHexString();
             Assert.AreEqual(scriptHash, gothash);
         }

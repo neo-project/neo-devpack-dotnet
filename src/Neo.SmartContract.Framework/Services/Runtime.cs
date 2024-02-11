@@ -1,15 +1,16 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
+using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services
@@ -28,7 +29,14 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
+        [Obsolete("Use System.Runtime.Transaction instead")]
         public static extern object ScriptContainer
+        {
+            [Syscall("System.Runtime.GetScriptContainer")]
+            get;
+        }
+
+        public static extern Transaction Transaction
         {
             [Syscall("System.Runtime.GetScriptContainer")]
             get;
@@ -95,8 +103,16 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);
 
+        // Events not present in the ABI were disabled in HF_Basilisk
+        // [Syscall("System.Runtime.Notify")]
+        // public static extern void Notify(string eventName, object[] state);
+
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.PACK)]
+        [OpCode(OpCode.PUSHDATA1, "054465627567")] // 0x5 - Debug
+        //[OpCode(OpCode.SYSCALL, "95016f61")] // SHA256(System.Runtime.Notify)[0..4]
         [Syscall("System.Runtime.Notify")]
-        public static extern void Notify(string eventName, object[] state);
+        public static extern void Debug(string message);
 
         [Syscall("System.Runtime.BurnGas")]
         public static extern void BurnGas(long gas);

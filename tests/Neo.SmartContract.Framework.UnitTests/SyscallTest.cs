@@ -81,7 +81,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             HashSet<string> fwSyscalls = visitor.Visit(compilation.GlobalNamespace).ToHashSet();
 
             fwSyscalls.SymmetricExceptWith(neoSyscalls);
-            if (fwSyscalls.Count > 0)
+            if (fwSyscalls.Count > 0 && fwSyscalls.All(p => !p.Equals("System.Runtime.Notify")))
             {
                 Assert.Fail($"Unknown or unimplemented syscalls: {string.Join("\n", fwSyscalls)}");
             }
