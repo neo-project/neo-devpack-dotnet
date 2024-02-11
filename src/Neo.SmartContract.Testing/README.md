@@ -64,6 +64,7 @@ The publicly exposed read-only properties are as follows:
 - **Sender**: Returns the script hash of the transaction sender, which corresponds to the first `Signer` defined in the `Transaction` object.
 - **Native**: Allows access to the native contracts, and their state. It facilitates access to the chain's native contracts through some precompiled artifacts. This point is further detailed in [NativeArtifacts](#nativeartifacts).
 - **BFTAddress**: Defines the address for the validators of the defined *ProtocolSettings*.
+- **CommitteeAddress**: Returns the address of the current chain's committee.
 
 For read and write, we have:
 
@@ -103,10 +104,9 @@ This class provides precompiled artifacts for neo's native contracts, thereby si
 
 #### Methods
 
-It has two main methods:
+It has only one method:
 
-- **GetCommitteeAddress()**: Returns the address of the current chain's committee.
-- **Initialize(bool commit = false)**: Initializes the native contract with the necessary parameters for its operation. It's important to note that this step must usually be performed, or deploying contracts won't be possible. However, if using a `Storage` that already contains chain data and these contracts have been initialized,
+- **Initialize(bool commit = false)**: Initializes the native contract with the necessary parameters for its operation. It's important to note that this step must usually be performed, or deploying contracts won't be possible. However, if using a `Storage` that already contains chain data and these contracts have been initialized, calling this method should be avoided. The `commit` argument determines whether to commit to the active `Snapshot` of the `TestStorage` (default is `false`).
 
 #### Example of use
 
@@ -123,7 +123,7 @@ Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(eng
 
 ### SmartContractStorage
 
-Avoids dealing with prefixes foreign to the internal behavior of the storage, focusing the developer solely on accessing the storage of the contract in question, just as it is managed by the smart contract itself, allowing reading, injecting, and deleting entries of the contract in question.
+Avoids dealing with prefixes foreign to the internal behavior of the storage, focusing the developer solely on accessing the storage of the contract, just as it is managed by the smart contract itself, allowing reading, injecting, and deleting entries of the contract in question.
 
 #### Methods
 
@@ -159,7 +159,7 @@ Custom mocks allow redirecting certain calls to smart contracts so that instead 
 
 Imagine that our project checks that our account has a balance of 123 NEO. It would be enough to redirect the calls to the NEO `balanceOf` method in the following way, so that it always returns 123.
 
-It's important to note that all syscalls going to the contract in question will also be redirected, not only the calls to the method in .NET.
+It's important to note that all syscalls going to this contract will also be redirected, not only the calls to the method in .NET.
 
 
 #### Example of use
@@ -210,7 +210,7 @@ engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
 {
     new Network.P2P.Payloads.Signer()
     {
-         Account = engine.Native.GetCommitteeAddress(),
+         Account = engine.CommitteeAddress,
          Scopes = Network.P2P.Payloads.WitnessScope.Global
     }
 };

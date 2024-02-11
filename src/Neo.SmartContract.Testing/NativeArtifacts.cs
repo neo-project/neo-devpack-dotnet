@@ -143,14 +143,6 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// GetCommitteeAddress
-        /// </summary>
-        public UInt160 GetCommitteeAddress()
-        {
-            return Native.NativeContract.NEO.GetCommitteeAddress(_engine.Storage.Snapshot);
-        }
-
-        /// <summary>
         /// Initialize native contracts
         /// </summary>
         /// <param name="commit">Initialize native contracts</param>

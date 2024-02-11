@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             {
                 new Network.P2P.Payloads.Signer()
                 {
-                     Account = engine.Native.GetCommitteeAddress(),
+                     Account = engine.CommitteeAddress,
                      Scopes = Network.P2P.Payloads.WitnessScope.Global
                 }
             };

@@ -75,9 +75,15 @@ namespace Neo.SmartContract.Testing
         public ProtocolSettings ProtocolSettings { get; }
 
         /// <summary>
-        /// BFTAddress
+        /// BFT Address
         /// </summary>
         public UInt160 BFTAddress { get; }
+
+        /// <summary>
+        /// Committee Address
+        /// </summary>
+        public UInt160 CommitteeAddress =>
+            Neo.SmartContract.Native.NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
 
         /// <summary>
         /// BFTAddress
