@@ -5,9 +5,11 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
@@ -16,6 +18,7 @@ namespace Neo.SmartContract.Testing
     public class TestEngine
     {
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
+        private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
         private NativeArtifacts? _native;
 
         /// <summary>
@@ -218,9 +221,22 @@ namespace Neo.SmartContract.Testing
         /// <returns>Mocked Smart Contract</returns>
         public T FromHash<T>(UInt160 hash, bool checkExistence = true) where T : SmartContract
         {
+            return FromHash<T>(hash, null, checkExistence);
+        }
+
+        /// <summary>
+        /// Deploy Smart contract
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="hash">Contract hash</param>
+        /// <param name="customMock">Custom Mock</param>
+        /// <param name="checkExistence">Check existence (default: true)</param>
+        /// <returns>Mocked Smart Contract</returns>
+        public T FromHash<T>(UInt160 hash, Action<Mock<T>>? customMock = null, bool checkExistence = true) where T : SmartContract
+        {
             if (!checkExistence)
             {
-                return MockContract<T>(hash);
+                return MockContract(hash, customMock);
             }
 
             var ret = Native.ContractManagement.getContract(hash);
@@ -230,21 +246,47 @@ namespace Neo.SmartContract.Testing
             ContractState state = new();
             ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
 
-            return MockContract<T>(state.Hash);
+            return MockContract(state.Hash, customMock);
         }
 
-        private T MockContract<T>(UInt160 hash) where T : SmartContract
+        private T MockContract<T>(UInt160 hash, Action<Mock<T>>? customMock = null) where T : SmartContract
         {
             var mock = new Mock<T>(this, hash)
             {
                 CallBase = true
             };
 
+            // User can mock specific calls
+
+            customMock?.Invoke(mock);
+
             // Mock SmartContract
 
             foreach (var method in typeof(T).GetMethods())
             {
                 if (!method.IsAbstract) continue;
+
+                // Avoid to mock already mocked by custom mocks
+
+                if (mock.IsMocked(method))
+                {
+                    var mockName = method.Name + ";" + method.GetParameters().Length;
+                    var cm = new CustomMock() { Contract = mock.Object, Method = method };
+
+                    if (_customMocks.TryGetValue(hash, out var mocks))
+                    {
+                        if (!mocks.TryAdd(mockName, cm))
+                        {
+                            throw new Exception("The same method can't be mocked twice");
+                        }
+                    }
+                    else
+                    {
+                        _customMocks.Add(hash, new Dictionary<string, CustomMock>() { { mockName, cm } });
+                    }
+
+                    continue;
+                }
 
                 // Get args
 
@@ -278,6 +320,51 @@ namespace Neo.SmartContract.Testing
             // return mocked SmartContract
 
             return mock.Object;
+        }
+
+        internal bool TryGetCustomMock(UInt160 hash, string method, int rc, [NotNullWhen(true)] out CustomMock? mi)
+        {
+            if (_customMocks.TryGetValue(hash, out var mocks))
+            {
+                var mockName = method + ";" + rc;
+
+                if (mocks.TryGetValue(mockName, out mi))
+                {
+                    return true;
+                }
+            }
+
+            mi = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Execute raw script
+        /// </summary>
+        /// <param name="script">Script</param>
+        /// <returns>StackItem</returns>
+        public StackItem Execute(Script script)
+        {
+            // Execute in neo VM
+
+            var snapshot = Storage.Snapshot.CreateSnapshot();
+
+            using var engine = new TestingApplicationEngine(this, TriggerType.Application,
+                Transaction, snapshot, CurrentBlock, ProtocolSettings, Gas);
+
+            engine.LoadScript(script);
+
+            if (engine.Execute() != VMState.HALT)
+            {
+                throw engine.FaultException ?? new Exception($"Error while executing the script");
+            }
+
+            snapshot.Commit();
+
+            // Return
+
+            if (engine.ResultStack.Count == 0) return StackItem.Null;
+            return engine.ResultStack.Pop();
         }
     }
 }

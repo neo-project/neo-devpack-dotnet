@@ -8,7 +8,26 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     internal static class MockExtensions
     {
+        private static readonly Type methodCallType = typeof(Mock).Assembly.GetType("Moq.MethodCall")!;
         private static readonly MethodInfo isAnyMethod = typeof(It).GetMethod(nameof(It.IsAny), BindingFlags.Public | BindingFlags.Static)!;
+
+        public static bool IsMocked<T>(this Mock<T> mock, MethodInfo method)
+                where T : SmartContract
+        {
+            var property = methodCallType.GetProperty("Method")!;
+
+            foreach (var setup in mock.Setups)
+            {
+                if (setup.GetType() != methodCallType) continue;
+
+                if (method.Equals(property.GetValue(setup)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private static MethodCallExpression BuildIsAnyExpressions(Type type)
         {

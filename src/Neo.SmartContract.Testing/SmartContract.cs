@@ -43,26 +43,7 @@ namespace Neo.SmartContract.Testing
             script.EmitDynamicCall(Hash, methodName, args);
             _engine.Transaction.Script = script.ToArray(); // Store the script in the current transaction
 
-            // Execute in neo VM
-
-            var snapshot = _engine.Storage.Snapshot.CreateSnapshot();
-
-            using var engine = ApplicationEngine.Create(TriggerType.Application,
-                _engine.Transaction, snapshot, _engine.CurrentBlock, _engine.ProtocolSettings, _engine.Gas);
-
-            engine.LoadScript(script.ToArray());
-
-            if (engine.Execute() != VMState.HALT)
-            {
-                throw engine.FaultException ?? new Exception($"Error while executing {methodName}");
-            }
-
-            snapshot.Commit();
-
-            // Return
-
-            if (engine.ResultStack.Count == 0) return StackItem.Null;
-            return engine.ResultStack.Pop();
+            return _engine.Execute(script.ToArray());
         }
 
         /// <summary>

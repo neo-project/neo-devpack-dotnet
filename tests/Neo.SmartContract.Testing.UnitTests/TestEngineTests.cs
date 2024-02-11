@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.VM;
 using System.Collections.Generic;
 using System.IO;
 
@@ -31,6 +33,27 @@ namespace Neo.SmartContract.Testing.UnitTests
             engine.Native.Initialize(true);
 
             Assert.IsInstanceOfType<NeoToken>(engine.FromHash<NeoToken>(engine.Native.NEO.Hash, true));
+        }
+
+        [TestMethod]
+        public void TestCustomMock()
+        {
+            TestEngine engine = new(true);
+
+            var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash,
+                mock => mock.Setup(o => o.balanceOf(It.IsAny<UInt160>())).Returns(123),
+                false);
+
+            // Test direct call
+
+            Assert.AreEqual(123, neo.balanceOf(engine.BFTAddress));
+
+            // Test vm call
+
+            using ScriptBuilder script = new();
+            script.EmitDynamicCall(neo.Hash, nameof(neo.balanceOf), engine.BFTAddress);
+
+            Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
         }
 
         [TestMethod]
