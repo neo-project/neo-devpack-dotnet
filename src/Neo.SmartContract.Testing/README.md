@@ -96,8 +96,8 @@ var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash, false);
 
 // Ensure that the main address contains the totalSupply
 
-Assert.AreEqual(100_000_000, neo.totalSupply());
-Assert.AreEqual(neo.totalSupply(), neo.balanceOf(engine.BFTAddress));
+Assert.AreEqual(100_000_000, neo.TotalSupply);
+Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.BFTAddress));
 ```
 
 ### NativeArtifacts
@@ -119,8 +119,8 @@ var engine = new TestEngine(true);
 
 // Ensure that the main address contains the totalSupply
 
-Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply());
-Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(engine.BFTAddress));
+Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.BFTAddress));
 ```
 
 ### SmartContractStorage
@@ -144,7 +144,7 @@ TestEngine engine = new(true);
 
 // Check previous data
 
-Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
+Assert.AreEqual(100000000000, engine.Native.NEO.RegisterPrice);
 
 // Alter data
 
@@ -152,7 +152,7 @@ engine.Native.NEO.Storage.Put(registerPricePrefix, BigInteger.MinusOne);
 
 // Check altered data
 
-Assert.AreEqual(BigInteger.MinusOne, engine.Native.NEO.getRegisterPrice());
+Assert.AreEqual(BigInteger.MinusOne, engine.Native.NEO.RegisterPrice);
 ```
 
 ### Custom mocks
@@ -174,18 +174,18 @@ TestEngine engine = new(true);
 // Get neo token smart contract and mock balanceOf to always return 123
 
 var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash,
-    mock => mock.Setup(o => o.balanceOf(It.IsAny<UInt160>())).Returns(123),
+    mock => mock.Setup(o => o.BalanceOf(It.IsAny<UInt160>())).Returns(123),
     false);
 
 // Test direct call
 
-Assert.AreEqual(123, neo.balanceOf(engine.BFTAddress));
+Assert.AreEqual(123, neo.BalanceOf(engine.BFTAddress));
 
 // Test vm call
 
 using (ScriptBuilder script = new())
 {
-    script.EmitDynamicCall(neo.Hash, nameof(neo.balanceOf), engine.BFTAddress);
+    script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.BFTAddress);
 
     Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
 }
@@ -204,7 +204,7 @@ var engine = new TestEngine(true);
 
 // Check initial value of getRegisterPrice
 
-Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
+Assert.AreEqual(100000000000, engine.Native.NEO.RegisterPrice);
 
 // Fake Committee Signature
 
@@ -212,22 +212,22 @@ engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
 {
     new Network.P2P.Payloads.Signer()
     {
-         Account = engine.CommitteeAddress,
-         Scopes = Network.P2P.Payloads.WitnessScope.Global
+            Account = engine.CommitteeAddress,
+            Scopes = Network.P2P.Payloads.WitnessScope.Global
     }
 };
 
 // Change RegisterPrice to 123
 
-engine.Native.NEO.setRegisterPrice(123);
+engine.Native.NEO.RegisterPrice = 123;
 
-Assert.AreEqual(123, engine.Native.NEO.getRegisterPrice());
+Assert.AreEqual(123, engine.Native.NEO.RegisterPrice);
 
 // Now test it without this signature
 
 engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
 
-Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.setRegisterPrice(123));
+Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
 ```
 
 ### Event testing
@@ -237,43 +237,43 @@ Testing that our events have been triggered has never been so easy. Simply when 
 #### Example of use
 
 ```csharp
- // Create and initialize TestEngine
+// Create and initialize TestEngine
 
- var engine = new TestEngine(true);
+var engine = new TestEngine(true);
 
- // Fake signature of BFTAddress
+// Fake signature of BFTAddress
 
- engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
- {
-     new Network.P2P.Payloads.Signer()
-     {
-          Account = engine.BFTAddress,
-          Scopes = Network.P2P.Payloads.WitnessScope.Global
-     }
- };
+engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+{
+    new Network.P2P.Payloads.Signer()
+    {
+            Account = engine.BFTAddress,
+            Scopes = Network.P2P.Payloads.WitnessScope.Global
+    }
+};
 
- // Attach to Transfer event
+// Attach to Transfer event
 
- var raisedEvent = false;
+var raisedEvent = false;
 
- engine.Native.NEO.Transfer += (UInt160 from, UInt160 to, BigInteger amount) =>
- {
-     // If the event is raised, the variable will be changed
-     raisedEvent = true;
- };
+engine.Native.NEO.OnTransfer += (UInt160 from, UInt160 to, BigInteger amount) =>
+{
+    // If the event is raised, the variable will be changed
+    raisedEvent = true;
+};
 
- // Define address to transfer funds
+// Define address to transfer funds
 
- UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
+UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
 
- Assert.AreEqual(0, engine.Native.NEO.balanceOf(addressTo));
+Assert.AreEqual(0, engine.Native.NEO.BalanceOf(addressTo));
 
- // Transfer funds
+// Transfer funds
 
- Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, addressTo, 123, null));
+Assert.IsTrue(engine.Native.NEO.Transfer(engine.Transaction.Sender, addressTo, 123, null));
 
- // Ensure that we have balance and the event was raised
+// Ensure that we have balance and the event was raised
 
- Assert.IsTrue(raisedEvent);
- Assert.AreEqual(123, engine.Native.NEO.balanceOf(addressTo));
+Assert.IsTrue(raisedEvent);
+Assert.AreEqual(123, engine.Native.NEO.BalanceOf(addressTo));
 ```
