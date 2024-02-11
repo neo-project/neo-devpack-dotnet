@@ -7,6 +7,9 @@ using System;
 
 namespace Neo.SmartContract.Testing
 {
+    /// <summary>
+    /// TestingApplicationEngine is responsible for redirecting System.Contract.Call syscalls to their corresponding mock if necessary
+    /// </summary>
     internal class TestingApplicationEngine : ApplicationEngine
     {
         /// <summary>

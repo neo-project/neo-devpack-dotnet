@@ -5,12 +5,12 @@ namespace Neo.SmartContract.Testing
     internal class CustomMock
     {
         /// <summary>
-        /// Contract
+        /// Mocked contract
         /// </summary>
         public required SmartContract Contract { get; init; }
 
         /// <summary>
-        /// Method
+        /// Mocked method
         /// </summary>
         public required MethodInfo Method { get; init; }
     }

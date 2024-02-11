@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace Neo.SmartContract.Testing
 {
+    /// <summary>
+    /// NativeArtifacts makes it easier to access native contracts
+    /// </summary>
     public class NativeArtifacts
     {
         private readonly TestEngine _engine;

@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace Neo.SmartContract.Testing
 {
+    /// <summary>
+    /// TestStorage centralizes the storage management of our TestEngine
+    /// </summary>
     public class TestStorage
     {
         /// <summary>
