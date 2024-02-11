@@ -187,7 +187,7 @@ namespace Neo.SmartContract.Testing
             {
                 foreach (var contract in contracts)
                 {
-                    contract.InvokeOnLog(e.Message);
+                    contract.InvokeOnRuntimeLog(e.Message);
                 }
             }
         }

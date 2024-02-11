@@ -3,7 +3,6 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
@@ -14,7 +13,7 @@ namespace Neo.SmartContract.Testing
         internal readonly TestEngine Engine;
 
         public delegate void delOnLog(string message);
-        public event delOnLog? OnLog;
+        public event delOnLog? OnRuntimeLog;
 
         /// <summary>
         /// Contract hash
@@ -56,12 +55,12 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// OnLog
+        /// Invoke OnRuntimeLog
         /// </summary>
         /// <param name="message">Message</param>
-        internal void InvokeOnLog(string message)
+        internal void InvokeOnRuntimeLog(string message)
         {
-            OnLog?.Invoke(message);
+            OnRuntimeLog?.Invoke(message);
         }
 
         /// <summary>
