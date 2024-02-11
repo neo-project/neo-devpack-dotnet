@@ -21,6 +21,8 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Forging signatures](#forging-signatures)
     - [Example of use](#example-of-use)
+- [Event testing](#event-testing)
+    - [Example of use](#example-of-use)
 
 ### Installation and configuration
 
@@ -226,4 +228,52 @@ Assert.AreEqual(123, engine.Native.NEO.getRegisterPrice());
 engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
 
 Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.setRegisterPrice(123));
+```
+
+### Event testing
+
+Testing that our events have been triggered has never been so easy. Simply when a contract notification is launched, the corresponding event will be invoked, making it easier to capture and detect.
+
+#### Example of use
+
+```csharp
+ // Create and initialize TestEngine
+
+ var engine = new TestEngine(true);
+
+ // Fake signature of BFTAddress
+
+ engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+ {
+     new Network.P2P.Payloads.Signer()
+     {
+          Account = engine.BFTAddress,
+          Scopes = Network.P2P.Payloads.WitnessScope.Global
+     }
+ };
+
+ // Attach to Transfer event
+
+ var raisedEvent = false;
+
+ engine.Native.NEO.Transfer += (UInt160 from, UInt160 to, BigInteger amount) =>
+ {
+     // If the event is raised, the variable will be changed
+     raisedEvent = true;
+ };
+
+ // Define address to transfer funds
+
+ UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
+
+ Assert.AreEqual(0, engine.Native.NEO.balanceOf(addressTo));
+
+ // Transfer funds
+
+ Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, addressTo, 123, null));
+
+ // Ensure that we have balance and the event was raised
+
+ Assert.IsTrue(raisedEvent);
+ Assert.AreEqual(123, engine.Native.NEO.balanceOf(addressTo));
 ```

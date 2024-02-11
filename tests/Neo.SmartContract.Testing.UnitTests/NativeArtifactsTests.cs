@@ -30,13 +30,11 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestTransfer()
         {
+            // Create and initialize TestEngine
+
             var engine = new TestEngine(true);
 
-            // Test set
-
-            Assert.AreEqual(500000000, engine.Native.NEO.getGasPerBlock());
-
-            // Fake signature
+            // Fake signature of BFTAddress
 
             engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
             {
@@ -47,20 +45,30 @@ namespace Neo.SmartContract.Testing.UnitTests
                 }
             };
 
-            bool raisedEvent = false;
+            // Attach to Transfer event
+
+            var raisedEvent = false;
 
             engine.Native.NEO.Transfer += (UInt160 from, UInt160 to, BigInteger amount) =>
             {
+                // If the event is raised, the variable will be changed
                 raisedEvent = true;
             };
 
-            UInt160 wallet = UInt160.Parse("0x1230000000000000000000000000000000000000");
+            // Define address to transfer funds
 
-            Assert.AreEqual(0, engine.Native.NEO.balanceOf(wallet));
-            Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, wallet, 123, null));
+            UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
+
+            Assert.AreEqual(0, engine.Native.NEO.balanceOf(addressTo));
+
+            // Transfer funds
+
+            Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, addressTo, 123, null));
+
+            // Ensure that we have balance and the event was raised
 
             Assert.IsTrue(raisedEvent);
-            Assert.AreEqual(123, engine.Native.NEO.balanceOf(wallet));
+            Assert.AreEqual(123, engine.Native.NEO.balanceOf(addressTo));
         }
 
         [TestMethod]
