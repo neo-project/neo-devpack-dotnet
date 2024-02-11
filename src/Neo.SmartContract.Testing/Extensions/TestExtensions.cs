@@ -120,6 +120,13 @@ namespace Neo.SmartContract.Testing.Extensions
                 return new List<object>(cp.SubItems);
             }
 
+            if (typeof(IInteroperable).IsAssignableFrom(type))
+            {
+                var interoperable = (IInteroperable)Activator.CreateInstance(type)!;
+                interoperable.FromStackItem(stackItem);
+                return interoperable;
+            }
+
             throw new FormatException($"Impossible to convert {stackItem} to {type}");
         }
     }

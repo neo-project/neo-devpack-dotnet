@@ -199,12 +199,7 @@ namespace Neo.SmartContract.Testing
         {
             // Deploy
 
-            var ret = Native.ContractManagement.deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data.ConvertToStackItem());
-
-            // Parse return
-
-            ContractState state = new();
-            ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
+            var state = Native.ContractManagement.deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data.ConvertToStackItem());
 
             // Mock contract
 
@@ -239,12 +234,7 @@ namespace Neo.SmartContract.Testing
                 return MockContract(hash, customMock);
             }
 
-            var ret = Native.ContractManagement.getContract(hash);
-
-            // Parse return
-
-            ContractState state = new();
-            ((IInteroperable)state).FromStackItem(new VM.Types.Array(ret.Select(u => (StackItem)u)));
+            var state = Native.ContractManagement.getContract(hash);
 
             return MockContract(state.Hash, customMock);
         }

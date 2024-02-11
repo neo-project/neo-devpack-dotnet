@@ -15,15 +15,15 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     public event delUpdate? Update;
     #endregion
     #region Safe methods
-    public abstract List<object> getContract(UInt160 hash);
-    public abstract List<object> getContractById(BigInteger id);
+    public abstract ContractState getContract(UInt160 hash);
+    public abstract ContractState getContractById(BigInteger id);
     public abstract object getContractHashes();
     public abstract BigInteger getMinimumDeploymentFee();
     public abstract bool hasMethod(UInt160 hash, string method, BigInteger pcount);
     #endregion
     #region Unsafe methods
-    public abstract List<object> deploy(byte[] nefFile, byte[] manifest);
-    public abstract List<object> deploy(byte[] nefFile, byte[] manifest, object data);
+    public abstract ContractState deploy(byte[] nefFile, byte[] manifest);
+    public abstract ContractState deploy(byte[] nefFile, byte[] manifest, object data);
     public abstract void destroy();
     public abstract void setMinimumDeploymentFee(BigInteger value);
     public abstract void update(byte[] nefFile, byte[] manifest);
