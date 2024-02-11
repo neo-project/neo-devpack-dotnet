@@ -69,7 +69,18 @@ namespace Neo.SmartContract.Testing.Extensions
 
             _ = retMethod.Invoke(setup, new object[] { new InvocationFunc(invocation =>
                 {
-                    return mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
+                    var isAccessor = invocation.Method.DeclaringType?.GetProperties()
+                        .Any(prop => prop.GetSetMethod() == invocation.Method || prop.GetGetMethod() == invocation.Method);
+
+                    if (isAccessor == true)
+                    {
+                        // remove _ from get_ or set_
+                        return mock.Object.Invoke(invocation.Method.Name.Remove(3, 1), invocation.Arguments.ToArray()).ConvertTo(returnType)!;
+                    }
+                    else
+                    {
+                        return mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
+                    }
                 })
             });
         }
@@ -93,7 +104,18 @@ namespace Neo.SmartContract.Testing.Extensions
 
             _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
                 {
-                    mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
+                   var isAccessor = invocation.Method.DeclaringType?.GetProperties()
+                        .Any(prop => prop.GetSetMethod() == invocation.Method || prop.GetGetMethod() == invocation.Method);
+
+                    if (isAccessor == true)
+                    {
+                        // remove _ from get_ or set_
+                        mock.Object.Invoke(invocation.Method.Name.Remove(3, 1), invocation.Arguments.ToArray());
+                    }
+                    else
+                    {
+                        mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
+                    }
                 })
             });
         }

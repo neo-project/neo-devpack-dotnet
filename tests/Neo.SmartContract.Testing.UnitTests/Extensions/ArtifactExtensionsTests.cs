@@ -16,7 +16,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
 
             // Create artifacts
 
-            var source = manifest.Abi.GetArtifactsSource(manifest.Name);
+            var source = manifest.Abi.GetArtifactsSource(manifest.Name, generateProperties: true);
 
             Assert.AreEqual(source, @"
 using Neo.Cryptography.ECC;
@@ -33,28 +33,66 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount);
     public event delTransfer? Transfer;
     #endregion
+    #region Properties
+    public abstract UInt160 Owner { get; set; }
+    #endregion
     #region Safe methods
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger balanceOf(UInt160 owner);
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger decimals();
-    public abstract UInt160 getOwner();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract string symbol();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger totalSupply();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract bool verify();
     #endregion
     #region Unsafe methods
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void burn(UInt160 account, BigInteger amount);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void mint(UInt160 to, BigInteger amount);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract string myMethod();
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void onNEP17Payment(UInt160 from, BigInteger amount, object data);
-    public abstract void setOwner(UInt160 newOwner);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void update(byte[] nefFile, string manifest);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool withdraw(UInt160 token, UInt160 to, BigInteger amount);
     #endregion
     #region Constructor for internal use only
     protected Contract1(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
     #endregion
 }
+
 ".Replace("\r\n", "\n").Trim());
         }
     }

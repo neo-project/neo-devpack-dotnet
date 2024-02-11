@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check initial value of getRegisterPrice
 
-            Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
+            Assert.AreEqual(100000000000, engine.Native.NEO.RegisterPrice);
 
             // Fake Committee Signature
 
@@ -95,15 +95,15 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Change RegisterPrice to 123
 
-            engine.Native.NEO.setRegisterPrice(123);
+            engine.Native.NEO.RegisterPrice = 123;
 
-            Assert.AreEqual(123, engine.Native.NEO.getRegisterPrice());
+            Assert.AreEqual(123, engine.Native.NEO.RegisterPrice);
 
             // Now test it without this signature
 
             engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
 
-            Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.setRegisterPrice(123));
+            Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
         }
     }
 }

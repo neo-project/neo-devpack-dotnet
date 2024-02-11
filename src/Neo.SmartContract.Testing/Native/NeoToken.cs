@@ -14,30 +14,63 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     public delegate void delVote(UInt160 account, ECPoint from, ECPoint to, BigInteger amount);
     public event delVote? Vote;
     #endregion
+    #region Properties
+    public abstract object AllCandidates { get; }
+    public abstract List<object> Candidates { get; }
+    public abstract List<object> Committee { get; }
+    public abstract BigInteger GasPerBlock { get; set; }
+    public abstract List<object> NextBlockValidators { get; }
+    public abstract BigInteger RegisterPrice { get; set; }
+    #endregion
     #region Safe methods
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger balanceOf(UInt160 account);
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger decimals();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract List<object> getAccountState(UInt160 account);
-    public abstract object getAllCandidates();
-    public abstract List<object> getCandidates();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger getCandidateVote(ECPoint pubKey);
-    public abstract List<object> getCommittee();
-    public abstract BigInteger getGasPerBlock();
-    public abstract List<object> getNextBlockValidators();
-    public abstract BigInteger getRegisterPrice();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract string symbol();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger totalSupply();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger unclaimedGas(UInt160 account, BigInteger end);
     #endregion
     #region Unsafe methods
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool registerCandidate(ECPoint pubkey);
-    public abstract void setGasPerBlock(BigInteger gasPerBlock);
-    public abstract void setRegisterPrice(BigInteger registerPrice);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool unregisterCandidate(ECPoint pubkey);
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool vote(UInt160 account, ECPoint voteTo);
     #endregion
     #region Constructor for internal use only
-    protected NeoToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected NeoToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
     #endregion
 }

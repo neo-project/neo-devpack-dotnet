@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check previous data
 
-            Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
+            Assert.AreEqual(100000000000, engine.Native.NEO.RegisterPrice);
 
             // Alter data
 
@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check altered data
 
-            Assert.AreEqual(BigInteger.MinusOne, engine.Native.NEO.getRegisterPrice());
+            Assert.AreEqual(BigInteger.MinusOne, engine.Native.NEO.RegisterPrice);
         }
     }
 }

@@ -11,15 +11,30 @@ public abstract class GasToken : Neo.SmartContract.Testing.SmartContract
     public event delTransfer? Transfer;
     #endregion
     #region Safe methods
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger balanceOf(UInt160 account);
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger decimals();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract string symbol();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract BigInteger totalSupply();
     #endregion
     #region Unsafe methods
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract bool transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
     #endregion
     #region Constructor for internal use only
-    protected GasToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected GasToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
     #endregion
 }

@@ -11,12 +11,18 @@ public abstract class RoleManagement : Neo.SmartContract.Testing.SmartContract
     public event delDesignation? Designation;
     #endregion
     #region Safe methods
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract List<object> getDesignatedByRole(BigInteger role, BigInteger index);
     #endregion
     #region Unsafe methods
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void designateAsRole(BigInteger role, List<object> nodes);
     #endregion
     #region Constructor for internal use only
-    protected RoleManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected RoleManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
     #endregion
 }

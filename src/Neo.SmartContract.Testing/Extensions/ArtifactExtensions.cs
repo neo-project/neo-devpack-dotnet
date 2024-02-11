@@ -1,5 +1,6 @@
 using Neo.SmartContract.Manifest;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -12,8 +13,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="abi">Abi</param>
         /// <param name="name">Contract name</param>
+        /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractAbi abi, string name)
+        public static string GetArtifactsSource(this ContractAbi abi, string name, bool generateProperties = true)
         {
             StringBuilder sourceCode = new();
 
@@ -40,13 +42,32 @@ namespace Neo.SmartContract.Testing.Extensions
                 sourceCode.AppendLine("    #endregion");
             }
 
-            // Crete methods
+            // Create methods
 
-            if (abi.Methods.Any(u => u.Safe))
+            var methods = abi.Methods;
+
+            if (generateProperties)
+            {
+                (methods, var properties) = ProcessAbiMethods(abi.Methods);
+
+                if (properties.Any())
+                {
+                    sourceCode.AppendLine("    #region Properties");
+
+                    foreach (var property in properties.OrderBy(u => u.getter.Name))
+                    {
+                        sourceCode.Append(CreateSourcePropertyFromManifest(property.getter.Name[3..], property.getter.ReturnType, property.setter is not null));
+                    }
+
+                    sourceCode.AppendLine("    #endregion");
+                }
+            }
+
+            if (methods.Any(u => u.Safe))
             {
                 sourceCode.AppendLine("    #region Safe methods");
 
-                foreach (var method in abi.Methods.Where(u => u.Safe).OrderBy(u => u.Name))
+                foreach (var method in methods.Where(u => u.Safe).OrderBy(u => u.Name))
                 {
                     // This method can't be called, so avoid them
 
@@ -58,11 +79,11 @@ namespace Neo.SmartContract.Testing.Extensions
                 sourceCode.AppendLine("    #endregion");
             }
 
-            if (abi.Methods.Any(u => !u.Safe))
+            if (methods.Any(u => !u.Safe))
             {
                 sourceCode.AppendLine("    #region Unsafe methods");
 
-                foreach (var method in abi.Methods.Where(u => !u.Safe).OrderBy(u => u.Name))
+                foreach (var method in methods.Where(u => !u.Safe).OrderBy(u => u.Name))
                 {
                     // This method can't be called, so avoid them
 
@@ -87,6 +108,39 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             return sourceCode.ToString().TrimEnd();
+        }
+
+        private static (ContractMethodDescriptor[] methods, (ContractMethodDescriptor getter, ContractMethodDescriptor? setter)[] properties)
+            ProcessAbiMethods(ContractMethodDescriptor[] methods)
+        {
+            List<ContractMethodDescriptor> methodList = new(methods);
+            List<(ContractMethodDescriptor, ContractMethodDescriptor?)> properties = new();
+
+            // Detect and extract properties, first find getXXXX && Safe && 0 args && return != void
+
+            foreach (ContractMethodDescriptor getter in methods.Where(u => u.Name.StartsWith("get") && u.Safe && u.Parameters.Length == 0 && u.ReturnType != ContractParameterType.Void).ToArray())
+            {
+                // Find setter: setXXX && one arg && not safe && parameter = getter.return && return == void
+
+                var setter = methodList.FirstOrDefault(
+                    u =>
+                        u.Name == "set" + getter.Name[3..] &&
+                        !u.Safe &&
+                        u.Parameters.Length == 1 &&
+                        u.Parameters[0].Type == getter.ReturnType &&
+                        u.ReturnType == ContractParameterType.Void
+                        );
+
+                properties.Add((getter, setter));
+                methodList.Remove(getter);
+
+                if (setter != null)
+                {
+                    methodList.Remove(setter);
+                }
+            }
+
+            return (methodList.ToArray(), properties.ToArray());
         }
 
         /// <summary>
@@ -116,6 +170,23 @@ namespace Neo.SmartContract.Testing.Extensions
         }
 
         /// <summary>
+        /// Create source code from manifest property
+        /// </summary>
+        /// <param name="propertyName">Property name</param>
+        /// <param name="propertyType">Property type</param>
+        /// <param name="hasSet">True if has set</param>
+        /// <returns>Source</returns>
+        private static string CreateSourcePropertyFromManifest(string propertyName, ContractParameterType propertyType, bool hasSet)
+        {
+            var getset = hasSet ? "{ get; set; }" : "{ get; }";
+
+            StringBuilder sourceCode = new();
+            sourceCode.AppendLine($"    public abstract {TypeToSource(propertyType)} {EscapeName(propertyName)} {getset}");
+
+            return sourceCode.ToString();
+        }
+
+        /// <summary>
         /// Create source code from manifest method
         /// </summary>
         /// <param name="method">Contract method</param>
@@ -124,7 +195,10 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             StringBuilder sourceCode = new();
 
-            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {method.Name}(");
+            sourceCode.AppendLine($"    /// <summary>");
+            sourceCode.AppendLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
+            sourceCode.AppendLine($"    /// </summary>");
+            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {EscapeName(method.Name)}(");
 
             bool isFirst = true;
             foreach (var arg in method.Parameters)

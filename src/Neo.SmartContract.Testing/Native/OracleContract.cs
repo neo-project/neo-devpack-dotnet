@@ -12,16 +12,26 @@ public abstract class OracleContract : Neo.SmartContract.Testing.SmartContract
     public delegate void delOracleResponse(BigInteger Id, UInt256 OriginalTx);
     public event delOracleResponse? OracleResponse;
     #endregion
+    #region Properties
+    public abstract BigInteger Price { get; set; }
+    #endregion
     #region Safe methods
-    public abstract BigInteger getPrice();
+    /// <summary>
+    /// Safe method
+    /// </summary>
     public abstract bool verify();
     #endregion
     #region Unsafe methods
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void finish();
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
     public abstract void request(string url, string filter, string callback, object userData, BigInteger gasForResponse);
-    public abstract void setPrice(BigInteger price);
     #endregion
     #region Constructor for internal use only
-    protected OracleContract(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected OracleContract(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
     #endregion
 }

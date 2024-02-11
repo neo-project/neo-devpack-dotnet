@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Neo.SmartContract.Testing
@@ -259,7 +260,7 @@ namespace Neo.SmartContract.Testing
 
             // Mock SmartContract
 
-            foreach (var method in typeof(T).GetMethods())
+            foreach (var method in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (!method.IsAbstract) continue;
 
