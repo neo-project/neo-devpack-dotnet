@@ -115,14 +115,14 @@ namespace Neo.SmartContract.Testing
         /// Constructor
         /// </summary>
         /// <param name="initializeNativeContracts">Initialize native contracts</param>
-        public TestEngine(bool initializeNativeContracts = false) : this(Default, initializeNativeContracts) { }
+        public TestEngine(bool initializeNativeContracts = true) : this(Default, initializeNativeContracts) { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="settings">Settings</param>
         /// <param name="initializeNativeContracts">Initialize native contracts</param>
-        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = false)
+        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = true)
         {
             ProtocolSettings = settings;
             CurrentBlock = NeoSystem.CreateGenesisBlock(ProtocolSettings);

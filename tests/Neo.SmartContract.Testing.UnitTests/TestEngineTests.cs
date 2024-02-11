@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.ThrowsException<KeyNotFoundException>(() => engine.FromHash<NeoToken>(engine.Native.NEO.Hash, true));
 
-            engine.Native.Initialize(true);
+            engine.Native.Initialize(false);
 
             Assert.IsInstanceOfType<NeoToken>(engine.FromHash<NeoToken>(engine.Native.NEO.Hash, true));
         }
@@ -96,7 +96,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         public void FromHashTest()
         {
             UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
-            TestEngine engine = new();
+            TestEngine engine = new(false);
 
             var contract = engine.FromHash<ContractManagement>(hash, false);
 

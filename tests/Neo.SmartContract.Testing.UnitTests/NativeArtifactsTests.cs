@@ -11,11 +11,11 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestInitialize()
         {
-            var engine = new TestEngine();
+            var engine = new TestEngine(false);
 
             Assert.AreEqual(0, engine.Storage.Store.Seek(System.Array.Empty<byte>(), Persistence.SeekDirection.Forward).Count());
 
-            engine.Native.Initialize(true);
+            engine.Native.Initialize(false);
 
             // Ensure that the main address contains the totalSupply
 
