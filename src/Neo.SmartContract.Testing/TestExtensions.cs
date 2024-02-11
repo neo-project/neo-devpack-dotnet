@@ -3,6 +3,7 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection;
 
 namespace Neo.SmartContract.Testing
 {
@@ -60,6 +61,29 @@ namespace Neo.SmartContract.Testing
             }
 
             return StackItem.Null;
+        }
+
+        /// <summary>
+        /// Convert Array stack item to dotnet array
+        /// </summary>
+        /// <param name="state">Item</param>
+        /// <param name="parameters">Parameters</param>
+        /// <returns>Object</returns>
+        public static object?[]? ConvertTo(this VM.Types.Array state, ParameterInfo[] parameters)
+        {
+            if (parameters.Length > 0)
+            {
+                object?[] args = new object[parameters.Length];
+
+                for (int x = 0; x < parameters.Length; x++)
+                {
+                    args[x] = state[x].ConvertTo(parameters[x].ParameterType);
+                }
+
+                return args;
+            }
+
+            return null;
         }
 
         /// <summary>

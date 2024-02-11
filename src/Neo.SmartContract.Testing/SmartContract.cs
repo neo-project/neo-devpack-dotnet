@@ -92,29 +92,12 @@ namespace Neo.SmartContract.Testing
 
             // Invoke
 
-            var args = Convert(state, del.Method.GetParameters());
+            var args = state.ConvertTo(del.Method.GetParameters());
 
             foreach (var handler in del.GetInvocationList())
             {
                 handler.Method.Invoke(handler.Target, args);
             }
-        }
-
-        private static object?[]? Convert(VM.Types.Array state, ParameterInfo[] parameterInfos)
-        {
-            if (parameterInfos.Length > 0)
-            {
-                object?[] args = new object[parameterInfos.Length];
-
-                for (int x = 0; x < parameterInfos.Length; x++)
-                {
-                    args[x] = state[x].ConvertTo(parameterInfos[x].ParameterType);
-                }
-
-                return args;
-            }
-
-            return null;
         }
     }
 }
