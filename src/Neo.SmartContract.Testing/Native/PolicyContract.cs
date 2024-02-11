@@ -16,25 +16,30 @@ public abstract class PolicyContract : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract BigInteger getAttributeFee(BigInteger attributeType);
+    [DisplayName("getAttributeFee")]
+    public abstract BigInteger GetAttributeFee(BigInteger attributeType);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract bool isBlocked(UInt160 account);
+    [DisplayName("isBlocked")]
+    public abstract bool IsBlocked(UInt160 account);
     #endregion
     #region Unsafe methods
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool blockAccount(UInt160 account);
+    [DisplayName("blockAccount")]
+    public abstract bool BlockAccount(UInt160 account);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void setAttributeFee(BigInteger attributeType, BigInteger value);
+    [DisplayName("setAttributeFee")]
+    public abstract void SetAttributeFee(BigInteger attributeType, BigInteger value);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool unblockAccount(UInt160 account);
+    [DisplayName("unblockAccount")]
+    public abstract bool UnblockAccount(UInt160 account);
     #endregion
     #region Constructor for internal use only
     protected PolicyContract(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}

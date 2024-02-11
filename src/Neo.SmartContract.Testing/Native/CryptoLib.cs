@@ -11,43 +11,53 @@ public abstract class CryptoLib : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract object bls12381Add(object x, object y);
+    [DisplayName("bls12381Add")]
+    public abstract object Bls12381Add(object x, object y);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract object bls12381Deserialize(byte[] data);
+    [DisplayName("bls12381Deserialize")]
+    public abstract object Bls12381Deserialize(byte[] data);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract bool bls12381Equal(object x, object y);
+    [DisplayName("bls12381Equal")]
+    public abstract bool Bls12381Equal(object x, object y);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract object bls12381Mul(object x, byte[] mul, bool neg);
+    [DisplayName("bls12381Mul")]
+    public abstract object Bls12381Mul(object x, byte[] mul, bool neg);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract object bls12381Pairing(object g1, object g2);
+    [DisplayName("bls12381Pairing")]
+    public abstract object Bls12381Pairing(object g1, object g2);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract byte[] bls12381Serialize(object g);
+    [DisplayName("bls12381Serialize")]
+    public abstract byte[] Bls12381Serialize(object g);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract byte[] murmur32(byte[] data, BigInteger seed);
+    [DisplayName("murmur32")]
+    public abstract byte[] Murmur32(byte[] data, BigInteger seed);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract byte[] ripemd160(byte[] data);
+    [DisplayName("ripemd160")]
+    public abstract byte[] Ripemd160(byte[] data);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract byte[] sha256(byte[] data);
+    [DisplayName("sha256")]
+    public abstract byte[] Sha256(byte[] data);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract bool verifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, BigInteger curve);
+    [DisplayName("verifyWithECDsa")]
+    public abstract bool VerifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, BigInteger curve);
     #endregion
     #region Constructor for internal use only
     protected CryptoLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}

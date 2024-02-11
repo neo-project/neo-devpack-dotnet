@@ -9,11 +9,14 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
 {
     #region Events
     public delegate void delDeploy(UInt160 Hash);
-    public event delDeploy? Deploy;
+    [DisplayName("Deploy")]
+    public event delDeploy? OnDeploy;
     public delegate void delDestroy(UInt160 Hash);
-    public event delDestroy? Destroy;
+    [DisplayName("Destroy")]
+    public event delDestroy? OnDestroy;
     public delegate void delUpdate(UInt160 Hash);
-    public event delUpdate? Update;
+    [DisplayName("Update")]
+    public event delUpdate? OnUpdate;
     #endregion
     #region Properties
     public abstract object ContractHashes { [DisplayName("getContractHashes")] get; }
@@ -23,37 +26,45 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract ContractState getContract(UInt160 hash);
+    [DisplayName("getContract")]
+    public abstract ContractState GetContract(UInt160 hash);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract ContractState getContractById(BigInteger id);
+    [DisplayName("getContractById")]
+    public abstract ContractState GetContractById(BigInteger id);
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract bool hasMethod(UInt160 hash, string method, BigInteger pcount);
+    [DisplayName("hasMethod")]
+    public abstract bool HasMethod(UInt160 hash, string method, BigInteger pcount);
     #endregion
     #region Unsafe methods
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract ContractState deploy(byte[] nefFile, byte[] manifest);
+    [DisplayName("deploy")]
+    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract ContractState deploy(byte[] nefFile, byte[] manifest, object data);
+    [DisplayName("deploy")]
+    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest, object data);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void destroy();
+    [DisplayName("destroy")]
+    public abstract void Destroy();
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void update(byte[] nefFile, byte[] manifest);
+    [DisplayName("update")]
+    public abstract void Update(byte[] nefFile, byte[] manifest);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void update(byte[] nefFile, byte[] manifest, object data);
+    [DisplayName("update")]
+    public abstract void Update(byte[] nefFile, byte[] manifest, object data);
     #endregion
     #region Constructor for internal use only
     protected ContractManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }

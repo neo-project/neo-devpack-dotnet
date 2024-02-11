@@ -179,11 +179,11 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
         {
-            var propertyName = getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name;
+            var propertyName = TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name), out _);
             var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
 
             StringBuilder sourceCode = new();
-            sourceCode.AppendLine($"    public abstract {TypeToSource(getter.ReturnType)} {EscapeName(propertyName)} {getset}");
+            sourceCode.AppendLine($"    public abstract {TypeToSource(getter.ReturnType)} {propertyName} {getset}");
 
             return sourceCode.ToString();
         }
@@ -195,12 +195,18 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method)
         {
+            var methodName = TongleLowercase(EscapeName(method.Name), out var lcChanged);
+
             StringBuilder sourceCode = new();
 
             sourceCode.AppendLine($"    /// <summary>");
             sourceCode.AppendLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
             sourceCode.AppendLine($"    /// </summary>");
-            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {EscapeName(method.Name)}(");
+            if (lcChanged)
+            {
+                sourceCode.AppendLine($"    [DisplayName(\"{method.Name}\")]");
+            }
+            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {methodName}(");
 
             bool isFirst = true;
             foreach (var arg in method.Parameters)
@@ -214,6 +220,20 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.AppendLine(");");
 
             return sourceCode.ToString();
+        }
+
+        private static string TongleLowercase(string value, out bool lcChanged)
+        {
+            if (value.Length == 0)
+            {
+                lcChanged = false;
+                return value;
+            }
+
+            lcChanged = char.IsLower(value[0]);
+            if (lcChanged) return value[0].ToString().ToUpperInvariant() + value[1..];
+
+            return value;
         }
 
         /// <summary>

@@ -15,17 +15,19 @@ public abstract class OracleContract : Neo.SmartContract.Testing.SmartContract
     #endregion
     #region Properties
     public abstract BigInteger Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }
-    public abstract bool verify { [DisplayName("verify")] get; }
+    public abstract bool Verify { [DisplayName("verify")] get; }
     #endregion
     #region Unsafe methods
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void finish();
+    [DisplayName("finish")]
+    public abstract void Finish();
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void request(string url, string filter, string callback, object userData, BigInteger gasForResponse);
+    [DisplayName("request")]
+    public abstract void Request(string url, string filter, string callback, object userData, BigInteger gasForResponse);
     #endregion
     #region Constructor for internal use only
     protected OracleContract(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}

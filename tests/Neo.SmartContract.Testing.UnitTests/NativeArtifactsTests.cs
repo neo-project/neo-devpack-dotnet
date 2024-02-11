@@ -23,8 +23,8 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Ensure that the main address contains the totalSupply
 
-            Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply);
-            Assert.AreEqual(engine.Native.NEO.totalSupply, engine.Native.NEO.balanceOf(engine.BFTAddress));
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+            Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.BFTAddress));
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             var raisedEvent = false;
 
-            engine.Native.NEO.Transfer += (UInt160 from, UInt160 to, BigInteger amount) =>
+            engine.Native.NEO.OnTransfer += (UInt160 from, UInt160 to, BigInteger amount) =>
             {
                 // If the event is raised, the variable will be changed
                 raisedEvent = true;
@@ -59,16 +59,16 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
 
-            Assert.AreEqual(0, engine.Native.NEO.balanceOf(addressTo));
+            Assert.AreEqual(0, engine.Native.NEO.BalanceOf(addressTo));
 
             // Transfer funds
 
-            Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, addressTo, 123, null));
+            Assert.IsTrue(engine.Native.NEO.Transfer(engine.Transaction.Sender, addressTo, 123, null));
 
             // Ensure that we have balance and the event was raised
 
             Assert.IsTrue(raisedEvent);
-            Assert.AreEqual(123, engine.Native.NEO.balanceOf(addressTo));
+            Assert.AreEqual(123, engine.Native.NEO.BalanceOf(addressTo));
         }
 
         [TestMethod]

@@ -51,18 +51,18 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Get neo token smart contract and mock balanceOf to always return 123
 
             var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash,
-                mock => mock.Setup(o => o.balanceOf(It.IsAny<UInt160>())).Returns(123),
+                mock => mock.Setup(o => o.BalanceOf(It.IsAny<UInt160>())).Returns(123),
                 false);
 
             // Test direct call
 
-            Assert.AreEqual(123, neo.balanceOf(engine.BFTAddress));
+            Assert.AreEqual(123, neo.BalanceOf(engine.BFTAddress));
 
             // Test vm call
 
             using (ScriptBuilder script = new())
             {
-                script.EmitDynamicCall(neo.Hash, nameof(neo.balanceOf), engine.BFTAddress);
+                script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.BFTAddress);
 
                 Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
             }
@@ -120,8 +120,8 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Ensure that the main address contains the totalSupply
 
-            Assert.AreEqual(100_000_000, neo.totalSupply);
-            Assert.AreEqual(neo.totalSupply, neo.balanceOf(engine.BFTAddress));
+            Assert.AreEqual(100_000_000, neo.TotalSupply);
+            Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.BFTAddress));
         }
     }
 }

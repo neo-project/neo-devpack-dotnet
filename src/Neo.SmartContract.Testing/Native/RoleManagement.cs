@@ -15,13 +15,15 @@ public abstract class RoleManagement : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract List<object> getDesignatedByRole(BigInteger role, BigInteger index);
+    [DisplayName("getDesignatedByRole")]
+    public abstract List<object> GetDesignatedByRole(BigInteger role, BigInteger index);
     #endregion
     #region Unsafe methods
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void designateAsRole(BigInteger role, List<object> nodes);
+    [DisplayName("designateAsRole")]
+    public abstract void DesignateAsRole(BigInteger role, List<object> nodes);
     #endregion
     #region Constructor for internal use only
     protected RoleManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}

@@ -2,6 +2,9 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 
 namespace Neo.SmartContract.Testing
@@ -70,7 +73,11 @@ namespace Neo.SmartContract.Testing
         {
             var type = GetType().BaseType ?? GetType(); // Mock
             var ev = type.GetEvent(eventName);
-            if (ev is null) return;
+            if (ev is null)
+            {
+                ev = type.GetEvents().FirstOrDefault(u => u.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName == eventName);
+                if (ev is null) return;
+            }
 
             var evField = type.GetField(ev.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
             if (evField is null) return;

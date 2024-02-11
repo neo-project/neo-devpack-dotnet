@@ -35,47 +35,55 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     public event delTransfer? Transfer;
     #endregion
     #region Properties
-    public abstract BigInteger decimals { [DisplayName(""decimals"")] get; }
+    public abstract BigInteger Decimals { [DisplayName(""decimals"")] get; }
     public abstract UInt160 Owner { [DisplayName(""getOwner"")] get; [DisplayName(""setOwner"")] set; }
-    public abstract string symbol { [DisplayName(""symbol"")] get; }
-    public abstract BigInteger totalSupply { [DisplayName(""totalSupply"")] get; }
-    public abstract bool verify { [DisplayName(""verify"")] get; }
+    public abstract string Symbol { [DisplayName(""symbol"")] get; }
+    public abstract BigInteger TotalSupply { [DisplayName(""totalSupply"")] get; }
+    public abstract bool Verify { [DisplayName(""verify"")] get; }
     #endregion
     #region Safe methods
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract BigInteger balanceOf(UInt160 owner);
+    [DisplayName(""balanceOf"")]
+    public abstract BigInteger BalanceOf(UInt160 owner);
     #endregion
     #region Unsafe methods
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void burn(UInt160 account, BigInteger amount);
+    [DisplayName(""burn"")]
+    public abstract void Burn(UInt160 account, BigInteger amount);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void mint(UInt160 to, BigInteger amount);
+    [DisplayName(""mint"")]
+    public abstract void Mint(UInt160 to, BigInteger amount);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract string myMethod();
+    [DisplayName(""myMethod"")]
+    public abstract string MyMethod();
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void onNEP17Payment(UInt160 from, BigInteger amount, object data);
+    [DisplayName(""onNEP17Payment"")]
+    public abstract void OnNEP17Payment(UInt160 from, BigInteger amount, object data);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+    [DisplayName(""transfer"")]
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract void update(byte[] nefFile, string manifest);
+    [DisplayName(""update"")]
+    public abstract void Update(byte[] nefFile, string manifest);
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool withdraw(UInt160 token, UInt160 to, BigInteger amount);
+    [DisplayName(""withdraw"")]
+    public abstract bool Withdraw(UInt160 token, UInt160 to, BigInteger amount);
     #endregion
     #region Constructor for internal use only
     protected Contract1(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}

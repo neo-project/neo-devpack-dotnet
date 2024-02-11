@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Testing
 
         private int GetContractId()
         {
-            _smartContractId ??= _smartContract.Engine.Native.ContractManagement.getContract(_smartContract.Hash).Id;
+            _smartContractId ??= _smartContract.Engine.Native.ContractManagement.GetContract(_smartContract.Hash).Id;
             return _smartContractId.Value;
         }
 
