@@ -17,19 +17,17 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             TestEngine engine = new(true);
 
-            var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash, false);
-
             // Check previous data
 
-            Assert.AreEqual(100000000000, neo.getRegisterPrice());
+            Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
 
             // Alter data
 
-            neo.Storage.Put(new byte[] { Prefix_RegisterPrice }, BigInteger.MinusOne.ToByteArray());
+            engine.Native.NEO.Storage.Put(new byte[] { Prefix_RegisterPrice }, BigInteger.MinusOne.ToByteArray());
 
             // Check altered data
 
-            Assert.AreEqual(BigInteger.MinusOne, neo.getRegisterPrice());
+            Assert.AreEqual(BigInteger.MinusOne, engine.Native.NEO.getRegisterPrice());
         }
     }
 }
