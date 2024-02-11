@@ -1,7 +1,6 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.VM.Types;
 using System;
 
 namespace Neo.SmartContract.Testing
@@ -30,20 +29,16 @@ namespace Neo.SmartContract.Testing
             {
                 // Extract args
 
-                var originalArgs = new StackItem[descriptor.Parameters.Count];
-                var parameters = new object[originalArgs.Length];
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    originalArgs[i] = Pop();
-                    parameters[i] = Convert(originalArgs[i], descriptor.Parameters[i]);
-                }
-
-                if (parameters[0] is UInt160 contractHash &&
-                    parameters[1] is string method &&
-                    parameters[2] is CallFlags callFlags &&
-                    parameters[3] is VM.Types.Array args &&
+                if (Convert(Peek(0), descriptor.Parameters[0]) is UInt160 contractHash &&
+                    Convert(Peek(1), descriptor.Parameters[1]) is string method &&
+                    Convert(Peek(2), descriptor.Parameters[2]) is CallFlags callFlags &&
+                    Convert(Peek(3), descriptor.Parameters[3]) is VM.Types.Array args &&
                     Engine.TryGetCustomMock(contractHash, method, args.Count, out var customMock))
                 {
+                    // Drop items
+
+                    Pop(); Pop(); Pop(); Pop();
+
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
@@ -64,7 +59,7 @@ namespace Neo.SmartContract.Testing
                     // Convert args to mocked method
 
                     var methodParameters = customMock.Method.GetParameters();
-                    parameters = new object[args.Count];
+                    var parameters = new object[args.Count];
                     for (int i = 0; i < args.Count; i++)
                     {
                         parameters[i] = args[i].ConvertTo(methodParameters[i].ParameterType)!;
@@ -78,15 +73,6 @@ namespace Neo.SmartContract.Testing
                         Push(Convert(returnValue));
 
                     return;
-                }
-                else
-                {
-                    // Revert Pops and do default
-
-                    for (int i = parameters.Length - 1; i >= 0; i--)
-                    {
-                        Push(originalArgs[i]);
-                    }
                 }
             }
 
