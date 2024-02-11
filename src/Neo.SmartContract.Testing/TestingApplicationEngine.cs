@@ -41,12 +41,10 @@ namespace Neo.SmartContract.Testing
                     parameters[3] is VM.Types.Array args &&
                     Engine.TryGetCustomMock(contractHash, method, args.Count, out var customMock))
                 {
-                    // Apply cost
+                    // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
                     AddGas(descriptor.FixedPrice * ExecFeeFactor);
-
-                    // Redirect VM execution if the method is mocked
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)
@@ -58,7 +56,7 @@ namespace Neo.SmartContract.Testing
                     if (md is null) throw new InvalidOperationException($"Method \"{method}\" with {args.Count} parameter(s) doesn't exist in the contract {contractHash}.");
                     bool hasReturnValue = md.ReturnType != ContractParameterType.Void;
 
-                    // Convert args
+                    // Convert args to mocked method
 
                     var methodParameters = customMock.Method.GetParameters();
                     parameters = new object[args.Count];
@@ -69,7 +67,7 @@ namespace Neo.SmartContract.Testing
 
                     // Invoke
 
-                    object returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
+                    var returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
                     if (hasReturnValue)
                         Push(Convert(returnValue));
 
