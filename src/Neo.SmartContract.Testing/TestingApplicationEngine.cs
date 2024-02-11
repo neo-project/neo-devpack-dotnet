@@ -54,11 +54,13 @@ namespace Neo.SmartContract.Testing
                     if ((callFlags & ~CallFlags.All) != 0)
                         throw new ArgumentOutOfRangeException(nameof(callFlags));
 
+                    /* Note: we allow to mock undeployed contracts
                     var contract = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
                     if (contract is null) throw new InvalidOperationException($"Called Contract Does Not Exist: {contractHash}");
                     var md = contract.Manifest.Abi.GetMethod(method, args.Count);
                     if (md is null) throw new InvalidOperationException($"Method \"{method}\" with {args.Count} parameter(s) doesn't exist in the contract {contractHash}.");
                     var hasReturnValue = md.ReturnType != ContractParameterType.Void;
+                    */
 
                     // Convert args to mocked method
 
@@ -71,6 +73,7 @@ namespace Neo.SmartContract.Testing
 
                     // Invoke
 
+                    var hasReturnValue = customMock.Method.ReturnType != typeof(void);
                     var returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
                     if (hasReturnValue)
                         Push(Convert(returnValue));
