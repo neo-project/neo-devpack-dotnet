@@ -23,8 +23,8 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Ensure that the main address contains the totalSupply
 
-            Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply());
-            Assert.AreEqual(engine.Native.NEO.totalSupply(), engine.Native.NEO.balanceOf(engine.BFTAddress));
+            Assert.AreEqual(100_000_000, engine.Native.NEO.totalSupply);
+            Assert.AreEqual(engine.Native.NEO.totalSupply, engine.Native.NEO.balanceOf(engine.BFTAddress));
         }
 
         [TestMethod]

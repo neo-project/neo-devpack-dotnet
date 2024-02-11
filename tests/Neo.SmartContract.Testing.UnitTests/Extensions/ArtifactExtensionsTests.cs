@@ -21,6 +21,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
             Assert.AreEqual(source, @"
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
@@ -34,29 +35,17 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     public event delTransfer? Transfer;
     #endregion
     #region Properties
-    public abstract UInt160 Owner { get; set; }
+    public abstract BigInteger decimals { [DisplayName(""decimals"")] get; }
+    public abstract UInt160 Owner { [DisplayName(""getOwner"")] get; [DisplayName(""setOwner"")] set; }
+    public abstract string symbol { [DisplayName(""symbol"")] get; }
+    public abstract BigInteger totalSupply { [DisplayName(""totalSupply"")] get; }
+    public abstract bool verify { [DisplayName(""verify"")] get; }
     #endregion
     #region Safe methods
     /// <summary>
     /// Safe method
     /// </summary>
     public abstract BigInteger balanceOf(UInt160 owner);
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract BigInteger decimals();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract string symbol();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract BigInteger totalSupply();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract bool verify();
     #endregion
     #region Unsafe methods
     /// <summary>
@@ -92,7 +81,6 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     protected Contract1(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
     #endregion
 }
-
 ".Replace("\r\n", "\n").Trim());
         }
     }

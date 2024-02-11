@@ -120,8 +120,8 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Ensure that the main address contains the totalSupply
 
-            Assert.AreEqual(100_000_000, neo.totalSupply());
-            Assert.AreEqual(neo.totalSupply(), neo.balanceOf(engine.BFTAddress));
+            Assert.AreEqual(100_000_000, neo.totalSupply);
+            Assert.AreEqual(neo.totalSupply, neo.balanceOf(engine.BFTAddress));
         }
     }
 }

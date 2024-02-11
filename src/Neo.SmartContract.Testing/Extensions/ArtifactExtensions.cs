@@ -21,6 +21,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             sourceCode.AppendLine("using Neo.Cryptography.ECC;");
             sourceCode.AppendLine("using System.Collections.Generic;");
+            sourceCode.AppendLine("using System.ComponentModel;");
             sourceCode.AppendLine("using System.Numerics;");
             sourceCode.AppendLine("");
             sourceCode.AppendLine("namespace Neo.SmartContract.Testing;");
@@ -56,7 +57,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     foreach (var property in properties.OrderBy(u => u.getter.Name))
                     {
-                        sourceCode.Append(CreateSourcePropertyFromManifest(property.getter.Name[3..], property.getter.ReturnType, property.setter is not null));
+                        sourceCode.Append(CreateSourcePropertyFromManifest(property.getter, property.setter));
                     }
 
                     sourceCode.AppendLine("    #endregion");
@@ -116,20 +117,21 @@ namespace Neo.SmartContract.Testing.Extensions
             List<ContractMethodDescriptor> methodList = new(methods);
             List<(ContractMethodDescriptor, ContractMethodDescriptor?)> properties = new();
 
-            // Detect and extract properties, first find getXXXX && Safe && 0 args && return != void
+            // Detect and extract properties, first find Safe && 0 args && return != void
 
-            foreach (ContractMethodDescriptor getter in methods.Where(u => u.Name.StartsWith("get") && u.Safe && u.Parameters.Length == 0 && u.ReturnType != ContractParameterType.Void).ToArray())
+            foreach (ContractMethodDescriptor getter in methods.Where(u => u.Safe && u.Parameters.Length == 0 && u.ReturnType != ContractParameterType.Void).ToArray())
             {
                 // Find setter: setXXX && one arg && not safe && parameter = getter.return && return == void
 
-                var setter = methodList.FirstOrDefault(
+                var setter = getter.Name.StartsWith("get") ? // Only find setter if start with get
+                    methodList.FirstOrDefault(
                     u =>
                         u.Name == "set" + getter.Name[3..] &&
                         !u.Safe &&
                         u.Parameters.Length == 1 &&
                         u.Parameters[0].Type == getter.ReturnType &&
                         u.ReturnType == ContractParameterType.Void
-                        );
+                        ) : null;
 
                 properties.Add((getter, setter));
                 methodList.Remove(getter);
@@ -172,16 +174,16 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <summary>
         /// Create source code from manifest property
         /// </summary>
-        /// <param name="propertyName">Property name</param>
-        /// <param name="propertyType">Property type</param>
-        /// <param name="hasSet">True if has set</param>
+        /// <param name="getter">Getter</param>
+        /// <param name="setter">Setter</param>
         /// <returns>Source</returns>
-        private static string CreateSourcePropertyFromManifest(string propertyName, ContractParameterType propertyType, bool hasSet)
+        private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
         {
-            var getset = hasSet ? "{ get; set; }" : "{ get; }";
+            var propertyName = getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name;
+            var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
 
             StringBuilder sourceCode = new();
-            sourceCode.AppendLine($"    public abstract {TypeToSource(propertyType)} {EscapeName(propertyName)} {getset}");
+            sourceCode.AppendLine($"    public abstract {TypeToSource(getter.ReturnType)} {EscapeName(propertyName)} {getset}");
 
             return sourceCode.ToString();
         }

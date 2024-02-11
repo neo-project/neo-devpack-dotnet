@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
@@ -15,8 +16,8 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     public event delUpdate? Update;
     #endregion
     #region Properties
-    public abstract object ContractHashes { get; }
-    public abstract BigInteger MinimumDeploymentFee { get; set; }
+    public abstract object ContractHashes { [DisplayName("getContractHashes")] get; }
+    public abstract BigInteger MinimumDeploymentFee { [DisplayName("getMinimumDeploymentFee")] get; [DisplayName("setMinimumDeploymentFee")] set; }
     #endregion
     #region Safe methods
     /// <summary>
@@ -55,6 +56,6 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     public abstract void update(byte[] nefFile, byte[] manifest, object data);
     #endregion
     #region Constructor for internal use only
-    protected ContractManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected ContractManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
     #endregion
 }

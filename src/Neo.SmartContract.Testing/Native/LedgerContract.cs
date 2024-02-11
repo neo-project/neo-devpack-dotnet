@@ -1,20 +1,17 @@
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
 public abstract class LedgerContract : Neo.SmartContract.Testing.SmartContract
 {
+    #region Properties
+    public abstract UInt256 currentHash { [DisplayName("currentHash")] get; }
+    public abstract BigInteger currentIndex { [DisplayName("currentIndex")] get; }
+    #endregion
     #region Safe methods
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract UInt256 currentHash();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract BigInteger currentIndex();
     /// <summary>
     /// Safe method
     /// </summary>

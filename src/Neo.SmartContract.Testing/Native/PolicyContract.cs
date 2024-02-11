@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
@@ -7,9 +8,9 @@ namespace Neo.SmartContract.Testing;
 public abstract class PolicyContract : Neo.SmartContract.Testing.SmartContract
 {
     #region Properties
-    public abstract BigInteger ExecFeeFactor { get; set; }
-    public abstract BigInteger FeePerByte { get; set; }
-    public abstract BigInteger StoragePrice { get; set; }
+    public abstract BigInteger ExecFeeFactor { [DisplayName("getExecFeeFactor")] get; [DisplayName("setExecFeeFactor")] set; }
+    public abstract BigInteger FeePerByte { [DisplayName("getFeePerByte")] get; [DisplayName("setFeePerByte")] set; }
+    public abstract BigInteger StoragePrice { [DisplayName("getStoragePrice")] get; [DisplayName("setStoragePrice")] set; }
     #endregion
     #region Safe methods
     /// <summary>

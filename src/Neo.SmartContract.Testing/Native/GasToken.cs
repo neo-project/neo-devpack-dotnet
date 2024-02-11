@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
@@ -10,23 +11,16 @@ public abstract class GasToken : Neo.SmartContract.Testing.SmartContract
     public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount);
     public event delTransfer? Transfer;
     #endregion
+    #region Properties
+    public abstract BigInteger decimals { [DisplayName("decimals")] get; }
+    public abstract string symbol { [DisplayName("symbol")] get; }
+    public abstract BigInteger totalSupply { [DisplayName("totalSupply")] get; }
+    #endregion
     #region Safe methods
     /// <summary>
     /// Safe method
     /// </summary>
     public abstract BigInteger balanceOf(UInt160 account);
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract BigInteger decimals();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract string symbol();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract BigInteger totalSupply();
     #endregion
     #region Unsafe methods
     /// <summary>

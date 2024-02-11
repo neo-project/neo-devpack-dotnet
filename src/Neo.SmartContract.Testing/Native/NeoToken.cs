@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
@@ -15,12 +16,15 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     public event delVote? Vote;
     #endregion
     #region Properties
-    public abstract object AllCandidates { get; }
-    public abstract List<object> Candidates { get; }
-    public abstract List<object> Committee { get; }
-    public abstract BigInteger GasPerBlock { get; set; }
-    public abstract List<object> NextBlockValidators { get; }
-    public abstract BigInteger RegisterPrice { get; set; }
+    public abstract BigInteger decimals { [DisplayName("decimals")] get; }
+    public abstract object AllCandidates { [DisplayName("getAllCandidates")] get; }
+    public abstract List<object> Candidates { [DisplayName("getCandidates")] get; }
+    public abstract List<object> Committee { [DisplayName("getCommittee")] get; }
+    public abstract BigInteger GasPerBlock { [DisplayName("getGasPerBlock")] get; [DisplayName("setGasPerBlock")] set; }
+    public abstract List<object> NextBlockValidators { [DisplayName("getNextBlockValidators")] get; }
+    public abstract BigInteger RegisterPrice { [DisplayName("getRegisterPrice")] get; [DisplayName("setRegisterPrice")] set; }
+    public abstract string symbol { [DisplayName("symbol")] get; }
+    public abstract BigInteger totalSupply { [DisplayName("totalSupply")] get; }
     #endregion
     #region Safe methods
     /// <summary>
@@ -30,23 +34,11 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Safe method
     /// </summary>
-    public abstract BigInteger decimals();
-    /// <summary>
-    /// Safe method
-    /// </summary>
     public abstract List<object> getAccountState(UInt160 account);
     /// <summary>
     /// Safe method
     /// </summary>
     public abstract BigInteger getCandidateVote(ECPoint pubKey);
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract string symbol();
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract BigInteger totalSupply();
     /// <summary>
     /// Safe method
     /// </summary>

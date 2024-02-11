@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
@@ -13,13 +14,8 @@ public abstract class OracleContract : Neo.SmartContract.Testing.SmartContract
     public event delOracleResponse? OracleResponse;
     #endregion
     #region Properties
-    public abstract BigInteger Price { get; set; }
-    #endregion
-    #region Safe methods
-    /// <summary>
-    /// Safe method
-    /// </summary>
-    public abstract bool verify();
+    public abstract BigInteger Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }
+    public abstract bool verify { [DisplayName("verify")] get; }
     #endregion
     #region Unsafe methods
     /// <summary>

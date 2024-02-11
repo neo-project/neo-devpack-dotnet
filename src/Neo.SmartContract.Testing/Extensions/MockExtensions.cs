@@ -1,5 +1,6 @@
 using Moq;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -69,18 +70,10 @@ namespace Neo.SmartContract.Testing.Extensions
 
             _ = retMethod.Invoke(setup, new object[] { new InvocationFunc(invocation =>
                 {
-                    var isAccessor = invocation.Method.DeclaringType?.GetProperties()
-                        .Any(prop => prop.GetSetMethod() == invocation.Method || prop.GetGetMethod() == invocation.Method);
+                    var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
+                    var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    if (isAccessor == true)
-                    {
-                        // remove _ from get_ or set_
-                        return mock.Object.Invoke(invocation.Method.Name.Remove(3, 1), invocation.Arguments.ToArray()).ConvertTo(returnType)!;
-                    }
-                    else
-                    {
-                        return mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
-                    }
+                    return mock.Object.Invoke(name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
                 })
             });
         }
@@ -104,18 +97,10 @@ namespace Neo.SmartContract.Testing.Extensions
 
             _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
                 {
-                   var isAccessor = invocation.Method.DeclaringType?.GetProperties()
-                        .Any(prop => prop.GetSetMethod() == invocation.Method || prop.GetGetMethod() == invocation.Method);
+                    var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
+                    var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    if (isAccessor == true)
-                    {
-                        // remove _ from get_ or set_
-                        mock.Object.Invoke(invocation.Method.Name.Remove(3, 1), invocation.Arguments.ToArray());
-                    }
-                    else
-                    {
-                        mock.Object.Invoke(invocation.Method.Name, invocation.Arguments.ToArray());
-                    }
+                    mock.Object.Invoke(name, invocation.Arguments.ToArray());
                 })
             });
         }
