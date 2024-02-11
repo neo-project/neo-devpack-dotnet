@@ -10,6 +10,12 @@ namespace Neo.SmartContract.Testing.UnitTests
     [TestClass]
     public class TestEngineTests
     {
+        public abstract class MyUndeployedContract : SmartContract
+        {
+            public abstract int myReturnMethod();
+            protected MyUndeployedContract(TestEngine testEngine, UInt160 hash) : base(testEngine, hash) { }
+        }
+
         //[TestMethod]
         public void GenerateNativeArtifacts()
         {
@@ -50,10 +56,25 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Test vm call
 
-            using ScriptBuilder script = new();
-            script.EmitDynamicCall(neo.Hash, nameof(neo.balanceOf), engine.BFTAddress);
+            using (ScriptBuilder script = new())
+            {
+                script.EmitDynamicCall(neo.Hash, nameof(neo.balanceOf), engine.BFTAddress);
 
-            Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
+                Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
+            }
+
+            // Test mock on undeployed contract
+
+            var undeployed = engine.FromHash<MyUndeployedContract>(UInt160.Zero,
+                mock => mock.Setup(o => o.myReturnMethod()).Returns(1234),
+                false);
+
+            using (ScriptBuilder script = new())
+            {
+                script.EmitDynamicCall(UInt160.Zero, nameof(undeployed.myReturnMethod));
+
+                Assert.AreEqual(1234, engine.Execute(script.ToArray()).GetInteger());
+            }
         }
 
         [TestMethod]
