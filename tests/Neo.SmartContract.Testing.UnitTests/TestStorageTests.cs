@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // simple object
 
-            var json = @"{""a2V5"":""dmFsdWU=""}";
+            var json = @"{""bXlSYXdLZXk="":""dmFsdWU=""}";
 
             store.LoadFromJson((JObject)JToken.Parse(json));
             store.Commit();
@@ -30,12 +30,12 @@ namespace Neo.SmartContract.Testing.UnitTests
             entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
             Assert.AreEqual(entries.Length, 1);
 
-            Assert.AreEqual("key", Encoding.ASCII.GetString(entries[0].Key));
+            Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));
             Assert.AreEqual("value", Encoding.ASCII.GetString(entries[0].Value));
 
             // prefix object
 
-            json = @"{""bXkt"":{""a2V5"":""bXktdmFsdWU=""}}";
+            json = @"{""bXk="":{""UmF3S2V5LTI="":""dmFsdWUtMg==""}}";
 
             store.LoadFromJson((JObject)JToken.Parse(json));
             store.Commit();
@@ -43,11 +43,11 @@ namespace Neo.SmartContract.Testing.UnitTests
             entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
             Assert.AreEqual(entries.Length, 2);
 
-            Assert.AreEqual("key", Encoding.ASCII.GetString(entries[0].Key));
+            Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));
             Assert.AreEqual("value", Encoding.ASCII.GetString(entries[0].Value));
 
-            Assert.AreEqual("my-key", Encoding.ASCII.GetString(entries[1].Key));
-            Assert.AreEqual("my-value", Encoding.ASCII.GetString(entries[1].Value));
+            Assert.AreEqual("myRawKey-2", Encoding.ASCII.GetString(entries[1].Key));
+            Assert.AreEqual("value-2", Encoding.ASCII.GetString(entries[1].Value));
         }
     }
 }

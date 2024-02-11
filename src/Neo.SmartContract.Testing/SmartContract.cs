@@ -1,4 +1,3 @@
-using Neo.Persistence;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -37,8 +36,6 @@ namespace Neo.SmartContract.Testing
         /// <returns>Object</returns>
         internal StackItem Invoke(string methodName, params object[] args)
         {
-            using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
-
             // Compose script
 
             using ScriptBuilder script = new();
@@ -46,6 +43,8 @@ namespace Neo.SmartContract.Testing
             _engine.Transaction.Script = script.ToArray(); // Store the script in the current transaction
 
             // Execute in neo VM
+
+            var snapshot = _engine.Storage.Snapshot.CreateSnapshot();
 
             using var engine = ApplicationEngine.Create(TriggerType.Application,
                 _engine.Transaction, snapshot, _engine.CurrentBlock, _engine.ProtocolSettings, _engine.Gas);
@@ -57,7 +56,7 @@ namespace Neo.SmartContract.Testing
                 throw engine.FaultException ?? new Exception($"Error while executing {methodName}");
             }
 
-            engine.Snapshot.Commit();
+            snapshot.Commit();
 
             // Return
 

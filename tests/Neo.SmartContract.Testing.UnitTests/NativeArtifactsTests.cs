@@ -27,7 +27,6 @@ namespace Neo.SmartContract.Testing.UnitTests
         public void TestTransfer()
         {
             var engine = new TestEngine(true);
-            engine.Storage.Commit(); // Bug in MemoryStore
 
             // Test set
 
@@ -57,7 +56,6 @@ namespace Neo.SmartContract.Testing.UnitTests
             Assert.IsTrue(engine.Native.NEO.transfer(engine.Transaction.Sender, wallet, 123, null));
 
             Assert.IsTrue(raisedEvent);
-            engine.Storage.Commit(); // Bug in MemoryStore
             Assert.AreEqual(123, engine.Native.NEO.balanceOf(wallet));
         }
 
@@ -65,7 +63,6 @@ namespace Neo.SmartContract.Testing.UnitTests
         public void TestSignature()
         {
             var engine = new TestEngine(true);
-            engine.Storage.Commit(); // Bug in MemoryStore
 
             // Test set
 
@@ -83,8 +80,6 @@ namespace Neo.SmartContract.Testing.UnitTests
             };
 
             engine.Native.NEO.setRegisterPrice(123);
-
-            engine.Storage.Commit(); // Bug in MemoryStore
 
             Assert.AreEqual(123, engine.Native.NEO.getRegisterPrice());
 

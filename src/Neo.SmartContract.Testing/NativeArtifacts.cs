@@ -144,9 +144,7 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         public UInt160 GetCommitteeAddress()
         {
-            using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
-
-            return Native.NativeContract.NEO.GetCommitteeAddress(snapshot);
+            return Native.NativeContract.NEO.GetCommitteeAddress(_engine.Storage.Snapshot);
         }
 
         /// <summary>
@@ -158,7 +156,6 @@ namespace Neo.SmartContract.Testing
             _engine.Transaction.Script = Array.Empty<byte>(); // Store the script in the current transaction
 
             var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
-            using SnapshotCache snapshot = new(_engine.Storage.Snapshot);
 
             foreach (var native in Native.NativeContract.Contracts)
             {
@@ -166,31 +163,29 @@ namespace Neo.SmartContract.Testing
 
                 var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
+                DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
+                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, clonedSnapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
                 {
                     engine.LoadScript(Array.Empty<byte>());
                     method!.Invoke(native, new object[] { engine });
-
-                    snapshot.Commit();
-                    engine.Snapshot.Commit(); // Bug in MemoryStore
+                    if (engine.Execute() != VM.VMState.HALT)
+                        throw new Exception($"Error executing {native.Name}.OnPersist");
                 }
 
                 // Mock Native.PostPersist
 
                 method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, snapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
+                using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, clonedSnapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
                 {
-
                     engine.LoadScript(Array.Empty<byte>());
                     method!.Invoke(native, new object[] { engine });
-
-                    snapshot.Commit();
-                    engine.Snapshot.Commit(); // Bug in MemoryStore
+                    if (engine.Execute() != VM.VMState.HALT)
+                        throw new Exception($"Error executing {native.Name}.OnPersist");
                 }
-            }
 
-            snapshot.Commit();
+                clonedSnapshot.Commit();
+            }
 
             if (commit)
             {

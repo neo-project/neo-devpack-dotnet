@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Snapshot
         /// </summary>
-        public ISnapshot Snapshot { get; private set; }
+        public SnapshotCache Snapshot { get; private set; }
 
         /// <summary>
         /// Constructor
@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Testing
         public TestStorage(IStore store)
         {
             Store = store;
-            Snapshot = Store.GetSnapshot();
+            Snapshot = new SnapshotCache(Store.GetSnapshot());
         }
 
         /// <summary>
@@ -33,7 +33,6 @@ namespace Neo.SmartContract.Testing
         public void Commit()
         {
             Snapshot.Commit();
-            Snapshot = Store.GetSnapshot();
         }
 
         /// <summary>
@@ -42,7 +41,7 @@ namespace Neo.SmartContract.Testing
         public void Rollback()
         {
             Snapshot.Dispose();
-            Snapshot = Store.GetSnapshot();
+            Snapshot = new SnapshotCache(Store.GetSnapshot());
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace Neo.SmartContract.Testing
                 {
                     // "key":"value" in base64
 
-                    Snapshot.Put(Convert.FromBase64String(entry.Key), Convert.FromBase64String(str.Value));
+                    Snapshot.Add(new StorageKey(Convert.FromBase64String(entry.Key)), new StorageItem(Convert.FromBase64String(str.Value)));
                 }
                 else if (entry.Value is JObject obj)
                 {
@@ -73,8 +72,10 @@ namespace Neo.SmartContract.Testing
                     {
                         if (subEntry.Value is JString subStr)
                         {
-                            Snapshot.Put(Convert.FromBase64String(entry.Key).Concat(Convert.FromBase64String(subEntry.Key)).ToArray(),
-                                Convert.FromBase64String(subStr.Value));
+                            Snapshot.Add(
+                                new StorageKey(Convert.FromBase64String(entry.Key).Concat(Convert.FromBase64String(subEntry.Key)).ToArray()),
+                                new StorageItem(Convert.FromBase64String(subStr.Value))
+                                );
                         }
                     }
                 }
