@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             // Defines the prefix used to store the registration price in neo
 
-            const byte Prefix_RegisterPrice = 13;
+            byte[] registerPricePrefix = new byte[] { 13 };
 
             // Engine an contract creation
 
@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Alter data
 
-            engine.Native.NEO.Storage.Put(new byte[] { Prefix_RegisterPrice }, BigInteger.MinusOne.ToByteArray());
+            engine.Native.NEO.Storage.Put(registerPricePrefix, BigInteger.MinusOne);
 
             // Check altered data
 

@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace Neo.SmartContract.Testing
 {
@@ -50,6 +51,19 @@ namespace Neo.SmartContract.Testing
 
             var entry = _smartContract.Engine.Storage.Snapshot.GetAndChange(skey, () => new StorageItem() { Value = value });
             entry.Value = value;
+        }
+
+        /// <summary>
+        /// Put an entry in the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public void Put(ReadOnlyMemory<byte> key, BigInteger value)
+        {
+            var skey = new StorageKey() { Id = GetContractId(), Key = key };
+
+            var entry = _smartContract.Engine.Storage.Snapshot.GetAndChange(skey, () => new StorageItem(value));
+            entry.Set(value);
         }
 
         /// <summary>
