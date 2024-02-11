@@ -67,6 +67,6 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     public abstract void Update(byte[] nefFile, byte[] manifest, object data);
     #endregion
     #region Constructor for internal use only
-    protected ContractManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
+    protected ContractManagement(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
     #endregion
 }

@@ -28,13 +28,12 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="testEngine">TestEngine</param>
-        /// <param name="hash">Contract hash</param>
-        protected SmartContract(TestEngine testEngine, UInt160 hash)
+        /// <param name="initialize">Initialize object</param>
+        protected SmartContract(SmartContractInitialize initialize)
         {
-            Engine = testEngine;
-            Hash = hash;
-            Storage = new SmartContractStorage(this);
+            Engine = initialize.Engine;
+            Hash = initialize.Hash;
+            Storage = new SmartContractStorage(this, initialize.ContractId);
         }
 
         /// <summary>

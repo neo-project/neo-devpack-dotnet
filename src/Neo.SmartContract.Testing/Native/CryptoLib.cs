@@ -60,6 +60,6 @@ public abstract class CryptoLib : Neo.SmartContract.Testing.SmartContract
     public abstract bool VerifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, BigInteger curve);
     #endregion
     #region Constructor for internal use only
-    protected CryptoLib(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected CryptoLib(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
     #endregion
 }

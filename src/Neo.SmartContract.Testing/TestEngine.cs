@@ -212,7 +212,7 @@ namespace Neo.SmartContract.Testing
             // Mock contract
 
             //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
-            return MockContract(state.Hash, customMock);
+            return MockContract(state.Hash, state.Id, customMock);
         }
 
         /// <summary>
@@ -239,17 +239,17 @@ namespace Neo.SmartContract.Testing
         {
             if (!checkExistence)
             {
-                return MockContract(hash, customMock);
+                return MockContract(hash, null, customMock);
             }
 
             var state = Native.ContractManagement.GetContract(hash);
 
-            return MockContract(state.Hash, customMock);
+            return MockContract(state.Hash, state.Id, customMock);
         }
 
-        private T MockContract<T>(UInt160 hash, Action<Mock<T>>? customMock = null) where T : SmartContract
+        private T MockContract<T>(UInt160 hash, int? contractId = null, Action<Mock<T>>? customMock = null) where T : SmartContract
         {
-            var mock = new Mock<T>(this, hash)
+            var mock = new Mock<T>(new SmartContractInitialize() { Engine = this, Hash = hash, ContractId = contractId })
             {
                 CallBase = true
             };

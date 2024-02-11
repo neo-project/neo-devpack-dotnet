@@ -6,21 +6,24 @@ namespace Neo.SmartContract.Testing
     public class SmartContractStorage
     {
         private readonly SmartContract _smartContract;
-        private int? _smartContractId;
+        private int? _contractId;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="smartContract">Smart Contract</param>
-        internal SmartContractStorage(SmartContract smartContract)
+        /// <param name="contractId">Contract id, can be null</param>
+        internal SmartContractStorage(SmartContract smartContract, int? contractId = null)
         {
             _smartContract = smartContract;
+            _contractId = contractId;
         }
 
         private int GetContractId()
         {
-            _smartContractId ??= _smartContract.Engine.Native.ContractManagement.GetContract(_smartContract.Hash).Id;
-            return _smartContractId.Value;
+            // If it was not initialized checking the contract, we need to query the contract id
+            _contractId ??= _smartContract.Engine.Native.ContractManagement.GetContract(_smartContract.Hash).Id;
+            return _contractId.Value;
         }
 
         /// <summary>

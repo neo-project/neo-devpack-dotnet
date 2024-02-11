@@ -74,6 +74,6 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     public abstract bool Vote(UInt160 account, ECPoint voteTo);
     #endregion
     #region Constructor for internal use only
-    protected NeoToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected NeoToken(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
     #endregion
 }

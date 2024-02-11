@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         public abstract class MyUndeployedContract : SmartContract
         {
             public abstract int myReturnMethod();
-            protected MyUndeployedContract(TestEngine testEngine, UInt160 hash) : base(testEngine, hash) { }
+            protected MyUndeployedContract(SmartContractInitialize initialize) : base(initialize) { }
         }
 
         //[TestMethod]

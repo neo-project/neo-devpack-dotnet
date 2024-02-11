@@ -27,6 +27,6 @@ public abstract class RoleManagement : Neo.SmartContract.Testing.SmartContract
     public abstract void DesignateAsRole(BigInteger role, List<object> nodes);
     #endregion
     #region Constructor for internal use only
-    protected RoleManagement(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected RoleManagement(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
     #endregion
 }

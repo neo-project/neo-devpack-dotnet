@@ -44,6 +44,6 @@ public abstract class LedgerContract : Neo.SmartContract.Testing.SmartContract
     public abstract BigInteger GetTransactionVMState(UInt256 hash);
     #endregion
     #region Constructor for internal use only
-    protected LedgerContract(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected LedgerContract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
     #endregion
 }
