@@ -138,7 +138,7 @@ Mainly exposes the methods `Read`, `Put`, and `Remove`, all of them responsible 
 
 byte[] registerPricePrefix = new byte[] { 13 };
 
-// Engine an contract creation
+// Create engine and initialize native contracts
 
 TestEngine engine = new(true);
 
