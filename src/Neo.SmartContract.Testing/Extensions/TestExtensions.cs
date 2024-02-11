@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="data">Data</param>
         /// <returns>StackItem</returns>
-        public static StackItem ConvertToStackItem(this object data)
+        public static StackItem ConvertToStackItem(this object? data)
         {
             if (data is null) return StackItem.Null;
             if (data is bool b) return (VM.Types.Boolean)b;

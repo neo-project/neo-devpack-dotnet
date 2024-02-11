@@ -195,7 +195,7 @@ namespace Neo.SmartContract.Testing
         /// <param name="manifest">Contract manifest</param>
         /// <param name="data">Construction data</param>
         /// <returns>Mocked Smart Contract</returns>
-        public T Deploy<T>(NefFile nef, ContractManifest manifest, object data) where T : SmartContract
+        public T Deploy<T>(NefFile nef, ContractManifest manifest, object? data = null) where T : SmartContract
         {
             // Deploy
 
