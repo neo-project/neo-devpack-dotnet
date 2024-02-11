@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Remove an entry from the smart contract storage
+        /// Read an entry from the smart contract storage
         /// </summary>
         /// <param name="key">Key</param>
         public ReadOnlyMemory<byte> Read(ReadOnlyMemory<byte> key)

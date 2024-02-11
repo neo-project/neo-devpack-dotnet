@@ -12,8 +12,8 @@ namespace Neo.SmartContract.Testing
     {
         internal readonly TestEngine Engine;
 
-        public delegate void delOnLog(string message);
-        public event delOnLog? OnRuntimeLog;
+        public delegate void OnRuntimeLogDelegate(string message);
+        public event OnRuntimeLogDelegate? OnRuntimeLog;
 
         /// <summary>
         /// Contract hash
@@ -48,7 +48,8 @@ namespace Neo.SmartContract.Testing
 
             using ScriptBuilder script = new();
             script.EmitDynamicCall(Hash, methodName, args);
-            Engine.Transaction.Script = script.ToArray(); // Store the script in the current transaction
+
+            // Execute
 
             return Engine.Execute(script.ToArray());
         }

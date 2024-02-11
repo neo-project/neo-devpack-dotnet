@@ -343,6 +343,10 @@ namespace Neo.SmartContract.Testing
         /// <returns>StackItem</returns>
         public StackItem Execute(Script script)
         {
+            // Store the script in current transaction
+
+            Transaction.Script = script;
+
             // Execute in neo VM
 
             var snapshot = Storage.Snapshot.CreateSnapshot();

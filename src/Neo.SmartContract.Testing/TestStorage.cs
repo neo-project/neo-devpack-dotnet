@@ -49,12 +49,10 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Load data from json
-        ///
-        /// Expected data (in base64):
-        /// 
-        /// - "key":"value"
-        /// - "prefix": { "key":"value" }
+        /// Load data from json, expected data (in base64):
+        /// - "key"     : "value"
+        /// - "prefix"  : { "key":"value" }
+        /// - "123"     : { "key":"value" }
         /// </summary>
         /// <param name="snapshot">Snapshot to be used</param>
         /// <param name="json">Json Object</param>
