@@ -32,6 +32,6 @@ public abstract class OracleContract : Neo.SmartContract.Testing.SmartContract
     public abstract void Request(string url, string filter, string callback, object userData, BigInteger gasForResponse);
     #endregion
     #region Constructor for internal use only
-    protected OracleContract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
+    protected OracleContract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
     #endregion
 }

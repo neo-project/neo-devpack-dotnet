@@ -88,7 +88,7 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     public abstract bool Withdraw(UInt160 token, UInt160 to, BigInteger amount);
     #endregion
     #region Constructor for internal use only
-    protected Contract1(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
+    protected Contract1(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
     #endregion
 }
 ".Replace("\r\n", "\n").Trim());

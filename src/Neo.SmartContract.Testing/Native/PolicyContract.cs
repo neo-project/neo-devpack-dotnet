@@ -42,6 +42,6 @@ public abstract class PolicyContract : Neo.SmartContract.Testing.SmartContract
     public abstract bool UnblockAccount(UInt160 account);
     #endregion
     #region Constructor for internal use only
-    protected PolicyContract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
+    protected PolicyContract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
     #endregion
 }

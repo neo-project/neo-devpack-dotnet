@@ -98,7 +98,7 @@ namespace Neo.SmartContract.Testing.Extensions
             // Create constructor
 
             sourceCode.AppendLine("    #region Constructor for internal use only");
-            sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{}}");
+            sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
             sourceCode.AppendLine("    #endregion");
 
             sourceCode.AppendLine("}");

@@ -115,6 +115,6 @@ public abstract class StdLib : Neo.SmartContract.Testing.SmartContract
     public abstract BigInteger StrLen(string str);
     #endregion
     #region Constructor for internal use only
-    protected StdLib(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {}
+    protected StdLib(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
     #endregion
 }
