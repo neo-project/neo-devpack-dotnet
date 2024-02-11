@@ -9,9 +9,11 @@ public abstract class OracleContract : Neo.SmartContract.Testing.SmartContract
 {
     #region Events
     public delegate void delOracleRequest(BigInteger Id, UInt160 RequestContract, string Url, string Filter);
-    public event delOracleRequest? OracleRequest;
+    [DisplayName("OracleRequest")]
+    public event delOracleRequest? OnOracleRequest;
     public delegate void delOracleResponse(BigInteger Id, UInt256 OriginalTx);
-    public event delOracleResponse? OracleResponse;
+    [DisplayName("OracleResponse")]
+    public event delOracleResponse? OnOracleResponse;
     #endregion
     #region Properties
     public abstract BigInteger Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }

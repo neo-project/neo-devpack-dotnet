@@ -30,9 +30,11 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
 {
     #region Events
     public delegate void delSetOwner(UInt160 newOwner);
-    public event delSetOwner? SetOwner;
+    [DisplayName(""SetOwner"")]
+    public event delSetOwner? OnSetOwner;
     public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount);
-    public event delTransfer? Transfer;
+    [DisplayName(""Transfer"")]
+    public event delTransfer? OnTransfer;
     #endregion
     #region Properties
     public abstract BigInteger Decimals { [DisplayName(""decimals"")] get; }

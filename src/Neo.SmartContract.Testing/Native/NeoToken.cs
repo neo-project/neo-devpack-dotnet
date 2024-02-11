@@ -9,7 +9,8 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
 {
     #region Events
     public delegate void delCandidateStateChanged(ECPoint pubkey, bool registered, BigInteger votes);
-    public event delCandidateStateChanged? CandidateStateChanged;
+    [DisplayName("CandidateStateChanged")]
+    public event delCandidateStateChanged? OnCandidateStateChanged;
     public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount);
     [DisplayName("Transfer")]
     public event delTransfer? OnTransfer;

@@ -152,6 +152,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourceEventFromManifest(ContractEventDescriptor ev)
         {
+            var evName = TongleLowercase(EscapeName(ev.Name), out _);
+            if (!evName.StartsWith("On")) evName = "On" + evName;
+
             StringBuilder sourceCode = new();
 
             sourceCode.Append($"    public delegate void del{ev.Name}(");
@@ -166,7 +169,11 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             sourceCode.AppendLine(");");
-            sourceCode.AppendLine($"    public event del{ev.Name}? {ev.Name};");
+            if (ev.Name != evName)
+            {
+                sourceCode.AppendLine($"    [DisplayName(\"{ev.Name}\")]");
+            }
+            sourceCode.AppendLine($"    public event del{ev.Name}? {evName};");
 
             return sourceCode.ToString();
         }
@@ -202,7 +209,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.AppendLine($"    /// <summary>");
             sourceCode.AppendLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
             sourceCode.AppendLine($"    /// </summary>");
-            if (lcChanged)
+            if (method.Name != methodName)
             {
                 sourceCode.AppendLine($"    [DisplayName(\"{method.Name}\")]");
             }

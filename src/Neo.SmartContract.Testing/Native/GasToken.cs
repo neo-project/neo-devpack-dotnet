@@ -32,6 +32,6 @@ public abstract class GasToken : Neo.SmartContract.Testing.SmartContract
     public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
     #endregion
     #region Constructor for internal use only
-    protected GasToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) {}
+    protected GasToken(Neo.SmartContract.Testing.TestEngine testEngine, Neo.UInt160 hash) : base(testEngine, hash) { }
     #endregion
 }

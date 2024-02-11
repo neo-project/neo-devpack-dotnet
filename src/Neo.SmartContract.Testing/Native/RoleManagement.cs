@@ -9,7 +9,8 @@ public abstract class RoleManagement : Neo.SmartContract.Testing.SmartContract
 {
     #region Events
     public delegate void delDesignation(BigInteger Role, BigInteger BlockIndex);
-    public event delDesignation? Designation;
+    [DisplayName("Designation")]
+    public event delDesignation? OnDesignation;
     #endregion
     #region Safe methods
     /// <summary>
