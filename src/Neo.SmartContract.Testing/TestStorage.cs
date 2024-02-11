@@ -1,6 +1,7 @@
 using Neo.Json;
 using Neo.Persistence;
 using System;
+using System.Buffers.Binary;
 using System.Linq;
 
 namespace Neo.SmartContract.Testing
@@ -71,12 +72,26 @@ namespace Neo.SmartContract.Testing
                 {
                     // "prefix": { "key":"value" }  in base64
 
+                    byte[] prefix;
+
+                    try
+                    {
+                        prefix = Convert.FromBase64String(entry.Key);
+                    }
+                    catch
+                    {
+                        // It's a number?
+
+                        prefix = new byte[sizeof(int)];
+                        BinaryPrimitives.WriteInt32LittleEndian(prefix, int.Parse(entry.Key));
+                    }
+
                     foreach (var subEntry in obj.Properties)
                     {
                         if (subEntry.Value is JString subStr)
                         {
                             Snapshot.Add(
-                                new StorageKey(Convert.FromBase64String(entry.Key).Concat(Convert.FromBase64String(subEntry.Key)).ToArray()),
+                                new StorageKey(prefix.Concat(Convert.FromBase64String(subEntry.Key)).ToArray()),
                                 new StorageItem(Convert.FromBase64String(subStr.Value))
                                 );
                         }

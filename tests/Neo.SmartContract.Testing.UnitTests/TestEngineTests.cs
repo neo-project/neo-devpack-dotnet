@@ -44,7 +44,11 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestCustomMock()
         {
+            // Initialize TestEngine and native smart contracts
+
             TestEngine engine = new(true);
+
+            // Get neo token smart contract and mock balanceOf to always return 123
 
             var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash,
                 mock => mock.Setup(o => o.balanceOf(It.IsAny<UInt160>())).Returns(123),
@@ -93,7 +97,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         [TestMethod]
-        public void FromHashTest()
+        public void FromHashWithoutCheckTest()
         {
             UInt160 hash = UInt160.Parse("0x1230000000000000000000000000000000000000");
             TestEngine engine = new(false);
@@ -101,6 +105,23 @@ namespace Neo.SmartContract.Testing.UnitTests
             var contract = engine.FromHash<ContractManagement>(hash, false);
 
             Assert.AreEqual(contract.Hash, hash);
+        }
+
+        [TestMethod]
+        public void FromHashTest()
+        {
+            // Create the engine initializing the native contracts
+
+            var engine = new TestEngine(true);
+
+            // Instantiate neo contract from native hash, (not necessary if we use engine.Native.NEO)
+
+            var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash, true);
+
+            // Ensure that the main address contains the totalSupply
+
+            Assert.AreEqual(100_000_000, neo.totalSupply());
+            Assert.AreEqual(neo.totalSupply(), neo.balanceOf(engine.BFTAddress));
         }
     }
 }

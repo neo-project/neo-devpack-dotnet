@@ -11,9 +11,13 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestInitialize()
         {
+            // Create the engine without initialize the native contracts
+
             var engine = new TestEngine(false);
 
             Assert.AreEqual(0, engine.Storage.Store.Seek(System.Array.Empty<byte>(), Persistence.SeekDirection.Forward).Count());
+
+            // Initialize native contracts
 
             engine.Native.Initialize(false);
 
@@ -62,13 +66,15 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestSignature()
         {
+            // Initialize out TestEngine
+
             var engine = new TestEngine(true);
 
-            // Test set
+            // Check initial value of getRegisterPrice
 
             Assert.AreEqual(100000000000, engine.Native.NEO.getRegisterPrice());
 
-            // Fake signature
+            // Fake Committee Signature
 
             engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
             {
@@ -79,11 +85,13 @@ namespace Neo.SmartContract.Testing.UnitTests
                 }
             };
 
+            // Change RegisterPrice to 123
+
             engine.Native.NEO.setRegisterPrice(123);
 
             Assert.AreEqual(123, engine.Native.NEO.getRegisterPrice());
 
-            // Invalid signature
+            // Now test it without this signature
 
             engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
 

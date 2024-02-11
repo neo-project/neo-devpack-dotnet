@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Gas
         /// </summary>
-        public long Gas = ApplicationEngine.TestModeGas;
+        public long Gas { get; set; } = ApplicationEngine.TestModeGas;
 
         /// <summary>
         /// Sender
@@ -194,8 +194,9 @@ namespace Neo.SmartContract.Testing
         /// <param name="nef">Nef file</param>
         /// <param name="manifest">Contract manifest</param>
         /// <param name="data">Construction data</param>
+        /// <param name="customMock">Custom Mock</param>
         /// <returns>Mocked Smart Contract</returns>
-        public T Deploy<T>(NefFile nef, ContractManifest manifest, object? data = null) where T : SmartContract
+        public T Deploy<T>(NefFile nef, ContractManifest manifest, object? data = null, Action<Mock<T>>? customMock = null) where T : SmartContract
         {
             // Deploy
 
@@ -204,7 +205,7 @@ namespace Neo.SmartContract.Testing
             // Mock contract
 
             //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
-            return MockContract<T>(state.Hash);
+            return MockContract(state.Hash, customMock);
         }
 
         /// <summary>

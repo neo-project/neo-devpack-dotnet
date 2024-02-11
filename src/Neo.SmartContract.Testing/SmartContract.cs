@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Testing
 {
     public class SmartContract
     {
-        private readonly TestEngine _engine;
+        internal readonly TestEngine Engine;
 
         public delegate void delOnLog(string message);
         public event delOnLog? OnLog;
@@ -19,14 +19,20 @@ namespace Neo.SmartContract.Testing
         public UInt160 Hash { get; }
 
         /// <summary>
+        /// Storage for this contract
+        /// </summary>
+        public SmartContractStorage Storage { get; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="testEngine">TestEngine</param>
         /// <param name="hash">Contract hash</param>
         protected SmartContract(TestEngine testEngine, UInt160 hash)
         {
-            _engine = testEngine;
+            Engine = testEngine;
             Hash = hash;
+            Storage = new SmartContractStorage(this);
         }
 
         /// <summary>
@@ -41,9 +47,9 @@ namespace Neo.SmartContract.Testing
 
             using ScriptBuilder script = new();
             script.EmitDynamicCall(Hash, methodName, args);
-            _engine.Transaction.Script = script.ToArray(); // Store the script in the current transaction
+            Engine.Transaction.Script = script.ToArray(); // Store the script in the current transaction
 
-            return _engine.Execute(script.ToArray());
+            return Engine.Execute(script.ToArray());
         }
 
         /// <summary>
