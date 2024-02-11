@@ -189,7 +189,7 @@ namespace Neo.SmartContract.Testing
 
                     task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
-                        throw new Exception($"Error executing {native.Name}.OnPersist");
+                        throw new Exception($"Error executing {native.Name}.PostPersist");
                 }
 
                 clonedSnapshot.Commit();
