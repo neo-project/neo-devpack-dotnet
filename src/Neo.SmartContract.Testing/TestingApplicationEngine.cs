@@ -1,6 +1,5 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM.Types;
@@ -23,12 +22,14 @@ namespace Neo.SmartContract.Testing
 
         protected override void OnSysCall(InteropDescriptor descriptor)
         {
-            if (descriptor.Hash == 1381727586 && descriptor.Name == "System.Contract.Call")
+            // Check if the syscall is a contract call and we need to mock it because it was defined by the user
+
+            if (descriptor.Hash == 1381727586 && descriptor.Name == "System.Contract.Call" && descriptor.Parameters.Count == 4)
             {
                 // Extract args
 
-                StackItem[] originalArgs = new StackItem[descriptor.Parameters.Count];
-                object[] parameters = new object[descriptor.Parameters.Count];
+                var originalArgs = new StackItem[descriptor.Parameters.Count];
+                var parameters = new object[originalArgs.Length];
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     originalArgs[i] = Pop();
@@ -50,11 +51,11 @@ namespace Neo.SmartContract.Testing
                     if ((callFlags & ~CallFlags.All) != 0)
                         throw new ArgumentOutOfRangeException(nameof(callFlags));
 
-                    ContractState contract = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
+                    var contract = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
                     if (contract is null) throw new InvalidOperationException($"Called Contract Does Not Exist: {contractHash}");
-                    ContractMethodDescriptor md = contract.Manifest.Abi.GetMethod(method, args.Count);
+                    var md = contract.Manifest.Abi.GetMethod(method, args.Count);
                     if (md is null) throw new InvalidOperationException($"Method \"{method}\" with {args.Count} parameter(s) doesn't exist in the contract {contractHash}.");
-                    bool hasReturnValue = md.ReturnType != ContractParameterType.Void;
+                    var hasReturnValue = md.ReturnType != ContractParameterType.Void;
 
                     // Convert args to mocked method
 
