@@ -91,11 +91,16 @@ namespace Neo.SmartContract.Testing
             var del = evField.GetValue(this) as Delegate;
             if (del is null) return;
 
+            // Avoid parse if is not needed
+
+            var invocations = del.GetInvocationList();
+            if (invocations.Length == 0) return;
+
             // Invoke
 
             var args = state.ConvertTo(del.Method.GetParameters());
 
-            foreach (var handler in del.GetInvocationList())
+            foreach (var handler in invocations)
             {
                 handler.Method.Invoke(handler.Target, args);
             }

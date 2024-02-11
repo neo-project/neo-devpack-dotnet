@@ -157,7 +157,14 @@ namespace Neo.SmartContract.Testing
 
             var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
 
-            foreach (var native in Native.NativeContract.Contracts)
+            foreach (var native in new Native.NativeContract[]
+                {
+                    Native.NativeContract.ContractManagement,
+                    Native.NativeContract.Ledger,
+                    Native.NativeContract.NEO,
+                    Native.NativeContract.GAS
+                }
+            )
             {
                 // Mock Native.OnPersist
 
@@ -167,7 +174,10 @@ namespace Neo.SmartContract.Testing
                 using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, clonedSnapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
                 {
                     engine.LoadScript(Array.Empty<byte>());
-                    method!.Invoke(native, new object[] { engine });
+                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                        throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
+
+                    task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.OnPersist");
                 }
@@ -179,7 +189,10 @@ namespace Neo.SmartContract.Testing
                 using (var engine = ApplicationEngine.Create(TriggerType.OnPersist, genesis, clonedSnapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
                 {
                     engine.LoadScript(Array.Empty<byte>());
-                    method!.Invoke(native, new object[] { engine });
+                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                        throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
+
+                    task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.OnPersist");
                 }
