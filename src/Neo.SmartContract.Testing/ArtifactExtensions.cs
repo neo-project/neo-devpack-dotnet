@@ -5,15 +5,15 @@ using System.Text;
 
 namespace Neo.SmartContract.Testing
 {
-    public class Artifacts
+    public static class ArtifactExtensions
     {
         /// <summary>
-        /// Create source code from contract Abi
+        /// Get source code from contract Abi
         /// </summary>
-        /// <param name="name">Contract name</param>
         /// <param name="abi">Abi</param>
+        /// <param name="name">Contract name</param>
         /// <returns>Source</returns>
-        public static string CreateSourceFromManifest(string name, ContractAbi abi)
+        public static string GetArtifactsSource(this ContractAbi abi, string name)
         {
             StringBuilder sourceCode = new();
 
@@ -81,7 +81,12 @@ namespace Neo.SmartContract.Testing
 
             sourceCode.AppendLine("}");
 
-            return sourceCode.ToString();
+            if (Environment.NewLine.Length == 2)
+            {
+                return sourceCode.ToString().Replace("\r\n", "\n").Trim();
+            }
+
+            return sourceCode.ToString().TrimEnd();
         }
 
         /// <summary>

@@ -180,7 +180,7 @@ namespace Neo.Compiler
                 // Create artifacts
                 {
                     path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
-                    File.WriteAllText(path, Artifacts.CreateSourceFromManifest(baseName, manifest.Abi));
+                    File.WriteAllText(path, manifest.Abi.GetArtifactsSource(baseName));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Debug)

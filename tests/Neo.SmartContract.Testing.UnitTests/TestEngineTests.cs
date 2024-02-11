@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             foreach (var n in Native.NativeContract.Contracts)
             {
                 var manifest = n.Manifest;
-                var source = Artifacts.CreateSourceFromManifest(manifest.Name, manifest.Abi).Replace("\r\n", "\n").Trim();
+                var source = manifest.Abi.GetArtifactsSource(manifest.Name);
                 var fullPath = Path.GetFullPath($"../../../../../src/Neo.SmartContract.Testing/Native/{manifest.Name}.cs");
 
                 File.WriteAllText(fullPath, source);
