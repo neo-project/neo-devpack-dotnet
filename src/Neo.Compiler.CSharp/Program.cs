@@ -9,6 +9,8 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
 using Neo.IO;
 using Neo.Json;
 using Neo.Optimizer;
@@ -19,6 +21,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -39,6 +42,7 @@ namespace Neo.Compiler
                 new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
+                new Option<bool>("--no-artifacts", "Instruct the compiler not to generate artifacts."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -177,11 +181,63 @@ namespace Neo.Compiler
                     return 1;
                 }
                 Console.WriteLine($"Created {path}");
-                // Create artifacts
+                if (!options.NoArtifacts)
                 {
+                    var artifact = manifest.Abi.GetArtifactsSource(baseName);
                     path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
-                    File.WriteAllText(path, manifest.Abi.GetArtifactsSource(baseName));
+                    File.WriteAllText(path, artifact);
                     Console.WriteLine($"Created {path}");
+
+                    try
+                    {
+                        // Try to compile the artifacts into a dll
+
+                        string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+
+                        var syntaxTree = CSharpSyntaxTree.ParseText(artifact);
+                        var references = new MetadataReference[]
+                        {
+                            MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
+                            MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
+                            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                            MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
+                            MetadataReference.CreateFromFile(typeof(System.Numerics.BigInteger).Assembly.Location),
+                            MetadataReference.CreateFromFile(typeof(UInt160).Assembly.Location),
+                            MetadataReference.CreateFromFile(typeof(SmartContract.Testing.SmartContract).Assembly.Location)
+                        };
+
+                        var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references,
+                            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+                        using var ms = new MemoryStream();
+                        EmitResult result = compilation.Emit(ms);
+
+                        if (!result.Success)
+                        {
+                            var failures = result.Diagnostics.Where(diagnostic =>
+                                diagnostic.IsWarningAsError ||
+                                diagnostic.Severity == DiagnosticSeverity.Error);
+
+                            foreach (var diagnostic in failures)
+                            {
+                                Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                            }
+                        }
+                        else
+                        {
+                            ms.Seek(0, SeekOrigin.Begin);
+
+                            // Write dll
+
+                            path = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
+                            File.WriteAllBytes(path, ms.ToArray());
+                            Console.WriteLine($"Created {path}");
+                        }
+                    }
+                    catch
+                    {
+                        Console.Error.WriteLine("Artifacts compilation error.");
+                    }
                 }
                 if (options.Debug)
                 {
