@@ -86,7 +86,7 @@ jobs:
         path: ${{ env.DIST_PATH }}/*
         key: ${{ matrix.runtime }}
 
-  Release-nccs:
+  release-nccs:
     name: Release nccs (github)
     needs: [build-nccs]
     runs-on: ubuntu-latest
@@ -144,7 +144,7 @@ jobs:
         files: ${{ env.DIST_PATH }}/*
 
   cleanup:
-    needs: [release-neo-cli]
+    needs: [release-nccs]
     runs-on: ubuntu-latest
     steps:
       - name: Cleanup
