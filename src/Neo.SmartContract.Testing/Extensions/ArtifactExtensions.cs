@@ -8,6 +8,22 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {
+        static readonly string[] _protectedWords = new string[] {
+            "abstract", "as", "base", "bool", "break", "byte",
+            "case", "catch", "char", "checked", "class", "const",
+            "continue", "decimal", "default", "delegate", "do", "double",
+            "else", "enum", "event", "explicit", "extern", "false",
+            "finally", "fixed", "float", "for", "foreach", "goto",
+            "if", "implicit", "in", "int", "interface", "internal",
+            "is", "lock", "long", "namespace", "new", "null",
+            "object", "operator", "out", "override", "params", "private",
+            "protected", "public", "readonly", "ref", "return", "sbyte",
+            "sealed", "short", "sizeof", "stackalloc", "static", "string",
+            "struct", "switch", "this", "throw", "true", "try",
+            "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
+            "using", "virtual", "void", "volatile", "while"
+        };
+
         /// <summary>
         /// Get source code from contract Abi
         /// </summary>
@@ -264,16 +280,10 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Escaped name</returns>
         private static string EscapeName(string name)
         {
-            return name switch
-            {
-                "base" => "@" + name,
-                "lock" => "@" + name,
-                "params" => "@" + name,
-                "struct" => "@" + name,
-                "class" => "@" + name,
+            if (_protectedWords.Contains(name))
+                return "@" + name;
 
-                _ => name
-            };
+            return name;
         }
 
         /// <summary>

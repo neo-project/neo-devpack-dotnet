@@ -12,8 +12,8 @@ namespace Neo.SmartContract.Testing
     public class SmartContract
     {
         internal readonly TestEngine Engine;
-        private readonly Type ContractType;
-        private readonly Dictionary<string, FieldInfo?> NotifyCache = new();
+        private readonly Type _contractType;
+        private readonly Dictionary<string, FieldInfo?> _notifyCache = new();
 
         public delegate void OnRuntimeLogDelegate(string message);
         public event OnRuntimeLogDelegate? OnRuntimeLog;
@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Testing
             Engine = initialize.Engine;
             Hash = initialize.Hash;
             Storage = new SmartContractStorage(this, initialize.ContractId);
-            ContractType = GetType().BaseType ?? GetType(); // Mock
+            _contractType = GetType().BaseType ?? GetType(); // Mock
         }
 
         /// <summary>
@@ -74,27 +74,25 @@ namespace Neo.SmartContract.Testing
         /// <param name="state">State</param>
         internal void InvokeOnNotify(string eventName, VM.Types.Array state)
         {
-            if (!NotifyCache.TryGetValue(eventName, out var evField))
+            if (!_notifyCache.TryGetValue(eventName, out var evField))
             {
-                var ev = ContractType.GetEvent(eventName);
+                var ev = _contractType.GetEvent(eventName);
                 if (ev is null)
                 {
-                    ev = ContractType.GetEvents().FirstOrDefault(u => u.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName == eventName);
+                    ev = _contractType.GetEvents().FirstOrDefault(u => u.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName == eventName);
                     if (ev is null)
                     {
-                        NotifyCache[eventName] = null;
+                        _notifyCache[eventName] = null;
                         return;
                     }
                 }
 
-                NotifyCache[eventName] = evField = ContractType.GetField(ev.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
+                _notifyCache[eventName] = evField = _contractType.GetField(ev.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
             }
 
             // Not found
             if (evField is null) return;
-
-            var del = evField.GetValue(this) as Delegate;
-            if (del is null) return;
+            if (evField.GetValue(this) is not Delegate del) return;
 
             // Avoid parse if is not needed
 
