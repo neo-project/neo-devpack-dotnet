@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 
@@ -11,9 +12,11 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
         private readonly Nep17Contract Nep17;
         private readonly Signer Alice = TestEngine.GetNewSigner();
         private readonly Signer Bob = TestEngine.GetNewSigner();
+        private readonly byte[] Nef;
 
         public Nep17Tests()
         {
+            Nef = File.ReadAllBytes("nep17/UtArtifacts/Nep17Contract.nef");
             Engine = new TestEngine(true);
             Engine.SetTransactionSigners(Alice);
             Nep17 = Deploy(null);
@@ -21,10 +24,9 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
 
         public Nep17Contract Deploy(object? data)
         {
-            var nef = File.ReadAllBytes("nep17/UtArtifacts/Nep17Contract.nef");
             var manifest = File.ReadAllText("nep17/UtArtifacts/Nep17Contract.manifest.json");
 
-            return Engine.Deploy<Nep17Contract>(nef, manifest, data);
+            return Engine.Deploy<Nep17Contract>(Nef, manifest, data);
         }
 
         [TestMethod]
@@ -95,6 +97,14 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
 
             Engine.SetTransactionSigners(Bob);
 
+            // Test SetOwner notification
+
+            UInt160 expectedHash = Helper.GetContractHash(Bob.Account, Nef.AsSerializable<NefFile>().CheckSum, "Nep17Contract");
+
+            UInt160? newOwnerRaised = null;
+            var check = Engine.FromHash<Nep17Contract>(expectedHash, false);
+            check.OnSetOwner += (newOwner) => { newOwnerRaised = newOwner; };
+
             // Deploy with bob arg, we can use the same storage
             // because the contract hash contains the Sender, and now it's Bob
 
@@ -102,6 +112,7 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
             var nep17 = Deploy(rand);
 
             Assert.AreEqual(rand, nep17.Owner);
+            Assert.AreEqual(newOwnerRaised, nep17.Owner);
         }
     }
 }
