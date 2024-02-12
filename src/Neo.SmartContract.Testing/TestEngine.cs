@@ -76,9 +76,9 @@ namespace Neo.SmartContract.Testing
         public ProtocolSettings ProtocolSettings { get; }
 
         /// <summary>
-        /// BFT Address
+        /// Validators Address
         /// </summary>
-        public UInt160 BFTAddress
+        public UInt160 ValidatorsAddress
         {
             get
             {

@@ -65,15 +65,18 @@ The publicly exposed read-only properties are as follows:
 - **ProtocolSettings**: Assigned during the construction of the `TestEngine` and defines the configuration values of the test environment. It defaults to the current blockchain protocol.
 - **Sender**: Returns the script hash of the transaction sender, which corresponds to the first `Signer` defined in the `Transaction` object.
 - **Native**: Allows access to the native contracts, and their state. It facilitates access to the chain's native contracts through some precompiled artifacts. This point is further detailed in [NativeArtifacts](#nativeartifacts).
-- **BFTAddress**: Defines the address for the validators of the defined *ProtocolSettings*.
+- **ValidatorsAddress**: Defines the address for the validators of the defined *ProtocolSettings*.
 - **CommitteeAddress**: Returns the address of the current chain's committee.
+- **Transaction**: Defines the transaction that will be used as `ScriptContainer` for the neo virtual machine, by default it updates the script of the same as calls are composed and executed, and the `Signers` will be used as validators for the `CheckWitness`, regardless of whether the signature is correct or not, so if you want to test with different wallets or scopes, you do not need to sign the transaction correctly, just set the desired signers.
+- **CurrentBlock**: Defaults to `Genesis` for the defined `ProtocolSettings`, but the height has been incremented by 1 to avoid issues related to the generation of gas from native contracts.
 
-For read and write, we have:
+For initialize, we have:
+
+- **Storage**: Abstracts access to storage, allowing for easy `Snapshots` as well as reverting them. It can only be set during the initialization of the class, and allows access to the storage of contracts, as well as manually altering their state.
+
+And for read and write, we have:
 
 - **Gas**: Sets the gas execution limit for contract calls.
-- **CurrentBlock**: Defaults to `Genesis` for the defined `ProtocolSettings`, but the height has been incremented by 1 to avoid issues related to the generation of gas from native contracts.
-- **Transaction**: Defines the transaction that will be used as `ScriptContainer` for the neo virtual machine, by default it updates the script of the same as calls are composed and executed, and the `Signers` will be used as validators for the `CheckWitness`, regardless of whether the signature is correct or not, so if you want to test with different wallets or scopes, you do not need to sign the transaction correctly, just set the desired signers.
-- **Storage**: Abstracts access to storage, allowing for easy `Snapshots` as well as reverting them. It can only be set during the initialization of the class, and allows access to the storage of contracts, as well as manually altering their state.
 
 #### Methods
 

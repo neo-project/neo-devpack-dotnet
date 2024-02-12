@@ -56,13 +56,13 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Test direct call
 
-            Assert.AreEqual(123, neo.BalanceOf(engine.BFTAddress));
+            Assert.AreEqual(123, neo.BalanceOf(engine.ValidatorsAddress));
 
             // Test vm call
 
             using (ScriptBuilder script = new())
             {
-                script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.BFTAddress);
+                script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.ValidatorsAddress);
 
                 Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
             }
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Ensure that the main address contains the totalSupply
 
             Assert.AreEqual(100_000_000, neo.TotalSupply);
-            Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.BFTAddress));
+            Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.ValidatorsAddress));
         }
     }
 }

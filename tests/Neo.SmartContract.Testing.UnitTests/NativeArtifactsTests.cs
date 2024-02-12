@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Ensure that the main address contains the totalSupply
 
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
-            Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.BFTAddress));
+            Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.ValidatorsAddress));
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             {
                 new Network.P2P.Payloads.Signer()
                 {
-                     Account = engine.BFTAddress,
+                     Account = engine.ValidatorsAddress,
                      Scopes = Network.P2P.Payloads.WitnessScope.Global
                 }
             };
