@@ -71,13 +71,15 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
         }
 
         [TestMethod]
-        public void TestMint()
+        public void TestMintAndBurn()
         {
             // Alice is the owner
 
             Engine.SetTransactionSigners(Alice);
             Nep17.Mint(Alice.Account, 10);
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
+            Nep17.Burn(Alice.Account, 10);
+            Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
 
             // Now check with Bob
 
