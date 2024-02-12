@@ -24,10 +24,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="nep17\UtArtifacts\Nep17Contract.manifest.json">
+	  <None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.manifest.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="nep17\UtArtifacts\Nep17Contract.nef">
+	  <None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.nef">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

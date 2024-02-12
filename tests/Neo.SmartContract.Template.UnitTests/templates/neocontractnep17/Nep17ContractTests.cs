@@ -5,10 +5,10 @@ using Neo.SmartContract.Testing;
 using Neo.VM;
 using System.Numerics;
 
-namespace Neo.SmartContract.Template.UnitTests.nep17
+namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {
     [TestClass]
-    public class Nep17Tests
+    public class Nep17ContractTests
     {
         private readonly TestEngine Engine;
         private readonly Nep17Contract Nep17;
@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
         private readonly Signer Bob = TestEngine.GetNewSigner();
         private readonly byte[] Nef;
 
-        public Nep17Tests()
+        public Nep17ContractTests()
         {
             Nef = File.ReadAllBytes("nep17/UtArtifacts/Nep17Contract.nef");
             Engine = new TestEngine(true);
