@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestSignature()
         {
-            // Initialize out TestEngine
+            // Create and initialize TestEngine
 
             var engine = new TestEngine(true);
 

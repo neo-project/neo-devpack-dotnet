@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestAlterStorage()
         {
-            // Engine an contract creation
+            // Create and initialize TestEngine
 
             TestEngine engine = new(true);
 
@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestExportImport()
         {
-            // Engine an contract creation
+            // Create and initialize TestEngine
 
             TestEngine engine = new(true);
 
