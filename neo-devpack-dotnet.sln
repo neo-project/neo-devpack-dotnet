@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.452
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework", "src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj", "{C30B5859-D4B9-46E8-A797-6B0A1B49B590}"
 EndProject
@@ -16,21 +16,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{79389FC0-C62
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D5266066-0AFD-44D5-A83E-2F73668A63C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.Compiler.CSharp.TestContracts", "tests\Neo.Compiler.CSharp.TestContracts\Neo.Compiler.CSharp.TestContracts.csproj", "{8D67DD5A-D683-481F-915E-98683EA38791}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp.TestContracts", "tests\Neo.Compiler.CSharp.TestContracts\Neo.Compiler.CSharp.TestContracts.csproj", "{8D67DD5A-D683-481F-915E-98683EA38791}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.Framework.TestContracts", "tests\Neo.SmartContract.Framework.TestContracts\Neo.SmartContract.Framework.TestContracts.csproj", "{A372F1D6-51FF-472C-9508-FDAF7E6FEB13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework.TestContracts", "tests\Neo.SmartContract.Framework.TestContracts\Neo.SmartContract.Framework.TestContracts.csproj", "{A372F1D6-51FF-472C-9508-FDAF7E6FEB13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.TestEngine", "tests\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj", "{D0153204-6AEF-4D94-B0E1-8124C38C91D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.TestEngine", "tests\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj", "{D0153204-6AEF-4D94-B0E1-8124C38C91D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo", "neo\src\Neo\Neo.csproj", "{73223FBD-C562-4FA0-9722-C7F1C382A9DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo", "neo\src\Neo\Neo.csproj", "{73223FBD-C562-4FA0-9722-C7F1C382A9DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.Cryptography.BLS12_381", "neo\src\Neo.Cryptography.BLS12_381\Neo.Cryptography.BLS12_381.csproj", "{D541BCE9-65BC-475B-94E5-19B6BFFF2B8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Cryptography.BLS12_381", "neo\src\Neo.Cryptography.BLS12_381\Neo.Cryptography.BLS12_381.csproj", "{D541BCE9-65BC-475B-94E5-19B6BFFF2B8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.Json", "neo\src\Neo.Json\Neo.Json.csproj", "{35A34EBD-F2BF-4D83-A096-D5F007B12732}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Json", "neo\src\Neo.Json\Neo.Json.csproj", "{35A34EBD-F2BF-4D83-A096-D5F007B12732}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.VM", "neo\src\Neo.VM\Neo.VM.csproj", "{D6D53889-5A10-46A4-BA66-E78B56EC1881}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.VM", "neo\src\Neo.VM\Neo.VM.csproj", "{D6D53889-5A10-46A4-BA66-E78B56EC1881}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependency", "Dependency", "{49D5873D-7B38-48A5-B853-85146F032091}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.Template.UnitTests", "tests\Neo.SmartContract.Template.UnitTests\Neo.SmartContract.Template.UnitTests.csproj", "{561616F9-D01B-48C1-BA58-AAB73EE858C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +88,10 @@ Global
 		{D6D53889-5A10-46A4-BA66-E78B56EC1881}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6D53889-5A10-46A4-BA66-E78B56EC1881}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6D53889-5A10-46A4-BA66-E78B56EC1881}.Release|Any CPU.Build.0 = Release|Any CPU
+		{561616F9-D01B-48C1-BA58-AAB73EE858C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{561616F9-D01B-48C1-BA58-AAB73EE858C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{561616F9-D01B-48C1-BA58-AAB73EE858C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{561616F9-D01B-48C1-BA58-AAB73EE858C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,8 +107,9 @@ Global
 		{D0153204-6AEF-4D94-B0E1-8124C38C91D4} = {D5266066-0AFD-44D5-A83E-2F73668A63C8}
 		{73223FBD-C562-4FA0-9722-C7F1C382A9DE} = {49D5873D-7B38-48A5-B853-85146F032091}
 		{D541BCE9-65BC-475B-94E5-19B6BFFF2B8E} = {49D5873D-7B38-48A5-B853-85146F032091}
-		{D6D53889-5A10-46A4-BA66-E78B56EC1881} = {49D5873D-7B38-48A5-B853-85146F032091}
 		{35A34EBD-F2BF-4D83-A096-D5F007B12732} = {49D5873D-7B38-48A5-B853-85146F032091}
+		{D6D53889-5A10-46A4-BA66-E78B56EC1881} = {49D5873D-7B38-48A5-B853-85146F032091}
+		{561616F9-D01B-48C1-BA58-AAB73EE858C9} = {D5266066-0AFD-44D5-A83E-2F73668A63C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6DA935E1-C674-4364-B087-F1B511B79215}

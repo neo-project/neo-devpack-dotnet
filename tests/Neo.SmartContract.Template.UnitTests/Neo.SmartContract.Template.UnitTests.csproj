@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Moq" Version="4.20.70" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+		<ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+			<Aliases>scfx</Aliases>
+		</ProjectReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Neo.SmartContract.Testing">
+	    <HintPath>Neo.SmartContract.Testing.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="nep17\UtArtifacts\Nep17Contract.manifest.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="nep17\UtArtifacts\Nep17Contract.nef">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>

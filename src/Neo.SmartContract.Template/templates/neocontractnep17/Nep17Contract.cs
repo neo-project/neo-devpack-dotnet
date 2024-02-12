@@ -10,7 +10,7 @@ using System.Numerics;
 
 namespace ProjectName
 {
-    [DisplayName(nameof(Contract1))]
+    [DisplayName(nameof(Nep17Contract))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
     [ManifestExtra("Description", "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
@@ -18,7 +18,7 @@ namespace ProjectName
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
     [ContractPermission("*", "*")]
     [SupportedStandards("NEP-17")]
-    public class Contract1 : Nep17Token
+    public class Nep17Contract : Nep17Token
     {
         #region Owner
 
