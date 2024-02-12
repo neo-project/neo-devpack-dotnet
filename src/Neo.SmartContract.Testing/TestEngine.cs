@@ -178,7 +178,7 @@ namespace Neo.SmartContract.Testing
                 {
                     new Signer()
                     {
-                        // BFTAddress
+                        // ValidatorsAddress
                         Account = validatorsScript.ToScriptHash(),
                         Scopes = WitnessScope.Global
                     },
