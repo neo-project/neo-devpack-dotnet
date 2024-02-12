@@ -3,6 +3,7 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.VM;
+using System.Numerics;
 
 namespace Neo.SmartContract.Template.UnitTests.nep17
 {
@@ -71,15 +72,105 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
         }
 
         [TestMethod]
-        public void TestMintAndBurn()
+        public void TestTransfer()
         {
+            // Listen OnTransfer
+
+            UInt160? raisedFrom = null;
+            UInt160? raisedTo = null;
+            BigInteger? raisedAmount = null;
+
+            void onTransfer(UInt160 from, UInt160 to, BigInteger amount)
+            {
+                raisedFrom = from;
+                raisedTo = to;
+                raisedAmount = amount;
+            }
+
+            Nep17.OnTransfer += onTransfer;
+
             // Alice is the owner
 
             Engine.SetTransactionSigners(Alice);
+
             Nep17.Mint(Alice.Account, 10);
+
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
+            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(Alice.Account, raisedTo);
+            Assert.AreEqual(10, raisedAmount);
+
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
+            // Invoke transfer
+
+            Assert.IsTrue(Nep17.Transfer(Alice.Account, Bob.Account, 6));
+
+            Assert.AreEqual(4, Nep17.BalanceOf(Alice.Account));
+            Assert.AreEqual(6, Nep17.BalanceOf(Bob.Account));
+            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(Alice.Account, raisedFrom);
+            Assert.AreEqual(Bob.Account, raisedTo);
+            Assert.AreEqual(6, raisedAmount);
+
+            // Check with more balance
+
+            Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 6));
+
+            // Check with not signed
+
+            Engine.SetTransactionSigners(Bob);
+            Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 0));
+
+            // Clean OnTransfer
+
+            Nep17.OnTransfer -= onTransfer;
+        }
+
+        [TestMethod]
+        public void TestMintAndBurn()
+        {
+            // Listen OnTransfer
+
+            UInt160? raisedFrom = null;
+            UInt160? raisedTo = null;
+            BigInteger? raisedAmount = null;
+
+            void onTransfer(UInt160 from, UInt160 to, BigInteger amount)
+            {
+                raisedFrom = from;
+                raisedTo = to;
+                raisedAmount = amount;
+            }
+
+            Nep17.OnTransfer += onTransfer;
+
+            // Alice is the owner
+
+            Engine.SetTransactionSigners(Alice);
+
+            Nep17.Mint(Alice.Account, 10);
+
+            Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
+            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(Alice.Account, raisedTo);
+            Assert.AreEqual(10, raisedAmount);
+
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
             Nep17.Burn(Alice.Account, 10);
+
             Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
+            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(Alice.Account, raisedFrom);
+            Assert.AreEqual(null, raisedTo);
+            Assert.AreEqual(10, raisedAmount);
 
             // Can't burn more than the BalanceOf
 
@@ -91,6 +182,10 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
             Engine.SetTransactionSigners(Bob);
             Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, 10));
             Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, 10));
+
+            // Clean OnTransfer
+
+            Nep17.OnTransfer -= onTransfer;
         }
 
         [TestMethod]
