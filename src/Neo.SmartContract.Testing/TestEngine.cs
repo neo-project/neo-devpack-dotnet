@@ -355,11 +355,11 @@ namespace Neo.SmartContract.Testing
 
                 if (method.ReturnType != typeof(void))
                 {
-                    mock.MockMethodWithReturn(method.Name, args, method.ReturnType);
+                    mock.MockFunction(method.Name, args, method.ReturnType);
                 }
                 else
                 {
-                    mock.MockMethod(method.Name, args);
+                    mock.MockAction(method.Name, args);
                 }
             }
 
