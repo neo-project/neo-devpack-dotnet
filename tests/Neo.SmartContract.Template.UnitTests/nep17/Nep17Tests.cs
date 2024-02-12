@@ -81,10 +81,16 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
             Nep17.Burn(Alice.Account, 10);
             Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
 
+            // Can't burn more than the BalanceOf
+
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, 1));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Bob.Account, 1));
+
             // Now check with Bob
 
             Engine.SetTransactionSigners(Bob);
             Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, 10));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, 10));
         }
 
         [TestMethod]
