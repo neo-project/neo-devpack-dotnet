@@ -209,8 +209,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             var check = Engine.FromHash<Nep17Contract>(expectedHash, false);
             check.OnSetOwner += (newOwner) => { newOwnerRaised = newOwner; };
 
-            // Deploy with bob arg, we can use the same storage
-            // because the contract hash contains the Sender, and now it's Bob
+            // Deploy with random owner, we can use the same storage
+            // because the contract hash contains the Sender, and now it's random
 
             var rand = TestEngine.GetNewSigner().Account;
             var nep17 = Deploy(rand);
