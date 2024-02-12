@@ -45,19 +45,24 @@ namespace Neo.SmartContract.Testing.UnitTests
                 }
             };
 
+            // Define address to transfer funds
+
+            UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
+
             // Attach to Transfer event
 
             var raisedEvent = false;
 
             engine.Native.NEO.OnTransfer += (UInt160 from, UInt160 to, BigInteger amount) =>
             {
+                Assert.AreEqual(engine.Transaction.Sender, from);
+                Assert.AreEqual(addressTo, to);
+                Assert.AreEqual(123, amount);
+
                 // If the event is raised, the variable will be changed
                 raisedEvent = true;
             };
 
-            // Define address to transfer funds
-
-            UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
 
             Assert.AreEqual(0, engine.Native.NEO.BalanceOf(addressTo));
 

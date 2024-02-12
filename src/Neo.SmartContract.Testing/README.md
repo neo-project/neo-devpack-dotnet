@@ -100,7 +100,7 @@ var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash, false);
 // Ensure that the main address contains the totalSupply
 
 Assert.AreEqual(100_000_000, neo.TotalSupply);
-Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.BFTAddress));
+Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.ValidatorsAddress));
 ```
 
 ### NativeArtifacts
@@ -123,7 +123,7 @@ var engine = new TestEngine(true);
 // Ensure that the main address contains the totalSupply
 
 Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
-Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.BFTAddress));
+Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.ValidatorsAddress));
 ```
 
 ### SmartContractStorage
@@ -182,13 +182,13 @@ var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash,
 
 // Test direct call
 
-Assert.AreEqual(123, neo.BalanceOf(engine.BFTAddress));
+Assert.AreEqual(123, neo.BalanceOf(engine.ValidatorsAddress));
 
 // Test vm call
 
 using (ScriptBuilder script = new())
 {
-    script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.BFTAddress);
+    script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.ValidatorsAddress);
 
     Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
 }
@@ -244,16 +244,20 @@ Testing that our events have been triggered has never been so easy. Simply when 
 
 var engine = new TestEngine(true);
 
-// Fake signature of BFTAddress
+// Fake signature of ValidatorsAddress
 
 engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
 {
     new Network.P2P.Payloads.Signer()
     {
-            Account = engine.BFTAddress,
+            Account = engine.ValidatorsAddress,
             Scopes = Network.P2P.Payloads.WitnessScope.Global
     }
 };
+
+// Define address to transfer funds
+
+UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
 
 // Attach to Transfer event
 
@@ -261,13 +265,14 @@ var raisedEvent = false;
 
 engine.Native.NEO.OnTransfer += (UInt160 from, UInt160 to, BigInteger amount) =>
 {
+    Assert.AreEqual(engine.Transaction.Sender, from);
+    Assert.AreEqual(addressTo, to);
+    Assert.AreEqual(123, amount);
+
     // If the event is raised, the variable will be changed
     raisedEvent = true;
 };
 
-// Define address to transfer funds
-
-UInt160 addressTo = UInt160.Parse("0x1230000000000000000000000000000000000000");
 
 Assert.AreEqual(0, engine.Native.NEO.BalanceOf(addressTo));
 
