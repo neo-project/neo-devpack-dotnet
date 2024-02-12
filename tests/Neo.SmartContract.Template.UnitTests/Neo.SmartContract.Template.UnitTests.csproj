@@ -32,4 +32,10 @@
 	  </None>
 	</ItemGroup>
 
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Message Text="Start NeoContract converter, Source File: &quot;$(ProjectPath)&quot;" Importance="high">
+		</Message>
+		<Exec Command="dotnet $(TargetDir)nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs&quot;" />
+	</Target>
+
 </Project>
