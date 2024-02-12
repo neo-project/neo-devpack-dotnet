@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Testing.UnitTests
     public class TestStorageTests
     {
         [TestMethod]
-        public void LoadFromJsonTest()
+        public void LoadExportImport()
         {
             TestStorage store = new(new MemoryStore());
 
@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             var json = @"{""bXlSYXdLZXk="":""dmFsdWU=""}";
 
-            store.LoadFromJson((JObject)JToken.Parse(json));
+            store.Import((JObject)JToken.Parse(json));
             store.Commit();
 
             entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
@@ -37,10 +37,27 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             json = @"{""bXk="":{""UmF3S2V5LTI="":""dmFsdWUtMg==""}}";
 
-            store.LoadFromJson((JObject)JToken.Parse(json));
+            store.Import((JObject)JToken.Parse(json));
             store.Commit();
 
             entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
+            Assert.AreEqual(entries.Length, 2);
+
+            Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));
+            Assert.AreEqual("value", Encoding.ASCII.GetString(entries[0].Value));
+
+            Assert.AreEqual("myRawKey-2", Encoding.ASCII.GetString(entries[1].Key));
+            Assert.AreEqual("value-2", Encoding.ASCII.GetString(entries[1].Value));
+
+            // Test import
+
+            TestStorage storeCopy = new(new MemoryStore());
+
+            store.Commit();
+            storeCopy.Import(store.Export());
+            storeCopy.Commit();
+
+            entries = storeCopy.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
             Assert.AreEqual(entries.Length, 2);
 
             Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));

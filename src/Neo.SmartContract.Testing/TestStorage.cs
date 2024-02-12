@@ -1,3 +1,4 @@
+using Akka.Util;
 using Neo.Json;
 using Neo.Persistence;
 using System;
@@ -49,14 +50,32 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Load data from json, expected data (in base64):
+        /// Import data from json, expected data (in base64):
         /// - "key"     : "value"
         /// - "prefix"  : { "key":"value" }
         /// - "123"     : { "key":"value" }
         /// </summary>
         /// <param name="snapshot">Snapshot to be used</param>
         /// <param name="json">Json Object</param>
-        public void LoadFromJson(JObject json)
+        public void Import(string json)
+        {
+            if (JToken.Parse(json) is not JObject jo)
+            {
+                throw new FormatException("The json is not a valid JObject");
+            }
+
+            Import(jo);
+        }
+
+        /// <summary>
+        /// Import data from json, expected data (in base64):
+        /// - "key"     : "value"
+        /// - "prefix"  : { "key":"value" }
+        /// - "123"     : { "key":"value" }
+        /// </summary>
+        /// <param name="snapshot">Snapshot to be used</param>
+        /// <param name="json">Json Object</param>
+        public void Import(JObject json)
         {
             foreach (var entry in json.Properties)
             {
@@ -70,19 +89,7 @@ namespace Neo.SmartContract.Testing
                 {
                     // "prefix": { "key":"value" }  in base64
 
-                    byte[] prefix;
-
-                    try
-                    {
-                        prefix = Convert.FromBase64String(entry.Key);
-                    }
-                    catch
-                    {
-                        // It's a number?
-
-                        prefix = new byte[sizeof(int)];
-                        BinaryPrimitives.WriteInt32LittleEndian(prefix, int.Parse(entry.Key));
-                    }
+                    byte[] prefix = Convert.FromBase64String(entry.Key);
 
                     foreach (var subEntry in obj.Properties)
                     {
@@ -96,6 +103,38 @@ namespace Neo.SmartContract.Testing
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Export data to json
+        /// </summary>
+        public JObject Export()
+        {
+            var buffer = new byte[(sizeof(int))];
+            JObject ret = new();
+
+            foreach (var entry in Snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward))
+            {
+                // "key":"value" in base64
+
+                JObject prefix;
+                BinaryPrimitives.WriteInt32LittleEndian(buffer, entry.Key.Id);
+                var keyId = Convert.ToBase64String(buffer);
+
+                if (ret.ContainsProperty(keyId))
+                {
+                    prefix = (JObject)ret[keyId]!;
+                }
+                else
+                {
+                    prefix = new();
+                    ret[keyId] = prefix;
+                }
+
+                prefix[Convert.ToBase64String(entry.Key.Key.ToArray())] = Convert.ToBase64String(entry.Value.Value.ToArray());
+            }
+
+            return ret;
         }
     }
 }

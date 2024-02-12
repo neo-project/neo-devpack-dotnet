@@ -173,7 +173,7 @@ namespace Neo.SmartContract.Testing
                 var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
                 DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
-                using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
+                using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
@@ -188,7 +188,7 @@ namespace Neo.SmartContract.Testing
 
                 method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis, _engine.ProtocolSettings, _engine.Gas))
+                using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)

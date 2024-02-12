@@ -412,8 +412,7 @@ namespace Neo.SmartContract.Testing
 
             var snapshot = Storage.Snapshot.CreateSnapshot();
 
-            using var engine = new TestingApplicationEngine(this, TriggerType.Application,
-                Transaction, snapshot, CurrentBlock, ProtocolSettings, Gas);
+            using var engine = new TestingApplicationEngine(this, TriggerType.Application, Transaction, snapshot, CurrentBlock);
 
             engine.LoadScript(script);
 

@@ -1,4 +1,6 @@
+using Neo.Json;
 using System;
+using System.Buffers.Binary;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing
@@ -89,6 +91,88 @@ namespace Neo.SmartContract.Testing
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
 
             _smartContract.Engine.Storage.Snapshot.Delete(skey);
+        }
+
+        /// <summary>
+        /// Import data from json, expected data (in base64):
+        /// - "key": "value"
+        /// </summary>
+        /// <param name="snapshot">Snapshot to be used</param>
+        /// <param name="json">Json Object</param>
+        public void Import(string json)
+        {
+            if (JToken.Parse(json) is not JObject jo)
+            {
+                throw new FormatException("The json is not a valid JObject");
+            }
+
+            Import(jo);
+        }
+
+        /// <summary>
+        /// Import data from json, expected data (in base64):
+        /// - "key": "value"
+        /// </summary>
+        /// <param name="snapshot">Snapshot to be used</param>
+        /// <param name="json">Json Object</param>
+        public void Import(JObject json)
+        {
+            var buffer = new byte[(sizeof(int))];
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, GetContractId());
+            var keyId = Convert.ToBase64String(buffer);
+
+            JObject prefix;
+
+            // Find prefix
+
+            if (json.ContainsProperty(keyId))
+            {
+                if (json[keyId] is not JObject jo)
+                {
+                    throw new FormatException("Invalid json");
+                }
+
+                prefix = jo;
+            }
+            else
+            {
+                return;
+            }
+
+            // Read values
+
+            foreach (var entry in prefix.Properties)
+            {
+                if (entry.Value is JString str)
+                {
+                    // "key":"value" in base64
+
+                    Put(Convert.FromBase64String(entry.Key), Convert.FromBase64String(str.Value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Export data to json
+        /// </summary>
+        public JObject Export()
+        {
+            var buffer = new byte[(sizeof(int))];
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, GetContractId());
+            var keyId = Convert.ToBase64String(buffer);
+
+            JObject ret = new();
+            JObject prefix = new();
+            ret[keyId] = prefix;
+
+            foreach (var entry in _smartContract.Engine.Storage.Snapshot.Seek(Array.Empty<byte>(), Persistence.SeekDirection.Forward))
+            {
+                // "key":"value" in base64
+
+                prefix[Convert.ToBase64String(entry.Key.Key.ToArray())] = Convert.ToBase64String(entry.Value.Value.ToArray());
+            }
+
+            return ret;
         }
     }
 }
