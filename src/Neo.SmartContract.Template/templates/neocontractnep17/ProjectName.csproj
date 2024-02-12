@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="TemplateNeoVersion" />
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.6.2" />
   </ItemGroup>
 
   <PropertyGroup>
