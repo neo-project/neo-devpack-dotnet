@@ -78,7 +78,14 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// BFT Address
         /// </summary>
-        public UInt160 BFTAddress { get; }
+        public UInt160 BFTAddress
+        {
+            get
+            {
+                var validators = Neo.SmartContract.Native.NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
+                return Contract.GetBFTAddress(validators);
+            }
+        }
 
         /// <summary>
         /// Committee Address
@@ -94,7 +101,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Transaction
         /// </summary>
-        public Transaction Transaction { get; set; }
+        public Transaction Transaction { get; }
 
         /// <summary>
         /// Gas
@@ -135,7 +142,9 @@ namespace Neo.SmartContract.Testing
             CurrentBlock = NeoSystem.CreateGenesisBlock(ProtocolSettings);
             CurrentBlock.Header.Index++;
 
-            BFTAddress = Contract.GetBFTAddress(ProtocolSettings.StandbyValidators);
+            var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
+            var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
+
             Transaction = new Transaction()
             {
                 Attributes = System.Array.Empty<TransactionAttribute>(),
@@ -144,16 +153,27 @@ namespace Neo.SmartContract.Testing
                 {
                     new Signer()
                     {
-                         Account = BFTAddress,
-                         Scopes = WitnessScope.Global
+                        // BFTAddress
+                        Account = validatorsScript.ToScriptHash(),
+                        Scopes = WitnessScope.Global
+                    },
+                    new Signer()
+                    {
+                        // CommitteeAddress
+                        Account = committeeScript.ToScriptHash(),
+                        Scopes = WitnessScope.Global
                     }
                 },
                 Witnesses = new Witness[]
                 {
                     new Witness()
                     {
-                         InvocationScript = Contract.CreateMultiSigRedeemScript(
-                             settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators),
+                         InvocationScript = validatorsScript,
+                         VerificationScript = System.Array.Empty<byte>()
+                    },
+                    new Witness()
+                    {
+                         InvocationScript = committeeScript,
                          VerificationScript = System.Array.Empty<byte>()
                     }
                 }
