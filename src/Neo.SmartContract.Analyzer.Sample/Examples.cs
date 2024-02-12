@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Neo.SmartContract.Framework.Services;
+
 namespace Neo.SmartContract.Analyzer.Sample
 {
     public class Examples
@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Analyzer.Sample
 
                 SayHello("Hello, bob");
 
-                Runtime.Notify("SayHello3", new[] { "Hello, joe" }); // crash
+                //Runtime.Notify("SayHello3", new[] { "Hello, joe" }); // crash
             }
         }
 
@@ -182,12 +182,18 @@ namespace Neo.SmartContract.Analyzer.Sample
         {
 #pragma warning disable CS0168
             var testData = new List<int> { 1, 4, 2, 9, 5, 8 };
-            var filtered = testData.Where(GeneratedMethod(x));
-            var sorted = filtered.OrderBy(GeneratedMethod(x));
-            var projected = sorted.Select(GeneratedMethod(x));
+            var filtered = testData.Where(GeneratedMethod);
+            var sorted = filtered.OrderBy(GeneratedMethod);
+            var projected = sorted.Select(GeneratedMethod);
             var expected = new List<int> { 25, 64, 81 };
 #pragma warning restore CS0168
         }
+
+        private bool GeneratedMethod(int arg)
+        {
+            return false;
+        }
+
         public void TestCharMethods()
         {
 #pragma warning disable CS0168
@@ -307,23 +313,24 @@ namespace Neo.SmartContract.Analyzer.Sample
                 Console.WriteLine("Lock block");
             }
 
-            // fixed
-            int number = 42;
-            fixed (int* ptr = &number)
-            {
-                Console.WriteLine($"Fixed block: {number}");
-            }
-
             // unsafe
             unsafe
             {
+                // fixed
+                byte[] bytes = new byte[] { 1, 2, 3 };
+                fixed (byte* pointerToFirst = bytes)
+                {
+                    Console.WriteLine($"Fixed block: {*pointerToFirst}");
+                }
+                int number = 42;
+
                 int* p = &number;
                 Console.WriteLine($"Unsafe block: {*p}");
-            }
 
-            // stackalloc
-            int* array = stackalloc int[1];
-            array[0] = 123;
+                // stackalloc
+                int* array = stackalloc int[1];
+                array[0] = 123;
+            }
 
             // await (in an async context)
             Task.Run(async () => await Task.Delay(1000));
@@ -346,14 +353,6 @@ namespace Neo.SmartContract.Analyzer.Sample
             a = 10;
             int b = 20;
             return (b, a);
-        }
-
-        private bool GeneratedMethod(int x)
-        {
-        }
-
-        private? GeneratedMethod(? x)
-        {
         }
     }
 }
