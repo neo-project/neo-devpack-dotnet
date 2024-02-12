@@ -49,7 +49,7 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("deploy")]
-    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest, object data);
+    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest, object? data = null);
     /// <summary>
     /// Unsafe method
     /// </summary>
@@ -64,7 +64,7 @@ public abstract class ContractManagement : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[] nefFile, byte[] manifest, object data);
+    public abstract void Update(byte[] nefFile, byte[] manifest, object? data = null);
     #endregion
     #region Constructor for internal use only
     protected ContractManagement(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
