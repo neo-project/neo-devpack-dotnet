@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
+using Neo.VM;
 
 namespace Neo.SmartContract.Template.UnitTests.nep17
 {
@@ -81,7 +82,7 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
             // Now check with Bob
 
             Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<InvalidCastException>(() => Nep17.Mint(Alice.Account, 10));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, 10));
         }
 
         [TestMethod]
