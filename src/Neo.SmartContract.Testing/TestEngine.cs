@@ -248,11 +248,25 @@ namespace Neo.SmartContract.Testing
         /// <param name="data">Construction data</param>
         /// <param name="customMock">Custom Mock</param>
         /// <returns>Mocked Smart Contract</returns>
+        public T Deploy<T>(byte[] nef, string manifest, object? data = null, Action<Mock<T>>? customMock = null) where T : SmartContract
+        {
+            return Deploy(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest), data, customMock);
+        }
+
+        /// <summary>
+        /// Deploy Smart contract
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Contract manifest</param>
+        /// <param name="data">Construction data</param>
+        /// <param name="customMock">Custom Mock</param>
+        /// <returns>Mocked Smart Contract</returns>
         public T Deploy<T>(NefFile nef, ContractManifest manifest, object? data = null, Action<Mock<T>>? customMock = null) where T : SmartContract
         {
             // Deploy
 
-            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data.ConvertToStackItem());
+            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
             // Mock contract
 
