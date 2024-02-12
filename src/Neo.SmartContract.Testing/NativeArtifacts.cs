@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _contractManagement ??= _engine.FromHash<ContractManagement>(Native.NativeContract.ContractManagement.Hash, false);
+                _contractManagement ??= _engine.FromHash<ContractManagement>(Native.NativeContract.ContractManagement.Hash, Native.NativeContract.ContractManagement.Id);
                 return _contractManagement;
             }
         }
@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _cryptoLib ??= _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash, false);
+                _cryptoLib ??= _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash, Native.NativeContract.CryptoLib.Id);
                 return _cryptoLib;
             }
         }
@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _gas ??= _engine.FromHash<GasToken>(Native.NativeContract.GAS.Hash, false);
+                _gas ??= _engine.FromHash<GasToken>(Native.NativeContract.GAS.Hash, Native.NativeContract.GAS.Id);
                 return _gas;
             }
         }
@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _neo ??= _engine.FromHash<NeoToken>(Native.NativeContract.NEO.Hash, false);
+                _neo ??= _engine.FromHash<NeoToken>(Native.NativeContract.NEO.Hash, Native.NativeContract.NEO.Id);
                 return _neo;
             }
         }
@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _ledger ??= _engine.FromHash<LedgerContract>(Native.NativeContract.Ledger.Hash, false);
+                _ledger ??= _engine.FromHash<LedgerContract>(Native.NativeContract.Ledger.Hash, Native.NativeContract.Ledger.Id);
                 return _ledger;
             }
         }
@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _oracle ??= _engine.FromHash<OracleContract>(Native.NativeContract.Oracle.Hash, false);
+                _oracle ??= _engine.FromHash<OracleContract>(Native.NativeContract.Oracle.Hash, Native.NativeContract.Oracle.Id);
                 return _oracle;
             }
         }
@@ -104,7 +104,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _policy ??= _engine.FromHash<PolicyContract>(Native.NativeContract.Policy.Hash, false);
+                _policy ??= _engine.FromHash<PolicyContract>(Native.NativeContract.Policy.Hash, Native.NativeContract.Policy.Id);
                 return _policy;
             }
         }
@@ -116,7 +116,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _roleManagement ??= _engine.FromHash<RoleManagement>(Native.NativeContract.RoleManagement.Hash, false);
+                _roleManagement ??= _engine.FromHash<RoleManagement>(Native.NativeContract.RoleManagement.Hash, Native.NativeContract.RoleManagement.Id);
                 return _roleManagement;
             }
         }
@@ -128,7 +128,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                _stdLib ??= _engine.FromHash<StdLib>(Native.NativeContract.StdLib.Hash, false);
+                _stdLib ??= _engine.FromHash<StdLib>(Native.NativeContract.StdLib.Hash, Native.NativeContract.StdLib.Id);
                 return _stdLib;
             }
         }

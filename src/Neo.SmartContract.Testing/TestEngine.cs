@@ -82,6 +82,16 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
+                var votersCountPrefix = new byte[] { 1 };
+
+                if (!Native.NEO.Storage.Contains(votersCountPrefix))
+                {
+                    // If is not initialized, return the ProtocolSettings
+
+                    var validatorsScript = Contract.CreateMultiSigRedeemScript(ProtocolSettings.StandbyValidators.Count - (ProtocolSettings.StandbyValidators.Count - 1) / 3, ProtocolSettings.StandbyValidators);
+                    return validatorsScript.ToScriptHash();
+                }
+
                 var validators = Neo.SmartContract.Native.NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
                 return Contract.GetBFTAddress(validators);
             }
@@ -90,8 +100,23 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Committee Address
         /// </summary>
-        public UInt160 CommitteeAddress =>
-            Neo.SmartContract.Native.NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
+        public UInt160 CommitteeAddress
+        {
+            get
+            {
+                var votersCountPrefix = new byte[] { 1 };
+
+                if (!Native.NEO.Storage.Contains(votersCountPrefix))
+                {
+                    // If is not initialized, return the ProtocolSettings
+
+                    var committeeScript = Contract.CreateMultiSigRedeemScript(ProtocolSettings.StandbyCommittee.Count - (ProtocolSettings.StandbyCommittee.Count - 1) / 2, ProtocolSettings.StandbyCommittee);
+                    return committeeScript.ToScriptHash();
+                }
+
+                return Neo.SmartContract.Native.NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
+            }
+        }
 
         /// <summary>
         /// BFTAddress
@@ -236,7 +261,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Deploy Smart contract
+        /// Smart contract from Hash
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="hash">Contract hash</param>
@@ -248,7 +273,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Deploy Smart contract
+        /// Smart contract from Hash
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="hash">Contract hash</param>
@@ -265,6 +290,18 @@ namespace Neo.SmartContract.Testing
             var state = Native.ContractManagement.GetContract(hash);
 
             return MockContract(state.Hash, state.Id, customMock);
+        }
+
+        /// <summary>
+        /// Used for native artifacts only
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hash">Contract hash</param>
+        /// <param name="contractId">Contract Id</param>
+        /// <returns>Mocked Smart Contract</returns>
+        internal T FromHash<T>(UInt160 hash, int? contractId = null) where T : SmartContract
+        {
+            return MockContract<T>(hash, contractId, null);
         }
 
         private T MockContract<T>(UInt160 hash, int? contractId = null, Action<Mock<T>>? customMock = null) where T : SmartContract

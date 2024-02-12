@@ -132,7 +132,7 @@ Avoids dealing with prefixes foreign to the internal behavior of the storage, fo
 
 #### Methods
 
-Mainly exposes the methods `Read`, `Put`, and `Remove`, all of them responsible for reading and manipulating the contract's information.
+Mainly exposes the methods `Contains`, `Get`, `Put`, and `Remove`, all of them responsible for reading and manipulating the contract's information.
 
 #### Example of use
 

@@ -27,10 +27,21 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Check if the entry exist
+        /// </summary>
+        /// <param name="key">Key</param>
+        public bool Contains(ReadOnlyMemory<byte> key)
+        {
+            var skey = new StorageKey() { Id = GetContractId(), Key = key };
+            var entry = _smartContract.Engine.Storage.Snapshot.TryGet(skey);
+            return entry != null;
+        }
+
+        /// <summary>
         /// Read an entry from the smart contract storage
         /// </summary>
         /// <param name="key">Key</param>
-        public ReadOnlyMemory<byte> Read(ReadOnlyMemory<byte> key)
+        public ReadOnlyMemory<byte> Get(ReadOnlyMemory<byte> key)
         {
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
             var entry = _smartContract.Engine.Storage.Snapshot.TryGet(skey);
