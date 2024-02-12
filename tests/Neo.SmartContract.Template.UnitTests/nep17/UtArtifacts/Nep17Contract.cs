@@ -48,11 +48,6 @@ public abstract class Nep17Contract : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
-    [DisplayName("onNEP17Payment")]
-    public abstract void OnNEP17Payment(UInt160 from, BigInteger amount, object? data = null);
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
     [DisplayName("transfer")]
     public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null);
     /// <summary>
@@ -60,11 +55,6 @@ public abstract class Nep17Contract : Neo.SmartContract.Testing.SmartContract
     /// </summary>
     [DisplayName("update")]
     public abstract void Update(byte[] nefFile, string manifest);
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    [DisplayName("withdraw")]
-    public abstract bool Withdraw(UInt160 token, UInt160 to, BigInteger amount);
     #endregion
     #region Constructor for internal use only
     protected Nep17Contract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }

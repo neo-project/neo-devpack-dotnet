@@ -15,7 +15,7 @@ namespace ProjectName
     [ManifestExtra("Description", "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs")]
     [ContractPermission("*", "*")]
     [SupportedStandards("NEP-17")]
     public class Nep17Contract : Nep17Token
@@ -71,40 +71,6 @@ namespace ProjectName
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
             Nep17Token.Mint(to, amount);
-        }
-
-        #endregion
-
-        #region Payment
-
-        public static bool Withdraw(UInt160 token, UInt160 to, BigInteger amount)
-        {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            if (amount <= 0)
-                throw new ArgumentOutOfRangeException(nameof(amount));
-            if (to == null || to.IsValid == false)
-                throw new ArgumentException("Invalid Address!");
-            if (token == null || token.IsValid == false)
-                throw new ArgumentException("Invalid Token Address!");
-            if (ContractManagement.GetContract(token) == null)
-                throw new ArgumentException("Token Not A Contract!");
-            // TODO: Add logic
-            return true;
-        }
-
-        // NOTE: Allows ALL NEP-17 tokens to be received for this contract
-        public static void OnNEP17Payment(UInt160 from, BigInteger amount, object data)
-        {
-            // TODO: Add logic for specific NEP-17 contract tokens
-            if (Runtime.CallingScriptHash == NEO.Hash)
-            {
-                // TODO: Add logic (Burn, Mint, Transfer, Etc)
-            }
-            if (Runtime.CallingScriptHash == GAS.Hash)
-            {
-                // TODO: Add logic (Burn, Mint, Transfer, Etc)
-            }
         }
 
         #endregion
