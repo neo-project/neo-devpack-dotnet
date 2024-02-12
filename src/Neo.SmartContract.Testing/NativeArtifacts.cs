@@ -152,6 +152,13 @@ namespace Neo.SmartContract.Testing
 
             var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
 
+            // Attach to static event
+
+            ApplicationEngine.Log += _engine.ApplicationEngineLog;
+            ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
+
+            // Process native contracts
+
             foreach (var native in new Native.NativeContract[]
                 {
                     Native.NativeContract.ContractManagement,
@@ -199,6 +206,11 @@ namespace Neo.SmartContract.Testing
             {
                 _engine.Storage.Commit();
             }
+
+            // Detach to static event
+
+            ApplicationEngine.Log -= _engine.ApplicationEngineLog;
+            ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
         }
     }
 }

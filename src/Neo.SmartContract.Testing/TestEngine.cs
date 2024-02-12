@@ -212,7 +212,7 @@ namespace Neo.SmartContract.Testing
 
         #region Invoke events
 
-        private void ApplicationEngine_Notify(object? sender, NotifyEventArgs e)
+        internal void ApplicationEngineNotify(object? sender, NotifyEventArgs e)
         {
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
@@ -223,7 +223,7 @@ namespace Neo.SmartContract.Testing
             }
         }
 
-        private void ApplicationEngine_Log(object? sender, LogEventArgs e)
+        internal void ApplicationEngineLog(object? sender, LogEventArgs e)
         {
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
@@ -426,8 +426,8 @@ namespace Neo.SmartContract.Testing
 
             // Attach to static event
 
-            ApplicationEngine.Log += ApplicationEngine_Log;
-            ApplicationEngine.Notify += ApplicationEngine_Notify;
+            ApplicationEngine.Log += ApplicationEngineLog;
+            ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
 
@@ -435,8 +435,8 @@ namespace Neo.SmartContract.Testing
 
             // Detach to static event
 
-            ApplicationEngine.Log -= ApplicationEngine_Log;
-            ApplicationEngine.Notify -= ApplicationEngine_Notify;
+            ApplicationEngine.Log -= ApplicationEngineLog;
+            ApplicationEngine.Notify -= ApplicationEngineNotify;
 
             // Process result
 
