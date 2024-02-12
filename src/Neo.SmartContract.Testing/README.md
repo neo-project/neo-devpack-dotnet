@@ -23,6 +23,7 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Event testing](#event-testing)
     - [Example of use](#example-of-use)
+- [Known limitations](#known-limitations)
 
 ### Installation and configuration
 
@@ -281,3 +282,9 @@ Assert.IsTrue(engine.Native.NEO.Transfer(engine.Transaction.Sender, addressTo, 1
 Assert.IsTrue(raisedEvent);
 Assert.AreEqual(123, engine.Native.NEO.BalanceOf(addressTo));
 ```
+
+### Known limitations
+
+The currently known limitations are:
+
+- Receive events during the deploy, because the object is returned after performing the deploy, it is not possible to intercept notifications for the deploy unless the contract is previously created with `FromHash` knowing the hash of the contract to be created.
