@@ -76,15 +76,17 @@ For initialize, we have:
 
 And for read and write, we have:
 
-- **Gas**: Sets the gas execution limit for contract calls.
+- **Gas**: Sets the gas execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
 
 #### Methods
 
-It has three methods:
+It has four methods:
 
 - **Execute(script)**: Executes a script on the neo virtual machine and returns the execution result.
 - **Deploy(nef, manifest, data, customMock)**: Deploys the smart contract by calling the native method `ContractManagement.deploy`. It allows setting [custom mocks](#custom-mocks), which will be detailed later. And returns the instance of the contract that has been deployed.
 - **FromHash(hash, customMocks, checkExistence)**: Creates an instance without needing a `NefFile` or `Manifest`, only requiring the contract's hash. It does not consider whether the contract exists on the chain unless `checkExistence` is set to `true`.
+- **SetTransactionSigners(signers)**: Set the `Signer` of the `Transaction`.
+- **GetNewSigner(scope)**: A static method that provides us with a random `Signer` signed by default by `CalledByEntry`.
 
 #### Example of use
 
@@ -211,14 +213,11 @@ Assert.AreEqual(100000000000, engine.Native.NEO.RegisterPrice);
 
 // Fake Committee Signature
 
-engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+engine.SetTransactionSigners(new Network.P2P.Payloads.Signer()
 {
-    new Network.P2P.Payloads.Signer()
-    {
-            Account = engine.CommitteeAddress,
-            Scopes = Network.P2P.Payloads.WitnessScope.Global
-    }
-};
+    Account = engine.CommitteeAddress,
+    Scopes = Network.P2P.Payloads.WitnessScope.Global
+});
 
 // Change RegisterPrice to 123
 
@@ -228,7 +227,7 @@ Assert.AreEqual(123, engine.Native.NEO.RegisterPrice);
 
 // Now test it without this signature
 
-engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
+engine.SetTransactionSigners(TestEngine.GetNewSigner());
 
 Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
 ```
@@ -246,14 +245,11 @@ var engine = new TestEngine(true);
 
 // Fake signature of ValidatorsAddress
 
-engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+engine.SetTransactionSigners(new Network.P2P.Payloads.Signer()
 {
-    new Network.P2P.Payloads.Signer()
-    {
-            Account = engine.ValidatorsAddress,
-            Scopes = Network.P2P.Payloads.WitnessScope.Global
-    }
-};
+    Account = engine.ValidatorsAddress,
+    Scopes = Network.P2P.Payloads.WitnessScope.Global
+});
 
 // Define address to transfer funds
 

@@ -131,7 +131,11 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Gas
         /// </summary>
-        public long Gas { get; set; } = ApplicationEngine.TestModeGas;
+        public long Gas
+        {
+            get => Transaction.NetworkFee;
+            set { Transaction.NetworkFee = value; }
+        }
 
         /// <summary>
         /// Sender
@@ -174,6 +178,7 @@ namespace Neo.SmartContract.Testing
             {
                 Attributes = System.Array.Empty<TransactionAttribute>(),
                 Script = System.Array.Empty<byte>(),
+                NetworkFee = ApplicationEngine.TestModeGas,
                 Signers = new Signer[]
                 {
                     new Signer()
@@ -189,19 +194,7 @@ namespace Neo.SmartContract.Testing
                         Scopes = WitnessScope.Global
                     }
                 },
-                Witnesses = new Witness[]
-                {
-                    new Witness()
-                    {
-                         InvocationScript = validatorsScript,
-                         VerificationScript = System.Array.Empty<byte>()
-                    },
-                    new Witness()
-                    {
-                         InvocationScript = committeeScript,
-                         VerificationScript = System.Array.Empty<byte>()
-                    }
-                }
+                Witnesses = System.Array.Empty<Witness>() // Not required
             };
 
             if (initializeNativeContracts)
@@ -449,6 +442,33 @@ namespace Neo.SmartContract.Testing
 
             if (engine.ResultStack.Count == 0) return StackItem.Null;
             return engine.ResultStack.Pop();
+        }
+
+        /// <summary>
+        /// Set Transaction signers
+        /// </summary>
+        /// <param name="signer">signers</param>
+        public void SetTransactionSigners(params Signer[] signers)
+        {
+            Transaction.Signers = signers;
+        }
+
+        /// <summary>
+        /// Generate a random new signer
+        /// </summary>
+        /// <param name="scope">Witness scope</param>
+        /// <returns>Signer</returns>
+        public static Signer GetNewSigner(WitnessScope scope = WitnessScope.CalledByEntry)
+        {
+            var rand = new Random();
+            var data = new byte[UInt160.Length];
+            rand.NextBytes(data);
+
+            return new Signer()
+            {
+                Account = new UInt160(data),
+                Scopes = scope,
+            };
         }
     }
 }

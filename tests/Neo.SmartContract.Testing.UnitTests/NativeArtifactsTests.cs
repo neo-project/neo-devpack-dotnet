@@ -36,14 +36,11 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Fake signature of BFTAddress
 
-            engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+            engine.SetTransactionSigners(new Network.P2P.Payloads.Signer()
             {
-                new Network.P2P.Payloads.Signer()
-                {
-                     Account = engine.ValidatorsAddress,
-                     Scopes = Network.P2P.Payloads.WitnessScope.Global
-                }
-            };
+                Account = engine.ValidatorsAddress,
+                Scopes = Network.P2P.Payloads.WitnessScope.Global
+            });
 
             // Define address to transfer funds
 
@@ -86,14 +83,11 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Fake Committee Signature
 
-            engine.Transaction.Signers = new Network.P2P.Payloads.Signer[]
+            engine.SetTransactionSigners(new Network.P2P.Payloads.Signer()
             {
-                new Network.P2P.Payloads.Signer()
-                {
-                     Account = engine.CommitteeAddress,
-                     Scopes = Network.P2P.Payloads.WitnessScope.Global
-                }
-            };
+                Account = engine.CommitteeAddress,
+                Scopes = Network.P2P.Payloads.WitnessScope.Global
+            });
 
             // Change RegisterPrice to 123
 
@@ -103,7 +97,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Now test it without this signature
 
-            engine.Transaction.Signers[0].Scopes = Network.P2P.Payloads.WitnessScope.None;
+            engine.SetTransactionSigners(TestEngine.GetNewSigner());
 
             Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
         }
