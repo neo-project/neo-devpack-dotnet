@@ -12,9 +12,6 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
         private readonly Signer Alice = TestEngine.GetNewSigner();
         private readonly Signer Bob = TestEngine.GetNewSigner();
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
         public Nep17Tests()
         {
             Engine = new TestEngine(true);
@@ -28,6 +25,21 @@ namespace Neo.SmartContract.Template.UnitTests.nep17
             var manifest = File.ReadAllText("nep17/UtArtifacts/Nep17Contract.manifest.json");
 
             return Engine.Deploy<Nep17Contract>(nef, manifest, data);
+        }
+
+        [TestMethod]
+        public void TestMyMethod()
+        {
+            Assert.AreEqual("World", Nep17.MyMethod());
+        }
+
+        [TestMethod]
+        public void TestVerify()
+        {
+            Engine.SetTransactionSigners(Alice);
+            Assert.IsTrue(Nep17.Verify);
+            Engine.SetTransactionSigners(Bob);
+            Assert.IsFalse(Nep17.Verify);
         }
 
         [TestMethod]
