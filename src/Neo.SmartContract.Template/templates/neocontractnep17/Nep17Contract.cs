@@ -121,6 +121,7 @@ namespace ProjectName
             return Storage.Get(Storage.CurrentContext, "Hello");
         }
 
+        // This will be executed during deploy
         public static void _deploy(object data, bool update)
         {
             if (update)
@@ -138,8 +139,7 @@ namespace ProjectName
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
             OnSetOwner(initialOwner);
-
-            // This will be executed during deploy
+            TotalSupply = 0;
             Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 
