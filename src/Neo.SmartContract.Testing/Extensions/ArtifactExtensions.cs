@@ -1,6 +1,7 @@
 using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -33,30 +34,34 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         public static string GetArtifactsSource(this ContractAbi abi, string name, bool generateProperties = true)
         {
-            StringBuilder sourceCode = new();
+            var builder = new StringBuilder();
+            using var sourceCode = new StringWriter(builder)
+            {
+                NewLine = "\n"
+            };
 
-            sourceCode.AppendLine("using Neo.Cryptography.ECC;");
-            sourceCode.AppendLine("using System.Collections.Generic;");
-            sourceCode.AppendLine("using System.ComponentModel;");
-            sourceCode.AppendLine("using System.Numerics;");
-            sourceCode.AppendLine("");
-            sourceCode.AppendLine("namespace Neo.SmartContract.Testing;");
-            sourceCode.AppendLine("");
-            sourceCode.AppendLine($"public abstract class {name} : Neo.SmartContract.Testing.SmartContract");
-            sourceCode.AppendLine("{");
+            sourceCode.WriteLine("using Neo.Cryptography.ECC;");
+            sourceCode.WriteLine("using System.Collections.Generic;");
+            sourceCode.WriteLine("using System.ComponentModel;");
+            sourceCode.WriteLine("using System.Numerics;");
+            sourceCode.WriteLine("");
+            sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
+            sourceCode.WriteLine("");
+            sourceCode.WriteLine($"public abstract class {name} : Neo.SmartContract.Testing.SmartContract");
+            sourceCode.WriteLine("{");
 
             // Crete events
 
             if (abi.Events.Any())
             {
-                sourceCode.AppendLine("    #region Events");
+                sourceCode.WriteLine("    #region Events");
 
                 foreach (var ev in abi.Events.OrderBy(u => u.Name))
                 {
-                    sourceCode.Append(CreateSourceEventFromManifest(ev));
+                    sourceCode.Write(CreateSourceEventFromManifest(ev));
                 }
 
-                sourceCode.AppendLine("    #endregion");
+                sourceCode.WriteLine("    #endregion");
             }
 
             // Create methods
@@ -69,20 +74,20 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 if (properties.Any())
                 {
-                    sourceCode.AppendLine("    #region Properties");
+                    sourceCode.WriteLine("    #region Properties");
 
                     foreach (var property in properties.OrderBy(u => u.getter.Name))
                     {
-                        sourceCode.Append(CreateSourcePropertyFromManifest(property.getter, property.setter));
+                        sourceCode.Write(CreateSourcePropertyFromManifest(property.getter, property.setter));
                     }
 
-                    sourceCode.AppendLine("    #endregion");
+                    sourceCode.WriteLine("    #endregion");
                 }
             }
 
             if (methods.Any(u => u.Safe))
             {
-                sourceCode.AppendLine("    #region Safe methods");
+                sourceCode.WriteLine("    #region Safe methods");
 
                 foreach (var method in methods.Where(u => u.Safe).OrderBy(u => u.Name))
                 {
@@ -90,15 +95,15 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     if (method.Name.StartsWith("_")) continue;
 
-                    sourceCode.Append(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method));
                 }
 
-                sourceCode.AppendLine("    #endregion");
+                sourceCode.WriteLine("    #endregion");
             }
 
             if (methods.Any(u => !u.Safe))
             {
-                sourceCode.AppendLine("    #region Unsafe methods");
+                sourceCode.WriteLine("    #region Unsafe methods");
 
                 foreach (var method in methods.Where(u => !u.Safe).OrderBy(u => u.Name))
                 {
@@ -106,23 +111,18 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     if (method.Name.StartsWith("_")) continue;
 
-                    sourceCode.Append(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method));
                 }
-                sourceCode.AppendLine("    #endregion");
+                sourceCode.WriteLine("    #endregion");
             }
 
             // Create constructor
 
-            sourceCode.AppendLine("    #region Constructor for internal use only");
-            sourceCode.AppendLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
-            sourceCode.AppendLine("    #endregion");
+            sourceCode.WriteLine("    #region Constructor for internal use only");
+            sourceCode.WriteLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
+            sourceCode.WriteLine("    #endregion");
 
-            sourceCode.AppendLine("}");
-
-            if (Environment.NewLine.Length == 2)
-            {
-                return sourceCode.ToString().Replace("\r\n", "\n").Trim();
-            }
+            sourceCode.WriteLine("}");
 
             return sourceCode.ToString().TrimEnd();
         }
@@ -171,27 +171,31 @@ namespace Neo.SmartContract.Testing.Extensions
             var evName = TongleLowercase(EscapeName(ev.Name));
             if (!evName.StartsWith("On")) evName = "On" + evName;
 
-            StringBuilder sourceCode = new();
+            var builder = new StringBuilder();
+            using var sourceCode = new StringWriter(builder)
+            {
+                NewLine = "\n"
+            };
 
-            sourceCode.Append($"    public delegate void del{ev.Name}(");
+            sourceCode.Write($"    public delegate void del{ev.Name}(");
 
             var isFirst = true;
             foreach (var arg in ev.Parameters)
             {
-                if (!isFirst) sourceCode.Append(", ");
+                if (!isFirst) sourceCode.Write(", ");
                 else isFirst = false;
 
-                sourceCode.Append($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
             }
 
-            sourceCode.AppendLine(");");
+            sourceCode.WriteLine(");");
             if (ev.Name != evName)
             {
-                sourceCode.AppendLine($"    [DisplayName(\"{ev.Name}\")]");
+                sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
             }
-            sourceCode.AppendLine($"    public event del{ev.Name}? {evName};");
+            sourceCode.WriteLine($"    public event del{ev.Name}? {evName};");
 
-            return sourceCode.ToString();
+            return builder.ToString();
         }
 
         /// <summary>
@@ -205,10 +209,14 @@ namespace Neo.SmartContract.Testing.Extensions
             var propertyName = TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
             var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
 
-            StringBuilder sourceCode = new();
-            sourceCode.AppendLine($"    public abstract {TypeToSource(getter.ReturnType)} {propertyName} {getset}");
+            var builder = new StringBuilder();
+            using var sourceCode = new StringWriter(builder)
+            {
+                NewLine = "\n"
+            };
+            sourceCode.WriteLine($"    public abstract {TypeToSource(getter.ReturnType)} {propertyName} {getset}");
 
-            return sourceCode.ToString();
+            return builder.ToString();
         }
 
         /// <summary>
@@ -220,21 +228,25 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             var methodName = TongleLowercase(EscapeName(method.Name));
 
-            StringBuilder sourceCode = new();
+            var builder = new StringBuilder();
+            using var sourceCode = new StringWriter(builder)
+            {
+                NewLine = "\n"
+            };
 
-            sourceCode.AppendLine($"    /// <summary>");
-            sourceCode.AppendLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
-            sourceCode.AppendLine($"    /// </summary>");
+            sourceCode.WriteLine($"    /// <summary>");
+            sourceCode.WriteLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
+            sourceCode.WriteLine($"    /// </summary>");
             if (method.Name != methodName)
             {
-                sourceCode.AppendLine($"    [DisplayName(\"{method.Name}\")]");
+                sourceCode.WriteLine($"    [DisplayName(\"{method.Name}\")]");
             }
-            sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {methodName}(");
+            sourceCode.Write($"    public abstract {TypeToSource(method.ReturnType)} {methodName}(");
 
             var isFirst = true;
             for (int x = 0; x < method.Parameters.Length; x++)
             {
-                if (!isFirst) sourceCode.Append(", ");
+                if (!isFirst) sourceCode.Write(", ");
                 else isFirst = false;
 
                 var isLast = x == method.Parameters.Length - 1;
@@ -244,18 +256,18 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // it will be object X, we can add a default value
 
-                    sourceCode.Append($"{TypeToSource(arg.Type)}? {EscapeName(arg.Name)} = null");
+                    sourceCode.Write($"{TypeToSource(arg.Type)}? {EscapeName(arg.Name)} = null");
                 }
                 else
                 {
-                    sourceCode.Append($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                    sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
                 }
             }
 
 
-            sourceCode.AppendLine(");");
+            sourceCode.WriteLine(");");
 
-            return sourceCode.ToString();
+            return builder.ToString();
         }
 
         private static string TongleLowercase(string value)

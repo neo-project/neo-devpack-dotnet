@@ -1,8 +1,8 @@
 using Neo.IO;
-using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 
@@ -17,51 +17,29 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>StackItem</returns>
         public static StackItem ConvertToStackItem(this object? data)
         {
-            if (data is null) return StackItem.Null;
-            if (data is bool b) return (VM.Types.Boolean)b;
-            if (data is string s) return (ByteString)s;
-            if (data is byte[] d) return (ByteString)d;
-            if (data is ReadOnlyMemory<byte> r) return (ByteString)r;
-
-            if (data is byte by) return (Integer)by;
-            if (data is sbyte sby) return (Integer)sby;
-            if (data is short i16) return (Integer)i16;
-            if (data is ushort ui16) return (Integer)ui16;
-            if (data is int i32) return (Integer)i32;
-            if (data is uint ui32) return (Integer)ui32;
-            if (data is long i64) return (Integer)i64;
-            if (data is ulong ui64) return (Integer)ui64;
-            if (data is BigInteger bi) return (Integer)bi;
-
-            if (data is UInt160 u160) return (ByteString)u160.ToArray();
-            if (data is UInt256 u256) return (ByteString)u256.ToArray();
-            if (data is Cryptography.ECC.ECPoint ec) return (ByteString)ec.ToArray();
-
-            if (data is object[] arr)
+            return data switch
             {
-                VM.Types.Array ar = new();
-
-                foreach (object o in arr)
-                {
-                    ar.Add(o.ConvertToStackItem());
-                }
-
-                return ar;
-            }
-
-            if (data is IEnumerable<object> iarr)
-            {
-                VM.Types.Array ar = new();
-
-                foreach (object o in iarr)
-                {
-                    ar.Add(o.ConvertToStackItem());
-                }
-
-                return ar;
-            }
-
-            return StackItem.Null;
+                null => StackItem.Null,
+                bool b => (VM.Types.Boolean)b,
+                string s => (ByteString)s,
+                byte[] d => (ByteString)d,
+                ReadOnlyMemory<byte> r => (ByteString)r,
+                byte by => (Integer)by,
+                sbyte sby => (Integer)sby,
+                short i16 => (Integer)i16,
+                ushort ui16 => (Integer)ui16,
+                int i32 => (Integer)i32,
+                uint ui32 => (Integer)ui32,
+                long i64 => (Integer)i64,
+                ulong ui64 => (Integer)ui64,
+                BigInteger bi => (Integer)bi,
+                UInt160 u160 => (ByteString)u160.ToArray(),
+                UInt256 u256 => (ByteString)u256.ToArray(),
+                Cryptography.ECC.ECPoint ec => (ByteString)ec.ToArray(),
+                object[] arr => new VM.Types.Array(arr.Select(ConvertToStackItem)),
+                IEnumerable<object> iarr => new VM.Types.Array(iarr.Select(ConvertToStackItem)),
+                _ => StackItem.Null,
+            };
         }
 
         /// <summary>
@@ -97,38 +75,34 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             if (stackItem is null || stackItem.IsNull) return null;
 
-            if (type == typeof(bool)) return stackItem.GetBoolean();
-            if (type == typeof(string)) return Utility.StrictUTF8.GetString(stackItem.GetSpan());
-            if (type == typeof(byte[])) return stackItem.GetSpan().ToArray();
-
-            if (type == typeof(byte)) return (byte)stackItem.GetInteger();
-            if (type == typeof(sbyte)) return (sbyte)stackItem.GetInteger();
-            if (type == typeof(short)) return (short)stackItem.GetInteger();
-            if (type == typeof(ushort)) return (ushort)stackItem.GetInteger();
-            if (type == typeof(int)) return (int)stackItem.GetInteger();
-            if (type == typeof(uint)) return (uint)stackItem.GetInteger();
-            if (type == typeof(long)) return (long)stackItem.GetInteger();
-            if (type == typeof(ulong)) return (ulong)stackItem.GetInteger();
-            if (type == typeof(BigInteger)) return stackItem.GetInteger();
-
-            if (type == typeof(UInt160)) return new UInt160(stackItem.GetSpan().ToArray());
-            if (type == typeof(UInt256)) return new UInt256(stackItem.GetSpan().ToArray());
-            if (type == typeof(Cryptography.ECC.ECPoint))
-                return Cryptography.ECC.ECPoint.FromBytes(stackItem.GetSpan().ToArray(), Cryptography.ECC.ECCurve.Secp256r1);
-
-            if (type == typeof(List<object>) && stackItem is CompoundType cp)
+            return type switch
             {
-                return new List<object>(cp.SubItems);
-            }
+                _ when type == typeof(bool) => stackItem.GetBoolean(),
+                _ when type == typeof(string) => Utility.StrictUTF8.GetString(stackItem.GetSpan()),
+                _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),
+                _ when type == typeof(byte) => (byte)stackItem.GetInteger(),
+                _ when type == typeof(sbyte) => (sbyte)stackItem.GetInteger(),
+                _ when type == typeof(short) => (short)stackItem.GetInteger(),
+                _ when type == typeof(ushort) => (ushort)stackItem.GetInteger(),
+                _ when type == typeof(int) => (int)stackItem.GetInteger(),
+                _ when type == typeof(uint) => (uint)stackItem.GetInteger(),
+                _ when type == typeof(long) => (long)stackItem.GetInteger(),
+                _ when type == typeof(ulong) => (ulong)stackItem.GetInteger(),
+                _ when type == typeof(BigInteger) => stackItem.GetInteger(),
+                _ when type == typeof(UInt160) => new UInt160(stackItem.GetSpan().ToArray()),
+                _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
+                _ when type == typeof(Cryptography.ECC.ECPoint) => Cryptography.ECC.ECPoint.FromBytes(stackItem.GetSpan().ToArray(), Cryptography.ECC.ECCurve.Secp256r1),
+                _ when type == typeof(List<object>) && stackItem is CompoundType cp => new List<object>(cp.SubItems), // SubItems in StackItem type
+                _ when typeof(IInteroperable).IsAssignableFrom(type) => CreateInteroperable(stackItem, type),
+                _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
+            };
+        }
 
-            if (typeof(IInteroperable).IsAssignableFrom(type))
-            {
-                var interoperable = (IInteroperable)Activator.CreateInstance(type)!;
-                interoperable.FromStackItem(stackItem);
-                return interoperable;
-            }
-
-            throw new FormatException($"Impossible to convert {stackItem} to {type}");
+        private static IInteroperable CreateInteroperable(StackItem stackItem, Type type)
+        {
+            var interoperable = (IInteroperable)Activator.CreateInstance(type)!;
+            interoperable.FromStackItem(stackItem);
+            return interoperable;
         }
     }
 }

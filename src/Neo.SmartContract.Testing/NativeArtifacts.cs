@@ -11,127 +11,50 @@ namespace Neo.SmartContract.Testing
     {
         private readonly TestEngine _engine;
 
-        #region Native contracts
-
-        private ContractManagement? _contractManagement;
-        private CryptoLib? _cryptoLib;
-        private GasToken? _gas;
-        private NeoToken? _neo;
-        private LedgerContract? _ledger;
-        private OracleContract? _oracle;
-        private PolicyContract? _policy;
-        private RoleManagement? _roleManagement;
-        private StdLib? _stdLib;
-
-        #endregion
-
         /// <summary>
         /// ContractManagement
         /// </summary>
-        public ContractManagement ContractManagement
-        {
-            get
-            {
-                _contractManagement ??= _engine.FromHash<ContractManagement>(Native.NativeContract.ContractManagement.Hash, Native.NativeContract.ContractManagement.Id);
-                return _contractManagement;
-            }
-        }
+        public ContractManagement ContractManagement { get; }
 
         /// <summary>
         /// CryptoLib
         /// </summary>
-        public CryptoLib CryptoLib
-        {
-            get
-            {
-                _cryptoLib ??= _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash, Native.NativeContract.CryptoLib.Id);
-                return _cryptoLib;
-            }
-        }
+        public CryptoLib CryptoLib { get; }
 
         /// <summary>
         /// GasToken
         /// </summary>
-        public GasToken GAS
-        {
-            get
-            {
-                _gas ??= _engine.FromHash<GasToken>(Native.NativeContract.GAS.Hash, Native.NativeContract.GAS.Id);
-                return _gas;
-            }
-        }
+        public GasToken GAS { get; }
 
         /// <summary>
         /// NeoToken
         /// </summary>
-        public NeoToken NEO
-        {
-            get
-            {
-                _neo ??= _engine.FromHash<NeoToken>(Native.NativeContract.NEO.Hash, Native.NativeContract.NEO.Id);
-                return _neo;
-            }
-        }
+        public NeoToken NEO { get; }
 
         /// <summary>
         /// LedgerContract
         /// </summary>
-        public LedgerContract Ledger
-        {
-            get
-            {
-                _ledger ??= _engine.FromHash<LedgerContract>(Native.NativeContract.Ledger.Hash, Native.NativeContract.Ledger.Id);
-                return _ledger;
-            }
-        }
+        public LedgerContract Ledger { get; }
 
         /// <summary>
         /// OracleContract
         /// </summary>
-        public OracleContract Oracle
-        {
-            get
-            {
-                _oracle ??= _engine.FromHash<OracleContract>(Native.NativeContract.Oracle.Hash, Native.NativeContract.Oracle.Id);
-                return _oracle;
-            }
-        }
+        public OracleContract Oracle { get; }
 
         /// <summary>
         /// PolicyContract
         /// </summary>
-        public PolicyContract Policy
-        {
-            get
-            {
-                _policy ??= _engine.FromHash<PolicyContract>(Native.NativeContract.Policy.Hash, Native.NativeContract.Policy.Id);
-                return _policy;
-            }
-        }
+        public PolicyContract Policy { get; }
 
         /// <summary>
         /// RoleManagement
         /// </summary>
-        public RoleManagement RoleManagement
-        {
-            get
-            {
-                _roleManagement ??= _engine.FromHash<RoleManagement>(Native.NativeContract.RoleManagement.Hash, Native.NativeContract.RoleManagement.Id);
-                return _roleManagement;
-            }
-        }
+        public RoleManagement RoleManagement { get; }
 
         /// <summary>
         /// OracleContract
         /// </StdLib>
-        public StdLib StdLib
-        {
-            get
-            {
-                _stdLib ??= _engine.FromHash<StdLib>(Native.NativeContract.StdLib.Hash, Native.NativeContract.StdLib.Id);
-                return _stdLib;
-            }
-        }
+        public StdLib StdLib { get; }
 
         /// <summary>
         /// Constructor
@@ -140,6 +63,16 @@ namespace Neo.SmartContract.Testing
         public NativeArtifacts(TestEngine engine)
         {
             _engine = engine;
+
+            ContractManagement = _engine.FromHash<ContractManagement>(Native.NativeContract.ContractManagement.Hash, Native.NativeContract.ContractManagement.Id);
+            CryptoLib = _engine.FromHash<CryptoLib>(Native.NativeContract.CryptoLib.Hash, Native.NativeContract.CryptoLib.Id);
+            GAS = _engine.FromHash<GasToken>(Native.NativeContract.GAS.Hash, Native.NativeContract.GAS.Id);
+            NEO = _engine.FromHash<NeoToken>(Native.NativeContract.NEO.Hash, Native.NativeContract.NEO.Id);
+            Ledger = _engine.FromHash<LedgerContract>(Native.NativeContract.Ledger.Hash, Native.NativeContract.Ledger.Id);
+            Oracle = _engine.FromHash<OracleContract>(Native.NativeContract.Oracle.Hash, Native.NativeContract.Oracle.Id);
+            Policy = _engine.FromHash<PolicyContract>(Native.NativeContract.Policy.Hash, Native.NativeContract.Policy.Id);
+            RoleManagement = _engine.FromHash<RoleManagement>(Native.NativeContract.RoleManagement.Hash, Native.NativeContract.RoleManagement.Id);
+            StdLib = _engine.FromHash<StdLib>(Native.NativeContract.StdLib.Hash, Native.NativeContract.StdLib.Id);
         }
 
         /// <summary>
