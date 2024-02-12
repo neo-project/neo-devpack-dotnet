@@ -204,9 +204,6 @@ namespace Neo.SmartContract.Testing
                 }
             };
 
-            ApplicationEngine.Log += ApplicationEngine_Log;
-            ApplicationEngine.Notify += ApplicationEngine_Notify;
-
             if (initializeNativeContracts)
             {
                 Native.Initialize(false);
@@ -427,14 +424,28 @@ namespace Neo.SmartContract.Testing
 
             engine.LoadScript(script);
 
-            if (engine.Execute() != VMState.HALT)
+            // Attach to static event
+
+            ApplicationEngine.Log += ApplicationEngine_Log;
+            ApplicationEngine.Notify += ApplicationEngine_Notify;
+
+            // Execute
+
+            var executionResult = engine.Execute();
+
+            // Detach to static event
+
+            ApplicationEngine.Log -= ApplicationEngine_Log;
+            ApplicationEngine.Notify -= ApplicationEngine_Notify;
+
+            // Process result
+
+            if (executionResult != VMState.HALT)
             {
                 throw engine.FaultException ?? new Exception($"Error while executing the script");
             }
 
             snapshot.Commit();
-
-            // Return
 
             if (engine.ResultStack.Count == 0) return StackItem.Null;
             return engine.ResultStack.Pop();
