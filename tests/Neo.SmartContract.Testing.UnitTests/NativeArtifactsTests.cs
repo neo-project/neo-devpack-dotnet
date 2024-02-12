@@ -41,11 +41,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Fake signature of BFTAddress
 
-            engine.SetTransactionSigners(new Network.P2P.Payloads.Signer()
-            {
-                Account = engine.ValidatorsAddress,
-                Scopes = Network.P2P.Payloads.WitnessScope.Global
-            });
+            engine.SetTransactionSigners(Network.P2P.Payloads.WitnessScope.Global, engine.ValidatorsAddress);
 
             // Define address to transfer funds
 
@@ -56,14 +52,14 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             var raisedEvent = false;
             engine.Native.NEO.OnTransfer += (UInt160 from, UInt160 to, BigInteger amount) =>
-            {
-                Assert.AreEqual(engine.Transaction.Sender, from);
-                Assert.AreEqual(addressTo, to);
-                Assert.AreEqual(123, amount);
+                {
+                    Assert.AreEqual(engine.Transaction.Sender, from);
+                    Assert.AreEqual(addressTo, to);
+                    Assert.AreEqual(123, amount);
 
-                // If the event is raised, the variable will be changed
-                raisedEvent = true;
-            };
+                    // If the event is raised, the variable will be changed
+                    raisedEvent = true;
+                };
 
             // Transfer funds
 

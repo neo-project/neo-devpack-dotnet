@@ -446,14 +446,33 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Set Transaction signers
         /// </summary>
-        /// <param name="signer">signers</param>
+        /// <param name="signers">Signers</param>
         public void SetTransactionSigners(params Signer[] signers)
         {
             Transaction.Signers = signers;
         }
 
         /// <summary>
-        /// Generate a random new signer
+        /// Set Transaction Signers using CalledByEntry
+        /// </summary>
+        /// <param name="signers">Signers</param>
+        public void SetTransactionSigners(params UInt160[] signers)
+        {
+            Transaction.Signers = signers.Select(u => new Signer() { Account = u, Scopes = WitnessScope.CalledByEntry }).ToArray();
+        }
+
+        /// <summary>
+        /// Set Transaction Signers
+        /// </summary>
+        /// <param name="scope">Scope</param>
+        /// <param name="signers">Signers</param>
+        public void SetTransactionSigners(WitnessScope scope, params UInt160[] signers)
+        {
+            Transaction.Signers = signers.Select(u => new Signer() { Account = u, Scopes = scope }).ToArray();
+        }
+
+        /// <summary>
+        /// Generate a random new Signers with CalledByEntry scope by default
         /// </summary>
         /// <param name="scope">Witness scope</param>
         /// <returns>Signer</returns>
