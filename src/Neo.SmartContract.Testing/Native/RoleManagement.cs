@@ -17,14 +17,14 @@ public abstract class RoleManagement : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getDesignatedByRole")]
-    public abstract List<object> GetDesignatedByRole(BigInteger role, BigInteger index);
+    public abstract IList<object> GetDesignatedByRole(BigInteger role, BigInteger index);
     #endregion
     #region Unsafe methods
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("designateAsRole")]
-    public abstract void DesignateAsRole(BigInteger role, List<object> nodes);
+    public abstract void DesignateAsRole(BigInteger role, IList<object> nodes);
     #endregion
     #region Constructor for internal use only
     protected RoleManagement(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }

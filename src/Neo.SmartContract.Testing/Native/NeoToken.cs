@@ -21,10 +21,10 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     #region Properties
     public abstract BigInteger Decimals { [DisplayName("decimals")] get; }
     public abstract object AllCandidates { [DisplayName("getAllCandidates")] get; }
-    public abstract List<object> Candidates { [DisplayName("getCandidates")] get; }
-    public abstract List<object> Committee { [DisplayName("getCommittee")] get; }
+    public abstract IList<object> Candidates { [DisplayName("getCandidates")] get; }
+    public abstract IList<object> Committee { [DisplayName("getCommittee")] get; }
     public abstract BigInteger GasPerBlock { [DisplayName("getGasPerBlock")] get; [DisplayName("setGasPerBlock")] set; }
-    public abstract List<object> NextBlockValidators { [DisplayName("getNextBlockValidators")] get; }
+    public abstract IList<object> NextBlockValidators { [DisplayName("getNextBlockValidators")] get; }
     public abstract BigInteger RegisterPrice { [DisplayName("getRegisterPrice")] get; [DisplayName("setRegisterPrice")] set; }
     public abstract string Symbol { [DisplayName("symbol")] get; }
     public abstract BigInteger TotalSupply { [DisplayName("totalSupply")] get; }
@@ -39,7 +39,7 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract List<object> GetAccountState(UInt160 account);
+    public abstract IList<object> GetAccountState(UInt160 account);
     /// <summary>
     /// Safe method
     /// </summary>

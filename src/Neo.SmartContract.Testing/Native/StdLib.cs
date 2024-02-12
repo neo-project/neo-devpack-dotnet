@@ -102,12 +102,12 @@ public abstract class StdLib : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("stringSplit")]
-    public abstract List<object> StringSplit(string str, string separator);
+    public abstract IList<object> StringSplit(string str, string separator);
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("stringSplit")]
-    public abstract List<object> StringSplit(string str, string separator, bool removeEmptyEntries);
+    public abstract IList<object> StringSplit(string str, string separator, bool removeEmptyEntries);
     /// <summary>
     /// Safe method
     /// </summary>

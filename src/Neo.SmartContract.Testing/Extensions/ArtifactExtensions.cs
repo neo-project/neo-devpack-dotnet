@@ -315,8 +315,8 @@ namespace Neo.SmartContract.Testing.Extensions
                 ContractParameterType.PublicKey => "ECPoint",
                 ContractParameterType.ByteArray => "byte[]",
                 ContractParameterType.Signature => "byte[]",
-                ContractParameterType.Array => "List<object>",
-                ContractParameterType.Map => "IDictionary<object,object>",
+                ContractParameterType.Array => "IList<object>",
+                ContractParameterType.Map => "IDictionary<object, object>",
                 ContractParameterType.Void => "void",
                 _ => "object",
             };

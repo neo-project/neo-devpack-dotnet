@@ -16,17 +16,17 @@ public abstract class LedgerContract : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getBlock")]
-    public abstract List<object> GetBlock(byte[] indexOrHash);
+    public abstract IList<object> GetBlock(byte[] indexOrHash);
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getTransaction")]
-    public abstract List<object> GetTransaction(UInt256 hash);
+    public abstract IList<object> GetTransaction(UInt256 hash);
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getTransactionFromBlock")]
-    public abstract List<object> GetTransactionFromBlock(byte[] blockIndexOrHash, BigInteger txIndex);
+    public abstract IList<object> GetTransactionFromBlock(byte[] blockIndexOrHash, BigInteger txIndex);
     /// <summary>
     /// Safe method
     /// </summary>
@@ -36,7 +36,7 @@ public abstract class LedgerContract : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getTransactionSigners")]
-    public abstract List<object> GetTransactionSigners(UInt256 hash);
+    public abstract IList<object> GetTransactionSigners(UInt256 hash);
     /// <summary>
     /// Safe method
     /// </summary>
