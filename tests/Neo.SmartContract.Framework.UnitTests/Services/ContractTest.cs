@@ -5,6 +5,7 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using Neo.Persistence;
 using Neo.SmartContract.TestEngine;
 using Array = Neo.VM.Types.Array;
 
@@ -18,7 +19,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestInitialize]
         public void Init()
         {
-            var system = new NeoSystem(TestProtocolSettings.Default);
+            var system = new NeoSystem(TestProtocolSettings.Default, new MemoryStore());
             _engine = new TestEngine.TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },

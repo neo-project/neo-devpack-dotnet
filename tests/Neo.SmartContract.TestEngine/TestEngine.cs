@@ -20,11 +20,11 @@ namespace Neo.SmartContract.TestEngine
 
         private static readonly List<MetadataReference> references = new();
 
-        public event EventHandler<ExecutionContext> OnPreExecuteTestCaseStandard;
+        public event EventHandler<ExecutionContext>? OnPreExecuteTestCaseStandard;
 
-        public NefFile Nef { get; private set; }
-        public ContractManifest Manifest { get; private set; }
-        public JObject DebugInfo { get; private set; }
+        public NefFile? Nef { get; private set; }
+        public ContractManifest? Manifest { get; private set; }
+        public JObject? DebugInfo { get; private set; }
 
         static TestEngine()
         {
@@ -45,22 +45,28 @@ namespace Neo.SmartContract.TestEngine
             references.Add(cr.ToMetadataReference());
         }
 
-        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable verificable = null, DataCache snapshot = null, Block persistingBlock = null, IDiagnostic diagnostic = null)
+        public TestEngine(TriggerType trigger = TriggerType.Application, IVerifiable? verificable = null, DataCache? snapshot = null, Block? persistingBlock = null, IDiagnostic? diagnostic = null)
              : base(trigger, verificable, snapshot, persistingBlock, TestProtocolSettings.Default, TestGas, diagnostic)
         {
         }
 
         public CompilationContext AddEntryScript(params string[] files)
         {
-            return AddEntryScript(true, files);
+            return AddEntryScript(true, true, files);
         }
 
-        public CompilationContext AddEntryScript(bool debug = true, params string[] files)
+        public CompilationContext AddNoOptimizeEntryScript(params string[] files)
+        {
+            return AddEntryScript(false, true, files);
+        }
+
+        public CompilationContext AddEntryScript(bool optimize = true, bool debug = true, params string[] files)
         {
             CompilationContext context = CompilationContext.Compile(files, references, new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion,
                 Debug = debug,
+                NoOptimize = !optimize
             });
             if (context.Success)
             {
@@ -88,7 +94,7 @@ namespace Neo.SmartContract.TestEngine
             {
                 this.LoadScript(Nef.Script);
                 // Mock contract
-                var contextState = CurrentContext.GetState<ExecutionContextState>();
+                var contextState = CurrentContext!.GetState<ExecutionContextState>();
                 contextState.Contract ??= new ContractState { Nef = Nef };
             }
         }
@@ -125,7 +131,7 @@ namespace Neo.SmartContract.TestEngine
             return ExecuteTestCaseStandard(methodname, Nef, args);
         }
 
-        public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile contract, params StackItem[] args)
+        public EvaluationStack ExecuteTestCaseStandard(string methodname, NefFile? contract, params StackItem[] args)
         {
             var offset = GetMethodEntryOffset(methodname);
             if (offset == -1) throw new Exception("Can't find method : " + methodname);
@@ -139,13 +145,13 @@ namespace Neo.SmartContract.TestEngine
             return ExecuteTestCaseStandard(offset, rvcount, Nef, args);
         }
 
-        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile contract, params StackItem[] args)
+        public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile? contract, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
             context = CreateContext(context.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
-            var contextState = CurrentContext.GetState<ExecutionContextState>();
+            var contextState = CurrentContext!.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState()
             {
                 Nef = contract,
@@ -167,7 +173,7 @@ namespace Neo.SmartContract.TestEngine
                 Console.WriteLine("op:[" +
                     this.CurrentContext.InstructionPointer.ToString("X04") +
                     "]" +
-                this.CurrentContext.CurrentInstruction?.OpCode);
+                this.CurrentContext.CurrentInstruction?.OpCode + " " + this.CurrentContext.EvaluationStack);
                 this.ExecuteNext();
             }
             if (this.State == VMState.FAULT && this.FaultException != null)

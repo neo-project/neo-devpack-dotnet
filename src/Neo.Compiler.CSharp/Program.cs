@@ -10,6 +10,10 @@
 
 using Microsoft.CodeAnalysis;
 using Neo.IO;
+using Neo.Json;
+using Neo.Optimizer;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -140,11 +144,20 @@ namespace Neo.Compiler
                 string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
                 string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
+
+                NefFile nef = context.CreateExecutable();
+                ContractManifest manifest = context.CreateManifest();
+                JToken debugInfo = context.CreateDebugInformation(folder);
+                if (!options.NoOptimize)
+                {
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+                }
+
                 try
                 {
                     Directory.CreateDirectory(outputFolder);
                     path = Path.Combine(path, $"{baseName}.nef");
-                    File.WriteAllBytes(path, context.CreateExecutable().ToArray());
+                    File.WriteAllBytes(path, nef.ToArray());
                 }
                 catch (Exception ex)
                 {
@@ -155,7 +168,7 @@ namespace Neo.Compiler
                 path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
                 try
                 {
-                    File.WriteAllBytes(path, context.CreateManifest().ToJson().ToByteArray(false));
+                    File.WriteAllBytes(path, manifest.ToJson().ToByteArray(false));
                 }
                 catch (Exception ex)
                 {
@@ -169,13 +182,16 @@ namespace Neo.Compiler
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
                     using ZipArchive archive = new(fs, ZipArchiveMode.Create);
                     using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
-                    stream.Write(context.CreateDebugInformation(folder).ToByteArray(false));
+                    stream.Write(debugInfo.ToByteArray(false));
                     Console.WriteLine($"Created {path}");
                 }
                 if (options.Assembly)
                 {
                     path = Path.Combine(outputFolder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
+                    Console.WriteLine($"Created {path}");
+                    path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
+                    File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo));
                     Console.WriteLine($"Created {path}");
                 }
                 Console.WriteLine("Compilation completed successfully.");
