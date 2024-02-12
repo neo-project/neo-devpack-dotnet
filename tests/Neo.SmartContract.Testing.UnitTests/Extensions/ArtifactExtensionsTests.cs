@@ -70,12 +70,12 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName(""onNEP17Payment"")]
-    public abstract void OnNEP17Payment(UInt160 from, BigInteger amount, object data);
+    public abstract void OnNEP17Payment(UInt160 from, BigInteger amount, object? data = null);
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""transfer"")]
-    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null);
     /// <summary>
     /// Unsafe method
     /// </summary>

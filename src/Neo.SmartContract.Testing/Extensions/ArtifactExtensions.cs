@@ -152,14 +152,14 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourceEventFromManifest(ContractEventDescriptor ev)
         {
-            var evName = TongleLowercase(EscapeName(ev.Name), out _);
+            var evName = TongleLowercase(EscapeName(ev.Name));
             if (!evName.StartsWith("On")) evName = "On" + evName;
 
             StringBuilder sourceCode = new();
 
             sourceCode.Append($"    public delegate void del{ev.Name}(");
 
-            bool isFirst = true;
+            var isFirst = true;
             foreach (var arg in ev.Parameters)
             {
                 if (!isFirst) sourceCode.Append(", ");
@@ -186,7 +186,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
         {
-            var propertyName = TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name), out _);
+            var propertyName = TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
             var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
 
             StringBuilder sourceCode = new();
@@ -202,7 +202,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method)
         {
-            var methodName = TongleLowercase(EscapeName(method.Name), out var lcChanged);
+            var methodName = TongleLowercase(EscapeName(method.Name));
 
             StringBuilder sourceCode = new();
 
@@ -215,30 +215,44 @@ namespace Neo.SmartContract.Testing.Extensions
             }
             sourceCode.Append($"    public abstract {TypeToSource(method.ReturnType)} {methodName}(");
 
-            bool isFirst = true;
-            foreach (var arg in method.Parameters)
+            var isFirst = true;
+            for (int x = 0; x < method.Parameters.Length; x++)
             {
                 if (!isFirst) sourceCode.Append(", ");
                 else isFirst = false;
 
-                sourceCode.Append($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                var isLast = x == method.Parameters.Length - 1;
+                var arg = method.Parameters[x];
+
+                if (isLast && arg.Type == ContractParameterType.Any)
+                {
+                    // it will be object X, we can add a default value
+
+                    sourceCode.Append($"{TypeToSource(arg.Type)}? {EscapeName(arg.Name)} = null");
+                }
+                else
+                {
+                    sourceCode.Append($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                }
             }
+
 
             sourceCode.AppendLine(");");
 
             return sourceCode.ToString();
         }
 
-        private static string TongleLowercase(string value, out bool lcChanged)
+        private static string TongleLowercase(string value)
         {
             if (value.Length == 0)
             {
-                lcChanged = false;
                 return value;
             }
 
-            lcChanged = char.IsLower(value[0]);
-            if (lcChanged) return value[0].ToString().ToUpperInvariant() + value[1..];
+            if (char.IsLower(value[0]))
+            {
+                return value[0].ToString().ToUpperInvariant() + value[1..];
+            }
 
             return value;
         }

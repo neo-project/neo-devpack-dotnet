@@ -72,7 +72,7 @@ public abstract class StdLib : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("jsonSerialize")]
-    public abstract byte[] JsonSerialize(object item);
+    public abstract byte[] JsonSerialize(object? item = null);
     /// <summary>
     /// Safe method
     /// </summary>
@@ -97,7 +97,7 @@ public abstract class StdLib : Neo.SmartContract.Testing.SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("serialize")]
-    public abstract byte[] Serialize(object item);
+    public abstract byte[] Serialize(object? item = null);
     /// <summary>
     /// Safe method
     /// </summary>

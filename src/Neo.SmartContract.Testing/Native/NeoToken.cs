@@ -61,7 +61,7 @@ public abstract class NeoToken : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null);
     /// <summary>
     /// Unsafe method
     /// </summary>

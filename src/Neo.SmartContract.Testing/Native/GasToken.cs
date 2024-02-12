@@ -29,7 +29,7 @@ public abstract class GasToken : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null);
     #endregion
     #region Constructor for internal use only
     protected GasToken(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
