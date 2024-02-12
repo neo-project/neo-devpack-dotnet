@@ -1,4 +1,5 @@
 using Neo.IO;
+using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
@@ -97,7 +98,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (stackItem is null || stackItem.IsNull) return null;
 
             if (type == typeof(bool)) return stackItem.GetBoolean();
-            if (type == typeof(string)) return stackItem.ToString();
+            if (type == typeof(string)) return stackItem.GetSpan().TryGetString(out var str) ? str : Convert.ToBase64String(stackItem.GetSpan());
             if (type == typeof(byte[])) return stackItem.GetSpan().ToArray();
 
             if (type == typeof(byte)) return (byte)stackItem.GetInteger();

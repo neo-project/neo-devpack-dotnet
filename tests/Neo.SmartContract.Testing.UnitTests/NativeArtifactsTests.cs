@@ -21,6 +21,11 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.Native.Initialize(false);
 
+            // Check symbols
+
+            Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
+            Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+
             // Ensure that the main address contains the totalSupply
 
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
