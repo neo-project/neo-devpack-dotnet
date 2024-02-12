@@ -95,9 +95,8 @@ namespace Neo.SmartContract.Testing
 
         /// <summary>
         /// Import data from json, expected data (in base64):
-        /// - "key": "value"
+        /// - "prefix"  : { "key":"value" }
         /// </summary>
-        /// <param name="snapshot">Snapshot to be used</param>
         /// <param name="json">Json Object</param>
         public void Import(string json)
         {
@@ -111,9 +110,8 @@ namespace Neo.SmartContract.Testing
 
         /// <summary>
         /// Import data from json, expected data (in base64):
-        /// - "key": "value"
+        /// - "prefix"  : { "key":"value" }
         /// </summary>
-        /// <param name="snapshot">Snapshot to be used</param>
         /// <param name="json">Json Object</param>
         public void Import(JObject json)
         {
@@ -160,6 +158,8 @@ namespace Neo.SmartContract.Testing
             var buffer = new byte[(sizeof(int))];
             BinaryPrimitives.WriteInt32LittleEndian(buffer, GetContractId());
             var keyId = Convert.ToBase64String(buffer);
+
+            // Write prefix
 
             JObject ret = new();
             JObject prefix = new();
