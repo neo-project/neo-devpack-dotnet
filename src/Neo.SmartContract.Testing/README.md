@@ -77,7 +77,7 @@ For read and write, we have:
 
 #### Methods
 
-It has two main methods:
+It has three methods:
 
 - **Execute(script)**: Executes a script on the neo virtual machine and returns the execution result.
 - **Deploy(nef, manifest, data, customMock)**: Deploys the smart contract by calling the native method `ContractManagement.deploy`. It allows setting [custom mocks](#custom-mocks), which will be detailed later. And returns the instance of the contract that has been deployed.
@@ -138,7 +138,7 @@ Mainly exposes the methods `Read`, `Put`, and `Remove`, all of them responsible 
 
 byte[] registerPricePrefix = new byte[] { 13 };
 
-// Engine an contract creation
+// Create engine and initialize native contracts
 
 TestEngine engine = new(true);
 
