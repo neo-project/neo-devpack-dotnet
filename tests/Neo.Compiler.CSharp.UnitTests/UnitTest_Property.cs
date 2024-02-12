@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testEngine = new TestEngine();
-            testEngine.AddEntryScript("./TestClasses/Contract_Property.cs");
+            testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Property.cs");
         }
 
         [TestMethod]

@@ -3,9 +3,16 @@
 
   <PropertyGroup>
     <Copyright>2015-2023 The Neo Project</Copyright>
-    <VersionPrefix>3.6.0</VersionPrefix>
+    <VersionPrefix>3.6.2</VersionPrefix>
     <TargetFramework>net7.0</TargetFramework>
     <Authors>The Neo Project</Authors>
+    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="../neo.png" Pack="true" Visible="false" PackagePath=""/>
+  </ItemGroup>
 </Project>

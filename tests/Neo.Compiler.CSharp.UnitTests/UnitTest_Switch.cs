@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -15,21 +15,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             EvaluationStack result;
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLong.cs");
 
             // Test cases
 
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
+                result = testengine.ExecuteTestCaseStandard("testMain", x.ToString());
                 Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
+            result = testengine.ExecuteTestCaseStandard("testMain", 21.ToString());
             Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
 
@@ -37,27 +37,27 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLongLong()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchLongLong.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLongLong.cs");
 
-            var resulta = testengine.ExecuteTestCaseStandard("main", "a").Pop();
+            var resulta = testengine.ExecuteTestCaseStandard("testMain", "a").Pop();
             var awant = 2;
             testengine.Reset();
-            var resultb = testengine.ExecuteTestCaseStandard("main", "b").Pop();
+            var resultb = testengine.ExecuteTestCaseStandard("testMain", "b").Pop();
             var bwant = 0;
             testengine.Reset();
-            var resultc = testengine.ExecuteTestCaseStandard("main", "c").Pop();
+            var resultc = testengine.ExecuteTestCaseStandard("testMain", "c").Pop();
             var cwant = 2;
             testengine.Reset();
-            var resultd = testengine.ExecuteTestCaseStandard("main", "d").Pop();
+            var resultd = testengine.ExecuteTestCaseStandard("testMain", "d").Pop();
             var dwant = -1;
             testengine.Reset();
-            var resulte = testengine.ExecuteTestCaseStandard("main", "e").Pop();
+            var resulte = testengine.ExecuteTestCaseStandard("testMain", "e").Pop();
             var ewant = 1;
             testengine.Reset();
-            var resultf = testengine.ExecuteTestCaseStandard("main", "f").Pop();
+            var resultf = testengine.ExecuteTestCaseStandard("testMain", "f").Pop();
             var fwant = 3;
             testengine.Reset();
-            var resultg = testengine.ExecuteTestCaseStandard("main", "g").Pop();
+            var resultg = testengine.ExecuteTestCaseStandard("testMain", "g").Pop();
             var gwant = 3;
 
             // Test default
@@ -75,18 +75,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchInteger()
         {
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchInteger.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchInteger.cs");
 
-            var result1 = testengine.ExecuteTestCaseStandard("main", 1).Pop();
+            var result1 = testengine.ExecuteTestCaseStandard("testMain", 1).Pop();
             var onewant = 2;
             testengine.Reset();
-            var result2 = testengine.ExecuteTestCaseStandard("main", 2).Pop();
+            var result2 = testengine.ExecuteTestCaseStandard("testMain", 2).Pop();
             var twowant = 3;
             testengine.Reset();
-            var result3 = testengine.ExecuteTestCaseStandard("main", 3).Pop();
+            var result3 = testengine.ExecuteTestCaseStandard("testMain", 3).Pop();
             var threewant = 6;
             testengine.Reset();
-            var result0 = testengine.ExecuteTestCaseStandard("main", 0).Pop();
+            var result0 = testengine.ExecuteTestCaseStandard("testMain", 0).Pop();
             var zerowant = 0;
 
             // Test default
@@ -102,21 +102,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             EvaluationStack result;
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_SwitchLong.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLong.cs");
 
             // Test cases
 
             for (int x = 0; x <= 20; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
+                result = testengine.ExecuteTestCaseStandard("testMain", x.ToString());
                 Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("main", 21.ToString());
+            result = testengine.ExecuteTestCaseStandard("testMain", 21.ToString());
             Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
 
@@ -125,21 +125,27 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             EvaluationStack result;
             using var testengine = new TestEngine();
-            testengine.AddEntryScript("./TestClasses/Contract_Switch6.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Switch6.cs");
 
             // Test cases
 
             for (int x = 0; x <= 5; x++)
             {
                 testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("main", x.ToString());
+                result = testengine.ExecuteTestCaseStandard("testMain", x.ToString());
+                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
+                testengine.Reset();
+                result = testengine.ExecuteTestCaseStandard("main2", x.ToString());
                 Assert.AreEqual(result.Pop().GetInteger(), x + 1);
             }
 
             // Test default
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("main", 6.ToString());
+            result = testengine.ExecuteTestCaseStandard("testMain", 6.ToString());
+            Assert.AreEqual(result.Pop().GetInteger(), 99);
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("main2", 6.ToString());
             Assert.AreEqual(result.Pop().GetInteger(), 99);
         }
     }

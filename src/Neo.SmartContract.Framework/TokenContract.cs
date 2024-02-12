@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -20,14 +20,12 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_TotalSupply = 0x00;
         protected const byte Prefix_Balance = 0x01;
 
-        [Safe]
-        public abstract string Symbol();
+        public abstract string Symbol { [Safe] get; }
 
-        [Safe]
-        public abstract byte Decimals();
+        public abstract byte Decimals { [Safe] get; }
 
-        [Safe]
-        public static BigInteger TotalSupply() => (BigInteger)Storage.Get(Storage.CurrentContext, new byte[] { Prefix_TotalSupply });
+        [Stored(Prefix_TotalSupply)]
+        public static BigInteger TotalSupply { [Safe] get; protected set; }
 
         [Safe]
         public static BigInteger BalanceOf(UInt160 owner)
@@ -36,15 +34,6 @@ namespace Neo.SmartContract.Framework
                 throw new Exception("The argument \"owner\" is invalid.");
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
             return (BigInteger)balanceMap[owner];
-        }
-
-        protected static void UpdateTotalSupply(BigInteger increment)
-        {
-            StorageContext context = Storage.CurrentContext;
-            byte[] key = new byte[] { Prefix_TotalSupply };
-            BigInteger totalSupply = (BigInteger)Storage.Get(context, key);
-            totalSupply += increment;
-            Storage.Put(context, key, totalSupply);
         }
 
         protected static bool UpdateBalance(UInt160 owner, BigInteger increment)

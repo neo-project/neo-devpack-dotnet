@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM.Types;
 using System;
 using System.Linq;
+using Neo.SmartContract.TestEngine;
 using static Neo.Helper;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class StorageTest
     {
-        private static void Put(TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
+        private static void Put(TestEngine.TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
         {
             var result = testengine.ExecuteTestCaseStandard(method, key, value);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                     a.Item.Value.Span.SequenceEqual(value)));
         }
 
-        private static byte[] Get(TestEngine testengine, string method, byte[] prefix, byte[] key)
+        private static byte[] Get(TestEngine.TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, key);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             return data.ToArray();
         }
 
-        private static void Delete(TestEngine testengine, string method, byte[] prefix, byte[] key)
+        private static void Delete(TestEngine.TestEngine testengine, string method, byte[] prefix, byte[] key)
         {
             var result = testengine.ExecuteTestCaseStandard(method, new VM.Types.ByteString(key));
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(0, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.Span.SequenceEqual(Concat(prefix, key))));
         }
 
-        private TestEngine testengine;
+        private TestEngine.TestEngine testengine;
 
         [TestInitialize]
         public void Init()
@@ -53,8 +53,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var system = TestBlockchain.TheNeoSystem;
             var snapshot = system.GetSnapshot().CreateSnapshot();
 
-            testengine = new TestEngine(snapshot: snapshot);
-            testengine.AddEntryScript("./TestClasses/Contract_Storage.cs");
+            testengine = new TestEngine.TestEngine(snapshot: snapshot);
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Storage.cs");
             snapshot.ContractAdd(new ContractState()
             {
                 Hash = testengine.EntryScriptHash,
@@ -195,6 +195,29 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(VM.VMState.HALT, testengine.State);
             Assert.AreEqual(value, result.Pop().GetString());
+        }
+
+        [TestMethod]
+        public void Test_NewGetMethods()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testNewGetMethods");
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(true, result.Pop().GetBoolean());
+        }
+
+        [TestMethod]
+        public void Test_NewGetByteArray()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testNewGetByteArray");
+            var testArr = new byte[] { 0x00, 0x01 };
+            Assert.AreEqual(1, result.Count);
+            var res = result.Pop().GetSpan().ToArray();
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+            Assert.AreEqual(testArr[0], res[0]);
+            Assert.AreEqual(testArr[1], res[1]);
         }
     }
 }

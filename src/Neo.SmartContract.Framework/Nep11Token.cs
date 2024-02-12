@@ -31,13 +31,19 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_Token = 0x03;
         protected const byte Prefix_AccountToken = 0x04;
 
-        public sealed override byte Decimals() => 0;
+        public sealed override byte Decimals
+        {
+            [Safe]
+            get => 0;
+        }
 
         [Safe]
         public static UInt160 OwnerOf(ByteString tokenId)
         {
+            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
+            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             return token.Owner;
         }
 
@@ -106,7 +112,7 @@ namespace Neo.SmartContract.Framework
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
             tokenMap[tokenId] = StdLib.Serialize(token);
             UpdateBalance(token.Owner, tokenId, +1);
-            UpdateTotalSupply(+1);
+            TotalSupply++;
             PostTransfer(null, token.Owner, tokenId, null);
         }
 
@@ -116,7 +122,7 @@ namespace Neo.SmartContract.Framework
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
             tokenMap.Delete(tokenId);
             UpdateBalance(token.Owner, tokenId, -1);
-            UpdateTotalSupply(-1);
+            TotalSupply--;
             PostTransfer(token.Owner, null, tokenId, null);
         }
 
