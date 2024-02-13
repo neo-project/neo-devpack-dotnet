@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -442,7 +443,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Get Coverage
+        /// Get Coverage by contract
         /// </summary>
         /// <typeparam name="T">Contract</typeparam>
         /// <param name="contract">Contract</param>
@@ -455,6 +456,55 @@ namespace Neo.SmartContract.Testing
             }
 
             return coveredContract;
+        }
+
+        /// <summary>
+        /// Get Coverage by method
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <param name="method">Method</param>
+        /// <returns>CoveredContract</returns>
+        public CoveredMethod? GetCoverage<T>(T contract, Expression<Action<T>> method) where T : SmartContract
+        {
+            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
+            {
+                return null;
+            }
+
+            (var name, var pcount) = method.Body.GetMethodAndPCount();
+
+            if (name is null || !pcount.HasValue)
+            {
+                return null;
+            }
+
+            return coveredContract.GetCoverage(name, pcount.Value);
+        }
+
+        /// <summary>
+        /// Get Coverage by method
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <typeparam name="TResult">Result</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <param name="method">Method</param>
+        /// <returns>CoveredContract</returns>
+        public CoveredMethod? GetCoverage<T, TResult>(T contract, Expression<Func<T, TResult>> method) where T : SmartContract
+        {
+            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
+            {
+                return null;
+            }
+
+            (var name, var pcount) = method.Body.GetMethodAndPCount();
+
+            if (name is null || !pcount.HasValue)
+            {
+                return null;
+            }
+
+            return coveredContract.GetCoverage(name, pcount.Value);
         }
 
         /// <summary>

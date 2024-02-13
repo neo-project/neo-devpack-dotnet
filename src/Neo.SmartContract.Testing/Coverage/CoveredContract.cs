@@ -8,6 +8,8 @@ namespace Neo.SmartContract.Testing.Coverage
     [DebuggerDisplay("{ToString()}")]
     public class CoveredContract
     {
+        private readonly TestEngine _engine;
+
         /// <summary>
         /// Contract Hash
         /// </summary>
@@ -41,14 +43,16 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// CoveredContract
         /// </summary>
+        /// <param name="engine">Engine</param>
         /// <param name="hash">Hash</param>
         /// <param name="script">Script</param>
-        public CoveredContract(UInt160 hash, Script script)
+        internal CoveredContract(TestEngine engine, UInt160 hash, Script script)
         {
             Hash = hash;
             Script = script;
+            _engine = engine;
 
-            // Iterate all the valid instructions
+            // Iterate all valid instructions
 
             int ip = 0;
             Dictionary<int, CoverageData> coverage = new();
@@ -62,6 +66,62 @@ namespace Neo.SmartContract.Testing.Coverage
             }
 
             Coverage = coverage;
+        }
+
+        /// <summary>
+        /// Get method coverage
+        /// </summary>
+        /// <param name="methodName">Method name</param>
+        /// <param name="pcount">Parameter count</param>
+        /// <returns>CoveredMethod</returns>
+        public CoveredMethod? GetCoverage(string methodName, int pcount)
+        {
+            // Find contract method by Abi
+            // Note: this could be changed if the contract was updated
+
+            var state = _engine.Native.ContractManagement.GetContract(Hash);
+            if (state == null) return null;
+
+            var abiMethod = state.Manifest.Abi.GetMethod(methodName, pcount);
+            if (abiMethod == null) return null;
+
+            var to = Script.Length - 1;
+            var next = state.Manifest.Abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
+
+            if (next is not null) to = next.Offset - 1;
+
+            // Return method coverage
+
+            return new CoveredMethod()
+            {
+                Contract = this,
+                MethodName = methodName,
+                PCount = pcount,
+                Offset = abiMethod.Offset,
+                MethodLength = to - abiMethod.Offset
+            };
+        }
+
+        /// <summary>
+        /// Get Coverage from the Contract coverage
+        /// </summary>
+        /// <param name="offset">Offset</param>
+        /// <param name="length">Length</param>
+        /// <returns>Coverage</returns>
+        public IDictionary<int, CoverageData> GetCoverageFrom(int offset, int length)
+        {
+            var to = offset + length;
+            var entries = new Dictionary<int, CoverageData>();
+
+            foreach (var kvp in Coverage)
+            {
+                if (kvp.Key >= offset && kvp.Key <= to)
+                {
+                    entries[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return entries;
         }
 
         /// <summary>
