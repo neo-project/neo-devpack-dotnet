@@ -1,4 +1,3 @@
-using Akka.Util;
 using Neo.Json;
 using Neo.Persistence;
 using System;
@@ -12,6 +11,9 @@ namespace Neo.SmartContract.Testing
     /// </summary>
     public class TestStorage
     {
+        // Key to check if native contracts are initialized, by default: Neo.votersCountPrefix
+        private static readonly StorageKey _initKey = new() { Id = Native.NativeContract.NEO.Id, Key = new byte[] { 1 } };
+
         /// <summary>
         /// Store
         /// </summary>
@@ -21,6 +23,11 @@ namespace Neo.SmartContract.Testing
         /// Snapshot
         /// </summary>
         public SnapshotCache Snapshot { get; private set; }
+
+        /// <summary>
+        /// Return true if native contract are initialized
+        /// </summary>
+        public bool IsInitialized => Snapshot.Contains(_initKey);
 
         /// <summary>
         /// Constructor

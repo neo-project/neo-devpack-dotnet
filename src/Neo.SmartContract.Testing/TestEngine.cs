@@ -82,9 +82,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                var votersCountPrefix = new byte[] { 1 };
-
-                if (!Native.NEO.Storage.Contains(votersCountPrefix))
+                if (!Storage.IsInitialized)
                 {
                     // If is not initialized, return the ProtocolSettings
 
@@ -104,9 +102,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                var votersCountPrefix = new byte[] { 1 };
-
-                if (!Native.NEO.Storage.Contains(votersCountPrefix))
+                if (!Storage.IsInitialized)
                 {
                     // If is not initialized, return the ProtocolSettings
 
