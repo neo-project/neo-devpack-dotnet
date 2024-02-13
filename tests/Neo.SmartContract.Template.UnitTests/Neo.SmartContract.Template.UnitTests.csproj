@@ -15,11 +15,11 @@
 		<ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<!--<ItemGroup>
 	  <Reference Include="Nep17Contract">
 	    <HintPath>templates\neocontractnep17\Artifacts\Nep17Contract.artifacts.dll</HintPath>
 	  </Reference>
-	</ItemGroup>
+	</ItemGroup>-->
 
 	<ItemGroup>
 	  <None Update="templates\neocontractnep17\Artifacts\Nep17Contract.manifest.json">
@@ -38,7 +38,7 @@
 		<Exec Command="dotnet new uninstall Neo.SmartContract.Template" />
 		<Exec Command="dotnet remove &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/Nep17Contract.csproj&quot; package Neo.SmartContract.Framework" />
 		<Exec Command="dotnet add    &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/Nep17Contract.csproj&quot; reference &quot;$(SolutionDir)src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj&quot;" />
-		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/Nep17Contract.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts&quot; --generate-artifacts library" />
+		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/Nep17Contract.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts&quot; --generate-artifacts source" />
 	</Target>
 
 </Project>

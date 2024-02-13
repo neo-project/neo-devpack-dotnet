@@ -203,7 +203,6 @@ namespace Neo.Compiler
                             var references = new MetadataReference[]
                             {
                                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
                                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
                                 MetadataReference.CreateFromFile(typeof(System.Numerics.BigInteger).Assembly.Location),
@@ -213,7 +212,7 @@ namespace Neo.Compiler
 
                             CSharpCompilationOptions csOptions = new(
                                     OutputKind.DynamicallyLinkedLibrary,
-                                    optimizationLevel: OptimizationLevel.Release,
+                                    optimizationLevel: OptimizationLevel.Debug,
                                     platform: Platform.AnyCpu,
                                     nullableContextOptions: NullableContextOptions.Enable,
                                     deterministic: true);
