@@ -16,12 +16,21 @@ namespace Neo.Compiler
 {
     public class Options
     {
+        public enum GenerateArtifactsKind
+        {
+            None,
+            Source,
+            Library,
+            SourceAndLibrary
+        }
+
         public string? Output { get; set; }
         public string? BaseName { get; set; }
         public NullableContextOptions Nullable { get; set; }
         public bool Checked { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
+        public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.Source;
         public bool NoOptimize { get; set; }
         public bool NoInline { get; set; }
         public byte AddressVersion { get; set; }
