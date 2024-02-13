@@ -24,8 +24,12 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             Assert.IsNull(engine.GetCoverage(engine.Native.NEO));
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+            Assert.AreEqual(engine.Native.NEO.Hash, engine.GetCoverage(engine.Native.NEO)?.Hash);
+            Assert.AreEqual(133, engine.GetCoverage(engine.Native.NEO)?.Script.Length);
             Assert.AreEqual(57, engine.GetCoverage(engine.Native.NEO)?.TotalInstructions);
             Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.CoveredInstructions);
+            Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.HitsInstructions);
 
             // Check balanceOf
 
@@ -33,6 +37,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             Assert.AreEqual(57, engine.GetCoverage(engine.Native.NEO)?.TotalInstructions);
             Assert.AreEqual(6, engine.GetCoverage(engine.Native.NEO)?.CoveredInstructions);
+            Assert.AreEqual(6, engine.GetCoverage(engine.Native.NEO)?.HitsInstructions);
         }
 
         [TestMethod]

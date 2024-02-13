@@ -24,14 +24,19 @@ namespace Neo.SmartContract.Testing.Coverage
         public IDictionary<int, CoverageData> Coverage { get; }
 
         /// <summary>
-        /// Total instructions (it could increase if the script get out of bounds)
+        /// Total instructions (could be different from Coverage.Count if, for example, a contract JUMPS to PUSHDATA content)
         /// </summary>
-        public int TotalInstructions => Coverage.Count;
+        public int TotalInstructions { get; }
 
         /// <summary>
-        /// Covered instructions (it could increase if the script get out of bounds)
+        /// Covered Instructions (OutOfScript are not taken into account)
         /// </summary>
-        public int CoveredInstructions => Coverage.Values.Where(u => u.Hits > 0).Count();
+        public int CoveredInstructions => Coverage.Values.Where(u => !u.OutOfScript && u.Hits > 0).Count();
+
+        /// <summary>
+        /// All instructions that have been touched
+        /// </summary>
+        public int HitsInstructions => Coverage.Values.Where(u => u.Hits > 0).Count();
 
         /// <summary>
         /// CoveredContract
@@ -53,6 +58,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 var instruction = script.GetInstruction(ip);
                 coverage[ip] = new CoverageData();
                 ip += instruction.Size;
+                TotalInstructions++;
             }
 
             Coverage = coverage;
