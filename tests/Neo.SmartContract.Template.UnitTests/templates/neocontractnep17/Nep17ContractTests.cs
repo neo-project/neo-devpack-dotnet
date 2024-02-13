@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System.Numerics;
@@ -10,25 +11,23 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
     [TestClass]
     public class Nep17ContractTests
     {
+        private const string NefFilePath = "templates/neocontractnep17/UtArtifacts/Nep17Contract.nef";
+        private const string ManifestPath = "templates/neocontractnep17/UtArtifacts/Nep17Contract.manifest.json";
+
         private readonly TestEngine Engine;
         private readonly Nep17Contract Nep17;
         private readonly Signer Alice = TestEngine.GetNewSigner();
         private readonly Signer Bob = TestEngine.GetNewSigner();
-        private readonly byte[] Nef;
 
         public Nep17ContractTests()
         {
-            Nef = File.ReadAllBytes("templates/neocontractnep17/UtArtifacts/Nep17Contract.nef");
             Engine = new TestEngine(true);
             Engine.SetTransactionSigners(Alice);
-            Nep17 = Deploy(null);
-        }
 
-        public Nep17Contract Deploy(object? data)
-        {
-            var manifest = File.ReadAllText("templates/neocontractnep17/UtArtifacts/Nep17Contract.manifest.json");
+            var nef = File.ReadAllBytes(NefFilePath);
+            var manifest = File.ReadAllText(ManifestPath);
 
-            return Engine.Deploy<Nep17Contract>(Nef, manifest, data);
+            Nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, null);
         }
 
         [TestMethod]
@@ -226,7 +225,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test SetOwner notification
 
-            UInt160 expectedHash = Helper.GetContractHash(Bob.Account, Nef.AsSerializable<NefFile>().CheckSum, "Nep17Contract");
+            var nef = File.ReadAllBytes(NefFilePath).AsSerializable<NefFile>();
+            var manifest = ContractManifest.Parse(File.ReadAllText(ManifestPath));
+            UInt160 expectedHash = Helper.GetContractHash(Bob.Account, nef.CheckSum, manifest.Name);
 
             UInt160? newOwnerRaised = null;
             var check = Engine.FromHash<Nep17Contract>(expectedHash, false);
@@ -236,7 +237,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // because the contract hash contains the Sender, and now it's random
 
             var rand = TestEngine.GetNewSigner().Account;
-            var nep17 = Deploy(rand);
+            var nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, null);
 
             Assert.AreEqual(rand, nep17.Owner);
             Assert.AreEqual(newOwnerRaised, nep17.Owner);
