@@ -1,12 +1,15 @@
-using System.Numerics;
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Services;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_StorageBacked : SmartContract
+    public class Contract_Stored : SmartContract
     {
+        // Test static
+
+        [Stored]
+        public BigInteger StaticValue { [Safe] get; protected set; }
+
         // Test non-static
 
         [Stored]
