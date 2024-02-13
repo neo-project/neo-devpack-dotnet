@@ -105,7 +105,6 @@ namespace ProjectName
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
             OnSetOwner(initialOwner);
-            TotalSupply = 0;
             Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 
