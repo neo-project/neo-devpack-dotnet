@@ -11,8 +11,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
     [TestClass]
     public class Nep17ContractTests
     {
-        private const string NefFilePath = "templates/neocontractnep17/UtArtifacts/Nep17Contract.nef";
-        private const string ManifestPath = "templates/neocontractnep17/UtArtifacts/Nep17Contract.manifest.json";
+        private const string NefFilePath = "templates/neocontractnep17/Artifacts/Nep17Contract.nef";
+        private const string ManifestPath = "templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json";
 
         private readonly TestEngine Engine;
         private readonly Nep17Contract Nep17;
