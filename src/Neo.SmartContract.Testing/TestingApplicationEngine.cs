@@ -1,6 +1,8 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.VM;
 using System;
 
 namespace Neo.SmartContract.Testing
@@ -10,6 +12,10 @@ namespace Neo.SmartContract.Testing
     /// </summary>
     internal class TestingApplicationEngine : ApplicationEngine
     {
+        private ExecutionContext? InstructionContext;
+        private int? InstructionPointer;
+        private long PreExecuteInstructionGasConsumed;
+
         /// <summary>
         /// Testing engine
         /// </summary>
@@ -19,6 +25,46 @@ namespace Neo.SmartContract.Testing
             : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
         {
             Engine = engine;
+        }
+
+        protected override void PreExecuteInstruction(Instruction instruction)
+        {
+            // Cache coverage data
+
+            PreExecuteInstructionGasConsumed = GasConsumed;
+            InstructionContext = CurrentContext;
+            InstructionPointer = InstructionContext?.InstructionPointer;
+
+            // Regular action
+
+            base.PreExecuteInstruction(instruction);
+        }
+
+        protected override void PostExecuteInstruction(Instruction instruction)
+        {
+            base.PostExecuteInstruction(instruction);
+
+            // We need the script to know the offset
+
+            if (InstructionContext is null) return;
+
+            // Compute coverage
+
+            var contractHash = InstructionContext.GetScriptHash();
+
+            if (!Engine.Coverage.TryGetValue(contractHash, out var coveredContract))
+            {
+                Engine.Coverage[contractHash] = coveredContract = new(contractHash, InstructionContext.Script);
+            }
+
+            if (InstructionPointer is null) return;
+
+            if (!coveredContract.Coverage.TryGetValue(InstructionPointer.Value, out var coverage))
+            {
+                coveredContract.Coverage[InstructionPointer.Value] = coverage = new CoverageData() { OutOfScript = true };
+            }
+
+            coverage.Hit(GasConsumed - PreExecuteInstructionGasConsumed);
         }
 
         protected override void OnSysCall(InteropDescriptor descriptor)

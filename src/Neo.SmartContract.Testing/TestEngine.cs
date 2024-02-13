@@ -4,6 +4,7 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
@@ -18,6 +19,7 @@ namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
+        internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
         private NativeArtifacts? _native;
@@ -437,6 +439,22 @@ namespace Neo.SmartContract.Testing
 
             if (engine.ResultStack.Count == 0) return StackItem.Null;
             return engine.ResultStack.Pop();
+        }
+
+        /// <summary>
+        /// Get Coverage
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <returns>CoveredContract</returns>
+        public CoveredContract? GetCoverage<T>(T contract) where T : SmartContract
+        {
+            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
+            {
+                return null;
+            }
+
+            return coveredContract;
         }
 
         /// <summary>

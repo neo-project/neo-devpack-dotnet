@@ -124,7 +124,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             sourceCode.WriteLine("}");
 
-            return sourceCode.ToString().TrimEnd();
+            return sourceCode.ToString();
         }
 
         private static (ContractMethodDescriptor[] methods, (ContractMethodDescriptor getter, ContractMethodDescriptor? setter)[] properties)
