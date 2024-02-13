@@ -155,7 +155,14 @@ namespace Neo.Compiler
                 JToken debugInfo = context.CreateDebugInformation(folder);
                 if (!options.NoOptimize)
                 {
-                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+                    try
+                    {
+                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Failed to optimize: {ex}");
+                    }
                 }
 
                 try

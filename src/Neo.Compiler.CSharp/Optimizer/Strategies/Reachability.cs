@@ -277,9 +277,12 @@ namespace Neo.Optimizer
                         ((catchAddr, finallyAddr), stackType) = stack.Peek();
                         if (stackType != TryStack.TRY && stackType != TryStack.CATCH) throw new BadScriptException("No try stack on ENDTRY");
 
-                        // Visit catchAddr because there may still be exceptions at runtime
-                        Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack);
-                        CoverInstruction(catchAddr, script, coveredMap, stack: newStack, throwed: true);
+                        if (stackType == TryStack.TRY)
+                        {
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack);
+                            CoverInstruction(catchAddr, script, coveredMap, stack: newStack, throwed: true);
+                        }
 
                         stack.Pop();
                         int endPointer = addr + instruction.TokenI8;
