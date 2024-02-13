@@ -574,11 +574,12 @@ namespace Neo.Compiler
                 Call(ApplicationEngine.System_Storage_Get);
                 switch (property.Type.Name)
                 {
-                    case "SByte":
                     case "Short":
+                    case "Byte":
+                    case "SByte":
+                    case "Int16":
                     case "Int32":
                     case "Int64":
-                    case "Byte":
                     case "UInt16":
                     case "UInt32":
                     case "UInt64":
@@ -628,11 +629,12 @@ namespace Neo.Compiler
                     AccessSlot(OpCode.LDARG, 1);
                 switch (property.Type.Name)
                 {
-                    case "SByte":
                     case "Short":
+                    case "Byte":
+                    case "SByte":
+                    case "Int16":
                     case "Int32":
                     case "Int64":
-                    case "Byte":
                     case "UInt16":
                     case "UInt32":
                     case "UInt64":
