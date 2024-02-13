@@ -113,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard(kind[0].ToString().ToLowerInvariant() + kind[1..]);
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.IsTrue(result.Pop().IsNull);
+            Assert.AreEqual(0, result.Pop());
 
             // Put
 
