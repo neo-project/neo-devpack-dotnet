@@ -42,7 +42,7 @@ namespace Neo.Compiler
                 new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
-                new Option<bool>("--no-artifacts", "Instruct the compiler not to generate artifacts."),
+                new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
                 new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -181,15 +181,19 @@ namespace Neo.Compiler
                     return 1;
                 }
                 Console.WriteLine($"Created {path}");
-                // GenerateArtifacts
+
+                if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
                     var artifact = manifest.Abi.GetArtifactsSource(baseName);
 
-                    path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
-                    File.WriteAllText(path, artifact);
-                    Console.WriteLine($"Created {path}");
+                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.SourceAndLibrary || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
+                    {
+                        path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
+                        File.WriteAllText(path, artifact);
+                        Console.WriteLine($"Created {path}");
+                    }
 
-                    if (options.GenerateArtifactLibrary)
+                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.SourceAndLibrary || options.GenerateArtifacts == Options.GenerateArtifactsKind.Library)
                     {
                         try
                         {
@@ -210,7 +214,12 @@ namespace Neo.Compiler
                             };
 
                             var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references,
-                                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                                new CSharpCompilationOptions(
+                                    OutputKind.DynamicallyLinkedLibrary,
+                                    optimizationLevel: OptimizationLevel.Release,
+                                    platform: Platform.AnyCpu,
+                                    deterministic: true
+                                    ));
 
                             using var ms = new MemoryStream();
                             EmitResult result = compilation.Emit(ms);
