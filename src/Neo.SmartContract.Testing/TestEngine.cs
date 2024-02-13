@@ -465,15 +465,25 @@ namespace Neo.SmartContract.Testing
         /// <param name="contract">Contract</param>
         /// <param name="method">Method</param>
         /// <returns>CoveredContract</returns>
-        public CoveredMethod? GetCoverage<T>(T contract, Expression<Action<T>> method) where T : SmartContract
+        public CoverageBase? GetCoverage<T>(T contract, Expression<Action<T>> method) where T : SmartContract
         {
             if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
             {
                 return null;
             }
 
-            var abiMethod = AbiMethod.FromExpression(method.Body);
-            return coveredContract.GetCoverage(abiMethod);
+            var abiMethods = AbiMethod.CreateFromExpression(method.Body)
+                .Select(coveredContract.GetCoverage)
+                .Where(u => u != null)
+                .Cast<CoveredMethod>()
+                .ToArray();
+
+            return abiMethods.Length switch
+            {
+                0 => null,
+                1 => abiMethods[0],
+                _ => new CoveredCollection(coveredContract, abiMethods),
+            };
         }
 
         /// <summary>
@@ -484,15 +494,25 @@ namespace Neo.SmartContract.Testing
         /// <param name="contract">Contract</param>
         /// <param name="method">Method</param>
         /// <returns>CoveredContract</returns>
-        public CoveredMethod? GetCoverage<T, TResult>(T contract, Expression<Func<T, TResult>> method) where T : SmartContract
+        public CoverageBase? GetCoverage<T, TResult>(T contract, Expression<Func<T, TResult>> method) where T : SmartContract
         {
             if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
             {
                 return null;
             }
 
-            var abiMethod = AbiMethod.FromExpression(method.Body);
-            return coveredContract.GetCoverage(abiMethod);
+            var abiMethods = AbiMethod.CreateFromExpression(method.Body)
+                .Select(coveredContract.GetCoverage)
+                .Where(u => u != null)
+                .Cast<CoveredMethod>()
+                .ToArray();
+
+            return abiMethods.Length switch
+            {
+                0 => null,
+                1 => abiMethods[0],
+                _ => new CoveredCollection(coveredContract, abiMethods),
+            };
         }
 
         /// <summary>

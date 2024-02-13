@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -34,7 +35,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="expression">Expression</param>
         /// <returns>AbiMethod</returns>
-        public static AbiMethod? FromExpression(Expression expression)
+        public static AbiMethod[] CreateFromExpression(Expression expression)
         {
             if (expression is MemberExpression memberExpression)
             {
@@ -42,17 +43,26 @@ namespace Neo.SmartContract.Testing.Coverage
                 {
                     if (pInfo.CanRead)
                     {
+                        var display = pInfo.GetGetMethod()?.GetCustomAttribute<DisplayNameAttribute>();
+                        var nameRead = display is not null ? display.DisplayName : memberExpression.Member.Name;
+
                         if (pInfo.CanWrite)
                         {
-                            // TODO if it's a property we should return both methods?
+                            // If Property CanWrite, we return both methods
+
+                            display = pInfo.GetSetMethod()?.GetCustomAttribute<DisplayNameAttribute>();
+                            var nameWrite = display is not null ? display.DisplayName : memberExpression.Member.Name;
+
+                            return new AbiMethod[]
+                            {
+                                new AbiMethod(nameRead, 0),
+                                new AbiMethod(nameWrite, 1)
+                            };
                         }
 
-                        // propertyOnlyRead
+                        // Only read property
 
-                        var display = pInfo.GetGetMethod()?.GetCustomAttribute<DisplayNameAttribute>();
-                        var name = display is not null ? display.DisplayName : memberExpression.Member.Name;
-
-                        return new AbiMethod(name, 0);
+                        return new AbiMethod[] { new AbiMethod(nameRead, 0) };
                     }
                 }
             }
@@ -63,11 +73,11 @@ namespace Neo.SmartContract.Testing.Coverage
                     var display = mInfo.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : mInfo.Name;
 
-                    return new AbiMethod(name, mInfo.GetParameters().Length);
+                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Length) };
                 }
             }
 
-            return null;
+            return Array.Empty<AbiMethod>();
         }
     }
 }

@@ -50,6 +50,10 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
             Assert.AreEqual(3, methodCovered?.CoveredInstructions);
 
+            methodCovered = engine.GetCoverage(engine.Native.NEO, o => o.RegisterPrice);
+            Assert.AreEqual(6, methodCovered?.TotalInstructions);
+            Assert.AreEqual(0, methodCovered?.CoveredInstructions);
+
             methodCovered = engine.GetCoverage(engine.Native.NEO, o => o.BalanceOf(It.IsAny<UInt160>()));
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
             Assert.AreEqual(3, methodCovered?.CoveredInstructions);

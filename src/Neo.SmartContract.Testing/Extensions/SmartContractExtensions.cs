@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Testing
         /// <param name="contract">Contract</param>
         /// <param name="method">Method</param>
         /// <returns>CoveredContract</returns>
-        public static CoveredMethod? GetCoverage<T>(this T contract, Expression<Action<T>> method) where T : SmartContract
+        public static CoverageBase? GetCoverage<T>(this T contract, Expression<Action<T>> method) where T : SmartContract
         {
             return contract.Engine.GetCoverage(contract, method);
         }
@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Testing
         /// <param name="contract">Contract</param>
         /// <param name="method">Method</param>
         /// <returns>CoveredContract</returns>
-        public static CoveredMethod? GetCoverage<T, TResult>(this T contract, Expression<Func<T, TResult>> method) where T : SmartContract
+        public static CoverageBase? GetCoverage<T, TResult>(this T contract, Expression<Func<T, TResult>> method) where T : SmartContract
         {
             return contract.Engine.GetCoverage(contract, method);
         }
