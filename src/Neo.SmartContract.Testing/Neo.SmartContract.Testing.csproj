@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Title>Neo.SmartContract.Testing</Title>
+		<PackageId>Neo.SmartContract.Testing</PackageId>
+		<PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+		<Description>TestEngine for NEO smart contract testing.</Description>
+		<IncludeContentInPack>true</IncludeContentInPack>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<ContentTargetFolders>content</ContentTargetFolders>
+		<Nullable>enable</Nullable>
+		<NoWarn>$(NoWarn);NU5128</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Moq" Version="4.20.70" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+	</ItemGroup>
+
+</Project>
