@@ -237,7 +237,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // because the contract hash contains the Sender, and now it's random
 
             var rand = TestEngine.GetNewSigner().Account;
-            var nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, null);
+            var nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, rand);
 
             Assert.AreEqual(rand, nep17.Owner);
             Assert.AreEqual(newOwnerRaised, nep17.Owner);
