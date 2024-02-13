@@ -344,7 +344,3 @@ The currently known limitations are:
 
 - Receive events during the deploy, because the object is returned after performing the deploy, it is not possible to intercept notifications for the deploy unless the contract is previously created with `FromHash` knowing the hash of the contract to be created.
 - It is possible that if the contract is updated, the coverage calculation may be incorrect.
-
-```csharp
-methodCovered = engine.GetCoverage(engine.Native.NEO, o => o.TotalSupply);
-```
