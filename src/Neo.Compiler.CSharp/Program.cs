@@ -204,13 +204,13 @@ namespace Neo.Compiler
                             var syntaxTree = CSharpSyntaxTree.ParseText(artifact);
                             var references = new MetadataReference[]
                             {
-                            MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                            MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
-                            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                            MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                            MetadataReference.CreateFromFile(typeof(System.Numerics.BigInteger).Assembly.Location),
-                            MetadataReference.CreateFromFile(typeof(UInt160).Assembly.Location),
-                            MetadataReference.CreateFromFile(typeof(SmartContract.Testing.SmartContract).Assembly.Location)
+                                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
+                                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
+                                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
+                                MetadataReference.CreateFromFile(typeof(System.Numerics.BigInteger).Assembly.Location),
+                                MetadataReference.CreateFromFile(typeof(NeoSystem).Assembly.Location),
+                                MetadataReference.CreateFromFile(typeof(SmartContract.Testing.SmartContract).Assembly.Location)
                             };
 
                             var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references,
