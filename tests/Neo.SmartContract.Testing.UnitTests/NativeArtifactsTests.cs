@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -30,6 +31,12 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
             Assert.AreEqual(engine.Native.NEO.TotalSupply, engine.Native.NEO.BalanceOf(engine.ValidatorsAddress));
+
+            // Check coverage
+
+            Assert.AreEqual(100.0F, engine.Native.NEO.GetCoverage(o => o.Symbol).CoveredPercentage);
+            Assert.AreEqual(100.0F, engine.Native.NEO.GetCoverage(o => o.TotalSupply).CoveredPercentage);
+            Assert.AreEqual(100.0F, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>())).CoveredPercentage);
         }
 
         [TestMethod]

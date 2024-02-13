@@ -7,9 +7,14 @@ namespace Neo.SmartContract.Testing.Coverage
     public class CoverageData
     {
         /// <summary>
+        /// The instruction offset
+        /// </summary>
+        public int Offset { get; }
+
+        /// <summary>
         /// The instruction is out of the script
         /// </summary>
-        public bool OutOfScript { get; init; } = false;
+        public bool OutOfScript { get; }
 
         /// <summary>
         /// Hits
@@ -35,6 +40,17 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Average used gas
         /// </summary>
         public long GasAvg => Hits == 0 ? 0 : GasTotal / Hits;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="offset">Offset</param>
+        /// <param name="outOfScript">Out of script</param>
+        public CoverageData(int offset, bool outOfScript = false)
+        {
+            Offset = offset;
+            OutOfScript = outOfScript;
+        }
 
         /// <summary>
         /// Hist
@@ -64,7 +80,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns></returns>
         public override string ToString()
         {
-            return $"OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
+            return $"Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
         }
     }
 }

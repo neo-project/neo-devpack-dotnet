@@ -147,7 +147,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         [TestMethod]
         public void TestHits()
         {
-            var coverage = new CoverageData();
+            var coverage = new CoverageData(0);
 
             Assert.AreEqual(0, coverage.Hits);
             Assert.AreEqual(0, coverage.GasAvg);

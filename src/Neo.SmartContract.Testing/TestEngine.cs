@@ -309,7 +309,7 @@ namespace Neo.SmartContract.Testing
 
         private T MockContract<T>(UInt160 hash, int? contractId = null, Action<Mock<T>>? customMock = null) where T : SmartContract
         {
-            var mock = new Mock<T>(new SmartContractInitialize() { Engine = this, Hash = hash, ContractId = contractId })
+            var mock = new Mock<T>(new SmartContractInitialize(this, hash, contractId))
             {
                 CallBase = true
             };
@@ -329,7 +329,7 @@ namespace Neo.SmartContract.Testing
                 if (mock.IsMocked(method))
                 {
                     var mockName = method.Name + ";" + method.GetParameters().Length;
-                    var cm = new CustomMock() { Contract = mock.Object, Method = method };
+                    var cm = new CustomMock(mock.Object, method);
 
                     if (_customMocks.TryGetValue(hash, out var mocks))
                     {

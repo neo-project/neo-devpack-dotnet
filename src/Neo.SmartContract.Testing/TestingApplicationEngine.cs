@@ -59,9 +59,11 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            if (!coveredContract.Coverage.TryGetValue(InstructionPointer.Value, out var coverage))
+            if (!coveredContract.CoverageData.TryGetValue(InstructionPointer.Value, out var coverage))
             {
-                coveredContract.Coverage[InstructionPointer.Value] = coverage = new CoverageData() { OutOfScript = true };
+                // Note: This call is unusual, out of the expected
+
+                coveredContract.CoverageData[InstructionPointer.Value] = coverage = new CoverageData(InstructionPointer.Value, true);
             }
 
             coverage.Hit(GasConsumed - PreExecuteInstructionGasConsumed);

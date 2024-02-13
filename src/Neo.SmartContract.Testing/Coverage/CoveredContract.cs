@@ -6,9 +6,10 @@ using System.Linq;
 namespace Neo.SmartContract.Testing.Coverage
 {
     [DebuggerDisplay("{ToString()}")]
-    public class CoveredContract
+    public class CoveredContract : CoverageBase
     {
         private readonly TestEngine _engine;
+        internal readonly Dictionary<int, CoverageData> CoverageData = new();
 
         /// <summary>
         /// Contract Hash
@@ -23,22 +24,22 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Coverage
         /// </summary>
-        public IDictionary<int, CoverageData> Coverage { get; }
+        public override IEnumerable<CoverageData> Coverage => CoverageData.Values;
 
         /// <summary>
         /// Total instructions (could be different from Coverage.Count if, for example, a contract JUMPS to PUSHDATA content)
         /// </summary>
-        public int TotalInstructions { get; }
+        public override int TotalInstructions { get; }
 
         /// <summary>
         /// Covered Instructions (OutOfScript are not taken into account)
         /// </summary>
-        public int CoveredInstructions => Coverage.Values.Where(u => !u.OutOfScript && u.Hits > 0).Count();
+        public override int CoveredInstructions => Coverage.Where(u => !u.OutOfScript && u.Hits > 0).Count();
 
         /// <summary>
         /// All instructions that have been touched
         /// </summary>
-        public int HitsInstructions => Coverage.Values.Where(u => u.Hits > 0).Count();
+        public override int HitsInstructions => Coverage.Where(u => u.Hits > 0).Count();
 
         /// <summary>
         /// CoveredContract
@@ -55,17 +56,14 @@ namespace Neo.SmartContract.Testing.Coverage
             // Iterate all valid instructions
 
             int ip = 0;
-            Dictionary<int, CoverageData> coverage = new();
 
             while (ip < script.Length)
             {
                 var instruction = script.GetInstruction(ip);
-                coverage[ip] = new CoverageData();
+                CoverageData[ip] = new CoverageData(ip, false);
                 ip += instruction.Size;
                 TotalInstructions++;
             }
-
-            Coverage = coverage;
         }
 
         /// <summary>
@@ -92,36 +90,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
             // Return method coverage
 
-            return new CoveredMethod()
-            {
-                Contract = this,
-                MethodName = methodName,
-                PCount = pcount,
-                Offset = abiMethod.Offset,
-                MethodLength = to - abiMethod.Offset
-            };
-        }
-
-        /// <summary>
-        /// Get Coverage from the Contract coverage
-        /// </summary>
-        /// <param name="offset">Offset</param>
-        /// <param name="length">Length</param>
-        /// <returns>Coverage</returns>
-        public IDictionary<int, CoverageData> GetCoverageFrom(int offset, int length)
-        {
-            var to = offset + length;
-            var entries = new Dictionary<int, CoverageData>();
-
-            foreach (var kvp in Coverage)
-            {
-                if (kvp.Key >= offset && kvp.Key <= to)
-                {
-                    entries[kvp.Key] = kvp.Value;
-                }
-            }
-
-            return entries;
+            return new CoveredMethod(this, methodName, pcount, abiMethod.Offset, to - abiMethod.Offset);
         }
 
         /// <summary>
