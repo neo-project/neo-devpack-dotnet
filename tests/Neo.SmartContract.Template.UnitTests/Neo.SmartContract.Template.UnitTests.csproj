@@ -23,19 +23,12 @@
 	  </Reference>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.manifest.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.nef">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Message Text="Start NeoContract converter, Source File: &quot;$(ProjectPath)&quot;" Importance="high">
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Message Text="Create and compile Nep17Contract.cs" Importance="high">
 		</Message>
-		<Exec Command="dotnet $(TargetDir)nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs&quot;" />
+		<Exec Command="dotnet new install &quot;PACKAGE_PATH&quot;" />
+		<Exec Command="dotnet new neocontractnep17 -n utNep17 -o &quot;PROJECT_PATH.csproj&quot;" />
+		<Exec Command="dotnet $(TargetDir)nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$PROJECT_PATH&quot;" />
 	</Target>
 
 </Project>

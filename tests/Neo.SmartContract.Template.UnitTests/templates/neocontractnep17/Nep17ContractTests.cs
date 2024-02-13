@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
         public Nep17ContractTests()
         {
-            Nef = File.ReadAllBytes("nep17/UtArtifacts/Nep17Contract.nef");
+            Nef = File.ReadAllBytes("templates/neocontractnep17/UtArtifacts/Nep17Contract.nef");
             Engine = new TestEngine(true);
             Engine.SetTransactionSigners(Alice);
             Nep17 = Deploy(null);
@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
         public Nep17Contract Deploy(object? data)
         {
-            var manifest = File.ReadAllText("nep17/UtArtifacts/Nep17Contract.manifest.json");
+            var manifest = File.ReadAllText("templates/neocontractnep17/UtArtifacts/Nep17Contract.manifest.json");
 
             return Engine.Deploy<Nep17Contract>(Nef, manifest, data);
         }
@@ -76,6 +76,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         {
             // Listen OnTransfer
 
+            int raisedTimes = 0;
             UInt160? raisedFrom = null;
             UInt160? raisedTo = null;
             BigInteger? raisedAmount = null;
@@ -85,6 +86,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
                 raisedFrom = from;
                 raisedTo = to;
                 raisedAmount = amount;
+                raisedTimes++;
             }
 
             Nep17.OnTransfer += onTransfer;
@@ -97,10 +99,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(1, raisedTimes);
             Assert.AreEqual(null, raisedFrom);
             Assert.AreEqual(Alice.Account, raisedTo);
             Assert.AreEqual(10, raisedAmount);
 
+            raisedTimes = 0;
             raisedFrom = null;
             raisedTo = null;
             raisedAmount = null;
@@ -112,18 +116,37 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.AreEqual(4, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(6, Nep17.BalanceOf(Bob.Account));
             Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(1, raisedTimes);
             Assert.AreEqual(Alice.Account, raisedFrom);
             Assert.AreEqual(Bob.Account, raisedTo);
             Assert.AreEqual(6, raisedAmount);
 
             // Check with more balance
 
+            raisedTimes = 0;
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
             Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 6));
+            Assert.AreEqual(0, raisedTimes);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(null, raisedTo);
+            Assert.AreEqual(null, raisedAmount);
 
             // Check with not signed
 
+            raisedTimes = 0;
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
             Engine.SetTransactionSigners(Bob);
             Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 0));
+            Assert.AreEqual(0, raisedTimes);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(null, raisedTo);
+            Assert.AreEqual(null, raisedAmount);
 
             // Clean OnTransfer
 
