@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         // Test static
 
         [Stored]
-        public BigInteger StaticValue { [Safe] get; protected set; }
+        public static BigInteger StaticValue { [Safe] get; protected set; }
 
         // Test non-static
 

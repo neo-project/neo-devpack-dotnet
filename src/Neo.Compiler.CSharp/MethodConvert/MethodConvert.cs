@@ -583,12 +583,20 @@ namespace Neo.Compiler
                     case "UInt32":
                     case "UInt64":
                     case "BigInteger":
-                        ChangeType(VM.Types.StackItemType.Integer);
+                        // Replace NULL with 0
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.ISNULL);
+                        JumpTarget ifFalse = new();
+                        Jump(OpCode.JMPIFNOT_L, ifFalse);
+                        AddInstruction(OpCode.DROP);
+                        AddInstruction(OpCode.PUSH0);
+                        ifFalse.Instruction = AddInstruction(OpCode.NOP);
                         break;
                     case "String":
                     case "ByteString":
                     case "UInt160":
                     case "UInt256":
+                    case "ECPoint":
                         break;
                     default:
                         Call(NativeContract.StdLib.Hash, "deserialize", 1, true);
@@ -633,6 +641,7 @@ namespace Neo.Compiler
                     case "ByteString":
                     case "UInt160":
                     case "UInt256":
+                    case "ECPoint":
                         break;
                     default:
                         Call(NativeContract.StdLib.Hash, "serialize", 1, true);

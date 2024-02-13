@@ -48,7 +48,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Test default static value
 
-            var result = _engine.ExecuteTestCaseStandard("getStaticValue");
+            var result = _engine.ExecuteTestCaseStandard("staticValue");
             Assert.AreEqual(VMState.HALT, _engine.State);
             Assert.AreEqual(0, result.Pop());
         }
