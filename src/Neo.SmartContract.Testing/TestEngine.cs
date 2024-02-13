@@ -472,14 +472,8 @@ namespace Neo.SmartContract.Testing
                 return null;
             }
 
-            (var name, var pcount) = method.Body.GetMethodAndPCount();
-
-            if (name is null || !pcount.HasValue)
-            {
-                return null;
-            }
-
-            return coveredContract.GetCoverage(name, pcount.Value);
+            var abiMethod = AbiMethod.FromExpression(method.Body);
+            return coveredContract.GetCoverage(abiMethod);
         }
 
         /// <summary>
@@ -497,14 +491,8 @@ namespace Neo.SmartContract.Testing
                 return null;
             }
 
-            (var name, var pcount) = method.Body.GetMethodAndPCount();
-
-            if (name is null || !pcount.HasValue)
-            {
-                return null;
-            }
-
-            return coveredContract.GetCoverage(name, pcount.Value);
+            var abiMethod = AbiMethod.FromExpression(method.Body);
+            return coveredContract.GetCoverage(abiMethod);
         }
 
         /// <summary>

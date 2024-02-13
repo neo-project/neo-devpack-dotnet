@@ -32,16 +32,6 @@ namespace Neo.SmartContract.Testing.Coverage
         public override int TotalInstructions { get; }
 
         /// <summary>
-        /// Covered Instructions (OutOfScript are not taken into account)
-        /// </summary>
-        public override int CoveredInstructions => Coverage.Where(u => !u.OutOfScript && u.Hits > 0).Count();
-
-        /// <summary>
-        /// All instructions that have been touched
-        /// </summary>
-        public override int HitsInstructions => Coverage.Where(u => u.Hits > 0).Count();
-
-        /// <summary>
         /// CoveredContract
         /// </summary>
         /// <param name="engine">Engine</param>
@@ -62,6 +52,9 @@ namespace Neo.SmartContract.Testing.Coverage
                 var instruction = script.GetInstruction(ip);
                 CoverageData[ip] = new CoverageData(ip, false);
                 ip += instruction.Size;
+
+                // We can cache TotalInstructions because we iterate all the instructions
+
                 TotalInstructions++;
             }
         }
@@ -74,13 +67,25 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoveredMethod</returns>
         public CoveredMethod? GetCoverage(string methodName, int pcount)
         {
+            return GetCoverage(new AbiMethod(methodName, pcount));
+        }
+
+        /// <summary>
+        /// Get method coverage
+        /// </summary>
+        /// <param name="methodName">Method</param>
+        /// <returns>CoveredMethod</returns>
+        public CoveredMethod? GetCoverage(AbiMethod? method = null)
+        {
+            if (method is null) return null;
+
             // Find contract method by Abi
             // Note: this could be changed if the contract was updated
 
             var state = _engine.Native.ContractManagement.GetContract(Hash);
             if (state == null) return null;
 
-            var abiMethod = state.Manifest.Abi.GetMethod(methodName, pcount);
+            var abiMethod = state.Manifest.Abi.GetMethod(method.Name, method.PCount);
             if (abiMethod == null) return null;
 
             var to = Script.Length - 1;
@@ -90,7 +95,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
             // Return method coverage
 
-            return new CoveredMethod(this, methodName, pcount, abiMethod.Offset, to - abiMethod.Offset);
+            return new CoveredMethod(this, new AbiMethod(method.Name, method.PCount), abiMethod.Offset, to - abiMethod.Offset);
         }
 
         /// <summary>

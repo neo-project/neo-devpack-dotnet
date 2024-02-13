@@ -30,42 +30,6 @@ namespace Neo.SmartContract.Testing.Extensions
             return false;
         }
 
-        public static (string? method, int? pcount) GetMethodAndPCount(this Expression action)
-        {
-            if (action is MemberExpression memberExpression)
-            {
-                if (memberExpression.Member is PropertyInfo pInfo)
-                {
-                    if (pInfo.CanRead)
-                    {
-                        if (pInfo.CanWrite)
-                        {
-                            // TODO if it's a property we should return both methods?
-                        }
-
-                        // propertyOnlyRead
-
-                        var display = pInfo.GetGetMethod()?.GetCustomAttribute<DisplayNameAttribute>();
-                        var name = display is not null ? display.DisplayName : memberExpression.Member.Name;
-
-                        return (name, 0);
-                    }
-                }
-            }
-            else if (action is MethodCallExpression methodExpression)
-            {
-                if (methodExpression.Method is MethodInfo mInfo)
-                {
-                    var display = mInfo.GetCustomAttribute<DisplayNameAttribute>();
-                    var name = display is not null ? display.DisplayName : mInfo.Name;
-
-                    return (name, mInfo.GetParameters().Length);
-                }
-            }
-
-            return (null, null);
-        }
-
         private static MethodCallExpression BuildIsAnyExpressions(Type type)
         {
             return Expression.Call(isAnyMethod.MakeGenericMethod(type));

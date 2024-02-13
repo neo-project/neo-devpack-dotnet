@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
@@ -12,17 +13,17 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Total instructions (could be different from Coverage.Count if, for example, a contract JUMPS to PUSHDATA content)
         /// </summary>
-        public abstract int TotalInstructions { get; }
+        public virtual int TotalInstructions => Coverage.Where(u => !u.OutOfScript).Count();
 
         /// <summary>
         /// Covered Instructions (OutOfScript are not taken into account)
         /// </summary>
-        public abstract int CoveredInstructions { get; }
+        public virtual int CoveredInstructions => Coverage.Where(u => !u.OutOfScript && u.Hits > 0).Count();
 
         /// <summary>
         /// All instructions that have been touched
         /// </summary>
-        public abstract int HitsInstructions { get; }
+        public virtual int HitsInstructions => Coverage.Where(u => u.Hits > 0).Count();
 
         /// <summary>
         /// Covered Percentage
