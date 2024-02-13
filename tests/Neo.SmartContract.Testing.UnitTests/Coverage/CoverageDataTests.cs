@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     public class CoverageDataTests
     {
         [TestMethod]
-        public void TestCoverage()
+        public void TestCoverageByEngine()
         {
             // Create the engine initializing the native contracts
             // Native contracts use 3 opcodes per method
@@ -72,6 +72,74 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(3, methodCovered?.CoveredInstructions);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO)?.GetCoverage("transfer", 4);
+            Assert.AreEqual(3, methodCovered?.TotalInstructions);
+            Assert.AreEqual(0, methodCovered?.CoveredInstructions);
+        }
+
+        [TestMethod]
+        public void TestCoverageByExtension()
+        {
+            // Create the engine initializing the native contracts
+            // Native contracts use 3 opcodes per method
+
+            //{
+            //    sb.EmitPush(0); //version
+            //    sb.EmitSysCall(ApplicationEngine.System_Contract_CallNative);
+            //    sb.Emit(OpCode.RET);
+            //}
+
+            var engine = new TestEngine(true);
+
+            // Check totalSupply
+
+            Assert.IsNull(engine.Native.NEO.GetCoverage());
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+            Assert.AreEqual(engine.Native.NEO.Hash, engine.Native.NEO.GetCoverage()?.Hash);
+            Assert.AreEqual(133, engine.Native.NEO.GetCoverage()?.Script.Length);
+            Assert.AreEqual(57, engine.Native.NEO.GetCoverage()?.TotalInstructions);
+            Assert.AreEqual(3, engine.Native.NEO.GetCoverage()?.CoveredInstructions);
+            Assert.AreEqual(3, engine.Native.NEO.GetCoverage()?.HitsInstructions);
+
+            // Check balanceOf
+
+            Assert.AreEqual(0, engine.Native.NEO.BalanceOf(engine.Native.NEO.Hash));
+
+            Assert.AreEqual(57, engine.Native.NEO.GetCoverage()?.TotalInstructions);
+            Assert.AreEqual(6, engine.Native.NEO.GetCoverage()?.CoveredInstructions);
+            Assert.AreEqual(6, engine.Native.NEO.GetCoverage()?.HitsInstructions);
+
+            // Check coverage by method and expression
+
+            var methodCovered = engine.Native.Oracle.GetCoverage(o => o.Finish());
+            Assert.IsNull(methodCovered);
+
+            methodCovered = engine.Native.NEO.GetCoverage(o => o.TotalSupply);
+            Assert.AreEqual(3, methodCovered?.TotalInstructions);
+            Assert.AreEqual(3, methodCovered?.CoveredInstructions);
+
+            methodCovered = engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>()));
+            Assert.AreEqual(3, methodCovered?.TotalInstructions);
+            Assert.AreEqual(3, methodCovered?.CoveredInstructions);
+
+            methodCovered = engine.Native.NEO.GetCoverage(o => o.Transfer(It.IsAny<UInt160>(), It.IsAny<UInt160>(), It.IsAny<BigInteger>(), It.IsAny<object>()));
+            Assert.AreEqual(3, methodCovered?.TotalInstructions);
+            Assert.AreEqual(0, methodCovered?.CoveredInstructions);
+
+            // Check coverage by raw method
+
+            methodCovered = engine.Native.Oracle.GetCoverage()?.GetCoverage("finish", 0);
+            Assert.IsNull(methodCovered);
+
+            methodCovered = engine.Native.NEO.GetCoverage()?.GetCoverage("totalSupply", 0);
+            Assert.AreEqual(3, methodCovered?.TotalInstructions);
+            Assert.AreEqual(3, methodCovered?.CoveredInstructions);
+
+            methodCovered = engine.Native.NEO.GetCoverage()?.GetCoverage("balanceOf", 1);
+            Assert.AreEqual(3, methodCovered?.TotalInstructions);
+            Assert.AreEqual(3, methodCovered?.CoveredInstructions);
+
+            methodCovered = engine.Native.NEO.GetCoverage()?.GetCoverage("transfer", 4);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
             Assert.AreEqual(0, methodCovered?.CoveredInstructions);
         }
