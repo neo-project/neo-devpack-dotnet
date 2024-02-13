@@ -26,9 +26,11 @@
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Message Text="Create and compile Nep17Contract.cs" Importance="high">
 		</Message>
-		<Exec Command="dotnet new install &quot;PACKAGE_PATH&quot;" />
-		<Exec Command="dotnet new neocontractnep17 -n utNep17 -o &quot;PROJECT_PATH.csproj&quot;" />
-		<Exec Command="dotnet $(TargetDir)nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$PROJECT_PATH&quot;" />
+		<Exec Command="dotnet pack &quot;$(SolutionDir)src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj&quot;" />
+		<Exec Command="dotnet new install &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.3.6.2.nupkg&quot;" />
+		<Exec Command="dotnet new neocontractnep17 -n utNep17 -o &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/&quot;" />
+		<Exec Command="dotnet new uninstall Neo.SmartContract.Template"/>
+		<Exec Command="dotnet $(TargetDir)nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/utNep17.csproj&quot;" />
 	</Target>
 
 </Project>
