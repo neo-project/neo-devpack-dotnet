@@ -589,8 +589,10 @@ namespace Neo.Compiler
                         AddInstruction(OpCode.ISNULL);
                         JumpTarget ifFalse = new();
                         Jump(OpCode.JMPIFNOT_L, ifFalse);
-                        AddInstruction(OpCode.DROP);
-                        AddInstruction(OpCode.PUSH0);
+                        {
+                            AddInstruction(OpCode.DROP);
+                            AddInstruction(OpCode.PUSH0);
+                        }
                         ifFalse.Instruction = AddInstruction(OpCode.NOP);
                         break;
                     case "String":
