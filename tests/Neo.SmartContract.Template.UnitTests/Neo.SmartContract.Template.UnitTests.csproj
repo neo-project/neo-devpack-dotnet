@@ -26,11 +26,13 @@
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Message Text="Create and compile Nep17Contract.cs" Importance="high">
 		</Message>
-		<Exec Command="dotnet pack &quot;$(SolutionDir)src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj&quot;" />
+		<Exec Command="dotnet pack &quot;$(SolutionDir)src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj&quot; --include-source" />
 		<Exec Command="dotnet new install &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.3.6.2.nupkg&quot;" />
-		<Exec Command="dotnet new neocontractnep17 -n utNep17 -o &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/&quot;" />
+		<Exec Command="dotnet new neocontractnep17 -n Nep17Contract -o &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/&quot; --force" />
 		<Exec Command="dotnet new uninstall Neo.SmartContract.Template"/>
-		<Exec Command="dotnet $(TargetDir)nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/utNep17.csproj&quot;" />
+		<Exec Command="dotnet remove &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj&quot; package Neo.SmartContract.Framework"/>
+		<Exec Command="dotnet add    &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj&quot; reference &quot;$(SolutionDir)src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj&quot;"/>
+		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/UtArtifacts&quot;" />
 	</Target>
 
 </Project>
