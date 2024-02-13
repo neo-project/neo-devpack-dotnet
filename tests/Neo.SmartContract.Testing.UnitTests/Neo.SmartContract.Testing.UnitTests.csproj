@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>Neo.SmartContract.TestEngine.UnitTests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+	</ItemGroup>
+
+</Project>
