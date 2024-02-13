@@ -22,7 +22,7 @@ namespace Neo.Compiler
         public bool Checked { get; set; }
         public bool Debug { get; set; }
         public bool Assembly { get; set; }
-        public bool NoArtifacts { get; set; }
+        public bool GenerateArtifactLibrary { get; set; } 
         public bool NoOptimize { get; set; }
         public bool NoInline { get; set; }
         public byte AddressVersion { get; set; }
