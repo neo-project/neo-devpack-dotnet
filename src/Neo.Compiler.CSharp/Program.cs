@@ -199,9 +199,7 @@ namespace Neo.Compiler
                         {
                             // Try to compile the artifacts into a dll
 
-                            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-
-                            var syntaxTree = CSharpSyntaxTree.ParseText(artifact);
+                            var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
                             var references = new MetadataReference[]
                             {
                                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
@@ -210,16 +208,18 @@ namespace Neo.Compiler
                                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
                                 MetadataReference.CreateFromFile(typeof(System.Numerics.BigInteger).Assembly.Location),
                                 MetadataReference.CreateFromFile(typeof(NeoSystem).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(SmartContract.Testing.SmartContract).Assembly.Location)
+                                MetadataReference.CreateFromFile(typeof(SmartContract.Testing.TestEngine).Assembly.Location)
                             };
 
-                            var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references,
-                                new CSharpCompilationOptions(
+                            CSharpCompilationOptions csOptions = new(
                                     OutputKind.DynamicallyLinkedLibrary,
                                     optimizationLevel: OptimizationLevel.Release,
                                     platform: Platform.AnyCpu,
-                                    deterministic: true
-                                    ));
+                                    nullableContextOptions: NullableContextOptions.Enable,
+                                    deterministic: true);
+
+                            var syntaxTree = CSharpSyntaxTree.ParseText(artifact, options: CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest));
+                            var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references, csOptions);
 
                             using var ms = new MemoryStream();
                             EmitResult result = compilation.Emit(ms);
