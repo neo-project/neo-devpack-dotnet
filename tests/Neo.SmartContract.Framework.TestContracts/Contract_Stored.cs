@@ -5,11 +5,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Stored : SmartContract
     {
-        // Test static
-
-        [Stored]
-        public static BigInteger StaticValue { [Safe] get; protected set; }
-
         // Test non-static
 
         [Stored]
