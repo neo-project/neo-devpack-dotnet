@@ -95,7 +95,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
             // Return method coverage
 
-            return new CoveredMethod(this, new AbiMethod(method.Name, method.PCount), abiMethod.Offset, to - abiMethod.Offset);
+            return new CoveredMethod(this, method, abiMethod.Offset, to - abiMethod.Offset);
         }
 
         /// <summary>
