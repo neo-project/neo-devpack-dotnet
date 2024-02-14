@@ -53,7 +53,7 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         /// <summary>
-        /// Hist
+        /// Hits
         /// </summary>
         /// <param name="gas">Gas</param>
         public void Hit(long gas)
@@ -72,6 +72,28 @@ namespace Neo.SmartContract.Testing.Coverage
             }
 
             GasTotal += gas;
+        }
+
+        /// <summary>
+        /// Hits
+        /// </summary>
+        /// <param name="value">Value</param>
+        public void Hit(CoverageData value)
+        {
+            Hits += value.Hits;
+
+            if (Hits == 1)
+            {
+                GasMin = value.GasMin;
+                GasMax = value.GasMax;
+            }
+            else
+            {
+                GasMin = Math.Min(GasMin, value.GasMin);
+                GasMax = Math.Max(GasMax, value.GasMax);
+            }
+
+            GasTotal += value.GasTotal;
         }
 
         /// <summary>

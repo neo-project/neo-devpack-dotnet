@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Testing
 
             if (!Engine.Coverage.TryGetValue(contractHash, out var coveredContract))
             {
-                Engine.Coverage[contractHash] = coveredContract = new(Engine, contractHash, InstructionContext.Script);
+                Engine.Coverage[contractHash] = coveredContract = new(contractHash, InstructionContext.Script);
             }
 
             if (InstructionPointer is null) return;

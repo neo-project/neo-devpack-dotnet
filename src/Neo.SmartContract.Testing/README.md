@@ -328,10 +328,10 @@ Assert.AreEqual(3, methodCovered?.CoveredInstructions);
 
 // Check coverage by raw method
 
-methodCovered = engine.GetCoverage(engine.Native.Oracle)?.GetCoverage("finish", 0);
+methodCovered = engine.GetCoverage(engine.Native.Oracle, "finish", 0);
 Assert.IsNull(methodCovered);
 
-methodCovered = engine.GetCoverage(engine.Native.NEO)?.GetCoverage("totalSupply", 0);
+methodCovered = engine.GetCoverage(engine.Native.NEO, "totalSupply", 0);
 Assert.AreEqual(3, methodCovered?.TotalInstructions);
 Assert.AreEqual(3, methodCovered?.CoveredInstructions);
 ```

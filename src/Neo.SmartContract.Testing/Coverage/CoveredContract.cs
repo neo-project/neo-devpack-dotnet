@@ -8,8 +8,14 @@ namespace Neo.SmartContract.Testing.Coverage
     [DebuggerDisplay("{ToString()}")]
     public class CoveredContract : CoverageBase
     {
-        private readonly TestEngine _engine;
-        internal readonly Dictionary<int, CoverageData> CoverageData = new();
+        #region Internal
+
+        /// <summary>
+        /// Coverage Data
+        /// </summary>
+        internal Dictionary<int, CoverageData> CoverageData { get; } = new();
+
+        #endregion
 
         /// <summary>
         /// Contract Hash
@@ -34,14 +40,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// CoveredContract
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="hash">Hash</param>
         /// <param name="script">Script</param>
-        internal CoveredContract(TestEngine engine, UInt160 hash, Script script)
+        internal CoveredContract(UInt160 hash, Script script)
         {
             Hash = hash;
             Script = script;
-            _engine = engine;
 
             // Iterate all valid instructions
 
@@ -62,27 +66,29 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Get method coverage
         /// </summary>
+        /// <param name="engine">Engine</param>
         /// <param name="methodName">Method name</param>
         /// <param name="pcount">Parameter count</param>
         /// <returns>CoveredMethod</returns>
-        public CoveredMethod? GetCoverage(string methodName, int pcount)
+        public CoveredMethod? GetCoverage(TestEngine engine, string methodName, int pcount)
         {
-            return GetCoverage(new AbiMethod(methodName, pcount));
+            return GetCoverage(engine, new AbiMethod(methodName, pcount));
         }
 
         /// <summary>
         /// Get method coverage
         /// </summary>
-        /// <param name="methodName">Method</param>
+        /// <param name="engine">Engine</param>
+        /// <param name="method">Method</param>
         /// <returns>CoveredMethod</returns>
-        public CoveredMethod? GetCoverage(AbiMethod? method = null)
+        public CoveredMethod? GetCoverage(TestEngine engine, AbiMethod? method = null)
         {
             if (method is null) return null;
 
             // Find contract method by Abi
             // Note: this could be changed if the contract was updated
 
-            var state = _engine.Native.ContractManagement.GetContract(Hash);
+            var state = engine.Native.ContractManagement.GetContract(Hash);
             if (state == null) return null;
 
             var abiMethod = state.Manifest.Abi.GetMethod(method.Name, method.PCount);

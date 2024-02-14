@@ -443,7 +443,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Get Coverage by contract
+        /// Get contract coverage
         /// </summary>
         /// <typeparam name="T">Contract</typeparam>
         /// <param name="contract">Contract</param>
@@ -459,7 +459,20 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Get Coverage by method
+        /// Get method coverage by contract
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <returns>CoveredContract</returns>
+        public CoverageBase? GetCoverage<T>(T contract, string methodName, int pcount) where T : SmartContract
+        {
+            var coveredContract = GetCoverage(contract);
+
+            return coveredContract?.GetCoverage(this, methodName, pcount);
+        }
+
+        /// <summary>
+        /// Get method coverage
         /// </summary>
         /// <typeparam name="T">Contract</typeparam>
         /// <param name="contract">Contract</param>
@@ -473,7 +486,7 @@ namespace Neo.SmartContract.Testing
             }
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
-                .Select(coveredContract.GetCoverage)
+                .Select(m => coveredContract.GetCoverage(this, m))
                 .Where(u => u != null)
                 .Cast<CoveredMethod>()
                 .ToArray();
@@ -487,7 +500,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Get Coverage by method
+        /// Get method coverage
         /// </summary>
         /// <typeparam name="T">Contract</typeparam>
         /// <typeparam name="TResult">Result</typeparam>
@@ -502,7 +515,7 @@ namespace Neo.SmartContract.Testing
             }
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
-                .Select(coveredContract.GetCoverage)
+                .Select(m => coveredContract.GetCoverage(this, m))
                 .Where(u => u != null)
                 .Cast<CoveredMethod>()
                 .ToArray();
