@@ -63,49 +63,63 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Setup NuGet.exe for use with actions
-      uses: NuGet/setup-nuget@v1
-      with:
-        nuget-version: latest
-    - name: Pack with dotnet
-      run: git rev-list --count HEAD | xargs printf "CI%05d" | xargs dotnet pack src/Neo.SmartContract.Framework -c Debug -o out --include-source --version-suffix
-    - name: Publish to Github Packages
-      run: |
-        nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/neo-project/index.json" -UserName neo-project -Password "${{ secrets.GITHUB_TOKEN }}"
-        nuget push out/*.nupkg -Source "GitHub"
 
-  PublishMyGet:
-    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
-    needs: Test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Set Version
       run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
-    - name: Pack Package(s)
+
+    - name : Pack (Neo.SmartContract.Framework)
       run: |
-        dotnet pack ./src/Neo.SmartContract.Framework \
+        dotnet pack src/Neo.SmartContract.Framework \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
-    - name: Publish to MyGet
+    - name : Pack (Neo.SmartContract.Testing)
+      run: |
+        dotnet pack src/Neo.SmartContract.Testing \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+    - name: Publish to Github Packages
       working-directory: ./out
       run: |
-        for filename in *.nupkg; do
-            dotnet nuget push "${filename}" \
-            --source https://www.myget.org/F/neo/api/v3/index.json \
-            --api-key "${{ secrets.MYGET_TOKEN }}" \
+        dotnet nuget push * \
+            --source https://nuget.pkg.github.com/neo-project/index.json \
+            --api-key "${{ secrets.GITHUB_TOKEN }}" \
             --disable-buffering \
             --no-service-endpoint;
-        done;
-      shell: bash
+
+  # PublishMyGet:
+  #   if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+  #   needs: Test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   - name: Setup .NET Core
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: ${{ env.DOTNET_VERSION }}
+  #   - name: Set Version
+  #     run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
+  #   - name: Pack Package(s)
+  #     run: |
+  #       dotnet pack ./src/Neo.SmartContract.Framework \
+  #       --configuration Debug \
+  #       --output ./out \
+  #       --version-suffix ${{ env.VERSION_SUFFIX }}
+  #   - name: Publish to MyGet
+  #     working-directory: ./out
+  #     run: |
+  #       for filename in *.nupkg; do
+  #           dotnet nuget push "${filename}" \
+  #           --source https://www.myget.org/F/neo/api/v3/index.json \
+  #           --api-key "${{ secrets.MYGET_TOKEN }}" \
+  #           --disable-buffering \
+  #           --no-service-endpoint;
+  #       done;
+  #     shell: bash
 
   Release:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
