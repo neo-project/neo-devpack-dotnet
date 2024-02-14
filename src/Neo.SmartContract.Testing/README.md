@@ -72,6 +72,7 @@ The publicly exposed read-only properties are as follows:
 - **CommitteeAddress**: Returns the address of the current chain's committee.
 - **Transaction**: Defines the transaction that will be used as `ScriptContainer` for the neo virtual machine, by default it updates the script of the same as calls are composed and executed, and the `Signers` will be used as validators for the `CheckWitness`, regardless of whether the signature is correct or not, so if you want to test with different wallets or scopes, you do not need to sign the transaction correctly, just set the desired signers.
 - **CurrentBlock**: Defaults to `Genesis` for the defined `ProtocolSettings`, but the height has been incremented by 1 to avoid issues related to the generation of gas from native contracts.
+- **EnableCoverageCapture**: Enables or disables the coverage capture. 
 
 For initialize, we have:
 
@@ -287,7 +288,7 @@ Assert.AreEqual(123, engine.Native.NEO.BalanceOf(addressTo));
 
 ### Coverage Calculation
 
-To calculate the coverage of a contract, it is enough to call the `GetCoverage` method of our `TestEngine`.
+To calculate the coverage of a contract, it is enough to call the `GetCoverage` method of our `TestEngine`, it require the `EnableCoverageCapture` property of the `TestEngine` to be enabled.
 
 ```csharp
 var engine = new TestEngine(true);

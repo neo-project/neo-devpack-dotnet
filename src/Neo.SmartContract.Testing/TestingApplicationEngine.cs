@@ -31,9 +31,12 @@ namespace Neo.SmartContract.Testing
         {
             // Cache coverage data
 
-            PreExecuteInstructionGasConsumed = GasConsumed;
-            InstructionContext = CurrentContext;
-            InstructionPointer = InstructionContext?.InstructionPointer;
+            if (Engine.EnableCoverageCapture)
+            {
+                PreExecuteInstructionGasConsumed = GasConsumed;
+                InstructionContext = CurrentContext;
+                InstructionPointer = InstructionContext?.InstructionPointer;
+            }
 
             // Regular action
 
@@ -54,7 +57,7 @@ namespace Neo.SmartContract.Testing
 
             if (!Engine.Coverage.TryGetValue(contractHash, out var coveredContract))
             {
-                // We need the contract state without paygas
+                // We need the contract state without pay gas
 
                 var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
 

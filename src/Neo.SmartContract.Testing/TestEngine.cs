@@ -79,6 +79,11 @@ namespace Neo.SmartContract.Testing
         public ProtocolSettings ProtocolSettings { get; }
 
         /// <summary>
+        /// Enable coverage capture
+        /// </summary>
+        public bool EnableCoverageCapture { get; set; } = true;
+
+        /// <summary>
         /// Validators Address
         /// </summary>
         public UInt160 ValidatorsAddress
