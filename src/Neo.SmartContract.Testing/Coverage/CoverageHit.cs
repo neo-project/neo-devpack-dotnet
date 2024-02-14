@@ -80,6 +80,8 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <param name="value">Value</param>
         public void Hit(CoverageHit value)
         {
+            if (value.Hits == 0) return;
+
             Hits += value.Hits;
 
             if (Hits == 1)
