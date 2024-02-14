@@ -88,39 +88,6 @@ jobs:
             --disable-buffering \
             --no-service-endpoint;
 
-  # PublishMyGet:
-  #   if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
-  #   needs: Test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-  #     with:
-  #       fetch-depth: 0
-  #   - name: Setup .NET Core
-  #     uses: actions/setup-dotnet@v4
-  #     with:
-  #       dotnet-version: ${{ env.DOTNET_VERSION }}
-  #   - name: Set Version
-  #     run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
-  #   - name: Pack Package(s)
-  #     run: |
-  #       dotnet pack ./src/Neo.SmartContract.Framework \
-  #       --configuration Debug \
-  #       --output ./out \
-  #       --version-suffix ${{ env.VERSION_SUFFIX }}
-  #   - name: Publish to MyGet
-  #     working-directory: ./out
-  #     run: |
-  #       for filename in *.nupkg; do
-  #           dotnet nuget push "${filename}" \
-  #           --source https://www.myget.org/F/neo/api/v3/index.json \
-  #           --api-key "${{ secrets.MYGET_TOKEN }}" \
-  #           --disable-buffering \
-  #           --no-service-endpoint;
-  #       done;
-  #     shell: bash
-
   Release:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
