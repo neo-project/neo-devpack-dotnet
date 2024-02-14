@@ -5,11 +5,6 @@ namespace Neo.SmartContract.Testing.Coverage
     public class CoveredCollection : CoverageBase
     {
         /// <summary>
-        /// Contract
-        /// </summary>
-        public CoveredContract Contract { get; }
-
-        /// <summary>
         /// Entries
         /// </summary>
         public CoverageBase[] Entries { get; }
@@ -23,7 +18,7 @@ namespace Neo.SmartContract.Testing.Coverage
             {
                 foreach (var method in Entries)
                 {
-                    foreach (var entry in Contract.Coverage)
+                    foreach (var entry in method.Coverage)
                     {
                         yield return entry;
                     }
@@ -34,11 +29,9 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="contract">Contract</param>
         /// <param name="entries">Entries</param>
-        public CoveredCollection(CoveredContract contract, params CoverageBase[] entries)
+        public CoveredCollection(params CoverageBase[] entries)
         {
-            Contract = contract;
             Entries = entries;
         }
     }

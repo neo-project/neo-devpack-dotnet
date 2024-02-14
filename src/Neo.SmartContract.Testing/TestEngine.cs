@@ -482,7 +482,7 @@ namespace Neo.SmartContract.Testing
             {
                 0 => null,
                 1 => abiMethods[0],
-                _ => new CoveredCollection(coveredContract, abiMethods),
+                _ => new CoveredCollection(abiMethods),
             };
         }
 
@@ -511,7 +511,7 @@ namespace Neo.SmartContract.Testing
             {
                 0 => null,
                 1 => abiMethods[0],
-                _ => new CoveredCollection(coveredContract, abiMethods),
+                _ => new CoveredCollection(abiMethods),
             };
         }
 

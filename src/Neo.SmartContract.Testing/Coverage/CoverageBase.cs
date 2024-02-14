@@ -48,5 +48,15 @@ namespace Neo.SmartContract.Testing.Coverage
                 }
             }
         }
+
+        // Allow to sum coverages
+
+        public static CoverageBase? operator +(CoverageBase? a, CoverageBase? b)
+        {
+            if (a is null) return b;
+            if (b is null) return a;
+
+            return new CoveredCollection(a, b);
+        }
     }
 }

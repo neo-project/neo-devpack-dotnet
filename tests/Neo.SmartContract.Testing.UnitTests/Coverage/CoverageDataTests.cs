@@ -81,6 +81,34 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         }
 
         [TestMethod]
+        public void TestCoverageAdd()
+        {
+            var engine = new TestEngine(true);
+
+            // Check totalSupply
+
+            Assert.IsNull(engine.GetCoverage(engine.Native.NEO));
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+            Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
+
+            // Check coverage
+
+            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.TotalSupply)?.CoveredInstructions);
+            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.Symbol)?.CoveredInstructions);
+            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.TotalSupply)?.HitsInstructions);
+            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.Symbol)?.HitsInstructions);
+
+            // Check balanceOf
+
+            var sum =
+                engine.Native.NEO.GetCoverage(o => o.TotalSupply) +
+                engine.Native.NEO.GetCoverage(o => o.Symbol);
+
+            Assert.AreEqual(6, sum?.CoveredInstructions);
+            Assert.AreEqual(6, sum?.HitsInstructions);
+        }
+
+        [TestMethod]
         public void TestCoverageByExtension()
         {
             // Create the engine initializing the native contracts
