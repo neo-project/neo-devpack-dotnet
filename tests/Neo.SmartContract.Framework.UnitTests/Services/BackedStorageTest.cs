@@ -52,8 +52,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var result = _engine.ExecuteTestCaseStandard("getPrivateGetterPublicSetter");
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.IsTrue(result.Pop().IsNull);
-
+            Assert.AreEqual(0, result.Pop());
 
             // Test public setter
             _engine.Reset();
@@ -81,8 +80,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var result = _engine.ExecuteTestCaseStandard("getNonStaticPrivateGetterPublicSetter");
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.IsTrue(result.Pop().IsNull);
-
+            Assert.AreEqual(0, result.Pop());
 
             // Test public setter
             _engine.Reset();
@@ -108,14 +106,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var result = _engine.ExecuteTestCaseStandard("get" + kind);
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.IsTrue(result.Pop().IsNull);
+            Assert.AreEqual(0, result.Pop());
 
             // Test public getter
 
             _engine.Reset();
             result = _engine.ExecuteTestCaseStandard(kind[0].ToString().ToLowerInvariant() + kind[1..]);
             Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.IsTrue(result.Pop().IsNull);
+            Assert.AreEqual(0, result.Pop());
 
             // Put
 
