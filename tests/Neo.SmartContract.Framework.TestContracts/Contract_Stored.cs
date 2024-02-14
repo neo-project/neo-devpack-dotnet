@@ -1,9 +1,11 @@
-using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Stored : SmartContract
+    public class Contract_StorageBacked : SmartContract
     {
         // Test non-static
 

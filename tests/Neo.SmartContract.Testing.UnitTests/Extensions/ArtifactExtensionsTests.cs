@@ -91,7 +91,7 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract
     protected Contract1(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
     #endregion
 }
-".Replace("\r\n", "\n").TrimStart());
+".Replace("\r\n", "\n").Trim());
         }
     }
 }
