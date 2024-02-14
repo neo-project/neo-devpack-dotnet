@@ -34,7 +34,6 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="contract">Contract</param>
         /// <param name="method">Method</param>
-        /// <param name="pCount">Parameters count</param>
         /// <param name="offset">Offset</param>
         /// <param name="methodLength">Method length</param>
         public CoveredMethod(CoveredContract contract, AbiMethod method, int offset, int methodLength)
