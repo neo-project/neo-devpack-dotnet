@@ -28,7 +28,6 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.GetCoverage(engine.Native.NEO)?.Hash);
-            Assert.AreEqual(133, engine.GetCoverage(engine.Native.NEO)?.Script.Length);
             Assert.AreEqual(57, engine.GetCoverage(engine.Native.NEO)?.TotalInstructions);
             Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.CoveredInstructions);
             Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.HitsInstructions);
@@ -137,7 +136,6 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.Native.NEO.GetCoverage()?.Hash);
-            Assert.AreEqual(133, engine.Native.NEO.GetCoverage()?.Script.Length);
             Assert.AreEqual(57, engine.Native.NEO.GetCoverage()?.TotalInstructions);
             Assert.AreEqual(3, engine.Native.NEO.GetCoverage()?.CoveredInstructions);
             Assert.AreEqual(3, engine.Native.NEO.GetCoverage()?.HitsInstructions);

@@ -23,29 +23,19 @@ namespace Neo.SmartContract.Testing.Coverage
         public UInt160 Hash { get; }
 
         /// <summary>
-        /// Contract Script
-        /// </summary>
-        public Script Script { get; }
-
-        /// <summary>
         /// Coverage
         /// </summary>
         public override IEnumerable<CoverageData> Coverage => CoverageData.Values;
 
         /// <summary>
-        /// Total instructions (could be different from Coverage.Count if, for example, a contract JUMPS to PUSHDATA content)
-        /// </summary>
-        public override int TotalInstructions { get; }
-
-        /// <summary>
         /// CoveredContract
         /// </summary>
         /// <param name="hash">Hash</param>
-        /// <param name="script">Script</param>
-        internal CoveredContract(UInt160 hash, Script script)
+        internal CoveredContract(UInt160 hash, Script? script = null)
         {
             Hash = hash;
-            Script = script;
+
+            if (script is null) return;
 
             // Iterate all valid instructions
 
@@ -56,10 +46,6 @@ namespace Neo.SmartContract.Testing.Coverage
                 var instruction = script.GetInstruction(ip);
                 CoverageData[ip] = new CoverageData(ip, false);
                 ip += instruction.Size;
-
-                // We can cache TotalInstructions because we iterate all the instructions
-
-                TotalInstructions++;
             }
         }
 
@@ -94,7 +80,7 @@ namespace Neo.SmartContract.Testing.Coverage
             var abiMethod = state.Manifest.Abi.GetMethod(method.Name, method.PCount);
             if (abiMethod == null) return null;
 
-            var to = Script.Length - 1;
+            var to = state.Script.Length - 1;
             var next = state.Manifest.Abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
 
             if (next is not null) to = next.Offset - 1;
@@ -102,6 +88,29 @@ namespace Neo.SmartContract.Testing.Coverage
             // Return method coverage
 
             return new CoveredMethod(this, method, abiMethod.Offset, to - abiMethod.Offset);
+        }
+
+        /// <summary>
+        /// Join coverage
+        /// </summary>
+        /// <param name="coverage">Coverage</param>
+        public void Join(IEnumerable<CoverageData> coverage)
+        {
+            // Join the coverage between them
+
+            foreach (var c in coverage)
+            {
+                if (c.Hits == 0) continue;
+
+                if (CoverageData.TryGetValue(c.Offset, out var kvpValue))
+                {
+                    kvpValue.Hit(c);
+                }
+                else
+                {
+                    CoverageData.Add(c.Offset, c.Clone());
+                }
+            }
         }
 
         /// <summary>

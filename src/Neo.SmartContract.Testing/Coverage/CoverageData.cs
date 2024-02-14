@@ -97,6 +97,21 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         /// <summary>
+        /// Clone data
+        /// </summary>
+        /// <returns>CoverageData</returns>
+        public CoverageData Clone()
+        {
+            return new CoverageData(Offset, OutOfScript)
+            {
+                GasMax = GasMax,
+                GasMin = GasMin,
+                GasTotal = GasTotal,
+                Hits = Hits
+            };
+        }
+
+        /// <summary>
         /// String representation
         /// </summary>
         /// <returns></returns>

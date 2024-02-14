@@ -1,9 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    public abstract class CoverageBase
+    public abstract class CoverageBase : IEnumerable<CoverageData>
     {
         /// <summary>
         /// Coverage
@@ -49,46 +50,19 @@ namespace Neo.SmartContract.Testing.Coverage
             }
         }
 
+        #region IEnumerable
+
+        public IEnumerator<CoverageData> GetEnumerator() => Coverage.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => Coverage.GetEnumerator();
+
+        #endregion
+
         // Allow to sum coverages
 
         public static CoverageBase? operator +(CoverageBase? a, CoverageBase? b)
         {
             if (a is null) return b;
             if (b is null) return a;
-
-            // Check if both coverages provide from the same contract
-
-            if (a is CoveredContract cA && b is CoveredContract cB && cA.Hash == cB.Hash)
-            {
-                // Join the coverage between them
-
-                var ret = new CoveredContract(cA.Hash, cA.Script);
-
-                ret.CoverageData.Clear();
-
-                foreach (var kvp in cA.CoverageData)
-                {
-                    ret.CoverageData.Add(kvp.Key, kvp.Value);
-                }
-
-                foreach (var kvp in cB.CoverageData)
-                {
-                    if (kvp.Value.Hits == 0) continue;
-
-                    if (ret.CoverageData.TryGetValue(kvp.Key, out var kvpValue))
-                    {
-                        kvpValue.Hit(kvp.Value);
-                    }
-                    else
-                    {
-                        ret.CoverageData.Add(kvp.Key, kvp.Value);
-                    }
-                }
-
-                return ret;
-            }
-
-            // Return regular join
 
             return new CoveredCollection(a, b);
         }
