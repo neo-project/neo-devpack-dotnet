@@ -10,42 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Delete Neo Package
+    - name: Delete Neo.SmartContract.Testing Package
       uses: actions/delete-package-versions@v4
       with:
-        package-name: Neo
+        package-name: Neo.SmartContract.Testing
         package-type: nuget
         min-versions-to-keep: 3
         token: "${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Delete Neo.ConsoleService Package
+    - name: Delete Neo.SmartContract.Framework Package
       uses: actions/delete-package-versions@v4
       with:
-        package-name: Neo.ConsoleService
-        package-type: nuget
-        min-versions-to-keep: 3
-        token: "${{ secrets.GITHUB_TOKEN }}"
-
-    - name: Delete Neo.ConsoleService Package
-      uses: actions/delete-package-versions@v4
-      with:
-        package-name: Neo.ConsoleService
-        package-type: nuget
-        min-versions-to-keep: 3
-        token: "${{ secrets.GITHUB_TOKEN }}"
-
-    - name: Delete Neo.Json Package
-      uses: actions/delete-package-versions@v4
-      with:
-        package-name: Neo.Json
-        package-type: nuget
-        min-versions-to-keep: 3
-        token: "${{ secrets.GITHUB_TOKEN }}"
-
-    - name: Delete Neo.VM Package
-      uses: actions/delete-package-versions@v4
-      with:
-        package-name: Neo.VM
+        package-name: Neo.Neo.SmartContract.Framework
         package-type: nuget
         min-versions-to-keep: 3
         token: "${{ secrets.GITHUB_TOKEN }}"
