@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Neo.SmartContract.Testing.Coverage
 {
     [DebuggerDisplay("Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
-    public class CoverageData
+    public class CoverageHit
     {
         /// <summary>
         /// The instruction offset
@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="offset">Offset</param>
         /// <param name="outOfScript">Out of script</param>
-        public CoverageData(int offset, bool outOfScript = false)
+        public CoverageHit(int offset, bool outOfScript = false)
         {
             Offset = offset;
             OutOfScript = outOfScript;
@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Hits
         /// </summary>
         /// <param name="value">Value</param>
-        public void Hit(CoverageData value)
+        public void Hit(CoverageHit value)
         {
             Hits += value.Hits;
 
@@ -100,9 +100,9 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Clone data
         /// </summary>
         /// <returns>CoverageData</returns>
-        public CoverageData Clone()
+        public CoverageHit Clone()
         {
-            return new CoverageData(Offset, OutOfScript)
+            return new CoverageHit(Offset, OutOfScript)
             {
                 GasMax = GasMax,
                 GasMin = GasMin,

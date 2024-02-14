@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Coverage Data
         /// </summary>
-        internal Dictionary<int, CoverageData> CoverageData { get; } = new();
+        internal Dictionary<int, CoverageHit> CoverageData { get; } = new();
 
         #endregion
 
@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Coverage
         /// </summary>
-        public override IEnumerable<CoverageData> Coverage => CoverageData.Values;
+        public override IEnumerable<CoverageHit> Coverage => CoverageData.Values;
 
         /// <summary>
         /// CoveredContract
@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Testing.Coverage
             while (ip < script.Length)
             {
                 var instruction = script.GetInstruction(ip);
-                CoverageData[ip] = new CoverageData(ip, false);
+                CoverageData[ip] = new CoverageHit(ip, false);
                 ip += instruction.Size;
             }
         }
@@ -111,7 +111,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Join coverage
         /// </summary>
         /// <param name="coverage">Coverage</param>
-        public void Join(IEnumerable<CoverageData> coverage)
+        public void Join(IEnumerable<CoverageHit> coverage)
         {
             // Join the coverage between them
 

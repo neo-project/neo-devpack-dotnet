@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    public abstract class CoverageBase : IEnumerable<CoverageData>
+    public abstract class CoverageBase : IEnumerable<CoverageHit>
     {
         /// <summary>
         /// Coverage
         /// </summary>
-        public abstract IEnumerable<CoverageData> Coverage { get; }
+        public abstract IEnumerable<CoverageHit> Coverage { get; }
 
         /// <summary>
         /// Total instructions (could be different from Coverage.Count if, for example, a contract JUMPS to PUSHDATA content)
@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <param name="offset">Offset</param>
         /// <param name="length">Length</param>
         /// <returns>Coverage</returns>
-        public IEnumerable<CoverageData> GetCoverageFrom(int offset, int length)
+        public IEnumerable<CoverageHit> GetCoverageFrom(int offset, int length)
         {
             var to = offset + length;
 
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
         #region IEnumerable
 
-        public IEnumerator<CoverageData> GetEnumerator() => Coverage.GetEnumerator();
+        public IEnumerator<CoverageHit> GetEnumerator() => Coverage.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Coverage.GetEnumerator();
 
         #endregion

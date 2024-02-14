@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Testing
             {
                 // Note: This call is unusual, out of the expected
 
-                coveredContract.CoverageData[InstructionPointer.Value] = coverage = new CoverageData(InstructionPointer.Value, true);
+                coveredContract.CoverageData[InstructionPointer.Value] = coverage = new CoverageHit(InstructionPointer.Value, true);
             }
 
             coverage.Hit(GasConsumed - PreExecuteInstructionGasConsumed);

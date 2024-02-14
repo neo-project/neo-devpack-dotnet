@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Coverage
         /// </summary>
-        public override IEnumerable<CoverageData> Coverage
+        public override IEnumerable<CoverageHit> Coverage
         {
             get
             {
