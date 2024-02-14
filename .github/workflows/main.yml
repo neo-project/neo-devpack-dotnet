@@ -69,13 +69,13 @@ jobs:
 
     - name : Pack (Neo.SmartContract.Framework)
       run: |
-        dotnet pack src/Neo.SmartContract.Framework \
+        dotnet pack ./src/Neo.SmartContract.Framework \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
     - name : Pack (Neo.SmartContract.Testing)
       run: |
-        dotnet pack src/Neo.SmartContract.Testing \
+        dotnet pack ./src/Neo.SmartContract.Testing \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
