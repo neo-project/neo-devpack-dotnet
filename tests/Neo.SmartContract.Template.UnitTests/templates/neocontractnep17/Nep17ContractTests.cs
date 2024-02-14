@@ -11,15 +11,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
     [TestClass]
     public class Nep17ContractTests
     {
-        private const string NefFilePath = "templates/neocontractnep17/Artifacts/Nep17Contract.nef";
-        private const string ManifestPath = "templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json";
+        private const string NefFilePath = "templates/neocontractnep17/UtArtifacts/Nep17Contract.nef";
+        private const string ManifestPath = "templates/neocontractnep17/UtArtifacts/Nep17Contract.manifest.json";
 
-        private readonly TestEngine Engine;
-        private readonly Nep17Contract Nep17;
-        private readonly Signer Alice = TestEngine.GetNewSigner();
-        private readonly Signer Bob = TestEngine.GetNewSigner();
+        private static readonly Signer Alice = TestEngine.GetNewSigner();
+        private static readonly Signer Bob = TestEngine.GetNewSigner();
+        private static readonly TestEngine Engine;
+        private static readonly Nep17Contract Nep17;
+        //private static readonly ContractCoverage Coverage = new ContractCoverage();
 
-        public Nep17ContractTests()
+        static Nep17ContractTests()
         {
             Engine = new TestEngine(true);
             Engine.SetTransactionSigners(Alice);
@@ -28,6 +29,18 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             var manifest = File.ReadAllText(ManifestPath);
 
             Nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, null);
+        }
+
+        [AssemblyCleanup]
+        public static void EnsureCoverage()
+        {
+            //Assert.IsTrue(Coverage.Percentage > 80);
+        }
+
+        [TestCleanup]
+        public void IncreaseCoverage()
+        {
+            //Coverage += Nep17.Coverage;
         }
 
         [TestMethod]
@@ -238,6 +251,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             var rand = TestEngine.GetNewSigner().Account;
             var nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, rand);
+            //Coverage += nep17.Coverage;
 
             Assert.AreEqual(rand, nep17.Owner);
             Assert.AreEqual(newOwnerRaised, nep17.Owner);
