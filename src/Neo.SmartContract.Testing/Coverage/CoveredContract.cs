@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// CoveredContract
         /// </summary>
         /// <param name="hash">Hash</param>
-        internal CoveredContract(UInt160 hash, Script? script = null)
+        public CoveredContract(UInt160 hash, Script? script = null)
         {
             Hash = hash;
 
