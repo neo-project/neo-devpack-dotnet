@@ -574,21 +574,42 @@ namespace Neo.Compiler
                 Call(ApplicationEngine.System_Storage_Get);
                 switch (property.Type.Name)
                 {
-                    case "SByte":
-                    case "Short":
-                    case "Int32":
-                    case "Int64":
+                    case "byte":
+                    case "sbyte":
                     case "Byte":
+                    case "SByte":
+
+                    case "short":
+                    case "ushort":
+                    case "Int16":
                     case "UInt16":
+
+                    case "int":
+                    case "uint":
+                    case "Int32":
                     case "UInt32":
+
+                    case "long":
+                    case "ulong":
+                    case "Int64":
                     case "UInt64":
                     case "BigInteger":
-                        ChangeType(VM.Types.StackItemType.Integer);
+                        // Replace NULL with 0
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.ISNULL);
+                        JumpTarget ifFalse = new();
+                        Jump(OpCode.JMPIFNOT_L, ifFalse);
+                        {
+                            AddInstruction(OpCode.DROP);
+                            AddInstruction(OpCode.PUSH0);
+                        }
+                        ifFalse.Instruction = AddInstruction(OpCode.NOP);
                         break;
                     case "String":
                     case "ByteString":
                     case "UInt160":
                     case "UInt256":
+                    case "ECPoint":
                         break;
                     default:
                         Call(NativeContract.StdLib.Hash, "deserialize", 1, true);
@@ -620,19 +641,31 @@ namespace Neo.Compiler
                     AccessSlot(OpCode.LDARG, 1);
                 switch (property.Type.Name)
                 {
-                    case "SByte":
-                    case "Short":
-                    case "Int32":
-                    case "Int64":
+                    case "byte":
+                    case "sbyte":
                     case "Byte":
+                    case "SByte":
+
+                    case "short":
+                    case "ushort":
+                    case "Int16":
                     case "UInt16":
+
+                    case "int":
+                    case "uint":
+                    case "Int32":
                     case "UInt32":
+
+                    case "long":
+                    case "ulong":
+                    case "Int64":
                     case "UInt64":
                     case "BigInteger":
                     case "String":
                     case "ByteString":
                     case "UInt160":
                     case "UInt256":
+                    case "ECPoint":
                         break;
                     default:
                         Call(NativeContract.StdLib.Hash, "serialize", 1, true);
