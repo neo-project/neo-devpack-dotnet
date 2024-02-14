@@ -88,11 +88,7 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         bool IEquatable<AbiMethod>.Equals(AbiMethod other) => PCount == other.PCount && Name == other.Name;
+        public override int GetHashCode() => HashCode.Combine(PCount, Name);
         public override string ToString() => $"{Name},{PCount}";
-
-        public int GetHashCode(AbiMethod obj)
-        {
-            return HashCode.Combine(obj.PCount, obj.Name);
-        }
     }
 }

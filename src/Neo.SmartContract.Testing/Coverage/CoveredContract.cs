@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Testing.Coverage
         private CoveredMethod? CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
         {
             var to = script.Length - 1;
-            var next = abi.Methods/*.OrderBy(u => u.Offset)*/.Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
+            var next = abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
 
             if (next is not null) to = next.Offset - 1;
 
