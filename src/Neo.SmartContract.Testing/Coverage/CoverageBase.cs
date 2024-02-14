@@ -29,7 +29,16 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Covered Percentage
         /// </summary>
-        public float CoveredPercentage => (float)TotalInstructions / CoveredInstructions * 100F;
+        public float CoveredPercentage
+        {
+            get
+            {
+                var total = TotalInstructions;
+                if (total == 0) return 0F;
+
+                return (float)CoveredInstructions / total * 100F;
+            }
+        }
 
         /// <summary>
         /// Get Coverage from the Contract coverage

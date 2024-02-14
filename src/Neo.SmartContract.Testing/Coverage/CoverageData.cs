@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    [DebuggerDisplay("{ToString()}")]
+    [DebuggerDisplay("Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
     public class CoverageData
     {
         /// <summary>

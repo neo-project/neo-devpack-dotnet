@@ -54,7 +54,11 @@ namespace Neo.SmartContract.Testing
 
             if (!Engine.Coverage.TryGetValue(contractHash, out var coveredContract))
             {
-                Engine.Coverage[contractHash] = coveredContract = new(contractHash, InstructionContext.Script);
+                // We need the contract state without paygas
+
+                var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
+
+                Engine.Coverage[contractHash] = coveredContract = new(contractHash, state?.Manifest.Abi, InstructionContext.Script);
             }
 
             if (InstructionPointer is null) return;

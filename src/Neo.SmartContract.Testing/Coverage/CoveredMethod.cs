@@ -1,7 +1,10 @@
+using Neo.SmartContract.Manifest;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
+    [DebuggerDisplay("{Method}")]
     public class CoveredMethod : CoverageBase
     {
         /// <summary>
@@ -34,14 +37,28 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="contract">Contract</param>
         /// <param name="method">Method</param>
-        /// <param name="offset">Offset</param>
         /// <param name="methodLength">Method length</param>
-        public CoveredMethod(CoveredContract contract, AbiMethod method, int offset, int methodLength)
+        public CoveredMethod(CoveredContract contract, ContractMethodDescriptor method, int methodLength)
         {
             Contract = contract;
-            Method = method;
-            Offset = offset;
+            Method = new AbiMethod(method.Name, method.Parameters.Length);
+            Offset = method.Offset;
             MethodLength = methodLength;
         }
+
+        /// <summary>
+        /// Dump coverage
+        /// </summary>
+        /// <returns>Coverage dump</returns>
+        public string Dump()
+        {
+            // TODO: improve dump later
+
+            var cover = CoveredPercentage.ToString("0.00").ToString();
+
+            return $"| {Method,50} | {cover,7}% |";
+        }
+
+        public override string ToString() => Method.ToString();
     }
 }

@@ -468,7 +468,7 @@ namespace Neo.SmartContract.Testing
         {
             var coveredContract = GetCoverage(contract);
 
-            return coveredContract?.GetCoverage(this, methodName, pcount);
+            return coveredContract?.GetCoverage(methodName, pcount);
         }
 
         /// <summary>
@@ -486,7 +486,7 @@ namespace Neo.SmartContract.Testing
             }
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
-                .Select(m => coveredContract.GetCoverage(this, m))
+                .Select(coveredContract.GetCoverage)
                 .Where(u => u != null)
                 .Cast<CoveredMethod>()
                 .ToArray();
@@ -515,7 +515,7 @@ namespace Neo.SmartContract.Testing
             }
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
-                .Select(m => coveredContract.GetCoverage(this, m))
+                .Select(coveredContract.GetCoverage)
                 .Where(u => u != null)
                 .Cast<CoveredMethod>()
                 .ToArray();

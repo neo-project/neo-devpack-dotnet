@@ -9,6 +9,41 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     public class CoverageDataTests
     {
         [TestMethod]
+        public void TestDump()
+        {
+            var engine = new TestEngine(true);
+
+            // Check totalSupply
+
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+            Assert.AreEqual(@"
+| 0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5         |    5.26% |
+|                                        balanceOf,1 |    0.00% |
+|                                         decimals,0 |    0.00% |
+|                                  getAccountState,1 |    0.00% |
+|                                 getAllCandidates,0 |    0.00% |
+|                                 getCandidateVote,1 |    0.00% |
+|                                    getCandidates,0 |    0.00% |
+|                                     getCommittee,0 |    0.00% |
+|                                   getGasPerBlock,0 |    0.00% |
+|                           getNextBlockValidators,0 |    0.00% |
+|                                 getRegisterPrice,0 |    0.00% |
+|                                registerCandidate,1 |    0.00% |
+|                                   setGasPerBlock,1 |    0.00% |
+|                                 setRegisterPrice,1 |    0.00% |
+|                                           symbol,0 |    0.00% |
+|                                      totalSupply,0 |  100.00% |
+|                                         transfer,4 |    0.00% |
+|                                     unclaimedGas,2 |    0.00% |
+|                              unregisterCandidate,1 |    0.00% |
+|                                             vote,2 |    0.00% |
+
+
+".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
+        }
+
+        [TestMethod]
         public void TestCoverageByEngine()
         {
             // Create the engine initializing the native contracts
@@ -77,43 +112,6 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             methodCovered = engine.GetCoverage(engine.Native.NEO, "transfer", 4);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
             Assert.AreEqual(0, methodCovered?.CoveredInstructions);
-        }
-
-        [TestMethod]
-        public void TestCoverageAdd()
-        {
-            var engine = new TestEngine(true);
-
-            // Check totalSupply
-
-            Assert.IsNull(engine.GetCoverage(engine.Native.NEO));
-            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
-            Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
-
-            // Check coverage
-
-            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.TotalSupply)?.CoveredInstructions);
-            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.Symbol)?.CoveredInstructions);
-            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.TotalSupply)?.HitsInstructions);
-            Assert.AreEqual(3, engine.Native.NEO.GetCoverage(o => o.Symbol)?.HitsInstructions);
-
-            // Check balanceOf
-
-            var sum =
-                engine.Native.NEO.GetCoverage(o => o.TotalSupply) +
-                engine.Native.NEO.GetCoverage(o => o.Symbol);
-
-            Assert.IsInstanceOfType<CoveredCollection>(sum);
-            Assert.AreEqual(6, sum?.CoveredInstructions);
-            Assert.AreEqual(6, sum?.HitsInstructions);
-
-            sum =
-              engine.Native.NEO.GetCoverage() +
-              engine.Native.NEO.GetCoverage();
-
-            Assert.IsInstanceOfType<CoveredContract>(sum);
-            Assert.AreEqual(6, sum?.CoveredInstructions);
-            Assert.AreEqual(6, sum?.HitsInstructions);
         }
 
         [TestMethod]

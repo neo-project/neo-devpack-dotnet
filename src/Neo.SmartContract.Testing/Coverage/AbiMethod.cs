@@ -6,8 +6,8 @@ using System.Reflection;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    [DebuggerDisplay("Name={Name}, PCount={PCount}")]
-    public class AbiMethod
+    [DebuggerDisplay("{Name},{PCount}")]
+    public class AbiMethod : IEquatable<AbiMethod>
     {
         /// <summary>
         /// Method name
@@ -78,6 +78,21 @@ namespace Neo.SmartContract.Testing.Coverage
             }
 
             return Array.Empty<AbiMethod>();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not AbiMethod other) return false;
+
+            return PCount == other.PCount && Name == other.Name;
+        }
+
+        bool IEquatable<AbiMethod>.Equals(AbiMethod other) => PCount == other.PCount && Name == other.Name;
+        public override string ToString() => $"{Name},{PCount}";
+
+        public int GetHashCode(AbiMethod obj)
+        {
+            return HashCode.Combine(obj.PCount, obj.Name);
         }
     }
 }
