@@ -426,31 +426,39 @@ namespace Neo.Compiler
             bool isSmartContract = isPublic && !isAbstract && isContractType;
             if (isSmartContract)
             {
-                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, $"Only one smart contract is allowed.");
+                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, "Only one smart contract is allowed.");
                 scTypeFound = true;
-                foreach (var attribute in symbol.GetAttributesWithInherited())
+                var a = symbol.GetAttributes();
+                var b = symbol.GetAttributesWithInherited();
+                foreach (var attribute in b)
                 {
+                    if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
+                    {
+                        manifestExtra[ManifestExtraAttribute.AttributeType[attribute.AttributeClass!.Name]] = (string)attribute.ConstructorArguments[0].Value!;
+                        continue;
+                    }
+
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
                             displayName = (string)attribute.ConstructorArguments[0].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractSourceCodeAttribute):
+                        case nameof(ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ManifestExtraAttribute):
+                        case nameof(ManifestExtraAttribute):
                             manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractPermissionAttribute):
+                        case nameof(ContractPermissionAttribute):
                             permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractTrustAttribute):
+                        case nameof(ContractTrustAttribute):
                             string trust = (string)attribute.ConstructorArguments[0].Value!;
                             if (!ValidateContractTrust(trust))
                                 throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
                             trusts.Add(trust);
                             break;
-                        case nameof(scfx.Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute):
+                        case nameof(SupportedStandardsAttribute):
                             supportedStandards.UnionWith(
                                 attribute.ConstructorArguments[0].Values
                                     .Select(p => p.Value)
