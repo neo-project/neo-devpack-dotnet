@@ -186,13 +186,13 @@ namespace Neo.SmartContract.Testing
                 NetworkFee = ApplicationEngine.TestModeGas,
                 Signers = new Signer[]
                 {
-                    new Signer()
+                    new()
                     {
                         // ValidatorsAddress
                         Account = validatorsScript.ToScriptHash(),
                         Scopes = WitnessScope.Global
                     },
-                    new Signer()
+                    new()
                     {
                         // CommitteeAddress
                         Account = committeeScript.ToScriptHash(),
