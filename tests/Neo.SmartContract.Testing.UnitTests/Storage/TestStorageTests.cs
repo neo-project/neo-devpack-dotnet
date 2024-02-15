@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Neo.SmartContract.TestEngine.UnitTests.Storage
+namespace Neo.SmartContract.Testing.UnitTests.Storage
 {
     [TestClass]
     public class TestStorageTests
