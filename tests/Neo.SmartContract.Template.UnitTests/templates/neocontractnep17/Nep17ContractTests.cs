@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         {
             // Join the current coverage into the static one
 
-            Coverage.Join(Nep17?.GetCoverage());
+            Coverage.Join(Nep17.GetCoverage());
         }
 
         [TestMethod]
