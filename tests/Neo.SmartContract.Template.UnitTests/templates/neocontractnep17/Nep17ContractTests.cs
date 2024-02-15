@@ -28,15 +28,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         /// </summary>
         static Nep17ContractTests()
         {
-            var engine = new TestEngine(true);
-
             NefFile = File.ReadAllBytes("templates/neocontractnep17/Artifacts/Nep17Contract.nef");
             Manifest = File.ReadAllText("templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json");
 
             // Get coverage bag, we will join the coverage here
 
-            engine.SetTransactionSigners(Alice);
-            Coverage = engine.Deploy<Nep17Contract>(NefFile, Manifest, null)?.GetCoverage()!;
+            Coverage = new Nep17ContractTests().Nep17.GetCoverage()!;
             Assert.IsNotNull(Coverage);
         }
 
