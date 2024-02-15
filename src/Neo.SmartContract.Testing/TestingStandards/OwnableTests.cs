@@ -88,7 +88,7 @@ public class OwnableTests<T> where T : SmartContract, IOwnable
     #region Tests
 
     [TestMethod]
-    public void TestDefaultOwner()
+    public void TestSenderAsDefaultOwner()
     {
         var random = TestEngine.GetNewSigner();
 
