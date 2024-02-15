@@ -23,7 +23,7 @@ partial class MethodConvert
     {
         ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
         ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
-        IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol;
+        IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
         if (method is not null)
         {
             Call(model, method, null, expression.Expression);
