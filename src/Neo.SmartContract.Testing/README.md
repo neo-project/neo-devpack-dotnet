@@ -23,6 +23,8 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Event testing](#event-testing)
     - [Example of use](#example-of-use)
+- [Coverage Calculation](#coverage-calculation)
+    - [Example of use](#example-of-use)
 - [Known limitations](#known-limitations)
 
 ### Installation and configuration
@@ -70,6 +72,7 @@ The publicly exposed read-only properties are as follows:
 - **CommitteeAddress**: Returns the address of the current chain's committee.
 - **Transaction**: Defines the transaction that will be used as `ScriptContainer` for the neo virtual machine, by default it updates the script of the same as calls are composed and executed, and the `Signers` will be used as validators for the `CheckWitness`, regardless of whether the signature is correct or not, so if you want to test with different wallets or scopes, you do not need to sign the transaction correctly, just set the desired signers.
 - **CurrentBlock**: Defaults to `Genesis` for the defined `ProtocolSettings`, but the height has been incremented by 1 to avoid issues related to the generation of gas from native contracts.
+- **EnableCoverageCapture**: Enables or disables the coverage capture. 
 
 For initialize, we have:
 
@@ -283,8 +286,62 @@ Assert.IsTrue(raisedEvent);
 Assert.AreEqual(123, engine.Native.NEO.BalanceOf(addressTo));
 ```
 
+### Coverage Calculation
+
+To calculate the coverage of a contract, it is enough to call the `GetCoverage` method of our `TestEngine`, it require the `EnableCoverageCapture` property of the `TestEngine` to be enabled.
+
+```csharp
+var engine = new TestEngine(true);
+
+// Get NEO Coverage (NULL)
+
+Assert.IsNull(engine.GetCoverage(engine.Native.NEO));
+
+// Call NEO.TotalSupply
+
+Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+// Check that the 3 instructions has been covered
+
+Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.CoveredInstructions);
+Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.HitsInstructions);
+```
+
+It is also possible to call it to obtain the specific coverage of a method, either through an expression or manually.
+
+```csharp
+var engine = new TestEngine(true);
+
+// Call NEO.TotalSupply
+
+Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+// Oracle was not called
+
+var methodCovered = engine.GetCoverage(engine.Native.Oracle, o => o.Finish());
+Assert.IsNull(methodCovered);
+
+// NEO.TotalSupply is covered
+
+methodCovered = engine.GetCoverage(engine.Native.NEO, o => o.TotalSupply);
+Assert.AreEqual(3, methodCovered?.TotalInstructions);
+Assert.AreEqual(3, methodCovered?.CoveredInstructions);
+
+// Check coverage by raw method
+
+methodCovered = engine.GetCoverage(engine.Native.Oracle, "finish", 0);
+Assert.IsNull(methodCovered);
+
+methodCovered = engine.GetCoverage(engine.Native.NEO, "totalSupply", 0);
+Assert.AreEqual(3, methodCovered?.TotalInstructions);
+Assert.AreEqual(3, methodCovered?.CoveredInstructions);
+```
+
+Keep in mind that the coverage is at the instruction level.
+
 ### Known limitations
 
 The currently known limitations are:
 
 - Receive events during the deploy, because the object is returned after performing the deploy, it is not possible to intercept notifications for the deploy unless the contract is previously created with `FromHash` knowing the hash of the contract to be created.
+- It is possible that if the contract is updated, the coverage calculation may be incorrect.
