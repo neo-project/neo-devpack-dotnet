@@ -108,10 +108,10 @@ namespace ProjectName
             Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 
-        public static void Update(ByteString nefFile, string manifest)
+        public static void Update(ByteString nefFile, string manifest, object data)
         {
             if (!IsOwner()) throw new Exception("No authorization.");
-            ContractManagement.Update(nefFile, manifest, null);
+            ContractManagement.Update(nefFile, manifest, data);
         }
 
         // NOTE: NEP-17 contracts "SHOULD NOT" have "Destroy" method

@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             // Check totalSupply
 
-            Assert.IsNull(engine.GetCoverage(engine.Native.NEO));
+            Assert.IsNotNull(engine.GetCoverage(engine.Native.NEO));
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.GetCoverage(engine.Native.NEO)?.Hash);
@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by method and expression
 
             var methodCovered = engine.GetCoverage(engine.Native.Oracle, o => o.Finish());
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO, o => o.TotalSupply);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -99,7 +99,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by raw method
 
             methodCovered = engine.GetCoverage(engine.Native.Oracle, "finish", 0);
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO, "totalSupply", 0);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -130,7 +130,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             // Check totalSupply
 
-            Assert.IsNull(engine.Native.NEO.GetCoverage());
+            Assert.IsNotNull(engine.Native.NEO.GetCoverage());
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.Native.NEO.GetCoverage()?.Hash);
@@ -149,7 +149,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by method and expression
 
             var methodCovered = engine.Native.Oracle.GetCoverage(o => o.Finish());
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.Native.NEO.GetCoverage(o => o.TotalSupply);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -166,7 +166,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by raw method
 
             methodCovered = engine.GetCoverage(engine.Native.Oracle, "finish", 0);
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO, "totalSupply", 0);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);

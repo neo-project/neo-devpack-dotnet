@@ -54,7 +54,7 @@ public abstract class Nep17Contract : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[] nefFile, string manifest);
+    public abstract void Update(byte[] nefFile, string manifest, object? data = null);
     #endregion
     #region Constructor for internal use only
     protected Nep17Contract(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }

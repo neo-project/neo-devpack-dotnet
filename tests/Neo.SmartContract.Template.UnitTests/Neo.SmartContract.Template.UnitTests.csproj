@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Moq" Version="4.20.70" />
+		<PackageReference Include="Moq" Version="4.20.70" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -17,17 +17,17 @@
 
 	<!--<ItemGroup>
 	  <Reference Include="Nep17Contract">
-	    <HintPath>templates\neocontractnep17\UtArtifacts\Nep17Contract.artifacts.dll</HintPath>
+		<HintPath>templates\neocontractnep17\UtArtifacts\Nep17Contract.artifacts.dll</HintPath>
 	  </Reference>
 	</ItemGroup>-->
 
 	<ItemGroup>
-	  <None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.manifest.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.nef">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.manifest.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="templates\neocontractnep17\UtArtifacts\Nep17Contract.nef">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">

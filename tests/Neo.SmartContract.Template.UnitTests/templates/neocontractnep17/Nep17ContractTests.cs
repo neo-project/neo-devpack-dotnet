@@ -3,6 +3,7 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.VM;
 using System.Numerics;
 
@@ -18,7 +19,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         private static readonly Signer Bob = TestEngine.GetNewSigner();
         private static readonly TestEngine Engine;
         private static readonly Nep17Contract Nep17;
-        //private static readonly ContractCoverage Coverage = new ContractCoverage();
+        private static readonly CoveredContract Coverage;
 
         static Nep17ContractTests()
         {
@@ -29,18 +30,28 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             var manifest = File.ReadAllText(ManifestPath);
 
             Nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, null);
+
+            // Get coverage bag, we will join the coverage here
+
+            Coverage = Nep17.GetCoverage()!;
+            Assert.IsNotNull(Coverage);
         }
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
-            //Assert.IsTrue(Coverage.Percentage > 80);
+            // Ennsure that the coverage is more than 90% at the end of the tests
+
+            Console.WriteLine(Coverage.Dump());
+            Assert.IsTrue(Coverage.CoveredPercentage > 90.0, "Coverage is less than 90%");
         }
 
         [TestCleanup]
         public void IncreaseCoverage()
         {
-            //Coverage += Nep17.Coverage;
+            // Join the coverage of the current engine into the static bag
+
+            Coverage.Join(Nep17?.GetCoverage());
         }
 
         [TestMethod]
@@ -81,6 +92,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         {
             Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Nep17.BalanceOf(Bob.Account));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.BalanceOf(null));
         }
 
         [TestMethod]
@@ -162,6 +174,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Clean OnTransfer
 
+            Engine.SetTransactionSigners(Alice);
+
+            Nep17.Burn(Bob.Account, 6);
+            Nep17.Burn(Alice.Account, 4);
+
+            Assert.AreEqual(0, Nep17.TotalSupply);
             Nep17.OnTransfer -= onTransfer;
         }
 
@@ -187,6 +205,26 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Alice);
 
+            // Test mint -1
+
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, -1));
+
+            // Test mint 0
+
+            Nep17.Mint(Alice.Account, 0);
+
+            Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
+            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(null, raisedTo);
+            Assert.AreEqual(null, raisedAmount);
+
+            // test mint
+
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
             Nep17.Mint(Alice.Account, 10);
 
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
@@ -194,6 +232,26 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.AreEqual(null, raisedFrom);
             Assert.AreEqual(Alice.Account, raisedTo);
             Assert.AreEqual(10, raisedAmount);
+
+            // Test burn -1
+
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, -1));
+
+            // Test burn 0
+
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
+            Nep17.Burn(Alice.Account, 0);
+
+            Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
+            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(null, raisedTo);
+            Assert.AreEqual(null, raisedAmount);
+
+            // Test burn
 
             raisedFrom = null;
             raisedTo = null;
@@ -218,7 +276,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, 10));
             Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, 10));
 
-            // Clean OnTransfer
+            // Clean
+
+            Assert.AreEqual(0, Nep17.TotalSupply);
 
             Nep17.OnTransfer -= onTransfer;
         }
@@ -230,7 +290,52 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         }
 
         [TestMethod]
-        public void TestSetOwnerDuringDeploy()
+        public void TestSetGetOwner()
+        {
+            // Alice is the deployer
+
+            Assert.AreEqual(Alice.Account, Nep17.Owner);
+            Engine.SetTransactionSigners(Bob);
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Owner = Bob.Account);
+
+            Engine.SetTransactionSigners(Alice);
+            Assert.ThrowsException<Exception>(() => Nep17.Owner = UInt160.Zero);
+
+            Nep17.Owner = Bob.Account;
+            Assert.AreEqual(Bob.Account, Nep17.Owner);
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Owner = Bob.Account);
+
+            Engine.SetTransactionSigners(Bob);
+
+            Nep17.Owner = Alice.Account;
+            Assert.AreEqual(Alice.Account, Nep17.Owner);
+        }
+
+        [TestMethod]
+        public void TestUpdate()
+        {
+            // Alice is the deployer
+
+            Engine.SetTransactionSigners(Bob);
+
+            var nef = File.ReadAllBytes(NefFilePath);
+            var manifest = File.ReadAllText(ManifestPath);
+
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Update(nef, manifest));
+
+            Engine.SetTransactionSigners(Alice);
+
+            // Test Update with the same script
+
+            Nep17.Update(nef, manifest);
+
+            // Ensure that it works with the same script
+
+            TestTotalSupply();
+        }
+
+        [TestMethod]
+        public void TestDeploy()
         {
             // Alice is the deployer
 
@@ -251,7 +356,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             var rand = TestEngine.GetNewSigner().Account;
             var nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, rand);
-            //Coverage += nep17.Coverage;
+            Coverage.Join(nep17.GetCoverage());
 
             Assert.AreEqual(rand, nep17.Owner);
             Assert.AreEqual(newOwnerRaised, nep17.Owner);

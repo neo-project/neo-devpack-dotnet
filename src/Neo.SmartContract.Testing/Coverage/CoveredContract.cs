@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 
 namespace Neo.SmartContract.Testing.Coverage
@@ -29,7 +30,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Methods
         /// </summary>
-        public CoveredMethod[] Methods { get; }
+        public CoveredMethod[] Methods { get; private set; }
 
         /// <summary>
         /// Coverage
@@ -51,14 +52,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
             // Extract all methods
 
-            if (abi is not null)
-            {
-                Methods = abi.Methods
-                   .Select(u => CreateMethod(abi, script, u))
-                   .Where(u => u is not null)
-                   .OrderBy(u => u!.Offset)
-                   .ToArray()!;
-            }
+            GenerateMethods(abi, script);
 
             // Iterate all valid instructions
 
@@ -70,6 +64,19 @@ namespace Neo.SmartContract.Testing.Coverage
                 CoverageData[ip] = new CoverageHit(ip, false);
                 ip += instruction.Size;
             }
+        }
+
+        internal void GenerateMethods(ContractAbi? abi, Script? script)
+        {
+            Methods = Array.Empty<CoveredMethod>();
+
+            if (script is null || abi is null) return;
+
+            Methods = abi.Methods
+                .Select(u => CreateMethod(abi, script, u))
+                .Where(u => u is not null)
+                .OrderBy(u => u!.Offset)
+                .ToArray()!;
         }
 
         private CoveredMethod? CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
@@ -111,21 +118,26 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Join coverage
         /// </summary>
         /// <param name="coverage">Coverage</param>
-        public void Join(IEnumerable<CoverageHit> coverage)
+        public void Join(IEnumerable<CoverageHit>? coverage)
         {
+            if (coverage is null) return;
+
             // Join the coverage between them
 
-            foreach (var c in coverage)
+            lock (CoverageData)
             {
-                if (c.Hits == 0) continue;
+                foreach (var c in coverage)
+                {
+                    if (c.Hits == 0) continue;
 
-                if (CoverageData.TryGetValue(c.Offset, out var kvpValue))
-                {
-                    kvpValue.Hit(c);
-                }
-                else
-                {
-                    CoverageData.Add(c.Offset, c.Clone());
+                    if (CoverageData.TryGetValue(c.Offset, out var kvpValue))
+                    {
+                        kvpValue.Hit(c);
+                    }
+                    else
+                    {
+                        CoverageData.Add(c.Offset, c.Clone());
+                    }
                 }
             }
         }
@@ -144,13 +156,30 @@ namespace Neo.SmartContract.Testing.Coverage
                 NewLine = "\n"
             };
 
-            var cover = CoveredPercentage.ToString("0.00").ToString();
-            sourceCode.WriteLine($"| {Hash,-50} | {cover,7}% |");
+            var cover = CoveredPercentage.ToString("0.00").ToString() + " %";
+            sourceCode.WriteLine($"{Hash} [{cover}%]");
+
+            List<string[]> rows = new();
+            var max = new int[] { 0, 0 };
 
             foreach (var method in Methods)
             {
-                sourceCode.WriteLine(method.Dump());
+                cover = method.CoveredPercentage.ToString("0.00").ToString() + " %";
+                rows.Add([method.Method.ToString(), cover]);
+
+                max[0] = Math.Max(method.Method.ToString().Length, max[0]);
+                max[1] = Math.Max(cover.Length, max[1]);
             }
+
+            sourceCode.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
+
+            foreach (var print in rows)
+            {
+                sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │");
+            }
+
+            sourceCode.WriteLine($"└-{"─".PadLeft(max[0]  , '─')}-┴-{"─".PadLeft(max[1], '─')}-┘");
+
 
             return builder.ToString();
         }
