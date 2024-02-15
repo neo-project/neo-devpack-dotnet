@@ -56,6 +56,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         }
 
         [TestMethod]
+        public void TestDefaultOwner()
+        {
+            Assert.AreEqual(Alice.Account, Nep17.Owner);
+        }
+
+        [TestMethod]
         public void TestMyMethod()
         {
             Assert.AreEqual("World", Nep17.MyMethod());
@@ -302,12 +308,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.AreEqual(0, Nep17.TotalSupply);
 
             Nep17.OnTransfer -= onTransfer;
-        }
-
-        [TestMethod]
-        public void TestDefaultOwner()
-        {
-            Assert.AreEqual(Engine.Sender, Nep17.Owner);
         }
 
         [TestMethod]
