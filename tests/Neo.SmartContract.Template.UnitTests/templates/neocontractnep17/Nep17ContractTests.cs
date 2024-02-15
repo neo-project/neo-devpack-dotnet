@@ -48,14 +48,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Engine = new TestEngine(true);
             Engine.SetTransactionSigners(Alice);
             Nep17 = Engine.Deploy<Nep17Contract>(NefFile, Manifest, null);
-
-            // Get coverage bag, we will join the coverage here
-
-            if (Coverage is null)
-            {
-                Coverage = Nep17.GetCoverage()!;
-                Assert.IsNotNull(Coverage);
-            }
         }
 
         [AssemblyCleanup]
