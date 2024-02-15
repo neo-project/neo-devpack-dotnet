@@ -162,7 +162,7 @@ namespace Neo.SmartContract.Testing.Coverage
             List<string[]> rows = new();
             var max = new int[] { 0, 0 };
 
-            foreach (var method in Methods)
+            foreach (var method in Methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredPercentage))
             {
                 cover = method.CoveredPercentage.ToString("0.00").ToString() + " %";
                 rows.Add(new string[] { method.Method.ToString(), cover });
