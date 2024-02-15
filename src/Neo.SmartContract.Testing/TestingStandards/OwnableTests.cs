@@ -64,8 +64,10 @@ public class OwnableTests<T> : TestBase<T>
 
         var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
         var check = Engine.FromHash<T>(expectedHash, false);
+
         check.OnSetOwner += onSetOwner;
         var ownable = Engine.Deploy<T>(NefFile, Manifest, null);
+        Assert.AreEqual(check.Hash, ownable.Hash);
         check.OnSetOwner -= onSetOwner;
 
         AssertOnChangeOwnerEvent(null, random.Account);
