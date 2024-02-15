@@ -23,7 +23,7 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build Neo.Compiler.CSharp
-      run: dotnet build ./src/Neo.Compiler.CSharp.csproj
+      run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Preapare artifacts for Neo.SmartContract.Template.UnitTests
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --include-source
@@ -33,7 +33,7 @@ jobs:
         dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj package Neo.SmartContract.Framework
         dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
         dotnet /src/Neo.Compiler.CSharp/bin/Debug/nccs.dll -d /src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o /tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source
-    - name: Build
+    - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Check format
       run: |
