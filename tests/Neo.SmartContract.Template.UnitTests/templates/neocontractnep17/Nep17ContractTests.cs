@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         [TestCleanup]
         public void IncreaseCoverage()
         {
-            // Join the coverage of the current engine into the static bag
+            // Join the current coverage into the static one
 
             Coverage.Join(Nep17?.GetCoverage());
         }
