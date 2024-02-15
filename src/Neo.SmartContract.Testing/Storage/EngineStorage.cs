@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="storage">Store</param>
+        /// <param name="store">Store</param>
         public EngineStorage(IStore store)
         {
             Store = store;
