@@ -21,6 +21,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         private static readonly Signer Bob = TestEngine.GetNewSigner();
 
         private readonly TestEngine Engine;
+        // You need to build the solution to resolve Nep17Contract class.
         private readonly Nep17Contract Nep17;
 
         /// <summary>
