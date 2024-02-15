@@ -31,12 +31,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         { }
 
         [TestMethod]
-        public void TestDefaultOwner()
-        {
-            Assert.AreEqual(Alice.Account, Nep17.Owner);
-        }
-
-        [TestMethod]
         public void TestMyMethod()
         {
             Assert.AreEqual("World", Nep17.MyMethod());

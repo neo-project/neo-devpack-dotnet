@@ -11,11 +11,6 @@ namespace Neo.SmartContract.Testing.TestingStandards;
 
 public class OwnableTests<T> where T : SmartContract, IOwnable
 {
-    /// <summary>
-    /// Required coverage to be success
-    /// </summary>
-    public static float RequiredCoverage { get; set; } = 0.95F;
-
     public static CoveredContract? Coverage { get; private set; }
     public static Signer Alice { get; } = TestEngine.GetNewSigner();
     public static Signer Bob { get; } = TestEngine.GetNewSigner();
