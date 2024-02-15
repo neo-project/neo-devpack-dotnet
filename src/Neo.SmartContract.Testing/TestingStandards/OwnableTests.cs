@@ -1,25 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Network.P2P.Payloads;
-using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public class OwnableTests<T> where T : SmartContract, IOwnable
+public class OwnableTests<T> : TestBase<T>
+    where T : SmartContract, IOwnable
 {
-    public static CoveredContract? Coverage { get; private set; }
-    public static Signer Alice { get; } = TestEngine.GetNewSigner();
-    public static Signer Bob { get; } = TestEngine.GetNewSigner();
-
-    public byte[] NefFile { get; }
-    public string Manifest { get; }
-    public TestEngine Engine { get; }
-    public T Ownable { get; }
-
     #region Transfer event checks
 
     private List<(UInt160? from, UInt160? to)> raisedOnChangeOwner = new();
@@ -29,22 +18,9 @@ public class OwnableTests<T> where T : SmartContract, IOwnable
     /// <summary>
     /// Initialize Test
     /// </summary>
-    public OwnableTests(string nefFile, string manifestFile)
+    public OwnableTests(string nefFile, string manifestFile) : base(nefFile, manifestFile)
     {
-        NefFile = File.ReadAllBytes(nefFile);
-        Manifest = File.ReadAllText(manifestFile);
-
-        Engine = new TestEngine(true);
-        Engine.SetTransactionSigners(Alice);
-        Ownable = Engine.Deploy<T>(NefFile, Manifest, null);
-
-        if (Coverage is null)
-        {
-            Coverage = Ownable.GetCoverage()!;
-            Assert.IsNotNull(Coverage);
-        }
-
-        Ownable.OnSetOwner += onSetOwner;
+        Contract.OnSetOwner += onSetOwner;
     }
 
     void onSetOwner(UInt160? from, UInt160? to)
@@ -77,14 +53,6 @@ public class OwnableTests<T> where T : SmartContract, IOwnable
 
     #endregion
 
-    [TestCleanup]
-    public virtual void OnCleanup()
-    {
-        // Join the current coverage into the static one
-
-        Coverage?.Join(Ownable.GetCoverage());
-    }
-
     #region Tests
 
     [TestMethod]
@@ -109,23 +77,23 @@ public class OwnableTests<T> where T : SmartContract, IOwnable
     {
         // Alice is the deployer
 
-        Assert.AreEqual(Alice.Account, Ownable.Owner);
+        Assert.AreEqual(Alice.Account, Contract.Owner);
         Engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<VMUnhandledException>(() => Ownable.Owner = Bob.Account);
+        Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Alice);
-        Assert.ThrowsException<Exception>(() => Ownable.Owner = UInt160.Zero);
-        Assert.ThrowsException<InvalidOperationException>(() => Ownable.Owner = InvalidUInt160.Null);
-        Assert.ThrowsException<Exception>(() => Ownable.Owner = InvalidUInt160.Invalid);
+        Assert.ThrowsException<Exception>(() => Contract.Owner = UInt160.Zero);
+        Assert.ThrowsException<InvalidOperationException>(() => Contract.Owner = InvalidUInt160.Null);
+        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.Invalid);
 
-        Ownable.Owner = Bob.Account;
-        Assert.AreEqual(Bob.Account, Ownable.Owner);
-        Assert.ThrowsException<VMUnhandledException>(() => Ownable.Owner = Bob.Account);
+        Contract.Owner = Bob.Account;
+        Assert.AreEqual(Bob.Account, Contract.Owner);
+        Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Bob);
 
-        Ownable.Owner = Alice.Account;
-        Assert.AreEqual(Alice.Account, Ownable.Owner);
+        Contract.Owner = Alice.Account;
+        Assert.AreEqual(Alice.Account, Contract.Owner);
     }
 
     #endregion

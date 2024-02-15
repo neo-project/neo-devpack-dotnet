@@ -33,16 +33,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         [TestMethod]
         public void TestMyMethod()
         {
-            Assert.AreEqual("World", Nep17.MyMethod());
+            Assert.AreEqual("World", Contract.MyMethod());
         }
 
         [TestMethod]
         public void TestVerify()
         {
             Engine.SetTransactionSigners(Alice);
-            Assert.IsTrue(Nep17.Verify);
+            Assert.IsTrue(Contract.Verify);
             Engine.SetTransactionSigners(Bob);
-            Assert.IsFalse(Nep17.Verify);
+            Assert.IsFalse(Contract.Verify);
         }
 
         [TestMethod]
@@ -52,16 +52,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test mint
 
-            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(0, Contract.TotalSupply);
 
             // Alice is the owner
 
             Engine.SetTransactionSigners(Alice);
 
-            Nep17.Mint(Alice.Account, 10);
+            Contract.Mint(Alice.Account, 10);
 
-            Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
+            Assert.AreEqual(10, Contract.TotalSupply);
             AssertTransferEvent(null, Alice.Account, 10);
 
             // Transfer is done between alice balance to bob
@@ -72,10 +72,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Alice);
 
-            Nep17.Burn(Alice.Account, Nep17.BalanceOf(Alice.Account));
-            Nep17.Burn(Bob.Account, Nep17.BalanceOf(Bob.Account));
+            Contract.Burn(Alice.Account, Contract.BalanceOf(Alice.Account));
+            Contract.Burn(Bob.Account, Contract.BalanceOf(Bob.Account));
 
-            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(0, Contract.TotalSupply);
         }
 
         [TestMethod]
@@ -87,58 +87,58 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test mint -1
 
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, -1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Mint(Alice.Account, -1));
 
             // Test mint 0
 
-            Nep17.Mint(Alice.Account, 0);
+            Contract.Mint(Alice.Account, 0);
 
-            Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
+            Assert.AreEqual(0, Contract.TotalSupply);
             AssertNoTransferEvent();
 
             // test mint
 
-            Nep17.Mint(Alice.Account, 10);
+            Contract.Mint(Alice.Account, 10);
 
-            Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
+            Assert.AreEqual(10, Contract.TotalSupply);
             AssertTransferEvent(null, Alice.Account, 10);
 
             // Test burn -1
 
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, -1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Alice.Account, -1));
 
             // Test burn 0
 
-            Nep17.Burn(Alice.Account, 0);
+            Contract.Burn(Alice.Account, 0);
 
-            Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(10, Nep17.TotalSupply);
+            Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
+            Assert.AreEqual(10, Contract.TotalSupply);
             AssertNoTransferEvent();
 
             // Test burn
 
-            Nep17.Burn(Alice.Account, 10);
+            Contract.Burn(Alice.Account, 10);
 
-            Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
+            Assert.AreEqual(0, Contract.TotalSupply);
             AssertTransferEvent(Alice.Account, null, 10);
 
             // Can't burn more than the BalanceOf
 
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, 1));
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Bob.Account, 1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Alice.Account, 1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Bob.Account, 1));
 
             // Now check with Bob
 
             Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Mint(Alice.Account, 10));
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Burn(Alice.Account, 10));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Mint(Alice.Account, 10));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Alice.Account, 10));
 
             // Clean
 
-            Assert.AreEqual(0, Nep17.TotalSupply);
+            Assert.AreEqual(0, Contract.TotalSupply);
         }
 
         [TestMethod]
@@ -148,13 +148,13 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Bob);
 
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Update(NefFile, Manifest));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Update(NefFile, Manifest));
 
             Engine.SetTransactionSigners(Alice);
 
             // Test Update with the same script
 
-            Nep17.Update(NefFile, Manifest);
+            Contract.Update(NefFile, Manifest);
 
             // Ensure that it works with the same script
 
