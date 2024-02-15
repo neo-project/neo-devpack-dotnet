@@ -72,9 +72,9 @@ namespace Neo.SmartContract.Testing.Coverage
             if (script is null || abi is null) return;
 
             Methods = abi.Methods
-                .Select(u => CreateMethod(abi, script, u))
-                .Where(u => u is not null)
-                .OrderBy(u => u!.Offset)
+                .Select(s => CreateMethod(abi, script, s))
+                .Where(w => w is not null)
+                .OrderBy(o => o.Offset)
                 .ToArray()!;
         }
 
