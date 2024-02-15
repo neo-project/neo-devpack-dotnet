@@ -14,7 +14,6 @@ using System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.Attributes
 {
-
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ManifestExtraAttribute : Attribute
     {
