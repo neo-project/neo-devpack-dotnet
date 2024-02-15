@@ -344,4 +344,4 @@ Keep in mind that the coverage is at the instruction level.
 The currently known limitations are:
 
 - Receive events during the deploy, because the object is returned after performing the deploy, it is not possible to intercept notifications for the deploy unless the contract is previously created with `FromHash` knowing the hash of the contract to be created.
-- It is possible that if the contract is updated, the coverage calculation may be incorrect.
+- It is possible that if the contract is updated, the coverage calculation may be incorrect. The update method of a contract can be tested, but if the same script and abi as the original are not used, it can result in a coverage calculation error. 
