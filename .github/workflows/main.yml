@@ -24,7 +24,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-    - name: Test Templates Neo.SmartContract.Template and generate artifacts
+    - name: Build Neo.SmartContract.Template and generate artifacts
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
