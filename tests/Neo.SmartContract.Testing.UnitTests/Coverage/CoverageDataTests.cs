@@ -20,6 +20,8 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(@"
 0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26 %%]
 ┌-────────────────────────-┬-────────-┐
+│ Method                   │   Line   │
+├-────────────────────────-┼-────────-┤
 │ totalSupply,0            │ 100.00 % │
 │ balanceOf,1              │   0.00 % │
 │ decimals,0               │   0.00 % │

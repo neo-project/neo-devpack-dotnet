@@ -157,7 +157,7 @@ namespace Neo.SmartContract.Testing.Coverage
             sourceCode.WriteLine($"{Hash} [{cover}%]");
 
             List<string[]> rows = new();
-            var max = new int[] { 0, 0 };
+            var max = new int[] { "Method".Length, "Line  ".Length };
 
             foreach (var method in Methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredPercentage))
             {
@@ -169,6 +169,8 @@ namespace Neo.SmartContract.Testing.Coverage
             }
 
             sourceCode.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
+            sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │");
+            sourceCode.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┤");
 
             foreach (var print in rows)
             {
