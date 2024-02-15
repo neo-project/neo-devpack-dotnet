@@ -5,7 +5,6 @@ namespace Neo.SmartContract.Framework.UnitTests;
 [TestClass]
 public class ManifestAttributeTest
 {
-
     [TestMethod]
     public void TestManifestAttribute()
     {
