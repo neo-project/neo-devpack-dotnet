@@ -13,29 +13,49 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
     [TestClass]
     public class Nep17ContractTests
     {
-        private const string NefFilePath = "templates/neocontractnep17/Artifacts/Nep17Contract.nef";
-        private const string ManifestPath = "templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json";
+        private static readonly byte[] NefFile;
+        private static readonly string Manifest;
+        private static CoveredContract Coverage;
 
         private static readonly Signer Alice = TestEngine.GetNewSigner();
         private static readonly Signer Bob = TestEngine.GetNewSigner();
-        private static readonly TestEngine Engine;
-        private static readonly Nep17Contract Nep17;
-        private static readonly CoveredContract Coverage;
 
+        private readonly TestEngine Engine;
+        private readonly Nep17Contract Nep17;
+
+        /// <summary>
+        /// Initialize coverage bag
+        /// </summary>
         static Nep17ContractTests()
         {
-            Engine = new TestEngine(true);
-            Engine.SetTransactionSigners(Alice);
+            var engine = new TestEngine(true);
 
-            var nef = File.ReadAllBytes(NefFilePath);
-            var manifest = File.ReadAllText(ManifestPath);
-
-            Nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, null);
+            NefFile = File.ReadAllBytes("templates/neocontractnep17/Artifacts/Nep17Contract.nef");
+            Manifest = File.ReadAllText("templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json");
 
             // Get coverage bag, we will join the coverage here
 
-            Coverage = Nep17.GetCoverage()!;
+            engine.SetTransactionSigners(Alice);
+            Coverage = engine.Deploy<Nep17Contract>(NefFile, Manifest, null)?.GetCoverage()!;
             Assert.IsNotNull(Coverage);
+        }
+
+        /// <summary>
+        /// Initialize Test
+        /// </summary>
+        public Nep17ContractTests()
+        {
+            Engine = new TestEngine(true);
+            Engine.SetTransactionSigners(Alice);
+            Nep17 = Engine.Deploy<Nep17Contract>(NefFile, Manifest, null);
+
+            // Get coverage bag, we will join the coverage here
+
+            if (Coverage is null)
+            {
+                Coverage = Nep17.GetCoverage()!;
+                Assert.IsNotNull(Coverage);
+            }
         }
 
         [AssemblyCleanup]
@@ -341,16 +361,13 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Bob);
 
-            var nef = File.ReadAllBytes(NefFilePath);
-            var manifest = File.ReadAllText(ManifestPath);
-
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Update(nef, manifest));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Update(NefFile, Manifest));
 
             Engine.SetTransactionSigners(Alice);
 
             // Test Update with the same script
 
-            Nep17.Update(nef, manifest);
+            Nep17.Update(NefFile, Manifest);
 
             // Ensure that it works with the same script
 
@@ -366,8 +383,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test SetOwner notification
 
-            var nef = File.ReadAllBytes(NefFilePath).AsSerializable<NefFile>();
-            var manifest = ContractManifest.Parse(File.ReadAllText(ManifestPath));
+            var nef = NefFile.AsSerializable<NefFile>();
+            var manifest = ContractManifest.Parse(Manifest);
             UInt160 expectedHash = Helper.GetContractHash(Bob.Account, nef.CheckSum, manifest.Name);
 
             UInt160? newOwnerRaised = null;

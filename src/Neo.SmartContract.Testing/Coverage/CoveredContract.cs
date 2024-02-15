@@ -147,8 +147,6 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         public string Dump()
         {
-            // TODO: improve dump later
-
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
@@ -178,7 +176,6 @@ namespace Neo.SmartContract.Testing.Coverage
             }
 
             sourceCode.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┘");
-
 
             return builder.ToString();
         }
