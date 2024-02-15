@@ -967,9 +967,6 @@ namespace Neo.Compiler
             }
         }
 
-
-
-
         private void EnsureIntegerInRange(ITypeSymbol type)
         {
             if (type.Name == "BigInteger") return;
