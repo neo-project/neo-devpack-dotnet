@@ -4,6 +4,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
 using System.Numerics;
 
@@ -40,10 +41,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
-            // Ennsure that the coverage is more than 90% at the end of the tests
+            // Ennsure that the coverage is more than 95% at the end of the tests
 
             Console.WriteLine(Coverage.Dump());
-            Assert.IsTrue(Coverage.CoveredPercentage > 90.0, "Coverage is less than 90%");
+            Assert.IsTrue(Coverage.CoveredPercentage > 95.0, "Coverage is less than 95%");
         }
 
         [TestCleanup]
@@ -92,7 +93,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         {
             Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Nep17.BalanceOf(Bob.Account));
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.BalanceOf(null));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.BalanceOf(InvalidUInt160.Null));
+            Assert.ThrowsException<VMUnhandledException>(() => Nep17.BalanceOf(InvalidUInt160.Invalid));
         }
 
         [TestMethod]
@@ -128,12 +130,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.AreEqual(Alice.Account, raisedTo);
             Assert.AreEqual(10, raisedAmount);
 
+            // Invoke transfer
+
             raisedTimes = 0;
             raisedFrom = null;
             raisedTo = null;
             raisedAmount = null;
-
-            // Invoke transfer
 
             Assert.IsTrue(Nep17.Transfer(Alice.Account, Bob.Account, 6));
 
@@ -144,6 +146,25 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.AreEqual(Alice.Account, raisedFrom);
             Assert.AreEqual(Bob.Account, raisedTo);
             Assert.AreEqual(6, raisedAmount);
+
+            // Invoke invalid transfers
+
+            Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Nep17.Transfer(Alice.Account, Bob.Account, -1)));
+            Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Nep17.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
+            Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Nep17.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
+
+            // Invoke transfer without signature
+
+            raisedTimes = 0;
+            raisedFrom = null;
+            raisedTo = null;
+            raisedAmount = null;
+
+            Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 1000));
+            Assert.AreEqual(0, raisedTimes);
+            Assert.AreEqual(null, raisedFrom);
+            Assert.AreEqual(null, raisedTo);
+            Assert.AreEqual(null, raisedAmount);
 
             // Check with more balance
 
@@ -300,6 +321,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Alice);
             Assert.ThrowsException<Exception>(() => Nep17.Owner = UInt160.Zero);
+            Assert.ThrowsException<InvalidOperationException>(() => Nep17.Owner = InvalidUInt160.Null);
+            Assert.ThrowsException<Exception>(() => Nep17.Owner = InvalidUInt160.Invalid);
 
             Nep17.Owner = Bob.Account;
             Assert.AreEqual(Bob.Account, Nep17.Owner);

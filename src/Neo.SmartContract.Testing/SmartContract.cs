@@ -51,7 +51,31 @@ namespace Neo.SmartContract.Testing
             // Compose script
 
             using ScriptBuilder script = new();
-            script.EmitDynamicCall(Hash, methodName, args);
+
+            if (args is null || args.Length == 0)
+                script.Emit(OpCode.NEWARRAY0);
+            else
+            {
+                for (int i = args.Length - 1; i >= 0; i--)
+                {
+                    var arg = args[i];
+
+                    if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.Invalid) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.Invalid))
+                    {
+                        arg = System.Array.Empty<byte>();
+                    }
+
+                    script.EmitPush(arg);
+                }
+                script.EmitPush(args.Length);
+                script.Emit(OpCode.PACK);
+            }
+
+            script.EmitPush(CallFlags.All);
+            script.EmitPush(methodName);
+            script.EmitPush(Hash);
+            script.EmitSysCall(ApplicationEngine.System_Contract_Call);
 
             // Execute
 

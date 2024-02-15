@@ -1,8 +1,6 @@
-using Neo.IO;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Reflection;
 
@@ -10,38 +8,6 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class TestExtensions
     {
-        /// <summary>
-        /// Convert dotnet type to stack item
-        /// </summary>
-        /// <param name="data">Data</param>
-        /// <returns>StackItem</returns>
-        public static StackItem ConvertToStackItem(this object? data)
-        {
-            return data switch
-            {
-                null => StackItem.Null,
-                bool b => (VM.Types.Boolean)b,
-                string s => (ByteString)s,
-                byte[] d => (ByteString)d,
-                ReadOnlyMemory<byte> r => (ByteString)r,
-                byte by => (Integer)by,
-                sbyte sby => (Integer)sby,
-                short i16 => (Integer)i16,
-                ushort ui16 => (Integer)ui16,
-                int i32 => (Integer)i32,
-                uint ui32 => (Integer)ui32,
-                long i64 => (Integer)i64,
-                ulong ui64 => (Integer)ui64,
-                BigInteger bi => (Integer)bi,
-                UInt160 u160 => (ByteString)u160.ToArray(),
-                UInt256 u256 => (ByteString)u256.ToArray(),
-                Cryptography.ECC.ECPoint ec => (ByteString)ec.ToArray(),
-                object[] arr => new VM.Types.Array(arr.Select(ConvertToStackItem)),
-                IEnumerable<object> iarr => new VM.Types.Array(iarr.Select(ConvertToStackItem)),
-                _ => StackItem.Null,
-            };
-        }
-
         /// <summary>
         /// Convert Array stack item to dotnet array
         /// </summary>
