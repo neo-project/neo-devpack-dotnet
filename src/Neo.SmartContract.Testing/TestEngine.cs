@@ -6,6 +6,7 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -71,7 +72,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Storage
         /// </summary>
-        public TestStorage Storage { get; init; } = new TestStorage(new MemoryStore());
+        public EngineStorage Storage { get; init; } = new EngineStorage(new MemoryStore());
 
         /// <summary>
         /// Protocol Settings

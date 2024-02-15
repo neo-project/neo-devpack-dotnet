@@ -1,11 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Persistence;
+using Neo.SmartContract.Testing.Storage;
 using System;
 using System.Linq;
 using System.Text;
 
-namespace Neo.SmartContract.Testing.UnitTests
+namespace Neo.SmartContract.TestEngine.UnitTests.Storage
 {
     [TestClass]
     public class TestStorageTests
@@ -13,7 +14,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void LoadExportImport()
         {
-            TestStorage store = new(new MemoryStore());
+            EngineStorage store = new(new MemoryStore());
 
             // empty
 
@@ -51,7 +52,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Test import
 
-            TestStorage storeCopy = new(new MemoryStore());
+            EngineStorage storeCopy = new(new MemoryStore());
 
             store.Commit();
             storeCopy.Import(store.Export());

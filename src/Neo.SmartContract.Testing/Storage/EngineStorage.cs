@@ -4,12 +4,12 @@ using System;
 using System.Buffers.Binary;
 using System.Linq;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Storage
 {
     /// <summary>
     /// TestStorage centralizes the storage management of our TestEngine
     /// </summary>
-    public class TestStorage
+    public class EngineStorage
     {
         // Key to check if native contracts are initialized, by default: Neo.votersCountPrefix
         private static readonly StorageKey _initKey = new() { Id = Native.NativeContract.NEO.Id, Key = new byte[] { 1 } };
@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Testing
         /// Constructor
         /// </summary>
         /// <param name="storage">Store</param>
-        public TestStorage(IStore store)
+        public EngineStorage(IStore store)
         {
             Store = store;
             Snapshot = new SnapshotCache(Store.GetSnapshot());
@@ -55,6 +55,12 @@ namespace Neo.SmartContract.Testing
             Snapshot.Dispose();
             Snapshot = new SnapshotCache(Store.GetSnapshot());
         }
+
+        /// <summary>
+        /// Get storage checkpoint
+        /// </summary>
+        /// <returns>StorageCheckpoint</returns>
+        public EngineCheckpoint Checkpoint() => new(Snapshot);
 
         /// <summary>
         /// Import data from json, expected data (in base64):
