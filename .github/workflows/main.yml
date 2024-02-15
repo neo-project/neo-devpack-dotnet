@@ -22,6 +22,17 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Build Neo.Compiler.CSharp
+      run: dotnet build ./src/Neo.Compiler.CSharp.csproj
+    - name: Preapare artifacts for Neo.SmartContract.Template.UnitTests
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --include-source
+        dotnet new install ./rc/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.3.6.2.nupkg
+        dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/ --force
+        dotnet new uninstall Neo.SmartContract.Template
+        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj package Neo.SmartContract.Framework
+        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        dotnet /src/Neo.Compiler.CSharp/bin/Debug/nccs.dll -d /src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o /tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source
     - name: Build
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Check format
@@ -44,15 +55,6 @@ jobs:
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\" \
         -p:CoverletOutputFormat=lcov
-    - name: Preapare artifacts for Neo.SmartContract.Template.UnitTests
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --include-source
-        dotnet new install ./rc/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.3.6.2.nupkg
-        dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/ --force
-        dotnet new uninstall Neo.SmartContract.Template
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet /src/Neo.Compiler.CSharp/bin/Debug/nccs.dll -d /src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o /tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
