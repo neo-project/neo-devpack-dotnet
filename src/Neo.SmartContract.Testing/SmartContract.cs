@@ -103,7 +103,9 @@ namespace Neo.SmartContract.Testing
                 var ev = _contractType.GetEvent(eventName);
                 if (ev is null)
                 {
-                    ev = _contractType.GetEvents().FirstOrDefault(u => u.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName == eventName);
+                    ev = _contractType.GetEvents()
+                        .FirstOrDefault(u => u.Name == eventName || u.GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName == eventName);
+
                     if (ev is null)
                     {
                         _notifyCache[eventName] = null;

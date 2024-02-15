@@ -1,69 +1,34 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
-using Neo.Network.P2P.Payloads;
-using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.Coverage;
-using Neo.SmartContract.Testing.InvalidTypes;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Numerics;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {
+    /// <summary>
+    /// You need to build the solution to resolve Nep17Contract class.
+    /// </summary>
     [TestClass]
-    public class Nep17ContractTests
+    public class Nep17ContractTests : Nep17Tests<Nep17Contract>
     {
-        private static readonly byte[] NefFile;
-        private static readonly string Manifest;
-        private static CoveredContract Coverage;
+        #region Expected values in base tests
 
-        private static readonly Signer Alice = TestEngine.GetNewSigner();
-        private static readonly Signer Bob = TestEngine.GetNewSigner();
+        public override BigInteger ExpectedTotalSupply => 0;
+        public override string ExpectedSymbol => "EXAMPLE";
+        public override byte ExpectedDecimals => 8;
 
-        private readonly TestEngine Engine;
-        // You need to build the solution to resolve Nep17Contract class.
-        private readonly Nep17Contract Nep17;
-
-        /// <summary>
-        /// Initialize coverage bag
-        /// </summary>
-        static Nep17ContractTests()
-        {
-            NefFile = File.ReadAllBytes("templates/neocontractnep17/Artifacts/Nep17Contract.nef");
-            Manifest = File.ReadAllText("templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json");
-
-            // Get coverage bag, we will join the coverage here
-
-            Coverage = new Nep17ContractTests().Nep17.GetCoverage()!;
-            Assert.IsNotNull(Coverage);
-        }
+        #endregion
 
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public Nep17ContractTests()
-        {
-            Engine = new TestEngine(true);
-            Engine.SetTransactionSigners(Alice);
-            Nep17 = Engine.Deploy<Nep17Contract>(NefFile, Manifest, null);
-        }
-
-        [AssemblyCleanup]
-        public static void EnsureCoverage()
-        {
-            // Ennsure that the coverage is more than 95% at the end of the tests
-
-            Console.WriteLine(Coverage.Dump());
-            Assert.IsTrue(Coverage.CoveredPercentage > 95.0, "Coverage is less than 95%");
-        }
-
-        [TestCleanup]
-        public void IncreaseCoverage()
-        {
-            // Join the current coverage into the static one
-
-            Coverage.Join(Nep17.GetCoverage());
-        }
+        public Nep17ContractTests() :
+            base(
+                "templates/neocontractnep17/Artifacts/Nep17Contract.nef",
+                "templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json"
+                )
+        { }
 
         [TestMethod]
         public void TestDefaultOwner()
@@ -87,51 +52,13 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         }
 
         [TestMethod]
-        public void TestDeciamls()
+        public override void TestTransfer()
         {
-            Assert.AreEqual(8, Nep17.Decimals);
-        }
+            Engine.SetTransactionSigners(Alice);
 
-        [TestMethod]
-        public void TestSymbol()
-        {
-            Assert.AreEqual("EXAMPLE", Nep17.Symbol);
-        }
+            // Test mint
 
-        [TestMethod]
-        public void TestTotalSupply()
-        {
             Assert.AreEqual(0, Nep17.TotalSupply);
-        }
-
-        [TestMethod]
-        public void TestBalanceOf()
-        {
-            Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(0, Nep17.BalanceOf(Bob.Account));
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.BalanceOf(InvalidUInt160.Null));
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.BalanceOf(InvalidUInt160.Invalid));
-        }
-
-        [TestMethod]
-        public void TestTransfer()
-        {
-            // Listen OnTransfer
-
-            int raisedTimes = 0;
-            UInt160? raisedFrom = null;
-            UInt160? raisedTo = null;
-            BigInteger? raisedAmount = null;
-
-            void onTransfer(UInt160 from, UInt160 to, BigInteger amount)
-            {
-                raisedFrom = from;
-                raisedTo = to;
-                raisedAmount = amount;
-                raisedTimes++;
-            }
-
-            Nep17.OnTransfer += onTransfer;
 
             // Alice is the owner
 
@@ -141,103 +68,25 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(10, Nep17.TotalSupply);
-            Assert.AreEqual(1, raisedTimes);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(Alice.Account, raisedTo);
-            Assert.AreEqual(10, raisedAmount);
+            AssertTransferEvent(null, Alice.Account, 10);
 
-            // Invoke transfer
+            // Transfer is done between alice balance to bob
 
-            raisedTimes = 0;
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
+            base.TestTransfer();
 
-            Assert.IsTrue(Nep17.Transfer(Alice.Account, Bob.Account, 6));
-
-            Assert.AreEqual(4, Nep17.BalanceOf(Alice.Account));
-            Assert.AreEqual(6, Nep17.BalanceOf(Bob.Account));
-            Assert.AreEqual(10, Nep17.TotalSupply);
-            Assert.AreEqual(1, raisedTimes);
-            Assert.AreEqual(Alice.Account, raisedFrom);
-            Assert.AreEqual(Bob.Account, raisedTo);
-            Assert.AreEqual(6, raisedAmount);
-
-            // Invoke invalid transfers
-
-            Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Nep17.Transfer(Alice.Account, Bob.Account, -1)));
-            Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Nep17.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
-            Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Nep17.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
-
-            // Invoke transfer without signature
-
-            raisedTimes = 0;
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
-
-            Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 1000));
-            Assert.AreEqual(0, raisedTimes);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(null, raisedTo);
-            Assert.AreEqual(null, raisedAmount);
-
-            // Check with more balance
-
-            raisedTimes = 0;
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
-
-            Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 6));
-            Assert.AreEqual(0, raisedTimes);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(null, raisedTo);
-            Assert.AreEqual(null, raisedAmount);
-
-            // Check with not signed
-
-            raisedTimes = 0;
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
-
-            Engine.SetTransactionSigners(Bob);
-            Assert.IsFalse(Nep17.Transfer(Alice.Account, Bob.Account, 0));
-            Assert.AreEqual(0, raisedTimes);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(null, raisedTo);
-            Assert.AreEqual(null, raisedAmount);
-
-            // Clean OnTransfer
+            // Test Burn
 
             Engine.SetTransactionSigners(Alice);
 
-            Nep17.Burn(Bob.Account, 6);
-            Nep17.Burn(Alice.Account, 4);
+            Nep17.Burn(Alice.Account, Nep17.BalanceOf(Alice.Account));
+            Nep17.Burn(Bob.Account, Nep17.BalanceOf(Bob.Account));
 
             Assert.AreEqual(0, Nep17.TotalSupply);
-            Nep17.OnTransfer -= onTransfer;
         }
 
         [TestMethod]
         public void TestMintAndBurn()
         {
-            // Listen OnTransfer
-
-            UInt160? raisedFrom = null;
-            UInt160? raisedTo = null;
-            BigInteger? raisedAmount = null;
-
-            void onTransfer(UInt160 from, UInt160 to, BigInteger amount)
-            {
-                raisedFrom = from;
-                raisedTo = to;
-                raisedAmount = amount;
-            }
-
-            Nep17.OnTransfer += onTransfer;
-
             // Alice is the owner
 
             Engine.SetTransactionSigners(Alice);
@@ -252,23 +101,15 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Nep17.TotalSupply);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(null, raisedTo);
-            Assert.AreEqual(null, raisedAmount);
+            AssertNoTransferEvent();
 
             // test mint
-
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
 
             Nep17.Mint(Alice.Account, 10);
 
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(10, Nep17.TotalSupply);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(Alice.Account, raisedTo);
-            Assert.AreEqual(10, raisedAmount);
+            AssertTransferEvent(null, Alice.Account, 10);
 
             // Test burn -1
 
@@ -276,31 +117,19 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test burn 0
 
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
-
             Nep17.Burn(Alice.Account, 0);
 
             Assert.AreEqual(10, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(10, Nep17.TotalSupply);
-            Assert.AreEqual(null, raisedFrom);
-            Assert.AreEqual(null, raisedTo);
-            Assert.AreEqual(null, raisedAmount);
+            AssertNoTransferEvent();
 
             // Test burn
-
-            raisedFrom = null;
-            raisedTo = null;
-            raisedAmount = null;
 
             Nep17.Burn(Alice.Account, 10);
 
             Assert.AreEqual(0, Nep17.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Nep17.TotalSupply);
-            Assert.AreEqual(Alice.Account, raisedFrom);
-            Assert.AreEqual(null, raisedTo);
-            Assert.AreEqual(10, raisedAmount);
+            AssertTransferEvent(Alice.Account, null, 10);
 
             // Can't burn more than the BalanceOf
 
@@ -316,32 +145,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // Clean
 
             Assert.AreEqual(0, Nep17.TotalSupply);
-
-            Nep17.OnTransfer -= onTransfer;
-        }
-
-        [TestMethod]
-        public void TestSetGetOwner()
-        {
-            // Alice is the deployer
-
-            Assert.AreEqual(Alice.Account, Nep17.Owner);
-            Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Owner = Bob.Account);
-
-            Engine.SetTransactionSigners(Alice);
-            Assert.ThrowsException<Exception>(() => Nep17.Owner = UInt160.Zero);
-            Assert.ThrowsException<InvalidOperationException>(() => Nep17.Owner = InvalidUInt160.Null);
-            Assert.ThrowsException<Exception>(() => Nep17.Owner = InvalidUInt160.Invalid);
-
-            Nep17.Owner = Bob.Account;
-            Assert.AreEqual(Bob.Account, Nep17.Owner);
-            Assert.ThrowsException<VMUnhandledException>(() => Nep17.Owner = Bob.Account);
-
-            Engine.SetTransactionSigners(Bob);
-
-            Nep17.Owner = Alice.Account;
-            Assert.AreEqual(Alice.Account, Nep17.Owner);
         }
 
         [TestMethod]
@@ -365,7 +168,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         }
 
         [TestMethod]
-        public void TestDeploy()
+        public void TestDeployWithOwner()
         {
             // Alice is the deployer
 
@@ -373,23 +176,30 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test SetOwner notification
 
-            var nef = NefFile.AsSerializable<NefFile>();
-            var manifest = ContractManifest.Parse(Manifest);
-            UInt160 expectedHash = Helper.GetContractHash(Bob.Account, nef.CheckSum, manifest.Name);
-
+            UInt160? previousOwnerRaised = null;
             UInt160? newOwnerRaised = null;
+
+            var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
             var check = Engine.FromHash<Nep17Contract>(expectedHash, false);
-            check.OnSetOwner += (newOwner) => { newOwnerRaised = newOwner; };
+            check.OnSetOwner += (previous, newOwner) =>
+            {
+                previousOwnerRaised = previous;
+                newOwnerRaised = newOwner;
+            };
 
             // Deploy with random owner, we can use the same storage
             // because the contract hash contains the Sender, and now it's random
 
             var rand = TestEngine.GetNewSigner().Account;
-            var nep17 = Engine.Deploy<Nep17Contract>(nef, manifest, rand);
-            Coverage.Join(nep17.GetCoverage());
+            var nep17 = Engine.Deploy<Nep17Contract>(NefFile, Manifest, rand);
+            Assert.AreEqual(check.Hash, nep17.Hash);
+
+            Coverage?.Join(nep17.GetCoverage());
 
             Assert.AreEqual(rand, nep17.Owner);
+            Assert.IsNull(previousOwnerRaised);
             Assert.AreEqual(newOwnerRaised, nep17.Owner);
+            Assert.AreEqual(newOwnerRaised, rand);
         }
     }
 }

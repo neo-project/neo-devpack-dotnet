@@ -234,6 +234,18 @@ namespace Neo.SmartContract.Testing
         #endregion
 
         /// <summary>
+        /// Get deploy hash
+        /// </summary>
+        /// <param name="nef">Nef</param>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>Contract hash</returns>
+        public UInt160 GetDeployHash(byte[] nef, string manifest)
+        {
+            return Helper.GetContractHash(Sender,
+                nef.AsSerializable<NefFile>().CheckSum, ContractManifest.Parse(manifest).Name);
+        }
+
+        /// <summary>
         /// Deploy Smart contract
         /// </summary>
         /// <typeparam name="T">Type</typeparam>

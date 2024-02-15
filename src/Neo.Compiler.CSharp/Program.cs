@@ -191,7 +191,7 @@ namespace Neo.Compiler
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
-                    var artifact = manifest.Abi.GetArtifactsSource(baseName);
+                    var artifact = manifest.GetArtifactsSource(baseName);
 
                     if (options.GenerateArtifacts == Options.GenerateArtifactsKind.SourceAndLibrary || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
                     {

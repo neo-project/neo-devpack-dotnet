@@ -5,9 +5,7 @@ namespace Neo.SmartContract.Testing.InvalidTypes
         /// <summary>
         /// Null UInt256
         /// </summary>
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        public static readonly UInt256 Null = null;
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+        public static readonly UInt256? Null = null;
 
         /// <summary>
         /// This will be an invalid UInt256

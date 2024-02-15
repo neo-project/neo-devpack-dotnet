@@ -33,7 +33,7 @@ namespace ProjectName
         private static bool IsOwner() =>
             Runtime.CheckWitness(GetOwner());
 
-        public delegate void OnSetOwnerDelegate(UInt160 newOwner);
+        public delegate void OnSetOwnerDelegate(UInt160 previousOwner, UInt160 newOwner);
 
         [DisplayName("SetOwner")]
         public static event OnSetOwnerDelegate OnSetOwner;
@@ -45,8 +45,9 @@ namespace ProjectName
 
             ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
 
+            UInt160 previous = GetOwner();
             Storage.Put(new[] { Prefix_Owner }, newOwner);
-            OnSetOwner(newOwner);
+            OnSetOwner(previous, newOwner);
         }
 
         #endregion
@@ -104,7 +105,7 @@ namespace ProjectName
             ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
-            OnSetOwner(initialOwner);
+            OnSetOwner(null, initialOwner);
             Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 

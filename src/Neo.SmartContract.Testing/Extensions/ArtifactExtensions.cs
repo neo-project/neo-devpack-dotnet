@@ -1,4 +1,5 @@
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,8 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {
-        static readonly string[] _protectedWords = new string[] {
+        static readonly string[] _protectedWords = new string[]
+        {
             "abstract", "as", "base", "bool", "break", "byte",
             "case", "catch", "char", "checked", "class", "const",
             "continue", "decimal", "default", "delegate", "do", "double",
@@ -26,19 +28,40 @@ namespace Neo.SmartContract.Testing.Extensions
         };
 
         /// <summary>
-        /// Get source code from contract Abi
+        /// Get source code from contract Manifest
         /// </summary>
-        /// <param name="abi">Abi</param>
-        /// <param name="name">Contract name</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="name">Class name, by default is manifest.Name</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractAbi abi, string name, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, bool generateProperties = true)
         {
+            name ??= manifest.Name;
+
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
                 NewLine = "\n"
             };
+
+            var inheritance = new List<string>
+            {
+                typeof(SmartContract).FullName
+            };
+
+            if (manifest.SupportedStandards.Contains("NEP-17")) inheritance.Add(typeof(INep17Standard).FullName);
+
+            var isOwnable =
+                    manifest.Abi.Methods
+                        .Any(u => u.Name == "getOwner" && u.Safe && u.Parameters.Length == 0) &&
+                    manifest.Abi.Methods
+                        .Any(u => u.Name == "setOwner" && !u.Safe && u.Parameters.Length == 1 && u.Parameters[0].Type == ContractParameterType.Hash160) &&
+                    manifest.Abi.Events
+                        .Any(u => u.Name == "SetOwner" && u.Parameters.Length == 2 &&
+                        u.Parameters[0].Type == ContractParameterType.Hash160 &&
+                        u.Parameters[1].Type == ContractParameterType.Hash160);
+
+            if (isOwnable) inheritance.Add(typeof(IOwnable).FullName);
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
             sourceCode.WriteLine("using System.Collections.Generic;");
@@ -47,47 +70,54 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
-            sourceCode.WriteLine($"public abstract class {name} : Neo.SmartContract.Testing.SmartContract");
+            sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance));
             sourceCode.WriteLine("{");
 
             // Crete events
 
-            if (abi.Events.Any())
+            if (manifest.Abi.Events.Any())
             {
                 sourceCode.WriteLine("    #region Events");
+                sourceCode.WriteLine();
 
-                foreach (var ev in abi.Events.OrderBy(u => u.Name))
+                foreach (var ev in manifest.Abi.Events.OrderBy(u => u.Name))
                 {
-                    sourceCode.Write(CreateSourceEventFromManifest(ev));
+                    sourceCode.Write(CreateSourceEventFromManifest(manifest, ev));
+                    sourceCode.WriteLine();
                 }
 
                 sourceCode.WriteLine("    #endregion");
+                sourceCode.WriteLine();
             }
 
             // Create methods
 
-            var methods = abi.Methods;
+            var methods = manifest.Abi.Methods;
 
             if (generateProperties)
             {
-                (methods, var properties) = ProcessAbiMethods(abi.Methods);
+                (methods, var properties) = ProcessAbiMethods(manifest.Abi.Methods);
 
                 if (properties.Any())
                 {
                     sourceCode.WriteLine("    #region Properties");
+                    sourceCode.WriteLine();
 
                     foreach (var property in properties.OrderBy(u => u.getter.Name))
                     {
                         sourceCode.Write(CreateSourcePropertyFromManifest(property.getter, property.setter));
+                        sourceCode.WriteLine();
                     }
 
                     sourceCode.WriteLine("    #endregion");
+                    sourceCode.WriteLine();
                 }
             }
 
             if (methods.Any(u => u.Safe))
             {
                 sourceCode.WriteLine("    #region Safe methods");
+                sourceCode.WriteLine();
 
                 foreach (var method in methods.Where(u => u.Safe).OrderBy(u => u.Name))
                 {
@@ -96,14 +126,17 @@ namespace Neo.SmartContract.Testing.Extensions
                     if (method.Name.StartsWith("_")) continue;
 
                     sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.WriteLine();
                 }
 
                 sourceCode.WriteLine("    #endregion");
+                sourceCode.WriteLine();
             }
 
             if (methods.Any(u => !u.Safe))
             {
                 sourceCode.WriteLine("    #region Unsafe methods");
+                sourceCode.WriteLine();
 
                 foreach (var method in methods.Where(u => !u.Safe).OrderBy(u => u.Name))
                 {
@@ -112,14 +145,18 @@ namespace Neo.SmartContract.Testing.Extensions
                     if (method.Name.StartsWith("_")) continue;
 
                     sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.WriteLine();
                 }
                 sourceCode.WriteLine("    #endregion");
+                sourceCode.WriteLine();
             }
 
             // Create constructor
 
             sourceCode.WriteLine("    #region Constructor for internal use only");
+            sourceCode.WriteLine();
             sourceCode.WriteLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
+            sourceCode.WriteLine();
             sourceCode.WriteLine("    #endregion");
 
             sourceCode.WriteLine("}");
@@ -164,18 +201,60 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <summary>
         /// Create source code from event
         /// </summary>
+        /// <param name="manifest">Manifest</param>
         /// <param name="ev">Event</param>
         /// <returns>Source</returns>
-        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev)
+        private static string CreateSourceEventFromManifest(ContractManifest manifest, ContractEventDescriptor ev)
         {
-            var evName = TongleLowercase(EscapeName(ev.Name));
-            if (!evName.StartsWith("On")) evName = "On" + evName;
-
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
                 NewLine = "\n"
             };
+
+            switch (ev.Name)
+            {
+                case "Transfer":
+                    {
+                        var hasNep17 = manifest.SupportedStandards.Contains("NEP-17");
+
+                        if (hasNep17 && ev.Parameters.Length == 3 &&
+                            ev.Parameters[0].Type == ContractParameterType.Hash160 &&
+                            ev.Parameters[1].Type == ContractParameterType.Hash160 &&
+                            ev.Parameters[2].Type == ContractParameterType.Integer)
+                        {
+                            sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
+                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;");
+                            return builder.ToString();
+                        }
+
+                        break;
+                    }
+                case "SetOwner":
+                    {
+                        var hasSetGet =
+                            manifest.Abi.Methods.Any(u => u.Name == "getOwner" && u.Safe && u.Parameters.Length == 0) &&
+                            manifest.Abi.Methods.Any(u => u.Name == "setOwner" && !u.Safe && u.Parameters.Length == 1 && u.Parameters[0].Type == ContractParameterType.Hash160);
+
+                        if (hasSetGet && ev.Parameters.Length == 2 &&
+                            ev.Parameters[0].Type == ContractParameterType.Hash160 &&
+                            ev.Parameters[1].Type == ContractParameterType.Hash160)
+                        {
+                            sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
+                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner? OnSetOwner;");
+                            return builder.ToString();
+                        }
+
+                        break;
+                    }
+            }
+
+            // Add On prefix
+
+            var evName = TongleLowercase(EscapeName(ev.Name));
+            if (!evName.StartsWith("On")) evName = "On" + evName;
+
+            // Compose delegate
 
             sourceCode.Write($"    public delegate void del{ev.Name}(");
 
@@ -189,6 +268,10 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             sourceCode.WriteLine(");");
+            sourceCode.WriteLine();
+
+            // Compose event
+
             if (ev.Name != evName)
             {
                 sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
@@ -214,6 +297,10 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 NewLine = "\n"
             };
+
+            sourceCode.WriteLine($"    /// <summary>");
+            sourceCode.WriteLine($"    /// {(getter.Safe ? "Safe property" : "Unsafe property")}");
+            sourceCode.WriteLine($"    /// </summary>");
             sourceCode.WriteLine($"    public abstract {TypeToSource(getter.ReturnType)} {propertyName} {getset}");
 
             return builder.ToString();
@@ -256,7 +343,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // it will be object X, we can add a default value
 
-                    sourceCode.Write($"{TypeToSource(arg.Type)}? {EscapeName(arg.Name)} = null");
+                    sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)} = null");
                 }
                 else
                 {
@@ -307,18 +394,18 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             return type switch
             {
-                ContractParameterType.Boolean => "bool",
-                ContractParameterType.Integer => "BigInteger",
-                ContractParameterType.String => "string",
-                ContractParameterType.Hash160 => "UInt160",
-                ContractParameterType.Hash256 => "UInt256",
-                ContractParameterType.PublicKey => "ECPoint",
-                ContractParameterType.ByteArray => "byte[]",
-                ContractParameterType.Signature => "byte[]",
-                ContractParameterType.Array => "IList<object>",
-                ContractParameterType.Map => "IDictionary<object, object>",
+                ContractParameterType.Boolean => "bool?",
+                ContractParameterType.Integer => "BigInteger?",
+                ContractParameterType.String => "string?",
+                ContractParameterType.Hash160 => "UInt160?",
+                ContractParameterType.Hash256 => "UInt256?",
+                ContractParameterType.PublicKey => "ECPoint?",
+                ContractParameterType.ByteArray => "byte[]?",
+                ContractParameterType.Signature => "byte[]?",
+                ContractParameterType.Array => "IList<object>?",
+                ContractParameterType.Map => "IDictionary<object, object>?",
                 ContractParameterType.Void => "void",
-                _ => "object",
+                _ => "object?",
             };
         }
     }

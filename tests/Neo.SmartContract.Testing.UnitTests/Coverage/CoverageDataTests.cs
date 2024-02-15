@@ -18,30 +18,30 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(@"
-0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26 %%]
-┌-────────────────────────-┬-────────-┐
-│ Method                   │   Line   │
-├-────────────────────────-┼-────────-┤
-│ totalSupply,0            │ 100.00 % │
-│ balanceOf,1              │   0.00 % │
-│ decimals,0               │   0.00 % │
-│ getAccountState,1        │   0.00 % │
-│ getAllCandidates,0       │   0.00 % │
-│ getCandidates,0          │   0.00 % │
-│ getCandidateVote,1       │   0.00 % │
-│ getCommittee,0           │   0.00 % │
-│ getGasPerBlock,0         │   0.00 % │
-│ getNextBlockValidators,0 │   0.00 % │
-│ getRegisterPrice,0       │   0.00 % │
-│ registerCandidate,1      │   0.00 % │
-│ setGasPerBlock,1         │   0.00 % │
-│ setRegisterPrice,1       │   0.00 % │
-│ symbol,0                 │   0.00 % │
-│ transfer,4               │   0.00 % │
-│ unclaimedGas,2           │   0.00 % │
-│ unregisterCandidate,1    │   0.00 % │
-│ vote,2                   │   0.00 % │
-└-────────────────────────-┴-────────-┘
+0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26%]
+┌-────────────────────────-┬-───────-┐
+│ Method                   │  Line   │
+├-────────────────────────-┼-───────-┤
+│ totalSupply,0            │ 100.00% │
+│ balanceOf,1              │   0.00% │
+│ decimals,0               │   0.00% │
+│ getAccountState,1        │   0.00% │
+│ getAllCandidates,0       │   0.00% │
+│ getCandidates,0          │   0.00% │
+│ getCandidateVote,1       │   0.00% │
+│ getCommittee,0           │   0.00% │
+│ getGasPerBlock,0         │   0.00% │
+│ getNextBlockValidators,0 │   0.00% │
+│ getRegisterPrice,0       │   0.00% │
+│ registerCandidate,1      │   0.00% │
+│ setGasPerBlock,1         │   0.00% │
+│ setRegisterPrice,1       │   0.00% │
+│ symbol,0                 │   0.00% │
+│ transfer,4               │   0.00% │
+│ unclaimedGas,2           │   0.00% │
+│ unregisterCandidate,1    │   0.00% │
+│ vote,2                   │   0.00% │
+└-────────────────────────-┴-───────-┘
 ".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
         }
 

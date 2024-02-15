@@ -73,12 +73,11 @@ namespace Neo.SmartContract.Testing.Coverage
 
             Methods = abi.Methods
                 .Select(s => CreateMethod(abi, script, s))
-                .Where(w => w is not null)
                 .OrderBy(o => o.Offset)
                 .ToArray()!;
         }
 
-        private CoveredMethod? CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
+        private CoveredMethod CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
         {
             var to = script.Length - 1;
             var next = abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
@@ -153,15 +152,15 @@ namespace Neo.SmartContract.Testing.Coverage
                 NewLine = "\n"
             };
 
-            var cover = CoveredPercentage.ToString("0.00").ToString() + " %";
-            sourceCode.WriteLine($"{Hash} [{cover}%]");
+            var cover = $"{CoveredPercentage:P2}";
+            sourceCode.WriteLine($"{Hash} [{cover}]");
 
             List<string[]> rows = new();
             var max = new int[] { "Method".Length, "Line  ".Length };
 
             foreach (var method in Methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredPercentage))
             {
-                cover = method.CoveredPercentage.ToString("0.00").ToString() + " %";
+                cover = $"{method.CoveredPercentage:P2}";
                 rows.Add(new string[] { method.Method.ToString(), cover });
 
                 max[0] = Math.Max(method.Method.ToString().Length, max[0]);
