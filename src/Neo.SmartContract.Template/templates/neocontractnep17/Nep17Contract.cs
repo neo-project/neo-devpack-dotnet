@@ -111,7 +111,8 @@ namespace ProjectName
 
         public static void Update(ByteString nefFile, string manifest, object data)
         {
-            if (!IsOwner()) throw new Exception("No authorization.");
+            if (IsOwner() == false)
+                throw new InvalidOperationException("No authorization.");
             ContractManagement.Update(nefFile, manifest, data);
         }
 
