@@ -50,6 +50,7 @@ jobs:
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         --no-build \
+        -l "console;verbosity=normal" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
@@ -59,6 +60,7 @@ jobs:
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         --no-build \
+        -l "console;verbosity=detailed" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
