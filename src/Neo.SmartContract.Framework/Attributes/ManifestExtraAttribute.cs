@@ -30,36 +30,4 @@ namespace Neo.SmartContract.Framework.Attributes
             { nameof(VersionAttribute), "Version" },
         };
     }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class AuthorAttribute : ManifestExtraAttribute
-    {
-        public AuthorAttribute(string value) : base(AttributeType[nameof(AuthorAttribute)], value)
-        {
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class EmailAttribute : ManifestExtraAttribute
-    {
-        public EmailAttribute(string value) : base(AttributeType[nameof(EmailAttribute)], value)
-        {
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class DescriptionAttribute : ManifestExtraAttribute
-    {
-        public DescriptionAttribute(string value) : base(AttributeType[nameof(DescriptionAttribute)], value)
-        {
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class VersionAttribute : ManifestExtraAttribute
-    {
-        public VersionAttribute(string value) : base(AttributeType[nameof(VersionAttribute)], value)
-        {
-        }
-    }
 }
