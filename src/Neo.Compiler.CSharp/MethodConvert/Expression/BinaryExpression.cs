@@ -19,7 +19,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
