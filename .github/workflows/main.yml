@@ -24,10 +24,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-    - name: Preapare artifacts for Neo.SmartContract.Template.UnitTests
+    - name: Test Templates Neo.SmartContract.Template and generate artifacts
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --include-source
-        dotnet new install ./rc/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.3.6.2.nupkg
+        dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.3.6.2.nupkg
         dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/ --force
         dotnet new uninstall Neo.SmartContract.Template
         dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj package Neo.SmartContract.Framework
