@@ -4,6 +4,7 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -18,6 +20,7 @@ namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
+        internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
         private NativeArtifacts? _native;
@@ -74,6 +77,11 @@ namespace Neo.SmartContract.Testing
         /// Protocol Settings
         /// </summary>
         public ProtocolSettings ProtocolSettings { get; }
+
+        /// <summary>
+        /// Enable coverage capture
+        /// </summary>
+        public bool EnableCoverageCapture { get; set; } = true;
 
         /// <summary>
         /// Validators Address
@@ -306,7 +314,7 @@ namespace Neo.SmartContract.Testing
 
         private T MockContract<T>(UInt160 hash, int? contractId = null, Action<Mock<T>>? customMock = null) where T : SmartContract
         {
-            var mock = new Mock<T>(new SmartContractInitialize() { Engine = this, Hash = hash, ContractId = contractId })
+            var mock = new Mock<T>(new SmartContractInitialize(this, hash, contractId))
             {
                 CallBase = true
             };
@@ -326,7 +334,7 @@ namespace Neo.SmartContract.Testing
                 if (mock.IsMocked(method))
                 {
                     var mockName = method.Name + ";" + method.GetParameters().Length;
-                    var cm = new CustomMock() { Contract = mock.Object, Method = method };
+                    var cm = new CustomMock(mock.Object, method);
 
                     if (_customMocks.TryGetValue(hash, out var mocks))
                     {
@@ -437,6 +445,92 @@ namespace Neo.SmartContract.Testing
 
             if (engine.ResultStack.Count == 0) return StackItem.Null;
             return engine.ResultStack.Pop();
+        }
+
+        /// <summary>
+        /// Get contract coverage
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <returns>CoveredContract</returns>
+        public CoveredContract? GetCoverage<T>(T contract) where T : SmartContract
+        {
+            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
+            {
+                return null;
+            }
+
+            return coveredContract;
+        }
+
+        /// <summary>
+        /// Get method coverage by contract
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <returns>CoveredContract</returns>
+        public CoverageBase? GetCoverage<T>(T contract, string methodName, int pcount) where T : SmartContract
+        {
+            var coveredContract = GetCoverage(contract);
+
+            return coveredContract?.GetCoverage(methodName, pcount);
+        }
+
+        /// <summary>
+        /// Get method coverage
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <param name="method">Method</param>
+        /// <returns>CoveredContract</returns>
+        public CoverageBase? GetCoverage<T>(T contract, Expression<Action<T>> method) where T : SmartContract
+        {
+            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
+            {
+                return null;
+            }
+
+            var abiMethods = AbiMethod.CreateFromExpression(method.Body)
+                .Select(coveredContract.GetCoverage)
+                .Where(u => u != null)
+                .Cast<CoveredMethod>()
+                .ToArray();
+
+            return abiMethods.Length switch
+            {
+                0 => null,
+                1 => abiMethods[0],
+                _ => new CoveredCollection(abiMethods),
+            };
+        }
+
+        /// <summary>
+        /// Get method coverage
+        /// </summary>
+        /// <typeparam name="T">Contract</typeparam>
+        /// <typeparam name="TResult">Result</typeparam>
+        /// <param name="contract">Contract</param>
+        /// <param name="method">Method</param>
+        /// <returns>CoveredContract</returns>
+        public CoverageBase? GetCoverage<T, TResult>(T contract, Expression<Func<T, TResult>> method) where T : SmartContract
+        {
+            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
+            {
+                return null;
+            }
+
+            var abiMethods = AbiMethod.CreateFromExpression(method.Body)
+                .Select(coveredContract.GetCoverage)
+                .Where(u => u != null)
+                .Cast<CoveredMethod>()
+                .ToArray();
+
+            return abiMethods.Length switch
+            {
+                0 => null,
+                1 => abiMethods[0],
+                _ => new CoveredCollection(abiMethods),
+            };
         }
 
         /// <summary>

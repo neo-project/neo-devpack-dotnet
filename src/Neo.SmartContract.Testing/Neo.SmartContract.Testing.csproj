@@ -2,6 +2,8 @@
 
 	<PropertyGroup>
 		<Title>Neo.SmartContract.Testing</Title>
+		<TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
 		<PackageId>Neo.SmartContract.Testing</PackageId>
 		<PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
 		<Description>TestEngine for NEO smart contract testing.</Description>

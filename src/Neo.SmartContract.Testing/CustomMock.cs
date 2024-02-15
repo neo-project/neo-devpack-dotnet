@@ -7,11 +7,22 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Mocked contract
         /// </summary>
-        public required SmartContract Contract { get; init; }
+        public SmartContract Contract { get; }
 
         /// <summary>
         /// Mocked method
         /// </summary>
-        public required MethodInfo Method { get; init; }
+        public MethodInfo Method { get; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="contract">Contract</param>
+        /// <param name="method">Method</param>
+        public CustomMock(SmartContract contract, MethodInfo method)
+        {
+            Contract = contract;
+            Method = method;
+        }
     }
 }
