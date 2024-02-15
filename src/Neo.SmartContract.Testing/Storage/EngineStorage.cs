@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// <summary>
         /// Get storage checkpoint
         /// </summary>
-        /// <returns>StorageCheckpoint</returns>
+        /// <returns>EngineCheckpoint</returns>
         public EngineCheckpoint Checkpoint() => new(Snapshot);
 
         /// <summary>

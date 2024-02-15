@@ -3,6 +3,7 @@ using Neo.Json;
 using Neo.Persistence;
 using Neo.SmartContract.Testing.Storage;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -11,6 +12,32 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
     [TestClass]
     public class TestStorageTests
     {
+        [TestMethod]
+        public void TestCheckpoint()
+        {
+            var engine = new TestEngine(true);
+
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+            var checkpoint = engine.Storage.Checkpoint();
+
+            // Test restoring the checkpoint
+
+            var storage = new EngineStorage(new MemoryStore());
+            checkpoint.Restore(storage.Snapshot);
+
+            engine = new TestEngine(false) { Storage = storage };
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+
+            // Test restoring in raw
+
+            storage = new EngineStorage(new MemoryStore());
+            new EngineCheckpoint(new MemoryStream(checkpoint.ToArray())).Restore(storage.Snapshot);
+
+            engine = new TestEngine(false) { Storage = storage };
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+        }
+
         [TestMethod]
         public void LoadExportImport()
         {
