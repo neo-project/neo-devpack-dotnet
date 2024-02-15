@@ -472,7 +472,7 @@ namespace Neo.SmartContract.Testing
                 var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
                 if (state == null) return null;
 
-                return new(contract.Hash, state?.Manifest.Abi, state?.Script);
+                return new(contract.Hash, state.Manifest.Abi, state.Script);
             }
 
             return coveredContract;

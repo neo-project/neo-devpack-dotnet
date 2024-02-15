@@ -165,7 +165,7 @@ namespace Neo.SmartContract.Testing.Coverage
             foreach (var method in Methods)
             {
                 cover = method.CoveredPercentage.ToString("0.00").ToString() + " %";
-                rows.Add([method.Method.ToString(), cover]);
+                rows.Add(new string[] { method.Method.ToString(), cover });
 
                 max[0] = Math.Max(method.Method.ToString().Length, max[0]);
                 max[1] = Math.Max(cover.Length, max[1]);
@@ -178,7 +178,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │");
             }
 
-            sourceCode.WriteLine($"└-{"─".PadLeft(max[0]  , '─')}-┴-{"─".PadLeft(max[1], '─')}-┘");
+            sourceCode.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┘");
 
 
             return builder.ToString();
