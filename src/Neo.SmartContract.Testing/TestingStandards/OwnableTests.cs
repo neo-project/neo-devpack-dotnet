@@ -56,7 +56,19 @@ public class OwnableTests<T> : TestBase<T>
     #region Tests
 
     [TestMethod]
-    public void TestSenderAsDefaultOwner()
+    public virtual void TestVerify()
+    {
+        if (Contract is IVerificable verificable)
+        {
+            Engine.SetTransactionSigners(Alice);
+            Assert.IsTrue(verificable.Verify);
+            Engine.SetTransactionSigners(TestEngine.GetNewSigner());
+            Assert.IsFalse(verificable.Verify);
+        }
+    }
+
+    [TestMethod]
+    public virtual void TestSenderAsDefaultOwner()
     {
         var random = TestEngine.GetNewSigner();
 
@@ -75,7 +87,7 @@ public class OwnableTests<T> : TestBase<T>
     }
 
     [TestMethod]
-    public void TestSetGetOwner()
+    public virtual void TestSetGetOwner()
     {
         // Alice is the deployer
 

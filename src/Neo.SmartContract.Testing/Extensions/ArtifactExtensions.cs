@@ -44,24 +44,14 @@ namespace Neo.SmartContract.Testing.Extensions
                 NewLine = "\n"
             };
 
-            var inheritance = new List<string>
+            var inheritance = new List<Type>
             {
-                typeof(SmartContract).FullName
+                typeof(SmartContract)
             };
 
-            if (manifest.SupportedStandards.Contains("NEP-17")) inheritance.Add(typeof(INep17Standard).FullName);
-
-            var isOwnable =
-                    manifest.Abi.Methods
-                        .Any(u => u.Name == "getOwner" && u.Safe && u.Parameters.Length == 0) &&
-                    manifest.Abi.Methods
-                        .Any(u => u.Name == "setOwner" && !u.Safe && u.Parameters.Length == 1 && u.Parameters[0].Type == ContractParameterType.Hash160) &&
-                    manifest.Abi.Events
-                        .Any(u => u.Name == "SetOwner" && u.Parameters.Length == 2 &&
-                        u.Parameters[0].Type == ContractParameterType.Hash160 &&
-                        u.Parameters[1].Type == ContractParameterType.Hash160);
-
-            if (isOwnable) inheritance.Add(typeof(IOwnable).FullName);
+            if (manifest.IsNep17()) inheritance.Add(typeof(INep17Standard));
+            if (manifest.IsOwnable()) inheritance.Add(typeof(IOwnable));
+            if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
             sourceCode.WriteLine("using System.Collections.Generic;");
@@ -82,7 +72,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 foreach (var ev in manifest.Abi.Events.OrderBy(u => u.Name))
                 {
-                    sourceCode.Write(CreateSourceEventFromManifest(manifest, ev));
+                    sourceCode.Write(CreateSourceEventFromManifest(ev, inheritance));
                     sourceCode.WriteLine();
                 }
 
@@ -201,10 +191,10 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <summary>
         /// Create source code from event
         /// </summary>
-        /// <param name="manifest">Manifest</param>
         /// <param name="ev">Event</param>
+        /// <param name="inheritance">Inheritance</param>
         /// <returns>Source</returns>
-        private static string CreateSourceEventFromManifest(ContractManifest manifest, ContractEventDescriptor ev)
+        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev, IList<Type> inheritance)
         {
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
@@ -216,9 +206,7 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 case "Transfer":
                     {
-                        var hasNep17 = manifest.SupportedStandards.Contains("NEP-17");
-
-                        if (hasNep17 && ev.Parameters.Length == 3 &&
+                        if (inheritance.Contains(typeof(INep17Standard)) && ev.Parameters.Length == 3 &&
                             ev.Parameters[0].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[1].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[2].Type == ContractParameterType.Integer)
@@ -232,11 +220,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     }
                 case "SetOwner":
                     {
-                        var hasSetGet =
-                            manifest.Abi.Methods.Any(u => u.Name == "getOwner" && u.Safe && u.Parameters.Length == 0) &&
-                            manifest.Abi.Methods.Any(u => u.Name == "setOwner" && !u.Safe && u.Parameters.Length == 1 && u.Parameters[0].Type == ContractParameterType.Hash160);
-
-                        if (hasSetGet && ev.Parameters.Length == 2 &&
+                        if (inheritance.Contains(typeof(IOwnable)) && ev.Parameters.Length == 2 &&
                             ev.Parameters[0].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {

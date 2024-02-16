@@ -37,15 +37,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         }
 
         [TestMethod]
-        public void TestVerify()
-        {
-            Engine.SetTransactionSigners(Alice);
-            Assert.IsTrue(Contract.Verify);
-            Engine.SetTransactionSigners(Bob);
-            Assert.IsFalse(Contract.Verify);
-        }
-
-        [TestMethod]
         public override void TestTransfer()
         {
             Engine.SetTransactionSigners(Alice);

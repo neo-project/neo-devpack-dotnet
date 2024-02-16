@@ -1,6 +1,5 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using System;
@@ -66,14 +65,7 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            if (!coveredContract.CoverageData.TryGetValue(InstructionPointer.Value, out var coverage))
-            {
-                // Note: This call is unusual, out of the expected
-
-                coveredContract.CoverageData[InstructionPointer.Value] = coverage = new CoverageHit(InstructionPointer.Value, true);
-            }
-
-            coverage.Hit(GasConsumed - PreExecuteInstructionGasConsumed);
+            coveredContract.Hit(InstructionPointer.Value, GasConsumed - PreExecuteInstructionGasConsumed);
         }
 
         protected override void OnSysCall(InteropDescriptor descriptor)

@@ -14,10 +14,7 @@ namespace Neo.SmartContract.Testing.Coverage
     {
         #region Internal
 
-        /// <summary>
-        /// Coverage Data
-        /// </summary>
-        internal Dictionary<int, CoverageHit> CoverageData { get; } = new();
+        private readonly Dictionary<int, CoverageHit> _coverageData = new();
 
         #endregion
 
@@ -34,7 +31,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Coverage
         /// </summary>
-        public override IEnumerable<CoverageHit> Coverage => CoverageData.Values;
+        public override IEnumerable<CoverageHit> Coverage => _coverageData.Values;
 
         /// <summary>
         /// CoveredContract
@@ -60,7 +57,7 @@ namespace Neo.SmartContract.Testing.Coverage
             while (ip < script.Length)
             {
                 var instruction = script.GetInstruction(ip);
-                CoverageData[ip] = new CoverageHit(ip, false);
+                _coverageData[ip] = new CoverageHit(ip, false);
                 ip += instruction.Size;
             }
         }
@@ -122,19 +119,19 @@ namespace Neo.SmartContract.Testing.Coverage
 
             // Join the coverage between them
 
-            lock (CoverageData)
+            foreach (var c in coverage)
             {
-                foreach (var c in coverage)
-                {
-                    if (c.Hits == 0) continue;
+                if (c.Hits == 0) continue;
 
-                    if (CoverageData.TryGetValue(c.Offset, out var kvpValue))
+                lock (_coverageData)
+                {
+                    if (_coverageData.TryGetValue(c.Offset, out var kvpValue))
                     {
                         kvpValue.Hit(c);
                     }
                     else
                     {
-                        CoverageData.Add(c.Offset, c.Clone());
+                        _coverageData.Add(c.Offset, c.Clone());
                     }
                 }
             }
@@ -182,12 +179,28 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         /// <summary>
+        /// Hit
+        /// </summary>
+        /// <param name="instructionPointer">Instruction pointer</param>
+        /// <param name="gas">Gas</param>
+        public void Hit(int instructionPointer, long gas)
+        {
+            lock (_coverageData)
+            {
+                if (!_coverageData.TryGetValue(instructionPointer, out var coverage))
+                {
+                    // Note: This call is unusual, out of the expected
+
+                    _coverageData[instructionPointer] = coverage = new CoverageHit(instructionPointer, true);
+                }
+                coverage.Hit(gas);
+            }
+        }
+
+        /// <summary>
         /// String representation
         /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"Hash:{Hash}";
-        }
+        /// <returns>Hash</returns>
+        public override string ToString() => Hash.ToString();
     }
 }

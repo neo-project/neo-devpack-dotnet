@@ -15,6 +15,7 @@ public class TestBase<T> where T : SmartContract
     public string Manifest { get; }
     public TestEngine Engine { get; }
     public T Contract { get; }
+    public UInt160 ContractHash => Contract.Hash;
 
     /// <summary>
     /// Initialize Test

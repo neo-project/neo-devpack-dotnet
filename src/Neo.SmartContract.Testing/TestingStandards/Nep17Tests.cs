@@ -91,7 +91,7 @@ public class Nep17Tests<T> : TestBase<T>
     }
 
     [TestMethod]
-    public void TestBalanceOf()
+    public virtual void TestBalanceOf()
     {
         Assert.AreEqual(0, Contract.BalanceOf(Bob.Account));
         Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.Null));
