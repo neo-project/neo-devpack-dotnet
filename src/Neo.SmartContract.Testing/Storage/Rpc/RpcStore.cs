@@ -65,12 +65,7 @@ public class RpcStore : IStore
 
             using var httpClient = new HttpClient();
             var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new NotImplementedException();
-            }
+            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult().EnsureSuccessStatusCode();
 
             JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -108,11 +103,11 @@ public class RpcStore : IStore
                     yield break;
                 }
 
-                throw new NotImplementedException();
+                throw new Exception();
             }
         }
 
-        throw new NotImplementedException();
+        throw new Exception();
     }
 
     public byte[]? TryGet(byte[] key)
@@ -128,12 +123,7 @@ public class RpcStore : IStore
 
         using var httpClient = new HttpClient();
         var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new NotImplementedException();
-        }
+        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult().EnsureSuccessStatusCode();
 
         JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -154,7 +144,7 @@ public class RpcStore : IStore
                 return null;
             }
 
-            throw new NotImplementedException();
+            throw new Exception();
         }
     }
 
