@@ -59,7 +59,7 @@ public class RpcStore : IStore
 
             foreach (var entry in Seek(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
             {
-                data.TryAdd(prefix.Concat(entry.Key).ToArray(), entry.Value);
+                data.TryAdd(entry.Key, entry.Value);
             }
 
             foreach (var entry in new MemorySnapshot(data).Seek(key, direction))
@@ -93,12 +93,14 @@ public class RpcStore : IStore
             {
                 // iterate page
 
+                var prefix = skey.ToArray().Take(4);
+
                 foreach (JObject r in results)
                 {
                     if (r["key"]?.Value<string>() is string jkey &&
                         r["value"]?.Value<string>() is string kvalue)
                     {
-                        yield return (Convert.FromBase64String(jkey), Convert.FromBase64String(kvalue));
+                        yield return (prefix.Concat(Convert.FromBase64String(jkey)).ToArray(), Convert.FromBase64String(kvalue));
                     }
                 }
 
