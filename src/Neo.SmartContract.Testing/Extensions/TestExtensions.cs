@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(List<object>) && stackItem is CompoundType cp => new List<object>(cp.SubItems), // SubItems in StackItem type
                 _ when typeof(IInteroperable).IsAssignableFrom(type) => CreateInteroperable(stackItem, type),
                 _ when type.IsArray && stackItem is CompoundType cp => CreateTypeArray(cp.SubItems, type.GetElementType()!),
-                _ when type == typeof(IIterator) && stackItem is InteropInterface it => it.GetInterface<IIterator>(),
+                _ when stackItem is InteropInterface it && it.GetInterface().GetType() == type => it.GetInterface(),
 
                 _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
             };
