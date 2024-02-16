@@ -118,7 +118,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <param name="coverage">Coverage</param>
         public void Join(IEnumerable<CoverageHit>? coverage)
         {
-            if (coverage is null) return;
+            if (coverage is null || coverage.Any() == false) return;
 
             // Join the coverage between them
 
