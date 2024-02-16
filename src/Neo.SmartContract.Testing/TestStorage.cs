@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Store
         /// </summary>
-        public IStore Store { get; init; } = new MemoryStore();
+        public IStore Store { get; }
 
         /// <summary>
         /// Snapshot
