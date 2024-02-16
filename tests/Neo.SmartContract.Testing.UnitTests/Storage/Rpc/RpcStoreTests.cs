@@ -29,6 +29,10 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
             Assert.IsTrue(engine.Native.Ledger.CurrentIndex > 4_905_187);
 
+            // check with Seek (RPC doesn't support Backward)
+
+            // Assert.IsTrue(engine.Native.NEO.GasPerBlock == 5);
+
             // check deploy
 
             var node = ECPoint.Parse("03d9e8b16bd9b22d3345d6d4cde31be1c3e1d161532e3d0ccecb95ece2eb58336e", ECCurve.Secp256k1);
