@@ -63,6 +63,15 @@ namespace Neo.SmartContract.Testing.Storage
         public EngineCheckpoint Checkpoint() => new(Snapshot);
 
         /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="checkpoint">Checkpoint</param>
+        public void Restore(EngineCheckpoint checkpoint)
+        {
+            checkpoint.Restore(Snapshot);
+        }
+
+        /// <summary>
         /// Import data from json, expected data (in base64):
         /// - "key"     : "value"
         /// - "prefix"  : { "key":"value" }
