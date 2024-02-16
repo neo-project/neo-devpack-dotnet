@@ -1,8 +1,12 @@
+using Neo.IO;
 using Neo.Persistence;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -45,9 +49,25 @@ public class RpcStore : IStore
     {
         if (direction is SeekDirection.Backward)
         {
-            // TODO: not implemented in RPC
+            // Not implemented in RPC, we will query all the storage from the contract, and do it manually
+            // it could return wrong results if we want to get data between contracts
 
-            throw new NotImplementedException();
+            var prefix = key.Take(4).ToArray();
+            ConcurrentDictionary<byte[], byte[]> data = new();
+
+            // We ask for 5 bytes because the minimum prefix is one byte
+
+            foreach (var entry in Seek(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
+            {
+                data.TryAdd(prefix.Concat(entry.Key).ToArray(), entry.Value);
+            }
+
+            foreach (var entry in new MemorySnapshot(data).Seek(key, direction))
+            {
+                yield return (entry.Key, entry.Value);
+            }
+
+            yield break;
         }
 
         var skey = new StorageKey(key);
@@ -69,21 +89,21 @@ public class RpcStore : IStore
 
             JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
-            if (jo["result"]?["results"]?.Value<JArray>() is JArray results)
+            if (jo["result"]?.Value<JObject>() is JObject result && result["results"]?.Value<JArray>() is JArray results)
             {
                 // iterate page
 
-                foreach (JObject result in results)
+                foreach (JObject r in results)
                 {
-                    if (result["key"]?.Value<string>() is string jkey &&
-                        result["value"]?.Value<string>() is string kvalue)
+                    if (r["key"]?.Value<string>() is string jkey &&
+                        r["value"]?.Value<string>() is string kvalue)
                     {
                         yield return (Convert.FromBase64String(jkey), Convert.FromBase64String(kvalue));
                     }
                 }
 
-                if (jo["truncated"]?.Value<bool>() == true &&
-                    jo["next"]?.Value<int>() is int next)
+                if (result["truncated"]?.Value<bool>() == true &&
+                    result["next"]?.Value<int>() is int next)
                 {
                     start = next;
                 }

@@ -29,9 +29,9 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
             Assert.IsTrue(engine.Native.Ledger.CurrentIndex > 4_905_187);
 
-            // check with Seek (RPC doesn't support Backward)
+            // check with Seek (RPC doesn't support Backward, it could be slow)
 
-            // Assert.IsTrue(engine.Native.NEO.GasPerBlock == 5);
+            Assert.IsTrue(engine.Native.NEO.GasPerBlock == 500000000);
 
             // check deploy
 
