@@ -3,7 +3,7 @@
 {
 	"name": "C# (.NET)",
 	"image": "mcr.microsoft.com/devcontainers/dotnet:1-7.0-jammy",
-	"onCreateCommand": "git submodule init && git submodule update",
+	"onCreateCommand": "./scripts/load_submodule.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [
