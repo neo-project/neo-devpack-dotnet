@@ -34,9 +34,9 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check coverage
 
-            Assert.AreEqual(100.0F, engine.Native.NEO.GetCoverage(o => o.Symbol).CoveredPercentage);
-            Assert.AreEqual(100.0F, engine.Native.NEO.GetCoverage(o => o.TotalSupply).CoveredPercentage);
-            Assert.AreEqual(100.0F, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>())).CoveredPercentage);
+            Assert.AreEqual(1F, engine.Native.NEO.GetCoverage(o => o.Symbol).CoveredPercentage);
+            Assert.AreEqual(1F, engine.Native.NEO.GetCoverage(o => o.TotalSupply).CoveredPercentage);
+            Assert.AreEqual(1F, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>())).CoveredPercentage);
         }
 
         [TestMethod]

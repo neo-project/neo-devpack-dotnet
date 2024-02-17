@@ -234,6 +234,18 @@ namespace Neo.SmartContract.Testing
         #endregion
 
         /// <summary>
+        /// Get deploy hash
+        /// </summary>
+        /// <param name="nef">Nef</param>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>Contract hash</returns>
+        public UInt160 GetDeployHash(byte[] nef, string manifest)
+        {
+            return Helper.GetContractHash(Sender,
+                nef.AsSerializable<NefFile>().CheckSum, ContractManifest.Parse(manifest).Name);
+        }
+
+        /// <summary>
         /// Deploy Smart contract
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
@@ -265,7 +277,19 @@ namespace Neo.SmartContract.Testing
             // Mock contract
 
             //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
-            return MockContract(state.Hash, state.Id, customMock);
+            var ret = MockContract(state.Hash, state.Id, customMock);
+
+            // We cache the coverage contract during `_deploy`
+            // at this moment we don't have the abi stored
+            // so we need to regenerate the coverage methods
+
+            if (EnableCoverageCapture)
+            {
+                var coverage = GetCoverage(ret);
+                coverage?.GenerateMethods(state.Manifest.Abi, state.Script);
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -457,7 +481,11 @@ namespace Neo.SmartContract.Testing
         {
             if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
             {
-                return null;
+                var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
+                if (state == null) return null;
+
+                coveredContract = new(contract.Hash, state.Manifest.Abi, state.Script);
+                Coverage[coveredContract.Hash] = coveredContract;
             }
 
             return coveredContract;
@@ -471,9 +499,7 @@ namespace Neo.SmartContract.Testing
         /// <returns>CoveredContract</returns>
         public CoverageBase? GetCoverage<T>(T contract, string methodName, int pcount) where T : SmartContract
         {
-            var coveredContract = GetCoverage(contract);
-
-            return coveredContract?.GetCoverage(methodName, pcount);
+            return GetCoverage(contract)?.GetCoverage(methodName, pcount);
         }
 
         /// <summary>
@@ -485,10 +511,8 @@ namespace Neo.SmartContract.Testing
         /// <returns>CoveredContract</returns>
         public CoverageBase? GetCoverage<T>(T contract, Expression<Action<T>> method) where T : SmartContract
         {
-            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
-            {
-                return null;
-            }
+            var coveredContract = GetCoverage(contract);
+            if (coveredContract == null) return null;
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
                 .Select(coveredContract.GetCoverage)
@@ -514,10 +538,8 @@ namespace Neo.SmartContract.Testing
         /// <returns>CoveredContract</returns>
         public CoverageBase? GetCoverage<T, TResult>(T contract, Expression<Func<T, TResult>> method) where T : SmartContract
         {
-            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
-            {
-                return null;
-            }
+            var coveredContract = GetCoverage(contract);
+            if (coveredContract == null) return null;
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
                 .Select(coveredContract.GetCoverage)

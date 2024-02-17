@@ -22,7 +22,18 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Build
+    - name: Build Neo.Compiler.CSharp
+      run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+    - name: Build Neo.SmartContract.Template and generate artifacts
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
+        dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
+        dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/ --force
+        dotnet new uninstall Neo.SmartContract.Template
+        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj package Neo.SmartContract.Framework
+        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll -d ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source
+    - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Check format
       run: |
@@ -39,6 +50,17 @@ jobs:
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         --no-build \
+        -l "console;verbosity=normal" \
+        -p:CollectCoverage=true \
+        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
+        -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
+        -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\" \
+        -p:CoverletOutputFormat=lcov
+    - name: Test Neo.SmartContract.Template.UnitTests
+      run: |
+        dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
+        --no-build \
+        -l "console;verbosity=detailed" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
