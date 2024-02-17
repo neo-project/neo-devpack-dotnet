@@ -51,6 +51,7 @@ namespace Neo.SmartContract.Testing
 
             if (PreInstruction is not null)
             {
+                // PostExecuteInstruction is not executed onFault
                 RecoverCoverage(PreInstruction);
             }
         }
