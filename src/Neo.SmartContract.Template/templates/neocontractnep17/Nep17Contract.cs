@@ -10,15 +10,15 @@ using System.Numerics;
 
 namespace ProjectName
 {
-    [DisplayName(nameof(Contract1))]
+    [DisplayName(nameof(Nep17Contract))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
     [ManifestExtra("Description", "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs")]
     [ContractPermission("*", "*")]
     [SupportedStandards("NEP-17")]
-    public class Contract1 : Nep17Token
+    public class Nep17Contract : Nep17Token
     {
         #region Owner
 
@@ -33,7 +33,7 @@ namespace ProjectName
         private static bool IsOwner() =>
             Runtime.CheckWitness(GetOwner());
 
-        public delegate void OnSetOwnerDelegate(UInt160 newOwner);
+        public delegate void OnSetOwnerDelegate(UInt160 previousOwner, UInt160 newOwner);
 
         [DisplayName("SetOwner")]
         public static event OnSetOwnerDelegate OnSetOwner;
@@ -45,8 +45,9 @@ namespace ProjectName
 
             ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
 
+            UInt160 previous = GetOwner();
             Storage.Put(new[] { Prefix_Owner }, newOwner);
-            OnSetOwner(newOwner);
+            OnSetOwner(previous, newOwner);
         }
 
         #endregion
@@ -75,40 +76,6 @@ namespace ProjectName
 
         #endregion
 
-        #region Payment
-
-        public static bool Withdraw(UInt160 token, UInt160 to, BigInteger amount)
-        {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            if (amount <= 0)
-                throw new ArgumentOutOfRangeException(nameof(amount));
-            if (to == null || to.IsValid == false)
-                throw new ArgumentException("Invalid Address!");
-            if (token == null || token.IsValid == false)
-                throw new ArgumentException("Invalid Token Address!");
-            if (ContractManagement.GetContract(token) == null)
-                throw new ArgumentException("Token Not A Contract!");
-            // TODO: Add logic
-            return true;
-        }
-
-        // NOTE: Allows ALL NEP-17 tokens to be received for this contract
-        public static void OnNEP17Payment(UInt160 from, BigInteger amount, object data)
-        {
-            // TODO: Add logic for specific NEP-17 contract tokens
-            if (Runtime.CallingScriptHash == NEO.Hash)
-            {
-                // TODO: Add logic (Burn, Mint, Transfer, Etc)
-            }
-            if (Runtime.CallingScriptHash == GAS.Hash)
-            {
-                // TODO: Add logic (Burn, Mint, Transfer, Etc)
-            }
-        }
-
-        #endregion
-
         // When this contract address is included in the transaction signature,
         // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
         // For example, this method needs to be called when withdrawing token from the contract.
@@ -121,6 +88,7 @@ namespace ProjectName
             return Storage.Get(Storage.CurrentContext, "Hello");
         }
 
+        // This will be executed during deploy
         public static void _deploy(object data, bool update)
         {
             if (update)
@@ -137,16 +105,15 @@ namespace ProjectName
             ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
-            OnSetOwner(initialOwner);
-
-            // This will be executed during deploy
+            OnSetOwner(null, initialOwner);
             Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 
-        public static void Update(ByteString nefFile, string manifest)
+        public static void Update(ByteString nefFile, string manifest, object data)
         {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            ContractManagement.Update(nefFile, manifest, null);
+            if (IsOwner() == false)
+                throw new InvalidOperationException("No authorization.");
+            ContractManagement.Update(nefFile, manifest, data);
         }
 
         // NOTE: NEP-17 contracts "SHOULD NOT" have "Destroy" method

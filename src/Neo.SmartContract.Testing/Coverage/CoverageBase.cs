@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 var total = TotalInstructions;
                 if (total == 0) return 0F;
 
-                return (float)CoveredInstructions / total * 100F;
+                return (float)CoveredInstructions / total;
             }
         }
 
