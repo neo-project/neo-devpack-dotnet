@@ -199,7 +199,7 @@ public class Nep17Tests<T> : TestBase<T>
                  calledAmount = (BigInteger)i.Arguments[1];
                  calledData = (i.Arguments[2] as ByteString)!.GetSpan().ToArray();
 
-                 // Return to Alice, mock is the caller
+                 // Ensure the event was called
 
                  var me = new UInt160(calledData);
                  AssertTransferEvent(Alice.Account, me, calledAmount);
