@@ -43,6 +43,15 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 │ vote,2                   │   0.00% │
 └-────────────────────────-┴-───────-┘
 ".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
+
+            Assert.AreEqual(@"
+0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26%]
+┌-─────────────-┬-───────-┐
+│ Method        │  Line   │
+├-─────────────-┼-───────-┤
+│ totalSupply,0 │ 100.00% │
+└-─────────────-┴-───────-┘
+".Trim(), (engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump().Trim());
         }
 
         [TestMethod]
@@ -186,9 +195,10 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         [TestMethod]
         public void TestHits()
         {
-            var coverage = new CoverageHit(0);
+            var coverage = new CoverageHit(0, "test");
 
             Assert.AreEqual(0, coverage.Hits);
+            Assert.AreEqual("test", coverage.Description);
             Assert.AreEqual(0, coverage.GasAvg);
             Assert.AreEqual(0, coverage.GasMax);
             Assert.AreEqual(0, coverage.GasMin);

@@ -1,15 +1,21 @@
+using Neo.VM;
 using System;
 using System.Diagnostics;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    [DebuggerDisplay("Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
+    [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
     public class CoverageHit
     {
         /// <summary>
         /// The instruction offset
         /// </summary>
         public int Offset { get; }
+
+        /// <summary>
+        /// The instruction description
+        /// </summary>
+        public string Description { get; }
 
         /// <summary>
         /// The instruction is out of the script
@@ -45,10 +51,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Constructor
         /// </summary>
         /// <param name="offset">Offset</param>
+        /// <param name="description">Decription</param>
         /// <param name="outOfScript">Out of script</param>
-        public CoverageHit(int offset, bool outOfScript = false)
+        public CoverageHit(int offset, string description, bool outOfScript = false)
         {
             Offset = offset;
+            Description = description;
             OutOfScript = outOfScript;
         }
 
@@ -104,7 +112,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, OutOfScript)
+            return new CoverageHit(Offset, Description, OutOfScript)
             {
                 GasMax = GasMax,
                 GasMin = GasMin,
@@ -114,12 +122,27 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         /// <summary>
+        /// Return description from instruction
+        /// </summary>
+        /// <param name="instruction">Instruction</param>
+        /// <returns>Description</returns>
+        public static string DescriptionFromInstruction(Instruction instruction)
+        {
+            if (instruction.Operand.Length > 0)
+            {
+                return instruction.OpCode.ToString() + " " + instruction.Operand.ToArray().ToHexString(false);
+            }
+
+            return instruction.OpCode.ToString();
+        }
+
+        /// <summary>
         /// String representation
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return $"Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
+            return $"Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
         }
     }
 }

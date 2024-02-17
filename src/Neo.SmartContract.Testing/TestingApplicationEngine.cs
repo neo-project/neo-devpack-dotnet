@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            coveredContract.Hit(InstructionPointer.Value, GasConsumed - PreExecuteInstructionGasConsumed);
+            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed);
         }
 
         protected override void OnSysCall(InteropDescriptor descriptor)

@@ -46,6 +46,12 @@ namespace Neo.SmartContract.Testing.Coverage
             MethodLength = methodLength;
         }
 
+        /// <summary>
+        /// Dump coverage
+        /// </summary>
+        /// <returns>Coverage dump</returns>
+        public string Dump(DumpFormat format = DumpFormat.Console) => Contract.Dump(format, this);
+
         public override string ToString() => Method.ToString();
     }
 }
