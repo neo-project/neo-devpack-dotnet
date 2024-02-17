@@ -46,19 +46,6 @@ namespace Neo.SmartContract.Testing.Coverage
             MethodLength = methodLength;
         }
 
-        /// <summary>
-        /// Dump coverage
-        /// </summary>
-        /// <returns>Coverage dump</returns>
-        public string Dump()
-        {
-            // TODO: improve dump later
-
-            var cover = CoveredPercentage.ToString("0.00").ToString();
-
-            return $"| {Method,50} | {cover,7}% |";
-        }
-
         public override string ToString() => Method.ToString();
     }
 }

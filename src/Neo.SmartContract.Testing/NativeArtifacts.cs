@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Testing
         public RoleManagement RoleManagement { get; }
 
         /// <summary>
-        /// OracleContract
+        /// StdLib
         /// </StdLib>
         public StdLib StdLib { get; }
 

@@ -14,10 +14,7 @@ namespace Neo.SmartContract.Testing.Coverage
     {
         #region Internal
 
-        /// <summary>
-        /// Coverage Data
-        /// </summary>
-        internal Dictionary<int, CoverageHit> CoverageData { get; } = new();
+        private readonly Dictionary<int, CoverageHit> _coverageData = new();
 
         #endregion
 
@@ -29,12 +26,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Methods
         /// </summary>
-        public CoveredMethod[] Methods { get; }
+        public CoveredMethod[] Methods { get; private set; }
 
         /// <summary>
         /// Coverage
         /// </summary>
-        public override IEnumerable<CoverageHit> Coverage => CoverageData.Values;
+        public override IEnumerable<CoverageHit> Coverage => _coverageData.Values;
 
         /// <summary>
         /// CoveredContract
@@ -51,14 +48,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
             // Extract all methods
 
-            if (abi is not null)
-            {
-                Methods = abi.Methods
-                   .Select(u => CreateMethod(abi, script, u))
-                   .Where(u => u is not null)
-                   .OrderBy(u => u!.Offset)
-                   .ToArray()!;
-            }
+            GenerateMethods(abi, script);
 
             // Iterate all valid instructions
 
@@ -67,12 +57,24 @@ namespace Neo.SmartContract.Testing.Coverage
             while (ip < script.Length)
             {
                 var instruction = script.GetInstruction(ip);
-                CoverageData[ip] = new CoverageHit(ip, false);
+                _coverageData[ip] = new CoverageHit(ip, false);
                 ip += instruction.Size;
             }
         }
 
-        private CoveredMethod? CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
+        internal void GenerateMethods(ContractAbi? abi, Script? script)
+        {
+            Methods = Array.Empty<CoveredMethod>();
+
+            if (script is null || abi is null) return;
+
+            Methods = abi.Methods
+                .Select(s => CreateMethod(abi, script, s))
+                .OrderBy(o => o.Offset)
+                .ToArray()!;
+        }
+
+        private CoveredMethod CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
         {
             var to = script.Length - 1;
             var next = abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
@@ -111,21 +113,26 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Join coverage
         /// </summary>
         /// <param name="coverage">Coverage</param>
-        public void Join(IEnumerable<CoverageHit> coverage)
+        public void Join(IEnumerable<CoverageHit>? coverage)
         {
+            if (coverage is null || coverage.Any() == false) return;
+
             // Join the coverage between them
 
             foreach (var c in coverage)
             {
                 if (c.Hits == 0) continue;
 
-                if (CoverageData.TryGetValue(c.Offset, out var kvpValue))
+                lock (_coverageData)
                 {
-                    kvpValue.Hit(c);
-                }
-                else
-                {
-                    CoverageData.Add(c.Offset, c.Clone());
+                    if (_coverageData.TryGetValue(c.Offset, out var kvpValue))
+                    {
+                        kvpValue.Hit(c);
+                    }
+                    else
+                    {
+                        _coverageData.Add(c.Offset, c.Clone());
+                    }
                 }
             }
         }
@@ -136,32 +143,64 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         public string Dump()
         {
-            // TODO: improve dump later
-
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
                 NewLine = "\n"
             };
 
-            var cover = CoveredPercentage.ToString("0.00").ToString();
-            sourceCode.WriteLine($"| {Hash,-50} | {cover,7}% |");
+            var cover = $"{CoveredPercentage:P2}";
+            sourceCode.WriteLine($"{Hash} [{cover}]");
 
-            foreach (var method in Methods)
+            List<string[]> rows = new();
+            var max = new int[] { "Method".Length, "Line  ".Length };
+
+            foreach (var method in Methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredPercentage))
             {
-                sourceCode.WriteLine(method.Dump());
+                cover = $"{method.CoveredPercentage:P2}";
+                rows.Add(new string[] { method.Method.ToString(), cover });
+
+                max[0] = Math.Max(method.Method.ToString().Length, max[0]);
+                max[1] = Math.Max(cover.Length, max[1]);
             }
+
+            sourceCode.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
+            sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │");
+            sourceCode.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┤");
+
+            foreach (var print in rows)
+            {
+                sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │");
+            }
+
+            sourceCode.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┘");
 
             return builder.ToString();
         }
 
         /// <summary>
+        /// Hit
+        /// </summary>
+        /// <param name="instructionPointer">Instruction pointer</param>
+        /// <param name="gas">Gas</param>
+        public void Hit(int instructionPointer, long gas)
+        {
+            lock (_coverageData)
+            {
+                if (!_coverageData.TryGetValue(instructionPointer, out var coverage))
+                {
+                    // Note: This call is unusual, out of the expected
+
+                    _coverageData[instructionPointer] = coverage = new CoverageHit(instructionPointer, true);
+                }
+                coverage.Hit(gas);
+            }
+        }
+
+        /// <summary>
         /// String representation
         /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"Hash:{Hash}";
-        }
+        /// <returns>Hash</returns>
+        public override string ToString() => Hash.ToString();
     }
 }
