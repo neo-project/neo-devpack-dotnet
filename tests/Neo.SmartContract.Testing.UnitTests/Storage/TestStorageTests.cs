@@ -15,18 +15,30 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         [TestMethod]
         public void TestCheckpoint()
         {
+            // Create a new test engine with native contracts already initialized
+
             var engine = new TestEngine(true);
+
+            // Check that all it works
 
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
+            // Create checkpoint
+
             var checkpoint = engine.Storage.Checkpoint();
 
-            // Test restoring the checkpoint
+            // Create new storage, and restore the checkpoint on it
 
             var storage = new EngineStorage(new MemoryStore());
             checkpoint.Restore(storage.Snapshot);
 
+            // Create new test engine without initialize
+            // and set the storage to the restored one
+
             engine = new TestEngine(false) { Storage = storage };
+
+            // Ensure that all works
+
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             // Test restoring in raw

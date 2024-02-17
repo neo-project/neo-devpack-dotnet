@@ -234,6 +234,22 @@ namespace Neo.SmartContract.Testing
 
         #endregion
 
+        #region Checkpoints
+
+        /// <summary>
+        /// Get storage checkpoint
+        /// </summary>
+        /// <returns>EngineCheckpoint</returns>
+        public EngineCheckpoint Checkpoint() => Storage.Checkpoint();
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="checkpoint">Checkpoint</param>
+        public void Restore(EngineCheckpoint checkpoint) => Storage.Restore(checkpoint);
+
+        #endregion
+
         /// <summary>
         /// Get deploy hash
         /// </summary>
@@ -242,8 +258,18 @@ namespace Neo.SmartContract.Testing
         /// <returns>Contract hash</returns>
         public UInt160 GetDeployHash(byte[] nef, string manifest)
         {
-            return Helper.GetContractHash(Sender,
-                nef.AsSerializable<NefFile>().CheckSum, ContractManifest.Parse(manifest).Name);
+            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest));
+        }
+
+        /// <summary>
+        /// Get deploy hash
+        /// </summary>
+        /// <param name="nef">Nef</param>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>Contract hash</returns>
+        public UInt160 GetDeployHash(NefFile nef, ContractManifest manifest)
+        {
+            return Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
         }
 
         /// <summary>
@@ -601,8 +627,7 @@ namespace Neo.SmartContract.Testing
             var data = new byte[UInt160.Length];
             rand.NextBytes(data);
 
-            // Ensure that if we convert to BigInteger this value
-            // It will work
+            // Ensure that if we convert to BigInteger this value will work
 
             if (data[0] == 0) data[0] = 1;
 
