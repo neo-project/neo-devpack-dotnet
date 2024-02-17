@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Neo.SmartContract.Testing
 {
@@ -134,5 +135,8 @@ namespace Neo.SmartContract.Testing
                 handler.Method.Invoke(handler.Target, args);
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator UInt160(SmartContract value) => value.Hash;
     }
 }

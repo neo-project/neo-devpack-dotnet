@@ -2,6 +2,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
+using Neo.VM.Types;
 using System;
 
 namespace Neo.SmartContract.Testing
@@ -138,6 +139,8 @@ namespace Neo.SmartContract.Testing
                     var returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
                     if (hasReturnValue)
                         Push(Convert(returnValue));
+                    else
+                        Push(StackItem.Null);
 
                     return;
                 }

@@ -131,12 +131,45 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             if (instruction.Operand.Length > 0)
             {
-                if (instruction.Operand.Span.TryGetString(out var str) && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                var ret = instruction.OpCode.ToString() + " 0x" + instruction.Operand.ToArray().ToHexString();
+
+                switch (instruction.OpCode)
                 {
-                    return instruction.OpCode.ToString() + $" '{str}'";
+                    case OpCode.JMP:
+                    case OpCode.JMPIF:
+                    case OpCode.JMPIFNOT:
+                    case OpCode.JMPEQ:
+                    case OpCode.JMPNE:
+                    case OpCode.JMPGT:
+                    case OpCode.JMPGE:
+                    case OpCode.JMPLT:
+                    case OpCode.JMPLE: return ret + $" ({instruction.TokenI8})";
+                    case OpCode.JMP_L:
+                    case OpCode.JMPIF_L:
+                    case OpCode.JMPIFNOT_L:
+                    case OpCode.JMPEQ_L:
+                    case OpCode.JMPNE_L:
+                    case OpCode.JMPGT_L:
+                    case OpCode.JMPGE_L:
+                    case OpCode.JMPLT_L:
+                    case OpCode.JMPLE_L: return ret + $" ({instruction.TokenI32})";
+                    case OpCode.SYSCALL:
+                        {
+                            if (ApplicationEngine.Services.TryGetValue(instruction.TokenU32, out var syscall))
+                            {
+                                return ret + $" ('{syscall.Name}')";
+                            }
+
+                            return ret;
+                        }
                 }
 
-                return instruction.OpCode.ToString() + " " + instruction.Operand.ToArray().ToHexString();
+                if (instruction.Operand.Span.TryGetString(out var str) && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                {
+                    return ret + $" '{str}'";
+                }
+
+                return ret;
             }
 
             return instruction.OpCode.ToString();

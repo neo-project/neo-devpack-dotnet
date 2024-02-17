@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         /// <summary>
         /// Required coverage to be success
         /// </summary>
-        public static float RequiredCoverage { get; set; } = 0.95F;
+        public static float RequiredCoverage { get; set; } = 1F;
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Console.WriteLine(coverage.Dump());
 
             File.WriteAllText("coverage.html", coverage.Dump(Testing.Coverage.DumpFormat.Html));
-            Assert.IsTrue(coverage.CoveredPercentage > RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
+            Assert.IsTrue(coverage.CoveredPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
     }
 }

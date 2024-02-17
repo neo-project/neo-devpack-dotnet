@@ -445,6 +445,12 @@ namespace Neo.SmartContract.Testing
 
             engine.LoadScript(script);
 
+            // Clean events, if we Execute inside and execute
+            // becaus it's a mock, we can register twice
+
+            ApplicationEngine.Log -= ApplicationEngineLog;
+            ApplicationEngine.Notify -= ApplicationEngineNotify;
+
             // Attach to static event
 
             ApplicationEngine.Log += ApplicationEngineLog;
@@ -594,6 +600,11 @@ namespace Neo.SmartContract.Testing
             var rand = new Random();
             var data = new byte[UInt160.Length];
             rand.NextBytes(data);
+
+            // Ensure that if we convert to BigInteger this value
+            // It will work
+
+            if (data[0] == 0) data[0] = 1;
 
             return new Signer()
             {
