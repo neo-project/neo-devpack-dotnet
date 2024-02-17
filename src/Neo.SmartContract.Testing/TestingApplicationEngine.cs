@@ -11,6 +11,7 @@ namespace Neo.SmartContract.Testing
     /// </summary>
     internal class TestingApplicationEngine : ApplicationEngine
     {
+        private Instruction? PreInstruction;
         private ExecutionContext? InstructionContext;
         private int? InstructionPointer;
         private long PreExecuteInstructionGasConsumed;
@@ -32,6 +33,7 @@ namespace Neo.SmartContract.Testing
 
             if (Engine.EnableCoverageCapture)
             {
+                PreInstruction = instruction;
                 PreExecuteInstructionGasConsumed = GasConsumed;
                 InstructionContext = CurrentContext;
                 InstructionPointer = InstructionContext?.InstructionPointer;
@@ -42,10 +44,24 @@ namespace Neo.SmartContract.Testing
             base.PreExecuteInstruction(instruction);
         }
 
+        protected override void OnFault(Exception ex)
+        {
+            base.OnFault(ex);
+
+            if (PreInstruction is not null)
+            {
+                RecoverCoverage(PreInstruction);
+            }
+        }
+
         protected override void PostExecuteInstruction(Instruction instruction)
         {
             base.PostExecuteInstruction(instruction);
+            RecoverCoverage(instruction);
+        }
 
+        private void RecoverCoverage(Instruction instruction)
+        {
             // We need the script to know the offset
 
             if (InstructionContext is null) return;
@@ -66,6 +82,10 @@ namespace Neo.SmartContract.Testing
             if (InstructionPointer is null) return;
 
             coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed);
+
+            PreInstruction = null;
+            InstructionContext = null;
+            InstructionPointer = null;
         }
 
         protected override void OnSysCall(InteropDescriptor descriptor)
