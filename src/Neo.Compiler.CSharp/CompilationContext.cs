@@ -22,14 +22,11 @@ using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Xml.Linq;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
@@ -37,76 +34,71 @@ namespace Neo.Compiler
 {
     public class CompilationContext
     {
-        private static readonly MetadataReference[] commonReferences;
-        private static readonly Dictionary<string, MetadataReference> metaReferences = new();
-        private readonly Compilation compilation;
-        private string? displayName, className;
-        private bool scTypeFound;
-        private readonly List<Diagnostic> diagnostics = new();
-        private readonly HashSet<string> supportedStandards = new();
-        private readonly List<AbiMethod> methodsExported = new();
-        private readonly List<AbiEvent> eventsExported = new();
-        private readonly PermissionBuilder permissions = new();
-        private readonly HashSet<string> trusts = new();
-        private readonly JObject manifestExtra = new();
-        private readonly MethodConvertCollection methodsConverted = new();
-        private readonly MethodConvertCollection methodsForward = new();
-        private readonly List<MethodToken> methodTokens = new();
-        private readonly Dictionary<IFieldSymbol, byte> staticFields = new(SymbolEqualityComparer.Default);
-        private readonly List<byte> anonymousStaticFields = new();
-        private readonly Dictionary<ITypeSymbol, byte> vtables = new(SymbolEqualityComparer.Default);
-        private byte[]? script;
+        private readonly CompilationEngine _engine;
+        readonly INamedTypeSymbol? _targetContract;
+        internal Options Options => _engine.Options;
+        private string? _displayName, _className;
+        private bool _scTypeFound;
+        private readonly List<Diagnostic> _diagnostics = new();
+        private readonly HashSet<string> _supportedStandards = new();
+        private readonly List<AbiMethod> _methodsExported = new();
+        private readonly List<AbiEvent> _eventsExported = new();
+        private readonly PermissionBuilder _permissions = new();
+        private readonly HashSet<string> _trusts = new();
+        private readonly JObject _manifestExtra = new();
+        // We can not reuse these converted methods as the offsets are determined while converting
+        private readonly MethodConvertCollection _methodsConverted = new();
+        private readonly MethodConvertCollection _methodsForward = new();
+        private readonly List<MethodToken> _methodTokens = new();
+        private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
+        private readonly List<byte> _anonymousStaticFields = new();
+        private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
+        private byte[]? _script;
 
-        public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
-        public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
-        public string? ContractName => displayName ?? Options.BaseName ?? className;
+        public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
+        public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics;
+        // TODO: basename should not work when multiple contracts exit in one project
+        public string? ContractName => _displayName ?? Options.BaseName ?? _className;
         private string? Source { get; set; }
-        internal Options Options { get; private set; }
-        internal IEnumerable<IFieldSymbol> StaticFieldSymbols => staticFields.OrderBy(p => p.Value).Select(p => p.Key);
-        internal IEnumerable<(byte, ITypeSymbol)> VTables => vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
-        internal int StaticFieldCount => staticFields.Count + anonymousStaticFields.Count + vtables.Count;
-        private byte[] Script => script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
-        static CompilationContext()
-        {
-            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            commonReferences = new[]
-            {
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
-                MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
-            };
-        }
+        internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);
+        internal IEnumerable<(byte, ITypeSymbol)> VTables => _vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
+        internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
+        private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
-        private CompilationContext(Compilation compilation, Options options)
+
+        /// <summary>
+        /// Specify the contract to be compiled.
+        /// </summary>
+        /// <param name="engine"> CompilationEngine that contains the compilation syntax tree and compiled methods</param>
+        /// <param name="targetContract">Contract to be compiled</param>
+        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol? targetContract)
         {
-            this.compilation = compilation;
-            this.Options = options;
+            _engine = engine;
+            _targetContract = targetContract;
         }
 
         private void RemoveEmptyInitialize()
         {
-            int index = methodsExported.FindIndex(p => p.Name == "_initialize");
+            int index = _methodsExported.FindIndex(p => p.Name == "_initialize");
             if (index < 0) return;
-            AbiMethod method = methodsExported[index];
-            if (methodsConverted[method.Symbol].Instructions.Count <= 1)
+            AbiMethod method = _methodsExported[index];
+            if (_methodsConverted[method.Symbol].Instructions.Count <= 1)
             {
-                methodsExported.RemoveAt(index);
-                methodsConverted.Remove(method.Symbol);
+                _methodsExported.RemoveAt(index);
+                _methodsConverted.Remove(method.Symbol);
             }
         }
 
         private IEnumerable<Instruction> GetInstructions()
         {
-            return methodsConverted.SelectMany(p => p.Instructions).Concat(methodsForward.SelectMany(p => p.Instructions));
+            return _methodsConverted.SelectMany(p => p.Instructions).Concat(_methodsForward.SelectMany(p => p.Instructions));
         }
 
         private int GetAbiOffset(IMethodSymbol method)
         {
-            if (!methodsForward.TryGetValue(method, out MethodConvert? convert))
-                convert = methodsConverted[method];
+            if (!_methodsForward.TryGetValue(method, out MethodConvert? convert))
+                convert = _methodsConverted[method];
             return convert.Instructions[0].Offset;
         }
 
@@ -118,13 +110,13 @@ namespace Neo.Compiler
             return false;
         }
 
-        private void Compile()
+        internal void Compile()
         {
             HashSet<INamedTypeSymbol> processed = new(SymbolEqualityComparer.Default);
-            foreach (SyntaxTree tree in compilation.SyntaxTrees)
+            foreach (SyntaxTree tree in _engine.Compilation!.SyntaxTrees)
             {
-                SemanticModel model = compilation.GetSemanticModel(tree);
-                diagnostics.AddRange(model.GetDiagnostics());
+                SemanticModel model = _engine.Compilation!.GetSemanticModel(tree);
+                _diagnostics.AddRange(model.GetDiagnostics());
                 if (!Success) continue;
                 try
                 {
@@ -132,14 +124,14 @@ namespace Neo.Compiler
                 }
                 catch (CompilationException ex)
                 {
-                    diagnostics.Add(ex.Diagnostic);
+                    _diagnostics.Add(ex.Diagnostic);
                 }
             }
             if (Success)
             {
-                if (!scTypeFound)
+                if (!_scTypeFound)
                 {
-                    diagnostics.Add(Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
+                    _diagnostics.Add(Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
                     return;
                 }
                 RemoveEmptyInitialize();
@@ -148,110 +140,6 @@ namespace Neo.Compiler
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
             }
-        }
-
-        public static CompilationContext Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, Options options)
-        {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
-            if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: options.Nullable);
-            CSharpCompilation compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
-            CompilationContext context = new(compilation, options);
-            context.Compile();
-            return context;
-        }
-
-        public static CompilationContext CompileSources(string[] sourceFiles, Options options)
-        {
-            List<MetadataReference> references = new(commonReferences)
-            {
-                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
-            };
-            return Compile(sourceFiles, references, options);
-        }
-
-        public static Compilation GetCompilation(string csproj, Options options)
-        {
-            string folder = Path.GetDirectoryName(csproj)!;
-            string obj = Path.Combine(folder, "obj");
-            HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                .Where(p => !p.StartsWith(obj))
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            List<MetadataReference> references = new(commonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: options.Nullable);
-            XDocument document = XDocument.Load(csproj);
-            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"restore \"{csproj}\"",
-                WorkingDirectory = folder
-            })!.WaitForExit();
-            string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
-            JObject assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
-            foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
-            {
-                MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, options, compilationOptions);
-                if (reference is not null) references.Add(reference);
-            }
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: options.GetParseOptions(), path: p));
-            return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
-        }
-
-        private static MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
-        {
-            string assemblyName = Path.GetDirectoryName(name)!;
-            if (!metaReferences.TryGetValue(assemblyName, out var reference))
-            {
-                switch (assets["libraries"]![name]!["type"]!.GetString())
-                {
-                    case "package":
-                        string packagesPath = assets["project"]!["restore"]!["packagesPath"]!.GetString();
-                        string namePath = assets["libraries"]![name]!["path"]!.GetString();
-                        string[] files = ((JArray)assets["libraries"]![name]!["files"]!)
-                            .Select(p => p!.GetString())
-                            .Where(p => p.StartsWith("src/"))
-                            .ToArray();
-                        if (files.Length == 0)
-                        {
-                            JObject? dllFiles = (JObject?)(package["compile"] ?? package["runtime"]);
-                            if (dllFiles is null) return null;
-                            foreach (var (file, _) in dllFiles.Properties)
-                            {
-                                if (file.EndsWith("_._")) continue;
-                                string path = Path.Combine(packagesPath, namePath, file);
-                                if (!File.Exists(path)) continue;
-                                reference = MetadataReference.CreateFromFile(path);
-                                break;
-                            }
-                            if (reference is null) return null;
-                        }
-                        else
-                        {
-                            IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
-                            CSharpCompilation cr = CSharpCompilation.Create(assemblyName, st, commonReferences, compilationOptions);
-                            reference = cr.ToMetadataReference();
-                        }
-                        break;
-                    case "project":
-                        string msbuildProject = assets["libraries"]![name]!["msbuildProject"]!.GetString();
-                        msbuildProject = Path.GetFullPath(msbuildProject, folder);
-                        reference = GetCompilation(msbuildProject, options).ToMetadataReference();
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-                metaReferences.Add(assemblyName, reference);
-            }
-            return reference;
-        }
-
-        public static CompilationContext CompileProject(string csproj, Options options)
-        {
-            Compilation compilation = GetCompilation(csproj, options);
-            CompilationContext context = new(compilation, options);
-            context.Compile();
-            return context;
         }
 
         public NefFile CreateExecutable()
@@ -263,7 +151,7 @@ namespace Neo.Compiler
             {
                 Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
                 Source = Source ?? string.Empty,
-                Tokens = methodTokens.ToArray(),
+                Tokens = _methodTokens.ToArray(),
                 Script = Script
             };
             nef.CheckSum = NefFile.ComputeChecksum(nef);
@@ -285,14 +173,14 @@ namespace Neo.Compiler
                 builder.AppendLine();
             }
             StringBuilder builder = new();
-            foreach (MethodConvert method in methodsConverted)
+            foreach (MethodConvert method in _methodsConverted)
             {
                 builder.Append("// ");
                 builder.AppendLine(method.Symbol.ToString());
                 builder.AppendLine();
                 WriteMethod(builder, method);
             }
-            foreach (MethodConvert method in methodsForward)
+            foreach (MethodConvert method in _methodsForward)
             {
                 builder.Append("// ");
                 builder.Append(method.Symbol.ToString());
@@ -310,10 +198,10 @@ namespace Neo.Compiler
                 ["name"] = ContractName,
                 ["groups"] = new JArray(),
                 ["features"] = new JObject(),
-                ["supportedstandards"] = supportedStandards.OrderBy(p => p).Select(p => (JString)p!).ToArray(),
+                ["supportedstandards"] = _supportedStandards.OrderBy(p => p).Select(p => (JString)p!).ToArray(),
                 ["abi"] = new JObject
                 {
-                    ["methods"] = methodsExported.Select(p => new JObject
+                    ["methods"] = _methodsExported.Select(p => new JObject
                     {
                         ["name"] = p.Name,
                         ["offset"] = GetAbiOffset(p.Symbol),
@@ -321,15 +209,15 @@ namespace Neo.Compiler
                         ["returntype"] = p.ReturnType,
                         ["parameters"] = p.Parameters.Select(p => p.ToJson()).ToArray()
                     }).ToArray(),
-                    ["events"] = eventsExported.Select(p => new JObject
+                    ["events"] = _eventsExported.Select(p => new JObject
                     {
                         ["name"] = p.Name,
                         ["parameters"] = p.Parameters.Select(p => p.ToJson()).ToArray()
                     }).ToArray()
                 },
-                ["permissions"] = permissions.ToJson(),
-                ["trusts"] = trusts.Contains("*") ? "*" : trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
-                ["extra"] = manifestExtra
+                ["permissions"] = _permissions.ToJson(),
+                ["trusts"] = _trusts.Contains("*") ? "*" : _trusts.OrderBy(p => p.Length).ThenBy(p => p).Select(u => new JString(u)).ToArray(),
+                ["extra"] = _manifestExtra
             };
 
             // Ensure that is serializable
@@ -340,7 +228,7 @@ namespace Neo.Compiler
         {
             List<string> documents = new();
             List<JObject> methods = new();
-            foreach (var m in methodsConverted.Where(p => p.SyntaxNode is not null))
+            foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
                 List<JString> sequencePoints = new();
                 foreach (var ins in m.Instructions.Where(i => i.SourceLocation is not null))
@@ -385,9 +273,9 @@ namespace Neo.Compiler
                 ["hash"] = Script.ToScriptHash().ToString(),
                 ["documents"] = documents.Select(p => (JString)p!).ToArray(),
                 ["document-root"] = string.IsNullOrEmpty(folder) ? JToken.Null : folder,
-                ["static-variables"] = staticFields.OrderBy(p => p.Value).Select(p => ((JString)$"{p.Key.Name},{p.Key.Type.GetContractParameterType()},{p.Value}")!).ToArray(),
+                ["static-variables"] = _staticFields.OrderBy(p => p.Value).Select(p => ((JString)$"{p.Key.Name},{p.Key.Type.GetContractParameterType()},{p.Value}")!).ToArray(),
                 ["methods"] = methods.ToArray(),
-                ["events"] = eventsExported.Select(e => new JObject
+                ["events"] = _eventsExported.Select(e => new JObject
                 {
                     ["id"] = e.Name,
                     ["name"] = $"{e.Symbol.ContainingType},{e.Symbol.Name}",
@@ -424,40 +312,59 @@ namespace Neo.Compiler
             bool isAbstract = symbol.IsAbstract;
             bool isContractType = symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract));
             bool isSmartContract = isPublic && !isAbstract && isContractType;
+            // If the class is a smart contract, we need to check if it is the expected one
+            // And we can not reuse the compiled methods as their offset is specific for its own contract.
+            // TODO: We can make the smart contract able to call each other directly, but will take a while to implement
+            // TODO: My general idea here is using \#DEBUG to differ the behavior
+            if (isSmartContract && _targetContract != null && _targetContract.ToString() != symbol.ToString())
+            {
+                // if the contract already processed, return
+                if (_engine.Contexts.ContainsKey(symbol) || _engine.DerivedContracts.Contains(symbol))
+                {
+                    return;
+                }
+                else
+                {
+                    _engine.DerivedContracts.Push(symbol);
+                }
+            }
+            // add this context
+            _engine.Contexts.Add(symbol, this);
+
             if (isSmartContract)
             {
-                if (scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, "Only one smart contract is allowed.");
-                scTypeFound = true;
+                if (_scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, "Only one smart contract is allowed.");
+                _scTypeFound = true;
                 foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
                     if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
                     {
-                        manifestExtra[ManifestExtraAttribute.AttributeType[attribute.AttributeClass!.Name]] = (string)attribute.ConstructorArguments[0].Value!;
+                        _manifestExtra[ManifestExtraAttribute.AttributeType[attribute.AttributeClass!.Name]] = (string)attribute.ConstructorArguments[0].Value!;
                         continue;
                     }
 
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            displayName = (string)attribute.ConstructorArguments[0].Value!;
+                            _displayName = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(ManifestExtraAttribute):
-                            manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
+                            _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
                         case nameof(ContractPermissionAttribute):
-                            permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
+                            _permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
                             break;
                         case nameof(ContractTrustAttribute):
                             string trust = (string)attribute.ConstructorArguments[0].Value!;
                             if (!ValidateContractTrust(trust))
                                 throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
-                            trusts.Add(trust);
+                            _trusts.Add(trust);
                             break;
                         case nameof(SupportedStandardsAttribute):
-                            supportedStandards.UnionWith(
+                            _supportedStandards.UnionWith(
                                 attribute.ConstructorArguments[0].Values
                                     .Select(p => p.Value)
                                     .Select(p =>
@@ -470,7 +377,7 @@ namespace Neo.Compiler
                             break;
                     }
                 }
-                className = symbol.Name;
+                _className = symbol.Name;
             }
             foreach (ISymbol member in symbol.GetAllMembers())
             {
@@ -486,10 +393,10 @@ namespace Neo.Compiler
             }
             if (isSmartContract)
             {
-                IMethodSymbol _initialize = symbol.StaticConstructors.Length == 0
+                IMethodSymbol initialize = symbol.StaticConstructors.Length == 0
                     ? symbol.GetAllMembers().OfType<IMethodSymbol>().First(p => p.Name == "_initialize")
                     : symbol.StaticConstructors[0];
-                ProcessMethod(model, _initialize, true);
+                ProcessMethod(model, initialize, true);
             }
         }
 
@@ -504,12 +411,12 @@ namespace Neo.Compiler
 
         internal void AddEvent(AbiEvent ev, bool throwErrorIfExists)
         {
-            if (eventsExported.Any(u => u.Name == ev.Name))
+            if (_eventsExported.Any(u => u.Name == ev.Name))
             {
                 if (!throwErrorIfExists) return;
                 throw new CompilationException(ev.Symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
             }
-            eventsExported.Add(ev);
+            _eventsExported.Add(ev);
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
@@ -525,9 +432,9 @@ namespace Neo.Compiler
             if (export)
             {
                 AbiMethod method = new(symbol);
-                if (methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
+                if (_methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
-                methodsExported.Add(method);
+                _methodsExported.Add(method);
             }
 
             if (symbol.GetAttributesWithInherited()
@@ -545,16 +452,16 @@ namespace Neo.Compiler
             {
                 MethodConvert forward = new(this, symbol);
                 forward.ConvertForward(model, convert);
-                methodsForward.Add(forward);
+                _methodsForward.Add(forward);
             }
         }
 
         internal MethodConvert ConvertMethod(SemanticModel model, IMethodSymbol symbol)
         {
-            if (!methodsConverted.TryGetValue(symbol, out MethodConvert? method))
+            if (!_methodsConverted.TryGetValue(symbol, out MethodConvert? method))
             {
                 method = new MethodConvert(this, symbol);
-                methodsConverted.Add(method);
+                _methodsConverted.Add(method);
                 if (!symbol.DeclaringSyntaxReferences.IsEmpty)
                 {
                     ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
@@ -567,9 +474,9 @@ namespace Neo.Compiler
 
         internal ushort AddMethodToken(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags)
         {
-            int index = methodTokens.FindIndex(p => p.Hash == hash && p.Method == method && p.ParametersCount == parametersCount && p.HasReturnValue == hasReturnValue && p.CallFlags == callFlags);
+            int index = _methodTokens.FindIndex(p => p.Hash == hash && p.Method == method && p.ParametersCount == parametersCount && p.HasReturnValue == hasReturnValue && p.CallFlags == callFlags);
             if (index >= 0) return (ushort)index;
-            methodTokens.Add(new MethodToken
+            _methodTokens.Add(new MethodToken
             {
                 Hash = hash,
                 Method = method,
@@ -577,16 +484,16 @@ namespace Neo.Compiler
                 HasReturnValue = hasReturnValue,
                 CallFlags = callFlags
             });
-            permissions.Add(hash.ToString(), method);
-            return (ushort)(methodTokens.Count - 1);
+            _permissions.Add(hash.ToString(), method);
+            return (ushort)(_methodTokens.Count - 1);
         }
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
-            if (!staticFields.TryGetValue(symbol, out byte index))
+            if (!_staticFields.TryGetValue(symbol, out byte index))
             {
                 index = (byte)StaticFieldCount;
-                staticFields.Add(symbol, index);
+                _staticFields.Add(symbol, index);
             }
             return index;
         }
@@ -594,28 +501,18 @@ namespace Neo.Compiler
         internal byte AddAnonymousStaticField()
         {
             byte index = (byte)StaticFieldCount;
-            anonymousStaticFields.Add(index);
+            _anonymousStaticFields.Add(index);
             return index;
         }
 
         internal byte AddVTable(ITypeSymbol type)
         {
-            if (!vtables.TryGetValue(type, out byte index))
+            if (!_vtables.TryGetValue(type, out byte index))
             {
                 index = (byte)StaticFieldCount;
-                vtables.Add(type, index);
+                _vtables.Add(type, index);
             }
             return index;
-        }
-
-        private static bool IsSingleAbstractClass(IEnumerable<SyntaxTree> syntaxTrees)
-        {
-            if (syntaxTrees.Count() != 1) return false;
-
-            var tree = syntaxTrees.First();
-            var classDeclarations = tree.GetCompilationUnitRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
-
-            return classDeclarations.Count == 1 && classDeclarations[0].Modifiers.Any(SyntaxKind.AbstractKeyword);
         }
     }
 }

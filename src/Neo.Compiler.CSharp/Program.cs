@@ -18,6 +18,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Extensions;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
@@ -51,7 +52,7 @@ namespace Neo.Compiler
             return rootCommand.Invoke(args);
         }
 
-        private static void Handle(RootCommand command, Options options, string[] paths, InvocationContext context)
+        private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
         {
             if (paths is null || paths.Length == 0)
             {
@@ -127,15 +128,25 @@ namespace Neo.Compiler
 
         private static int ProcessCsproj(Options options, string path)
         {
-            return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.CompileProject(path, options));
+            return ProcessOutputs(options, Path.GetDirectoryName(path)!, new CompilationEngine(options).CompileProject(path));
         }
 
         private static int ProcessSources(Options options, string folder, string[] sourceFiles)
         {
-            return ProcessOutputs(options, folder, CompilationContext.CompileSources(sourceFiles, options));
+            return ProcessOutputs(options, folder, new CompilationEngine(options).CompileSources(sourceFiles));
         }
 
-        private static int ProcessOutputs(Options options, string folder, CompilationContext context)
+        private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
+        {
+            // TODO: Still need to check the return code
+            return contexts.Select(p => ProcessOutput(options, folder, p)).Any(p => p != 1) ? 0 : 1;
+        }
+
+
+        // TODO: Need to process this output, if only one smart contract its fine,
+        // TODO: but when it comes to multiple contracts, need to process the output in multiple folders
+        // TODO: Or maybe not
+        private static int ProcessOutput(Options options, string folder, CompilationContext context)
         {
             foreach (Diagnostic diagnostic in context.Diagnostics)
             {

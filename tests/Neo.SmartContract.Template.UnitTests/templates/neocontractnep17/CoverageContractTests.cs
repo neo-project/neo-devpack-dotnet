@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
-            // Ennsure that the coverage is more than X% at the end of the tests
+            // Ensure that the coverage is more than X% at the end of the tests
 
             var coverage = Nep17ContractTests.Coverage;
             coverage?.Join(OwnerContractTests.Coverage);

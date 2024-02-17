@@ -115,7 +115,7 @@ partial class MethodConvert
     {
         if (left.IsStatic)
         {
-            byte index = context.AddStaticField(left);
+            byte index = _context.AddStaticField(left);
             AccessSlot(OpCode.LDSFLD, index);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
@@ -184,7 +184,7 @@ partial class MethodConvert
     {
         if (field.IsStatic)
         {
-            byte index = context.AddStaticField(field);
+            byte index = _context.AddStaticField(field);
             AccessSlot(OpCode.LDSFLD, index);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);

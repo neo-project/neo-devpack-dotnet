@@ -62,12 +62,15 @@ namespace Neo.SmartContract.TestEngine
 
         public CompilationContext AddEntryScript(bool optimize = true, bool debug = true, params string[] files)
         {
-            CompilationContext context = CompilationContext.Compile(files, references, new Options
+            CompilationContext? context = new CompilationEngine(new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion,
                 Debug = debug,
                 NoOptimize = !optimize
-            });
+            }).Compile(files, references).FirstOrDefault();
+
+            if (context == null) throw new Exception("No context");
+
             if (context.Success)
             {
                 Nef = context.CreateExecutable();
