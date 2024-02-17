@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Storage
         /// </summary>
-        public EngineStorage Storage { get; init; } = new EngineStorage(new MemoryStore());
+        public EngineStorage Storage { get; set; } = new EngineStorage(new MemoryStore());
 
         /// <summary>
         /// Protocol Settings
