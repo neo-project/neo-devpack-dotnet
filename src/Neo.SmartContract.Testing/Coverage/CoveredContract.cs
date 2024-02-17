@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoveredMethod</returns>
         public CoveredMethod? GetCoverage(string methodName, int pcount)
         {
-            return GetCoverage(new AbiMethod(methodName, pcount));
+            return Methods.FirstOrDefault(m => m.Method.Name == methodName && m.Method.PCount == pcount);
         }
 
         /// <summary>

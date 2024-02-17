@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -25,12 +26,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Constructor
         /// </summary>
         /// <param name="name">Method name</param>
-        /// <param name="pCount">Parameters count</param>
-        public AbiMethod(string name, int pCount, string? toString = null)
+        /// <param name="argsName">Arguments names</param>
+        public AbiMethod(string name, string[] argsName)
         {
             Name = name;
-            PCount = pCount;
-            _toString = toString ?? $"{Name},{PCount}";
+            PCount = argsName.Length;
+            _toString = name + $"({string.Join(",", argsName)})";
         }
 
         /// <summary>
@@ -58,14 +59,14 @@ namespace Neo.SmartContract.Testing.Coverage
 
                             return new AbiMethod[]
                             {
-                                new AbiMethod(nameRead, 0),
-                                new AbiMethod(nameWrite, 1)
+                                new AbiMethod(nameRead, Array.Empty<string>()),
+                                new AbiMethod(nameWrite, new string[]{ "value" })
                             };
                         }
 
                         // Only read property
 
-                        return new AbiMethod[] { new AbiMethod(nameRead, 0) };
+                        return new AbiMethod[] { new AbiMethod(nameRead, Array.Empty<string>()) };
                     }
                 }
             }
@@ -76,7 +77,7 @@ namespace Neo.SmartContract.Testing.Coverage
                     var display = mInfo.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : mInfo.Name;
 
-                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Length) };
+                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Select(u => u.Name ?? "arg").ToArray()) };
                 }
             }
 

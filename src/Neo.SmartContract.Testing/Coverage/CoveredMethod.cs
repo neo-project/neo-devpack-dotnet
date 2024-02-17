@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Testing.Coverage
             Contract = contract;
             Offset = method.Offset;
             MethodLength = methodLength;
-            Method = new AbiMethod(method.Name, method.Parameters.Length, method.Name + $"({string.Join(",", method.Parameters.Select(u => u.Name))})");
+            Method = new AbiMethod(method.Name, method.Parameters.Select(u => u.Name).ToArray());
         }
 
         /// <summary>
