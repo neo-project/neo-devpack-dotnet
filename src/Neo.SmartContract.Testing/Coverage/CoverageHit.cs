@@ -1,6 +1,7 @@
 using Neo.VM;
 using System;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
@@ -130,7 +131,12 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             if (instruction.Operand.Length > 0)
             {
-                return instruction.OpCode.ToString() + " " + instruction.Operand.ToArray().ToHexString(false);
+                if (instruction.Operand.Span.TryGetString(out var str) && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                {
+                    return instruction.OpCode.ToString() + $" '{str}'";
+                }
+
+                return instruction.OpCode.ToString() + " " + instruction.Operand.ToArray().ToHexString();
             }
 
             return instruction.OpCode.ToString();
