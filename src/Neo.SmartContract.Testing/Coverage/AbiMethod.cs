@@ -9,6 +9,8 @@ namespace Neo.SmartContract.Testing.Coverage
     [DebuggerDisplay("{Name},{PCount}")]
     public class AbiMethod : IEquatable<AbiMethod>
     {
+        private readonly string _toString;
+
         /// <summary>
         /// Method name
         /// </summary>
@@ -24,10 +26,11 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="name">Method name</param>
         /// <param name="pCount">Parameters count</param>
-        public AbiMethod(string name, int pCount)
+        public AbiMethod(string name, int pCount, string? toString = null)
         {
             Name = name;
             PCount = pCount;
+            _toString = toString ?? $"{Name},{PCount}";
         }
 
         /// <summary>
@@ -89,6 +92,6 @@ namespace Neo.SmartContract.Testing.Coverage
 
         bool IEquatable<AbiMethod>.Equals(AbiMethod other) => PCount == other.PCount && Name == other.Name;
         public override int GetHashCode() => HashCode.Combine(PCount, Name);
-        public override string ToString() => $"{Name},{PCount}";
+        public override string ToString() => _toString;
     }
 }
