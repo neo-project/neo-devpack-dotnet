@@ -62,8 +62,7 @@ namespace Neo.Compiler
             context.Compile();
             while (DerivedContracts.Count > 0)
             {
-                INamedTypeSymbol classSymbol = DerivedContracts.Pop();
-                var context2 = new CompilationContext(this, classSymbol);
+                var context2 = new CompilationContext(this, DerivedContracts.Pop());
                 context2.Compile();
             }
 
@@ -81,10 +80,14 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileProject(string csproj)
         {
-            Compilation compilation = GetCompilation(csproj);
-            Compilation = compilation;
+            // 1. Compile the first smart contract
+            Compilation = GetCompilation(csproj);
             var context = new CompilationContext(this, null);
             context.Compile();
+            // 2. Compile the derived smart contracts
+            // DerivedContracts items are added during the compilation of the first smart contract in `ProcessClass`
+            // We dont reuse precompiled methods as they contains specific offsets
+            // But we can reuse the compilation as they are the same for all smart contracts
             while (DerivedContracts.Count > 0)
             {
                 INamedTypeSymbol classSymbol = DerivedContracts.Pop();

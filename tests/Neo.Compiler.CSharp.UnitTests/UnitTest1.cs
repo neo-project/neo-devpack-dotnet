@@ -26,8 +26,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var testengine = new TestEngine();
             var context = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Multiple.cs");
-            Assert.IsFalse(context.Success);
-            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.MultiplyContracts));
+
+            Assert.IsTrue(context.Success);
+            Assert.IsTrue(context.Diagnostics.Count == 0);
         }
 
         [TestMethod]

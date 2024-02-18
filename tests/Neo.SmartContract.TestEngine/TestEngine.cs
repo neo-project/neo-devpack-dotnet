@@ -50,6 +50,12 @@ namespace Neo.SmartContract.TestEngine
         {
         }
 
+        /// <summary>
+        /// Though the compiler can compile multiple smart contract files,
+        /// only one smart contract context is returned.
+        /// </summary>
+        /// <param name="files">Source file path of the smart contracts</param>
+        /// <returns>The first or default contract <see cref="CompilationContext"/></returns>
         public CompilationContext AddEntryScript(params string[] files)
         {
             return AddEntryScript(true, true, files);
@@ -60,6 +66,7 @@ namespace Neo.SmartContract.TestEngine
             return AddEntryScript(false, true, files);
         }
 
+        // TODO: Should not be hard to specify signer from here to enable contracts direct call.
         public CompilationContext AddEntryScript(bool optimize = true, bool debug = true, params string[] files)
         {
             CompilationContext? context = new CompilationEngine(new Options
@@ -69,7 +76,10 @@ namespace Neo.SmartContract.TestEngine
                 NoOptimize = !optimize
             }).Compile(files, references).FirstOrDefault();
 
-            if (context == null) throw new Exception("No context");
+            if (context == null)
+            {
+                throw new InvalidOperationException("No SmartContract is found in the sources.");
+            }
 
             if (context.Success)
             {

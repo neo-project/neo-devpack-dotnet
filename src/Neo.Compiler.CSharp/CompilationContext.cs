@@ -38,7 +38,6 @@ namespace Neo.Compiler
         readonly INamedTypeSymbol? _targetContract;
         internal Options Options => _engine.Options;
         private string? _displayName, _className;
-        private bool _scTypeFound;
         private readonly List<Diagnostic> _diagnostics = new();
         private readonly HashSet<string> _supportedStandards = new();
         private readonly List<AbiMethod> _methodsExported = new();
@@ -129,11 +128,6 @@ namespace Neo.Compiler
             }
             if (Success)
             {
-                if (!_scTypeFound)
-                {
-                    _diagnostics.Add(Diagnostic.Create(DiagnosticId.NoEntryPoint, DiagnosticCategory.Default, "No SmartContract is found in the sources.", DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0));
-                    return;
-                }
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
@@ -312,29 +306,33 @@ namespace Neo.Compiler
             bool isAbstract = symbol.IsAbstract;
             bool isContractType = symbol.IsSubclassOf(nameof(scfx.Neo.SmartContract.Framework.SmartContract));
             bool isSmartContract = isPublic && !isAbstract && isContractType;
-            // If the class is a smart contract, we need to check if it is the expected one
-            // And we can not reuse the compiled methods as their offset is specific for its own contract.
-            // TODO: We can make the smart contract able to call each other directly, but will take a while to implement
-            // TODO: My general idea here is using \#DEBUG to differ the behavior
-            if (isSmartContract && _targetContract != null && _targetContract.ToString() != symbol.ToString())
-            {
-                // if the contract already processed, return
-                if (_engine.Contexts.ContainsKey(symbol) || _engine.DerivedContracts.Contains(symbol))
-                {
-                    return;
-                }
-                else
-                {
-                    _engine.DerivedContracts.Push(symbol);
-                }
-            }
-            // add this context
-            _engine.Contexts.Add(symbol, this);
 
             if (isSmartContract)
             {
-                if (_scTypeFound) throw new CompilationException(DiagnosticId.MultiplyContracts, "Only one smart contract is allowed.");
-                _scTypeFound = true;
+                // If the class is a smart contract, we need to check if it is the expected one
+                // And we can not reuse the compiled methods as their offset is specific for its own contract.
+                // TODO: We can make the smart contract able to call each other directly, but will take a while to implement
+                // TODO: The general idea here is using \#DEBUG to differ the behavior and use a preset signer or allow user to specify from console
+                // If processing the first contract while no target is set,
+                // Then the contexts == 0 means located the first contract
+                if (_targetContract == null && _engine.Contexts.Count != 0 ||
+                    // or processing second or more contract and target is set,
+                    // but this contract is not the target
+                    _targetContract != null && _targetContract.Name != symbol.Name)
+                {
+                    // if the contract already processed, return
+                    if (!_engine.Contexts.ContainsKey(symbol) && !_engine.DerivedContracts.Contains(symbol))
+                    {
+                        // if the contract is not the target and not processed yet, add it to the derived contracts
+                        _engine.DerivedContracts.Push(symbol);
+                    }
+                    // We skip processing this contract as it is not the target
+                    return;
+                }
+                // Process the target contract
+                // add this compilation context
+                _engine.Contexts.Add(symbol, this);
+
                 foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
                     if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
