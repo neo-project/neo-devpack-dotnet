@@ -16,6 +16,7 @@ jobs:
         package-name: Neo.SmartContract.Testing
         package-type: nuget
         min-versions-to-keep: 3
+        delete-only-pre-release-versions: "true"
         token: "${{ secrets.GITHUB_TOKEN }}"
 
     - name: Delete Neo.SmartContract.Framework Package
@@ -24,4 +25,5 @@ jobs:
         package-name: Neo.Neo.SmartContract.Framework
         package-type: nuget
         min-versions-to-keep: 3
+        delete-only-pre-release-versions: "true"
         token: "${{ secrets.GITHUB_TOKEN }}"
