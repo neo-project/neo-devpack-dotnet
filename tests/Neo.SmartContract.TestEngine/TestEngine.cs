@@ -69,20 +69,26 @@ namespace Neo.SmartContract.TestEngine
         // TODO: Should not be hard to specify signer from here to enable contracts direct call.
         public CompilationContext AddEntryScript(bool optimize = true, bool debug = true, params string[] files)
         {
-            CompilationContext? context = new CompilationEngine(new Options
+            return AddEntryScripts(optimize, debug, files).FirstOrDefault()!;
+        }
+
+        public List<CompilationContext> AddEntryScripts(bool optimize = true, bool debug = true, params string[] files)
+        {
+            var contexts = new CompilationEngine(new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion,
                 Debug = debug,
                 NoOptimize = !optimize
-            }).Compile(files, references).FirstOrDefault();
+            }).Compile(files, references);
 
-            if (context == null)
+            if (contexts == null || contexts.Count == 0)
             {
                 throw new InvalidOperationException("No SmartContract is found in the sources.");
             }
 
-            if (context.Success)
+            if (contexts.All(p => p.Success))
             {
+                var context = contexts.FirstOrDefault()!;
                 Nef = context.CreateExecutable();
                 Manifest = context.CreateManifest();
                 DebugInfo = context.CreateDebugInformation();
@@ -90,10 +96,11 @@ namespace Neo.SmartContract.TestEngine
             }
             else
             {
-                context.Diagnostics.ForEach(Console.Error.WriteLine);
+                contexts.ForEach(c => c.Diagnostics.ForEach(Console.Error.WriteLine));
             }
-            return context;
+            return contexts;
         }
+
 
         public void Reset()
         {
