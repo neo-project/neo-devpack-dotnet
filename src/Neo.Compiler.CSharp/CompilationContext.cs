@@ -35,7 +35,7 @@ namespace Neo.Compiler
     public class CompilationContext
     {
         private readonly CompilationEngine _engine;
-        readonly INamedTypeSymbol? _targetContract;
+        readonly INamedTypeSymbol _targetContract;
         internal Options Options => _engine.Options;
         private string? _displayName, _className;
         private readonly List<Diagnostic> _diagnostics = new();
@@ -71,7 +71,7 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="engine"> CompilationEngine that contains the compilation syntax tree and compiled methods</param>
         /// <param name="targetContract">Contract to be compiled</param>
-        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol? targetContract)
+        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract)
         {
             _engine = engine;
             _targetContract = targetContract;
@@ -309,24 +309,8 @@ namespace Neo.Compiler
 
             if (isSmartContract)
             {
-                // If the class is a smart contract, we need to check if it is the expected one
-                // And we can not reuse the compiled methods as their offset is specific for its own contract.
-                // TODO: We can make the smart contract able to call each other directly, but will take a while to implement
-                // TODO: The general idea here is using \#DEBUG to differ the behavior and use a preset signer or allow user to specify from console
-                // If processing the first contract while no target is set,
-                // Then the contexts == 0 means located the first contract
-                if (_targetContract == null && _engine.Contexts.Count != 0 ||
-                    // or processing second or more contract and target is set,
-                    // but this contract is not the target
-                    _targetContract != null && _targetContract.Name != symbol.Name)
+                if (_targetContract.Name != symbol.Name)
                 {
-                    // if the contract already processed, return
-                    if (!_engine.Contexts.ContainsKey(symbol) && !_engine.DerivedContracts.Contains(symbol))
-                    {
-                        // if the contract is not the target and not processed yet, add it to the derived contracts
-                        _engine.DerivedContracts.Push(symbol);
-                    }
-                    // We skip processing this contract as it is not the target
                     return;
                 }
                 // Process the target contract
