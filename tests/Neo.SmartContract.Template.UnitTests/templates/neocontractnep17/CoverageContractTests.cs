@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             var coverage = Nep17ContractTests.Coverage;
             coverage?.Join(OwnerContractTests.Coverage);
 
-            // Ennsure that the coverage is more than X% at the end of the tests
+            // Ensure that the coverage is more than X% at the end of the tests
 
             Assert.IsNotNull(coverage);
             Console.WriteLine(coverage.Dump());
