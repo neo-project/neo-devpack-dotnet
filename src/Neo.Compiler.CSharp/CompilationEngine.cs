@@ -98,6 +98,8 @@ namespace Neo.Compiler
             string obj = Path.Combine(folder, "obj");
             HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                 .Where(p => !p.StartsWith(obj))
+                .GroupBy(Path.GetFileName)
+                .Select(g => g.First())
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             List<MetadataReference> references = new(CommonReferences);
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
