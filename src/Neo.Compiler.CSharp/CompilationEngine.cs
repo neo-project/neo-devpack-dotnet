@@ -58,15 +58,7 @@ namespace Neo.Compiler
             if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
-            var context = new CompilationContext(this, null);
-            context.Compile();
-            while (DerivedContracts.Count > 0)
-            {
-                var context2 = new CompilationContext(this, DerivedContracts.Pop());
-                context2.Compile();
-            }
-
-            return Contexts.Select(p => p.Value).ToList();
+            return GetContexts();
         }
 
         public List<CompilationContext> CompileSources(string[] sourceFiles)
@@ -80,19 +72,21 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileProject(string csproj)
         {
-            // 1. Compile the first smart contract
             Compilation = GetCompilation(csproj);
-            var context = new CompilationContext(this, null);
-            context.Compile();
+            return GetContexts();
+        }
+
+        private List<CompilationContext> GetContexts()
+        {
+            // 1. Compile the first smart contract
+            new CompilationContext(this, null).Compile();
             // 2. Compile the derived smart contracts
             // DerivedContracts items are added during the compilation of the first smart contract in `ProcessClass`
             // We dont reuse precompiled methods as they contains specific offsets
             // But we can reuse the compilation as they are the same for all smart contracts
             while (DerivedContracts.Count > 0)
             {
-                INamedTypeSymbol classSymbol = DerivedContracts.Pop();
-                var context2 = new CompilationContext(this, classSymbol);
-                context2.Compile();
+                new CompilationContext(this, DerivedContracts.Pop()).Compile();
             }
 
             return Contexts.Select(p => p.Value).ToList();
