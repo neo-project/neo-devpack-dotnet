@@ -138,14 +138,9 @@ namespace Neo.Compiler
 
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
         {
-            // TODO: Still need to check the return code
             return contexts.Select(p => ProcessOutput(options, folder, p)).Any(p => p != 1) ? 0 : 1;
         }
 
-
-        // TODO: Need to process this output, if only one smart contract its fine,
-        // TODO: but when it comes to multiple contracts, need to process the output in multiple folders
-        // TODO: Or maybe not
         private static int ProcessOutput(Options options, string folder, CompilationContext context)
         {
             foreach (Diagnostic diagnostic in context.Diagnostics)
