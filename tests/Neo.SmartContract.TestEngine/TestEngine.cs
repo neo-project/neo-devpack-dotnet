@@ -101,7 +101,6 @@ namespace Neo.SmartContract.TestEngine
             return contexts;
         }
 
-
         public void Reset()
         {
             this.State = VMState.BREAK; // Required for allow to reuse the same TestEngine
