@@ -16,9 +16,4 @@
       <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
     </ItemGroup>
 
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Message Text="Create and compile Contracts.cs" Importance="high" />
-		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)tests/Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Framework.UnitTests/Artifacts&quot; --generate-artifacts source" />
-	</Target>
-
 </Project>
