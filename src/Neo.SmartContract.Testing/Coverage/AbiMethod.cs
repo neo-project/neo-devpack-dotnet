@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -9,6 +10,8 @@ namespace Neo.SmartContract.Testing.Coverage
     [DebuggerDisplay("{Name},{PCount}")]
     public class AbiMethod : IEquatable<AbiMethod>
     {
+        private readonly string _toString;
+
         /// <summary>
         /// Method name
         /// </summary>
@@ -23,11 +26,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Constructor
         /// </summary>
         /// <param name="name">Method name</param>
-        /// <param name="pCount">Parameters count</param>
-        public AbiMethod(string name, int pCount)
+        /// <param name="argsName">Arguments names</param>
+        public AbiMethod(string name, string[] argsName)
         {
             Name = name;
-            PCount = pCount;
+            PCount = argsName.Length;
+            _toString = name + $"({string.Join(",", argsName)})";
         }
 
         /// <summary>
@@ -55,14 +59,14 @@ namespace Neo.SmartContract.Testing.Coverage
 
                             return new AbiMethod[]
                             {
-                                new AbiMethod(nameRead, 0),
-                                new AbiMethod(nameWrite, 1)
+                                new AbiMethod(nameRead, Array.Empty<string>()),
+                                new AbiMethod(nameWrite, new string[]{ "value" })
                             };
                         }
 
                         // Only read property
 
-                        return new AbiMethod[] { new AbiMethod(nameRead, 0) };
+                        return new AbiMethod[] { new AbiMethod(nameRead, Array.Empty<string>()) };
                     }
                 }
             }
@@ -73,7 +77,7 @@ namespace Neo.SmartContract.Testing.Coverage
                     var display = mInfo.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : mInfo.Name;
 
-                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Length) };
+                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Select(u => u.Name ?? "arg").ToArray()) };
                 }
             }
 
@@ -89,6 +93,6 @@ namespace Neo.SmartContract.Testing.Coverage
 
         bool IEquatable<AbiMethod>.Equals(AbiMethod other) => PCount == other.PCount && Name == other.Name;
         public override int GetHashCode() => HashCode.Combine(PCount, Name);
-        public override string ToString() => $"{Name},{PCount}";
+        public override string ToString() => _toString;
     }
 }

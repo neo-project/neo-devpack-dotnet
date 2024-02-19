@@ -3,7 +3,7 @@ using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Extensions;
 
-namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
+namespace Neo.SmartContract.Testing.UnitTests.Extensions
 {
     [TestClass]
     public class ArtifactExtensionsTests
