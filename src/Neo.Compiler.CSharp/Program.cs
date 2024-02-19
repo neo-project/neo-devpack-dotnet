@@ -157,7 +157,7 @@ namespace Neo.Compiler
                 {
                     try
                     {
-                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone());
                     }
                     catch (Exception ex)
                     {
