@@ -107,8 +107,6 @@ namespace Neo.Optimizer
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             //Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
-            Dictionary<int, string> newMethodStart = new();
-            Dictionary<int, string> newMethodEnd = new();
             HashSet<JToken> methodsToRemove = new();
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -121,8 +119,6 @@ namespace Neo.Optimizer
                 }
                 int methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
                 int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
-                newMethodStart.Add(methodStart, method["id"]!.AsString());  // TODO: same format of method name as dumpnef
-                newMethodEnd.Add(methodEnd, method["id"]!.AsString());
                 method["range"] = $"{methodStart}-{methodEnd}";
 
                 int previousSequencePoint = methodStart;
@@ -243,7 +239,17 @@ namespace Neo.Optimizer
 
                 // TODO: ABORTMSG may THROW instead of ABORT. Just throw new NotImplementedException for ABORTMSG?
                 if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
+                {
+                    // See if we are in a try. There may still be runtime exceptions
+                    ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                    if (stackType == TryStack.TRY && catchAddr != -1)
+                        // Visit catchAddr because there may still be exceptions at runtime
+                        return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                    if (stackType == TryStack.CATCH && finallyAddr!= -1)
+                        // Visit finallyAddr because there may still be exceptions at runtime
+                        return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                     return BranchType.ABORT;
+                }
                 if (callWithJump.Contains(instruction.OpCode))
                 {
                     int callTarget = ComputeJumpTarget(addr, instruction);
@@ -273,11 +279,11 @@ namespace Neo.Optimizer
                             throw new BadScriptException("No try stack on ENDTRY");
 
                         if (stackType == TryStack.TRY && catchAddr != -1)
-                        {
                             // Visit catchAddr because there may still be exceptions at runtime
-                            Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack.Reverse());
-                            CoverInstruction(catchAddr, script, coveredMap, stack: newStack, throwed: true);
-                        }
+                            CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
 
                         stack.Pop();
                         int endPointer = addr + instruction.TokenI8;
