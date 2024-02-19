@@ -21,7 +21,7 @@ namespace Neo.Compiler
             None,
             Source,
             Library,
-            SourceAndLibrary
+            All
         }
 
         public string? Output { get; set; }
