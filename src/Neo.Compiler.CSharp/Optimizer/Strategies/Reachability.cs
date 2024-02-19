@@ -245,7 +245,7 @@ namespace Neo.Optimizer
                     if (stackType == TryStack.TRY && catchAddr != -1)
                         // Visit catchAddr because there may still be exceptions at runtime
                         return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
-                    if (stackType == TryStack.CATCH && finallyAddr!= -1)
+                    if (stackType == TryStack.CATCH && finallyAddr != -1)
                         // Visit finallyAddr because there may still be exceptions at runtime
                         return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                     return BranchType.ABORT;
