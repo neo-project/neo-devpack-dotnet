@@ -173,6 +173,8 @@ namespace Neo.Optimizer
             Parallel.ForEach(manifest.Abi.Methods, method =>
                 CoverInstruction(method.Offset, script, coveredMap)
             );
+            //foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+            //    CoverInstruction(method.Offset, script, coveredMap);
             // start from _deploy method
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -275,12 +277,13 @@ namespace Neo.Optimizer
                     if (instruction.OpCode == OpCode.ENDTRY)
                     {
                         ((catchAddr, finallyAddr), stackType) = stack.Peek();
-                        if (stackType != TryStack.TRY && stackType != TryStack.CATCH) throw new BadScriptException("No try stack on ENDTRY");
+                        if (stackType != TryStack.TRY && stackType != TryStack.CATCH)
+                            throw new BadScriptException("No try stack on ENDTRY");
 
                         if (stackType == TryStack.TRY)
                         {
                             // Visit catchAddr because there may still be exceptions at runtime
-                            Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack);
+                            Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack.Reverse());
                             CoverInstruction(catchAddr, script, coveredMap, stack: newStack, throwed: true);
                         }
 
@@ -325,8 +328,8 @@ namespace Neo.Optimizer
                 if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                 {
                     int targetAddress = ComputeJumpTarget(addr, instruction);
-                    BranchType noJump = CoverInstruction(addr + instruction.Size, script, coveredMap);
-                    BranchType jump = CoverInstruction(targetAddress, script, coveredMap);
+                    BranchType noJump = CoverInstruction(addr + instruction.Size, script, coveredMap, stack: new(stack.Reverse()));
+                    BranchType jump = CoverInstruction(targetAddress, script, coveredMap, stack: new(stack.Reverse()));
                     if (noJump == BranchType.OK || jump == BranchType.OK)
                         return BranchType.OK;
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
