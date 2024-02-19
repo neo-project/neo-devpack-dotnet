@@ -6,6 +6,7 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -71,7 +72,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Storage
         /// </summary>
-        public TestStorage Storage { get; set; } = new TestStorage(new MemoryStore());
+        public EngineStorage Storage { get; set; } = new EngineStorage(new MemoryStore());
 
         /// <summary>
         /// Protocol Settings
@@ -185,13 +186,13 @@ namespace Neo.SmartContract.Testing
                 NetworkFee = ApplicationEngine.TestModeGas,
                 Signers = new Signer[]
                 {
-                    new Signer()
+                    new()
                     {
                         // ValidatorsAddress
                         Account = validatorsScript.ToScriptHash(),
                         Scopes = WitnessScope.Global
                     },
-                    new Signer()
+                    new()
                     {
                         // CommitteeAddress
                         Account = committeeScript.ToScriptHash(),
@@ -233,6 +234,22 @@ namespace Neo.SmartContract.Testing
 
         #endregion
 
+        #region Checkpoints
+
+        /// <summary>
+        /// Get storage checkpoint
+        /// </summary>
+        /// <returns>EngineCheckpoint</returns>
+        public EngineCheckpoint Checkpoint() => Storage.Checkpoint();
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="checkpoint">Checkpoint</param>
+        public void Restore(EngineCheckpoint checkpoint) => Storage.Restore(checkpoint);
+
+        #endregion
+
         /// <summary>
         /// Get deploy hash
         /// </summary>
@@ -241,8 +258,18 @@ namespace Neo.SmartContract.Testing
         /// <returns>Contract hash</returns>
         public UInt160 GetDeployHash(byte[] nef, string manifest)
         {
-            return Helper.GetContractHash(Sender,
-                nef.AsSerializable<NefFile>().CheckSum, ContractManifest.Parse(manifest).Name);
+            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest));
+        }
+
+        /// <summary>
+        /// Get deploy hash
+        /// </summary>
+        /// <param name="nef">Nef</param>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>Contract hash</returns>
+        public UInt160 GetDeployHash(NefFile nef, ContractManifest manifest)
+        {
+            return Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
         }
 
         /// <summary>
@@ -444,6 +471,12 @@ namespace Neo.SmartContract.Testing
 
             engine.LoadScript(script);
 
+            // Clean events, if we Execute inside and execute
+            // becaus it's a mock, we can register twice
+
+            ApplicationEngine.Log -= ApplicationEngineLog;
+            ApplicationEngine.Notify -= ApplicationEngineNotify;
+
             // Attach to static event
 
             ApplicationEngine.Log += ApplicationEngineLog;
@@ -593,6 +626,10 @@ namespace Neo.SmartContract.Testing
             var rand = new Random();
             var data = new byte[UInt160.Length];
             rand.NextBytes(data);
+
+            // Ensure that if we convert to BigInteger this value will work
+
+            if (data[0] == 0) data[0] = 1;
 
             return new Signer()
             {
