@@ -5,10 +5,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_Helper : SmartContract
     {
-        [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
+        [ByteArray("0a0b0c0d0E0F")]
         private static readonly byte[] data = default;
 
-        [InitialValue("NL1JGjDe22U44R57ZXVSeTYFBavEkVmkgF", ContractParameterType.Hash160)]
+        [Hash160("NL1JGjDe22U44R57ZXVSeTYFBavEkVmkgF")]
         private static readonly byte[] hashResult = default;
 
         public static byte[] TestHexToBytes()

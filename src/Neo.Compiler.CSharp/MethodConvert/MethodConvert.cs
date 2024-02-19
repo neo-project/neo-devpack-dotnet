@@ -306,7 +306,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -337,10 +337,20 @@ namespace Neo.Compiler
             {
                 preInitialize?.Invoke();
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
-                ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+                var attributeName = initialValue.AttributeClass!.Name;
+                ContractParameterType parameterType = attributeName switch
+                {
+                    nameof(InitialValueAttribute) => (ContractParameterType)initialValue.ConstructorArguments[1].Value!,
+                    nameof(Hash160Attribute) => ContractParameterType.Hash160,
+                    nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
+                    nameof(ByteArrayAttribute) => ContractParameterType.ByteArray,
+                    nameof(StringAttribute) => ContractParameterType.String,
+                    _ => throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {attributeName}"),
+                };
+
                 try
                 {
-                    switch (type)
+                    switch (parameterType)
                     {
                         case ContractParameterType.String:
                             Push(value);
@@ -355,12 +365,12 @@ namespace Neo.Compiler
                             Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                             break;
                         default:
-                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
+                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {parameterType}");
                     }
                 }
                 catch (Exception ex) when (ex is not CompilationException)
                 {
-                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {type}");
+                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {parameterType}");
                 }
                 postInitialize?.Invoke();
             }

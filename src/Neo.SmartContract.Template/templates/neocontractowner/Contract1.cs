@@ -12,11 +12,11 @@ namespace ProjectName
 {
     [DisplayName(nameof(Contract1))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ManifestExtra("Description", "<Description Here>")]
+    [ContractDescription( "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
-    [ContractPermission("*", "*")]
+    [ContractPermission(Permission.WildCard, Method.WildCard)]
     public class Contract1 : SmartContract
     {
         private const byte Prefix_Owner = 0xff;
@@ -27,7 +27,7 @@ namespace ProjectName
         public static event OnSetOwnerDelegate OnSetOwner;
 
         // TODO: Replace it with your own address.
-        [InitialValue("<Your Address Here>", ContractParameterType.Hash160)]
+        [Hash160("<Your Address Here>")]
         private static readonly UInt160 InitialOwner = default;
 
         private static bool IsOwner() => Runtime.CheckWitness(GetOwner());

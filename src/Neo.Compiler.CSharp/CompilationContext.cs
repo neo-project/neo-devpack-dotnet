@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
+using scfx::Neo.SmartContract.Framework;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
@@ -42,18 +43,18 @@ namespace Neo.Compiler
         private readonly Compilation compilation;
         private string? displayName, className;
         private bool scTypeFound;
-        private readonly List<Diagnostic> diagnostics = new();
+        private readonly System.Collections.Generic.List<Diagnostic> diagnostics = new();
         private readonly HashSet<string> supportedStandards = new();
-        private readonly List<AbiMethod> methodsExported = new();
-        private readonly List<AbiEvent> eventsExported = new();
+        private readonly System.Collections.Generic.List<AbiMethod> methodsExported = new();
+        private readonly System.Collections.Generic.List<AbiEvent> eventsExported = new();
         private readonly PermissionBuilder permissions = new();
         private readonly HashSet<string> trusts = new();
         private readonly JObject manifestExtra = new();
         private readonly MethodConvertCollection methodsConverted = new();
         private readonly MethodConvertCollection methodsForward = new();
-        private readonly List<MethodToken> methodTokens = new();
+        private readonly System.Collections.Generic.List<MethodToken> methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> staticFields = new(SymbolEqualityComparer.Default);
-        private readonly List<byte> anonymousStaticFields = new();
+        private readonly System.Collections.Generic.List<byte> anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> vtables = new(SymbolEqualityComparer.Default);
         private byte[]? script;
 
@@ -163,7 +164,7 @@ namespace Neo.Compiler
 
         public static CompilationContext CompileSources(string[] sourceFiles, Options options)
         {
-            List<MetadataReference> references = new(commonReferences)
+            System.Collections.Generic.List<MetadataReference> references = new(commonReferences)
             {
                 MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
             };
@@ -177,7 +178,7 @@ namespace Neo.Compiler
             HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                 .Where(p => !p.StartsWith(obj))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            List<MetadataReference> references = new(commonReferences);
+            System.Collections.Generic.List<MetadataReference> references = new(commonReferences);
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: options.Nullable);
             XDocument document = XDocument.Load(csproj);
             sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
@@ -338,11 +339,11 @@ namespace Neo.Compiler
 
         public JObject CreateDebugInformation(string folder = "")
         {
-            List<string> documents = new();
-            List<JObject> methods = new();
+            System.Collections.Generic.List<string> documents = new();
+            System.Collections.Generic.List<JObject> methods = new();
             foreach (var m in methodsConverted.Where(p => p.SyntaxNode is not null))
             {
-                List<JString> sequencePoints = new();
+                System.Collections.Generic.List<JString> sequencePoints = new();
                 foreach (var ins in m.Instructions.Where(i => i.SourceLocation is not null))
                 {
                     var doc = ins.SourceLocation!.SourceTree!.FilePath;
@@ -461,8 +462,8 @@ namespace Neo.Compiler
                                 attribute.ConstructorArguments[0].Values
                                     .Select(p => p.Value)
                                     .Select(p =>
-                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
-                                            ? ((NEPStandard)ip).ToStandard()
+                                        p is int ip && Enum.IsDefined(typeof(NepStandard), ip)
+                                            ? ((NepStandard)ip).ToStandard()
                                             : p as string
                                     )
                                     .Where(v => v != null)! // Ensure null values are not added

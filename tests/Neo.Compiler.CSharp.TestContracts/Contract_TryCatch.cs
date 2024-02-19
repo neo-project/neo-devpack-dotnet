@@ -7,13 +7,13 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_TryCatch : SmartContract.Framework.SmartContract
     {
-        [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
+        [ByteArray("0a0b0c0d0E0F")]
         private static readonly ByteString invalidECpoint = default;
-        [InitialValue("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", ContractParameterType.ByteArray)]
+        [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
         private static readonly ByteString byteString2Ecpoint = default;
-        [InitialValue("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq", ContractParameterType.Hash160)]
+        [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
         private static readonly ByteString validUInt160 = default;
-        [InitialValue("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925", ContractParameterType.ByteArray)]
+        [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly byte[] validUInt256 = default;
         public static object try01()
         {
