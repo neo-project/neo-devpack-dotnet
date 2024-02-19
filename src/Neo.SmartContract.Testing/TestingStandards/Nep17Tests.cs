@@ -1,6 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Neo.IO;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
+using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -9,6 +13,13 @@ namespace Neo.SmartContract.Testing.TestingStandards;
 public class Nep17Tests<T> : TestBase<T>
     where T : SmartContract, INep17Standard
 {
+    public abstract class onNEP17PaymentContract : SmartContract
+    {
+        protected onNEP17PaymentContract(SmartContractInitialize initialize) : base(initialize) { }
+
+        public abstract void onNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
+    }
+
     /// <summary>
     /// Expected total supply
     /// </summary>
@@ -150,6 +161,65 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.AreEqual(0, Contract.BalanceOf(Bob.Account));
         Assert.AreEqual(initialSupply, Contract.TotalSupply);
         AssertTransferEvent(Bob.Account, Alice.Account, 3);
+
+        // Test onNEP17Payment with a mock
+        // We create a mock contract using the current nef and manifest
+        // Only we need to create the manifest method, then it will be redirected
+
+        ContractManifest manifest = ContractManifest.Parse(Manifest);
+        manifest.Abi.Methods = new ContractMethodDescriptor[]
+        {
+            new ()
+            {
+                Name = "onNEP17Payment",
+                ReturnType = ContractParameterType.Void,
+                Safe = false,
+                Parameters = new ContractParameterDefinition[]
+                    {
+                        new() { Name = "a", Type = ContractParameterType.Hash160 },
+                        new() { Name = "b", Type = ContractParameterType.Integer },
+                        new() { Name = "c", Type = ContractParameterType.Any }
+                    }
+            }
+        };
+
+        // Deploy dummy contract
+
+        UInt160? calledFrom = null;
+        BigInteger? calledAmount = null;
+        byte[]? calledData = null;
+
+        var mock = Engine.Deploy<onNEP17PaymentContract>(NefFile, manifest.ToJson().ToString(), null, m =>
+         {
+             m
+             .Setup(s => s.onNEP17Payment(It.IsAny<UInt160>(), It.IsAny<BigInteger>(), It.IsAny<object>()))
+             .Callback(new InvocationAction((i) =>
+             {
+                 calledFrom = i.Arguments[0] as UInt160;
+                 calledAmount = (BigInteger)i.Arguments[1];
+                 calledData = (i.Arguments[2] as ByteString)!.GetSpan().ToArray();
+
+                 // Ensure the event was called
+
+                 var me = new UInt160(calledData);
+                 AssertTransferEvent(Alice.Account, me, calledAmount);
+             }));
+         });
+
+        // Ensure that was called
+
+        Engine.SetTransactionSigners(Alice);
+        Assert.IsTrue(Contract.Transfer(Alice.Account, mock.Hash, 3, mock.Hash.ToArray()));
+
+        Assert.AreEqual(Alice.Account, calledFrom);
+        Assert.AreEqual(mock.Hash, new UInt160(calledData));
+        Assert.AreEqual(3, calledAmount);
+
+        // Return the money back
+
+        Engine.SetTransactionSigners(mock);
+        Assert.IsTrue(Contract.Transfer(mock.Hash, calledFrom, calledAmount));
+        AssertTransferEvent(mock.Hash, Alice.Account, calledAmount);
     }
 
     #endregion

@@ -46,6 +46,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             return type switch
             {
+                _ when type == typeof(object) => stackItem,
                 _ when type == typeof(string) => Utility.StrictUTF8.GetString(stackItem.GetSpan()),
                 _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),
 
