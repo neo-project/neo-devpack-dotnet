@@ -151,9 +151,26 @@ public class NativeArtifacts
     {
         var result = method!.Invoke(native, new object[] { engine });
 
+        /*
         if (result is not ContractTask task)
             throw new Exception($"Error casting {native.Name}.{method.Name} to ContractTask");
 
         task.GetAwaiter().GetResult();
+        */
+
+        if (result is null)
+            throw new Exception($"{native.Name}.{method.Name} result can't be null");
+
+        method = result.GetType().GetMethod("GetAwaiter", BindingFlags.Public | BindingFlags.Instance)!;
+        result = method?.Invoke(result, Array.Empty<object>());
+
+        if (result is null)
+            throw new Exception($"{native.Name}.{method?.Name}.GetAwaiter() result can't be null");
+
+        method = result.GetType().GetMethod("GetResult", BindingFlags.Public | BindingFlags.Instance)!;
+        result = method?.Invoke(result, Array.Empty<object>());
+
+        if (result is not null)
+            throw new Exception($"{native.Name}.{method?.Name}.GetAwaiter().GetResult() can't be not null");
     }
 }
