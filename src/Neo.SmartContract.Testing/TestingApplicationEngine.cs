@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Testing
             {
                 // We need the contract state without pay gas
 
-                var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
+                var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
 
                 Engine.Coverage[contractHash] = coveredContract = new(contractHash, state?.Manifest.Abi, InstructionContext.Script);
             }

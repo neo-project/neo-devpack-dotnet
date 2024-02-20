@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.Coverage;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {
@@ -23,7 +24,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.IsNotNull(coverage);
             Console.WriteLine(coverage.Dump());
 
-            File.WriteAllText("coverage.html", coverage.Dump(Testing.Coverage.DumpFormat.Html));
+            File.WriteAllText("coverage.html", coverage.Dump(DumpFormat.Html));
             Assert.IsTrue(coverage.CoveredPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
     }

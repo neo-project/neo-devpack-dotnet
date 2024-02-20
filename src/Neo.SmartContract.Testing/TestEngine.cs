@@ -6,6 +6,7 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
