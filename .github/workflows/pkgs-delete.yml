@@ -43,7 +43,7 @@ jobs:
 
           def delete_version(feed, package_name, ver, api_key):
               url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{ver}"
-              headers = {"X-MyGet-ApiKey": api_key}
+              headers = {"X-NuGet-ApiKey": api_key}
               response = requests.delete(url, headers=headers)
               return response.status_code == 204  # 204 No Content, success
 
