@@ -260,12 +260,32 @@ namespace Neo.Optimizer
                         continue;
                     }
                     if (returnedType == BranchType.ABORT)
+                    {
+                        // See if we are in a try. There may still be runtime exceptions
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                        if (stackType == TryStack.TRY && catchAddr != -1)
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                         return BranchType.ABORT;
+                    }
                     if (returnedType == BranchType.THROW)
                         goto HANDLE_THROW;
                 }
                 if (instruction.OpCode == OpCode.RET)
+                {
+                    // See if we are in a try. There may still be runtime exceptions
+                    ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                    if (stackType == TryStack.TRY && catchAddr != -1)
+                        // Visit catchAddr because there may still be exceptions at runtime
+                        CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                    if (stackType == TryStack.CATCH && finallyAddr != -1)
+                        // Visit finallyAddr because there may still be exceptions at runtime
+                        CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                     return BranchType.OK;
+                }
                 if (tryThrowFinally.Contains(instruction.OpCode))
                 {
                     if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
@@ -329,9 +349,29 @@ namespace Neo.Optimizer
                     BranchType noJump = CoverInstruction(addr + instruction.Size, script, coveredMap, stack: new(stack.Reverse()));
                     BranchType jump = CoverInstruction(targetAddress, script, coveredMap, stack: new(stack.Reverse()));
                     if (noJump == BranchType.OK || jump == BranchType.OK)
+                    {
+                        // See if we are in a try. There may still be runtime exceptions
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                        if (stackType == TryStack.TRY && catchAddr != -1)
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                         return BranchType.OK;
+                    }
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
+                    {
+                        // See if we are in a try. There may still be runtime exceptions
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                        if (stackType == TryStack.TRY && catchAddr != -1)
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                         return BranchType.ABORT;
+                    }
                     if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
                         goto HANDLE_THROW;
                     throw new Exception($"Unknown {nameof(BranchType)} {noJump} {jump}");
