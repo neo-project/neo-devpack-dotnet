@@ -8,7 +8,8 @@ namespace Neo.SmartContract.Testing.Coverage
         FindRET,
 
         /// <summary>
-        /// Next method
+        /// Next method defined in Abi
+        /// If there are any private method, it probably will return undesired results
         /// </summary>
         NextMethodInAbi,
 
