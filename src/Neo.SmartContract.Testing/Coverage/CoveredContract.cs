@@ -76,10 +76,19 @@ namespace Neo.SmartContract.Testing.Coverage
 
         private CoveredMethod CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
         {
+            int ip = abiMethod.Offset;
             var to = script.Length - 1;
-            var next = abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
 
-            if (next is not null) to = next.Offset - 1;
+            while (ip < script.Length)
+            {
+                var instruction = script.GetInstruction(ip);
+                if (instruction.OpCode == OpCode.RET) break;
+                ip += instruction.Size;
+                to = ip;
+            }
+
+            //var next = abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
+            //if (next is not null) to = next.Offset - 1;
 
             // Return method coverage
 
