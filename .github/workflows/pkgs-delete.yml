@@ -74,7 +74,7 @@ jobs:
       - name: Delete versions below 3.6.1
         env:
           MYGET_FEED: 'neo'
-          PACKAGE_NAMES: 'Neo,Neo.VM,Neo.Json,Neo.SmartContract.Framework,Neo.SmartContract.Testing'
+          PACKAGE_NAMES: 'Neo.SmartContract.Framework,Neo.SmartContract.Testing'
           MYGET_API_KEY: ${{ secrets.MYGET_TOKEN }}
         run: |
           import requests
