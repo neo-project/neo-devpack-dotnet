@@ -85,6 +85,11 @@ namespace Neo.SmartContract.Testing
         public bool EnableCoverageCapture { get; set; } = true;
 
         /// <summary>
+        /// Method detection
+        /// </summary>
+        public MethodDetectionMechanism MethodDetection { get; set; } = MethodDetectionMechanism.FindRET;
+
+        /// <summary>
         /// Validators Address
         /// </summary>
         public UInt160 ValidatorsAddress
@@ -313,7 +318,7 @@ namespace Neo.SmartContract.Testing
             if (EnableCoverageCapture)
             {
                 var coverage = GetCoverage(ret);
-                coverage?.GenerateMethods(state.Manifest.Abi, state.Script);
+                coverage?.GenerateMethods(MethodDetection, state);
             }
 
             return ret;
@@ -517,7 +522,7 @@ namespace Neo.SmartContract.Testing
                 var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
                 if (state == null) return null;
 
-                coveredContract = new(contract.Hash, state.Manifest.Abi, state.Script);
+                coveredContract = new(MethodDetection, contract.Hash, state);
                 Coverage[coveredContract.Hash] = coveredContract;
             }
 

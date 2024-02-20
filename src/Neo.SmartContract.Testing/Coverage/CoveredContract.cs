@@ -36,19 +36,20 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// CoveredContract
         /// </summary>
+        /// <param name="mechanism">Method detection mechanism</param>
         /// <param name="hash">Hash</param>
-        /// <param name="abi">Contract abi</param>
-        /// <param name="script">Script</param>
-        public CoveredContract(UInt160 hash, ContractAbi? abi, Script? script)
+        /// <param name="state">Contract state</param>
+        public CoveredContract(MethodDetectionMechanism mechanism, UInt160 hash, ContractState? state)
         {
             Hash = hash;
             Methods = Array.Empty<CoveredMethod>();
 
-            if (script is null) return;
+            if (state is null) return;
 
             // Extract all methods
 
-            GenerateMethods(abi, script);
+            Script? script = GenerateMethods(mechanism, state);
+            if (script is null) return;
 
             // Iterate all valid instructions
 
@@ -57,38 +58,108 @@ namespace Neo.SmartContract.Testing.Coverage
             while (ip < script.Length)
             {
                 var instruction = script.GetInstruction(ip);
-                _coverageData[ip] = new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction), false);
+                _coverageData[ip] = new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state?.Nef.Tokens), false);
                 ip += instruction.Size;
             }
         }
 
-        internal void GenerateMethods(ContractAbi? abi, Script? script)
+        internal Script? GenerateMethods(MethodDetectionMechanism mechanism, ContractState? state)
         {
             Methods = Array.Empty<CoveredMethod>();
 
-            if (script is null || abi is null) return;
+            if (state is null) return null;
 
-            Methods = abi.Methods
-                .Select(s => CreateMethod(abi, script, s))
+            Script script = state.Script;
+            List<ContractMethodDescriptor> methods = new(state.Manifest.Abi.Methods);
+
+            if (mechanism == MethodDetectionMechanism.NextMethod)
+            {
+                // Find private methods
+
+                int ip = 0;
+                HashSet<int> privateAdded = new();
+
+                while (ip < script.Length)
+                {
+                    var instruction = script.GetInstruction(ip);
+
+                    switch (instruction.OpCode)
+                    {
+                        case OpCode.CALL_L:
+                            {
+                                var offset = ip + instruction.TokenI32;
+                                if (privateAdded.Add(offset))
+                                {
+                                    methods.Add(new ContractMethodDescriptor()
+                                    {
+                                        Name = "_private" + offset,
+                                        Offset = offset,
+                                        ReturnType = ContractParameterType.Void,
+                                        Safe = false,
+                                        Parameters = Array.Empty<ContractParameterDefinition>(),
+                                    });
+                                }
+                                break;
+                            }
+                        case OpCode.CALLT:
+                            {
+                                var offset = ip + instruction.TokenI8;
+                                if (privateAdded.Add(offset))
+                                {
+                                    methods.Add(new ContractMethodDescriptor()
+                                    {
+                                        Name = "_private" + offset,
+                                        Offset = offset,
+                                        ReturnType = ContractParameterType.Void,
+                                        Safe = false,
+                                        Parameters = Array.Empty<ContractParameterDefinition>(),
+                                    });
+                                }
+                                break;
+                            }
+                    }
+
+                    ip += instruction.Size;
+                }
+            }
+
+            Methods = methods
+                .Select(s => CreateMethod(mechanism, script, methods, s))
                 .OrderBy(o => o.Offset)
                 .ToArray()!;
+
+            return script;
         }
 
-        private CoveredMethod CreateMethod(ContractAbi abi, Script script, ContractMethodDescriptor abiMethod)
+        private CoveredMethod CreateMethod(
+            MethodDetectionMechanism mechanism, Script script,
+            List<ContractMethodDescriptor> allMethods, ContractMethodDescriptor abiMethod
+            )
         {
             int ip = abiMethod.Offset;
             var to = script.Length - 1;
 
-            while (ip < script.Length)
+            switch (mechanism)
             {
-                var instruction = script.GetInstruction(ip);
-                if (instruction.OpCode == OpCode.RET) break;
-                ip += instruction.Size;
-                to = ip;
+                case MethodDetectionMechanism.FindRET:
+                    {
+                        while (ip < script.Length)
+                        {
+                            var instruction = script.GetInstruction(ip);
+                            if (instruction.OpCode == OpCode.RET) break;
+                            ip += instruction.Size;
+                            to = ip;
+                        }
+                        break;
+                    }
+                case MethodDetectionMechanism.NextMethod:
+                case MethodDetectionMechanism.NextMethodInAbi:
+                    {
+                        var next = allMethods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
+                        if (next is not null) to = next.Offset - 1;
+                        break;
+                    }
             }
-
-            //var next = abi.Methods.OrderBy(u => u.Offset).Where(u => u.Offset > abiMethod.Offset).FirstOrDefault();
-            //if (next is not null) to = next.Offset - 1;
 
             // Return method coverage
 
@@ -309,7 +380,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 {
                     // Note: This call is unusual, out of the expected
 
-                    _coverageData[instructionPointer] = coverage = new CoverageHit(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), true);
+                    _coverageData[instructionPointer] = coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), true);
                 }
                 coverage.Hit(gas);
             }
