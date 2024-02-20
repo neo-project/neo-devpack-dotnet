@@ -6,6 +6,7 @@ using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
@@ -68,6 +69,21 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.AreEqual(raisedTransfer[0].from, from);
         Assert.AreEqual(raisedTransfer[0].to, to);
         Assert.AreEqual(raisedTransfer[0].amount, amount);
+        raisedTransfer.Clear();
+    }
+
+    /// <summary>
+    /// Assert that Transfer event was raised
+    /// </summary>
+    /// <param name="from">From</param>
+    /// <param name="to">To</param>
+    /// <param name="amount">Amount</param>
+    public void AssertTransferEvent(UInt160?[] from, UInt160?[] to, BigInteger?[] amount)
+    {
+        Assert.AreEqual(from.Length, raisedTransfer.Count);
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.from).ToArray(), from);
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.to).ToArray(), to);
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.amount).ToArray(), amount);
         raisedTransfer.Clear();
     }
 
