@@ -306,6 +306,11 @@ namespace Neo.SmartContract.Testing
 
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
+            if (state is null)
+            {
+                throw new Exception("Can't get the ContractState");
+            }
+
             // Mock contract
 
             //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);

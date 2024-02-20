@@ -44,12 +44,18 @@ namespace Neo.SmartContract.Testing.Coverage
             Hash = hash;
             Methods = Array.Empty<CoveredMethod>();
 
-            if (state is null) return;
+            if (state is not null)
+            {
+                // Extract all methods
+                GenerateMethods(mechanism, state);
+            }
+        }
 
-            // Extract all methods
-
-            Script? script = GenerateMethods(mechanism, state);
-            if (script is null) return;
+        internal void GenerateMethods(MethodDetectionMechanism mechanism, ContractState state)
+        {
+            Script script = state.Script;
+            HashSet<int> privateAdded = new();
+            List<ContractMethodDescriptor> methods = new(state.Manifest.Abi.Methods);
 
             // Iterate all valid instructions
 
@@ -58,30 +64,15 @@ namespace Neo.SmartContract.Testing.Coverage
             while (ip < script.Length)
             {
                 var instruction = script.GetInstruction(ip);
-                _coverageData[ip] = new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state?.Nef.Tokens), false);
-                ip += instruction.Size;
-            }
-        }
 
-        internal Script? GenerateMethods(MethodDetectionMechanism mechanism, ContractState? state)
-        {
-            Methods = Array.Empty<CoveredMethod>();
-
-            if (state is null) return null;
-
-            Script script = state.Script;
-            List<ContractMethodDescriptor> methods = new(state.Manifest.Abi.Methods);
-
-            if (mechanism == MethodDetectionMechanism.NextMethod)
-            {
-                // Find private methods
-
-                int ip = 0;
-                HashSet<int> privateAdded = new();
-
-                while (ip < script.Length)
+                if (!_coverageData.ContainsKey(ip))
                 {
-                    var instruction = script.GetInstruction(ip);
+                    _coverageData[ip] = new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state.Nef.Tokens), false);
+                }
+
+                if (mechanism == MethodDetectionMechanism.NextMethod)
+                {
+                    // Find private methods
 
                     switch (instruction.OpCode)
                     {
@@ -118,17 +109,15 @@ namespace Neo.SmartContract.Testing.Coverage
                                 break;
                             }
                     }
-
-                    ip += instruction.Size;
                 }
+
+                ip += instruction.Size;
             }
 
             Methods = methods
                 .Select(s => CreateMethod(mechanism, script, methods, s))
                 .OrderBy(o => o.Offset)
                 .ToArray()!;
-
-            return script;
         }
 
         private CoveredMethod CreateMethod(
