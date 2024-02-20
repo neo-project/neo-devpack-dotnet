@@ -31,7 +31,7 @@ jobs:
 
           def get_versions(feed, package_name, api_key):
               url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/versions"
-              headers = {"X-MyGet-ApiKey": "${{ secrets.GITHUB_TOKEN }}"}
+              headers = {"X-MyGet-ApiKey": "${{ secrets.MYGET_TOKEN }}"}
               response = requests.get(url, headers=headers)
               if response.status_code == 200:
                   versions = response.json()
@@ -39,8 +39,20 @@ jobs:
               else:
                   return []
 
-          versions_below_3_6_0 = get_versions(feed, package_name, api_key)
-          print("Versions below 3.6.0:", versions_below_3_6_0)
+          def delete_version(feed, package_name, version, api_key):
+              delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{version}"
+              headers = {"X-MyGet-ApiKey": "${{ secrets.MYGET_TOKEN }}"}
+              response = requests.delete(delete_url, headers=headers)
+              return response.status_code == 204  # 204 No Content, success
+
+          versions_to_delete = get_versions(feed, package_name, api_key)
+
+          for version in versions_to_delete:
+              print(f"Version {version} of package {package_name} should be deleted.")
+              # if delete_version(feed, package_name, version, api_key):
+              #     print(f"Deleted version {version} of package {package_name}.")
+              # else:
+              #     print(f"Failed to delete version {version} of package {package_name}.")
         shell: python
 
   delete-git-pkgs:
