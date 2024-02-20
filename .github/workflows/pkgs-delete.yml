@@ -32,7 +32,7 @@ jobs:
           import os
 
           def get_versions(feed, package_name, api_key):
-              url = f"https://www.myget.org/F/neo/api/v2/Packages?$filter=Id eq '{package_name}'&$format=json"
+              url = f"https://www.myget.org/F/{feed}/api/v2/Packages?$filter=Id eq '{package_name}'&$format=json"
               headers = {'Accept': 'application/json'}
               response = requests.get(url, headers=headers)
               if response.status_code == 200:
@@ -42,9 +42,9 @@ jobs:
                   return []
 
           def delete_version(feed, package_name, ver, api_key):
-              delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{ver}"
-              headers = {"X-MyGet-ApiKey": api_key}
-              response = requests.delete(delete_url, headers=headers)
+              url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{ver}?hardDelete=true"
+              headers = {"X-NuGet-ApiKey": api_key}
+              response = requests.delete(url, headers=headers)
               return response.status_code == 204  # 204 No Content, success
 
           feed = os.environ['MYGET_FEED']
