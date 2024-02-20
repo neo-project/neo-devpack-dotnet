@@ -19,6 +19,8 @@ jobs:
           python-version: '3.x'
       - name: Install Requests
         run: pip install requests
+      - name: Install Packaging
+        run: pip install packaging
       - name: Get versions below 3.6.0
         env:
           MYGET_FEED: 'neo'
@@ -26,6 +28,7 @@ jobs:
           MYGET_API_KEY: ${{ secrets.MYGET_TOKEN }}
         run: |
           import requests
+          from packaging import version
           import os
 
           def get_versions(feed, package_name, api_key):
@@ -34,12 +37,12 @@ jobs:
               response = requests.get(url, headers=headers)
               if response.status_code == 200:
                   versions = response.json()['d']['results']
-                  return [version['Version'] for version in versions]
+                  return [ver['Version'] for ver in versions]
               else:
                   return []
 
-          def delete_version(feed, package_name, version, api_key):
-              delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{version}"
+          def delete_version(feed, package_name, ver, api_key):
+              delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{ver}"
               headers = {"X-MyGet-ApiKey": api_key}
               response = requests.delete(delete_url, headers=headers)
               return response.status_code == 204  # 204 No Content, success
@@ -50,14 +53,14 @@ jobs:
 
           for package_name in package_names:
               versions_to_delete = get_versions(feed, package_name, api_key)
-              for version in versions_to_delete:
-                  if version >= '3.6.':
-                      print(f"Omited {version} of package {package_name}.")
+              for ver in versions_to_delete:
+                  if version.parse(ver.split("-", 1)[0]) >= version.Version("3.6.0"):
+                      print(f"Omited {ver} of package {package_name}.")
                       continue
-                  if delete_version(feed, package_name, version, api_key):
-                      print(f"Deleted version {version} of package {package_name}.")
+                  if delete_version(feed, package_name, ver, api_key):
+                      print(f"Deleted version {ver} of package {package_name}.")
                   else:
-                      print(f"Failed to delete version {version} of package {package_name}.")
+                      print(f"Failed to delete version {ver} of package {package_name}.")
 
         shell: python
 
