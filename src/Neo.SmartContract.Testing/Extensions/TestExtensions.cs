@@ -75,6 +75,8 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(UInt160) => new UInt160(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(ECPoint) => ECPoint.FromBytes(stackItem.GetSpan().ToArray(), ECCurve.Secp256r1),
+                _ when type == typeof(IDictionary<object, object>) && stackItem is Map mp => ToDictionary(mp), // SubItems in StackItem type
+                _ when type == typeof(Dictionary<object, object>) && stackItem is Map mp => ToDictionary(mp), // SubItems in StackItem type
                 _ when type == typeof(IList<object>) && stackItem is CompoundType cp => new List<object>(cp.SubItems), // SubItems in StackItem type
                 _ when type == typeof(List<object>) && stackItem is CompoundType cp => new List<object>(cp.SubItems), // SubItems in StackItem type
                 _ when typeof(IInteroperable).IsAssignableFrom(type) => CreateInteroperable(stackItem, type),
@@ -83,6 +85,18 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
             };
+        }
+
+        private static IDictionary<object, object> ToDictionary(Map map)
+        {
+            Dictionary<object, object> dictionary = new();
+
+            foreach (var entry in map)
+            {
+                dictionary.Add(entry.Key, entry.Value);
+            }
+
+            return dictionary;
         }
 
         private static object CreateTypeArray(IEnumerable<StackItem> objects, Type elementType)
