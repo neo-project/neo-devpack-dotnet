@@ -1,12 +1,50 @@
-name: Nuget Package Cleanup (github)
+name: Package Cleanup
 
 on:
   schedule:
     - cron: '0 0 * * *' # Run every day at 24:00
 
 jobs:
-  delete-pkgs:
-    name: Delete Old Nuget Packages
+
+  delete-myget-pkgs:
+    name: Delete Old MyGet Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Requests
+        run: pip install requests
+      - name: Get versions below 3.6.0
+        env:
+          PACKAGE_NAME: 'Neo.SmartContract.Framework'
+          MYGET_FEED: 'neo'
+        run: |
+          import requests
+          import os
+
+          feed = os.environ['MYGET_FEED']
+          package_name = os.environ['PACKAGE_NAME']
+
+          def get_versions(feed, package_name, api_key):
+              url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/versions"
+              headers = {"X-MyGet-ApiKey": "${{ secrets.GITHUB_TOKEN }}"}
+              response = requests.get(url, headers=headers)
+              if response.status_code == 200:
+                  versions = response.json()
+                  return [version['Version'] for version in versions['d'] if version['Version'] < '3.6.0']
+              else:
+                  return []
+
+          versions_below_3_6_0 = get_versions(feed, package_name, api_key)
+          print("Versions below 3.6.0:", versions_below_3_6_0)
+        shell: python
+
+  delete-git-pkgs:
+    name: Delete Old Github Packages
     runs-on: ubuntu-latest
 
     steps:
