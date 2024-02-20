@@ -120,6 +120,7 @@ public class Nep17Tests<T> : TestBase<T>
         var fromBalance = Contract.BalanceOf(Alice.Account);
 
         Assert.IsTrue(fromBalance > 5, "Alice needs at least 5 tokens");
+        Assert.AreEqual(0, Contract.BalanceOf(Bob.Account), "Bob must have 0 tokens");
         Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, 3));
 
         Assert.AreEqual(fromBalance - 3, Contract.BalanceOf(Alice.Account));
