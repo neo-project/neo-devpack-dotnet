@@ -21,18 +21,16 @@ jobs:
         run: pip install requests
       - name: Get versions below 3.6.0
         env:
-          PACKAGE_NAME: 'Neo.SmartContract.Framework'
           MYGET_FEED: 'neo'
+          PACKAGE_NAMES: 'Neo.SmartContract.Framework,Neo.SmartContract.Testing'
+          MYGET_API_KEY: ${{ secrets.MYGET_TOKEN }}
         run: |
           import requests
           import os
 
-          feed = os.environ['MYGET_FEED']
-          package_name = os.environ['PACKAGE_NAME']
-
           def get_versions(feed, package_name, api_key):
               url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/versions"
-              headers = {"X-MyGet-ApiKey": "${{ secrets.MYGET_TOKEN }}"}
+              headers = {"X-MyGet-ApiKey": api_key}
               response = requests.get(url, headers=headers)
               if response.status_code == 200:
                   versions = response.json()
@@ -42,18 +40,22 @@ jobs:
 
           def delete_version(feed, package_name, version, api_key):
               delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{version}"
-              headers = {"X-MyGet-ApiKey": "${{ secrets.MYGET_TOKEN }}"}
+              headers = {"X-MyGet-ApiKey": api_key}
               response = requests.delete(delete_url, headers=headers)
               return response.status_code == 204  # 204 No Content, success
 
-          versions_to_delete = get_versions(feed, package_name, api_key)
+          feed = os.environ['MYGET_FEED']
+          package_names = os.environ['PACKAGE_NAMES'].split(',')
+          api_key = os.environ['MYGET_API_KEY']
 
-          for version in versions_to_delete:
-              print(f"Version {version} of package {package_name} should be deleted.")
-              # if delete_version(feed, package_name, version, api_key):
-              #     print(f"Deleted version {version} of package {package_name}.")
-              # else:
-              #     print(f"Failed to delete version {version} of package {package_name}.")
+          for package_name in package_names:
+              versions_to_delete = get_versions(feed, package_name, api_key)
+              for version in versions_to_delete:
+                  if delete_version(feed, package_name, version, api_key):
+                      print(f"Deleted version {version} of package {package_name}.")
+                  else:
+                      print(f"Failed to delete version {version} of package {package_name}.")
+
         shell: python
 
   delete-git-pkgs:
