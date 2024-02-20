@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
+using Neo.VM;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {
@@ -19,5 +20,17 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
                 "templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json"
                 )
         { }
+
+        [TestMethod]
+        public override void TestSetGetOwner()
+        {
+            base.TestSetGetOwner();
+
+            // Test throw if was stored an invalid owner
+            // Technically not possible, but raise 100% coverage
+
+            Contract.Storage.Put(new byte[] { 0xff }, 123);
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner);
+        }
     }
 }

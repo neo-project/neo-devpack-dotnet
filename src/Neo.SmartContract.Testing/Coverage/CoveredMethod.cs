@@ -1,6 +1,7 @@
 using Neo.SmartContract.Manifest;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
@@ -41,10 +42,16 @@ namespace Neo.SmartContract.Testing.Coverage
         public CoveredMethod(CoveredContract contract, ContractMethodDescriptor method, int methodLength)
         {
             Contract = contract;
-            Method = new AbiMethod(method.Name, method.Parameters.Length);
             Offset = method.Offset;
             MethodLength = methodLength;
+            Method = new AbiMethod(method.Name, method.Parameters.Select(u => u.Name).ToArray());
         }
+
+        /// <summary>
+        /// Dump coverage
+        /// </summary>
+        /// <returns>Coverage dump</returns>
+        public string Dump(DumpFormat format = DumpFormat.Console) => Contract.Dump(format, this);
 
         public override string ToString() => Method.ToString();
     }

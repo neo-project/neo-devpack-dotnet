@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Numerics;
@@ -158,6 +159,11 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // Alice is the deployer
 
             Engine.SetTransactionSigners(Bob);
+
+            // Try with invalid owners
+
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, UInt160.Zero));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, InvalidUInt160.Invalid));
 
             // Test SetOwner notification
 
