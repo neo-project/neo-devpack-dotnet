@@ -463,6 +463,37 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Free mock
+        /// </summary>
+        /// <param name="contract">Contract</param>
+        internal bool Free(SmartContract contract)
+        {
+            if (_customMocks.TryGetValue(contract.Hash, out var mocks))
+            {
+                // Remove custom mock
+
+                var ret = false;
+
+                foreach (var entry in mocks.ToArray())
+                {
+                    if (ReferenceEquals(entry.Value.Contract, contract))
+                    {
+                        if (mocks.Remove(entry.Key)) ret = true;
+                    }
+                }
+
+                if (mocks.Count == 0)
+                {
+                    _customMocks.Remove(contract.Hash);
+                }
+
+                return ret;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Execute raw script
         /// </summary>
         /// <param name="script">Script</param>
