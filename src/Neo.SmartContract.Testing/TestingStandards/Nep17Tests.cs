@@ -78,12 +78,12 @@ public class Nep17Tests<T> : TestBase<T>
     /// <param name="from">From</param>
     /// <param name="to">To</param>
     /// <param name="amount">Amount</param>
-    public void AssertTransferEvent(UInt160?[] from, UInt160?[] to, BigInteger?[] amount)
+    public void AssertTransferEvent(params (UInt160? from, UInt160? to, BigInteger? amount)[] events)
     {
-        Assert.AreEqual(from.Length, raisedTransfer.Count);
-        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.from).ToArray(), from);
-        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.to).ToArray(), to);
-        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.amount).ToArray(), amount);
+        Assert.AreEqual(events.Length, raisedTransfer.Count);
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.from).ToArray(), events.Select(u => u.from).ToArray());
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.to).ToArray(), events.Select(u => u.to).ToArray());
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.amount).ToArray(), events.Select(u => u.amount).ToArray());
         raisedTransfer.Clear();
     }
 
