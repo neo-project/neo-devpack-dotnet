@@ -106,7 +106,7 @@ public class NativeArtifacts
 
             // Mock Native.OnPersist
 
-            var method = nativeType.GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+            var method = nativeType.GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
             DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
@@ -121,7 +121,7 @@ public class NativeArtifacts
 
             // Mock Native.PostPersist
 
-            method = nativeType.GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+            method = nativeType.GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
             {
