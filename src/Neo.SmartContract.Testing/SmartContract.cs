@@ -144,7 +144,7 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         public void Dispose()
         {
-            Engine.Free(this);
+            Engine.ReleaseMock(this);
         }
     }
 }

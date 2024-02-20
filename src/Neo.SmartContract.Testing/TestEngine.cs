@@ -463,10 +463,11 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Free mock
+        /// Release custom mock
         /// </summary>
         /// <param name="contract">Contract</param>
-        internal bool Free(SmartContract contract)
+        /// <returns>True if a mock was released</returns>
+        public bool ReleaseMock(SmartContract contract)
         {
             if (_customMocks.TryGetValue(contract.Hash, out var mocks))
             {
