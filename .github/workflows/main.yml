@@ -71,7 +71,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  PublishGithub:
+  PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
     runs-on: ubuntu-latest
@@ -112,6 +112,14 @@ jobs:
         dotnet nuget push * \
             --source https://nuget.pkg.github.com/neo-project/index.json \
             --api-key "${{ secrets.GITHUB_TOKEN }}" \
+            --disable-buffering \
+            --no-service-endpoint;
+    - name: Publish to myGet
+      working-directory: ./out
+      run: |
+        dotnet nuget push * \
+            --source https://www.myget.org/F/neo/api/v3/index.json \
+            --api-key "${{ secrets.MYGET_TOKEN }}" \
             --disable-buffering \
             --no-service-endpoint;
 
