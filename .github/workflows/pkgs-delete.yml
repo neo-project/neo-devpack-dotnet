@@ -1,12 +1,65 @@
-name: Nuget Package Cleanup (github)
+name: Package Cleanup
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 0 * * *' # Run every day at 24:00
 
 jobs:
-  delete-pkgs:
-    name: Delete Old Nuget Packages
+
+  delete-myget-pkgs:
+    name: Delete Old MyGet Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Requests
+        run: pip install requests
+      - name: Get versions below 3.6.0
+        env:
+          MYGET_FEED: 'neo'
+          PACKAGE_NAMES: 'Neo.SmartContract.Framework,Neo.SmartContract.Testing'
+          MYGET_API_KEY: ${{ secrets.MYGET_TOKEN }}
+        run: |
+          import requests
+          import os
+
+          def get_versions(feed, package_name, api_key):
+              url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/versions"
+              headers = {"X-MyGet-ApiKey": api_key}
+              response = requests.get(url, headers=headers)
+              if response.status_code == 200:
+                  versions = response.json()
+                  return [version['Version'] for version in versions['d'] if version['Version'] < '3.6.0']
+              else:
+                  return []
+
+          def delete_version(feed, package_name, version, api_key):
+              delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{version}"
+              headers = {"X-MyGet-ApiKey": api_key}
+              response = requests.delete(delete_url, headers=headers)
+              return response.status_code == 204  # 204 No Content, success
+
+          feed = os.environ['MYGET_FEED']
+          package_names = os.environ['PACKAGE_NAMES'].split(',')
+          api_key = os.environ['MYGET_API_KEY']
+
+          for package_name in package_names:
+              versions_to_delete = get_versions(feed, package_name, api_key)
+              for version in versions_to_delete:
+                  if delete_version(feed, package_name, version, api_key):
+                      print(f"Deleted version {version} of package {package_name}.")
+                  else:
+                      print(f"Failed to delete version {version} of package {package_name}.")
+
+        shell: python
+
+  delete-git-pkgs:
+    name: Delete Old Github Packages
     runs-on: ubuntu-latest
 
     steps:
