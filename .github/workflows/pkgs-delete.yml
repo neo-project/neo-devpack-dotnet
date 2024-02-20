@@ -1,6 +1,7 @@
 name: Package Cleanup
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 0 * * *' # Run every day at 24:00
 
