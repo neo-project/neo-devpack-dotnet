@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Neo.SmartContract.Testing
 {
-    public class SmartContract
+    public class SmartContract : IDisposable
     {
         internal readonly TestEngine Engine;
         private readonly Type _contractType;
@@ -133,6 +134,17 @@ namespace Neo.SmartContract.Testing
             {
                 handler.Method.Invoke(handler.Target, args);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator UInt160(SmartContract value) => value.Hash;
+
+        /// <summary>
+        /// Release mock
+        /// </summary>
+        public void Dispose()
+        {
+            Engine.ReleaseMock(this);
         }
     }
 }

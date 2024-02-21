@@ -71,7 +71,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  PublishGithub:
+  PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
     runs-on: ubuntu-latest
@@ -86,8 +86,10 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Set Version
+    - name: Set Version (dev-pack)
       run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
+    - name: Set Version (Neo)
+      run: git --git-dir=./neo/.git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX_NEO={}' >> $GITHUB_ENV
 
     - name : Pack (Neo.SmartContract.Framework)
       run: |
@@ -95,9 +97,18 @@ jobs:
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
+    - name : Replace Neo reference by package in Neo.SmartContract.Testing
+      run: |
+        dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
+        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version 3.6.2-${{ env.VERSION_SUFFIX_NEO }}
+    - name : Build (Neo.SmartContract.Testing)
+      run: |
+        dotnet build ./src/Neo.SmartContract.Testing -f net7.0
+        dotnet build ./src/Neo.SmartContract.Testing -f netstandard2.1
     - name : Pack (Neo.SmartContract.Testing)
       run: |
         dotnet pack ./src/Neo.SmartContract.Testing \
+        --no-build \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
@@ -107,6 +118,14 @@ jobs:
         dotnet nuget push * \
             --source https://nuget.pkg.github.com/neo-project/index.json \
             --api-key "${{ secrets.GITHUB_TOKEN }}" \
+            --disable-buffering \
+            --no-service-endpoint;
+    - name: Publish to myGet
+      working-directory: ./out
+      run: |
+        dotnet nuget push * \
+            --source https://www.myget.org/F/neo/api/v3/index.json \
+            --api-key "${{ secrets.MYGET_TOKEN }}" \
             --disable-buffering \
             --no-service-endpoint;
 

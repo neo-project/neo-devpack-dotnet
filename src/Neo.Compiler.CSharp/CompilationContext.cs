@@ -267,6 +267,13 @@ namespace Neo.Compiler
                 Tokens = methodTokens.ToArray(),
                 Script = Script
             };
+
+            if (nef.Compiler.Length > 64)
+            {
+                // Neo.Compiler.CSharp 3.6.2+470d9a8608b41de658849994a258200d8abf7caa
+                nef.Compiler = nef.Compiler.Substring(0, 61) + "...";
+            }
+
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             // Ensure that is serializable
             return nef.ToArray().AsSerializable<NefFile>();
