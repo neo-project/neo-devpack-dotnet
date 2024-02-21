@@ -103,7 +103,7 @@ jobs:
     - name : Replace Neo reference by package in Neo.SmartContract.Testing
       run: |
         dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
-        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_SUFFIX }}
+        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_SUFFIX_NEO }}
     - name : Build (Neo.SmartContract.Testing)
       run: |
         dotnet build ./src/Neo.SmartContract.Testing --no-dependencies -f net7.0
