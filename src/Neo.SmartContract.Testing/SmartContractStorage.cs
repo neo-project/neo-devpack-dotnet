@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Testing
             var state = _smartContract.Engine.Native.ContractManagement.GetContract(_smartContract.Hash)
                 ?? throw new Exception($"The contract {_smartContract.Hash} is not deployed, so it's not possible to get the storage id.");
 
-            _contractId ??= state.Id;
+            _contractId = state.Id;
             return _contractId.Value;
         }
 
