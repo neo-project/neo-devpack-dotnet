@@ -85,6 +85,11 @@ namespace Neo.SmartContract.Testing
         public bool EnableCoverageCapture { get; set; } = true;
 
         /// <summary>
+        /// Method detection
+        /// </summary>
+        public MethodDetectionMechanism MethodDetection { get; set; } = MethodDetectionMechanism.FindRET;
+
+        /// <summary>
         /// Validators Address
         /// </summary>
         public UInt160 ValidatorsAddress
@@ -301,6 +306,11 @@ namespace Neo.SmartContract.Testing
 
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
+            if (state is null)
+            {
+                throw new Exception("Can't get the ContractState");
+            }
+
             // Mock contract
 
             //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
@@ -313,7 +323,7 @@ namespace Neo.SmartContract.Testing
             if (EnableCoverageCapture)
             {
                 var coverage = GetCoverage(ret);
-                coverage?.GenerateMethods(state.Manifest.Abi, state.Script);
+                coverage?.GenerateMethods(MethodDetection, state);
             }
 
             return ret;
@@ -453,6 +463,38 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Release custom mock
+        /// </summary>
+        /// <param name="contract">Contract</param>
+        /// <returns>True if a mock was released</returns>
+        public bool ReleaseMock(SmartContract contract)
+        {
+            if (_customMocks.TryGetValue(contract.Hash, out var mocks))
+            {
+                // Remove custom mock
+
+                var ret = false;
+
+                foreach (var entry in mocks.ToArray())
+                {
+                    if (ReferenceEquals(entry.Value.Contract, contract))
+                    {
+                        if (mocks.Remove(entry.Key)) ret = true;
+                    }
+                }
+
+                if (mocks.Count == 0)
+                {
+                    _customMocks.Remove(contract.Hash);
+                }
+
+                return ret;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Execute raw script
         /// </summary>
         /// <param name="script">Script</param>
@@ -517,7 +559,7 @@ namespace Neo.SmartContract.Testing
                 var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
                 if (state == null) return null;
 
-                coveredContract = new(contract.Hash, state.Manifest.Abi, state.Script);
+                coveredContract = new(MethodDetection, contract.Hash, state);
                 Coverage[coveredContract.Hash] = coveredContract;
             }
 

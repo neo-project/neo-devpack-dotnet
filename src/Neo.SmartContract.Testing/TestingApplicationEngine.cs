@@ -78,7 +78,8 @@ namespace Neo.SmartContract.Testing
 
                 var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
 
-                Engine.Coverage[contractHash] = coveredContract = new(contractHash, state?.Manifest.Abi, InstructionContext.Script);
+                coveredContract = new(Engine.MethodDetection, contractHash, state);
+                Engine.Coverage[contractHash] = coveredContract;
             }
 
             if (InstructionPointer is null) return;

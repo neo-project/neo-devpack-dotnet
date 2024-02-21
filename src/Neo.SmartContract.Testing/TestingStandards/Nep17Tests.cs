@@ -6,6 +6,7 @@ using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
@@ -72,6 +73,21 @@ public class Nep17Tests<T> : TestBase<T>
     }
 
     /// <summary>
+    /// Assert that Transfer event was raised
+    /// </summary>
+    /// <param name="from">From</param>
+    /// <param name="to">To</param>
+    /// <param name="amount">Amount</param>
+    public void AssertTransferEvent(params (UInt160? from, UInt160? to, BigInteger? amount)[] events)
+    {
+        Assert.AreEqual(events.Length, raisedTransfer.Count);
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.from).ToArray(), events.Select(u => u.from).ToArray());
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.to).ToArray(), events.Select(u => u.to).ToArray());
+        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.amount).ToArray(), events.Select(u => u.amount).ToArray());
+        raisedTransfer.Clear();
+    }
+
+    /// <summary>
     /// Assert that Transfer event was NOT raised
     /// </summary>
     public void AssertNoTransferEvent()
@@ -120,6 +136,7 @@ public class Nep17Tests<T> : TestBase<T>
         var fromBalance = Contract.BalanceOf(Alice.Account);
 
         Assert.IsTrue(fromBalance > 5, "Alice needs at least 5 tokens");
+        Assert.AreEqual(0, Contract.BalanceOf(Bob.Account), "Bob must have 0 tokens");
         Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, 3));
 
         Assert.AreEqual(fromBalance - 3, Contract.BalanceOf(Alice.Account));
