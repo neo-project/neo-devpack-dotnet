@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography.ECC;
 using Neo.IO;
-using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Numerics;
@@ -30,6 +30,15 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
 
             Assert.AreEqual(point, ret.PublicKey);
             Assert.AreEqual(1, ret.Votes);
+        }
+
+        [TestMethod]
+        public void TestValueType()
+        {
+            StackItem stackItem = new Array(new StackItem[] { 1, 2 });
+            var ret = stackItem.ConvertTo(typeof((int, int)));
+
+            Assert.IsTrue(ret.GetType().IsValueType);
         }
     }
 }

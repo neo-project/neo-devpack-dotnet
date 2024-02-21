@@ -1,3 +1,4 @@
+using Akka.Util;
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing.Attributes;
 using Neo.VM.Types;
@@ -11,7 +12,8 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class TestExtensions
     {
-        private static readonly Dictionary<Type, Dictionary<int, PropertyInfo>> _deserializationCache = new();
+        private static readonly Dictionary<Type, Dictionary<int, PropertyInfo>> _propertyCache = new();
+        private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new();
 
         /// <summary>
         /// Convert Array stack item to dotnet array
@@ -77,14 +79,24 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(UInt160) => new UInt160(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(ECPoint) => ECPoint.FromBytes(stackItem.GetSpan().ToArray(), ECCurve.Secp256r1),
-                _ when type == typeof(IDictionary<object, object>) && stackItem is Map mp => ToDictionary(mp), // SubItems in StackItem type
-                _ when type == typeof(Dictionary<object, object>) && stackItem is Map mp => ToDictionary(mp), // SubItems in StackItem type
-                _ when type == typeof(IList<object>) && stackItem is CompoundType cp => new List<object>(cp.SubItems), // SubItems in StackItem type
-                _ when type == typeof(List<object>) && stackItem is CompoundType cp => new List<object>(cp.SubItems), // SubItems in StackItem type
                 _ when typeof(IInteroperable).IsAssignableFrom(type) => CreateInteroperable(stackItem, type),
-                _ when type.IsArray && stackItem is CompoundType cp => CreateTypeArray(cp.SubItems, type.GetElementType()!),
                 _ when stackItem is InteropInterface it && it.GetInterface().GetType() == type => it.GetInterface(),
-                _ when type.IsClass && stackItem is CompoundType cp => CreateObject(cp.SubItems, type),
+
+                _ when stackItem is VM.Types.Array ar => type switch
+                {
+                    _ when type == typeof(IList<object>) => new List<object>(ar.SubItems), // SubItems in StackItem type
+                    _ when type == typeof(List<object>) => new List<object>(ar.SubItems), // SubItems in StackItem type
+                    _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!),
+                    _ when type.IsClass => CreateObject(ar.SubItems, type),
+                    _ when type.IsValueType => CreateValueType(ar.SubItems, type),
+                    _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
+                },
+                _ when stackItem is Map mp => type switch
+                {
+                    _ when type == typeof(IDictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type
+                    _ when type == typeof(Dictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type
+                    _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
+                },
 
                 _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
             };
@@ -97,7 +109,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             // Cache the object properties by offset
 
-            if (!_deserializationCache.TryGetValue(type, out var cache))
+            if (!_propertyCache.TryGetValue(type, out var cache))
             {
                 cache = new Dictionary<int, PropertyInfo>();
 
@@ -123,7 +135,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     index = 0;
                 }
 
-                _deserializationCache[type] = cache;
+                _propertyCache[type] = cache;
             }
 
             // Fill the object
@@ -155,6 +167,32 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             return dictionary;
+        }
+
+        private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType)
+        {
+            var arr = objects.ToArray();
+            var value = Activator.CreateInstance(valueType);
+
+            // Cache the object properties by offset
+
+            if (!_fieldCache.TryGetValue(valueType, out var cache))
+            {
+                cache = valueType.GetFields().ToArray();
+                _fieldCache[valueType] = cache;
+            }
+
+            if (cache.Length != arr.Length)
+            {
+                throw new FormatException($"Error converting {valueType}, field count doesn't match.");
+            }
+
+            for (int x = 0; x < arr.Length; x++)
+            {
+                cache[x].SetValue(value, ConvertTo(arr[x], cache[x].FieldType));
+            }
+
+            return value;
         }
 
         private static object CreateTypeArray(IEnumerable<StackItem> objects, Type elementType)

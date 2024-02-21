@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing.Attributes;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.Testing;
+namespace Neo.SmartContract.Testing.Native;
 
 public abstract class NeoToken : SmartContract
 {
@@ -100,7 +100,7 @@ public abstract class NeoToken : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract Native.NeoToken.NeoAccountState GetAccountState(UInt160? account);
+    public abstract Neo.SmartContract.Native.NeoToken.NeoAccountState GetAccountState(UInt160? account);
 
     /// <summary>
     /// Safe method
