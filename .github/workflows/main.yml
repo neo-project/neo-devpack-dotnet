@@ -100,16 +100,21 @@ jobs:
     - name : Build (Neo)
       run: |
         dotnet build ./neo --version-suffix ${{ env.VERSION_SUFFIX_NEO }}
+    - name : Replace Neo reference by package in Neo.SmartContract.Testing
+      run: |
+        dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
+        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_SUFFIX_NEO }}
     - name : Build (Neo.SmartContract.Testing)
       run: |
-        dotnet build ./src/Neo.SmartContract.Testing --no-dependencies --version-suffix ${{ env.VERSION_SUFFIX }} -f net7.0
-        dotnet build ./src/Neo.SmartContract.Testing --no-dependencies --version-suffix ${{ env.VERSION_SUFFIX }} -f netstandard2.1
+        dotnet build ./src/Neo.SmartContract.Testing --no-dependencies -f net7.0
+        dotnet build ./src/Neo.SmartContract.Testing --no-dependencies -f netstandard2.1
     - name : Pack (Neo.SmartContract.Testing)
       run: |
         dotnet pack ./src/Neo.SmartContract.Testing \
         --no-build \
         --configuration Debug \
-        --output ./out
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
     - name: Publish to Github Packages
       working-directory: ./out
       run: |
