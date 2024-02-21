@@ -105,7 +105,6 @@ namespace NFT
             return output;
         }
 
-
         [Safe]
         public string tokenURI(BigInteger tokenId)
         {

@@ -76,7 +76,7 @@ namespace Exception
             try
             {
                 v = 2;
-                throwcall();
+                Throwcall();
             }
             catch
             {
@@ -97,16 +97,16 @@ namespace Exception
                 try
                 {
                     v = 2;
-                    throwcall();
+                    Throwcall();
                 }
                 catch
                 {
                     v = 3;
-                    throwcall();
+                    Throwcall();
                 }
                 finally
                 {
-                    throwcall();
+                    Throwcall();
                     v++;
                 }
             }
@@ -137,7 +137,7 @@ namespace Exception
             try
             {
                 v = 2;
-                throwcall();
+                Throwcall();
             }
             finally
             {
@@ -152,7 +152,7 @@ namespace Exception
             try
             {
                 v = 2;
-                throwcall();
+                Throwcall();
             }
             catch
             {
@@ -400,12 +400,12 @@ namespace Exception
             return (v, data);
         }
 
-        public static object throwcall()
+        private static object Throwcall()
         {
             throw new System.Exception();
         }
 
-        public static object tryUncatchableException()
+        public static object TryUncatchableException()
         {
             int v = 0;
             try
