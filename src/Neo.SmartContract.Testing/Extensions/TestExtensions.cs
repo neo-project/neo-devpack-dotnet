@@ -1,5 +1,4 @@
 using Neo.Cryptography.ECC;
-using Neo.SmartContract.Iterators;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
