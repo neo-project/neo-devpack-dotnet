@@ -103,8 +103,8 @@ jobs:
         dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version 3.6.2-${{ env.VERSION_SUFFIX_NEO }}
     - name : Build (Neo.SmartContract.Testing)
       run: |
-        dotnet build ./src/Neo.SmartContract.Testing --no-dependencies -f net7.0
-        dotnet build ./src/Neo.SmartContract.Testing --no-dependencies -f netstandard2.1
+        dotnet build ./src/Neo.SmartContract.Testing -f net7.0
+        dotnet build ./src/Neo.SmartContract.Testing -f netstandard2.1
     - name : Pack (Neo.SmartContract.Testing)
       run: |
         dotnet pack ./src/Neo.SmartContract.Testing \
