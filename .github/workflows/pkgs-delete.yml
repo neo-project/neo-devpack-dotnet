@@ -11,8 +11,6 @@ jobs:
     name: Delete Old MyGet Packages
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -21,7 +19,7 @@ jobs:
         run: pip install requests
       - name: Install Packaging
         run: pip install packaging
-      - name: Get versions below 3.6.0
+      - name: Delete versions below 3.6.1
         env:
           MYGET_FEED: 'neo'
           PACKAGE_NAMES: 'Neo.SmartContract.Framework,Neo.SmartContract.Testing'
@@ -32,7 +30,7 @@ jobs:
           import os
 
           def get_versions(feed, package_name, api_key):
-              url = f"https://www.myget.org/F/neo/api/v2/Packages?$filter=Id eq '{package_name}'&$format=json"
+              url = f"https://www.myget.org/F/{feed}/api/v2/Packages?$select=Version&$filter=Id eq '{package_name}'&$format=json"
               headers = {'Accept': 'application/json'}
               response = requests.get(url, headers=headers)
               if response.status_code == 200:
@@ -42,10 +40,10 @@ jobs:
                   return []
 
           def delete_version(feed, package_name, ver, api_key):
-              delete_url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{ver}"
-              headers = {"X-MyGet-ApiKey": api_key}
-              response = requests.delete(delete_url, headers=headers)
-              return response.status_code == 204  # 204 No Content, success
+              url = f"https://www.myget.org/F/{feed}/api/v2/package/{package_name}/{ver}?hardDelete=true"
+              headers = {"X-NuGet-ApiKey": api_key}
+              response = requests.delete(url, headers=headers)
+              return response.status_code == 200  # Success
 
           feed = os.environ['MYGET_FEED']
           package_names = os.environ['PACKAGE_NAMES'].split(',')
@@ -54,7 +52,7 @@ jobs:
           for package_name in package_names:
               versions_to_delete = get_versions(feed, package_name, api_key)
               for ver in versions_to_delete:
-                  if version.parse(ver.split("-", 1)[0]) >= version.Version("3.6.0"):
+                  if version.parse(ver.split("-", 1)[0]) >= version.Version("3.6.1"):
                       print(f"Omited {ver} of package {package_name}.")
                       continue
                   if delete_version(feed, package_name, ver, api_key):
