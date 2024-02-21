@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Neo.SmartContract.Testing
 {
-    public class SmartContract
+    public class SmartContract : IDisposable
     {
         internal readonly TestEngine Engine;
         private readonly Type _contractType;
@@ -51,7 +52,31 @@ namespace Neo.SmartContract.Testing
             // Compose script
 
             using ScriptBuilder script = new();
-            script.EmitDynamicCall(Hash, methodName, args);
+
+            if (args is null || args.Length == 0)
+                script.Emit(OpCode.NEWARRAY0);
+            else
+            {
+                for (int i = args.Length - 1; i >= 0; i--)
+                {
+                    var arg = args[i];
+
+                    if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.Invalid) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.Invalid))
+                    {
+                        arg = System.Array.Empty<byte>();
+                    }
+
+                    script.EmitPush(arg);
+                }
+                script.EmitPush(args.Length);
+                script.Emit(OpCode.PACK);
+            }
+
+            script.EmitPush(CallFlags.All);
+            script.EmitPush(methodName);
+            script.EmitPush(Hash);
+            script.EmitSysCall(ApplicationEngine.System_Contract_Call);
 
             // Execute
 
@@ -79,7 +104,9 @@ namespace Neo.SmartContract.Testing
                 var ev = _contractType.GetEvent(eventName);
                 if (ev is null)
                 {
-                    ev = _contractType.GetEvents().FirstOrDefault(u => u.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName == eventName);
+                    ev = _contractType.GetEvents()
+                        .FirstOrDefault(u => u.Name == eventName || u.GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName == eventName);
+
                     if (ev is null)
                     {
                         _notifyCache[eventName] = null;
@@ -107,6 +134,17 @@ namespace Neo.SmartContract.Testing
             {
                 handler.Method.Invoke(handler.Target, args);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator UInt160(SmartContract value) => value.Hash;
+
+        /// <summary>
+        /// Release mock
+        /// </summary>
+        public void Dispose()
+        {
+            Engine.ReleaseMock(this);
         }
     }
 }

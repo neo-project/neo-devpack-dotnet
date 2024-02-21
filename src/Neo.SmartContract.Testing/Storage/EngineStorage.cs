@@ -4,12 +4,12 @@ using System;
 using System.Buffers.Binary;
 using System.Linq;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Storage
 {
     /// <summary>
     /// TestStorage centralizes the storage management of our TestEngine
     /// </summary>
-    public class TestStorage
+    public class EngineStorage
     {
         // Key to check if native contracts are initialized, by default: Neo.votersCountPrefix
         private static readonly StorageKey _initKey = new() { Id = Native.NativeContract.NEO.Id, Key = new byte[] { 1 } };
@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Store
         /// </summary>
-        public IStore Store { get; init; } = new MemoryStore();
+        public IStore Store { get; }
 
         /// <summary>
         /// Snapshot
@@ -32,8 +32,8 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="storage">Store</param>
-        public TestStorage(IStore store)
+        /// <param name="store">Store</param>
+        public EngineStorage(IStore store)
         {
             Store = store;
             Snapshot = new SnapshotCache(Store.GetSnapshot());
@@ -54,6 +54,21 @@ namespace Neo.SmartContract.Testing
         {
             Snapshot.Dispose();
             Snapshot = new SnapshotCache(Store.GetSnapshot());
+        }
+
+        /// <summary>
+        /// Get storage checkpoint
+        /// </summary>
+        /// <returns>EngineCheckpoint</returns>
+        public EngineCheckpoint Checkpoint() => new(Snapshot);
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="checkpoint">Checkpoint</param>
+        public void Restore(EngineCheckpoint checkpoint)
+        {
+            checkpoint.Restore(Snapshot);
         }
 
         /// <summary>

@@ -18,29 +18,40 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(@"
-| 0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5         |    5.26% |
-|                                        balanceOf,1 |    0.00% |
-|                                         decimals,0 |    0.00% |
-|                                  getAccountState,1 |    0.00% |
-|                                 getAllCandidates,0 |    0.00% |
-|                                 getCandidateVote,1 |    0.00% |
-|                                    getCandidates,0 |    0.00% |
-|                                     getCommittee,0 |    0.00% |
-|                                   getGasPerBlock,0 |    0.00% |
-|                           getNextBlockValidators,0 |    0.00% |
-|                                 getRegisterPrice,0 |    0.00% |
-|                                registerCandidate,1 |    0.00% |
-|                                   setGasPerBlock,1 |    0.00% |
-|                                 setRegisterPrice,1 |    0.00% |
-|                                           symbol,0 |    0.00% |
-|                                      totalSupply,0 |  100.00% |
-|                                         transfer,4 |    0.00% |
-|                                     unclaimedGas,2 |    0.00% |
-|                              unregisterCandidate,1 |    0.00% |
-|                                             vote,2 |    0.00% |
-
-
+0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26%]
+┌-───────────────────────────────-┬-───────-┐
+│ Method                          │  Line   │
+├-───────────────────────────────-┼-───────-┤
+│ totalSupply()                   │ 100.00% │
+│ balanceOf(account)              │   0.00% │
+│ decimals()                      │   0.00% │
+│ getAccountState(account)        │   0.00% │
+│ getAllCandidates()              │   0.00% │
+│ getCandidates()                 │   0.00% │
+│ getCandidateVote(pubKey)        │   0.00% │
+│ getCommittee()                  │   0.00% │
+│ getGasPerBlock()                │   0.00% │
+│ getNextBlockValidators()        │   0.00% │
+│ getRegisterPrice()              │   0.00% │
+│ registerCandidate(pubkey)       │   0.00% │
+│ setGasPerBlock(gasPerBlock)     │   0.00% │
+│ setRegisterPrice(registerPrice) │   0.00% │
+│ symbol()                        │   0.00% │
+│ transfer(from,to,amount,data)   │   0.00% │
+│ unclaimedGas(account,end)       │   0.00% │
+│ unregisterCandidate(pubkey)     │   0.00% │
+│ vote(account,voteTo)            │   0.00% │
+└-───────────────────────────────-┴-───────-┘
 ".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
+
+            Assert.AreEqual(@"
+0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26%]
+┌-─────────────-┬-───────-┐
+│ Method        │  Line   │
+├-─────────────-┼-───────-┤
+│ totalSupply() │ 100.00% │
+└-─────────────-┴-───────-┘
+".Trim(), (engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump().Trim());
         }
 
         [TestMethod]
@@ -59,7 +70,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             // Check totalSupply
 
-            Assert.IsNull(engine.GetCoverage(engine.Native.NEO));
+            Assert.IsNotNull(engine.GetCoverage(engine.Native.NEO));
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.GetCoverage(engine.Native.NEO)?.Hash);
@@ -78,7 +89,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by method and expression
 
             var methodCovered = engine.GetCoverage(engine.Native.Oracle, o => o.Finish());
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO, o => o.TotalSupply);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -99,7 +110,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by raw method
 
             methodCovered = engine.GetCoverage(engine.Native.Oracle, "finish", 0);
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO, "totalSupply", 0);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -130,7 +141,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             // Check totalSupply
 
-            Assert.IsNull(engine.Native.NEO.GetCoverage());
+            Assert.IsNotNull(engine.Native.NEO.GetCoverage());
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.Native.NEO.GetCoverage()?.Hash);
@@ -149,7 +160,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by method and expression
 
             var methodCovered = engine.Native.Oracle.GetCoverage(o => o.Finish());
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.Native.NEO.GetCoverage(o => o.TotalSupply);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -166,7 +177,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             // Check coverage by raw method
 
             methodCovered = engine.GetCoverage(engine.Native.Oracle, "finish", 0);
-            Assert.IsNull(methodCovered);
+            Assert.IsNotNull(methodCovered);
 
             methodCovered = engine.GetCoverage(engine.Native.NEO, "totalSupply", 0);
             Assert.AreEqual(3, methodCovered?.TotalInstructions);
@@ -184,9 +195,10 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         [TestMethod]
         public void TestHits()
         {
-            var coverage = new CoverageHit(0);
+            var coverage = new CoverageHit(0, "test");
 
             Assert.AreEqual(0, coverage.Hits);
+            Assert.AreEqual("test", coverage.Description);
             Assert.AreEqual(0, coverage.GasAvg);
             Assert.AreEqual(0, coverage.GasMax);
             Assert.AreEqual(0, coverage.GasMin);

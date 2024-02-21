@@ -6,6 +6,7 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -71,7 +72,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Storage
         /// </summary>
-        public TestStorage Storage { get; init; } = new TestStorage(new MemoryStore());
+        public EngineStorage Storage { get; set; } = new EngineStorage(new MemoryStore());
 
         /// <summary>
         /// Protocol Settings
@@ -82,6 +83,11 @@ namespace Neo.SmartContract.Testing
         /// Enable coverage capture
         /// </summary>
         public bool EnableCoverageCapture { get; set; } = true;
+
+        /// <summary>
+        /// Method detection
+        /// </summary>
+        public MethodDetectionMechanism MethodDetection { get; set; } = MethodDetectionMechanism.FindRET;
 
         /// <summary>
         /// Validators Address
@@ -185,13 +191,13 @@ namespace Neo.SmartContract.Testing
                 NetworkFee = ApplicationEngine.TestModeGas,
                 Signers = new Signer[]
                 {
-                    new Signer()
+                    new()
                     {
                         // ValidatorsAddress
                         Account = validatorsScript.ToScriptHash(),
                         Scopes = WitnessScope.Global
                     },
-                    new Signer()
+                    new()
                     {
                         // CommitteeAddress
                         Account = committeeScript.ToScriptHash(),
@@ -233,6 +239,44 @@ namespace Neo.SmartContract.Testing
 
         #endregion
 
+        #region Checkpoints
+
+        /// <summary>
+        /// Get storage checkpoint
+        /// </summary>
+        /// <returns>EngineCheckpoint</returns>
+        public EngineCheckpoint Checkpoint() => Storage.Checkpoint();
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="checkpoint">Checkpoint</param>
+        public void Restore(EngineCheckpoint checkpoint) => Storage.Restore(checkpoint);
+
+        #endregion
+
+        /// <summary>
+        /// Get deploy hash
+        /// </summary>
+        /// <param name="nef">Nef</param>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>Contract hash</returns>
+        public UInt160 GetDeployHash(byte[] nef, string manifest)
+        {
+            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest));
+        }
+
+        /// <summary>
+        /// Get deploy hash
+        /// </summary>
+        /// <param name="nef">Nef</param>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>Contract hash</returns>
+        public UInt160 GetDeployHash(NefFile nef, ContractManifest manifest)
+        {
+            return Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
+        }
+
         /// <summary>
         /// Deploy Smart contract
         /// </summary>
@@ -262,10 +306,27 @@ namespace Neo.SmartContract.Testing
 
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
+            if (state is null)
+            {
+                throw new Exception("Can't get the ContractState");
+            }
+
             // Mock contract
 
             //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
-            return MockContract(state.Hash, state.Id, customMock);
+            var ret = MockContract(state.Hash, state.Id, customMock);
+
+            // We cache the coverage contract during `_deploy`
+            // at this moment we don't have the abi stored
+            // so we need to regenerate the coverage methods
+
+            if (EnableCoverageCapture)
+            {
+                var coverage = GetCoverage(ret);
+                coverage?.GenerateMethods(MethodDetection, state);
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -402,6 +463,38 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Release custom mock
+        /// </summary>
+        /// <param name="contract">Contract</param>
+        /// <returns>True if a mock was released</returns>
+        public bool ReleaseMock(SmartContract contract)
+        {
+            if (_customMocks.TryGetValue(contract.Hash, out var mocks))
+            {
+                // Remove custom mock
+
+                var ret = false;
+
+                foreach (var entry in mocks.ToArray())
+                {
+                    if (ReferenceEquals(entry.Value.Contract, contract))
+                    {
+                        if (mocks.Remove(entry.Key)) ret = true;
+                    }
+                }
+
+                if (mocks.Count == 0)
+                {
+                    _customMocks.Remove(contract.Hash);
+                }
+
+                return ret;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Execute raw script
         /// </summary>
         /// <param name="script">Script</param>
@@ -419,6 +512,12 @@ namespace Neo.SmartContract.Testing
             using var engine = new TestingApplicationEngine(this, TriggerType.Application, Transaction, snapshot, CurrentBlock);
 
             engine.LoadScript(script);
+
+            // Clean events, if we Execute inside and execute
+            // becaus it's a mock, we can register twice
+
+            ApplicationEngine.Log -= ApplicationEngineLog;
+            ApplicationEngine.Notify -= ApplicationEngineNotify;
 
             // Attach to static event
 
@@ -457,7 +556,11 @@ namespace Neo.SmartContract.Testing
         {
             if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
             {
-                return null;
+                var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
+                if (state == null) return null;
+
+                coveredContract = new(MethodDetection, contract.Hash, state);
+                Coverage[coveredContract.Hash] = coveredContract;
             }
 
             return coveredContract;
@@ -471,9 +574,7 @@ namespace Neo.SmartContract.Testing
         /// <returns>CoveredContract</returns>
         public CoverageBase? GetCoverage<T>(T contract, string methodName, int pcount) where T : SmartContract
         {
-            var coveredContract = GetCoverage(contract);
-
-            return coveredContract?.GetCoverage(methodName, pcount);
+            return GetCoverage(contract)?.GetCoverage(methodName, pcount);
         }
 
         /// <summary>
@@ -485,10 +586,8 @@ namespace Neo.SmartContract.Testing
         /// <returns>CoveredContract</returns>
         public CoverageBase? GetCoverage<T>(T contract, Expression<Action<T>> method) where T : SmartContract
         {
-            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
-            {
-                return null;
-            }
+            var coveredContract = GetCoverage(contract);
+            if (coveredContract == null) return null;
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
                 .Select(coveredContract.GetCoverage)
@@ -514,10 +613,8 @@ namespace Neo.SmartContract.Testing
         /// <returns>CoveredContract</returns>
         public CoverageBase? GetCoverage<T, TResult>(T contract, Expression<Func<T, TResult>> method) where T : SmartContract
         {
-            if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
-            {
-                return null;
-            }
+            var coveredContract = GetCoverage(contract);
+            if (coveredContract == null) return null;
 
             var abiMethods = AbiMethod.CreateFromExpression(method.Body)
                 .Select(coveredContract.GetCoverage)
@@ -571,6 +668,10 @@ namespace Neo.SmartContract.Testing
             var rand = new Random();
             var data = new byte[UInt160.Length];
             rand.NextBytes(data);
+
+            // Ensure that if we convert to BigInteger this value will work
+
+            if (data[0] == 0) data[0] = 1;
 
             return new Signer()
             {

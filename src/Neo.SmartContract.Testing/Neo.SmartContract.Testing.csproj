@@ -8,7 +8,6 @@
 		<PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
 		<Description>TestEngine for NEO smart contract testing.</Description>
 		<IncludeContentInPack>true</IncludeContentInPack>
-		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<ContentTargetFolders>content</ContentTargetFolders>
 		<Nullable>enable</Nullable>
 		<NoWarn>$(NoWarn);NU5128</NoWarn>
@@ -16,6 +15,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Moq" Version="4.20.70" />
+	  <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>

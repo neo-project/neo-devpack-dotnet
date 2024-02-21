@@ -1,8 +1,8 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
+using Neo.VM.Types;
 using System;
 
 namespace Neo.SmartContract.Testing
@@ -12,6 +12,7 @@ namespace Neo.SmartContract.Testing
     /// </summary>
     internal class TestingApplicationEngine : ApplicationEngine
     {
+        private Instruction? PreInstruction;
         private ExecutionContext? InstructionContext;
         private int? InstructionPointer;
         private long PreExecuteInstructionGasConsumed;
@@ -33,6 +34,7 @@ namespace Neo.SmartContract.Testing
 
             if (Engine.EnableCoverageCapture)
             {
+                PreInstruction = instruction;
                 PreExecuteInstructionGasConsumed = GasConsumed;
                 InstructionContext = CurrentContext;
                 InstructionPointer = InstructionContext?.InstructionPointer;
@@ -43,10 +45,25 @@ namespace Neo.SmartContract.Testing
             base.PreExecuteInstruction(instruction);
         }
 
+        protected override void OnFault(Exception ex)
+        {
+            base.OnFault(ex);
+
+            if (PreInstruction is not null)
+            {
+                // PostExecuteInstruction is not executed onFault
+                RecoverCoverage(PreInstruction);
+            }
+        }
+
         protected override void PostExecuteInstruction(Instruction instruction)
         {
             base.PostExecuteInstruction(instruction);
+            RecoverCoverage(instruction);
+        }
 
+        private void RecoverCoverage(Instruction instruction)
+        {
             // We need the script to know the offset
 
             if (InstructionContext is null) return;
@@ -61,19 +78,17 @@ namespace Neo.SmartContract.Testing
 
                 var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
 
-                Engine.Coverage[contractHash] = coveredContract = new(contractHash, state?.Manifest.Abi, InstructionContext.Script);
+                coveredContract = new(Engine.MethodDetection, contractHash, state);
+                Engine.Coverage[contractHash] = coveredContract;
             }
 
             if (InstructionPointer is null) return;
 
-            if (!coveredContract.CoverageData.TryGetValue(InstructionPointer.Value, out var coverage))
-            {
-                // Note: This call is unusual, out of the expected
+            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed);
 
-                coveredContract.CoverageData[InstructionPointer.Value] = coverage = new CoverageHit(InstructionPointer.Value, true);
-            }
-
-            coverage.Hit(GasConsumed - PreExecuteInstructionGasConsumed);
+            PreInstruction = null;
+            InstructionContext = null;
+            InstructionPointer = null;
         }
 
         protected override void OnSysCall(InteropDescriptor descriptor)
@@ -126,6 +141,8 @@ namespace Neo.SmartContract.Testing
                     var returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
                     if (hasReturnValue)
                         Push(Convert(returnValue));
+                    else
+                        Push(StackItem.Null);
 
                     return;
                 }

@@ -10,7 +10,7 @@
     "language": "C#",
     "type": "project"
   },
-  "sourceName": "ProjectName",
+  "sourceName": "Nep17Contract",
   "symbols": {
     "NeoVersion": {
       "type": "parameter",

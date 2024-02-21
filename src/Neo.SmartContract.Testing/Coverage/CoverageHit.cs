@@ -1,15 +1,22 @@
+using Neo.VM;
 using System;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    [DebuggerDisplay("Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
+    [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
     public class CoverageHit
     {
         /// <summary>
         /// The instruction offset
         /// </summary>
         public int Offset { get; }
+
+        /// <summary>
+        /// The instruction description
+        /// </summary>
+        public string Description { get; }
 
         /// <summary>
         /// The instruction is out of the script
@@ -45,10 +52,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Constructor
         /// </summary>
         /// <param name="offset">Offset</param>
+        /// <param name="description">Decription</param>
         /// <param name="outOfScript">Out of script</param>
-        public CoverageHit(int offset, bool outOfScript = false)
+        public CoverageHit(int offset, string description, bool outOfScript = false)
         {
             Offset = offset;
+            Description = description;
             OutOfScript = outOfScript;
         }
 
@@ -104,7 +113,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, OutOfScript)
+            return new CoverageHit(Offset, Description, OutOfScript)
             {
                 GasMax = GasMax,
                 GasMin = GasMin,
@@ -114,12 +123,77 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         /// <summary>
+        /// Return description from instruction
+        /// </summary>
+        /// <param name="instruction">Instruction</param>
+        /// <returns>Description</returns>
+        public static string DescriptionFromInstruction(Instruction instruction, params MethodToken[]? tokens)
+        {
+            if (instruction.Operand.Length > 0)
+            {
+                var ret = instruction.OpCode.ToString() + " 0x" + instruction.Operand.ToArray().ToHexString();
+
+                switch (instruction.OpCode)
+                {
+                    case OpCode.CALLT:
+                        {
+                            var tokenId = instruction.TokenU16;
+
+                            if (tokens != null && tokens.Length > tokenId)
+                            {
+                                var token = tokens[tokenId];
+
+                                return ret + $" ({token.Hash},{token.Method},{token.ParametersCount},{token.CallFlags})";
+                            }
+                            break;
+                        }
+                    case OpCode.JMP:
+                    case OpCode.JMPIF:
+                    case OpCode.JMPIFNOT:
+                    case OpCode.JMPEQ:
+                    case OpCode.JMPNE:
+                    case OpCode.JMPGT:
+                    case OpCode.JMPGE:
+                    case OpCode.JMPLT:
+                    case OpCode.JMPLE: return ret + $" ({instruction.TokenI8})";
+                    case OpCode.JMP_L:
+                    case OpCode.JMPIF_L:
+                    case OpCode.JMPIFNOT_L:
+                    case OpCode.JMPEQ_L:
+                    case OpCode.JMPNE_L:
+                    case OpCode.JMPGT_L:
+                    case OpCode.JMPGE_L:
+                    case OpCode.JMPLT_L:
+                    case OpCode.JMPLE_L: return ret + $" ({instruction.TokenI32})";
+                    case OpCode.SYSCALL:
+                        {
+                            if (ApplicationEngine.Services.TryGetValue(instruction.TokenU32, out var syscall))
+                            {
+                                return ret + $" ('{syscall.Name}')";
+                            }
+
+                            return ret;
+                        }
+                }
+
+                if (instruction.Operand.Span.TryGetString(out var str) && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                {
+                    return ret + $" '{str}'";
+                }
+
+                return ret;
+            }
+
+            return instruction.OpCode.ToString();
+        }
+
+        /// <summary>
         /// String representation
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return $"Offset:{Offset}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
+            return $"Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
         }
     }
 }
