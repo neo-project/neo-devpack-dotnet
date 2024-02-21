@@ -99,7 +99,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
     - name : Build (Neo)
       run: |
-        dotnet build   ./neo --version-suffix ${{ env.VERSION_SUFFIX_NEO }}
+        dotnet build ./neo --version-suffix ${{ env.VERSION_SUFFIX_NEO }}
     - name : Replace Neo reference by package in Neo.SmartContract.Testing
       run: |
         dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
