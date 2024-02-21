@@ -86,8 +86,10 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Set Version
+    - name: Set Version (dev-pack)
       run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
+    - name: Set Version (Neo)
+      run: git --git-dir=./neo/.git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX_NEO={}' >> $GITHUB_ENV
 
     - name : Pack (Neo.SmartContract.Framework)
       run: |
@@ -95,6 +97,10 @@ jobs:
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
+    - name : Build (Neo)
+      run: |
+        dotnet build ./neo -f net7.0 --version-suffix ${{ env.VERSION_SUFFIX_NEO }}
+        dotnet build ./neo -f netstandard2.1 --version-suffix ${{ env.VERSION_SUFFIX_NEO }}
     - name : Build (Neo.SmartContract.Testing)
       run: |
         dotnet build ./src/Neo.SmartContract.Testing -f net7.0
