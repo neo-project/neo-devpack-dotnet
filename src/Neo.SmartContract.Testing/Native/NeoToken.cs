@@ -1,45 +1,26 @@
 using Neo.Cryptography.ECC;
-using Neo.IO;
 using Neo.SmartContract.Iterators;
-using Neo.VM;
-using Neo.VM.Types;
-using System;
+using Neo.SmartContract.Testing.Attributes;
 using System.ComponentModel;
 using System.Numerics;
-using Neo.SmartContract.Testing.Extensions;
-using System.Linq;
 
 namespace Neo.SmartContract.Testing;
 
 public abstract class NeoToken : SmartContract
 {
-    public class Candidate : IInteroperable
+    public class Candidate
     {
         /// <summary>
         /// Public key
         /// </summary>
-        public ECPoint? PublicKey { get; private set; }
+        [FieldOrder(0)]
+        public ECPoint? PublicKey { get; set; }
 
         /// <summary>
         /// Votes
         /// </summary>
-        public BigInteger Votes { get; private set; } = BigInteger.Zero;
-
-        public void FromStackItem(StackItem stackItem)
-        {
-            if (stackItem is not CompoundType cp) throw new FormatException();
-            if (cp.Count < 2) throw new FormatException();
-
-            var items = cp.SubItems.ToArray();
-
-            PublicKey = (ECPoint)items[0].ConvertTo(typeof(ECPoint))!;
-            Votes = (BigInteger)items[1].ConvertTo(typeof(BigInteger))!;
-        }
-
-        public StackItem ToStackItem(ReferenceCounter referenceCounter)
-        {
-            return new VM.Types.Array(new StackItem[] { PublicKey.ToArray(), Votes });
-        }
+        [FieldOrder(1)]
+        public BigInteger Votes { get; set; }
     }
 
     #region Events

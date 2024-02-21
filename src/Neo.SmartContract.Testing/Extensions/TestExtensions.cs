@@ -1,4 +1,5 @@
 using Neo.Cryptography.ECC;
+using Neo.SmartContract.Testing.Attributes;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class TestExtensions
     {
+        private static readonly Dictionary<Type, Dictionary<int, PropertyInfo>> _deserializationCache = new();
+
         /// <summary>
         /// Convert Array stack item to dotnet array
         /// </summary>
@@ -81,9 +84,65 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when typeof(IInteroperable).IsAssignableFrom(type) => CreateInteroperable(stackItem, type),
                 _ when type.IsArray && stackItem is CompoundType cp => CreateTypeArray(cp.SubItems, type.GetElementType()!),
                 _ when stackItem is InteropInterface it && it.GetInterface().GetType() == type => it.GetInterface(),
+                _ when type.IsClass && stackItem is CompoundType cp => CreateObject(cp.SubItems, type),
 
                 _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
             };
+        }
+
+        private static object CreateObject(IEnumerable<StackItem> subItems, Type type)
+        {
+            var index = 0;
+            var obj = Activator.CreateInstance(type) ?? throw new FormatException($"Impossible create {type}");
+
+            // Cache the object properties by offset
+
+            if (!_deserializationCache.TryGetValue(type, out var cache))
+            {
+                cache = new Dictionary<int, PropertyInfo>();
+
+                foreach (var property in type.GetProperties())
+                {
+                    var fieldOffset = property.GetCustomAttribute<FieldOrderAttribute>();
+                    if (fieldOffset is null) continue;
+                    if (!property.CanWrite) continue;
+
+                    cache.Add(fieldOffset.Order, property);
+                }
+
+                if (cache.Count == 0)
+                {
+                    // Without FieldOrderAttribute, by order
+
+                    foreach (var property in type.GetProperties())
+                    {
+                        if (!property.CanWrite) continue;
+                        cache.Add(index, property);
+                        index++;
+                    }
+                    index = 0;
+                }
+
+                _deserializationCache[type] = cache;
+            }
+
+            // Fill the object
+
+            foreach (var item in subItems)
+            {
+                if (cache.TryGetValue(index, out var property))
+                {
+                    property.SetValue(obj, ConvertTo(item, property.PropertyType));
+                }
+                else
+                {
+                    throw new FormatException($"Error converting {type}, the property with the offset {index} was not found.");
+                }
+
+                index++;
+            }
+
+            return obj;
         }
 
         private static IDictionary<object, object> ToDictionary(Map map)

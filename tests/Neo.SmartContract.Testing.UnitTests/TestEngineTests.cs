@@ -62,7 +62,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             using (ScriptBuilder script = new())
             {
-                script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.ValidatorsAddress);
+                script.EmitDynamicCall(neo.Hash, "balanceOf", engine.ValidatorsAddress);
 
                 Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
             }
