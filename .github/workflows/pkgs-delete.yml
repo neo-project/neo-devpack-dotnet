@@ -79,7 +79,7 @@ jobs:
     - name: Delete Neo.SmartContract.Framework Package
       uses: actions/delete-package-versions@v4
       with:
-        package-name: Neo.Neo.SmartContract.Framework
+        package-name: Neo.SmartContract.Framework
         package-type: nuget
         min-versions-to-keep: 3
         delete-only-pre-release-versions: "true"
