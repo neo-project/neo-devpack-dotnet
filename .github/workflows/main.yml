@@ -97,13 +97,10 @@ jobs:
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
-    - name : Build (Neo)
-      run: |
-        dotnet build ./neo --version-suffix ${{ env.VERSION_SUFFIX_NEO }}
     - name : Replace Neo reference by package in Neo.SmartContract.Testing
       run: |
         dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
-        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_SUFFIX_NEO }}
+        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version 3.6.2-${{ env.VERSION_SUFFIX_NEO }}
     - name : Build (Neo.SmartContract.Testing)
       run: |
         dotnet build ./src/Neo.SmartContract.Testing --no-dependencies -f net7.0
