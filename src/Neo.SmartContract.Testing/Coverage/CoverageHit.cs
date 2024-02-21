@@ -127,7 +127,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="instruction">Instruction</param>
         /// <returns>Description</returns>
-        public static string DescriptionFromInstruction(Instruction instruction)
+        public static string DescriptionFromInstruction(Instruction instruction, params MethodToken[]? tokens)
         {
             if (instruction.Operand.Length > 0)
             {
@@ -135,6 +135,18 @@ namespace Neo.SmartContract.Testing.Coverage
 
                 switch (instruction.OpCode)
                 {
+                    case OpCode.CALLT:
+                        {
+                            var tokenId = instruction.TokenU16;
+
+                            if (tokens != null && tokens.Length > tokenId)
+                            {
+                                var token = tokens[tokenId];
+
+                                return ret + $" ({token.Hash},{token.Method},{token.ParametersCount},{token.CallFlags})";
+                            }
+                            break;
+                        }
                     case OpCode.JMP:
                     case OpCode.JMPIF:
                     case OpCode.JMPIFNOT:
