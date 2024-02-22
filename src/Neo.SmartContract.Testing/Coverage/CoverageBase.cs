@@ -48,30 +48,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Covered lines percentage
         /// </summary>
-        public float CoveredLinesPercentage
-        {
-            get
-            {
-                var total = TotalLines;
-                if (total == 0) return 1F;
-
-                return (float)CoveredLines / total;
-            }
-        }
+        public decimal CoveredLinesPercentage => CalculateHitRate(TotalLines, CoveredLines);
 
         /// <summary>
         /// Covered branch percentage
         /// </summary>
-        public float CoveredBranchPercentage
-        {
-            get
-            {
-                var total = TotalBranches;
-                if (total == 0) return 1F;
-
-                return (float)CoveredBranches / total;
-            }
-        }
+        public decimal CoveredBranchPercentage => CalculateHitRate(TotalBranches, CoveredBranches);
 
         /// <summary>
         /// Get Coverage lines from the Contract coverage
@@ -110,6 +92,9 @@ namespace Neo.SmartContract.Testing.Coverage
                 }
             }
         }
+
+        public static decimal CalculateHitRate(int total, int hits)
+                    => total == 0 ? 1m : new decimal(hits) / new decimal(total);
 
         // Allow to sum coverages
 
