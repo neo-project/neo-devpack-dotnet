@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
         public void WriteReport(Action<string, Action<Stream>> writeAttachement)
         {
-            writeAttachement("coverage.cobertura.txt", stream =>
+            writeAttachement("coverage.cobertura.html", stream =>
             {
                 using var writer = new StreamWriter(stream)
                 {
