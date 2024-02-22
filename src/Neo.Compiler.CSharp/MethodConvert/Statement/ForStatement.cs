@@ -91,8 +91,7 @@ namespace Neo.Compiler
             }
             else
             {
-                using (InsertSequencePoint(syntax.Condition))
-                    ConvertExpression(model, syntax.Condition);
+                ConvertExpression(model, syntax.Condition);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);

@@ -48,8 +48,7 @@ namespace Neo.Compiler
         {
             JumpTarget elseTarget = new();
 
-            using (InsertSequencePoint(syntax.Condition))
-                ConvertExpression(model, syntax.Condition);
+            ConvertExpression(model, syntax.Condition);
 
             using (InsertSequencePoint(syntax.Statement))
             {
