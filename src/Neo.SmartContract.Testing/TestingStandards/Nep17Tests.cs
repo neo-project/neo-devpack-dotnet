@@ -144,6 +144,11 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.AreEqual(initialSupply, Contract.TotalSupply);
         AssertTransferEvent(Alice.Account, Bob.Account, 3);
 
+        // Check 0 tokens transfer
+
+        Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, 0));
+        AssertTransferEvent(Alice.Account, Bob.Account, 0);
+
         // Invoke invalid transfers
 
         Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
