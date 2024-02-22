@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Console.WriteLine(coverage.Dump());
 
             File.WriteAllText("coverage.html", coverage.Dump(Testing.Coverage.DumpFormat.Html));
-            Assert.IsTrue(coverage.CoveredPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
+            Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
     }
 }

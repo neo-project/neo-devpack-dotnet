@@ -10,17 +10,34 @@ namespace Neo.SmartContract.Testing.Coverage
         public CoverageBase[] Entries { get; }
 
         /// <summary>
-        /// Coverage
+        /// Coverage Lines
         /// </summary>
-        public override IEnumerable<CoverageHit> Coverage
+        public override IEnumerable<CoverageHit> Lines
         {
             get
             {
-                foreach (var method in Entries)
+                foreach (var entry in Entries)
                 {
-                    foreach (var entry in method.Coverage)
+                    foreach (var line in entry.Lines)
                     {
-                        yield return entry;
+                        yield return line;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Coverage Branches
+        /// </summary>
+        public override IEnumerable<CoverageBranch> Branches
+        {
+            get
+            {
+                foreach (var entry in Entries)
+                {
+                    foreach (var branch in entry.Branches)
+                    {
+                        yield return branch;
                     }
                 }
             }

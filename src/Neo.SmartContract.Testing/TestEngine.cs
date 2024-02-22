@@ -305,6 +305,22 @@ namespace Neo.SmartContract.Testing
         {
             // Deploy
 
+            if (EnableCoverageCapture)
+            {
+                UInt160 expectedHash = GetDeployHash(nef, manifest);
+
+                if (!Coverage.ContainsKey(expectedHash))
+                {
+                    var coveredContract = new CoveredContract(MethodDetection, expectedHash, new ContractState()
+                    {
+                        Nef = nef,
+                        Hash = expectedHash,
+                        Manifest = manifest
+                    });
+                    Coverage[coveredContract.Hash] = coveredContract;
+                }
+            }
+
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
             if (state is null)
@@ -314,7 +330,6 @@ namespace Neo.SmartContract.Testing
 
             // Mock contract
 
-            //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
             var ret = MockContract(state.Hash, state.Id, customMock);
 
             // We cache the coverage contract during `_deploy`
