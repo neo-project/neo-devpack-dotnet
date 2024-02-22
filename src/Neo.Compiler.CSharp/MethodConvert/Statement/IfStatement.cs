@@ -69,8 +69,9 @@ namespace Neo.Compiler
                     {
                         elseTarget.Instruction = AddInstruction(OpCode.NOP);
                         ConvertStatement(model, syntax.Else.Statement);
-                        endTarget.Instruction = AddInstruction(OpCode.NOP);
                     }
+
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
             }
         }
