@@ -48,10 +48,10 @@ namespace Neo.Compiler
         {
             JumpTarget elseTarget = new();
 
-            ConvertExpression(model, syntax.Condition);
-
-            using (InsertSequencePoint(syntax.Statement))
+            using (InsertSequencePoint(syntax))
             {
+                ConvertExpression(model, syntax.Condition);
+
                 Jump(OpCode.JMPIFNOT_L, elseTarget);
                 ConvertStatement(model, syntax.Statement);
 
