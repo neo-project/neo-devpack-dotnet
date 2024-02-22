@@ -57,7 +57,7 @@ namespace Neo.Compiler
         private readonly Dictionary<ITypeSymbol, byte> vtables = new(SymbolEqualityComparer.Default);
         private byte[]? script;
 
-        public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
+        public bool Success => !diagnostics.Any(p => p.Severity == DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName => displayName ?? Options.BaseName ?? className;
         private string? Source { get; set; }
