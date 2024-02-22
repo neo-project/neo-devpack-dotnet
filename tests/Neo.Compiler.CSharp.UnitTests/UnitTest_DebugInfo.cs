@@ -25,7 +25,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsInstanceOfType(debugInfo["methods"], typeof(JArray));
             Assert.AreEqual(1, (debugInfo["methods"] as JArray).Count);
             Assert.AreEqual("Neo.Compiler.CSharp.UnitTests.TestClasses.Contract_Event,Main", (debugInfo["methods"] as JArray)[0]["name"].AsString());
-            Assert.AreEqual("3[0]17:13-17:30;7[0]18:13-18:33;13[0]19:9-19:10", string.Join(';', ((debugInfo["methods"] as JArray)[0]["sequence-points"] as JArray).Select(u => u.AsString())));
+            Assert.AreEqual("3[0]17:13-17:30;4[0]17:13-17:30;5[0]17:13-17:30;6[0]17:13-17:30;7[0]18:13-18:33;8[0]18:13-18:33;10[0]18:13-18:33;11[0]18:13-18:33;12[0]18:13-18:33;13[0]19:9-19:10",
+                string.Join(';', ((debugInfo["methods"] as JArray)[0]["sequence-points"] as JArray).Select(u => u.AsString())));
             Assert.IsTrue(debugInfo.ContainsProperty("events"));
             Assert.IsInstanceOfType(debugInfo["events"], typeof(JArray));
             Assert.AreEqual(1, (debugInfo["events"] as JArray).Count);

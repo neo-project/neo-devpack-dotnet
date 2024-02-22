@@ -25,6 +25,11 @@ namespace Neo.Compiler
             this.instructions = instructions;
             this.location = syntax.GetLocation();
             this.position = instructions.Count;
+
+            // No location must be removed
+
+            if (this.location?.SourceTree is null)
+                this.location = null;
         }
 
         void IDisposable.Dispose()

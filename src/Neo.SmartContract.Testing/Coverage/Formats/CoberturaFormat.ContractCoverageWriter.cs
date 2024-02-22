@@ -24,9 +24,10 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             public void WritePackage(XmlWriter writer)
             {
-                var (lineCount, hitCount) = GetLineRate(Contract, DebugInfo.Methods.SelectMany(m => m.SequencePoints));
+                var allMethods = DebugInfo.Methods.SelectMany(m => m.SequencePoints).ToArray();
+                var (lineCount, hitCount) = GetLineRate(Contract, allMethods);
                 var lineRate = CoverageBase.CalculateHitRate(lineCount, hitCount);
-                var (branchCount, branchHit) = GetBranchRate(Contract, DebugInfo.Methods);
+                var (branchCount, branchHit) = GetBranchRate(Contract, allMethods);
                 var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
 
                 writer.WriteStartElement("package");
@@ -65,9 +66,10 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             internal void WriteClass(XmlWriter writer, string name, string filename, IEnumerable<NeoDebugInfo.Method> methods)
             {
-                var (lineCount, hitCount) = GetLineRate(Contract, methods.SelectMany(m => m.SequencePoints));
+                var allMethods = methods.SelectMany(m => m.SequencePoints).ToArray();
+                var (lineCount, hitCount) = GetLineRate(Contract, allMethods);
                 var lineRate = CoverageBase.CalculateHitRate(lineCount, hitCount);
-                var (branchCount, branchHit) = GetBranchRate(Contract, methods);
+                var (branchCount, branchHit) = GetBranchRate(Contract, allMethods);
                 var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
 
                 writer.WriteStartElement("class");
@@ -103,7 +105,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                 var signature = string.Join(", ", method.Parameters.Select(p => p.Type));
                 var (lineCount, hitCount) = GetLineRate(Contract, method.SequencePoints);
                 var lineRate = CoverageBase.CalculateHitRate(lineCount, hitCount);
-                var (branchCount, branchHit) = GetBranchRate(Contract, method);
+                var (branchCount, branchHit) = GetBranchRate(Contract, method.SequencePoints);
                 var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
 
                 writer.WriteStartElement("method");
