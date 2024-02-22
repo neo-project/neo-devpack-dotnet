@@ -220,6 +220,12 @@ public class Nep17Tests<T> : TestBase<T>
 
                  var me = new UInt160(calledData);
                  AssertTransferEvent(Alice.Account, me, calledAmount);
+
+                 // Return the money back
+
+                 Engine.SetTransactionSigners(me);
+                 Assert.IsTrue(Contract.Transfer(me, calledFrom, calledAmount));
+                 AssertTransferEvent(me, Alice.Account, calledAmount);
              }));
          });
 
@@ -231,12 +237,7 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.AreEqual(Alice.Account, calledFrom);
         Assert.AreEqual(mock.Hash, new UInt160(calledData));
         Assert.AreEqual(3, calledAmount);
-
-        // Return the money back
-
-        Engine.SetTransactionSigners(mock);
-        Assert.IsTrue(Contract.Transfer(mock.Hash, calledFrom, calledAmount));
-        AssertTransferEvent(mock.Hash, Alice.Account, calledAmount);
+        Assert.AreEqual(0, Contract.BalanceOf(mock.Hash));
     }
 
     #endregion

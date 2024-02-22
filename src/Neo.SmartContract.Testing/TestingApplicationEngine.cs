@@ -2,6 +2,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -146,7 +147,7 @@ namespace Neo.SmartContract.Testing
             {
                 // We need the contract state without pay gas
 
-                var state = NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
+                var state = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
 
                 coveredContract = new(Engine.MethodDetection, contractHash, state);
                 Engine.Coverage[contractHash] = coveredContract;
@@ -208,8 +209,30 @@ namespace Neo.SmartContract.Testing
 
                     // Invoke
 
+                    EngineStorage backup = Engine.Storage;
                     var hasReturnValue = customMock.Method.ReturnType != typeof(void);
-                    var returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
+                    object returnValue;
+
+                    try
+                    {
+                        // We need to switch the Engine's snapshot in case
+                        // that a mock want to query the storage, it's not commited
+
+                        Engine.Storage = new EngineStorage(backup.Store, Snapshot);
+
+                        // Invoke snapshot
+
+                        returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        Engine.Storage = backup;
+                    }
+
                     if (hasReturnValue)
                         Push(Convert(returnValue));
                     else

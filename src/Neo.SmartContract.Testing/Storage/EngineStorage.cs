@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// <summary>
         /// Snapshot
         /// </summary>
-        public SnapshotCache Snapshot { get; private set; }
+        public DataCache Snapshot { get; private set; }
 
         /// <summary>
         /// Return true if native contract are initialized
@@ -33,10 +33,17 @@ namespace Neo.SmartContract.Testing.Storage
         /// Constructor
         /// </summary>
         /// <param name="store">Store</param>
-        public EngineStorage(IStore store)
+        public EngineStorage(IStore store) : this(store, new SnapshotCache(store.GetSnapshot())) { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="store">Store</param>
+        /// <param name="snapshotCache">Snapshot cache</param>
+        internal EngineStorage(IStore store, DataCache snapshotCache)
         {
             Store = store;
-            Snapshot = new SnapshotCache(Store.GetSnapshot());
+            Snapshot = snapshotCache;
         }
 
         /// <summary>
@@ -52,7 +59,10 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public void Rollback()
         {
-            Snapshot.Dispose();
+            if (Snapshot is SnapshotCache sp)
+            {
+                sp.Dispose();
+            }
             Snapshot = new SnapshotCache(Store.GetSnapshot());
         }
 
