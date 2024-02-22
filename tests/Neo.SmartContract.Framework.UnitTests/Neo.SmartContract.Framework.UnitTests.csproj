@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>Neo.SmartContract.Framework.UnitTests</RootNamespace>
@@ -10,6 +10,10 @@
       <Aliases>scfx</Aliases>
     </ProjectReference>
     <ProjectReference Include="..\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestFramework" Version="3.2.1" />
   </ItemGroup>
 
 </Project>

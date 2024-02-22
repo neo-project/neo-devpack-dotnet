@@ -32,7 +32,7 @@ jobs:
         dotnet new uninstall Neo.SmartContract.Template
         dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj package Neo.SmartContract.Framework
         dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll -d ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source --debug
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Check format

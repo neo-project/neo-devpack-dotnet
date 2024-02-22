@@ -9,4 +9,8 @@
 	  <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="MSTest.TestFramework" Version="3.2.1" />
+	</ItemGroup>
+
 </Project>
