@@ -23,10 +23,6 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Update="MSTest.TestFramework" Version="3.2.1" />
-	</ItemGroup>
-
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Message Text="Create and compile Nep17Contract.cs" Importance="high" />
 		<Exec Command="dotnet pack &quot;$(SolutionDir)src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj&quot;" />
