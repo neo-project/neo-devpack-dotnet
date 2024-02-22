@@ -10,14 +10,22 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="file">Coverage file</param>
         /// <param name="outputDir">Output dir</param>
+        /// <param name="license">License</param>
         /// <returns>True if was success</returns>
-        public static bool CreateReport(string file, string outputDir)
+        public static bool CreateReport(string file, string outputDir, string? license = null)
         {
             try
             {
                 // Reporting
 
-                Program.Main(new string[] { $"-reports:{Path.GetFullPath(file)}", $"-targetdir:{Path.GetFullPath(outputDir)}" });
+                if (string.IsNullOrEmpty(license))
+                {
+                    Program.Main(new string[] { $"-reports:{Path.GetFullPath(file)}", $"-targetdir:{Path.GetFullPath(outputDir)}" });
+                }
+                else
+                {
+                    Program.Main(new string[] { $"-reports:{Path.GetFullPath(file)}", $"-targetdir:{Path.GetFullPath(outputDir)}", $"-license:{license}" });
+                }
                 return true;
             }
             catch { }
