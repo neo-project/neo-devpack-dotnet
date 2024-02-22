@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.Testing;
+namespace Neo.SmartContract.Testing.Native;
 
 public abstract class StdLib : SmartContract
 {
