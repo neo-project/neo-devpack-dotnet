@@ -19,9 +19,9 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     private void ConvertConstantPattern(SemanticModel model, ConstantPatternSyntax pattern, byte localIndex)
-        {
-            AccessSlot(OpCode.LDLOC, localIndex);
-            ConvertExpression(model, pattern.Expression);
-            AddInstruction(OpCode.EQUAL);
-        }
+    {
+        AccessSlot(OpCode.LDLOC, localIndex);
+        ConvertExpression(model, pattern.Expression);
+        AddInstruction(OpCode.EQUAL);
+    }
 }
