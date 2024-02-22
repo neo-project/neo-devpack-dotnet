@@ -209,9 +209,8 @@ namespace Neo.SmartContract.Testing
 
                     // Invoke
 
-                    EngineStorage backup = Engine.Storage;
-                    var hasReturnValue = customMock.Method.ReturnType != typeof(void);
                     object returnValue;
+                    EngineStorage backup = Engine.Storage;
 
                     try
                     {
@@ -233,7 +232,7 @@ namespace Neo.SmartContract.Testing
                         Engine.Storage = backup;
                     }
 
-                    if (hasReturnValue)
+                    if (customMock.Method.ReturnType != typeof(void))
                         Push(Convert(returnValue));
                     else
                         Push(StackItem.Null);
