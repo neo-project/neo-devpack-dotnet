@@ -26,10 +26,16 @@ namespace Neo.Compiler
             this.syntax = syntax;
             this.position = instructions.Count;
         }
+
         void IDisposable.Dispose()
         {
-            if (position < instructions.Count)
-                instructions[position].SourceLocation = syntax.GetLocation();
+            for (int x = position; x < instructions.Count; x++)
+            {
+                if (instructions[position].SourceLocation is null)
+                {
+                    instructions[position].SourceLocation = syntax.GetLocation();
+                }
+            }
         }
     }
 }
