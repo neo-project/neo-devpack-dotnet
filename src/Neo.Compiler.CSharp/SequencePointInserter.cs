@@ -29,11 +29,13 @@ namespace Neo.Compiler
 
         void IDisposable.Dispose()
         {
+            var location = syntax.GetLocation();
+
             for (int x = position; x < instructions.Count; x++)
             {
                 if (instructions[position].SourceLocation is null)
                 {
-                    instructions[position].SourceLocation = syntax.GetLocation();
+                    instructions[position].SourceLocation = location;
                 }
             }
         }
