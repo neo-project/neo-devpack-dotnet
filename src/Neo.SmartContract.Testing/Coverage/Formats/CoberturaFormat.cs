@@ -128,6 +128,8 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             foreach (var line in lines)
             {
+                if (line.Offset > last) break;
+
                 if (contract.TryGetBranch(address, out var branch)) // IsBranchInstruction
                 {
                     //yield return (address, ins.OpCode);
@@ -152,7 +154,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
                 foreach (var line in lines)
                 {
-                    if (line.Offset >= nextSPAddress)
+                    if (line.Offset > nextSPAddress)
                     {
                         return address;
                     }
