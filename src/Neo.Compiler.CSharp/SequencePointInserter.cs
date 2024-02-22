@@ -33,7 +33,7 @@ namespace Neo.Compiler
             {
                 if (instructions[x].SourceLocation is null)
                 {
-                    instructions[position].SourceLocation = location;
+                    instructions[x].SourceLocation = location;
                 }
                 else
                 {
