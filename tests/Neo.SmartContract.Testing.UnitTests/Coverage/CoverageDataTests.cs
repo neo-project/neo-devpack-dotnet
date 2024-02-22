@@ -18,38 +18,38 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(@"
-0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26% - 0.00%]
+0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26% - 100.00%]
 ┌-───────────────────────────────-┬-───────-┬-───────-┐
 │ Method                          │  Line   │  Branch │
 ├-───────────────────────────────-┼-───────-┼-───────-┤
-│ totalSupply()                   │ 100.00% │   0.00% │
-│ balanceOf(account)              │   0.00% │   0.00% │
-│ decimals()                      │   0.00% │   0.00% │
-│ getAccountState(account)        │   0.00% │   0.00% │
-│ getAllCandidates()              │   0.00% │   0.00% │
-│ getCandidates()                 │   0.00% │   0.00% │
-│ getCandidateVote(pubKey)        │   0.00% │   0.00% │
-│ getCommittee()                  │   0.00% │   0.00% │
-│ getGasPerBlock()                │   0.00% │   0.00% │
-│ getNextBlockValidators()        │   0.00% │   0.00% │
-│ getRegisterPrice()              │   0.00% │   0.00% │
-│ registerCandidate(pubkey)       │   0.00% │   0.00% │
-│ setGasPerBlock(gasPerBlock)     │   0.00% │   0.00% │
-│ setRegisterPrice(registerPrice) │   0.00% │   0.00% │
-│ symbol()                        │   0.00% │   0.00% │
-│ transfer(from,to,amount,data)   │   0.00% │   0.00% │
-│ unclaimedGas(account,end)       │   0.00% │   0.00% │
-│ unregisterCandidate(pubkey)     │   0.00% │   0.00% │
-│ vote(account,voteTo)            │   0.00% │   0.00% │
+│ totalSupply()                   │ 100.00% │ 100.00% │
+│ balanceOf(account)              │   0.00% │ 100.00% │
+│ decimals()                      │   0.00% │ 100.00% │
+│ getAccountState(account)        │   0.00% │ 100.00% │
+│ getAllCandidates()              │   0.00% │ 100.00% │
+│ getCandidates()                 │   0.00% │ 100.00% │
+│ getCandidateVote(pubKey)        │   0.00% │ 100.00% │
+│ getCommittee()                  │   0.00% │ 100.00% │
+│ getGasPerBlock()                │   0.00% │ 100.00% │
+│ getNextBlockValidators()        │   0.00% │ 100.00% │
+│ getRegisterPrice()              │   0.00% │ 100.00% │
+│ registerCandidate(pubkey)       │   0.00% │ 100.00% │
+│ setGasPerBlock(gasPerBlock)     │   0.00% │ 100.00% │
+│ setRegisterPrice(registerPrice) │   0.00% │ 100.00% │
+│ symbol()                        │   0.00% │ 100.00% │
+│ transfer(from,to,amount,data)   │   0.00% │ 100.00% │
+│ unclaimedGas(account,end)       │   0.00% │ 100.00% │
+│ unregisterCandidate(pubkey)     │   0.00% │ 100.00% │
+│ vote(account,voteTo)            │   0.00% │ 100.00% │
 └-───────────────────────────────-┴-───────-┴-───────-┘
 ".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
 
             Assert.AreEqual(@"
-0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26% - 0.00%]
+0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26% - 100.00%]
 ┌-─────────────-┬-───────-┬-───────-┐
 │ Method        │  Line   │  Branch │
 ├-─────────────-┼-───────-┼-───────-┤
-│ totalSupply() │ 100.00% │   0.00% │
+│ totalSupply() │ 100.00% │ 100.00% │
 └-─────────────-┴-───────-┴-───────-┘
 ".Trim(), (engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump().Trim());
         }
