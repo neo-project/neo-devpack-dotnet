@@ -14,7 +14,8 @@ namespace Neo.SmartContract.Testing.Coverage
     {
         #region Internal
 
-        private readonly Dictionary<int, CoverageHit> _coverageData = new();
+        private readonly Dictionary<int, CoverageHit> _lines = new();
+        private readonly Dictionary<int, CoverageBranch> _branches = new();
 
         #endregion
 
@@ -29,9 +30,14 @@ namespace Neo.SmartContract.Testing.Coverage
         public CoveredMethod[] Methods { get; private set; }
 
         /// <summary>
-        /// Coverage
+        /// Coverage Lines
         /// </summary>
-        public override IEnumerable<CoverageHit> Coverage => _coverageData.Values;
+        public override IEnumerable<CoverageHit> Lines => _lines.Values;
+
+        /// <summary>
+        /// Coverage Branches
+        /// </summary>
+        public override IEnumerable<CoverageBranch> Branches => _branches.Values;
 
         /// <summary>
         /// CoveredContract
@@ -65,9 +71,9 @@ namespace Neo.SmartContract.Testing.Coverage
             {
                 var instruction = script.GetInstruction(ip);
 
-                if (!_coverageData.ContainsKey(ip))
+                if (!_lines.ContainsKey(ip))
                 {
-                    _coverageData[ip] = new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state.Nef.Tokens), false);
+                    AddLine(instruction, new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state.Nef.Tokens), false));
                 }
 
                 if (mechanism == MethodDetectionMechanism.NextMethod)
@@ -118,6 +124,37 @@ namespace Neo.SmartContract.Testing.Coverage
                 .Select(s => CreateMethod(mechanism, script, methods, s))
                 .OrderBy(o => o.Offset)
                 .ToArray()!;
+        }
+
+        private void AddLine(Instruction instruction, CoverageHit hit)
+        {
+            _lines[hit.Offset] = hit;
+
+            // Check if we should add a branc
+
+            switch (instruction.OpCode)
+            {
+                case OpCode.JMPIF:
+                case OpCode.JMPIF_L:
+                case OpCode.JMPIFNOT:
+                case OpCode.JMPIFNOT_L:
+                case OpCode.JMPEQ:
+                case OpCode.JMPEQ_L:
+                case OpCode.JMPNE:
+                case OpCode.JMPNE_L:
+                case OpCode.JMPGT:
+                case OpCode.JMPGT_L:
+                case OpCode.JMPGE:
+                case OpCode.JMPGE_L:
+                case OpCode.JMPLT:
+                case OpCode.JMPLT_L:
+                case OpCode.JMPLE:
+                case OpCode.JMPLE_L:
+                    {
+                        _branches[hit.Offset] = new CoverageBranch(hit.Offset, hit.OutOfScript);
+                        break;
+                    }
+            }
         }
 
         private CoveredMethod CreateMethod(
@@ -182,25 +219,44 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Join coverage
         /// </summary>
         /// <param name="coverage">Coverage</param>
-        public void Join(IEnumerable<CoverageHit>? coverage)
+        public void Join(CoverageBase? coverage)
         {
-            if (coverage is null || coverage.Any() == false) return;
+            if (coverage is null) return;
 
-            // Join the coverage between them
+            // Join the coverage lines
 
-            foreach (var c in coverage)
+            foreach (var c in coverage.Lines)
             {
                 if (c.Hits == 0) continue;
 
-                lock (_coverageData)
+                lock (_lines)
                 {
-                    if (_coverageData.TryGetValue(c.Offset, out var kvpValue))
+                    if (_lines.TryGetValue(c.Offset, out var kvpValue))
                     {
                         kvpValue.Hit(c);
                     }
                     else
                     {
-                        _coverageData.Add(c.Offset, c.Clone());
+                        _lines.Add(c.Offset, c.Clone());
+                    }
+                }
+            }
+
+            // Join the coverage branches
+
+            foreach (var c in coverage.Branches)
+            {
+                if (c.Hits == 0) continue;
+
+                lock (_branches)
+                {
+                    if (_branches.TryGetValue(c.Offset, out var kvpValue))
+                    {
+                        kvpValue.Hit(c);
+                    }
+                    else
+                    {
+                        _branches.Add(c.Offset, c.Clone());
                     }
                 }
             }
@@ -231,31 +287,34 @@ namespace Neo.SmartContract.Testing.Coverage
             {
                 case DumpFormat.Console:
                     {
-                        var cover = $"{CoveredPercentage:P2}";
-                        sourceCode.WriteLine($"{Hash} [{cover}]");
+                        var coverLines = $"{CoveredLinesPercentage:P2}";
+                        var coverBranch = $"{CoveredBranchPercentage:P2}";
+                        sourceCode.WriteLine($"{Hash} [{coverLines} - {coverBranch}]");
 
                         List<string[]> rows = new();
-                        var max = new int[] { "Method".Length, "Line  ".Length };
+                        var max = new int[] { "Method".Length, "Line  ".Length, "Branch".Length };
 
-                        foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredPercentage))
+                        foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
                         {
-                            cover = $"{method.CoveredPercentage:P2}";
-                            rows.Add(new string[] { method.Method.ToString(), cover });
+                            coverLines = $"{method.CoveredLinesPercentage:P2}";
+                            coverBranch = $"{method.CoveredBranchPercentage:P2}";
+                            rows.Add(new string[] { method.Method.ToString(), coverLines, coverBranch });
 
                             max[0] = Math.Max(method.Method.ToString().Length, max[0]);
-                            max[1] = Math.Max(cover.Length, max[1]);
+                            max[1] = Math.Max(coverLines.Length, max[1]);
+                            max[2] = Math.Max(coverLines.Length, max[2]);
                         }
 
-                        sourceCode.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
-                        sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │");
-                        sourceCode.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┤");
+                        sourceCode.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
+                        sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │ {string.Format($"{{0,{max[2]}}}", "Branch", max[1])} │");
+                        sourceCode.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┼-{"─".PadLeft(max[1], '─')}-┤");
 
                         foreach (var print in rows)
                         {
-                            sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │");
+                            sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │ {string.Format($"{{0,{max[1]}}}", print[2], max[2])} │");
                         }
 
-                        sourceCode.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┘");
+                        sourceCode.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┴-{"─".PadLeft(max[2], '─')}-┘");
                         break;
                     }
                 case DumpFormat.Html:
@@ -271,7 +330,7 @@ namespace Neo.SmartContract.Testing.Coverage
     .bar { background-color: #f2f2f2; padding: 10px; cursor: pointer; }
     .hash { float: left; }
     .method-name { float: left; }
-    .coverage { float: right; }
+    .coverage { float: right; display: inline-block; width: 100px; text-align: right; }
     .method { cursor: pointer; margin-top: 5px; padding: 2px; }
     .details { display: none; padding-left: 20px; }
     .container { padding-left: 20px; }
@@ -279,6 +338,7 @@ namespace Neo.SmartContract.Testing.Coverage
     .hit { background-color: #eafaea; } /* Light green for hits */
     .no-hit { background-color: #ffcccc; } /* Light red for no hits */
     .hits { margin-left: 5px; font-size: 0.6em; margin-right: 10px; }
+    .branch { margin-left: 5px; font-size: 0.6em; margin-right: }
     .icon { margin-right: 5px; }
 
     .high-coverage { background-color: #ccffcc; } /* Lighter green for high coverage */
@@ -292,33 +352,41 @@ namespace Neo.SmartContract.Testing.Coverage
                         sourceCode.WriteLine($@"
 <div class=""bar"">
     <div class=""hash"">{Hash}</div>
-    <div class=""coverage"">{CoveredPercentage:P2}</div>
+    <div class=""coverage"">&nbsp;{CoveredBranchPercentage:P2}&nbsp;</div>
+    <div class=""coverage"">&nbsp;{CoveredLinesPercentage:P2}&nbsp;</div>
     <div style=""clear: both;""></div>
 </div>
 <div class=""container"">
 ");
 
-                        foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredPercentage))
+                        foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
                         {
                             var kind = "low";
-                            if (method.CoveredPercentage > 0.7) kind = "medium";
-                            if (method.CoveredPercentage > 0.8) kind = "high";
+                            if (method.CoveredLinesPercentage > 0.7) kind = "medium";
+                            if (method.CoveredLinesPercentage > 0.8) kind = "high";
 
                             sourceCode.WriteLine($@"
 <div class=""method {kind}-coverage"">
     <div class=""method-name"">{method.Method}</div>
-    <div class=""coverage"">{method.CoveredPercentage:P2}</div>
+    <div class=""coverage"">&nbsp;{method.CoveredBranchPercentage:P2}&nbsp;</div>
+    <div class=""coverage"">&nbsp;{method.CoveredLinesPercentage:P2}&nbsp;</div>
     <div style=""clear: both;""></div>
 </div>
 ");
                             sourceCode.WriteLine($@"<div class=""details"">");
 
-                            foreach (var hit in method.Coverage)
+                            foreach (var hit in method.Lines)
                             {
                                 var noHit = hit.Hits == 0 ? "no-" : "";
                                 var icon = hit.Hits == 0 ? "✘" : "✔";
+                                var branch = "";
 
-                                sourceCode.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{hit.Description}</div>");
+                                if (_branches.TryGetValue(hit.Offset, out var b))
+                                {
+                                    branch = $" <span class=\"branch\">[ᛦ {b.Hits}/{b.Count}]</span>";
+                                }
+
+                                sourceCode.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{hit.Description}{branch}</div>");
                             }
 
                             sourceCode.WriteLine($@"</div>
@@ -361,16 +429,24 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <param name="instructionPointer">Instruction pointer</param>
         /// <param name="instruction">Instruction</param>
         /// <param name="gas">Gas</param>
-        public void Hit(int instructionPointer, Instruction instruction, long gas)
+        /// <param name="branchPath">Branch path</param>
+        public void Hit(int instructionPointer, Instruction instruction, long gas, bool? branchPath)
         {
-            lock (_coverageData)
+            lock (_lines)
             {
-                if (!_coverageData.TryGetValue(instructionPointer, out var coverage))
+                if (!_lines.TryGetValue(instructionPointer, out var coverage))
                 {
                     // Note: This call is unusual, out of the expected
 
-                    _coverageData[instructionPointer] = coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), true);
+                    coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), true);
+                    AddLine(instruction, coverage);
                 }
+
+                if (branchPath is not null && _branches.TryGetValue(instructionPointer, out var branch))
+                {
+                    branch.Hit(branchPath.Value);
+                }
+
                 coverage.Hit(gas);
             }
         }

@@ -264,18 +264,18 @@ namespace Neo.SmartContract.Testing
         /// <returns>Contract hash</returns>
         public UInt160 GetDeployHash(byte[] nef, string manifest)
         {
-            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest));
+            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest).Name);
         }
 
         /// <summary>
         /// Get deploy hash
         /// </summary>
         /// <param name="nef">Nef</param>
-        /// <param name="manifest">Manifest</param>
+        /// <param name="name">Manifest name</param>
         /// <returns>Contract hash</returns>
-        public UInt160 GetDeployHash(NefFile nef, ContractManifest manifest)
+        public UInt160 GetDeployHash(NefFile nef, string name)
         {
-            return Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
+            return Helper.GetContractHash(Sender, nef.CheckSum, name);
         }
 
         /// <summary>
@@ -305,6 +305,22 @@ namespace Neo.SmartContract.Testing
         {
             // Deploy
 
+            if (EnableCoverageCapture)
+            {
+                UInt160 expectedHash = GetDeployHash(nef, manifest.Name);
+
+                if (!Coverage.ContainsKey(expectedHash))
+                {
+                    var coveredContract = new CoveredContract(MethodDetection, expectedHash, new ContractState()
+                    {
+                        Nef = nef,
+                        Hash = expectedHash,
+                        Manifest = manifest
+                    });
+                    Coverage[coveredContract.Hash] = coveredContract;
+                }
+            }
+
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
             if (state is null)
@@ -314,7 +330,6 @@ namespace Neo.SmartContract.Testing
 
             // Mock contract
 
-            //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
             var ret = MockContract(state.Hash, state.Id, customMock);
 
             // We cache the coverage contract during `_deploy`
