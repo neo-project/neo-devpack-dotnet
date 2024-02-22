@@ -31,7 +31,7 @@ namespace Neo.Compiler
         {
             for (int x = position; x < instructions.Count; x++)
             {
-                if (instructions[position].SourceLocation is null)
+                if (instructions[x].SourceLocation is null)
                 {
                     instructions[position].SourceLocation = location;
                 }
