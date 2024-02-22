@@ -264,18 +264,18 @@ namespace Neo.SmartContract.Testing
         /// <returns>Contract hash</returns>
         public UInt160 GetDeployHash(byte[] nef, string manifest)
         {
-            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest).Name);
+            return GetDeployHash(nef.AsSerializable<NefFile>(), ContractManifest.Parse(manifest));
         }
 
         /// <summary>
         /// Get deploy hash
         /// </summary>
         /// <param name="nef">Nef</param>
-        /// <param name="name">Manifest name</param>
+        /// <param name="manifest">Manifest</param>
         /// <returns>Contract hash</returns>
-        public UInt160 GetDeployHash(NefFile nef, string name)
+        public UInt160 GetDeployHash(NefFile nef, ContractManifest manifest)
         {
-            return Helper.GetContractHash(Sender, nef.CheckSum, name);
+            return Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace Neo.SmartContract.Testing
 
             if (EnableCoverageCapture)
             {
-                UInt160 expectedHash = GetDeployHash(nef, manifest.Name);
+                UInt160 expectedHash = GetDeployHash(nef, manifest);
 
                 if (!Coverage.ContainsKey(expectedHash))
                 {
