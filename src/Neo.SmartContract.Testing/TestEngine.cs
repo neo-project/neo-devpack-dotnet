@@ -11,6 +11,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -394,7 +395,9 @@ namespace Neo.SmartContract.Testing
 
                 if (mock.IsMocked(method))
                 {
-                    var mockName = method.Name + ";" + method.GetParameters().Length;
+                    var display = method.GetCustomAttribute<DisplayNameAttribute>();
+                    var name = display is not null ? display.DisplayName : method.Name;
+                    var mockName = name + ";" + method.GetParameters().Length;
                     var cm = new CustomMock(mock.Object, method);
 
                     if (_customMocks.TryGetValue(hash, out var mocks))
