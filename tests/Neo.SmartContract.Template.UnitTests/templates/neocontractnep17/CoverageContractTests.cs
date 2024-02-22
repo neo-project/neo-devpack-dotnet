@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Coverage.Formats;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {
@@ -8,7 +10,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         /// <summary>
         /// Required coverage to be success
         /// </summary>
-        public static float RequiredCoverage { get; set; } = 1F;
+        public static decimal RequiredCoverage { get; set; } = 1M;
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
@@ -23,7 +25,14 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Assert.IsNotNull(coverage);
             Console.WriteLine(coverage.Dump());
 
-            File.WriteAllText("coverage.html", coverage.Dump(Testing.Coverage.DumpFormat.Html));
+            File.WriteAllText("instruction-coverage.html", coverage.Dump(DumpFormat.Html));
+
+            if (NeoDebugInfo.TryLoad("templates/neocontractnep17/Artifacts/Nep17Contract.nefdbgnfo", out var dbg))
+            {
+                File.WriteAllText("coverage.cobertura.xml", coverage.Dump(new CoberturaFormat((coverage, dbg))));
+                CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+            }
+
             Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
     }
