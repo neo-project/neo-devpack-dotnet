@@ -57,7 +57,7 @@ namespace Neo.Compiler
         private readonly Dictionary<ITypeSymbol, byte> vtables = new(SymbolEqualityComparer.Default);
         private byte[]? script;
 
-        public bool Success => diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
+        public bool Success => !diagnostics.Any(p => p.Severity == DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => diagnostics;
         public string? ContractName => displayName ?? Options.BaseName ?? className;
         private string? Source { get; set; }
@@ -124,7 +124,7 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
-                diagnostics.AddRange(model.GetDiagnostics());
+                diagnostics.AddRange(model.GetDiagnostics().Where(u => u.Severity != DiagnosticSeverity.Hidden));
                 if (!Success) continue;
                 try
                 {
