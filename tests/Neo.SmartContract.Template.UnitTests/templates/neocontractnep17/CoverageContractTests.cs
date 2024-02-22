@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             var coverage = Nep17ContractTests.Coverage;
             coverage?.Join(OwnerContractTests.Coverage);
 
-            // Dump coverate to console
+            // Dump coverage to console
 
             Assert.IsNotNull(coverage, "Coverage can't be null");
             Console.WriteLine(coverage.Dump());
