@@ -15,23 +15,34 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
-            // Join here all of your Coverage sources
+            // Join here all of your coverage sources
 
             var coverage = Nep17ContractTests.Coverage;
             coverage?.Join(OwnerContractTests.Coverage);
 
-            // Ensure that the coverage is more than X% at the end of the tests
+            // Dump coverate to console
 
-            Assert.IsNotNull(coverage);
+            Assert.IsNotNull(coverage, "Coverage can't be null");
             Console.WriteLine(coverage.Dump());
 
-            File.WriteAllText("instruction-coverage.html", coverage.Dump(DumpFormat.Html));
+            // Write basic instruction html coverage
+
+            File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
+
+            // Load our debug file
 
             if (NeoDebugInfo.TryLoad("templates/neocontractnep17/Artifacts/Nep17Contract.nefdbgnfo", out var dbg))
             {
+                // Write the cobertura format
+
                 File.WriteAllText("coverage.cobertura.xml", coverage.Dump(new CoberturaFormat((coverage, dbg))));
+
+                // Write the report to the specific path
+
                 CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
             }
+
+            // Ensure that the coverage is more than X% at the end of the tests
 
             Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
