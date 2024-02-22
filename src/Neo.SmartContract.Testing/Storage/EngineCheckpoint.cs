@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// Constructor
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public EngineCheckpoint(SnapshotCache snapshot)
+        public EngineCheckpoint(DataCache snapshot)
         {
             var list = new List<(byte[], byte[])>();
 
@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// Restore
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void Restore(SnapshotCache snapshot)
+        public void Restore(DataCache snapshot)
         {
             // Clean snapshot
 
