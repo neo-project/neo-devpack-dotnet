@@ -160,7 +160,6 @@ partial class MethodConvert
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
-
     private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
     {
         ITypeSymbol? type = model.GetTypeInfo(expression).Type;

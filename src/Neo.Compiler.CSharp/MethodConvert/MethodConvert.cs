@@ -30,7 +30,6 @@ namespace Neo.Compiler
 {
     partial class MethodConvert
     {
-
         #region Fields
 
         private readonly CompilationContext context;

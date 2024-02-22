@@ -18,7 +18,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     private void ConvertBinaryPattern(SemanticModel model, BinaryPatternSyntax pattern, byte localIndex)
     {
         switch (pattern.OperatorToken.ValueText)

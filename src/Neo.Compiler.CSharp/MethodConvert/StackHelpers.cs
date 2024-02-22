@@ -9,12 +9,11 @@
 // modifications are permitted.
 
 extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
-using System.Buffers.Binary;
 using System;
+using System.Buffers.Binary;
 using System.Numerics;
 
 namespace Neo.Compiler;
