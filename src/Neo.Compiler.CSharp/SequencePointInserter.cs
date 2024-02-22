@@ -35,6 +35,10 @@ namespace Neo.Compiler
                 {
                     instructions[position].SourceLocation = location;
                 }
+                else
+                {
+                    break;
+                }
             }
         }
     }
