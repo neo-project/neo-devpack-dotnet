@@ -1,5 +1,6 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
@@ -76,7 +77,7 @@ namespace Neo.SmartContract.Testing
             {
                 // We need the contract state without pay gas
 
-                var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
+                var state = NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
 
                 coveredContract = new(Engine.MethodDetection, contractHash, state);
                 Engine.Coverage[contractHash] = coveredContract;
