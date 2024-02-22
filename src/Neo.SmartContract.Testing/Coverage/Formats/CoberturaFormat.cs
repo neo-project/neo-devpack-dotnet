@@ -118,7 +118,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             return (lineCount, hitCount);
         }
 
-        public static IEnumerable<(int address, OpCode opCode)> GetBranchInstructions(
+        public static IEnumerable<(int address, CoverageBranch branch)> GetBranchInstructions(
             CoveredContract contract, NeoDebugInfo.Method method, NeoDebugInfo.SequencePoint sequencePoint
             )
         {
@@ -132,8 +132,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
                 if (contract.TryGetBranch(address, out var branch)) // IsBranchInstruction
                 {
-                    //yield return (address, ins.OpCode);
-                    yield return (address, OpCode.NOP);
+                    yield return (address, branch);
                 }
             }
         }
@@ -149,8 +148,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             else
             {
                 var nextSPAddress = method.SequencePoints[index + 1].Address;
-                var point = method.SequencePoints[index];
-                var address = point.Address;
+                var address = method.SequencePoints[index].Address;
 
                 foreach (var line in lines)
                 {

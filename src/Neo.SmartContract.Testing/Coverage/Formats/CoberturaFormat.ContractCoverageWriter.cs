@@ -145,16 +145,15 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                     writer.WriteAttributeString("condition-coverage", $"{branchRate * 100:N}% ({branchHit}/{branchCount})");
                     writer.WriteStartElement("conditions");
 
-                    foreach (var (address, opCode) in GetBranchInstructions(Contract, method, sp))
+                    foreach ((var address, var branchI) in GetBranchInstructions(Contract, method, sp))
                     {
-                        var (condBranchCount, condContinueCount) = Contract.TryGetBranch(address, out var brach) ?
-                            (brach.Count, brach.Hits) : (0, 0);
+                        var (condBranchCount, condContinueCount) = (branchI.Count, branchI.Hits);
                         var coverage = condBranchCount == 0 ? 0m : 1m;
                         coverage += condContinueCount == 0 ? 0m : 1m;
 
                         writer.WriteStartElement("condition");
                         writer.WriteAttributeString("number", $"{address}");
-                        writer.WriteAttributeString("type", $"{opCode}");
+                        writer.WriteAttributeString("type", $"{branchI.Offset}"); // TODO: Opcode?
                         writer.WriteAttributeString("coverage", $"{coverage / 2m * 100m}%");
                         writer.WriteEndElement();
                     }
