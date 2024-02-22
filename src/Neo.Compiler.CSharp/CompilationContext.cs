@@ -124,7 +124,7 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
                 SemanticModel model = compilation.GetSemanticModel(tree);
-                diagnostics.AddRange(model.GetDiagnostics());
+                diagnostics.AddRange(model.GetDiagnostics().Where(u => u.Severity != DiagnosticSeverity.Hidden));
                 if (!Success) continue;
                 try
                 {
