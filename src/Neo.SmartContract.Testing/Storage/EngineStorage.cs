@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public void Rollback()
         {
-            if (Snapshot is SnapshotCache sp)
+            if (Snapshot is IDisposable sp)
             {
                 sp.Dispose();
             }
