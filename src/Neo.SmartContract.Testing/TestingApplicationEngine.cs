@@ -209,7 +209,7 @@ namespace Neo.SmartContract.Testing
 
                     // Invoke
 
-                    object returnValue;
+                    object? returnValue;
                     EngineStorage backup = Engine.Storage;
 
                     try
@@ -223,9 +223,9 @@ namespace Neo.SmartContract.Testing
 
                         returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        throw ex;
+                        throw;
                     }
                     finally
                     {
