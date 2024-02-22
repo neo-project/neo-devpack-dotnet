@@ -1,9 +1,9 @@
 using Palmmedia.ReportGenerator.Core;
 using System.IO;
 
-namespace Neo.SmartContract.Testing.Coverage.Reports
+namespace Neo.SmartContract.Testing.Coverage
 {
-    public class Report
+    public class CoverageReporting
     {
         /// <summary>
         /// Generate report from cobertura
