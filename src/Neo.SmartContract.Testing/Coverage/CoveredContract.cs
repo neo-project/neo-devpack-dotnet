@@ -1,8 +1,10 @@
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,8 +16,8 @@ namespace Neo.SmartContract.Testing.Coverage
     {
         #region Internal
 
-        private readonly Dictionary<int, CoverageHit> _lines = new();
-        private readonly Dictionary<int, CoverageBranch> _branches = new();
+        private readonly SortedDictionary<int, CoverageHit> _lines = new();
+        private readonly SortedDictionary<int, CoverageBranch> _branches = new();
 
         #endregion
 
@@ -215,6 +217,16 @@ namespace Neo.SmartContract.Testing.Coverage
             return Methods.FirstOrDefault(m => m.Method.Equals(method));
         }
 
+        internal bool TryGetLine(int offset, [NotNullWhen(true)] out CoverageHit? lineHit)
+        {
+            return _lines.TryGetValue(offset, out lineHit);
+        }
+
+        internal bool TryGetBranch(int offset, [NotNullWhen(true)] out CoverageBranch? branch)
+        {
+            return _branches.TryGetValue(offset, out branch);
+        }
+
         /// <summary>
         /// Join coverage
         /// </summary>
@@ -277,150 +289,43 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         internal string Dump(DumpFormat format, params CoveredMethod[] methods)
         {
-            var builder = new StringBuilder();
-            using var sourceCode = new StringWriter(builder)
-            {
-                NewLine = "\n"
-            };
-
             switch (format)
             {
                 case DumpFormat.Console:
                     {
-                        var coverLines = $"{CoveredLinesPercentage:P2}";
-                        var coverBranch = $"{CoveredBranchPercentage:P2}";
-                        sourceCode.WriteLine($"{Hash} [{coverLines} - {coverBranch}]");
-
-                        List<string[]> rows = new();
-                        var max = new int[] { "Method".Length, "Line  ".Length, "Branch".Length };
-
-                        foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
-                        {
-                            coverLines = $"{method.CoveredLinesPercentage:P2}";
-                            coverBranch = $"{method.CoveredBranchPercentage:P2}";
-                            rows.Add(new string[] { method.Method.ToString(), coverLines, coverBranch });
-
-                            max[0] = Math.Max(method.Method.ToString().Length, max[0]);
-                            max[1] = Math.Max(coverLines.Length, max[1]);
-                            max[2] = Math.Max(coverLines.Length, max[2]);
-                        }
-
-                        sourceCode.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
-                        sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │ {string.Format($"{{0,{max[2]}}}", "Branch", max[1])} │");
-                        sourceCode.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┼-{"─".PadLeft(max[1], '─')}-┤");
-
-                        foreach (var print in rows)
-                        {
-                            sourceCode.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │ {string.Format($"{{0,{max[1]}}}", print[2], max[2])} │");
-                        }
-
-                        sourceCode.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┴-{"─".PadLeft(max[2], '─')}-┘");
-                        break;
+                        return Dump(new ConsoleFormat(this, methods));
                     }
                 case DumpFormat.Html:
                     {
-                        sourceCode.WriteLine(@"
-<!DOCTYPE html>
-<html lang=""en"">
-<head>
-<meta charset=""UTF-8"">
-<title>NEF coverage Report</title>
-<style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    .bar { background-color: #f2f2f2; padding: 10px; cursor: pointer; }
-    .hash { float: left; }
-    .method-name { float: left; }
-    .coverage { float: right; display: inline-block; width: 100px; text-align: right; }
-    .method { cursor: pointer; margin-top: 5px; padding: 2px; }
-    .details { display: none; padding-left: 20px; }
-    .container { padding-left: 20px; }
-    .opcode { margin-left: 20px; position: relative; padding: 2px; margin-bottom: 2px; display: flex; align-items: center; }
-    .hit { background-color: #eafaea; } /* Light green for hits */
-    .no-hit { background-color: #ffcccc; } /* Light red for no hits */
-    .hits { margin-left: 5px; font-size: 0.6em; margin-right: 10px; }
-    .branch { margin-left: 5px; font-size: 0.6em; margin-right: }
-    .icon { margin-right: 5px; }
-
-    .high-coverage { background-color: #ccffcc; } /* Lighter green for high coverage */
-    .medium-coverage { background-color: #ffffcc; } /* Yellow for medium coverage */
-    .low-coverage { background-color: #ffcccc; } /* Lighter red for low coverage */
-</style>
-</head>
-<body>
-");
-
-                        sourceCode.WriteLine($@"
-<div class=""bar"">
-    <div class=""hash"">{Hash}</div>
-    <div class=""coverage"">&nbsp;{CoveredBranchPercentage:P2}&nbsp;</div>
-    <div class=""coverage"">&nbsp;{CoveredLinesPercentage:P2}&nbsp;</div>
-    <div style=""clear: both;""></div>
-</div>
-<div class=""container"">
-");
-
-                        foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
-                        {
-                            var kind = "low";
-                            if (method.CoveredLinesPercentage > 0.7) kind = "medium";
-                            if (method.CoveredLinesPercentage > 0.8) kind = "high";
-
-                            sourceCode.WriteLine($@"
-<div class=""method {kind}-coverage"">
-    <div class=""method-name"">{method.Method}</div>
-    <div class=""coverage"">&nbsp;{method.CoveredBranchPercentage:P2}&nbsp;</div>
-    <div class=""coverage"">&nbsp;{method.CoveredLinesPercentage:P2}&nbsp;</div>
-    <div style=""clear: both;""></div>
-</div>
-");
-                            sourceCode.WriteLine($@"<div class=""details"">");
-
-                            foreach (var hit in method.Lines)
-                            {
-                                var noHit = hit.Hits == 0 ? "no-" : "";
-                                var icon = hit.Hits == 0 ? "✘" : "✔";
-                                var branch = "";
-
-                                if (_branches.TryGetValue(hit.Offset, out var b))
-                                {
-                                    branch = $" <span class=\"branch\">[ᛦ {b.Hits}/{b.Count}]</span>";
-                                }
-
-                                sourceCode.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{hit.Description}{branch}</div>");
-                            }
-
-                            sourceCode.WriteLine($@"</div>
-");
-                        }
-
-                        sourceCode.WriteLine(@"
-</div>
-<script>
-    document.querySelector('.bar').addEventListener('click', () => {
-        const container = document.querySelector('.container');
-        container.style.display = container.style.display === 'none' ? 'block' : 'none';
-    });
-
-    document.querySelectorAll('.method').forEach(item => {
-        item.addEventListener('click', function() {
-            const details = this.nextElementSibling;
-            if(details.style.display === '' || details.style.display === 'none') {
-                details.style.display = 'block';
-            } else {
-                details.style.display = 'none';
-            }
-        });
-    });
-</script>
-
-</body>
-</html>
-");
-                        break;
+                        return Dump(new IntructionHtmlFormat(this, methods));
+                    }
+                default:
+                    {
+                        throw new NotImplementedException();
                     }
             }
+        }
 
-            return builder.ToString();
+        /// <summary>
+        /// Dump to format
+        /// </summary>
+        /// <param name="format">Format</param>
+        /// <param name="debugInfo">Debug Info</param>
+        /// <returns>Covertura</returns>
+        public string Dump(ICoverageFormat format)
+        {
+            Dictionary<string, string> outputMap = new();
+
+            void writeAttachment(string filename, Action<Stream> writestream)
+            {
+                using MemoryStream stream = new();
+                writestream(stream);
+                var text = Encoding.UTF8.GetString(stream.ToArray());
+                outputMap.Add(filename, text);
+            }
+
+            format.WriteReport(writeAttachment);
+            return outputMap.First().Value;
         }
 
         /// <summary>
