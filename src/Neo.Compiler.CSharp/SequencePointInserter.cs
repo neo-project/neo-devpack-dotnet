@@ -17,20 +17,18 @@ namespace Neo.Compiler
     class SequencePointInserter : IDisposable
     {
         private readonly IReadOnlyList<Instruction> instructions;
-        private readonly SyntaxNodeOrToken syntax;
+        private readonly Location? location;
         private readonly int position;
 
         public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken syntax)
         {
             this.instructions = instructions;
-            this.syntax = syntax;
+            this.location = syntax.GetLocation();
             this.position = instructions.Count;
         }
 
         void IDisposable.Dispose()
         {
-            var location = syntax.GetLocation();
-
             for (int x = position; x < instructions.Count; x++)
             {
                 if (instructions[position].SourceLocation is null)
