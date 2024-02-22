@@ -350,7 +350,7 @@ namespace Neo.Compiler
             foreach (var m in methodsConverted.Where(p => p.SyntaxNode is not null))
             {
                 List<JString> sequencePoints = new();
-                foreach (var ins in m.Instructions.Where(i => i.SourceLocation is not null))
+                foreach (var ins in m.Instructions.Where(i => i.SourceLocation?.SourceTree is not null))
                 {
                     var doc = ins.SourceLocation!.SourceTree!.FilePath;
                     if (!string.IsNullOrEmpty(folder))

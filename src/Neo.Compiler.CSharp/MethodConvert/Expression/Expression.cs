@@ -22,12 +22,15 @@ partial class MethodConvert
 {
     private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax)
     {
+        using var sequence = InsertSequencePoint(syntax);
+
         Optional<object?> constant = model.GetConstantValue(syntax);
         if (constant.HasValue)
         {
             Push(constant.Value);
             return;
         }
+
         switch (syntax)
         {
             case AnonymousObjectCreationExpressionSyntax expression:

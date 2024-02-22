@@ -33,19 +33,16 @@ partial class MethodConvert
                 if (syntax.Body is not null)
                     ConvertStatement(model, syntax.Body);
                 else if (syntax.ExpressionBody is not null)
-                    using (InsertSequencePoint(syntax.ExpressionBody.Expression))
-                        ConvertExpression(model, syntax.ExpressionBody.Expression);
+                    ConvertExpression(model, syntax.ExpressionBody.Expression);
                 else
                     ConvertNoBody(syntax);
                 break;
             case ArrowExpressionClauseSyntax syntax:
-                using (InsertSequencePoint(syntax))
-                    ConvertExpression(model, syntax.Expression);
+                ConvertExpression(model, syntax.Expression);
                 break;
             case BaseMethodDeclarationSyntax syntax:
                 if (syntax.Body is null)
-                    using (InsertSequencePoint(syntax.ExpressionBody!.Expression))
-                        ConvertExpression(model, syntax.ExpressionBody.Expression);
+                    ConvertExpression(model, syntax.ExpressionBody!.Expression);
                 else
                     ConvertStatement(model, syntax.Body);
                 break;
