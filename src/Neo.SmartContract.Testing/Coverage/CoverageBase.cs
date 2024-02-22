@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    public abstract class CoverageBase 
+    public abstract class CoverageBase
     {
         /// <summary>
         /// Coverage Branches
