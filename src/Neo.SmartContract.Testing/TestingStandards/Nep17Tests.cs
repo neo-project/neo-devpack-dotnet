@@ -209,7 +209,7 @@ public class Nep17Tests<T> : TestBase<T>
 
         UInt160? calledFrom = null;
         BigInteger? calledAmount = null;
-        byte[]? calledData = null;
+        UInt160? calledData = null;
 
         var mock = Engine.Deploy<onNEP17PaymentContract>(NefFile, manifest.ToJson().ToString(), null, m =>
          {
@@ -217,14 +217,29 @@ public class Nep17Tests<T> : TestBase<T>
              .Setup(s => s.onNEP17Payment(It.IsAny<UInt160>(), It.IsAny<BigInteger>(), It.IsAny<object>()))
              .Callback(new InvocationAction((i) =>
              {
+                 // Set variables
+
+                 var me = new UInt160((i.Arguments[2] as ByteString)!.GetSpan().ToArray());
                  calledFrom = i.Arguments[0] as UInt160;
                  calledAmount = (BigInteger)i.Arguments[1];
-                 calledData = (i.Arguments[2] as ByteString)!.GetSpan().ToArray();
+
+                 // Ensure the balance
+
+                 Assert.AreEqual(3, Contract.BalanceOf(me));
 
                  // Ensure the event was called
 
-                 var me = new UInt160(calledData);
                  AssertTransferEvent(Alice.Account, me, calledAmount);
+
+                 // Return the money back
+
+                 Engine.SetTransactionSigners(me);
+                 Assert.IsTrue(Contract.Transfer(me, calledFrom, calledAmount));
+                 AssertTransferEvent(me, Alice.Account, calledAmount);
+
+                 // Set success flag
+
+                 calledData = me;
              }));
          });
 
@@ -234,14 +249,9 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.IsTrue(Contract.Transfer(Alice.Account, mock.Hash, 3, mock.Hash.ToArray()));
 
         Assert.AreEqual(Alice.Account, calledFrom);
-        Assert.AreEqual(mock.Hash, new UInt160(calledData));
+        Assert.AreEqual(mock.Hash, calledData);
         Assert.AreEqual(3, calledAmount);
-
-        // Return the money back
-
-        Engine.SetTransactionSigners(mock);
-        Assert.IsTrue(Contract.Transfer(mock.Hash, calledFrom, calledAmount));
-        AssertTransferEvent(mock.Hash, Alice.Account, calledAmount);
+        Assert.AreEqual(0, Contract.BalanceOf(mock.Hash));
     }
 
     #endregion
