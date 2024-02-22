@@ -17,6 +17,7 @@ namespace Neo.SmartContract.Testing
         private ExecutionContext? InstructionContext;
         private int? InstructionPointer;
         private long PreExecuteInstructionGasConsumed;
+        private bool? BranchPath;
 
         /// <summary>
         /// Testing engine
@@ -39,6 +40,74 @@ namespace Neo.SmartContract.Testing
                 PreExecuteInstructionGasConsumed = GasConsumed;
                 InstructionContext = CurrentContext;
                 InstructionPointer = InstructionContext?.InstructionPointer;
+            }
+
+            // Calculate branch path
+
+            BranchPath = null;
+
+            switch (instruction.OpCode)
+            {
+                case OpCode.JMPIF:
+                case OpCode.JMPIF_L:
+                case OpCode.JMPIFNOT:
+                case OpCode.JMPIFNOT_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 1)
+                        {
+                            // We don't care about the positive or negative path
+                            // for coverage is the same
+                            BranchPath = Peek(0).GetBoolean();
+                        }
+                        break;
+                    }
+                case OpCode.JMPEQ:
+                case OpCode.JMPEQ_L:
+                case OpCode.JMPNE:
+                case OpCode.JMPNE_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() == Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPGT:
+                case OpCode.JMPGT_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() > Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPGE:
+                case OpCode.JMPGE_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() >= Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPLT:
+                case OpCode.JMPLT_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() < Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPLE:
+                case OpCode.JMPLE_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() <= Peek(1).GetInteger();
+                        }
+                        break;
+                    }
             }
 
             // Regular action
@@ -85,8 +154,9 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed);
+            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed, BranchPath);
 
+            BranchPath = null;
             PreInstruction = null;
             InstructionContext = null;
             InstructionPointer = null;
