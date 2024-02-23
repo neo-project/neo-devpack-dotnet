@@ -146,11 +146,13 @@ namespace Neo.SmartContract.Testing
 
         /// <summary>
         /// On GetEntryScriptHash
+        ///     The argument is the ExecutingScriptHash, and it must return the new EntryScriptHash, or null if we don't want to make any change
         /// </summary>
         public Func<UInt160, UInt160?>? OnGetEntryScriptHash { get; set; } = null;
 
         /// <summary>
         /// On GetCallingScriptHash
+        ///     The argument is the ExecutingScriptHash, and it must return the new CallingScriptHash, or null if we don't want to make any change
         /// </summary>
         public Func<UInt160, UInt160?>? OnGetCallingScriptHash { get; set; } = null;
 
