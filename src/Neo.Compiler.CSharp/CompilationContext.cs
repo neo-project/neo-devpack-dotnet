@@ -115,7 +115,7 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in _engine.Compilation!.SyntaxTrees)
             {
                 SemanticModel model = _engine.Compilation!.GetSemanticModel(tree);
-                _diagnostics.AddRange(model.GetDiagnostics());
+                _diagnostics.AddRange(model.GetDiagnostics().Where(u => u.Severity != DiagnosticSeverity.Hidden));
                 if (!Success) continue;
                 try
                 {
@@ -148,6 +148,13 @@ namespace Neo.Compiler
                 Tokens = _methodTokens.ToArray(),
                 Script = Script
             };
+
+            if (nef.Compiler.Length > 64)
+            {
+                // Neo.Compiler.CSharp 3.6.2+470d9a8608b41de658849994a258200d8abf7caa
+                nef.Compiler = nef.Compiler.Substring(0, 61) + "...";
+            }
+
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             // Ensure that is serializable
             return nef.ToArray().AsSerializable<NefFile>();
@@ -225,7 +232,7 @@ namespace Neo.Compiler
             foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
                 List<JString> sequencePoints = new();
-                foreach (var ins in m.Instructions.Where(i => i.SourceLocation is not null))
+                foreach (var ins in m.Instructions.Where(i => i.SourceLocation?.SourceTree is not null))
                 {
                     var doc = ins.SourceLocation!.SourceTree!.FilePath;
                     if (!string.IsNullOrEmpty(folder))

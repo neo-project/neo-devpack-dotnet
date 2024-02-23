@@ -11,6 +11,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -83,6 +84,11 @@ namespace Neo.SmartContract.Testing
         /// Enable coverage capture
         /// </summary>
         public bool EnableCoverageCapture { get; set; } = true;
+
+        /// <summary>
+        /// Method detection
+        /// </summary>
+        public MethodDetectionMechanism MethodDetection { get; set; } = MethodDetectionMechanism.FindRET;
 
         /// <summary>
         /// Validators Address
@@ -299,11 +305,16 @@ namespace Neo.SmartContract.Testing
         {
             // Deploy
 
+            //UInt160 expectedHash = GetDeployHash(nef, manifest);
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
+
+            if (state is null)
+            {
+                throw new Exception("Can't get the ContractState");
+            }
 
             // Mock contract
 
-            //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
             var ret = MockContract(state.Hash, state.Id, customMock);
 
             // We cache the coverage contract during `_deploy`
@@ -313,7 +324,7 @@ namespace Neo.SmartContract.Testing
             if (EnableCoverageCapture)
             {
                 var coverage = GetCoverage(ret);
-                coverage?.GenerateMethods(state.Manifest.Abi, state.Script);
+                coverage?.GenerateMethods(MethodDetection, state);
             }
 
             return ret;
@@ -384,7 +395,9 @@ namespace Neo.SmartContract.Testing
 
                 if (mock.IsMocked(method))
                 {
-                    var mockName = method.Name + ";" + method.GetParameters().Length;
+                    var display = method.GetCustomAttribute<DisplayNameAttribute>();
+                    var name = display is not null ? display.DisplayName : method.Name;
+                    var mockName = name + ";" + method.GetParameters().Length;
                     var cm = new CustomMock(mock.Object, method);
 
                     if (_customMocks.TryGetValue(hash, out var mocks))
@@ -453,6 +466,38 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Release custom mock
+        /// </summary>
+        /// <param name="contract">Contract</param>
+        /// <returns>True if a mock was released</returns>
+        public bool ReleaseMock(SmartContract contract)
+        {
+            if (_customMocks.TryGetValue(contract.Hash, out var mocks))
+            {
+                // Remove custom mock
+
+                var ret = false;
+
+                foreach (var entry in mocks.ToArray())
+                {
+                    if (ReferenceEquals(entry.Value.Contract, contract))
+                    {
+                        if (mocks.Remove(entry.Key)) ret = true;
+                    }
+                }
+
+                if (mocks.Count == 0)
+                {
+                    _customMocks.Remove(contract.Hash);
+                }
+
+                return ret;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Execute raw script
         /// </summary>
         /// <param name="script">Script</param>
@@ -517,7 +562,7 @@ namespace Neo.SmartContract.Testing
                 var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
                 if (state == null) return null;
 
-                coveredContract = new(contract.Hash, state.Manifest.Abi, state.Script);
+                coveredContract = new(MethodDetection, contract.Hash, state);
                 Coverage[coveredContract.Hash] = coveredContract;
             }
 

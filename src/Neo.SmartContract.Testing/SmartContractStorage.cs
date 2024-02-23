@@ -24,7 +24,13 @@ namespace Neo.SmartContract.Testing
         private int GetContractId()
         {
             // If it was not initialized checking the contract, we need to query the contract id
-            _contractId ??= _smartContract.Engine.Native.ContractManagement.GetContract(_smartContract.Hash).Id;
+
+            if (_contractId is not null) return _contractId.Value;
+
+            var state = _smartContract.Engine.Native.ContractManagement.GetContract(_smartContract.Hash)
+                ?? throw new Exception($"The contract {_smartContract.Hash} is not deployed, so it's not possible to get the storage id.");
+
+            _contractId = state.Id;
             return _contractId.Value;
         }
 
