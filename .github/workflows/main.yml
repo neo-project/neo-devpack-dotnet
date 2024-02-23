@@ -45,17 +45,17 @@ jobs:
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         --no-build \
         -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/
+        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ \
+        -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         --no-build \
         -l "console;verbosity=normal" \
         -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
+        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
-        -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\" \
-        -p:CoverletOutputFormat=lcov
+        -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
