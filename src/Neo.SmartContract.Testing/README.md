@@ -83,6 +83,9 @@ And for read and write, we have:
 
 - **Gas**: Sets the gas execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
 - **EnableCoverageCapture**: Enables or disables the coverage capture. 
+- **Trigger**: The trigger of the execution.
+- **OnGetEntryScriptHash**: This feature makes it easy to change the EntryScriptHash.
+- **OnGetCallingScriptHash**: This feature makes it easy to change the CallingScriptHash.
 
 #### Methods
 
