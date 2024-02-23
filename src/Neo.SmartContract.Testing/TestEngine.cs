@@ -140,6 +140,23 @@ namespace Neo.SmartContract.Testing
         public Transaction Transaction { get; }
 
         /// <summary>
+        /// The trigger of the execution.
+        /// </summary>
+        public TriggerType Trigger { get; set; } = TriggerType.Application;
+
+        /// <summary>
+        /// On GetEntryScriptHash
+        ///     The argument is the ExecutingScriptHash, and it must return the new EntryScriptHash, or null if we don't want to make any change
+        /// </summary>
+        public Func<UInt160, UInt160?>? OnGetEntryScriptHash { get; set; } = null;
+
+        /// <summary>
+        /// On GetCallingScriptHash
+        ///     The argument is the ExecutingScriptHash, and it must return the new CallingScriptHash, or null if we don't want to make any change
+        /// </summary>
+        public Func<UInt160, UInt160?>? OnGetCallingScriptHash { get; set; } = null;
+
+        /// <summary>
         /// Gas
         /// </summary>
         public long Gas
@@ -512,7 +529,7 @@ namespace Neo.SmartContract.Testing
 
             var snapshot = Storage.Snapshot.CreateSnapshot();
 
-            using var engine = new TestingApplicationEngine(this, TriggerType.Application, Transaction, snapshot, CurrentBlock);
+            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, CurrentBlock);
 
             engine.LoadScript(script);
 

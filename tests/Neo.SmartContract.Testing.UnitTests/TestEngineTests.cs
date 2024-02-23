@@ -3,6 +3,7 @@ using Moq;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
+using Neo.VM.Types;
 using System.Collections.Generic;
 using System.IO;
 
@@ -28,6 +29,36 @@ namespace Neo.SmartContract.Testing.UnitTests
 
                 File.WriteAllText(fullPath, source);
             }
+        }
+
+        [TestMethod]
+        public void TestOnGetEntryScriptHash()
+        {
+            TestEngine engine = new(true);
+
+            var builder = new ScriptBuilder();
+            builder.EmitSysCall(ApplicationEngine.System_Runtime_GetEntryScriptHash);
+            var script = builder.ToArray();
+
+            Assert.AreEqual("0xfa99b1aeedab84a47856358515e7f982341aa767", engine.Execute(script).ConvertTo(typeof(UInt160)).ToString());
+
+            engine.OnGetEntryScriptHash = current => UInt160.Parse("0x0000000000000000000000000000000000000001");
+            Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160)).ToString());
+        }
+
+        [TestMethod]
+        public void TestOnGetCallingScriptHash()
+        {
+            TestEngine engine = new(true);
+
+            var builder = new ScriptBuilder();
+            builder.EmitSysCall(ApplicationEngine.System_Runtime_GetCallingScriptHash);
+            var script = builder.ToArray();
+
+            Assert.AreEqual(StackItem.Null, engine.Execute(script));
+
+            engine.OnGetCallingScriptHash = current => UInt160.Parse("0x0000000000000000000000000000000000000001");
+            Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160)).ToString());
         }
 
         [TestMethod]

@@ -163,7 +163,7 @@ namespace Neo.Compiler
                 {
                     try
                     {
-                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone());
                     }
                     catch (Exception ex)
                     {
@@ -278,9 +278,16 @@ namespace Neo.Compiler
                     path = Path.Combine(outputFolder, $"{baseName}.asm");
                     File.WriteAllText(path, context.CreateAssembly());
                     Console.WriteLine($"Created {path}");
-                    path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
-                    File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo));
-                    Console.WriteLine($"Created {path}");
+                    try
+                    {
+                        path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
+                        File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo));
+                        Console.WriteLine($"Created {path}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Failed to dumpnef: {ex}");
+                    }
                 }
                 Console.WriteLine("Compilation completed successfully.");
                 return 0;
