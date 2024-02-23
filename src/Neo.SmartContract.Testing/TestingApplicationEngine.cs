@@ -25,6 +25,44 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         public TestEngine Engine { get; }
 
+        /// <summary>
+        /// Override CallingScriptHash
+        /// </summary>
+        public override UInt160 CallingScriptHash
+        {
+            get
+            {
+                var currentHash = InstructionContext.GetScriptHash();
+                var hash = Engine.OnGetCallingScriptHash?.Invoke(currentHash);
+
+                if (hash is not null)
+                {
+                    return hash;
+                }
+
+                return base.CallingScriptHash;
+            }
+        }
+
+        /// <summary>
+        /// Override EntryScriptHash
+        /// </summary>
+        public override UInt160 EntryScriptHash
+        {
+            get
+            {
+                var currentHash = InstructionContext.GetScriptHash();
+                var hash = Engine.OnGetEntryScriptHash?.Invoke(currentHash);
+
+                if (hash is not null)
+                {
+                    return hash;
+                }
+
+                return base.EntryScriptHash;
+            }
+        }
+
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
             : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
         {
@@ -165,30 +203,8 @@ namespace Neo.SmartContract.Testing
 
         protected override void OnSysCall(InteropDescriptor descriptor)
         {
-            if (descriptor == System_Runtime_GetEntryScriptHash)
-            {
-                var currentHash = InstructionContext.GetScriptHash();
-                var hash = Engine.OnGetEntryScriptHash?.Invoke(currentHash);
-
-                if (hash is not null)
-                {
-                    Push(Convert(hash));
-                    return;
-                }
-            }
-            else if (descriptor == System_Runtime_GetCallingScriptHash)
-            {
-                var currentHash = InstructionContext.GetScriptHash();
-                var hash = Engine.OnGetCallingScriptHash?.Invoke(currentHash);
-
-                if (hash is not null)
-                {
-                    Push(Convert(hash));
-                    return;
-                }
-            }
             //  descriptor.Hash == 1381727586 && descriptor.Name == "System.Contract.Call" && descriptor.Parameters.Count == 4)
-            else if (descriptor == System_Contract_Call)
+            if (descriptor == System_Contract_Call)
             {
                 // Check if the syscall is a contract call and we need to mock it because it was defined by the user
 

@@ -122,7 +122,8 @@ public class Nep17Tests<T> : TestBase<T>
     {
         Assert.AreEqual(0, Contract.BalanceOf(Bob.Account));
         Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.Null));
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.Invalid));
+        Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
+        Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
     }
 
     [TestMethod]
@@ -156,8 +157,10 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
 
         Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Invalid, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Invalid, 0)));
+        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
+        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
+        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
+        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
 
         // Invoke transfer without signature
 

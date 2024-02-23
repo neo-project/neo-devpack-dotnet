@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         static TestBlockchain()
         {
-            TheNeoSystem = new NeoSystem(TestProtocolSettings.Default, new MemoryStore());
+            TheNeoSystem = new NeoSystem(TestProtocolSettings.Default, new MemoryStoreProvider());
         }
 
         public static StorageKey CreateStorageKey(this NativeContract contract, byte prefix, ISerializable key = null)
