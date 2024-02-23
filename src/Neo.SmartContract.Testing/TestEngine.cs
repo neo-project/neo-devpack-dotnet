@@ -22,6 +22,8 @@ namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
+        public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
+
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
@@ -146,15 +148,15 @@ namespace Neo.SmartContract.Testing
 
         /// <summary>
         /// On GetEntryScriptHash
-        ///     The argument is the ExecutingScriptHash, and it must return the new EntryScriptHash, or null if we don't want to make any change
+        ///     The argument is the ExecutingScriptHash and the expected return, and it must return the new EntryScriptHash, or null if we don't want to make any change
         /// </summary>
-        public Func<UInt160, UInt160?>? OnGetEntryScriptHash { get; set; } = null;
+        public OnGetScriptHash? OnGetEntryScriptHash { get; set; } = null;
 
         /// <summary>
         /// On GetCallingScriptHash
-        ///     The argument is the ExecutingScriptHash, and it must return the new CallingScriptHash, or null if we don't want to make any change
+        ///     The argument is the ExecutingScriptHash and the expected return, and it must return the new CallingScriptHash, or null if we don't want to make any change
         /// </summary>
-        public Func<UInt160, UInt160?>? OnGetCallingScriptHash { get; set; } = null;
+        public OnGetScriptHash? OnGetCallingScriptHash { get; set; } = null;
 
         /// <summary>
         /// Gas
