@@ -46,6 +46,7 @@ jobs:
         --no-build \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
+        -p:ExcludeByFile=\"*/neo/*,**/home/runner/*\" \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
@@ -55,6 +56,7 @@ jobs:
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        -p:ExcludeByFile=\"*/neo/*,**/home/runner/*\" \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
@@ -64,6 +66,7 @@ jobs:
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        -p:ExcludeByFile=\"*/neo/*,**/home/runner/*\" \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\" \
         -p:CoverletOutputFormat=lcov
     - name: Coveralls
