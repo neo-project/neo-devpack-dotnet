@@ -45,7 +45,7 @@ jobs:
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         --no-build \
         -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ \
+        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
@@ -53,8 +53,8 @@ jobs:
         --no-build \
         -l "console;verbosity=normal" \
         -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/ \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
+        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
+        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
@@ -63,7 +63,7 @@ jobs:
         -l "console;verbosity=detailed" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage/coverage.json \
+        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
         -p:Exclude=\"[Neo.Compiler.CSharp.UnitTests]*\" \
         -p:CoverletOutputFormat=lcov
     - name: Coveralls
