@@ -106,9 +106,7 @@ namespace Neo.Optimizer
             nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
 
-            Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
-            Dictionary<int, string> newMethodStart = new();
-            Dictionary<int, string> newMethodEnd = new();
+            //Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
             HashSet<JToken> methodsToRemove = new();
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -121,8 +119,6 @@ namespace Neo.Optimizer
                 }
                 int methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
                 int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
-                newMethodStart.Add(methodStart, method["id"]!.AsString());  // TODO: same format of method name as dumpnef
-                newMethodEnd.Add(methodEnd, method["id"]!.AsString());
                 method["range"] = $"{methodStart}-{methodEnd}";
 
                 int previousSequencePoint = methodStart;
@@ -140,14 +136,6 @@ namespace Neo.Optimizer
                     }
                     else
                         newSequencePoints.Add(new JString($"{previousSequencePoint}{sequencePointGroups[2]}"));
-                    GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
-                    newAddrToSequencePoint.Add(previousSequencePoint, (
-                        int.Parse(documentGroups[1].ToString()),
-                        int.Parse(documentGroups[2].ToString()),
-                        int.Parse(documentGroups[3].ToString()),
-                        int.Parse(documentGroups[4].ToString()),
-                        int.Parse(documentGroups[5].ToString())
-                        ));
                 }
                 method["sequence-points"] = newSequencePoints;
             }
@@ -173,6 +161,8 @@ namespace Neo.Optimizer
             Parallel.ForEach(manifest.Abi.Methods, method =>
                 CoverInstruction(method.Offset, script, coveredMap)
             );
+            //foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+            //    CoverInstruction(method.Offset, script, coveredMap);
             // start from _deploy method
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -249,7 +239,17 @@ namespace Neo.Optimizer
 
                 // TODO: ABORTMSG may THROW instead of ABORT. Just throw new NotImplementedException for ABORTMSG?
                 if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
+                {
+                    // See if we are in a try. There may still be runtime exceptions
+                    ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                    if (stackType == TryStack.TRY && catchAddr != -1)
+                        // Visit catchAddr because there may still be exceptions at runtime
+                        return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                    if (stackType == TryStack.CATCH && finallyAddr != -1)
+                        // Visit finallyAddr because there may still be exceptions at runtime
+                        return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                     return BranchType.ABORT;
+                }
                 if (callWithJump.Contains(instruction.OpCode))
                 {
                     int callTarget = ComputeJumpTarget(addr, instruction);
@@ -260,12 +260,32 @@ namespace Neo.Optimizer
                         continue;
                     }
                     if (returnedType == BranchType.ABORT)
+                    {
+                        // See if we are in a try. There may still be runtime exceptions
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                        if (stackType == TryStack.TRY && catchAddr != -1)
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                         return BranchType.ABORT;
+                    }
                     if (returnedType == BranchType.THROW)
                         goto HANDLE_THROW;
                 }
                 if (instruction.OpCode == OpCode.RET)
+                {
+                    // See if we are in a try. There may still be runtime exceptions
+                    ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                    if (stackType == TryStack.TRY && catchAddr != -1)
+                        // Visit catchAddr because there may still be exceptions at runtime
+                        CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                    if (stackType == TryStack.CATCH && finallyAddr != -1)
+                        // Visit finallyAddr because there may still be exceptions at runtime
+                        CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                     return BranchType.OK;
+                }
                 if (tryThrowFinally.Contains(instruction.OpCode))
                 {
                     if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
@@ -275,14 +295,15 @@ namespace Neo.Optimizer
                     if (instruction.OpCode == OpCode.ENDTRY)
                     {
                         ((catchAddr, finallyAddr), stackType) = stack.Peek();
-                        if (stackType != TryStack.TRY && stackType != TryStack.CATCH) throw new BadScriptException("No try stack on ENDTRY");
+                        if (stackType != TryStack.TRY && stackType != TryStack.CATCH)
+                            throw new BadScriptException("No try stack on ENDTRY");
 
-                        if (stackType == TryStack.TRY)
-                        {
+                        if (stackType == TryStack.TRY && catchAddr != -1)
                             // Visit catchAddr because there may still be exceptions at runtime
-                            Stack<((int returnAddr, int finallyAddr), TryStack stackType)> newStack = new(stack);
-                            CoverInstruction(catchAddr, script, coveredMap, stack: newStack, throwed: true);
-                        }
+                            CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
 
                         stack.Pop();
                         int endPointer = addr + instruction.TokenI8;
@@ -325,12 +346,32 @@ namespace Neo.Optimizer
                 if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                 {
                     int targetAddress = ComputeJumpTarget(addr, instruction);
-                    BranchType noJump = CoverInstruction(addr + instruction.Size, script, coveredMap);
-                    BranchType jump = CoverInstruction(targetAddress, script, coveredMap);
+                    BranchType noJump = CoverInstruction(addr + instruction.Size, script, coveredMap, stack: new(stack.Reverse()));
+                    BranchType jump = CoverInstruction(targetAddress, script, coveredMap, stack: new(stack.Reverse()));
                     if (noJump == BranchType.OK || jump == BranchType.OK)
+                    {
+                        // See if we are in a try. There may still be runtime exceptions
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                        if (stackType == TryStack.TRY && catchAddr != -1)
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                         return BranchType.OK;
+                    }
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
+                    {
+                        // See if we are in a try. There may still be runtime exceptions
+                        ((catchAddr, finallyAddr), stackType) = stack.Peek();
+                        if (stackType == TryStack.TRY && catchAddr != -1)
+                            // Visit catchAddr because there may still be exceptions at runtime
+                            return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        if (stackType == TryStack.CATCH && finallyAddr != -1)
+                            // Visit finallyAddr because there may still be exceptions at runtime
+                            return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
                         return BranchType.ABORT;
+                    }
                     if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
                         goto HANDLE_THROW;
                     throw new Exception($"Unknown {nameof(BranchType)} {noJump} {jump}");
