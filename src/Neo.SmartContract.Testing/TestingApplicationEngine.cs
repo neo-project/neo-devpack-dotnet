@@ -28,38 +28,12 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Override CallingScriptHash
         /// </summary>
-        public override UInt160 CallingScriptHash
-        {
-            get
-            {
-                var hash = Engine.OnGetCallingScriptHash?.Invoke(CurrentScriptHash);
-
-                if (hash is not null)
-                {
-                    return hash;
-                }
-
-                return base.CallingScriptHash;
-            }
-        }
+        public override UInt160 CallingScriptHash => Engine.OnGetCallingScriptHash?.Invoke(CurrentScriptHash) ?? base.CallingScriptHash;
 
         /// <summary>
         /// Override EntryScriptHash
         /// </summary>
-        public override UInt160 EntryScriptHash
-        {
-            get
-            {
-                var hash = Engine.OnGetEntryScriptHash?.Invoke(CurrentScriptHash);
-
-                if (hash is not null)
-                {
-                    return hash;
-                }
-
-                return base.EntryScriptHash;
-            }
-        }
+        public override UInt160 EntryScriptHash => Engine.OnGetEntryScriptHash?.Invoke(CurrentScriptHash) ?? base.EntryScriptHash;
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
             : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
