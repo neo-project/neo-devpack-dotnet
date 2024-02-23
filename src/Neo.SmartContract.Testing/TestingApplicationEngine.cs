@@ -165,11 +165,32 @@ namespace Neo.SmartContract.Testing
 
         protected override void OnSysCall(InteropDescriptor descriptor)
         {
-            // Check if the syscall is a contract call and we need to mock it because it was defined by the user
-
-            if (descriptor.Hash == 1381727586 && descriptor.Name == "System.Contract.Call" && descriptor.Parameters.Count == 4)
+            if (descriptor == System_Runtime_GetEntryScriptHash)
             {
-                // Extract args
+                var currentHash = InstructionContext.GetScriptHash();
+                var hash = Engine.OnGetEntryScriptHash?.Invoke(currentHash);
+
+                if (hash is not null)
+                {
+                    Push(Convert(hash));
+                    return;
+                }
+            }
+            else if (descriptor == System_Runtime_GetCallingScriptHash)
+            {
+                var currentHash = InstructionContext.GetScriptHash();
+                var hash = Engine.OnGetCallingScriptHash?.Invoke(currentHash);
+
+                if (hash is not null)
+                {
+                    Push(Convert(hash));
+                    return;
+                }
+            }
+            //  descriptor.Hash == 1381727586 && descriptor.Name == "System.Contract.Call" && descriptor.Parameters.Count == 4)
+            else if (descriptor == System_Contract_Call)
+            {
+                // Check if the syscall is a contract call and we need to mock it because it was defined by the user
 
                 if (Convert(Peek(0), descriptor.Parameters[0]) is UInt160 contractHash &&
                     Convert(Peek(1), descriptor.Parameters[1]) is string method &&
