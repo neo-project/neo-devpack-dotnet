@@ -47,21 +47,31 @@ namespace Neo.Compiler
         private void ConvertIfStatement(SemanticModel model, IfStatementSyntax syntax)
         {
             JumpTarget elseTarget = new();
-            using (InsertSequencePoint(syntax.Condition))
+
+            using (InsertSequencePoint(syntax))
+            {
                 ConvertExpression(model, syntax.Condition);
-            Jump(OpCode.JMPIFNOT_L, elseTarget);
-            ConvertStatement(model, syntax.Statement);
-            if (syntax.Else is null)
-            {
-                elseTarget.Instruction = AddInstruction(OpCode.NOP);
-            }
-            else
-            {
-                JumpTarget endTarget = new();
-                Jump(OpCode.JMP_L, endTarget);
-                elseTarget.Instruction = AddInstruction(OpCode.NOP);
-                ConvertStatement(model, syntax.Else.Statement);
-                endTarget.Instruction = AddInstruction(OpCode.NOP);
+
+                Jump(OpCode.JMPIFNOT_L, elseTarget);
+                ConvertStatement(model, syntax.Statement);
+
+                if (syntax.Else is null)
+                {
+                    elseTarget.Instruction = AddInstruction(OpCode.NOP);
+                }
+                else
+                {
+                    JumpTarget endTarget = new();
+                    Jump(OpCode.JMP_L, endTarget);
+
+                    using (InsertSequencePoint(syntax.Else.Statement))
+                    {
+                        elseTarget.Instruction = AddInstruction(OpCode.NOP);
+                        ConvertStatement(model, syntax.Else.Statement);
+                    }
+
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                }
             }
         }
     }

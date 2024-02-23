@@ -51,8 +51,7 @@ namespace Neo.Compiler
             startTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(model, syntax.Statement);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
-            using (InsertSequencePoint(syntax.Condition))
-                ConvertExpression(model, syntax.Condition);
+            ConvertExpression(model, syntax.Condition);
             Jump(OpCode.JMPIF_L, startTarget);
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             PopContinueTarget();

@@ -42,11 +42,13 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             foreach (var entry in coverage)
             {
-                var (lineCount, hitCount) = GetLineRate(entry.Contract, entry.DebugInfo.Methods.SelectMany(m => m.SequencePoints));
+                var allPoints = entry.DebugInfo.Methods.SelectMany(m => m.SequencePoints).ToArray();
+
+                var (lineCount, hitCount) = GetLineRate(entry.Contract, allPoints);
                 linesValid += lineCount;
                 linesCovered += hitCount;
 
-                var (branchCount, branchHit) = GetBranchRate(entry.Contract, entry.DebugInfo.Methods);
+                var (branchCount, branchHit) = GetBranchRate(entry.Contract, allPoints);
                 branchesValid += branchCount;
                 branchesCovered += branchHit;
             }
@@ -84,24 +86,11 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             writer.WriteEndElement();
         }
 
-        private static (int branchCount, int branchHit) GetBranchRate(CoveredContract contract, IEnumerable<NeoDebugInfo.Method> methods)
-        {
-            int branchCount = 0, branchHit = 0;
-            foreach (var method in methods)
-            {
-                var rate = GetBranchRate(contract, method);
-
-                branchCount += rate.branchCount;
-                branchHit += rate.branchHit;
-            }
-            return (branchCount, branchHit);
-        }
-
-        private static (int branchCount, int branchHit) GetBranchRate(CoveredContract contract, NeoDebugInfo.Method method)
+        private static (int branchCount, int branchHit) GetBranchRate(CoveredContract contract, IEnumerable<NeoDebugInfo.SequencePoint> sequencePoints)
         {
             int branchCount = 0, branchHit = 0;
 
-            foreach (var sp in method.SequencePoints)
+            foreach (var sp in sequencePoints)
             {
                 if (contract.TryGetBranch(sp.Address, out var branch))
                 {
@@ -113,14 +102,14 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             return (branchCount, branchHit);
         }
 
-        private static (int lineCount, int hitCount) GetLineRate(CoveredContract contract, IEnumerable<NeoDebugInfo.SequencePoint> lines)
+        private static (int lineCount, int hitCount) GetLineRate(CoveredContract contract, IEnumerable<NeoDebugInfo.SequencePoint> sequencePoints)
         {
             int lineCount = 0, hitCount = 0;
 
-            foreach (var line in lines)
+            foreach (var sp in sequencePoints)
             {
                 lineCount++;
-                if (contract.TryGetLine(line.Address, out var hit) && hit.Hits > 0)
+                if (contract.TryGetLine(sp.Address, out var hit) && hit.Hits > 0)
                 {
                     hitCount++;
                 }
@@ -129,7 +118,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             return (lineCount, hitCount);
         }
 
-        public static IEnumerable<(int address, OpCode opCode)> GetBranchInstructions(
+        public static IEnumerable<(int address, CoverageBranch branch)> GetBranchInstructions(
             CoveredContract contract, NeoDebugInfo.Method method, NeoDebugInfo.SequencePoint sequencePoint
             )
         {
@@ -139,10 +128,11 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             foreach (var line in lines)
             {
+                if (line.Offset > last) break;
+
                 if (contract.TryGetBranch(address, out var branch)) // IsBranchInstruction
                 {
-                    //yield return (address, ins.OpCode);
-                    yield return (address, OpCode.NOP);
+                    yield return (address, branch);
                 }
             }
         }
@@ -158,12 +148,11 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             else
             {
                 var nextSPAddress = method.SequencePoints[index + 1].Address;
-                var point = method.SequencePoints[index];
-                var address = point.Address;
+                var address = method.SequencePoints[index].Address;
 
                 foreach (var line in lines)
                 {
-                    if (line.Offset >= nextSPAddress)
+                    if (line.Offset > nextSPAddress)
                     {
                         return address;
                     }
