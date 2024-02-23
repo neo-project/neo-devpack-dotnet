@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Covered lines (OutOfScript are not taken into account)
         /// </summary>
-        public int CoveredBranches => Branches.Where(u => !u.OutOfScript && u.Hits > 0).Count();
+        public int CoveredBranches => Branches.Where(u => !u.OutOfScript).Sum(u => u.Hits);
 
         /// <summary>
         /// All lines that have been touched

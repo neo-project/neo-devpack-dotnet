@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 
 namespace Neo.SmartContract.Testing.Coverage
@@ -24,17 +23,17 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Hits
         /// </summary>
-        public int Hits => (PositivePathHits > 0 ? 1 : 0) + (NegativePathHits > 0 ? 1 : 0);
+        public int Hits => (HitsPath1 > 0 ? 1 : 0) + (HitsPath2 > 0 ? 1 : 0);
 
         /// <summary>
-        /// Positive path hits
+        /// Path 2 hits
         /// </summary>
-        public int PositivePathHits { get; set; }
+        public int HitsPath1 { get; set; }
 
         /// <summary>
-        /// Negative Path hits
+        /// Path 2 hits
         /// </summary>
-        public int NegativePathHits { get; set; }
+        public int HitsPath2 { get; set; }
 
         /// <summary>
         /// Constructor
@@ -54,8 +53,8 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <param name="value">Value</param>
         public void Hit(bool value)
         {
-            if (value) PositivePathHits++;
-            else NegativePathHits++;
+            if (value) HitsPath1++;
+            else HitsPath2++;
         }
 
         /// <summary>
@@ -64,8 +63,8 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <param name="value">Value</param>
         public void Hit(CoverageBranch value)
         {
-            PositivePathHits += value.PositivePathHits;
-            NegativePathHits += value.NegativePathHits;
+            HitsPath1 += value.HitsPath1;
+            HitsPath2 += value.HitsPath2;
         }
 
         /// <summary>
@@ -76,8 +75,8 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             return new CoverageBranch(Offset, OutOfScript)
             {
-                NegativePathHits = NegativePathHits,
-                PositivePathHits = PositivePathHits
+                HitsPath1 = HitsPath1,
+                HitsPath2 = HitsPath2
             };
         }
     }
