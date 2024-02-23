@@ -22,6 +22,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Check format
+      run: |
+        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Build Neo.SmartContract.Template and generate artifacts
@@ -35,9 +38,6 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source --debug
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
-    - name: Check format
-      run: |
-        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.CSharp.UnitTests
