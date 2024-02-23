@@ -1,6 +1,8 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
+using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -16,6 +18,7 @@ namespace Neo.SmartContract.Testing
         private ExecutionContext? InstructionContext;
         private int? InstructionPointer;
         private long PreExecuteInstructionGasConsumed;
+        private bool? BranchPath;
 
         /// <summary>
         /// Testing engine
@@ -38,6 +41,74 @@ namespace Neo.SmartContract.Testing
                 PreExecuteInstructionGasConsumed = GasConsumed;
                 InstructionContext = CurrentContext;
                 InstructionPointer = InstructionContext?.InstructionPointer;
+            }
+
+            // Calculate branch path
+
+            BranchPath = null;
+
+            switch (instruction.OpCode)
+            {
+                case OpCode.JMPIF:
+                case OpCode.JMPIF_L:
+                case OpCode.JMPIFNOT:
+                case OpCode.JMPIFNOT_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 1)
+                        {
+                            // We don't care about the positive or negative path
+                            // for coverage is the same
+                            BranchPath = Peek(0).GetBoolean();
+                        }
+                        break;
+                    }
+                case OpCode.JMPEQ:
+                case OpCode.JMPEQ_L:
+                case OpCode.JMPNE:
+                case OpCode.JMPNE_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() == Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPGT:
+                case OpCode.JMPGT_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() > Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPGE:
+                case OpCode.JMPGE_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() >= Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPLT:
+                case OpCode.JMPLT_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() < Peek(1).GetInteger();
+                        }
+                        break;
+                    }
+                case OpCode.JMPLE:
+                case OpCode.JMPLE_L:
+                    {
+                        if (CurrentContext!.EvaluationStack.Count >= 2)
+                        {
+                            BranchPath = Peek(0).GetInteger() <= Peek(1).GetInteger();
+                        }
+                        break;
+                    }
             }
 
             // Regular action
@@ -76,7 +147,7 @@ namespace Neo.SmartContract.Testing
             {
                 // We need the contract state without pay gas
 
-                var state = Native.NativeContract.ContractManagement.GetContract(Engine.Storage.Snapshot, contractHash);
+                var state = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
 
                 coveredContract = new(Engine.MethodDetection, contractHash, state);
                 Engine.Coverage[contractHash] = coveredContract;
@@ -84,8 +155,9 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed);
+            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed, BranchPath);
 
+            BranchPath = null;
             PreInstruction = null;
             InstructionContext = null;
             InstructionPointer = null;
@@ -137,9 +209,30 @@ namespace Neo.SmartContract.Testing
 
                     // Invoke
 
-                    var hasReturnValue = customMock.Method.ReturnType != typeof(void);
-                    var returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
-                    if (hasReturnValue)
+                    object? returnValue;
+                    EngineStorage backup = Engine.Storage;
+
+                    try
+                    {
+                        // We need to switch the Engine's snapshot in case
+                        // that a mock want to query the storage, it's not committed
+
+                        Engine.Storage = new EngineStorage(backup.Store, Snapshot);
+
+                        // Invoke snapshot
+
+                        returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                    finally
+                    {
+                        Engine.Storage = backup;
+                    }
+
+                    if (customMock.Method.ReturnType != typeof(void))
                         Push(Convert(returnValue));
                     else
                         Push(StackItem.Null);

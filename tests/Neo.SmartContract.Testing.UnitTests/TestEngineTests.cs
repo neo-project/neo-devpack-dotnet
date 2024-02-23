@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Native;
 using Neo.VM;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         //[TestMethod]
         public void GenerateNativeArtifacts()
         {
-            foreach (var n in Native.NativeContract.Contracts)
+            foreach (var n in Neo.SmartContract.Native.NativeContract.Contracts)
             {
                 var manifest = n.Manifest;
                 var source = manifest.GetArtifactsSource(manifest.Name, generateProperties: true);
@@ -62,7 +63,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             using (ScriptBuilder script = new())
             {
-                script.EmitDynamicCall(neo.Hash, nameof(neo.BalanceOf), engine.ValidatorsAddress);
+                script.EmitDynamicCall(neo.Hash, "balanceOf", engine.ValidatorsAddress);
 
                 Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
             }
@@ -86,14 +87,14 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             TestEngine engine = new(false);
 
-            Assert.AreEqual(engine.Native.ContractManagement.Hash, Native.NativeContract.ContractManagement.Hash);
-            Assert.AreEqual(engine.Native.StdLib.Hash, Native.NativeContract.StdLib.Hash);
-            Assert.AreEqual(engine.Native.CryptoLib.Hash, Native.NativeContract.CryptoLib.Hash);
-            Assert.AreEqual(engine.Native.GAS.Hash, Native.NativeContract.GAS.Hash);
-            Assert.AreEqual(engine.Native.NEO.Hash, Native.NativeContract.NEO.Hash);
-            Assert.AreEqual(engine.Native.Oracle.Hash, Native.NativeContract.Oracle.Hash);
-            Assert.AreEqual(engine.Native.Policy.Hash, Native.NativeContract.Policy.Hash);
-            Assert.AreEqual(engine.Native.RoleManagement.Hash, Native.NativeContract.RoleManagement.Hash);
+            Assert.AreEqual(engine.Native.ContractManagement.Hash, Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
+            Assert.AreEqual(engine.Native.StdLib.Hash, Neo.SmartContract.Native.NativeContract.StdLib.Hash);
+            Assert.AreEqual(engine.Native.CryptoLib.Hash, Neo.SmartContract.Native.NativeContract.CryptoLib.Hash);
+            Assert.AreEqual(engine.Native.GAS.Hash, Neo.SmartContract.Native.NativeContract.GAS.Hash);
+            Assert.AreEqual(engine.Native.NEO.Hash, Neo.SmartContract.Native.NativeContract.NEO.Hash);
+            Assert.AreEqual(engine.Native.Oracle.Hash, Neo.SmartContract.Native.NativeContract.Oracle.Hash);
+            Assert.AreEqual(engine.Native.Policy.Hash, Neo.SmartContract.Native.NativeContract.Policy.Hash);
+            Assert.AreEqual(engine.Native.RoleManagement.Hash, Neo.SmartContract.Native.NativeContract.RoleManagement.Hash);
         }
 
         [TestMethod]
