@@ -32,8 +32,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                var currentHash = InstructionContext.GetScriptHash();
-                var hash = Engine.OnGetCallingScriptHash?.Invoke(currentHash);
+                var hash = Engine.OnGetCallingScriptHash?.Invoke(CurrentScriptHash);
 
                 if (hash is not null)
                 {
@@ -51,8 +50,7 @@ namespace Neo.SmartContract.Testing
         {
             get
             {
-                var currentHash = InstructionContext.GetScriptHash();
-                var hash = Engine.OnGetEntryScriptHash?.Invoke(currentHash);
+                var hash = Engine.OnGetEntryScriptHash?.Invoke(CurrentScriptHash);
 
                 if (hash is not null)
                 {
