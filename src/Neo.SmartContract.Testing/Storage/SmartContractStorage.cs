@@ -3,7 +3,7 @@ using System;
 using System.Buffers.Binary;
 using System.Numerics;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Storage
 {
     public class SmartContractStorage
     {
@@ -38,12 +38,36 @@ namespace Neo.SmartContract.Testing
         /// Check if the entry exist
         /// </summary>
         /// <param name="key">Key</param>
+        public bool Contains(byte key) => Contains(new byte[] { key });
+
+        /// <summary>
+        /// Check if the entry exist
+        /// </summary>
+        /// <param name="key">Key</param>
+        public bool Contains(string key) => Contains(Utility.StrictUTF8.GetBytes(key));
+
+        /// <summary>
+        /// Check if the entry exist
+        /// </summary>
+        /// <param name="key">Key</param>
         public bool Contains(ReadOnlyMemory<byte> key)
         {
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
             var entry = _smartContract.Engine.Storage.Snapshot.TryGet(skey);
             return entry != null;
         }
+
+        /// <summary>
+        /// Read an entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        public ReadOnlyMemory<byte> Get(byte key) => Get(new byte[] { key });
+
+        /// <summary>
+        /// Read an entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        public ReadOnlyMemory<byte> Get(string key) => Get(Utility.StrictUTF8.GetBytes(key));
 
         /// <summary>
         /// Read an entry from the smart contract storage
@@ -67,6 +91,20 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        public void Put(byte key, ReadOnlyMemory<byte> value) => Put(new byte[] { key }, value);
+
+        /// <summary>
+        /// Put an entry in the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public void Put(string key, ReadOnlyMemory<byte> value) => Put(Utility.StrictUTF8.GetBytes(key), value);
+
+        /// <summary>
+        /// Put an entry in the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
         public void Put(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value)
         {
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
@@ -80,6 +118,20 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        public void Put(byte key, BigInteger value) => Put(new byte[] { key }, value);
+
+        /// <summary>
+        /// Put an entry in the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public void Put(string key, BigInteger value) => Put(Utility.StrictUTF8.GetBytes(key), value);
+
+        /// <summary>
+        /// Put an entry in the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
         public void Put(ReadOnlyMemory<byte> key, BigInteger value)
         {
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
@@ -87,6 +139,18 @@ namespace Neo.SmartContract.Testing
             var entry = _smartContract.Engine.Storage.Snapshot.GetAndChange(skey, () => new StorageItem(value));
             entry.Set(value);
         }
+
+        /// <summary>
+        /// Remove an entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        public void Remove(byte key) => Remove(new byte[] { key });
+
+        /// <summary>
+        /// Remove an entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        public void Remove(string key) => Remove(Utility.StrictUTF8.GetBytes(key));
 
         /// <summary>
         /// Remove an entry from the smart contract storage

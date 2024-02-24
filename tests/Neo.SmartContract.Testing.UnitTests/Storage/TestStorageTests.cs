@@ -21,6 +21,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             // Check that all it works
 
+            Assert.IsTrue(engine.Native.NEO.Storage.Contains(1)); // Prefix_VotersCount
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             // Create checkpoint

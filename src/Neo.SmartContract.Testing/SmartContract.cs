@@ -1,10 +1,12 @@
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -61,10 +63,15 @@ namespace Neo.SmartContract.Testing
                 {
                     var arg = args[i];
 
-                    if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.Invalid) ||
-                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.Invalid))
+                    if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidLength) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidLength))
                     {
                         arg = System.Array.Empty<byte>();
+                    }
+                    else if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidType) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidType))
+                    {
+                        arg = BigInteger.Zero;
                     }
 
                     script.EmitPush(arg);
