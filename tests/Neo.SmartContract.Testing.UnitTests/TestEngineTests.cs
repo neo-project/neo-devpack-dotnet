@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             foreach (var n in Neo.SmartContract.Native.NativeContract.Contracts)
             {
-                var manifest = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(snapshot, n.Hash).Manifest;
+                var manifest = n.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
                 var source = manifest.GetArtifactsSource(manifest.Name, generateProperties: true);
                 var fullPath = Path.GetFullPath($"../../../../../src/Neo.SmartContract.Testing/Native/{manifest.Name}.cs");
 
