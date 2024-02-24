@@ -316,6 +316,11 @@ namespace Neo.Compiler
 
             if (isSmartContract)
             {
+                // Considering that the complication will process all classes for every smart contract
+                // it is possible to process multiple smart contract classes in the same project
+                // As a result, we must stop the process if the current contract class is not the target contract
+                // For example, if the target contract is "Contract1" and the project contains "Contract1" and "Contract2"
+                // the process must skip when the "Contract2" class is processed
                 if (_targetContract.Name != symbol.Name)
                 {
                     return;
