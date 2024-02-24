@@ -1,20 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<RootNamespace>Neo.SmartContract.Framework.UnitTests</RootNamespace>
-	</PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>Neo.SmartContract.Framework.UnitTests</RootNamespace>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj" />
-		<ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
-			<Aliases>scfx</Aliases>
-		</ProjectReference>
-		<ProjectReference Include="..\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
-	</ItemGroup>
-
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Message Text="Create and compile Contracts.cs" Importance="high" />
-		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(SolutionDir)tests/Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Framework.UnitTests/Artifacts&quot; --no-optimize --generate-artifacts source" />
-	</Target>
+    <ItemGroup>
+        <ProjectReference Include="..\Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj" />
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
+            <Aliases>scfx</Aliases>
+        </ProjectReference>
+        <ProjectReference Include="..\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj" />
+    </ItemGroup>
 
 </Project>
