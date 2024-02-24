@@ -163,7 +163,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // Try with invalid owners
 
             Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, UInt160.Zero));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, InvalidUInt160.Invalid));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, InvalidUInt160.InvalidLength));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, InvalidUInt160.InvalidType));
 
             // Test SetOwner notification
 
