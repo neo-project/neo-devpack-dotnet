@@ -6,7 +6,6 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.IO;
-using Neo.Persistence;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
