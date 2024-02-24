@@ -6,6 +6,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.IO;
+using Neo.Persistence;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -19,11 +20,11 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         //[TestMethod]
-        public void GenerateNativeArtifacts()
+        public void GenerateNativeArtifacts(DataCache snapshot)
         {
             foreach (var n in Neo.SmartContract.Native.NativeContract.Contracts)
             {
-                var manifest = n.Manifest;
+                var manifest = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(snapshot, n.Hash).Manifest;
                 var source = manifest.GetArtifactsSource(manifest.Name, generateProperties: true);
                 var fullPath = Path.GetFullPath($"../../../../../src/Neo.SmartContract.Testing/Native/{manifest.Name}.cs");
 
