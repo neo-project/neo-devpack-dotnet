@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Akka.Util.Internal;
 using BigInteger = System.Numerics.BigInteger;
 
 namespace Neo.Compiler
@@ -54,7 +55,6 @@ namespace Neo.Compiler
         public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
-            if (IsSingleAbstractClass(syntaxTrees)) throw new FormatException("The given class is abstract, no valid neo SmartContract found.");
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             return CompileProjectContracts(Compilation);
@@ -104,6 +104,9 @@ namespace Neo.Compiler
                 }
             }
 
+            // Verify if there is any valid smart contract class
+            if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
+            // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
             foreach (var classSymbol in sortedClasses)
             {
@@ -125,12 +128,10 @@ namespace Neo.Compiler
                 {
                     return;
                 }
-                if (visiting.Contains(classSymbol))
+                if (!visiting.Add(classSymbol))
                 {
                     throw new InvalidOperationException("Cyclic dependency detected");
                 }
-
-                visiting.Add(classSymbol);
 
                 if (dependencies.TryGetValue(classSymbol, out var dependency))
                 {
@@ -243,16 +244,6 @@ namespace Neo.Compiler
                 MetaReferences.Add(assemblyName, reference);
             }
             return reference;
-        }
-
-        private static bool IsSingleAbstractClass(IEnumerable<SyntaxTree> syntaxTrees)
-        {
-            if (syntaxTrees.Count() != 1) return false;
-
-            var tree = syntaxTrees.First();
-            var classDeclarations = tree.GetCompilationUnitRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
-
-            return classDeclarations.Count == 1 && classDeclarations[0].Modifiers.Any(SyntaxKind.AbstractKeyword);
         }
     }
 }
