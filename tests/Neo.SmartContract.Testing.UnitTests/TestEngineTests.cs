@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         //[TestMethod]
-        public void GenerateNativeArtifacts(DataCache snapshot)
+        public void GenerateNativeArtifacts()
         {
             foreach (var n in Neo.SmartContract.Native.NativeContract.Contracts)
             {
