@@ -22,31 +22,29 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var coverageNep17 = Nep17ContractTests.Coverage;
             coverageNep17?.Join(OwnerContractTests.Coverage);
             var coverageOwnable = OwnableContractTests.Coverage;
+            var coverage = (coverageNep17 + coverageOwnable)!;
 
             // Dump coverage to console
 
-            Assert.IsNotNull(coverageNep17, "Coverage can't be null");
-            Console.WriteLine(coverageNep17.Dump());
+            Assert.IsNotNull(coverageNep17, "NEP17 Coverage can't be null");
+            Assert.IsNotNull(coverageOwnable, "Ownable Coverage can't be null");
 
-            Assert.IsNotNull(coverageOwnable, "Coverage can't be null");
-            Console.WriteLine(coverageOwnable.Dump());
+            // Dump current coverage
 
-            // Write basic instruction html coverage
+            Console.WriteLine(coverage.Dump());
+            File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
 
-            File.WriteAllText("coverage.nep17..instruction.html", coverageNep17.Dump(DumpFormat.Html));
-            File.WriteAllText("coverage.ownable.instruction.html", coverageOwnable.Dump(DumpFormat.Html));
-
-            // Load our debug file
+            // Load debug file in order to generage source code coverage
 
             if (NeoDebugInfo.TryLoad("templates/neocontractnep17/Artifacts/Nep17Contract.nefdbgnfo", out var dbgNep17) &&
                 NeoDebugInfo.TryLoad("templates/neocontractowner/Artifacts/Ownable.nefdbgnfo", out var dbgOwnable))
             {
                 // Write the cobertura format
 
-                File.WriteAllText("coverage.cobertura.xml", coverageNep17.Dump(new CoberturaFormat(
+                File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
                     (coverageNep17, dbgNep17),
-                    (coverageOwnable, dbgOwnable))
-                    ));
+                    (coverageOwnable, dbgOwnable)
+                    ).Dump());
 
                 // Write the report to the specific path
 
@@ -54,8 +52,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             }
 
             // Ensure that the coverage is more than X% at the end of the tests
-
-            var coverage = (coverageNep17 + coverageOwnable)!;
 
             Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }

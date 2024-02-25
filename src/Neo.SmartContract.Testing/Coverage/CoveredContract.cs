@@ -5,13 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    [DebuggerDisplay("{Hash.ToString()}")]
+    [DebuggerDisplay("{Name}")]
     public class CoveredContract : CoverageBase
     {
         #region Internal
@@ -20,6 +18,11 @@ namespace Neo.SmartContract.Testing.Coverage
         private readonly SortedDictionary<int, CoverageBranch> _branches = new();
 
         #endregion
+
+        /// <summary>
+        /// Contract name
+        /// </summary>
+        public string Name { get; private set; }
 
         /// <summary>
         /// Contract Hash
@@ -54,13 +57,21 @@ namespace Neo.SmartContract.Testing.Coverage
 
             if (state is not null)
             {
+                Name = state.Manifest.Name + $" [{Hash}]";
+
                 // Extract all methods
                 GenerateMethods(mechanism, state);
+            }
+            else
+            {
+                Name = Hash.ToString();
             }
         }
 
         internal void GenerateMethods(MethodDetectionMechanism mechanism, ContractState state)
         {
+            Name = state.Manifest.Name + $" [{Hash}]";
+
             Script script = state.Script;
             HashSet<int> privateAdded = new();
             List<ContractMethodDescriptor> methods = new(state.Manifest.Abi.Methods);
@@ -277,8 +288,9 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Dump coverage
         /// </summary>
+        /// <param name="format">Format</param>
         /// <returns>Coverage dump</returns>
-        public string Dump(DumpFormat format = DumpFormat.Console)
+        public override string Dump(DumpFormat format = DumpFormat.Console)
         {
             return Dump(format, Methods);
         }
@@ -286,6 +298,8 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Dump coverage
         /// </summary>
+        /// <param name="format">Format</param>
+        /// <param name="methods">Methods</param>
         /// <returns>Coverage dump</returns>
         internal string Dump(DumpFormat format, params CoveredMethod[] methods)
         {
@@ -293,39 +307,17 @@ namespace Neo.SmartContract.Testing.Coverage
             {
                 case DumpFormat.Console:
                     {
-                        return Dump(new ConsoleFormat(this, methods));
+                        return new ConsoleFormat(this, methods).Dump();
                     }
                 case DumpFormat.Html:
                     {
-                        return Dump(new IntructionHtmlFormat(this, methods));
+                        return new IntructionHtmlFormat(this, methods).Dump();
                     }
                 default:
                     {
                         throw new NotImplementedException();
                     }
             }
-        }
-
-        /// <summary>
-        /// Dump to format
-        /// </summary>
-        /// <param name="format">Format</param>
-        /// <param name="debugInfo">Debug Info</param>
-        /// <returns>Covertura</returns>
-        public string Dump(ICoverageFormat format)
-        {
-            Dictionary<string, string> outputMap = new();
-
-            void writeAttachment(string filename, Action<Stream> writestream)
-            {
-                using MemoryStream stream = new();
-                writestream(stream);
-                var text = Encoding.UTF8.GetString(stream.ToArray());
-                outputMap.Add(filename, text);
-            }
-
-            format.WriteReport(writeAttachment);
-            return outputMap.First().Value;
         }
 
         /// <summary>
