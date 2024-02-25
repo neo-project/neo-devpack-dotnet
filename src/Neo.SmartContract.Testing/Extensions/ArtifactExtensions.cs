@@ -1,4 +1,6 @@
+using Neo.IO;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;
@@ -32,9 +34,11 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="manifest">Manifest</param>
         /// <param name="name">Class name, by default is manifest.Name</param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="debugInfo">Debug Info</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, NeoDebugInfo? debugInfo = null, bool generateProperties = true)
         {
             name ??= manifest.Name;
 
@@ -62,6 +66,25 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance));
             sourceCode.WriteLine("{");
+
+            // Write compiled data
+
+            sourceCode.WriteLine("    #region Compiled data");
+            sourceCode.WriteLine();
+
+            var value = manifest.ToJson().ToString(false).Replace("\"", "\"\"");
+            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} ContractManifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
+            sourceCode.WriteLine();
+
+            if (nef is not null)
+            {
+                value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
+                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} NefFile = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine();
+            }
+
+            sourceCode.WriteLine("    #endregion");
+            sourceCode.WriteLine();
 
             // Crete events
 

@@ -25,12 +25,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public Nep17ContractTests() :
-            base(
-                "templates/neocontractnep17/Artifacts/Nep17Contract.nef",
-                "templates/neocontractnep17/Artifacts/Nep17Contract.manifest.json"
-                )
-        { }
+        public Nep17ContractTests() : base(Nep17Contract.NefFile, Nep17Contract.ContractManifest) { }
 
         [TestMethod]
         public void TestMyMethod()

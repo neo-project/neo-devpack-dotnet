@@ -12,28 +12,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="templates\neocontractnep17\Artifacts\Nep17Contract.manifest.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="templates\neocontractnep17\Artifacts\Nep17Contract.nef">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Update="templates\neocontractnep17\Artifacts\Nep17Contract.nefdbgnfo">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="templates\neocontractowner\Artifacts\Ownable.manifest.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="templates\neocontractowner\Artifacts\Ownable.nef">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="templates\neocontractowner\Artifacts\Ownable.nefdbgnfo">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="templates\neocontractowner\Artifacts\" />
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
