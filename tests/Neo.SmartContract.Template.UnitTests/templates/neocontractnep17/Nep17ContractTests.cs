@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.IO;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -140,13 +141,13 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Bob);
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Update(NefFile, Manifest));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
 
             Engine.SetTransactionSigners(Alice);
 
             // Test Update with the same script
 
-            Contract.Update(NefFile, Manifest);
+            Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString());
 
             // Ensure that it works with the same script
 

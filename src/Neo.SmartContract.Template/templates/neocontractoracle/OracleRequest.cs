@@ -8,16 +8,16 @@ using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
 
-namespace ProjectName
+namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(Contract1))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
     [ManifestExtra("Description", "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs")]
     [ContractPermission("*", "*")]
-    public class Contract1 : SmartContract
+    public class OracleRequest : Neo.SmartContract.Framework.SmartContract
     {
         public delegate void OnRequestSuccessfulDelegate(string requestedUrl, object jsonValue);
 

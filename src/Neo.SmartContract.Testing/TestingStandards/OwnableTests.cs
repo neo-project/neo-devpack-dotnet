@@ -1,8 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.IO;
+using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
@@ -16,9 +20,27 @@ public class OwnableTests<T> : TestBase<T>
     #endregion
 
     /// <summary>
-    /// Initialize Test
+    /// Constructor
     /// </summary>
-    public OwnableTests(string nefFile, string manifestFile) : base(nefFile, manifestFile)
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest file</param>
+    /// <param name="debugInfoFile">Debug info file</param>
+    public OwnableTests(string nefFile, string manifestFile, string? debugInfoFile = null)
+        : base(File.ReadAllBytes(nefFile).AsSerializable<NefFile>(),
+            ContractManifest.Parse(File.ReadAllText(manifestFile)),
+            !string.IsNullOrEmpty(debugInfoFile) && NeoDebugInfo.TryLoad(debugInfoFile, out var debugInfo) ? debugInfo : null)
+    {
+        Contract.OnSetOwner += onSetOwner;
+    }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest</param>
+    /// <param name="debugInfo">Debug info</param>
+    public OwnableTests(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
+        : base(nefFile, manifestFile, debugInfo)
     {
         Contract.OnSetOwner += onSetOwner;
     }
