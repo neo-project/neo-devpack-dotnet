@@ -176,7 +176,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             sourceCode.WriteLine("    #region Constructor for internal use only");
             sourceCode.WriteLine();
-            sourceCode.WriteLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
+            sourceCode.WriteLine($"    protected {name}({typeof(SmartContractInitialize).FullName} initialize) : base(initialize) {{ }}");
             sourceCode.WriteLine();
             sourceCode.WriteLine("    #endregion");
 
@@ -243,7 +243,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[2].Type == ContractParameterType.Integer)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;");
+                            sourceCode.WriteLine($"    public event {typeof(INep17Standard).FullName}.delTransfer? OnTransfer;");
                             return builder.ToString();
                         }
 
@@ -256,7 +256,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner? OnSetOwner;");
+                            sourceCode.WriteLine($"    public event {typeof(IOwnable).FullName}.delSetOwner? OnSetOwner;");
                             return builder.ToString();
                         }
 
