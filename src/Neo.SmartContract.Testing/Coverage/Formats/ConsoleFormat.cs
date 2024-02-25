@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         /// <param name="methods">Methods</param>
         public ConsoleFormat(CoveredContract contract, params CoveredMethod[] methods)
         {
-            Entries = [(contract, methods)];
+            Entries = new (CoveredContract, CoveredMethod[])[] { (contract, methods) };
         }
 
         /// <summary>
