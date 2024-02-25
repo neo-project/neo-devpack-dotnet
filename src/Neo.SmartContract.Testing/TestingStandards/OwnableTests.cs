@@ -98,7 +98,8 @@ public class OwnableTests<T> : TestBase<T>
         Engine.SetTransactionSigners(Alice);
         Assert.ThrowsException<Exception>(() => Contract.Owner = UInt160.Zero);
         Assert.ThrowsException<InvalidOperationException>(() => Contract.Owner = InvalidUInt160.Null);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.Invalid);
+        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.InvalidLength);
+        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.InvalidType);
 
         Contract.Owner = Bob.Account;
         Assert.AreEqual(Bob.Account, Contract.Owner);

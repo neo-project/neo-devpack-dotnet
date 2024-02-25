@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 using System;
-using System.Collections.Generic;
 
 namespace Neo.SmartContract.Framework.Attributes
 {

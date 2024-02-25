@@ -29,9 +29,14 @@ namespace Neo.SmartContract.Testing.Coverage
         public int MethodLength { get; }
 
         /// <summary>
-        /// Coverage
+        /// Coverage Lines
         /// </summary>
-        public override IEnumerable<CoverageHit> Coverage => Contract.GetCoverageFrom(Offset, MethodLength);
+        public override IEnumerable<CoverageHit> Lines => Contract.GetCoverageLinesFrom(Offset, MethodLength);
+
+        /// <summary>
+        /// Coverage Branches
+        /// </summary>
+        public override IEnumerable<CoverageBranch> Branches => Contract.GetCoverageBranchFrom(Offset, MethodLength);
 
         /// <summary>
         /// Constructor

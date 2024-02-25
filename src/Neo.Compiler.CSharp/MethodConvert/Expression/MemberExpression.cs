@@ -32,7 +32,7 @@ partial class MethodConvert
                 }
                 else if (field.IsStatic)
                 {
-                    byte index = context.AddStaticField(field);
+                    byte index = _context.AddStaticField(field);
                     AccessSlot(OpCode.LDSFLD, index);
                 }
                 else
@@ -46,7 +46,7 @@ partial class MethodConvert
             case IMethodSymbol method:
                 if (!method.IsStatic)
                     throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
-                MethodConvert convert = context.ConvertMethod(model, method);
+                MethodConvert convert = _context.ConvertMethod(model, method);
                 Jump(OpCode.PUSHA, convert._startTarget);
                 break;
             case IPropertySymbol property:

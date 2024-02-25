@@ -11,6 +11,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -21,6 +22,8 @@ namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
+        public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
+
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
@@ -137,6 +140,23 @@ namespace Neo.SmartContract.Testing
         /// Transaction
         /// </summary>
         public Transaction Transaction { get; }
+
+        /// <summary>
+        /// The trigger of the execution.
+        /// </summary>
+        public TriggerType Trigger { get; set; } = TriggerType.Application;
+
+        /// <summary>
+        /// On GetEntryScriptHash
+        ///     The argument is the ExecutingScriptHash and the expected return, and it must return the new EntryScriptHash, or null if we don't want to make any change
+        /// </summary>
+        public OnGetScriptHash? OnGetEntryScriptHash { get; set; } = null;
+
+        /// <summary>
+        /// On GetCallingScriptHash
+        ///     The argument is the ExecutingScriptHash and the expected return, and it must return the new CallingScriptHash, or null if we don't want to make any change
+        /// </summary>
+        public OnGetScriptHash? OnGetCallingScriptHash { get; set; } = null;
 
         /// <summary>
         /// Gas
@@ -304,6 +324,7 @@ namespace Neo.SmartContract.Testing
         {
             // Deploy
 
+            //UInt160 expectedHash = GetDeployHash(nef, manifest);
             var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
 
             if (state is null)
@@ -313,7 +334,6 @@ namespace Neo.SmartContract.Testing
 
             // Mock contract
 
-            //UInt160 hash = Helper.GetContractHash(Sender, nef.CheckSum, manifest.Name);
             var ret = MockContract(state.Hash, state.Id, customMock);
 
             // We cache the coverage contract during `_deploy`
@@ -394,7 +414,9 @@ namespace Neo.SmartContract.Testing
 
                 if (mock.IsMocked(method))
                 {
-                    var mockName = method.Name + ";" + method.GetParameters().Length;
+                    var display = method.GetCustomAttribute<DisplayNameAttribute>();
+                    var name = display is not null ? display.DisplayName : method.Name;
+                    var mockName = name + ";" + method.GetParameters().Length;
                     var cm = new CustomMock(mock.Object, method);
 
                     if (_customMocks.TryGetValue(hash, out var mocks))
@@ -509,7 +531,7 @@ namespace Neo.SmartContract.Testing
 
             var snapshot = Storage.Snapshot.CreateSnapshot();
 
-            using var engine = new TestingApplicationEngine(this, TriggerType.Application, Transaction, snapshot, CurrentBlock);
+            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, CurrentBlock);
 
             engine.LoadScript(script);
 
