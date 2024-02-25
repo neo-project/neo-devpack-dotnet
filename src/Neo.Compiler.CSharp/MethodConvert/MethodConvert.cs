@@ -32,7 +32,7 @@ namespace Neo.Compiler
     {
         #region Fields
 
-        private readonly CompilationContext context;
+        private readonly CompilationContext _context;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _internalInline;
@@ -73,7 +73,7 @@ namespace Neo.Compiler
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
             this.Symbol = symbol;
-            this.context = context;
+            this._context = context;
             this._checkedStack.Push(context.Options.Checked);
         }
 
@@ -103,13 +103,13 @@ namespace Neo.Compiler
 
         private void RemoveAnonymousVariable(byte index)
         {
-            if (!context.Options.NoOptimize)
+            if (!_context.Options.NoOptimize)
                 _anonymousVariables.Remove(index);
         }
 
         private void RemoveLocalVariable(ILocalSymbol symbol)
         {
-            if (!context.Options.NoOptimize)
+            if (!_context.Options.NoOptimize)
                 _localVariables.Remove(symbol);
         }
 
@@ -144,12 +144,12 @@ namespace Neo.Compiler
                 if (Symbol.Name == "_initialize")
                 {
                     ProcessStaticFields(model);
-                    if (context.StaticFieldCount > 0)
+                    if (_context.StaticFieldCount > 0)
                     {
                         _instructions.Insert(0, new Instruction
                         {
                             OpCode = OpCode.INITSSLOT,
-                            Operand = new[] { (byte)context.StaticFieldCount }
+                            Operand = new[] { (byte)_context.StaticFieldCount }
                         });
                     }
                 }
@@ -178,12 +178,12 @@ namespace Neo.Compiler
                 }
                 var modifiers = ConvertModifier(model).ToArray();
                 ConvertSource(model);
-                if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
+                if (Symbol.MethodKind == MethodKind.StaticConstructor && _context.StaticFieldCount > 0)
                 {
                     _instructions.Insert(0, new Instruction
                     {
                         OpCode = OpCode.INITSSLOT,
-                        Operand = new[] { (byte)context.StaticFieldCount }
+                        Operand = new[] { (byte)_context.StaticFieldCount }
                     });
                 }
                 if (_initslot)
@@ -226,7 +226,7 @@ namespace Neo.Compiler
                 // it comes from modifier clean up
                 AddInstruction(OpCode.RET);
             }
-            if (!context.Options.NoOptimize)
+            if (!_context.Options.NoOptimize)
                 Optimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }
@@ -287,7 +287,7 @@ namespace Neo.Compiler
                             Push(value.HexToBytes(true));
                             break;
                         case ContractParameterType.Hash160:
-                            Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(context.Options.AddressVersion)).ToArray());
+                            Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(_context.Options.AddressVersion)).ToArray());
                             break;
                         case ContractParameterType.PublicKey:
                             Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
@@ -304,7 +304,6 @@ namespace Neo.Compiler
             }
         }
 
-
         private IEnumerable<(byte fieldIndex, AttributeData attribute)> ConvertModifier(SemanticModel model)
         {
             foreach (var attribute in Symbol.GetAttributesWithInherited())
@@ -313,12 +312,12 @@ namespace Neo.Compiler
                     continue;
 
                 JumpTarget notNullTarget = new();
-                byte fieldIndex = context.AddAnonymousStaticField();
+                byte fieldIndex = _context.AddAnonymousStaticField();
                 AccessSlot(OpCode.LDSFLD, fieldIndex);
                 AddInstruction(OpCode.ISNULL);
                 Jump(OpCode.JMPIFNOT_L, notNullTarget);
 
-                MethodConvert constructor = context.ConvertMethod(model, attribute.AttributeConstructor!);
+                MethodConvert constructor = _context.ConvertMethod(model, attribute.AttributeConstructor!);
                 CreateObject(model, attribute.AttributeClass, null);
                 foreach (var arg in attribute.ConstructorArguments.Reverse())
                     Push(arg.Value);
@@ -331,7 +330,7 @@ namespace Neo.Compiler
                 var enterSymbol = attribute.AttributeClass.GetAllMembers()
                     .OfType<IMethodSymbol>()
                     .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
-                MethodConvert enterMethod = context.ConvertMethod(model, enterSymbol);
+                MethodConvert enterMethod = _context.ConvertMethod(model, enterSymbol);
                 EmitCall(enterMethod);
                 yield return (fieldIndex, attribute);
             }
@@ -342,7 +341,7 @@ namespace Neo.Compiler
             var exitSymbol = attribute.AttributeClass!.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
-            MethodConvert exitMethod = context.ConvertMethod(model, exitSymbol);
+            MethodConvert exitMethod = _context.ConvertMethod(model, exitSymbol);
             if (exitMethod.IsEmpty) return null;
             var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
             EmitCall(exitMethod);
@@ -519,7 +518,7 @@ namespace Neo.Compiler
             IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
             if (virtualMethods.Length > 0)
             {
-                byte index = context.AddVTable(type);
+                byte index = _context.AddVTable(type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.APPEND);

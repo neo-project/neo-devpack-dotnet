@@ -130,7 +130,7 @@ partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            byte index = context.AddStaticField(symbol);
+            byte index = _context.AddStaticField(symbol);
             AccessSlot(OpCode.LDSFLD, index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
@@ -209,7 +209,7 @@ partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            byte index = context.AddStaticField(symbol);
+            byte index = _context.AddStaticField(symbol);
             AccessSlot(OpCode.LDSFLD, index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);

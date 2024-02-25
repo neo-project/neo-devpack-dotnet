@@ -129,7 +129,7 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (left.IsStatic)
         {
-            byte index = context.AddStaticField(left);
+            byte index = _context.AddStaticField(left);
             AccessSlot(OpCode.LDSFLD, index);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
@@ -232,7 +232,7 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (field.IsStatic)
         {
-            byte index = context.AddStaticField(field);
+            byte index = _context.AddStaticField(field);
             AccessSlot(OpCode.LDSFLD, index);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
