@@ -292,26 +292,15 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         public override string Dump(DumpFormat format = DumpFormat.Console)
         {
-            return Dump(format, Methods);
-        }
-
-        /// <summary>
-        /// Dump coverage
-        /// </summary>
-        /// <param name="format">Format</param>
-        /// <param name="methods">Methods</param>
-        /// <returns>Coverage dump</returns>
-        internal string Dump(DumpFormat format, params CoveredMethod[] methods)
-        {
             switch (format)
             {
                 case DumpFormat.Console:
                     {
-                        return new ConsoleFormat(this, methods).Dump();
+                        return new ConsoleFormat(this).Dump();
                     }
                 case DumpFormat.Html:
                     {
-                        return new IntructionHtmlFormat(this, methods).Dump();
+                        return new IntructionHtmlFormat(this).Dump();
                     }
                 default:
                     {

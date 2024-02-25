@@ -10,23 +10,23 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         /// <summary>
         /// Entries
         /// </summary>
-        public (CoveredContract, CoveredMethod[])[] Entries { get; }
+        public (CoveredContract Contract, Func<CoveredMethod, bool>? Filter)[] Entries { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="contract">Contract</param>
-        /// <param name="methods">Methods</param>
-        public ConsoleFormat(CoveredContract contract, params CoveredMethod[] methods)
+        /// <param name="Filter">Method Filter</param>
+        public ConsoleFormat(CoveredContract contract, Func<CoveredMethod, bool>? Filter = null)
         {
-            Entries = new (CoveredContract, CoveredMethod[])[] { (contract, methods) };
+            Entries = new (CoveredContract, Func<CoveredMethod, bool>?)[] { (contract, Filter) };
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="entries">Entries</param>
-        public ConsoleFormat(IEnumerable<(CoveredContract, CoveredMethod[])> entries)
+        public ConsoleFormat(IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> entries)
         {
             Entries = entries.ToArray();
         }
@@ -55,7 +55,10 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                 List<string[]> rows = new();
                 var max = new int[] { "Method".Length, "Line  ".Length, "Branch".Length };
 
-                foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
+                foreach (var method in contract.Methods
+                    .Where(u => methods is null || methods.Invoke(u))
+                    .OrderBy(u => u.Method.Name)
+                    .OrderByDescending(u => u.CoveredLinesPercentage))
                 {
                     coverLines = $"{method.CoveredLinesPercentage:P2}";
                     coverBranch = $"{method.CoveredBranchPercentage:P2}";

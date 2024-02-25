@@ -62,10 +62,10 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         public override string Dump(DumpFormat format = DumpFormat.Console)
         {
-            IEnumerable<(CoveredContract, CoveredMethod[])> entries = Entries.Select(u =>
+            IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> entries = Entries.Select(u =>
             {
-                if (u is CoveredContract co) return (co, co.Methods);
-                if (u is CoveredMethod cm) return (cm.Contract, new CoveredMethod[] { cm });
+                if (u is CoveredContract co) return (co, (Func<CoveredMethod, bool>?)null);
+                if (u is CoveredMethod cm) return (cm.Contract, new Func<CoveredMethod, bool>((CoveredMethod method) => ReferenceEquals(method, cm)));
 
                 throw new NotImplementedException();
             })!;

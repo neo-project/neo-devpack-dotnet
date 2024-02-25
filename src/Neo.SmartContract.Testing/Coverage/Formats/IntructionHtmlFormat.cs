@@ -10,23 +10,23 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         /// <summary>
         /// Entries
         /// </summary>
-        public (CoveredContract, CoveredMethod[])[] Entries { get; }
+        public (CoveredContract Contract, Func<CoveredMethod, bool>? Filter)[] Entries { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="contract">Contract</param>
-        /// <param name="methods">Methods</param>
-        public IntructionHtmlFormat(CoveredContract contract, params CoveredMethod[] methods)
+        /// <param name="Filter">Method Filter</param>
+        public IntructionHtmlFormat(CoveredContract contract, Func<CoveredMethod, bool>? filter = null)
         {
-            Entries = new (CoveredContract, CoveredMethod[])[] { (contract, methods) };
+            Entries = new (CoveredContract, Func<CoveredMethod, bool>?)[] { (contract, filter) };
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="entries">Entries</param>
-        public IntructionHtmlFormat(IEnumerable<(CoveredContract, CoveredMethod[])> entries)
+        public IntructionHtmlFormat(IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> entries)
         {
             Entries = entries.ToArray();
         }
@@ -88,7 +88,10 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 <div class=""container"">
 ");
 
-                foreach (var method in methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
+                foreach (var method in contract.Methods
+                    .Where(u => methods is null || methods.Invoke(u))
+                    .OrderBy(u => u.Method.Name)
+                    .OrderByDescending(u => u.CoveredLinesPercentage))
                 {
                     var kind = "low";
                     if (method.CoveredLinesPercentage > 0.7M) kind = "medium";
