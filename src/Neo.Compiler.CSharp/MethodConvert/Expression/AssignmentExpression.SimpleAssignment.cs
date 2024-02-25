@@ -104,7 +104,7 @@ partial class MethodConvert
             case IFieldSymbol field:
                 if (field.IsStatic)
                 {
-                    byte index = context.AddStaticField(field);
+                    byte index = _context.AddStaticField(field);
                     AccessSlot(OpCode.STSFLD, index);
                 }
                 else
@@ -139,7 +139,7 @@ partial class MethodConvert
             case IFieldSymbol field:
                 if (field.IsStatic)
                 {
-                    byte index = context.AddStaticField(field);
+                    byte index = _context.AddStaticField(field);
                     AccessSlot(OpCode.STSFLD, index);
                 }
                 else
