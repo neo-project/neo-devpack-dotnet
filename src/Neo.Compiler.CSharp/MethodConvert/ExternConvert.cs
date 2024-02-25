@@ -73,7 +73,7 @@ partial class MethodConvert
             }
             else if (Symbol.ToString()?.Equals("Neo.SmartContract.Framework.Services.Runtime.Debug(string)") == true)
             {
-                context.AddEvent(new AbiEvent(Symbol, "Debug", new SmartContract.Manifest.ContractParameterDefinition() { Name = "message", Type = ContractParameterType.String }), false);
+                _context.AddEvent(new AbiEvent(Symbol, "Debug", new SmartContract.Manifest.ContractParameterDefinition() { Name = "message", Type = ContractParameterType.String }), false);
             }
             if (!emitted) throw new CompilationException(Symbol, DiagnosticId.ExternMethod, $"Unknown method: {Symbol}");
         }
