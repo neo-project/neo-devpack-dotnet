@@ -35,7 +35,7 @@ partial class MethodConvert
 
     private Instruction Call(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.All)
     {
-        ushort token = context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
+        ushort token = _context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
         return AddInstruction(new Instruction
         {
             OpCode = OpCode.CALLT,
@@ -58,7 +58,7 @@ partial class MethodConvert
         }
         else
         {
-            convert = context.ConvertMethod(model, symbol);
+            convert = _context.ConvertMethod(model, symbol);
             methodCallingConvention = convert._callingConvention;
         }
         bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
@@ -103,8 +103,8 @@ partial class MethodConvert
         else
         {
             convert = symbol.ReducedFrom is null
-                ? context.ConvertMethod(model, symbol)
-                : context.ConvertMethod(model, symbol.ReducedFrom);
+                ? _context.ConvertMethod(model, symbol)
+                : _context.ConvertMethod(model, symbol.ReducedFrom);
             methodCallingConvention = convert._callingConvention;
         }
         if (!symbol.IsStatic && methodCallingConvention != CallingConvention.Cdecl)
@@ -143,7 +143,7 @@ partial class MethodConvert
         }
         else
         {
-            convert = context.ConvertMethod(model, symbol);
+            convert = _context.ConvertMethod(model, symbol);
             methodCallingConvention = convert._callingConvention;
         }
         int pc = symbol.Parameters.Length;
@@ -175,7 +175,7 @@ partial class MethodConvert
 
     private void EmitCall(MethodConvert target)
     {
-        if (target._inline && !context.Options.NoInline)
+        if (target._inline && !_context.Options.NoInline)
             for (int i = 0; i < target._instructions.Count - 1; i++)
                 AddInstruction(target._instructions[i].Clone());
         else
