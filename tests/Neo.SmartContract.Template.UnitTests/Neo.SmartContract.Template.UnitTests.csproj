@@ -11,15 +11,6 @@
 		<ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="templates\neocontractnep17\Artifacts\Nep17Contract.nefdbgnfo">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="templates\neocontractowner\Artifacts\Ownable.nefdbgnfo">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Message Text="Create and compile Nep17Contract.cs" Importance="high" />
 		<Exec Command="dotnet pack &quot;$(SolutionDir)src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj&quot;" />
