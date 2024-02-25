@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public OwnerContractTests() : base(Nep17Contract.NefFile, Nep17Contract.ContractManifest) { }
+        public OwnerContractTests() : base(Nep17Contract.Nef, Nep17Contract.Manifest) { }
 
         [TestMethod]
         public override void TestSetGetOwner()

@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractnep17;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractowner;
+using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 
@@ -34,22 +35,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             Console.WriteLine(coverage.Dump());
             File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
 
-            // Load debug file in order to generage source code coverage
+            // Write the cobertura format
 
-            if (NeoDebugInfo.TryLoad("templates/neocontractnep17/Artifacts/Nep17Contract.nefdbgnfo", out var dbgNep17) &&
-                NeoDebugInfo.TryLoad("templates/neocontractowner/Artifacts/Ownable.nefdbgnfo", out var dbgOwnable))
-            {
-                // Write the cobertura format
+            File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
+                (coverageNep17, Nep17Contract.DebugInfo),
+                (coverageOwnable, Ownable.DebugInfo)
+                ).Dump());
 
-                File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
-                    (coverageNep17, dbgNep17),
-                    (coverageOwnable, dbgOwnable)
-                    ).Dump());
+            // Write the report to the specific path
 
-                // Write the report to the specific path
-
-                CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
-            }
+            CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
 
             // Ensure that the coverage is more than X% at the end of the tests
 

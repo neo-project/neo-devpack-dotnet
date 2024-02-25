@@ -1,4 +1,5 @@
 using Neo.IO;
+using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -38,7 +39,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="debugInfo">Debug Info</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, NeoDebugInfo? debugInfo = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, JToken? debugInfo = null, bool generateProperties = true)
         {
             name ??= manifest.Name;
 
@@ -73,13 +74,20 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine();
 
             var value = manifest.ToJson().ToString(false).Replace("\"", "\"\"");
-            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} ContractManifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
+            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} Manifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
             sourceCode.WriteLine();
 
             if (nef is not null)
             {
                 value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
-                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} NefFile = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine();
+            }
+
+            if (debugInfo is not null)
+            {
+                value = debugInfo.ToString(false).Replace("\"", "\"\"");
+                sourceCode.WriteLine($"    public static readonly {typeof(NeoDebugInfo).FullName} DebugInfo = {typeof(NeoDebugInfo).FullName}.FromDebugInfoJson(@\"{value}\");");
                 sourceCode.WriteLine();
             }
 

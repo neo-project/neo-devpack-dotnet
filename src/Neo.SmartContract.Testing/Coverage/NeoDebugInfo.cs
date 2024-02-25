@@ -142,6 +142,15 @@ namespace Neo.SmartContract.Testing.Coverage
             return FromDebugInfoJson(jo);
         }
 
+        public static NeoDebugInfo FromDebugInfoJson(string json)
+        {
+            var jsonToken = JToken.Parse(json);
+            if (jsonToken is not JObject jobj)
+                throw new FormatException("The json must be an object");
+
+            return FromDebugInfoJson(jobj);
+        }
+
         public static NeoDebugInfo FromDebugInfoJson(JObject json)
         {
             if (json["hash"]?.GetString() is not string sHash)
