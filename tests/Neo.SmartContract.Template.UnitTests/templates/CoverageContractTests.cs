@@ -23,12 +23,15 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var coverageNep17 = Nep17ContractTests.Coverage;
             coverageNep17?.Join(OwnerContractTests.Coverage);
             var coverageOwnable = OwnableContractTests.Coverage;
-            var coverage = (coverageNep17 + coverageOwnable)!;
+            var coverageOracle = OracleRequestTests.Coverage;
 
             // Dump coverage to console
 
-            Assert.IsNotNull(coverageNep17, "NEP17 Coverage can't be null");
-            Assert.IsNotNull(coverageOwnable, "Ownable Coverage can't be null");
+            Assert.IsNotNull(coverageNep17, "NEP17 coverage can't be null");
+            Assert.IsNotNull(coverageOwnable, "Ownable coverage can't be null");
+            Assert.IsNotNull(coverageOracle, "Oracle coverage can't be null");
+
+            var coverage = new CoveredCollection(coverageNep17, coverageOwnable, coverageOracle);
 
             // Dump current coverage
 
@@ -39,7 +42,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
                 (coverageNep17, Nep17Contract.DebugInfo),
-                (coverageOwnable, Ownable.DebugInfo)
+                (coverageOwnable, Ownable.DebugInfo),
+                (coverageOracle, OracleRequest.DebugInfo)
                 ).Dump());
 
             // Write the report to the specific path
