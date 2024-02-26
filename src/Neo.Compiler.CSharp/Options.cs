@@ -10,7 +10,7 @@
 
 namespace Neo.Compiler
 {
-    public class Options: CompilationOptions
+    public class Options : CompilationOptions
     {
         public enum GenerateArtifactsKind
         {
