@@ -114,7 +114,9 @@ namespace Neo.Compiler
                 context.Compile();
                 if (context.Diagnostics.Count <= 0) continue;
                 context.Diagnostics.ForEach(Console.WriteLine);
-                throw new InvalidOperationException("Compilation failed");
+                // print the exception but not throw it,
+                // so that we can return the context
+                // throw new InvalidOperationException("Compilation failed");
             }
 
             return Contexts.Select(p => p.Value).ToList();
