@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             // Write the cobertura format
 
             File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
-                (coverageNep17, Nep17Contract.DebugInfo),
+                (coverageNep17, Nep17TemplateContract.DebugInfo),
                 (coverageOwnable, Ownable.DebugInfo),
                 (coverageOracle, OracleRequest.DebugInfo)
                 ).Dump());
