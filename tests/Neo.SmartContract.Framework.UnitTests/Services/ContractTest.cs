@@ -5,7 +5,6 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
-using Neo.Persistence;
 using Neo.SmartContract.TestEngine;
 using Array = Neo.VM.Types.Array;
 

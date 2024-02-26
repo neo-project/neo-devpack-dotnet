@@ -1,19 +1,19 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.UnitTests.Utils;
 using Neo.VM.Types;
+using Neo.SmartContract.TestEngine;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
     public class RegexTest
     {
-        private TestEngine _engine;
+        private TestEngine.TestEngine _engine;
 
         [TestInitialize]
         public void Init()
         {
-            _engine = new TestEngine(snapshot: new TestDataCache());
-            _engine.AddEntryScript("./TestClasses/Contract_Regex.cs");
+            _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
+            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Regex.cs");
         }
 
         [TestMethod]
@@ -66,8 +66,17 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             var result = _engine.ExecuteTestCaseStandard("testAlphabetOnly");
             Assert.AreEqual(1, result.Count);
-            var item = result.Pop<Boolean>();
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(result.Pop<Boolean>().GetBoolean());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testLowerAlphabetOnly");
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.Pop<Boolean>().GetBoolean());
+
+            _engine.Reset();
+            result = _engine.ExecuteTestCaseStandard("testUpperAlphabetOnly");
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.Pop<Boolean>().GetBoolean());
         }
     }
 }

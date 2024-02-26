@@ -1,14 +1,14 @@
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
-public class Regex
+public static class ByteStringExtension
 {
     /// <summary>
     ///  Denotes whether provided character is a number.
     /// </summary>
     /// <param name="byteString">Input to check</param>
     /// <returns>True if is number</returns>
-    public static bool IsNumber(ByteString byteString)
+    public static bool IsNumber(this ByteString byteString)
     {
         foreach (var value in byteString)
         {
@@ -23,11 +23,41 @@ public class Regex
     /// </summary>
     /// <param name="byteString">Input to check</param>
     /// <returns>True if is Alpha character</returns>
-    public static bool IsAlphabet(ByteString byteString)
+    public static bool IsLowerAlphabet(this ByteString byteString)
     {
         foreach (var value in byteString)
         {
-            if (value is < 65 or > 122)
+            if (value is < 97 or > 122)
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    ///  Denotes whether provided character is a lowercase letter.
+    /// </summary>
+    /// <param name="byteString">Input to check</param>
+    /// <returns>True if is Alpha character</returns>
+    public static bool IsUpperAlphabet(this ByteString byteString)
+    {
+        foreach (var value in byteString)
+        {
+            if (value is < 65 or > 90)
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    ///  Denotes whether provided character is a lowercase letter.
+    /// </summary>
+    /// <param name="byteString">Input to check</param>
+    /// <returns>True if is Alpha character</returns>
+    public static bool IsAlphabet(this ByteString byteString)
+    {
+        foreach (var value in byteString)
+        {
+            if (!((value >= 65 && value <= 90) || (value >= 97 && value <= 122)))
                 return false;
         }
         return true;
@@ -39,7 +69,7 @@ public class Regex
     /// <param name="byteString">Array where to search.</param>
     /// <param name="byteToFind">Array to search.</param>
     /// <returns>Index where it is located or -1</returns>
-    public static int IndexOf(ByteString byteString, ByteString byteToFind)
+    public static int IndexOf(this ByteString byteString, ByteString byteToFind)
     {
         return StdLib.MemorySearch(byteString, byteToFind);
     }
@@ -50,7 +80,7 @@ public class Regex
     /// <param name="byteString">Array where to search.</param>
     /// <param name="byteToFind">Array to search.</param>
     /// <returns>True if start with</returns>
-    public static bool StartWith(ByteString byteString, ByteString byteToFind)
+    public static bool StartWith(this ByteString byteString, ByteString byteToFind)
     {
         return StdLib.MemorySearch(byteString, byteToFind) == 0;
     }
@@ -61,12 +91,12 @@ public class Regex
     /// <param name="byteString">Array where to search.</param>
     /// <param name="byteToFind">Array to search.</param>
     /// <returns>True if ends with</returns>
-    public static bool EndsWith(ByteString byteString, ByteString byteToFind)
+    public static bool EndsWith(this ByteString byteString, ByteString byteToFind)
     {
         return StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length == byteString.Length;
     }
 
-    public static bool Contains(ByteString byteString, ByteString byteToFind)
+    public static bool Contains(this ByteString byteString, ByteString byteToFind)
     {
         return StdLib.MemorySearch(byteString, byteToFind) != -1;
     }
