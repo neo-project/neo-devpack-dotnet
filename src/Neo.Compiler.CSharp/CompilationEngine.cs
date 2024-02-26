@@ -60,7 +60,7 @@ namespace Neo.Compiler
             return CompileProjectContracts(Compilation);
         }
 
-        public List<CompilationContext> CompileSources(string[] sourceFiles)
+        public List<CompilationContext> CompileSources(params string[] sourceFiles)
         {
             List<MetadataReference> references = new(CommonReferences)
             {

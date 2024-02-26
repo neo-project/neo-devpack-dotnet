@@ -1,4 +1,3 @@
-using Neo.Cryptography.ECC;
 using Neo.SmartContract.Framework.Native;
 using System.ComponentModel;
 

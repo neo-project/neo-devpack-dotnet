@@ -10,7 +10,6 @@
 
 #pragma warning disable CS0626
 
-using Neo.Cryptography.ECC;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;

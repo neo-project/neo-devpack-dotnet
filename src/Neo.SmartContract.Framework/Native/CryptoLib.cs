@@ -26,6 +26,6 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern ByteString Murmur32(ByteString value, uint seed);
 
-        public static extern bool VerifyWithECDsa(ByteString message, Cryptography.ECC.ECPoint pubkey, ByteString signature, NamedCurve curve);
+        public static extern bool VerifyWithECDsa(ByteString message, ECPoint pubkey, ByteString signature, NamedCurve curve);
     }
 }

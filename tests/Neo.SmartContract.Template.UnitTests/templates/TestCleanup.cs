@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractnep17;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractowner;
 using Neo.SmartContract.Testing;
@@ -20,6 +21,22 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         {
             string templatePath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Template/templates");
             string artifactsPath = Path.GetFullPath("../../../templates");
+
+            // Compile
+
+            var result = new CompilationEngine(new Options()
+            {
+                Debug = true,
+                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable,
+                GenerateArtifacts = Options.GenerateArtifactsKind.None
+            })
+            .CompileSources(
+                Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
+                Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
+                Path.Combine(templatePath, "neocontractowner/Ownable.cs")
+                );
+
+            Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
 
             // Ensure Nep17
 
