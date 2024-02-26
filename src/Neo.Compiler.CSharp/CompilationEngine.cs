@@ -216,19 +216,27 @@ namespace Neo.Compiler
                 WorkingDirectory = folder
             })!.WaitForExit();
 
-            // Get sources
+            // Parse csproj
 
             XDocument document = XDocument.Load(csproj);
-            var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove").Select(p => p.Value).ToArray();
-            var obj = Path.Combine(folder, "obj");
-            var binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
-            var sourceFiles =
-                remove.Contains("*.cs") ? new HashSet<string>(StringComparer.OrdinalIgnoreCase) :
-                Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                    .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
-                    .GroupBy(Path.GetFileName)
-                    .Select(g => g.First())
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove")
+                .Select(p => p.Value.Contains("*") ? p.Value : Path.GetFullPath(p.Value)).ToArray();
+            var sourceFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (!remove.Contains("*.cs"))
+            {
+                var obj = Path.Combine(folder, "obj");
+                var binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
+                foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                      .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
+                      .Select(u => u))
+                //.GroupBy(Path.GetFileName)
+                //.Select(g => g.First()))
+                {
+                    if (!remove.Contains(entry)) sourceFiles.Add(entry);
+                }
+            }
+
             sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
