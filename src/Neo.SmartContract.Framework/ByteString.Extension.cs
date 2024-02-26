@@ -96,6 +96,12 @@ public static class ByteStringExtension
         return StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length == byteString.Length;
     }
 
+    /// <summary>
+    /// Checks if the <see cref="ByteString"/> contains the given <see cref="ByteString"/>.
+    /// </summary>
+    /// <param name="byteString"><see cref="ByteString"/> to search.</param>
+    /// <param name="byteToFind"><see cref="ByteString"/> to be searched.</param>
+    /// <returns></returns>
     public static bool Contains(this ByteString byteString, ByteString byteToFind)
     {
         return StdLib.MemorySearch(byteString, byteToFind) != -1;
