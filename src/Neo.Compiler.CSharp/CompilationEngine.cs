@@ -80,7 +80,7 @@ namespace Neo.Compiler
 
     <!-- Add specific files for compilation -->
     <ItemGroup>
-        {sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />" + Environment.NewLine)}
+        {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />"))}
     </ItemGroup>
 
     <ItemGroup>
@@ -93,7 +93,10 @@ namespace Neo.Compiler
 
             var path = Path.GetTempFileName();
             File.WriteAllText(path, csproj);
-            return CompileProject(csproj);
+
+            try { return CompileProject(path); }
+            catch { throw; }
+            finally { File.Delete(path); }
         }
 
         public List<CompilationContext> CompileProject(string csproj)
