@@ -9,7 +9,7 @@ using System.Text;
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 {
     /// <summary>
-    /// You need to build the solution to resolve Ownable class.
+    /// You need to build the solution to resolve OracleRequest class.
     /// </summary>
     [TestClass]
     public class OracleRequestTests : TestBase<OracleRequest>
