@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         /// Constructor
         /// </summary>
         /// <param name="contract">Contract</param>
-        /// <param name="Filter">Method Filter</param>
+        /// <param name="filter">Method Filter</param>
         public ConsoleFormat(CoveredContract contract, Func<CoveredMethod, bool>? filter = null)
         {
             Entries = new (CoveredContract, Func<CoveredMethod, bool>?)[] { (contract, filter) };
