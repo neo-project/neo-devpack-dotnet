@@ -230,8 +230,8 @@ namespace Neo.Compiler
                 foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                       .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
                       .Select(u => u))
-                //.GroupBy(Path.GetFileName)
-                //.Select(g => g.First()))
+                      //.GroupBy(Path.GetFileName)
+                      //.Select(g => g.First()))
                 {
                     if (!remove.Contains(entry)) sourceFiles.Add(entry);
                 }
