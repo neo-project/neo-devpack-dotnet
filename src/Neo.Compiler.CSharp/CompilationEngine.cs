@@ -108,17 +108,7 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
-            foreach (var classSymbol in sortedClasses)
-            {
-                var context = new CompilationContext(this, classSymbol);
-                context.Compile();
-                if (context.Diagnostics.Count <= 0) continue;
-                context.Diagnostics.ForEach(Console.WriteLine);
-                // print the exception but not throw it,
-                // so that we can return the context
-                // throw new InvalidOperationException("Compilation failed");
-            }
-
+            sortedClasses.ForEach(c => new CompilationContext(this, c).Compile());
             return Contexts.Select(p => p.Value).ToList();
         }
 
