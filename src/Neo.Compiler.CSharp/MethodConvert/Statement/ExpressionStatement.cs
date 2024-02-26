@@ -41,7 +41,7 @@ namespace Neo.Compiler
         private void ConvertExpressionStatement(SemanticModel model, ExpressionStatementSyntax syntax)
         {
             ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
-            using (InsertSequencePoint(syntax))
+            using (InsertSequencePoint(syntax.Expression))
             {
                 ConvertExpression(model, syntax.Expression);
                 if (type.SpecialType != SpecialType.System_Void)

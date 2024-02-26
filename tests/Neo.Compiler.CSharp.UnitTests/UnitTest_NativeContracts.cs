@@ -18,7 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Init()
         {
             snapshot = new TestDataCache();
-            genesisBlock = new NeoSystem(TestProtocolSettings.Default, new MemoryStore()).GenesisBlock;
+            genesisBlock = new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
         }
 
         [TestMethod]
