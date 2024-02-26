@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
-using Neo.Cryptography.ECC;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {

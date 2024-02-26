@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
@@ -19,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return GAS.Symbol;
         }
 
-        public static Cryptography.ECC.ECPoint[] getOracleNodes()
+        public static ECPoint[] getOracleNodes()
         {
             return RoleManagement.GetDesignatedByRole(Role.Oracle, 0);
         }

@@ -36,10 +36,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="manifest">Manifest</param>
         /// <param name="name">Class name, by default is manifest.Name</param>
         /// <param name="nef">Nef file</param>
-        /// <param name="debugInfo">Debug Info</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, JToken? debugInfo = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true)
         {
             name ??= manifest.Name;
 
@@ -81,13 +80,6 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
                 sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
-                sourceCode.WriteLine();
-            }
-
-            if (debugInfo is not null)
-            {
-                value = debugInfo.ToString(false).Replace("\"", "\"\"");
-                sourceCode.WriteLine($"    public static readonly {typeof(NeoDebugInfo).FullName} DebugInfo = {typeof(NeoDebugInfo).FullName}.FromDebugInfoJson(@\"{value}\");");
                 sourceCode.WriteLine();
             }
 

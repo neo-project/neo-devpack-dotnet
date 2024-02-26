@@ -98,7 +98,7 @@ namespace Neo.SmartContract.Framework.Services
         public static extern bool CheckWitness(UInt160 hash);
 
         [Syscall("System.Runtime.CheckWitness")]
-        public static extern bool CheckWitness(Cryptography.ECC.ECPoint pubkey);
+        public static extern bool CheckWitness(ECPoint pubkey);
 
         [Syscall("System.Runtime.Log")]
         public static extern void Log(string message);

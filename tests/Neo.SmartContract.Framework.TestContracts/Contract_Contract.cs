@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (int)Contract.GetCallFlags();
         }
 
-        public static UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey)
+        public static UInt160 CreateStandardAccount(ECPoint pubKey)
         {
             return Contract.CreateStandardAccount(pubKey);
         }

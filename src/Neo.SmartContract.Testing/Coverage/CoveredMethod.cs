@@ -63,18 +63,9 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             switch (format)
             {
-                case DumpFormat.Console:
-                    {
-                        return new ConsoleFormat(Contract, m => ReferenceEquals(m, this)).Dump();
-                    }
-                case DumpFormat.Html:
-                    {
-                        return new IntructionHtmlFormat(Contract, m => ReferenceEquals(m, this)).Dump();
-                    }
-                default:
-                    {
-                        throw new NotImplementedException();
-                    }
+                case DumpFormat.Console: return new ConsoleFormat(Contract, m => ReferenceEquals(m, this)).Dump();
+                case DumpFormat.Html: return new IntructionHtmlFormat(Contract, m => ReferenceEquals(m, this)).Dump();
+                default: throw new NotImplementedException();
             }
         }
 
