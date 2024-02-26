@@ -20,10 +20,39 @@ namespace Neo.SmartContract.Testing.Extensions
             foreach (var setup in mock.Setups)
             {
                 if (setup.GetType() != methodCallType) continue;
+                if (property.GetValue(setup) is not MethodInfo mSetup) continue;
 
-                if (method.Equals(property.GetValue(setup)))
+                if (method.Equals(mSetup))
                 {
                     return true;
+                }
+
+                // Sometimes method comparation with Equals doesn't work as expected with moq
+
+                if (method.DeclaringType.Equals(mSetup.DeclaringType) &&
+                    method.Attributes.Equals(mSetup.Attributes) &&
+                    method.Name.Equals(mSetup.Name) &&
+                    method.ReturnType.Equals(mSetup.ReturnType) &&
+                    method.MetadataToken.Equals(mSetup.MetadataToken))
+                {
+                    var par1 = method.GetParameters();
+                    var par2 = mSetup.GetParameters();
+
+                    if (par1.Length == par2.Length)
+                    {
+                        var eq = true;
+
+                        for (int i = 0; i < par1.Length; i++)
+                        {
+                            if (par1[i].ParameterType != par2[i].ParameterType)
+                            {
+                                eq = false;
+                                break;
+                            }
+                        }
+
+                        if (eq) return true;
+                    }
                 }
             }
 

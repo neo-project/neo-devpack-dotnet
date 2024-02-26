@@ -1,4 +1,3 @@
-using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,7 @@ using System.Xml;
 
 namespace Neo.SmartContract.Testing.Coverage.Formats
 {
-    public partial class CoberturaFormat : ICoverageFormat
+    public partial class CoberturaFormat : CoverageFormatBase
     {
         /// <summary>
         /// Contract
@@ -23,7 +22,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             Contracts = contracts;
         }
 
-        public void WriteReport(Action<string, Action<Stream>> writeAttachement)
+        public override void WriteReport(Action<string, Action<Stream>> writeAttachement)
         {
             writeAttachement("coverage.cobertura.xml", stream =>
             {

@@ -21,7 +21,7 @@ public abstract class RoleManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getDesignatedByRole")]
-    public abstract ECPoint[] GetDesignatedByRole(BigInteger? role, BigInteger? index);
+    public abstract ECPoint[] GetDesignatedByRole(Role? role, BigInteger? index);
 
     #endregion
 
