@@ -145,7 +145,6 @@ namespace Neo.Compiler
 
                 Contexts.Add(classSymbol, context);
             }
-
             return Contexts.Select(p => p.Value).ToList();
         }
 
