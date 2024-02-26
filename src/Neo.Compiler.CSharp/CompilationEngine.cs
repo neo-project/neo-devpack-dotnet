@@ -118,14 +118,14 @@ namespace Neo.Compiler
                 foreach (var classNode in classNodes)
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
-                    if (classSymbol != null && IsDerivedFromSmartContract(classSymbol, "Neo.SmartContract.Framework.SmartContract", semanticModel))
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, "Neo.SmartContract.Framework.SmartContract", semanticModel))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = new List<INamedTypeSymbol>();
                         foreach (var member in classSymbol.GetMembers())
                         {
                             var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
-                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol))
+                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol) && !namedTypeSymbol.IsAbstract)
                             {
                                 classDependencies[classSymbol].Add(namedTypeSymbol);
                             }
@@ -138,7 +138,15 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
-            sortedClasses.ForEach(c => new CompilationContext(this, c).Compile());
+
+            sortedClasses.ForEach(c =>
+                {
+                    var context = new CompilationContext(this, c);
+                    context.Compile();
+                    // Process the target contract add this compilation context
+                    this.Contexts.Add(c, context);
+                });
+
             return Contexts.Select(p => p.Value).ToList();
         }
 
