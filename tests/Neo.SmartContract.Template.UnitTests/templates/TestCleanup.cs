@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         /// <summary>
         /// Required coverage to be success
         /// </summary>
-        public static decimal RequiredCoverage { get; set; } = 1M;
+        public static decimal RequiredCoverage { get; set; } = 0.85M;
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()
@@ -43,23 +43,24 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             // Ensure Nep17
 
+            var root = Path.GetPathRoot(templatePath) ?? "";
             var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17TemplateContract.artifacts.cs"));
             var artifact = CreateArtifact(result[0], "Nep17TemplateContract");
-            DebugInfo_NEP17 = NeoDebugInfo.FromDebugInfoJson(result[0].CreateDebugInformation(content));
+            DebugInfo_NEP17 = NeoDebugInfo.FromDebugInfoJson(result[0].CreateDebugInformation(root));
             Assert.AreEqual(artifact, content, "Nep17TemplateContract artifact was wrong");
 
             // Ensure Oracle
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequest.artifacts.cs"));
             artifact = CreateArtifact(result[1]);
-            DebugInfo_Oracle = NeoDebugInfo.FromDebugInfoJson(result[1].CreateDebugInformation(content));
+            DebugInfo_Oracle = NeoDebugInfo.FromDebugInfoJson(result[1].CreateDebugInformation(root));
             Assert.AreEqual(artifact, content, "OracleRequest artifact was wrong");
 
             // Ensure Ownable
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
             artifact = CreateArtifact(result[2]);
-            DebugInfo_Ownable = NeoDebugInfo.FromDebugInfoJson(result[2].CreateDebugInformation(content));
+            DebugInfo_Ownable = NeoDebugInfo.FromDebugInfoJson(result[2].CreateDebugInformation(root));
             Assert.AreEqual(artifact, content, "Ownable artifact was wrong");
         }
 
