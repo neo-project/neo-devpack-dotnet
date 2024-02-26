@@ -12,12 +12,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
     /// You need to build the solution to resolve OracleRequest class.
     /// </summary>
     [TestClass]
-    public class OracleRequestTests : TestBase<OracleRequest>
+    public class OracleRequestTests : TestBase<OracleRequestTemplate>
     {
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public OracleRequestTests() : base(OracleRequest.Nef, OracleRequest.Manifest) { }
+        public OracleRequestTests() : base(OracleRequestTemplate.Nef, OracleRequestTemplate.Manifest) { }
 
         [TestMethod]
         public void TestGetResponse()

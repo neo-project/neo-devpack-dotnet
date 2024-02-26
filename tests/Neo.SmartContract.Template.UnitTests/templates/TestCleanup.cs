@@ -2,9 +2,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractnep17;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractowner;
+using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.SmartContract.Testing.Extensions;
+using System.Collections.Specialized;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
@@ -45,21 +47,21 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             var root = Path.GetPathRoot(templatePath) ?? "";
             var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17TemplateContract.artifacts.cs"));
-            var artifact = CreateArtifact(result[0], "Nep17TemplateContract");
+            var artifact = CreateArtifact(result[0], nameof(Nep17ContractTemplate));
             DebugInfo_NEP17 = NeoDebugInfo.FromDebugInfoJson(result[0].CreateDebugInformation(root));
             Assert.AreEqual(artifact, content, "Nep17TemplateContract artifact was wrong");
 
             // Ensure Oracle
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequest.artifacts.cs"));
-            artifact = CreateArtifact(result[1]);
+            artifact = CreateArtifact(result[1], nameof(OracleRequestTemplate));
             DebugInfo_Oracle = NeoDebugInfo.FromDebugInfoJson(result[1].CreateDebugInformation(root));
             Assert.AreEqual(artifact, content, "OracleRequest artifact was wrong");
 
             // Ensure Ownable
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
-            artifact = CreateArtifact(result[2]);
+            artifact = CreateArtifact(result[2], nameof(OwnableTemplate));
             DebugInfo_Ownable = NeoDebugInfo.FromDebugInfoJson(result[2].CreateDebugInformation(root));
             Assert.AreEqual(artifact, content, "Ownable artifact was wrong");
         }
