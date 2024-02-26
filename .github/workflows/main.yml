@@ -27,7 +27,7 @@ jobs:
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-    - name: Build Neo.SmartContract.Template and test template
+    - name: Build Neo.SmartContract.Template and test templates
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
