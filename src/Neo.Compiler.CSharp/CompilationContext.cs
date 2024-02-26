@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,8 +16,10 @@ using Microsoft.CodeAnalysis.Text;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,7 +28,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 
 namespace Neo.Compiler
@@ -134,6 +134,27 @@ namespace Neo.Compiler
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
             }
+        }
+
+        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder)
+        {
+            NefFile nef = CreateExecutable();
+            ContractManifest manifest = CreateManifest();
+            JObject debugInfo = CreateDebugInformation(folder);
+
+            if (!Options.NoOptimize)
+            {
+                try
+                {
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to optimize: {ex}");
+                }
+            }
+
+            return (nef, manifest, debugInfo);
         }
 
         public NefFile CreateExecutable()
