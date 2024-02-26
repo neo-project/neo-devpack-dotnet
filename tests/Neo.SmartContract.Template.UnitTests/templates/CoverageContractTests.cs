@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractnep17;
+using Neo.SmartContract.Template.UnitTests.templates.neocontractoracle;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractowner;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
