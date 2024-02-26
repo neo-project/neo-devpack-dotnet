@@ -59,11 +59,23 @@ namespace Neo.Compiler
             return CompileProjectContracts(Compilation);
         }
 
-        public List<CompilationContext> CompileSources(string? smartContractFrameworkVersion, params string[] sourceFiles)
+        public List<CompilationContext> CompileSources(params string[] sourceFiles) => CompileSources(null, sourceFiles);
+
+        public List<CompilationContext> CompileSources((string packageName, string packageVersion) package, params string[] sourceFiles)
+        {
+            return CompileSources(new[] { package }, sourceFiles);
+        }
+
+        public List<CompilationContext> CompileSources(IEnumerable<(string packageName, string packageVersion)>? packages = null, params string[] sourceFiles)
         {
             // Generate a dummy csproj
 
-            smartContractFrameworkVersion ??= typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.GetName().Version!.ToString();
+            var packageGroup = packages is null ? "" :
+$@"
+    <ItemGroup>
+        {(packages is null ? "" : string.Join(Environment.NewLine, packages.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />")))}
+    </ItemGroup>
+";
 
             var csproj = $@"
 <Project Sdk=""Microsoft.NET.Sdk"">
@@ -84,9 +96,7 @@ namespace Neo.Compiler
         {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />"))}
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include=""Neo.SmartContract.Framework"" Version=""{smartContractFrameworkVersion}"" />
-    </ItemGroup>
+    {packageGroup}
 
 </Project>";
 
@@ -95,7 +105,10 @@ namespace Neo.Compiler
             var path = Path.GetTempFileName();
             File.WriteAllText(path, csproj);
 
-            try { return CompileProject(path); }
+            try
+            {
+                return CompileProject(path);
+            }
             catch { throw; }
             finally { File.Delete(path); }
         }

@@ -6,7 +6,6 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.SmartContract.Testing.Extensions;
-using System.Collections.Specialized;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
@@ -25,20 +24,27 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
+            string frameworkPath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework");
             string templatePath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Template/templates");
             string artifactsPath = Path.GetFullPath("../../../templates");
 
             // Compile
 
+            //var frameworkObj = Path.Combine(frameworkPath, "obj");
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
+                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Disable
             })
-            .CompileSources("3.6.2-CI00519",
+            .CompileSources(
+                ("Neo.SmartContract.Framework", "3.6.2-CI00520"),
+                //Directory.GetFiles(frameworkPath, "*.cs", SearchOption.AllDirectories)
+                //.Where(u => !u.StartsWith(frameworkObj) && Path.GetFileName(u) != "AssemblyInfo.cs")
+                //.Concat(new[] {
                 Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
                 Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
                 Path.Combine(templatePath, "neocontractowner/Ownable.cs")
+                //}).ToArray()
                 );
 
             Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
