@@ -24,16 +24,17 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             // Ensure Nep17
 
             var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17Contract.artifacts.cs"));
+            // TODO: Compile source code and compare articats
 
             // Ensure Ownable
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
+            // TODO: Compile source code and compare articats
 
             // Ensure Oracle
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequest.artifacts.cs"));
-
-
+            // TODO: Compile source code and compare articats
         }
 
         [AssemblyCleanup]
