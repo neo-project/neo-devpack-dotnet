@@ -70,7 +70,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var nef = context.CreateExecutable();
             var debug = NeoDebugInfo.FromDebugInfoJson(context.CreateDebugInformation(rootDebug));
 
-            return (manifest.GetArtifactsSource(nameof(T), nef, generateProperties: true), debug);
+            return (manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true), debug);
         }
 
         [AssemblyCleanup]
