@@ -36,7 +36,7 @@ namespace Neo.Compiler
     {
         private readonly CompilationEngine _engine;
         readonly INamedTypeSymbol _targetContract;
-        internal Options Options => _engine.Options;
+        internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
         private readonly List<Diagnostic> _diagnostics = new();
         private readonly HashSet<string> _supportedStandards = new();

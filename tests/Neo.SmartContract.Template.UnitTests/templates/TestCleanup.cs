@@ -24,11 +24,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             // Compile
 
-            var result = new CompilationEngine(new Options()
+            var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable,
-                GenerateArtifacts = Options.GenerateArtifactsKind.None
+                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
             .CompileSources(
                 Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),

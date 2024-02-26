@@ -28,7 +28,7 @@ namespace Neo.Compiler
     public class CompilationEngine
     {
         internal Compilation? Compilation;
-        internal Options Options { get; private set; }
+        internal CompilationOptions Options { get; private set; }
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = new();
         internal readonly Dictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
@@ -46,7 +46,7 @@ namespace Neo.Compiler
             };
         }
 
-        public CompilationEngine(Options options)
+        public CompilationEngine(CompilationOptions options)
         {
             Options = options;
         }
@@ -230,8 +230,8 @@ namespace Neo.Compiler
                 foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                       .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
                       .Select(u => u))
-                      //.GroupBy(Path.GetFileName)
-                      //.Select(g => g.First()))
+                //.GroupBy(Path.GetFileName)
+                //.Select(g => g.First()))
                 {
                     if (!remove.Contains(entry)) sourceFiles.Add(entry);
                 }
@@ -244,14 +244,14 @@ namespace Neo.Compiler
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
             foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
             {
-                MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, Options, compilationOptions);
+                MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, compilationOptions);
                 if (reference is not null) references.Add(reference);
             }
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
             return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
         }
 
-        private MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, Options options, CSharpCompilationOptions compilationOptions)
+        private MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, CSharpCompilationOptions compilationOptions)
         {
             string assemblyName = Path.GetDirectoryName(name)!;
             if (!MetaReferences.TryGetValue(assemblyName, out var reference))
