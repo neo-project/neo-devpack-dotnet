@@ -21,7 +21,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Akka.Util.Internal;
 using BigInteger = System.Numerics.BigInteger;
 
 namespace Neo.Compiler
@@ -60,13 +59,44 @@ namespace Neo.Compiler
             return CompileProjectContracts(Compilation);
         }
 
-        public List<CompilationContext> CompileSources(string[] sourceFiles)
+        public List<CompilationContext> CompileSources(params string[] sourceFiles)
         {
-            List<MetadataReference> references = new(CommonReferences)
-            {
-                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
-            };
-            return Compile(sourceFiles, references);
+            // Generate a dummy csproj
+
+            var version = typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.GetName().Version!.ToString();
+            var csproj = $@"
+<Project Sdk=""Microsoft.NET.Sdk"">
+
+    <PropertyGroup>
+        <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <!-- Remove all Compile items from compilation -->
+    <ItemGroup>
+        <Compile Remove=""*.cs"" />
+    </ItemGroup>
+
+    <!-- Add specific files for compilation -->
+    <ItemGroup>
+        {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />"))}
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include=""Neo.SmartContract.Framework"" Version=""{version}"" />
+    </ItemGroup>
+
+</Project>";
+
+            // Write and compile
+
+            var path = Path.GetTempFileName();
+            File.WriteAllText(path, csproj);
+
+            try { return CompileProject(path); }
+            catch { throw; }
+            finally { File.Delete(path); }
         }
 
         public List<CompilationContext> CompileProject(string csproj)
@@ -88,14 +118,14 @@ namespace Neo.Compiler
                 foreach (var classNode in classNodes)
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
-                    if (classSymbol != null && IsDerivedFromSmartContract(classSymbol, "Neo.SmartContract.Framework.SmartContract", semanticModel))
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, "Neo.SmartContract.Framework.SmartContract", semanticModel))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = new List<INamedTypeSymbol>();
                         foreach (var member in classSymbol.GetMembers())
                         {
                             var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
-                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol))
+                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol) && !namedTypeSymbol.IsAbstract)
                             {
                                 classDependencies[classSymbol].Add(namedTypeSymbol);
                             }
@@ -108,19 +138,29 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
-            foreach (var classSymbol in sortedClasses)
-            {
-                new CompilationContext(this, classSymbol).Compile();
-            }
+
+            sortedClasses.ForEach(c =>
+                {
+                    var context = new CompilationContext(this, c);
+                    context.Compile();
+                    // Process the target contract add this compilation context
+                    this.Contexts.Add(c, context);
+                });
 
             return Contexts.Select(p => p.Value).ToList();
         }
 
+        /// <summary>
+        /// Sort the classes based on their topological dependencies
+        /// </summary>
+        /// <param name="dependencies">Contract dependencies map</param>
+        /// <returns>List of sorted contracts</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         private static List<INamedTypeSymbol> TopologicalSort(Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> dependencies)
         {
             var sorted = new List<INamedTypeSymbol>();
             var visited = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            var visiting = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default); // 添加中间状态以检测循环依赖
+            var visiting = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default); // for detecting cycles
 
             void Visit(INamedTypeSymbol classSymbol)
             {
@@ -170,26 +210,34 @@ namespace Neo.Compiler
 
         public Compilation GetCompilation(string csproj)
         {
+            // Restore project
+
             string folder = Path.GetDirectoryName(csproj)!;
-            string obj = Path.Combine(folder, "obj");
-            string binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
-            HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
-                .GroupBy(Path.GetFileName)
-                .Select(g => g.First())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            List<MetadataReference> references = new(CommonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
-            XDocument document = XDocument.Load(csproj);
-            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
                 Arguments = $"restore \"{csproj}\"",
                 WorkingDirectory = folder
             })!.WaitForExit();
-            string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
-            JObject assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
+
+            // Get sources
+
+            XDocument document = XDocument.Load(csproj);
+            var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove").Select(p => p.Value).ToArray();
+            var obj = Path.Combine(folder, "obj");
+            var binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
+            var sourceFiles =
+                remove.Contains("*.cs") ? new HashSet<string>(StringComparer.OrdinalIgnoreCase) :
+                Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                    .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
+                    .GroupBy(Path.GetFileName)
+                    .Select(g => g.First())
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
+            var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
+            var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
+            List<MetadataReference> references = new(CommonReferences);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
             foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
             {
                 MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, Options, compilationOptions);
