@@ -39,7 +39,7 @@ namespace Neo.Optimizer
         }
 
         [Strategy(Priority = int.MaxValue)]
-        public static (NefFile, ContractManifest, JToken) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JToken debugInfo)
+        public static (NefFile, ContractManifest, JObject) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JObject debugInfo)
         {
             Dictionary<int, bool> coveredMap = FindCoveredInstructions(nef, manifest, debugInfo);
             Script oldScript = nef.Script;

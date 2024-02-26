@@ -133,7 +133,7 @@ namespace Neo.Compiler
 
         private static int ProcessSources(Options options, string folder, string[] sourceFiles)
         {
-            return ProcessOutputs(options, folder, new CompilationEngine(options).CompileSources(null, sourceFiles));
+            return ProcessOutputs(options, folder, new CompilationEngine(options).CompileSources(sourceFiles));
         }
 
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
@@ -171,20 +171,7 @@ namespace Neo.Compiler
                 string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
 
-                NefFile nef = context.CreateExecutable();
-                ContractManifest manifest = context.CreateManifest();
-                JToken debugInfo = context.CreateDebugInformation(folder);
-                if (!options.NoOptimize)
-                {
-                    try
-                    {
-                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Failed to optimize: {ex}");
-                    }
-                }
+                (NefFile nef, ContractManifest manifest, JToken debugInfo) = context.CreateResults(folder);
 
                 try
                 {

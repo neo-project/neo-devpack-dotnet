@@ -33,6 +33,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
+                NoOptimize = false,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Disable
             })
             .CompileSources(
@@ -66,9 +67,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
         private static (string, NeoDebugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug)
         {
-            var manifest = context.CreateManifest();
-            var nef = context.CreateExecutable();
-            var debug = NeoDebugInfo.FromDebugInfoJson(context.CreateDebugInformation(rootDebug));
+            (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
+            var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
 
             return (manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true), debug);
         }
