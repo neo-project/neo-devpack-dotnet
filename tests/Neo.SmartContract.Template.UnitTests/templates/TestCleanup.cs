@@ -8,12 +8,33 @@ using Neo.SmartContract.Testing.Coverage.Formats;
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
-    public class CoverageContractTests
+    public class TestCleanup
     {
         /// <summary>
         /// Required coverage to be success
         /// </summary>
         public static decimal RequiredCoverage { get; set; } = 1M;
+
+        [TestMethod]
+        public void EnsureArtifactsUpToDate()
+        {
+            string templatePath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Template/templates");
+            string artifactsPath = Path.GetFullPath("../../../templates");
+
+            // Ensure Nep17
+
+            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17Contract.artifacts.cs"));
+
+            // Ensure Ownable
+
+            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
+
+            // Ensure Oracle
+
+            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequest.artifacts.cs"));
+
+
+        }
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
@@ -31,11 +52,13 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             Assert.IsNotNull(coverageOwnable, "Ownable coverage can't be null");
             Assert.IsNotNull(coverageOracle, "Oracle coverage can't be null");
 
-            var coverage = new CoveredCollection(coverageNep17, coverageOwnable, coverageOracle);
+            var coverage = coverageNep17 + coverageOwnable + coverageOracle;
+
+            Assert.IsNotNull(coverage, "Coverage can't be null");
 
             // Dump current coverage
 
-            Console.WriteLine(coverage.Dump());
+            Console.WriteLine(coverage.Dump(DumpFormat.Console));
             File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
 
             // Write the cobertura format

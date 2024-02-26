@@ -1,7 +1,6 @@
 using Neo.SmartContract.Testing.Coverage.Formats;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
@@ -62,28 +61,31 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         public override string Dump(DumpFormat format = DumpFormat.Console)
         {
-            IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> entries = Entries.Select(u =>
-            {
-                if (u is CoveredContract co) return (co, (Func<CoveredMethod, bool>?)null);
-                if (u is CoveredMethod cm) return (cm.Contract, new Func<CoveredMethod, bool>((CoveredMethod method) => ReferenceEquals(method, cm)));
-
-                throw new NotImplementedException();
-            })!;
-
             switch (format)
             {
-                case DumpFormat.Console:
+                case DumpFormat.Console: return new ConsoleFormat(GetEntries()).Dump();
+                case DumpFormat.Html: return new IntructionHtmlFormat(GetEntries()).Dump();
+                default: throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Get covered entries
+        /// </summary>
+        /// <returns>IEnumerable</returns>
+        private IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> GetEntries()
+        {
+            foreach (var entry in Entries)
+            {
+                if (entry is CoveredContract co) yield return (co, null);
+                if (entry is CoveredMethod cm) yield return (cm.Contract, (CoveredMethod method) => ReferenceEquals(method, cm));
+                if (entry is CoveredCollection cl)
+                {
+                    foreach (var subEntry in cl.GetEntries())
                     {
-                        return new ConsoleFormat(entries).Dump();
+                        yield return subEntry;
                     }
-                case DumpFormat.Html:
-                    {
-                        return new IntructionHtmlFormat(entries).Dump();
-                    }
-                default:
-                    {
-                        throw new NotImplementedException();
-                    }
+                }
             }
         }
     }

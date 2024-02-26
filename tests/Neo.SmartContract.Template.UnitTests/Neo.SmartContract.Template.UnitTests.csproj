@@ -11,23 +11,4 @@
 		<ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Message Text="Create and compile Nep17Contract.cs" Importance="high" />
-		<Exec Command="dotnet pack &quot;$(SolutionDir)src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj&quot;" />
-		<Exec Command="dotnet new install &quot;$(SolutionDir)src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg&quot;" />
-		<Exec Command="dotnet new neocontractnep17 -n Nep17Contract -o &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/nep17/&quot; --force" />
-		<Exec Command="dotnet new neocontractowner -n Ownable -o &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/ownable/&quot; --force" />
-		<Exec Command="dotnet new neocontractoracle -n OracleRequest -o &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/oracle/&quot; --force" />
-		<Exec Command="dotnet new uninstall Neo.SmartContract.Template" />
-		<Exec Command="dotnet remove &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/nep17/Nep17Contract.csproj&quot; package Neo.SmartContract.Framework" />
-		<Exec Command="dotnet add    &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/nep17/Nep17Contract.csproj&quot; reference &quot;$(SolutionDir)src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj&quot;" />
-		<Exec Command="dotnet remove &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/ownable/Ownable.csproj&quot; package Neo.SmartContract.Framework" />
-		<Exec Command="dotnet add    &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/ownable/Ownable.csproj&quot; reference &quot;$(SolutionDir)src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj&quot;" />
-		<Exec Command="dotnet remove &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/oracle/OracleRequest.csproj&quot; package Neo.SmartContract.Framework" />
-		<Exec Command="dotnet add    &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/oracle/OracleRequest.csproj&quot; reference &quot;$(SolutionDir)src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj&quot;" />
-		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/nep17/Nep17Contract.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts&quot; --generate-artifacts source --debug" />
-		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/ownable/Ownable.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts&quot; --generate-artifacts source --debug" />
-		<Exec Command="dotnet $(SolutionDir)src/Neo.Compiler.CSharp/$(OutputPath)/nccs.dll $(NullableArgument) $(CheckedArgument) &quot;$(SolutionDir)src/Neo.SmartContract.Template/$(OutputPath)/oracle/OracleRequest.csproj&quot; -o &quot;$(SolutionDir)tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts&quot; --generate-artifacts source --debug" />
-	</Target>
-
 </Project>
