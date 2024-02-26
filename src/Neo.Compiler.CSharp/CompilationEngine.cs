@@ -21,7 +21,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Akka.Util.Internal;
 using BigInteger = System.Numerics.BigInteger;
 
 namespace Neo.Compiler
