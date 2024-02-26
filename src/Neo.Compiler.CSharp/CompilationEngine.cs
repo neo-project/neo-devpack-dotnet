@@ -120,11 +120,17 @@ namespace Neo.Compiler
             return Contexts.Select(p => p.Value).ToList();
         }
 
+        /// <summary>
+        /// Sort the classes based on their topological dependencies
+        /// </summary>
+        /// <param name="dependencies">Contract dependencies map</param>
+        /// <returns>List of sorted contracts</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         private static List<INamedTypeSymbol> TopologicalSort(Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> dependencies)
         {
             var sorted = new List<INamedTypeSymbol>();
             var visited = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            var visiting = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default); // 添加中间状态以检测循环依赖
+            var visiting = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default); // for detecting cycles
 
             void Visit(INamedTypeSymbol classSymbol)
             {
