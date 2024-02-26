@@ -133,7 +133,7 @@ namespace Neo.Compiler
 
         private static int ProcessSources(Options options, string folder, string[] sourceFiles)
         {
-            return ProcessOutputs(options, folder, new CompilationEngine(options).CompileSources(sourceFiles));
+            return ProcessOutputs(options, folder, new CompilationEngine(options).CompileSources(null, sourceFiles));
         }
 
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
@@ -212,7 +212,7 @@ namespace Neo.Compiler
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
-                    var artifact = manifest.GetArtifactsSource(baseName, nef, debugInfo);
+                    var artifact = manifest.GetArtifactsSource(baseName, nef);
 
                     if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
                     {

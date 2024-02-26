@@ -1,6 +1,4 @@
-using Neo.Cryptography.ECC;
 using Neo.SmartContract.Framework.Services;
-using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
