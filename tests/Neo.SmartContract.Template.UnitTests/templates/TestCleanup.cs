@@ -30,7 +30,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             // Compile
 
-            //var frameworkObj = Path.Combine(frameworkPath, "obj");
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
@@ -38,13 +37,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             })
             .CompileSources(
                 ("Neo.SmartContract.Framework", "3.6.2-CI00520"),
-                //Directory.GetFiles(frameworkPath, "*.cs", SearchOption.AllDirectories)
-                //.Where(u => !u.StartsWith(frameworkObj) && Path.GetFileName(u) != "AssemblyInfo.cs")
-                //.Concat(new[] {
                 Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
                 Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
                 Path.Combine(templatePath, "neocontractowner/Ownable.cs")
-                //}).ToArray()
                 );
 
             Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
@@ -53,31 +48,29 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             var root = Path.GetPathRoot(templatePath) ?? "";
             var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
-            var artifact = CreateArtifact(result[0], nameof(Nep17ContractTemplate));
-            DebugInfo_NEP17 = NeoDebugInfo.FromDebugInfoJson(result[0].CreateDebugInformation(root));
+            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root);
             Assert.AreEqual(artifact, content, "Nep17ContractTemplate artifact was wrong");
 
             // Ensure Oracle
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
-            artifact = CreateArtifact(result[1], nameof(OracleRequestTemplate));
-            DebugInfo_Oracle = NeoDebugInfo.FromDebugInfoJson(result[1].CreateDebugInformation(root));
+            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root);
             Assert.AreEqual(artifact, content, "OracleRequestTemplate artifact was wrong");
 
             // Ensure Ownable
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
-            artifact = CreateArtifact(result[2], nameof(OwnableTemplate));
-            DebugInfo_Ownable = NeoDebugInfo.FromDebugInfoJson(result[2].CreateDebugInformation(root));
+            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root);
             Assert.AreEqual(artifact, content, "OwnableTemplate artifact was wrong");
         }
 
-        private static string CreateArtifact(CompilationContext context, string? name = null)
+        private static (string, NeoDebugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug)
         {
             var manifest = context.CreateManifest();
             var nef = context.CreateExecutable();
+            var debug = NeoDebugInfo.FromDebugInfoJson(context.CreateDebugInformation(rootDebug));
 
-            return manifest.GetArtifactsSource(name ?? manifest.Name, nef, generateProperties: true);
+            return (manifest.GetArtifactsSource(nameof(T), nef, generateProperties: true), debug);
         }
 
         [AssemblyCleanup]
