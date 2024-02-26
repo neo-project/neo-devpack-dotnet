@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 Debug = true,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileSources(
+            .CompileSources("3.6.2-CI00519",
                 Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
                 Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
                 Path.Combine(templatePath, "neocontractowner/Ownable.cs")
@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var manifest = context.CreateManifest();
             var nef = context.CreateExecutable();
 
-            return manifest.GetArtifactsSource(name ?? manifest.Name, nef, null, generateProperties: true);
+            return manifest.GetArtifactsSource(name ?? manifest.Name, nef, generateProperties: true);
         }
 
         [AssemblyCleanup]

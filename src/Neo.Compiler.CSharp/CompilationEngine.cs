@@ -59,11 +59,12 @@ namespace Neo.Compiler
             return CompileProjectContracts(Compilation);
         }
 
-        public List<CompilationContext> CompileSources(params string[] sourceFiles)
+        public List<CompilationContext> CompileSources(string? smartContractFrameworkVersion, params string[] sourceFiles)
         {
             // Generate a dummy csproj
 
-            var version = typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.GetName().Version!.ToString();
+            smartContractFrameworkVersion ??= typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.GetName().Version!.ToString();
+
             var csproj = $@"
 <Project Sdk=""Microsoft.NET.Sdk"">
 
@@ -84,7 +85,7 @@ namespace Neo.Compiler
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include=""Neo.SmartContract.Framework"" Version=""{version}"" />
+        <PackageReference Include=""Neo.SmartContract.Framework"" Version=""{smartContractFrameworkVersion}"" />
     </ItemGroup>
 
 </Project>";
@@ -215,7 +216,7 @@ namespace Neo.Compiler
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"restore \"{csproj}\"",
+                Arguments = $"restore \"{csproj}\" --source \"https://www.myget.org/F/neo/api/v3/index.json\"",
                 WorkingDirectory = folder
             })!.WaitForExit();
 
