@@ -178,8 +178,9 @@ namespace Neo.Compiler
         {
             string folder = Path.GetDirectoryName(csproj)!;
             string obj = Path.Combine(folder, "obj");
+            string binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
             HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                .Where(p => !p.StartsWith(obj))
+                .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
                 .GroupBy(Path.GetFileName)
                 .Select(g => g.First())
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
