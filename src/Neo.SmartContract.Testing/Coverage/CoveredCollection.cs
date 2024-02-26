@@ -1,4 +1,7 @@
+using Neo.SmartContract.Testing.Coverage.Formats;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
@@ -50,6 +53,38 @@ namespace Neo.SmartContract.Testing.Coverage
         public CoveredCollection(params CoverageBase[] entries)
         {
             Entries = entries;
+        }
+
+        /// <summary>
+        /// Dump coverage
+        /// </summary>
+        /// <param name="format">Format</param>
+        /// <returns>Coverage dump</returns>
+        public override string Dump(DumpFormat format = DumpFormat.Console)
+        {
+            IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> entries = Entries.Select(u =>
+            {
+                if (u is CoveredContract co) return (co, (Func<CoveredMethod, bool>?)null);
+                if (u is CoveredMethod cm) return (cm.Contract, new Func<CoveredMethod, bool>((CoveredMethod method) => ReferenceEquals(method, cm)));
+
+                throw new NotImplementedException();
+            })!;
+
+            switch (format)
+            {
+                case DumpFormat.Console:
+                    {
+                        return new ConsoleFormat(entries).Dump();
+                    }
+                case DumpFormat.Html:
+                    {
+                        return new IntructionHtmlFormat(entries).Dump();
+                    }
+                default:
+                    {
+                        throw new NotImplementedException();
+                    }
+            }
         }
     }
 }

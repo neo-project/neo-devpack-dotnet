@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(@"
-0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26% - 100.00%]
+NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
 ┌-───────────────────────────────-┬-───────-┬-───────-┐
 │ Method                          │  Line   │  Branch │
 ├-───────────────────────────────-┼-───────-┼-───────-┤
@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 ".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
 
             Assert.AreEqual(@"
-0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5 [5.26% - 100.00%]
+NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
 ┌-─────────────-┬-───────-┬-───────-┐
 │ Method        │  Line   │  Branch │
 ├-─────────────-┼-───────-┼-───────-┤

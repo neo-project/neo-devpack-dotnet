@@ -1,4 +1,5 @@
 using Neo;
+using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -6,19 +7,17 @@ using Neo.SmartContract.Framework.Services;
 
 using System;
 using System.ComponentModel;
-using System.Numerics;
 
 namespace Neo.SmartContract.Template
 {
-    [DisplayName(nameof(Nep17Contract))]
+    [DisplayName(nameof(Ownable))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
     [ManifestExtra("Description", "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs")]
     [ContractPermission("*", "*")]
-    [SupportedStandards("NEP-17")]
-    public class Nep17Contract : Nep17Token
+    public class Ownable : Neo.SmartContract.Framework.SmartContract
     {
         #region Owner
 
@@ -51,36 +50,6 @@ namespace Neo.SmartContract.Template
         }
 
         #endregion
-
-        #region NEP17
-
-        // TODO: Replace "EXAMPLE" with a short name all UPPERCASE 3-8 characters
-        public override string Symbol { [Safe] get => "EXAMPLE"; }
-
-        // NOTE: Valid Range 0-31
-        public override byte Decimals { [Safe] get => 8; }
-
-        public static new void Burn(UInt160 account, BigInteger amount)
-        {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            Nep17Token.Burn(account, amount);
-        }
-
-        public static new void Mint(UInt160 to, BigInteger amount)
-        {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            Nep17Token.Mint(to, amount);
-        }
-
-        #endregion
-
-        // When this contract address is included in the transaction signature,
-        // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
-        // For example, this method needs to be called when withdrawing token from the contract.
-        [Safe]
-        public static bool Verify() => IsOwner();
 
         // TODO: Replace it with your methods.
         public static string MyMethod()
@@ -116,6 +85,11 @@ namespace Neo.SmartContract.Template
             ContractManagement.Update(nefFile, manifest, data);
         }
 
-        // NOTE: NEP-17 contracts "SHOULD NOT" have "Destroy" method
+        public static void Destroy()
+        {
+            if (!IsOwner())
+                throw new InvalidOperationException("No authorization.");
+            ContractManagement.Destroy();
+        }
     }
 }

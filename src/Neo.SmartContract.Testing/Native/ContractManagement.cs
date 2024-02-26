@@ -42,13 +42,13 @@ public abstract class ContractManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getContract")]
-    public abstract ContractState GetContract(UInt160 hash);
+    public abstract ContractState? GetContract(UInt160 hash);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getContractById")]
-    public abstract ContractState GetContractById(BigInteger id);
+    public abstract ContractState? GetContractById(BigInteger id);
 
     /// <summary>
     /// Safe method
