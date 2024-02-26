@@ -22,6 +22,6 @@ namespace Neo.Compiler
 
         public string? Output { get; set; }
         public bool Assembly { get; set; }
-        public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.Source;
+        public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.None;
     }
 }

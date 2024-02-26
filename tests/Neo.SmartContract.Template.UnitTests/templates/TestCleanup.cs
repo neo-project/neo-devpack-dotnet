@@ -46,24 +46,24 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             // Ensure Nep17
 
             var root = Path.GetPathRoot(templatePath) ?? "";
-            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17TemplateContract.artifacts.cs"));
+            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
             var artifact = CreateArtifact(result[0], nameof(Nep17ContractTemplate));
             DebugInfo_NEP17 = NeoDebugInfo.FromDebugInfoJson(result[0].CreateDebugInformation(root));
-            Assert.AreEqual(artifact, content, "Nep17TemplateContract artifact was wrong");
+            Assert.AreEqual(artifact, content, "Nep17ContractTemplate artifact was wrong");
 
             // Ensure Oracle
 
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequest.artifacts.cs"));
+            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
             artifact = CreateArtifact(result[1], nameof(OracleRequestTemplate));
             DebugInfo_Oracle = NeoDebugInfo.FromDebugInfoJson(result[1].CreateDebugInformation(root));
-            Assert.AreEqual(artifact, content, "OracleRequest artifact was wrong");
+            Assert.AreEqual(artifact, content, "OracleRequestTemplate artifact was wrong");
 
             // Ensure Ownable
 
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
+            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
             artifact = CreateArtifact(result[2], nameof(OwnableTemplate));
             DebugInfo_Ownable = NeoDebugInfo.FromDebugInfoJson(result[2].CreateDebugInformation(root));
-            Assert.AreEqual(artifact, content, "Ownable artifact was wrong");
+            Assert.AreEqual(artifact, content, "OwnableTemplate artifact was wrong");
         }
 
         private static string CreateArtifact(CompilationContext context, string? name = null)
