@@ -183,7 +183,7 @@ namespace Neo.Optimizer
                 addressToInstruction.Add(a, i);
             Dictionary<int, string> methodStartAddrToName = new();
             Dictionary<int, string> methodEndAddrToName = new();
-            Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
+            Dictionary<int, List<(int docId, int startLine, int startCol, int endLine, int endCol)>> newAddrToSequencePoint = new();
 
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -196,7 +196,10 @@ namespace Neo.Optimizer
                 {
                     GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
                     GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
-                    newAddrToSequencePoint.Add(int.Parse(sequencePointGroups[1].Value), (
+                    int addr = int.Parse(sequencePointGroups[1].Value);
+                    if (!newAddrToSequencePoint.ContainsKey(addr))
+                        newAddrToSequencePoint.Add(addr, new());
+                    newAddrToSequencePoint[addr].Add((
                         int.Parse(documentGroups[1].ToString()),
                         int.Parse(documentGroups[2].ToString()),
                         int.Parse(documentGroups[3].ToString()),
@@ -216,26 +219,28 @@ namespace Neo.Optimizer
                     dumpnef += $"# Method End {methodEndAddrToName[a]}\n";
                 if (newAddrToSequencePoint.ContainsKey(a))
                 {
-                    var (docId, startLine, startCol, endLine, endCol) = newAddrToSequencePoint[a];
-                    string docPath = debugInfo["documents"]![docId]!.AsString();
-                    if (debugInfo["document-root"] != null)
-                        docPath = Path.Combine(debugInfo["document-root"]!.AsString(), docPath);
-                    if (!docPathToContent.ContainsKey(docPath))
-                        docPathToContent.Add(docPath, File.ReadAllLines(docPath).ToArray());
-                    if (startLine == endLine)
-                        dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{docPathToContent[docPath][startLine - 1][(startCol - 1)..(endCol - 1)]}\"\n";
-                    else
-                        for (int lineIndex = startLine; lineIndex <= endLine; lineIndex++)
-                        {
-                            string src;
-                            if (lineIndex == startLine)
-                                src = docPathToContent[docPath][lineIndex - 1][(startCol - 1)..].Trim();
-                            else if (lineIndex == endLine)
-                                src = docPathToContent[docPath][lineIndex - 1][..(endCol - 1)].Trim();
-                            else
-                                src = docPathToContent[docPath][lineIndex - 1].Trim();
-                            dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{src}\"\n";
-                        }
+                    foreach ((int docId, int startLine, int startCol, int endLine, int endCol) in newAddrToSequencePoint[a])
+                    {
+                        string docPath = debugInfo["documents"]![docId]!.AsString();
+                        if (debugInfo["document-root"] != null)
+                            docPath = Path.Combine(debugInfo["document-root"]!.AsString(), docPath);
+                        if (!docPathToContent.ContainsKey(docPath))
+                            docPathToContent.Add(docPath, File.ReadAllLines(docPath).ToArray());
+                        if (startLine == endLine)
+                            dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{docPathToContent[docPath][startLine - 1][(startCol - 1)..(endCol - 1)]}\"\n";
+                        else
+                            for (int lineIndex = startLine; lineIndex <= endLine; lineIndex++)
+                            {
+                                string src;
+                                if (lineIndex == startLine)
+                                    src = docPathToContent[docPath][lineIndex - 1][(startCol - 1)..].Trim();
+                                else if (lineIndex == endLine)
+                                    src = docPathToContent[docPath][lineIndex - 1][..(endCol - 1)].Trim();
+                                else
+                                    src = docPathToContent[docPath][lineIndex - 1].Trim();
+                                dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{src}\"\n";
+                            }
+                    }
                 }
                 if (a < script.Length)
                     dumpnef += $"{WriteInstruction(a, script.GetInstruction(a), script.GetInstructionAddressPadding(), nef.Tokens)}\n";

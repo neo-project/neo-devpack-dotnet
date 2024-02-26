@@ -10,7 +10,7 @@
     "language": "C#",
     "type": "project"
   },
-  "sourceName": "ProjectName",
+  "sourceName": "Ownable",
   "symbols": {
     "NeoVersion": {
       "type": "parameter",
