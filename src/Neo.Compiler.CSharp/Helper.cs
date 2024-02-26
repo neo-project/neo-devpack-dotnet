@@ -79,7 +79,7 @@ namespace Neo.Compiler
                 case "string": return ContractParameterType.String;
                 case "byte[]": return ContractParameterType.ByteArray;
                 case "object": return ContractParameterType.Any;
-                case "Neo.ECPoint": // Old Neo.SmartContract.Framework
+                case "Neo.Cryptography.ECC.ECPoint": // Old Neo.SmartContract.Framework
                 case "Neo.SmartContract.Framework.ECPoint": return ContractParameterType.PublicKey;
                 case "Neo.SmartContract.Framework.ByteString": return ContractParameterType.ByteArray;
                 case "Neo.UInt160": // Old Neo.SmartContract.Framework
