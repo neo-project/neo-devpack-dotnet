@@ -7,11 +7,11 @@ public abstract class OracleContract : SmartContract
 {
     #region Events
 
-    public delegate void delOracleRequest(BigInteger Id, UInt160 RequestContract, string Url, string Filter);
+    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string Filter);
     [DisplayName("OracleRequest")]
     public event delOracleRequest? OnOracleRequest;
 
-    public delegate void delOracleResponse(BigInteger Id, UInt256 OriginalTx);
+    public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
     [DisplayName("OracleResponse")]
     public event delOracleResponse? OnOracleResponse;
 

@@ -138,7 +138,22 @@ namespace Neo.Compiler
 
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
         {
-            return contexts.Select(p => ProcessOutput(options, folder, p)).Any(p => p != 1) ? 0 : 1;
+            int result = 0;
+            List<Exception> exceptions = new();
+            foreach (CompilationContext context in contexts)
+                try
+                {
+                    if (ProcessOutput(options, folder, context) != 0)
+                        result = 1;
+                }
+                catch (Exception e)
+                {
+                    result = 1;
+                    exceptions.Add(e);
+                }
+            foreach (Exception e in exceptions)
+                Console.Error.WriteLine(e.ToString());
+            return result;
         }
 
         private static int ProcessOutput(Options options, string folder, CompilationContext context)
@@ -197,7 +212,7 @@ namespace Neo.Compiler
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
-                    var artifact = manifest.GetArtifactsSource(baseName);
+                    var artifact = manifest.GetArtifactsSource(baseName, nef, debugInfo);
 
                     if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
                     {

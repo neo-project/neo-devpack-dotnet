@@ -1,4 +1,7 @@
+using Neo.IO;
+using Neo.Json;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;
@@ -32,9 +35,11 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="manifest">Manifest</param>
         /// <param name="name">Class name, by default is manifest.Name</param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="debugInfo">Debug Info</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, JToken? debugInfo = null, bool generateProperties = true)
         {
             name ??= manifest.Name;
 
@@ -62,6 +67,32 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance));
             sourceCode.WriteLine("{");
+
+            // Write compiled data
+
+            sourceCode.WriteLine("    #region Compiled data");
+            sourceCode.WriteLine();
+
+            var value = manifest.ToJson().ToString(false).Replace("\"", "\"\"");
+            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} Manifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
+            sourceCode.WriteLine();
+
+            if (nef is not null)
+            {
+                value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
+                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine();
+            }
+
+            if (debugInfo is not null)
+            {
+                value = debugInfo.ToString(false).Replace("\"", "\"\"");
+                sourceCode.WriteLine($"    public static readonly {typeof(NeoDebugInfo).FullName} DebugInfo = {typeof(NeoDebugInfo).FullName}.FromDebugInfoJson(@\"{value}\");");
+                sourceCode.WriteLine();
+            }
+
+            sourceCode.WriteLine("    #endregion");
+            sourceCode.WriteLine();
 
             // Crete events
 
@@ -145,7 +176,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             sourceCode.WriteLine("    #region Constructor for internal use only");
             sourceCode.WriteLine();
-            sourceCode.WriteLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
+            sourceCode.WriteLine($"    protected {name}({typeof(SmartContractInitialize).FullName} initialize) : base(initialize) {{ }}");
             sourceCode.WriteLine();
             sourceCode.WriteLine("    #endregion");
 
@@ -212,7 +243,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[2].Type == ContractParameterType.Integer)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;");
+                            sourceCode.WriteLine($"    public event {typeof(INep17Standard).FullName}.delTransfer? OnTransfer;");
                             return builder.ToString();
                         }
 
@@ -225,7 +256,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner? OnSetOwner;");
+                            sourceCode.WriteLine($"    public event {typeof(IOwnable).FullName}.delSetOwner? OnSetOwner;");
                             return builder.ToString();
                         }
 

@@ -99,6 +99,25 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return v;
         }
 
+        public static object throwInCatch()
+        {
+            int v = 0;
+            try
+            {
+                v = 1;
+                throw new System.Exception();
+            }
+            catch
+            {
+                v = 2;
+                throw new System.Exception();
+            }
+            finally
+            {
+                v = 3;
+            }
+        }
+
         public static object tryFinally()
         {
             int v = 0;

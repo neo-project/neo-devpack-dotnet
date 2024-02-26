@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.IO;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM;
 using Neo.VM.Types;
@@ -43,9 +44,25 @@ public class Nep17Tests<T> : TestBase<T>
     #endregion
 
     /// <summary>
-    /// Initialize Test
+    /// Constructor
     /// </summary>
-    public Nep17Tests(string nefFile, string manifestFile) : base(nefFile, manifestFile)
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest file</param>
+    /// <param name="debugInfoFile">Debug info file</param>
+    public Nep17Tests(string nefFile, string manifestFile, string? debugInfoFile = null) :
+        base(nefFile, manifestFile, debugInfoFile)
+    {
+        Contract.OnTransfer += onTransfer;
+    }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest</param>
+    /// <param name="debugInfo">Debug info</param>
+    public Nep17Tests(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
+       : base(nefFile, manifestFile, debugInfo)
     {
         Contract.OnTransfer += onTransfer;
     }
@@ -191,7 +208,7 @@ public class Nep17Tests<T> : TestBase<T>
         // We create a mock contract using the current nef and manifest
         // Only we need to create the manifest method, then it will be redirected
 
-        ContractManifest manifest = ContractManifest.Parse(Manifest);
+        ContractManifest manifest = ContractManifest.Parse(Manifest.ToJson().ToString());
         manifest.Abi.Methods = new ContractMethodDescriptor[]
         {
             new ()
@@ -214,7 +231,7 @@ public class Nep17Tests<T> : TestBase<T>
         BigInteger? calledAmount = null;
         UInt160? calledData = null;
 
-        var mock = Engine.Deploy<onNEP17PaymentContract>(NefFile, manifest.ToJson().ToString(), null, m =>
+        var mock = Engine.Deploy<onNEP17PaymentContract>(NefFile, manifest, null, m =>
          {
              m
              .Setup(s => s.onNEP17Payment(It.IsAny<UInt160>(), It.IsAny<BigInteger>(), It.IsAny<object>()))

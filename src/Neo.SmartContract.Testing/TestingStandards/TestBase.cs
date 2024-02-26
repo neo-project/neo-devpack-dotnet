@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using System.IO;
 
@@ -11,19 +13,36 @@ public class TestBase<T> where T : SmartContract
     public static Signer Alice { get; } = TestEngine.GetNewSigner();
     public static Signer Bob { get; } = TestEngine.GetNewSigner();
 
-    public byte[] NefFile { get; }
-    public string Manifest { get; }
+    public NefFile NefFile { get; }
+    public ContractManifest Manifest { get; }
+    public NeoDebugInfo? DebugInfo { get; }
     public TestEngine Engine { get; }
     public T Contract { get; }
     public UInt160 ContractHash => Contract.Hash;
 
     /// <summary>
-    /// Initialize Test
+    /// Constructor
     /// </summary>
-    public TestBase(string nefFile, string manifestFile)
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest file</param>
+    /// <param name="debugInfoFile">Debug info file</param>
+    public TestBase(string nefFile, string manifestFile, string? debugInfoFile = null) :
+        this(File.ReadAllBytes(nefFile).AsSerializable<NefFile>(),
+            ContractManifest.Parse(File.ReadAllText(manifestFile)),
+            !string.IsNullOrEmpty(debugInfoFile) && NeoDebugInfo.TryLoad(debugInfoFile, out var debugInfo) ? debugInfo : null)
+    { }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest</param>
+    /// <param name="debugInfo">Debug info</param>
+    public TestBase(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
     {
-        NefFile = File.ReadAllBytes(nefFile);
-        Manifest = File.ReadAllText(manifestFile);
+        NefFile = nefFile;
+        Manifest = manifestFile;
+        DebugInfo = debugInfo;
 
         Engine = new TestEngine(true);
         Engine.SetTransactionSigners(Alice);

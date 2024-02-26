@@ -6,67 +6,26 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace ProjectName
+namespace Neo.SmartContract.Template
 {
-    [DisplayName(nameof(Contract1))]
+    [DisplayName(nameof(OracleRequest))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
     [ContractDescription( "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
-    public class Contract1 : SmartContract
+    public class OracleRequest : Neo.SmartContract.Framework.SmartContract
     {
-        public delegate void OnRequestSuccessfulDelegate(string requestedUrl, object jsonValue);
-
-        [DisplayName("RequestSuccessful")]
-        public static event OnRequestSuccessfulDelegate OnRequestSuccessful;
-
-        // TODO: Replace it with your own address.
-        [Hash160("<Your Address Here>")]
-        static readonly UInt160 Owner = default;
-
-        private static bool IsOwner() => Runtime.CheckWitness(Owner);
-
-        // When this contract address is included in the transaction signature,
-        // this method will be triggered as a VerificationTrigger to verify that the signature is correct.
-        // For example, this method needs to be called when withdrawing token from the contract.
         [Safe]
-        public static bool Verify() => IsOwner();
-
-        // TODO: Replace it with your methods.
-        public static string MyMethod()
+        public static string GetResponse()
         {
-            return Storage.Get(Storage.CurrentContext, "Hello");
+            return Storage.Get(Storage.CurrentContext, "Response");
         }
 
-        public static void _deploy(object data, bool update)
-        {
-            if (update)
-            {
-                // This will be executed during update
-                return;
-            }
-
-            // This will be executed during deploy
-            Storage.Put(Storage.CurrentContext, "Hello", "World");
-        }
-
-        public static void Update(ByteString nefFile, string manifest)
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            ContractManagement.Update(nefFile, manifest, null);
-        }
-
-        public static void Destroy()
-        {
-            if (!IsOwner()) throw new Exception("No authorization.");
-            ContractManagement.Destroy();
-        }
-
-        // TODO: Add your own logic
         public static void DoRequest()
         {
             /*
@@ -93,7 +52,7 @@ namespace ProjectName
         }
 
         // This method is called after the Oracle receives response from requested URL
-        public static void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse, string jsonString)
+        public static void onOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse, string jsonString)
         {
             if (Runtime.CallingScriptHash != Oracle.Hash)
                 throw new InvalidOperationException("No Authorization!");
@@ -103,7 +62,7 @@ namespace ProjectName
             var jsonArrayValues = (object[])StdLib.JsonDeserialize(jsonString);
             var jsonFirstValue = (string)jsonArrayValues[0];
 
-            OnRequestSuccessful(requestedUrl, jsonFirstValue);
+            Storage.Put(Storage.CurrentContext, "Response", jsonFirstValue);
         }
     }
 }

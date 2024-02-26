@@ -10,7 +10,7 @@
     "language": "C#",
     "type": "project"
   },
-  "sourceName": "ProjectName",
+  "sourceName": "OracleRequest",
   "symbols": {
     "NeoVersion": {
       "type": "parameter",
