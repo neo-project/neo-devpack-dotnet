@@ -37,16 +37,10 @@ namespace Neo.SmartContract.Template
         [DisplayName("SetOwner")]
         public static event OnSetOwnerDelegate OnSetOwner;
 
-<<<<<<< HEAD:src/Neo.SmartContract.Template/templates/neocontractowner/Contract1.cs
-        // TODO: Replace it with your own address.
-        [Hash160("<Your Address Here>")]
-        private static readonly UInt160 InitialOwner = default;
-=======
         public static void SetOwner(UInt160 newOwner)
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
->>>>>>> master:src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs
 
             ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
 
