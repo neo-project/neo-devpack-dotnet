@@ -326,9 +326,6 @@ namespace Neo.Compiler
                 {
                     return;
                 }
-                // Process the target contract
-                // add this compilation context
-                _engine.Contexts.Add(symbol, this);
 
                 foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
