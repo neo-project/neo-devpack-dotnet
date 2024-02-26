@@ -140,7 +140,10 @@ namespace Neo.Compiler
             var sortedClasses = TopologicalSort(classDependencies);
             foreach (var classSymbol in sortedClasses)
             {
-                new CompilationContext(this, classSymbol).Compile();
+                var context = new CompilationContext(this, classSymbol);
+                context.Compile();
+
+                Contexts.Add(classSymbol, context);
             }
 
             return Contexts.Select(p => p.Value).ToList();
