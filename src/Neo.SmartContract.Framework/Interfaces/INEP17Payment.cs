@@ -14,5 +14,5 @@ public interface INep17Payment
     /// <param name="from">The address of the payer</param>
     /// <param name="amount">The amount of token to be transferred</param>
     /// <param name="data">Additional payment description data</param>
-    public void OnNEP17Payment(UInt160 from, BigInteger amount, object data);
+    public void OnNEP17Payment(UInt160 from, BigInteger amount, object? data = null);
 }
