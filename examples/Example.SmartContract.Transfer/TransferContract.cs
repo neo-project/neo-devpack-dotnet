@@ -14,6 +14,9 @@ using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 
 using System.ComponentModel;
+using System.Numerics;
+using Neo;
+using Neo.SmartContract.Framework.Services;
 
 namespace Transfer;
 
@@ -28,11 +31,9 @@ namespace Transfer;
 [ContractPermission(Permission.WildCard, Method.WildCard)]
 public class TransferContract : SmartContract
 {
-    [Safe]
-    public static string SayHello(string name)
-    {
-        return $"Hello, {name}";
-    }
+
+    [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
+    private static readonly UInt160 Owner = default;
 
     [DisplayName("_deploy")]
     public static void OnDeployment(object data, bool update)
@@ -57,5 +58,17 @@ public class TransferContract : SmartContract
     {
         ContractManagement.Destroy();
         return true;
+    }
+
+    /// <summary>
+    /// Transfer method that demonstrate how to transfer NEO and GAS
+    /// </summary>
+    /// <param name="to">Target address to send Neo and GAS</param>
+    /// <param name="amount">Amount of tokens to be sent</param>
+    public static void Transfer(UInt160 to, BigInteger amount)
+    {
+        ExecutionEngine.Assert(Runtime.CheckWitness(Owner));
+        ExecutionEngine.Assert(NEO.Transfer(Runtime.ExecutingScriptHash, to, amount));
+        ExecutionEngine.Assert(GAS.Transfer(Runtime.ExecutingScriptHash, to, GAS.BalanceOf(Runtime.ExecutingScriptHash), true));
     }
 }

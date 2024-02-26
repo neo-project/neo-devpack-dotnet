@@ -11,11 +11,13 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/R3E-Network/SharpNeo.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <Company>The SharpNeo Examples Project</Company>
+        <Company>The Neo N3 Contract Examples Project</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
