@@ -21,7 +21,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Akka.Util.Internal;
 using BigInteger = System.Numerics.BigInteger;
 
 namespace Neo.Compiler
@@ -62,11 +61,42 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileSources(params string[] sourceFiles)
         {
-            List<MetadataReference> references = new(CommonReferences)
-            {
-                MetadataReference.CreateFromFile(typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.Location)
-            };
-            return Compile(sourceFiles, references);
+            // Generate a dummy csproj
+
+            var version = typeof(scfx.Neo.SmartContract.Framework.SmartContract).Assembly.GetName().Version!.ToString();
+            var csproj = $@"
+<Project Sdk=""Microsoft.NET.Sdk"">
+
+    <PropertyGroup>
+        <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <!-- Remove all Compile items from compilation -->
+    <ItemGroup>
+        <Compile Remove=""*.cs"" />
+    </ItemGroup>
+
+    <!-- Add specific files for compilation -->
+    <ItemGroup>
+        {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />"))}
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include=""Neo.SmartContract.Framework"" Version=""{version}"" />
+    </ItemGroup>
+
+</Project>";
+
+            // Write and compile
+
+            var path = Path.GetTempFileName();
+            File.WriteAllText(path, csproj);
+
+            try { return CompileProject(path); }
+            catch { throw; }
+            finally { File.Delete(path); }
         }
 
         public List<CompilationContext> CompileProject(string csproj)
@@ -176,26 +206,34 @@ namespace Neo.Compiler
 
         public Compilation GetCompilation(string csproj)
         {
+            // Restore project
+
             string folder = Path.GetDirectoryName(csproj)!;
-            string obj = Path.Combine(folder, "obj");
-            string binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
-            HashSet<string> sourceFiles = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
-                .GroupBy(Path.GetFileName)
-                .Select(g => g.First())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            List<MetadataReference> references = new(CommonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
-            XDocument document = XDocument.Load(csproj);
-            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
                 Arguments = $"restore \"{csproj}\"",
                 WorkingDirectory = folder
             })!.WaitForExit();
-            string assetsPath = Path.Combine(folder, "obj", "project.assets.json");
-            JObject assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
+
+            // Get sources
+
+            XDocument document = XDocument.Load(csproj);
+            var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove").Select(p => p.Value).ToArray();
+            var obj = Path.Combine(folder, "obj");
+            var binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
+            var sourceFiles =
+                remove.Contains("*.cs") ? new HashSet<string>(StringComparer.OrdinalIgnoreCase) :
+                Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                    .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
+                    .GroupBy(Path.GetFileName)
+                    .Select(g => g.First())
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
+            var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
+            var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
+            List<MetadataReference> references = new(CommonReferences);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
             foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
             {
                 MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, Options, compilationOptions);
