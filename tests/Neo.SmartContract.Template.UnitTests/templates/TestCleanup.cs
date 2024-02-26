@@ -2,15 +2,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractnep17;
 using Neo.SmartContract.Template.UnitTests.templates.neocontractowner;
-using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
+using Neo.SmartContract.Testing.Extensions;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
     public class TestCleanup
     {
+        private static NeoDebugInfo? DebugInfo_NEP17;
+        private static NeoDebugInfo? DebugInfo_Oracle;
+        private static NeoDebugInfo? DebugInfo_Ownable;
+
         /// <summary>
         /// Required coverage to be success
         /// </summary>
@@ -39,18 +43,32 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             // Ensure Nep17
 
-            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17Contract.artifacts.cs"));
-            // TODO: Compile source code and compare articats
-
-            // Ensure Ownable
-
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
-            // TODO: Compile source code and compare articats
+            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17TemplateContract.artifacts.cs"));
+            var artifact = CreateArtifact(result[0], "Nep17TemplateContract");
+            DebugInfo_NEP17 = NeoDebugInfo.FromDebugInfoJson(result[0].CreateDebugInformation(content));
+            Assert.AreEqual(artifact, content, "Nep17TemplateContract artifact was wrong");
 
             // Ensure Oracle
 
             content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequest.artifacts.cs"));
-            // TODO: Compile source code and compare articats
+            artifact = CreateArtifact(result[1]);
+            DebugInfo_Oracle = NeoDebugInfo.FromDebugInfoJson(result[1].CreateDebugInformation(content));
+            Assert.AreEqual(artifact, content, "OracleRequest artifact was wrong");
+
+            // Ensure Ownable
+
+            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/Ownable.artifacts.cs"));
+            artifact = CreateArtifact(result[2]);
+            DebugInfo_Ownable = NeoDebugInfo.FromDebugInfoJson(result[2].CreateDebugInformation(content));
+            Assert.AreEqual(artifact, content, "Ownable artifact was wrong");
+        }
+
+        private static string CreateArtifact(CompilationContext context, string? name = null)
+        {
+            var manifest = context.CreateManifest();
+            var nef = context.CreateExecutable();
+
+            return manifest.GetArtifactsSource(name ?? manifest.Name, nef, null, generateProperties: true);
         }
 
         [AssemblyCleanup]
@@ -78,17 +96,22 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             Console.WriteLine(coverage.Dump(DumpFormat.Console));
             File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
 
-            // Write the cobertura format
+            if (DebugInfo_NEP17 is not null &&
+                DebugInfo_Ownable is not null &&
+                DebugInfo_Oracle is not null)
+            {
+                // Write the cobertura format
 
-            File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
-                (coverageNep17, Nep17TemplateContract.DebugInfo),
-                (coverageOwnable, Ownable.DebugInfo),
-                (coverageOracle, OracleRequest.DebugInfo)
-                ).Dump());
+                File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
+                    (coverageNep17, DebugInfo_NEP17),
+                    (coverageOwnable, DebugInfo_Ownable),
+                    (coverageOracle, DebugInfo_Oracle)
+                    ).Dump());
 
-            // Write the report to the specific path
+                // Write the report to the specific path
 
-            CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+                CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+            }
 
             // Ensure that the coverage is more than X% at the end of the tests
 
