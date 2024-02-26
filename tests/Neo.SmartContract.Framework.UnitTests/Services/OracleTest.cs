@@ -10,7 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class OracleTest
     {
-
         private TestEngine.TestEngine _engine;
 
         [TestInitialize]
@@ -26,8 +25,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             _engine.Reset();
             var result = _engine.ExecuteTestCaseStandard("onOracleResponse", "http://127.0.0.1", "test", 0x14, "{}");
             Assert.AreEqual(VMState.FAULT, _engine.State);
-
         }
-
     }
 }
