@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
-                NoOptimize = false,
+                Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Disable
             })
             .CompileSources(
