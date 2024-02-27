@@ -17,7 +17,7 @@ using System.ComponentModel;
 
 namespace HelloWorld;
 
-[DisplayName("Example.SmartContract.HelloWorld")]
+[DisplayName("SampleHelloWorld")]
 [ContractDescription("A simple `hello world` contract")]
 [ContractEmail("core@neo.org")]
 [ContractVersion("0.0.1")]

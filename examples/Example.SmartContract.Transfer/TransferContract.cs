@@ -23,7 +23,7 @@ namespace Transfer;
 /// <summary>
 /// This is a sample contract that can be used as a template for creating new contracts.
 /// </summary>
-[DisplayName("Contract1")]
+[DisplayName("SampleTransferContract")]
 [ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
 [ContractDescription("<Description Here>")]
 [ContractVersion("1.0.0.0")]

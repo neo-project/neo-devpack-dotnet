@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 
 namespace NFT
 {
-    [DisplayName("Secure-Loot")]
+    [DisplayName("SampleLootNFT")]
     [ContractAuthor("core-dev", "core@neo.org")]
     [ContractDescription("This is a text Example.SmartContract.NFT")]
     [SupportedStandards(NepStandard.Nep11)]
