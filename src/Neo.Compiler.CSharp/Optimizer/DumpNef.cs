@@ -174,6 +174,32 @@ namespace Neo.Optimizer
             }
         }
 
+        public static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
+        {
+            name = name[0].ToString().ToUpper() + name.Substring(1);  // first letter uppercase
+            int start = -1, end = -1;
+            foreach (JToken? method in (JArray)debugInfo["methods"]!)
+            {
+                string methodName = method!["name"]!.AsString().Split(",")[1];
+                if (methodName == name)
+                {
+                    GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
+                    (start, end) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
+                }
+            }
+            return (start, end);
+        }
+
+        public static List<int> OpCodeAddressesInMethod(NefFile nef, JToken DebugInfo, string method, OpCode opcode)
+        {
+            (int start, int end) = GetMethodStartEndAddress(method, DebugInfo);
+            List<(int a, VM.Instruction i)> instructions = EnumerateInstructions(nef.Script).ToList();
+            return instructions.Where(
+                ai => ai.i.OpCode == opcode &&
+                ai.a >= start && ai.a <= end
+                ).Select(ai => ai.a).ToList();
+        }
+
         public static string GenerateDumpNef(NefFile nef, JToken debugInfo)
         {
             Script script = nef.Script;
