@@ -8,7 +8,6 @@ using System.Text;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
 {
-
     /// <summary>
     /// You need to build the solution to resolve OracleRequest class.
     /// </summary>
