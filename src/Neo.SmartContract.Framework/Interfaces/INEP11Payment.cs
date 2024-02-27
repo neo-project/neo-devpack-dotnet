@@ -1,4 +1,3 @@
-#nullable enable
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Interfaces;
