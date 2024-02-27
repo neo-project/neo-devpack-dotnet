@@ -294,18 +294,9 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             switch (format)
             {
-                case DumpFormat.Console:
-                    {
-                        return new ConsoleFormat(this).Dump();
-                    }
-                case DumpFormat.Html:
-                    {
-                        return new IntructionHtmlFormat(this).Dump();
-                    }
-                default:
-                    {
-                        throw new NotImplementedException();
-                    }
+                case DumpFormat.Console: return new ConsoleFormat(this).Dump();
+                case DumpFormat.Html: return new IntructionHtmlFormat(this).Dump();
+                default: throw new NotImplementedException();
             }
         }
 

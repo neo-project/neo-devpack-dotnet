@@ -18,6 +18,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using scfx::Neo.SmartContract.Framework;
 using scfx::Neo.SmartContract.Framework.Attributes;
+using ContractParameterType = Neo.SmartContract.ContractParameterType;
 
 namespace Neo.Compiler
 {

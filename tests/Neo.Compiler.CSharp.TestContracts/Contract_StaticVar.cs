@@ -1,6 +1,6 @@
-using System.Numerics;
-using Neo.Cryptography.ECC;
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {

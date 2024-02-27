@@ -18,6 +18,7 @@ using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
 using System.Numerics;
+using Neo.SmartContract.Framework.Interfaces;
 
 namespace NEP17
 {
@@ -28,7 +29,7 @@ namespace NEP17
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/examples/Example.SmartContract.NEP17")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep17)]
-    public class SampleNep17Token : Nep17Token
+    public class SampleNep17Token : Nep17Token, INep17Payment
     {
         #region Owner
 
@@ -138,7 +139,8 @@ namespace NEP17
         }
 
         // NOTE: Allow NEP-17 tokens to be received for this contract
-        public static void OnNEP17Payment(UInt160 from, BigInteger amount, object data)
+        /// <inheritdoc />
+        public void OnNEP17Payment(UInt160 from, BigInteger amount, object? data)
         {
             // TODO: Add logic
         }

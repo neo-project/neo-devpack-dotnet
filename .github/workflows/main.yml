@@ -27,7 +27,7 @@ jobs:
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-    - name: Build Neo.SmartContract.Template and generate artifacts
+    - name: Build Neo.SmartContract.Template and test templates
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
@@ -41,9 +41,9 @@ jobs:
         dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
         dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj package Neo.SmartContract.Framework
         dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/ --generate-artifacts source --debug
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/ --generate-artifacts source --debug
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/ --generate-artifacts source --debug
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild

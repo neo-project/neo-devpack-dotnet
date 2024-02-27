@@ -17,6 +17,7 @@ using Microsoft.CodeAnalysis.Text;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
@@ -30,6 +31,7 @@ using System.Text;
 using scfx::Neo.SmartContract.Framework;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
+using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
 namespace Neo.Compiler
 {
@@ -37,7 +39,7 @@ namespace Neo.Compiler
     {
         private readonly CompilationEngine _engine;
         readonly INamedTypeSymbol _targetContract;
-        internal Options Options => _engine.Options;
+        internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
         private readonly System.Collections.Generic.List<Diagnostic> _diagnostics = new();
         private readonly HashSet<string> _supportedStandards = new();
@@ -135,6 +137,27 @@ namespace Neo.Compiler
                 if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
             }
+        }
+
+        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder)
+        {
+            NefFile nef = CreateExecutable();
+            ContractManifest manifest = CreateManifest();
+            JObject debugInfo = CreateDebugInformation(folder);
+
+            if (!Options.NoOptimize)
+            {
+                try
+                {
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to optimize: {ex}");
+                }
+            }
+
+            return (nef, manifest, debugInfo);
         }
 
         public NefFile CreateExecutable()

@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
     /// You need to build the solution to resolve Nep17Contract class.
     /// </summary>
     [TestClass]
-    public class Nep17ContractTests : Nep17Tests<Nep17Contract>
+    public class Nep17ContractTests : Nep17Tests<Nep17ContractTemplate>
     {
         #region Expected values in base tests
 
@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public Nep17ContractTests() : base(Nep17Contract.Nef, Nep17Contract.Manifest) { }
+        public Nep17ContractTests() : base(Nep17ContractTemplate.Nef, Nep17ContractTemplate.Manifest) { }
 
         [TestMethod]
         public void TestMyMethod()
@@ -158,9 +158,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Try with invalid owners
 
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, UInt160.Zero));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, InvalidUInt160.InvalidLength));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17Contract>(NefFile, Manifest, InvalidUInt160.InvalidType));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, UInt160.Zero));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, InvalidUInt160.InvalidLength));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, InvalidUInt160.InvalidType));
 
             // Test SetOwner notification
 
@@ -168,7 +168,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             UInt160? newOwnerRaised = null;
 
             var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
-            var check = Engine.FromHash<Nep17Contract>(expectedHash, false);
+            var check = Engine.FromHash<Nep17ContractTemplate>(expectedHash, false);
             check.OnSetOwner += (previous, newOwner) =>
             {
                 previousOwnerRaised = previous;
@@ -179,7 +179,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // because the contract hash contains the Sender, and now it's random
 
             var rand = TestEngine.GetNewSigner().Account;
-            var nep17 = Engine.Deploy<Nep17Contract>(NefFile, Manifest, rand);
+            var nep17 = Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, rand);
             Assert.AreEqual(check.Hash, nep17.Hash);
 
             Coverage?.Join(nep17.GetCoverage());
