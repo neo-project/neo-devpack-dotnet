@@ -99,12 +99,6 @@ namespace Neo.Optimizer
                 if (i.Operand.Length != 0)
                     simplifiedScript = simplifiedScript.Concat(i.Operand.ToArray()).ToList();
             }
-            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-                method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
-            Script newScript = new(simplifiedScript.ToArray());
-            nef.Script = newScript;
-            nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
-            nef.CheckSum = NefFile.ComputeChecksum(nef);
 
             //Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
             HashSet<JToken> methodsToRemove = new();
@@ -143,6 +137,12 @@ namespace Neo.Optimizer
             foreach (JToken method in methodsToRemove)
                 methods.Remove(method);
 
+            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+                method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
+            Script newScript = new(simplifiedScript.ToArray());
+            nef.Script = newScript;
+            nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
+            nef.CheckSum = NefFile.ComputeChecksum(nef);
             return (nef, manifest, debugInfo);
         }
 
