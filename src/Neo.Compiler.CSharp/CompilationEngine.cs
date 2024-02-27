@@ -252,8 +252,8 @@ namespace Neo.Compiler
                     if (!remove.Contains(entry)) sourceFiles.Add(entry);
                 }
             }
-            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
 
+            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
             List<MetadataReference> references = new(CommonReferences);
