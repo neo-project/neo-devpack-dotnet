@@ -176,7 +176,7 @@ namespace Neo.Optimizer
 
         public static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
         {
-            name = name[0].ToString().ToUpper() + name.Substring(1);  // first letter uppercase
+            name = name.Length == 0 ? string.Empty : name[0].ToString().ToUpper() + name.Substring(1);  // first letter uppercase
             int start = -1, end = -1;
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
