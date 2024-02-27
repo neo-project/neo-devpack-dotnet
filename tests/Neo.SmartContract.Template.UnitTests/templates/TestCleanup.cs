@@ -15,21 +15,11 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         private static NeoDebugInfo? DebugInfo_NEP17;
         private static NeoDebugInfo? DebugInfo_Oracle;
         private static NeoDebugInfo? DebugInfo_Ownable;
-        private static string? MergeWith;
 
         /// <summary>
         /// Required coverage to be success
         /// </summary>
         public static decimal RequiredCoverage { get; set; } = 0.85M;
-
-        [ClassInitialize]
-        public static void TestInit(TestContext context)
-        {
-            if (context.Properties.Contains("MergeWith"))
-            {
-                MergeWith = context.Properties["MergeWith"] as string;
-            }
-        }
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()
@@ -126,14 +116,15 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
                 // Merge coverlet json
 
-                if (!string.IsNullOrEmpty(MergeWith))
+                if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
+                    !string.IsNullOrEmpty(mergeWith))
                 {
                     new CoverletJsonFormat(
                        (coverageNep17, DebugInfo_NEP17),
                        (coverageOwnable, DebugInfo_Ownable),
                        (coverageOracle, DebugInfo_Oracle)
                        ).
-                       Write(Environment.ExpandEnvironmentVariables(MergeWith), true);
+                       Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
                 }
             }
 
