@@ -27,8 +27,8 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             [JsonConstructor]
             public Method()
             {
-                Lines = [];
-                Branches = [];
+                Lines = new();
+                Branches = new();
             }
 
             public Lines Lines;
