@@ -201,14 +201,14 @@ namespace Neo.Compiler
                 {
                     var artifact = manifest.GetArtifactsSource(baseName, nef);
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Source))
                     {
                         path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
                         File.WriteAllText(path, artifact);
                         Console.WriteLine($"Created {path}");
                     }
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Library)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
                     {
                         try
                         {
