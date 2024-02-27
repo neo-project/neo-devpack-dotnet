@@ -20,7 +20,7 @@ namespace Storage
     [ContractAuthor("code-dev", "core@neo.org")]
     [ContractDescription("A sample contract to demonstrate how to use storage")]
     [ContractVersion("0.0.1")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/examples/Example.SmartContract.Storage")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     public class SampleStorage : SmartContract
     {

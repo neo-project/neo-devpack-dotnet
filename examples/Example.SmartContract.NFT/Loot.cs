@@ -26,7 +26,7 @@ namespace NFT
     [ContractDescription("This is a text Example.SmartContract.NFT")]
     [SupportedStandards(NepStandard.Nep11)]
     [ContractPermission(Permission.WildCard, Method.OnNEP11Payment)]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/examples/Loot")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     public partial class Loot : Nep11Token<TokenState>
     {
         public override string Symbol { [Safe] get => "sLoot"; }

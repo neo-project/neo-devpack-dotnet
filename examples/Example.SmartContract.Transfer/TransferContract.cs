@@ -27,7 +27,7 @@ namespace Transfer;
 [ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
 [ContractDescription("<Description Here>")]
 [ContractVersion("1.0.0.0")]
-[ContractSourceCode("https://github.com/cschuchardt88/neo-templates")]
+[ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
 [ContractPermission(Permission.WildCard, Method.WildCard)]
 public class TransferContract : SmartContract
 {

@@ -26,7 +26,7 @@ namespace NEP17
     [ContractAuthor("core-dev", "core@neo.org")]
     [ContractVersion("0.0.1")]
     [ContractDescription("A sample NEP-17 token")]
-    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/examples/Example.SmartContract.NEP17")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep17)]
     public class SampleNep17Token : Nep17Token, INep17Payment
