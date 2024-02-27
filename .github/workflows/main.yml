@@ -7,7 +7,6 @@ on:
 
 env:
   DOTNET_VERSION: 7.0.x
-  COVERAGE_MERGE_WITH: ${GITHUB_WORKSPACE}/coverage-join/coverage.json
 
 jobs:
 
