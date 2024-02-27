@@ -7,6 +7,7 @@ on:
 
 env:
   DOTNET_VERSION: 7.0.x
+  COVERAGE_MERGE_WITH: ${GITHUB_WORKSPACE}/coverage-join/coverage.json
 
 jobs:
 
@@ -62,7 +63,7 @@ jobs:
         -l "console;verbosity=normal" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        -p:MergeWith=${{ env.COVERAGE_MERGE_WITH }} \
         -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
@@ -71,7 +72,7 @@ jobs:
         -l "console;verbosity=detailed" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        -p:MergeWith=${{ env.COVERAGE_MERGE_WITH }} \
         -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\" \
         -p:CoverletOutputFormat=lcov
     - name: Coveralls

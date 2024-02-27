@@ -114,14 +114,18 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
                 CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
 
-                // Join coverlet json
+                // Merge coverlet json
 
-                new CoverletJsonFormat(
-                   (coverageNep17, DebugInfo_NEP17),
-                   (coverageOwnable, DebugInfo_Ownable),
-                   (coverageOracle, DebugInfo_Oracle)
-                   ).
-                   Write("coverage.cobertura.json", true);
+                if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_WITH") is string mergeWith &&
+                    !string.IsNullOrEmpty(mergeWith))
+                {
+                    new CoverletJsonFormat(
+                       (coverageNep17, DebugInfo_NEP17),
+                       (coverageOwnable, DebugInfo_Ownable),
+                       (coverageOracle, DebugInfo_Oracle)
+                       ).
+                       Write(mergeWith, true);
+                }
             }
 
             // Ensure that the coverage is more than X% at the end of the tests
