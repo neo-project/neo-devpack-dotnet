@@ -103,13 +103,13 @@ namespace Neo.Compiler
 
         private void RemoveAnonymousVariable(byte index)
         {
-            if (!_context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 _anonymousVariables.Remove(index);
         }
 
         private void RemoveLocalVariable(ILocalSymbol symbol)
         {
-            if (!_context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 _localVariables.Remove(symbol);
         }
 
@@ -226,7 +226,7 @@ namespace Neo.Compiler
                 // it comes from modifier clean up
                 AddInstruction(OpCode.RET);
             }
-            if (!_context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 Optimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }

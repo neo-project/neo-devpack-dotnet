@@ -10,15 +10,26 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System;
 using System.Collections.Generic;
 
 namespace Neo.Compiler
 {
     public class CompilationOptions
     {
+        [Flags]
+        public enum OptimizationType : byte
+        {
+            None = 0,
+            Basic = 1,
+            Experimental = 2,
+
+            All = Basic | Experimental
+        }
+
         public NullableContextOptions Nullable { get; set; }
         public bool Debug { get; set; }
-        public bool NoOptimize { get; set; }
+        public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }
         public bool NoInline { get; set; }
         public byte AddressVersion { get; set; }
