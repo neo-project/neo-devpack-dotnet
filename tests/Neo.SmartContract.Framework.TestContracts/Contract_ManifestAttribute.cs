@@ -2,10 +2,10 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    [Author("core-dev")]
-    [Email("core@neo.org")]
-    [Version("v3.6.3")]
-    [Description("This is a test contract.")]
+    [ContractAuthor("core-dev")]
+    [ContractEmail("core@neo.org")]
+    [ContractVersion("v3.6.3")]
+    [ContractDescription("This is a test contract.")]
     [ManifestExtra("ExtraKey", "ExtraValue")]
     public class Contract_ManifestAttribute : SmartContract
     {

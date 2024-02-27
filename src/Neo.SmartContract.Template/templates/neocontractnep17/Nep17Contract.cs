@@ -11,11 +11,11 @@ namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(Nep17Contract))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ManifestExtra("Description", "<Description Here>")]
+    [ContractDescription( "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs")]
-    [ContractPermission("*", "*")]
+    [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards("NEP-17")]
     public class Nep17Contract : Neo.SmartContract.Framework.Nep17Token
     {

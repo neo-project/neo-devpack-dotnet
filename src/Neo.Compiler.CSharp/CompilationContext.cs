@@ -28,8 +28,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using scfx::Neo.SmartContract.Framework;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
+using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
 namespace Neo.Compiler
 {
@@ -39,19 +41,19 @@ namespace Neo.Compiler
         readonly INamedTypeSymbol _targetContract;
         internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
-        private readonly List<Diagnostic> _diagnostics = new();
+        private readonly System.Collections.Generic.List<Diagnostic> _diagnostics = new();
         private readonly HashSet<string> _supportedStandards = new();
-        private readonly List<AbiMethod> _methodsExported = new();
-        private readonly List<AbiEvent> _eventsExported = new();
+        private readonly System.Collections.Generic.List<AbiMethod> _methodsExported = new();
+        private readonly System.Collections.Generic.List<AbiEvent> _eventsExported = new();
         private readonly PermissionBuilder _permissions = new();
         private readonly HashSet<string> _trusts = new();
         private readonly JObject _manifestExtra = new();
         // We can not reuse these converted methods as the offsets are determined while converting
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
-        private readonly List<MethodToken> _methodTokens = new();
+        private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
-        private readonly List<byte> _anonymousStaticFields = new();
+        private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
@@ -249,11 +251,11 @@ namespace Neo.Compiler
 
         public JObject CreateDebugInformation(string folder = "")
         {
-            List<string> documents = new();
-            List<JObject> methods = new();
+            System.Collections.Generic.List<string> documents = new();
+            System.Collections.Generic.List<JObject> methods = new();
             foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
-                List<JString> sequencePoints = new();
+                System.Collections.Generic.List<JString> sequencePoints = new();
                 foreach (var ins in m.Instructions.Where(i => i.SourceLocation?.SourceTree is not null))
                 {
                     var doc = ins.SourceLocation!.SourceTree!.FilePath;
@@ -381,8 +383,8 @@ namespace Neo.Compiler
                                 attribute.ConstructorArguments[0].Values
                                     .Select(p => p.Value)
                                     .Select(p =>
-                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
-                                            ? ((NEPStandard)ip).ToStandard()
+                                        p is int ip && Enum.IsDefined(typeof(NepStandard), ip)
+                                            ? ((NepStandard)ip).ToStandard()
                                             : p as string
                                     )
                                     .Where(v => v != null)! // Ensure null values are not added

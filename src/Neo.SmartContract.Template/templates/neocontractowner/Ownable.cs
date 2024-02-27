@@ -11,11 +11,11 @@ namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(Ownable))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ManifestExtra("Description", "<Description Here>")]
+    [ContractDescription( "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs")]
-    [ContractPermission("*", "*")]
+    [ContractPermission(Permission.WildCard, Method.WildCard)]
     public class Ownable : Neo.SmartContract.Framework.SmartContract
     {
         #region Owner

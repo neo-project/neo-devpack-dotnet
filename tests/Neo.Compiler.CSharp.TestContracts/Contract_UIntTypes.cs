@@ -6,7 +6,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_UIntTypes : SmartContract.Framework.SmartContract
     {
-        [InitialValue("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB", ContractParameterType.Hash160)]
+        [Hash160("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB")]
         static readonly UInt160 Owner = default;
 
         public static bool checkOwner(UInt160 owner) { return owner == Owner; }

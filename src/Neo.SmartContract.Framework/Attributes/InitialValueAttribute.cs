@@ -29,11 +29,11 @@ namespace Neo.SmartContract.Framework.Attributes
     /// <para>Examples:</para>
     /// <code>
     /// // Example of initializing a UInt160 field with a Hash160 address
-    /// [InitialValue("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq", ContractParameterType.Hash160)]
+    /// [InitialValue("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
     /// private static readonly UInt160 validUInt160 = default;
     ///
     /// // Example of initializing a byte array field with a hex string representing a UInt256 value
-    /// [InitialValue("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925", ContractParameterType.ByteArray)]
+    /// [InitialValue("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
     /// private static readonly byte[] validUInt256 = default;
     /// </code>
     ///
@@ -57,6 +57,10 @@ namespace Neo.SmartContract.Framework.Attributes
         /// type of the field being initialized.
         /// </param>
         public InitialValueAttribute(string value, ContractParameterType type)
+        {
+        }
+
+        public InitialValueAttribute(string value)
         {
         }
     }
