@@ -12,7 +12,7 @@ namespace Neo.Optimizer
     {
         public static readonly int[] OperandSizePrefixTable = new int[256];
         public static readonly int[] OperandSizeTable = new int[256];
-        public static readonly Dictionary<string, Func<NefFile, ContractManifest, JToken, (NefFile nef, ContractManifest manifest, JToken debugInfo)>> strategies = new();
+        public static readonly Dictionary<string, Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> strategies = new();
 
         static Optimizer()
         {
@@ -36,7 +36,7 @@ namespace Neo.Optimizer
                 StrategyAttribute attribute = method.GetCustomAttribute<StrategyAttribute>()!;
                 if (attribute is null) continue;
                 string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
-                strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JToken, (NefFile nef, ContractManifest manifest, JToken debugInfo)>>();
+                strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
             }
         }
     }
