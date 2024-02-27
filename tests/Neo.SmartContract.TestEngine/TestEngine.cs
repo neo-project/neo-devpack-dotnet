@@ -93,6 +93,17 @@ namespace Neo.SmartContract.TestEngine
                 Nef = context.CreateExecutable();
                 Manifest = context.CreateManifest();
                 DebugInfo = context.CreateDebugInformation();
+                if (optimize && Nef != null && Manifest != null && DebugInfo != null)
+                {
+                    try
+                    {
+                        (Nef, Manifest, DebugInfo) = Reachability.RemoveUncoveredInstructions(Nef, Manifest, (JObject)DebugInfo.Clone());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Failed to optimize: {ex}");
+                    }
+                }
                 Reset();
             }
             else
@@ -100,17 +111,6 @@ namespace Neo.SmartContract.TestEngine
                 contexts.ForEach(c => c.Diagnostics.ForEach(Console.Error.WriteLine));
             }
 
-            if (optimize && Nef != null && Manifest != null && DebugInfo != null)
-            {
-                try
-                {
-                    (Nef, Manifest, DebugInfo) = Reachability.RemoveUncoveredInstructions(Nef, Manifest, (JObject)DebugInfo.Clone());
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Failed to optimize: {ex}");
-                }
-            }
             return contexts;
         }
 
@@ -180,13 +180,13 @@ namespace Neo.SmartContract.TestEngine
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile? contract, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            context = CreateContext(context.Script, rvcount, offset);
+            context = CreateContext(Nef!.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext!.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState()
             {
-                Nef = contract,
+                Nef = Nef,
                 Manifest = Manifest
             };
             OnPreExecuteTestCaseStandard?.Invoke(this, context);
