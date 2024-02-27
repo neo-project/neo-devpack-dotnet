@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Numerics;
 using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,6 +8,8 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
+using System.ComponentModel;
+using System.Numerics;
 using ExecutionContext = Neo.VM.ExecutionContext;
 
 namespace Neo.SmartContract.TestEngine
@@ -89,15 +89,14 @@ namespace Neo.SmartContract.TestEngine
             if (contexts.All(p => p.Success))
             {
                 var context = contexts.FirstOrDefault()!;
-                Nef = context.CreateExecutable();
-                Manifest = context.CreateManifest();
-                DebugInfo = context.CreateDebugInformation();
+                (Nef, Manifest, DebugInfo) = context.CreateResults("");
                 Reset();
             }
             else
             {
                 contexts.ForEach(c => c.Diagnostics.ForEach(Console.Error.WriteLine));
             }
+
             return contexts;
         }
 
@@ -167,13 +166,13 @@ namespace Neo.SmartContract.TestEngine
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile? contract, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            context = CreateContext(context.Script, rvcount, offset);
+            context = CreateContext(Nef!.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext!.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState()
             {
-                Nef = contract,
+                Nef = Nef,
                 Manifest = Manifest
             };
             OnPreExecuteTestCaseStandard?.Invoke(this, context);

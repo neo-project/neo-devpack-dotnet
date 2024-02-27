@@ -54,7 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_PrivateMethod()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract1.cs");
+            testengine.AddEntryScript(false, true, Utils.Extensions.TestContractRoot + "Contract1.cs");
             Assert.IsTrue(Encoding.ASCII.GetString(testengine.Nef.Script.Span).Contains("NEO3"));
         }
 

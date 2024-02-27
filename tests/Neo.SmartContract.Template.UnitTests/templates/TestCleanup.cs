@@ -50,29 +50,34 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             // Ensure Nep17
 
             var root = Path.GetPathRoot(templatePath) ?? "";
-            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
-            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root);
-            Assert.AreEqual(artifact, content, "Nep17ContractTemplate artifact was wrong");
+            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root,
+                Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
 
             // Ensure Oracle
 
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
-            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root);
-            Assert.AreEqual(artifact, content, "OracleRequestTemplate artifact was wrong");
+            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root,
+                Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
 
             // Ensure Ownable
 
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
-            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root);
-            Assert.AreEqual(artifact, content, "OwnableTemplate artifact was wrong");
+            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root,
+                Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
         }
 
-        private static (string, NeoDebugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug)
+        private static (string artifact, NeoDebugInfo debugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug, string artifactsPath)
         {
             (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
+            var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true);
 
-            return (manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true), debug);
+            if (artifact != File.ReadAllText(artifactsPath))
+            {
+                // Uncomment to overwrite the artifact file
+                // File.WriteAllText(artifactsPath, artifact);
+                Assert.Fail($"{typeof(T).Name} artifact was wrong");
+            }
+
+            return (artifact, debug);
         }
 
         [AssemblyCleanup]
