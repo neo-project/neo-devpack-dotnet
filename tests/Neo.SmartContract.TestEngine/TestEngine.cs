@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Neo.Compiler;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
+using Neo.Optimizer;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -97,6 +98,18 @@ namespace Neo.SmartContract.TestEngine
             else
             {
                 contexts.ForEach(c => c.Diagnostics.ForEach(Console.Error.WriteLine));
+            }
+
+            if (optimize && Nef != null && Manifest != null && DebugInfo != null)
+            {
+                try
+                {
+                    (Nef, Manifest, DebugInfo) = Reachability.RemoveUncoveredInstructions(Nef, Manifest, (JObject)DebugInfo.Clone());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to optimize: {ex}");
+                }
             }
             return contexts;
         }
