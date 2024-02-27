@@ -146,7 +146,7 @@ namespace Neo.Compiler
             ContractManifest manifest = CreateManifest();
             JObject debugInfo = CreateDebugInformation(folder);
 
-            if (!Options.NoOptimize)
+            if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Experimental))
             {
                 try
                 {
