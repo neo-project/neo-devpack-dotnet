@@ -124,7 +124,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                        (coverageOwnable, DebugInfo_Ownable),
                        (coverageOracle, DebugInfo_Oracle)
                        ).
-                       Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
+                       Write(Environment.ExpandEnvironmentVariables(Environment.ExpandEnvironmentVariables(mergeWith)), true);
                 }
             }
 
