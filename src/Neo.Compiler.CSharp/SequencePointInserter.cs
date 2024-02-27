@@ -20,10 +20,10 @@ namespace Neo.Compiler
         private readonly Location? location;
         private readonly int position;
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken syntax)
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken? syntax)
         {
             this.instructions = instructions;
-            this.location = syntax.GetLocation();
+            this.location = syntax?.GetLocation();
             this.position = instructions.Count;
 
             // No location must be removed
@@ -34,6 +34,8 @@ namespace Neo.Compiler
 
         void IDisposable.Dispose()
         {
+            if (location == null) return;
+
             for (int x = position; x < instructions.Count; x++)
             {
                 if (instructions[x].SourceLocation is null)

@@ -130,14 +130,14 @@ namespace Neo.Compiler
             });
         }
 
-        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken syntax)
+        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
         {
             return new SequencePointInserter(_instructions, syntax);
         }
 
-        private SequencePointInserter InsertSequencePoint(SyntaxReference syntax)
+        private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
         {
-            return new SequencePointInserter(_instructions, syntax.GetSyntax());
+            return new SequencePointInserter(_instructions, syntax?.GetSyntax());
         }
 
         #endregion
