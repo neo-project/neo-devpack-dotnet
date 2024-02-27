@@ -134,6 +134,12 @@ namespace Neo.Compiler
         {
             return new SequencePointInserter(_instructions, syntax);
         }
+
+        private SequencePointInserter InsertSequencePoint(SyntaxReference syntax)
+        {
+            return new SequencePointInserter(_instructions, syntax.GetSyntax());
+        }
+
         #endregion
 
         #region Convert
