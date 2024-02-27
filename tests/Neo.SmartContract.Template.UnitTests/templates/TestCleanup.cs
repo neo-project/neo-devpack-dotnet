@@ -113,6 +113,15 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 // Write the report to the specific path
 
                 CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+
+                // Join coverlet json
+
+                new CoverletJsonFormat(
+                   (coverageNep17, DebugInfo_NEP17),
+                   (coverageOwnable, DebugInfo_Ownable),
+                   (coverageOracle, DebugInfo_Oracle)
+                   ).
+                   Write("coverage.cobertura.json", true);
             }
 
             // Ensure that the coverage is more than X% at the end of the tests

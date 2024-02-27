@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             });
         }
 
-        internal void WriteReport(XmlWriter writer, IReadOnlyList<(CoveredContract Contract, NeoDebugInfo DebugInfo)> coverage)
+        internal static void WriteReport(XmlWriter writer, IReadOnlyList<(CoveredContract Contract, NeoDebugInfo DebugInfo)> coverage)
         {
             int linesValid = 0, linesCovered = 0;
             int branchesValid = 0, branchesCovered = 0;
