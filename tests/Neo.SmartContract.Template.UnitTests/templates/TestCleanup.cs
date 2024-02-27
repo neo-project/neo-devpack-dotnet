@@ -22,8 +22,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         /// </summary>
         public static decimal RequiredCoverage { get; set; } = 0.85M;
 
-        [TestInitialize]
-        public void TestInit(TestContext context)
+        [ClassInitialize]
+        public static void TestInit(TestContext context)
         {
             if (context.Properties.Contains("MergeWith"))
             {
