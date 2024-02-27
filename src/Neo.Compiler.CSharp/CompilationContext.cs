@@ -140,7 +140,7 @@ namespace Neo.Compiler
             }
         }
 
-        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder)
+        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder = "")
         {
             NefFile nef = CreateExecutable();
             ContractManifest manifest = CreateManifest();
