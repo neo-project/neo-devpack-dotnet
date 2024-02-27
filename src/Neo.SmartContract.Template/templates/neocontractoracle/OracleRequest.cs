@@ -12,11 +12,11 @@ namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(OracleRequest))]
     [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ContractDescription( "<Description Here>")]
+    [ManifestExtra("Description", "<Description Here>")]
     [ManifestExtra("Email", "<Your Public Email Here>")]
     [ManifestExtra("Version", "<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission("*","*")]
     public class OracleRequest : Neo.SmartContract.Framework.SmartContract
     {
         [Safe]
