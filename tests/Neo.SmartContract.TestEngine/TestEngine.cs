@@ -78,7 +78,7 @@ namespace Neo.SmartContract.TestEngine
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion,
                 Debug = debug,
-                Optimize = optimize ? Compiler.CompilationOptions.OptimizationType.Experimental : Compiler.CompilationOptions.OptimizationType.None
+                Optimize = optimize ? Compiler.CompilationOptions.OptimizationType.All : Compiler.CompilationOptions.OptimizationType.None
             }).Compile(files, references);
 
             if (contexts == null || contexts.Count == 0)
