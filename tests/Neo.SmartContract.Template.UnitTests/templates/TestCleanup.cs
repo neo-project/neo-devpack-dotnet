@@ -125,6 +125,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                        (coverageOracle, DebugInfo_Oracle)
                        ).
                        Write(Environment.ExpandEnvironmentVariables(Environment.ExpandEnvironmentVariables(mergeWith)), true);
+
+                    Console.WriteLine($"Coverage merged with: {mergeWith}");
                 }
             }
 
