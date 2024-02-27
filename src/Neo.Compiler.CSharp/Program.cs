@@ -174,7 +174,7 @@ namespace Neo.Compiler
                 NefFile nef = context.CreateExecutable();
                 ContractManifest manifest = context.CreateManifest();
                 JToken debugInfo = context.CreateDebugInformation(folder);
-                if (!options.NoOptimize)
+                if (options.Optimize.HasFlag(CompilationOptions.OptimizationType.Experimental))
                 {
                     try
                     {
@@ -214,14 +214,14 @@ namespace Neo.Compiler
                 {
                     var artifact = manifest.GetArtifactsSource(baseName, nef);
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Source))
                     {
                         path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
                         File.WriteAllText(path, artifact);
                         Console.WriteLine($"Created {path}");
                     }
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Library)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
                     {
                         try
                         {

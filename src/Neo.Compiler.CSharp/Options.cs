@@ -8,16 +8,20 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+
 namespace Neo.Compiler
 {
     public class Options : CompilationOptions
     {
-        public enum GenerateArtifactsKind
+        [Flags]
+        public enum GenerateArtifactsKind : byte
         {
-            None,
-            Source,
-            Library,
-            All
+            None = 0,
+            Source = 1,
+            Library = 2,
+
+            All = Source | Library
         }
 
         public string? Output { get; set; }

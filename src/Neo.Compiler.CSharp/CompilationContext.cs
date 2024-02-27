@@ -131,7 +131,10 @@ namespace Neo.Compiler
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
-                if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
+                if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                {
+                    Optimizer.CompressJumps(instructions);
+                }
                 instructions.RebuildOperands();
             }
         }
