@@ -59,18 +59,25 @@ namespace Neo.Compiler
             return CompileProjectContracts(Compilation);
         }
 
-        public List<CompilationContext> CompileSources(params string[] sourceFiles) => CompileSources(null, sourceFiles);
+        public List<CompilationContext> CompileSources(params string[] sourceFiles)
+        {
+            return CompileSources(new CompilationSourceReferences()
+            {
+                Packages = new (string, string)[] { new("Neo.SmartContract.Framework", "3.6.2-CI00520") }
+            },
+            sourceFiles);
+        }
 
-        public List<CompilationContext> CompileSources(CompilationSourceReferences? references = null, params string[] sourceFiles)
+        public List<CompilationContext> CompileSources(CompilationSourceReferences references, params string[] sourceFiles)
         {
             // Generate a dummy csproj
 
-            var packageGroup = references?.Packages is null ? "" : $@"
+            var packageGroup = references.Packages is null ? "" : $@"
     <ItemGroup>
         {string.Join(Environment.NewLine, references!.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
     </ItemGroup>";
 
-            var projectsGroup = references?.Projects is null ? "" : $@"
+            var projectsGroup = references.Projects is null ? "" : $@"
     <ItemGroup>
         {string.Join(Environment.NewLine, references!.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
     </ItemGroup>";
