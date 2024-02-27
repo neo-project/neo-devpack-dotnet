@@ -61,21 +61,19 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileSources(params string[] sourceFiles) => CompileSources(null, sourceFiles);
 
-        public List<CompilationContext> CompileSources((string packageName, string packageVersion) package, params string[] sourceFiles)
-        {
-            return CompileSources(new[] { package }, sourceFiles);
-        }
-
-        public List<CompilationContext> CompileSources(IEnumerable<(string packageName, string packageVersion)>? packages = null, params string[] sourceFiles)
+        public List<CompilationContext> CompileSources(CompilationSourceReferences? references = null, params string[] sourceFiles)
         {
             // Generate a dummy csproj
 
-            var packageGroup = packages is null ? "" :
-$@"
+            var packageGroup = references?.Packages is null ? "" : $@"
     <ItemGroup>
-        {(packages is null ? "" : string.Join(Environment.NewLine, packages.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />")))}
-    </ItemGroup>
-";
+        {string.Join(Environment.NewLine, references!.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
+    </ItemGroup>";
+
+            var projectsGroup = references?.Projects is null ? "" : $@"
+    <ItemGroup>
+        {string.Join(Environment.NewLine, references!.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
+    </ItemGroup>";
 
             var csproj = $@"
 <Project Sdk=""Microsoft.NET.Sdk"">
@@ -97,6 +95,7 @@ $@"
     </ItemGroup>
 
     {packageGroup}
+    {projectsGroup}
 
 </Project>";
 
@@ -253,7 +252,6 @@ $@"
                     if (!remove.Contains(entry)) sourceFiles.Add(entry);
                 }
             }
-
             sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
             var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
@@ -270,8 +268,7 @@ $@"
 
         private MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, CSharpCompilationOptions compilationOptions)
         {
-            string assemblyName = Path.GetDirectoryName(name)!;
-            if (!MetaReferences.TryGetValue(assemblyName, out var reference))
+            if (!MetaReferences.TryGetValue(name, out var reference))
             {
                 switch (assets["libraries"]![name]!["type"]!.GetString())
                 {
@@ -298,6 +295,7 @@ $@"
                         }
                         else
                         {
+                            string assemblyName = Path.GetDirectoryName(name)!;
                             IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
                             CSharpCompilation cr = CSharpCompilation.Create(assemblyName, st, CommonReferences, compilationOptions);
                             reference = cr.ToMetadataReference();
@@ -311,7 +309,7 @@ $@"
                     default:
                         throw new NotSupportedException();
                 }
-                MetaReferences.Add(assemblyName, reference);
+                MetaReferences.Add(name, reference);
             }
             return reference;
         }
