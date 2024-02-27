@@ -17,6 +17,7 @@ using Microsoft.CodeAnalysis.Text;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
@@ -137,6 +138,27 @@ namespace Neo.Compiler
                 }
                 instructions.RebuildOperands();
             }
+        }
+
+        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder)
+        {
+            NefFile nef = CreateExecutable();
+            ContractManifest manifest = CreateManifest();
+            JObject debugInfo = CreateDebugInformation(folder);
+
+            if (!Options.NoOptimize)
+            {
+                try
+                {
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to optimize: {ex}");
+                }
+            }
+
+            return (nef, manifest, debugInfo);
         }
 
         public NefFile CreateExecutable()
