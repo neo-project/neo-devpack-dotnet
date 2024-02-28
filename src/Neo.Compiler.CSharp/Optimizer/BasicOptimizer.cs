@@ -11,9 +11,9 @@
 using Neo.VM;
 using System.Collections.Generic;
 
-namespace Neo.Compiler
+namespace Neo.Compiler.Optimizer
 {
-    static class Optimizer
+    static class BasicOptimizer
     {
         public static void RemoveNops(List<Instruction> instructions)
         {
@@ -57,8 +57,8 @@ namespace Neo.Compiler
                     }
                     if (instruction.OpCode == OpCode.TRY_L)
                     {
-                        int offset1 = (instruction.Target.Instruction?.Offset - instruction.Offset) ?? 0;
-                        int offset2 = (instruction.Target2!.Instruction?.Offset - instruction.Offset) ?? 0;
+                        int offset1 = instruction.Target.Instruction?.Offset - instruction.Offset ?? 0;
+                        int offset2 = instruction.Target2!.Instruction?.Offset - instruction.Offset ?? 0;
                         if (offset1 >= sbyte.MinValue && offset1 <= sbyte.MaxValue && offset2 >= sbyte.MinValue && offset2 <= sbyte.MaxValue)
                         {
                             compressed = true;

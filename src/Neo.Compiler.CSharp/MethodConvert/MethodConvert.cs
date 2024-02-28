@@ -13,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.SmartContract;
@@ -238,7 +239,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.RET);
             }
             if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
-                Optimizer.RemoveNops(_instructions);
+                BasicOptimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }
 
