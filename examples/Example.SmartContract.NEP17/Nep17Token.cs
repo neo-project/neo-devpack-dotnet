@@ -9,8 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo;
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -29,7 +27,7 @@ namespace NEP17
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep17)]
-    public class SampleNep17Token : Nep17Token, INep17Payment
+    public class SampleNep17Token : Nep17Token, INep17Payable
     {
         #region Owner
 

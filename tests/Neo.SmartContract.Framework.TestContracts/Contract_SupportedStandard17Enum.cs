@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep17)]
-    public class Contract_SupportedStandard17Enum : Nep17Token, INep17Payment
+    public class Contract_SupportedStandard17Enum : Nep17Token, INep17Payable
     {
         public override string Symbol { [Safe] get; }
         public override byte Decimals { [Safe] get; }

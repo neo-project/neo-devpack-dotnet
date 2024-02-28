@@ -25,7 +25,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
-            string frameworkPath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework");
+            // Define paths
+
+            string frameworkPath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj");
             string templatePath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Template/templates");
             string artifactsPath = Path.GetFullPath("../../../templates");
 
@@ -34,44 +36,49 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
-                NoOptimize = false,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Disable
+                Optimize = CompilationOptions.OptimizationType.All,
+                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileSources(
-                ("Neo.SmartContract.Framework", "3.6.2-CI00520"),
-                Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
-                Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
-                Path.Combine(templatePath, "neocontractowner/Ownable.cs")
-                );
+            .CompileSources(new CompilationSourceReferences() { Projects = new[] { frameworkPath } },
+            new[] {
+                    Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
+                    Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
+                    Path.Combine(templatePath, "neocontractowner/Ownable.cs")
+                });
 
             Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
 
             // Ensure Nep17
 
             var root = Path.GetPathRoot(templatePath) ?? "";
-            var content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
-            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root);
-            Assert.AreEqual(artifact, content, "Nep17ContractTemplate artifact was wrong");
+            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root,
+                Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
 
             // Ensure Oracle
 
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
-            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root);
-            Assert.AreEqual(artifact, content, "OracleRequestTemplate artifact was wrong");
+            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root,
+                Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
 
             // Ensure Ownable
 
-            content = File.ReadAllText(Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
-            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root);
-            Assert.AreEqual(artifact, content, "OwnableTemplate artifact was wrong");
+            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root,
+                Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
         }
 
-        private static (string, NeoDebugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug)
+        private static (string artifact, NeoDebugInfo debugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug, string artifactsPath)
         {
             (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
+            var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true);
 
-            return (manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true), debug);
+            if (artifact != File.ReadAllText(artifactsPath))
+            {
+                // Uncomment to overwrite the artifact file
+                // File.WriteAllText(artifactsPath, artifact);
+                Assert.Fail($"{typeof(T).Name} artifact was wrong");
+            }
+
+            return (artifact, debug);
         }
 
         [AssemblyCleanup]
@@ -114,6 +121,21 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 // Write the report to the specific path
 
                 CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+
+                // Merge coverlet json
+
+                if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
+                    !string.IsNullOrEmpty(mergeWith))
+                {
+                    new CoverletJsonFormat(
+                       (coverageNep17, DebugInfo_NEP17),
+                       (coverageOwnable, DebugInfo_Ownable),
+                       (coverageOracle, DebugInfo_Oracle)
+                       ).
+                       Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
+
+                    Console.WriteLine($"Coverage merged with: {mergeWith}");
+                }
             }
 
             // Ensure that the coverage is more than X% at the end of the tests

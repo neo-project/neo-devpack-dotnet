@@ -134,18 +134,21 @@ namespace Neo.Compiler
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
-                if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
+                if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                {
+                    Optimizer.CompressJumps(instructions);
+                }
                 instructions.RebuildOperands();
             }
         }
 
-        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder)
+        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder = "")
         {
             NefFile nef = CreateExecutable();
             ContractManifest manifest = CreateManifest();
             JObject debugInfo = CreateDebugInformation(folder);
 
-            if (!Options.NoOptimize)
+            if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Experimental))
             {
                 try
                 {

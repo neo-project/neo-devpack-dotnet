@@ -3,13 +3,13 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.Interfaces;
 
 /// <summary>
-/// Interface of method that indicate a contract receive NEP-11 Payment
+/// Interface of method that indicate a contract receives NEP-11 Payment
 /// </summary>
-public interface INep11Payment
+public interface INep11Payable
 {
     /// <summary>
-    /// NonFungibleToken contracts should implement the <see cref="OnNEP11Payment"/> method
-    /// to receive assets and modify the Manifest file to trust the received asset contract.
+    /// Contracts should implement the <see cref="OnNEP11Payment"/> method
+    /// to receive NFT (NEP11) tokens.
     /// </summary>
     /// <param name="from">The address of the payer</param>
     /// <param name="amount">The amount of token to be transferred</param>
