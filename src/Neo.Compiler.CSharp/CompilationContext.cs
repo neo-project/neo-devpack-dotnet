@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
@@ -134,7 +135,7 @@ namespace Neo.Compiler
                 instructions.RebuildOffsets();
                 if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 {
-                    Optimizer.CompressJumps(instructions);
+                    BasicOptimizer.CompressJumps(instructions);
                 }
                 instructions.RebuildOperands();
             }

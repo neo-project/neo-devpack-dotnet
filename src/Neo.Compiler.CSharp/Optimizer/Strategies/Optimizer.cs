@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Neo.Optimizer
 {
-    public class Optimizer
+    class Optimizer
     {
         public static readonly int[] OperandSizePrefixTable = new int[256];
         public static readonly int[] OperandSizeTable = new int[256];
