@@ -4,7 +4,7 @@ using static Neo.VM.OpCode;
 
 namespace Neo.Optimizer
 {
-    public static class OpCodeTypes
+    static class OpCodeTypes
     {
         public static readonly HashSet<OpCode> push = new();
 

@@ -19,9 +19,10 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         public void AssertsInFalse()
         {
+            // All the ASSERT opcode addresses in method "testAssertFalse"
             List<int> assertAddresses = DumpNef.OpCodeAddressesInMethod(testengine.Nef, testengine.DebugInfo, "testAssertFalse", OpCode.ASSERT);
-            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, assertAddresses[1]);
-            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 1);
+            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, assertAddresses[1]);  // stops at the 2nd ASSERT
+            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 1);  // v==1
             Assert.AreEqual(testengine.State, VMState.FAULT);
         }
 
@@ -37,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAssertInFunction").Count, 0);
             AssertsInFalse();
-            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 0);
+            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 0);  // v==0
         }
 
         [TestMethod]
@@ -45,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAssertInTry").Count, 0);
             AssertsInFalse();
-            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 0);
+            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 0);  // v==0
         }
 
         [TestMethod]
@@ -53,7 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAssertInCatch").Count, 0);
             AssertsInFalse();
-            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 1);
+            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 1);  // v==1
         }
 
         [TestMethod]
@@ -61,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAssertInFinally").Count, 0);
             AssertsInFalse();
-            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 1);
+            Assert.AreEqual(testengine.InvocationStack.ToArray()[1].LocalVariables[0].GetInteger(), 1);  // v==1
         }
     }
 }
