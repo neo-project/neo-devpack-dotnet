@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 extern alias scfx;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
