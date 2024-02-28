@@ -11,6 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         TestEngine testengine;
         bool[] falseTrue = new bool[] { false, true };
+
         [TestInitialize]
         public void Initialize()
         {
