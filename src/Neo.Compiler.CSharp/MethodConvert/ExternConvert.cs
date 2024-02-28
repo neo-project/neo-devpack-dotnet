@@ -26,8 +26,6 @@ partial class MethodConvert
 {
     private void ConvertExtern()
     {
-        using var mainSequencePoint = InsertSequencePoint(Symbol.Locations.FirstOrDefault());
-
         _inline = true;
         AttributeData? contractAttribute = Symbol.ContainingType.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractAttribute));
         if (contractAttribute is null)
