@@ -47,10 +47,9 @@ namespace NFT
 
         /// <summary>
         /// Security Requirements:
-        /// <0> Only the owner of the contract
+        /// [0] Only the owner of the contract
         /// are allowed to call this function: constrained internally
-        ///
-        /// <1> the new address should be
+        /// [1] the new address should be
         /// a valid address: constrained internally
         /// </summary>
         /// <param name="newOwner"></param>
