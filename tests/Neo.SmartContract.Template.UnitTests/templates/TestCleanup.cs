@@ -24,7 +24,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
-            string frameworkPath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework");
+            // Define paths
+
+            string frameworkPath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj");
             string templatePath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Template/templates");
             string artifactsPath = Path.GetFullPath("../../../templates");
 
@@ -34,14 +36,14 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             {
                 Debug = true,
                 Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Disable
+                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileSources(
-                ("Neo.SmartContract.Framework", "3.6.2-CI00520"),
-                Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
-                Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
-                Path.Combine(templatePath, "neocontractowner/Ownable.cs")
-                );
+            .CompileSources(new CompilationSourceReferences() { Projects = new[] { frameworkPath } },
+            new[] {
+                    Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
+                    Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
+                    Path.Combine(templatePath, "neocontractowner/Ownable.cs")
+                });
 
             Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
 
@@ -118,6 +120,21 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 // Write the report to the specific path
 
                 CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+
+                // Merge coverlet json
+
+                if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
+                    !string.IsNullOrEmpty(mergeWith))
+                {
+                    new CoverletJsonFormat(
+                       (coverageNep17, DebugInfo_NEP17),
+                       (coverageOwnable, DebugInfo_Ownable),
+                       (coverageOracle, DebugInfo_Oracle)
+                       ).
+                       Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
+
+                    Console.WriteLine($"Coverage merged with: {mergeWith}");
+                }
             }
 
             // Ensure that the coverage is more than X% at the end of the tests

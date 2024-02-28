@@ -24,7 +24,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     private void ConvertExtern()
     {
         _inline = true;
@@ -34,6 +33,8 @@ partial class MethodConvert
             bool emitted = false;
             foreach (AttributeData attribute in Symbol.GetAttributes())
             {
+                using var sequencePoint = InsertSequencePoint(attribute.ApplicationSyntaxReference);
+
                 switch (attribute.AttributeClass!.Name)
                 {
                     case nameof(OpCodeAttribute):
@@ -79,6 +80,8 @@ partial class MethodConvert
         }
         else
         {
+            using var sequencePoint = InsertSequencePoint(contractAttribute.ApplicationSyntaxReference);
+
             UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
             if (Symbol.MethodKind == MethodKind.PropertyGet)
             {
