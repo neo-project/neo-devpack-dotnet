@@ -4,18 +4,16 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using static Neo.Optimizer.JumpTarget;
 using static Neo.Optimizer.OpCodeTypes;
 using static Neo.Optimizer.Optimizer;
 
 namespace Neo.Optimizer
 {
-    public static class Reachability
+    static class Reachability
     {
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         private static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
@@ -36,22 +34,25 @@ namespace Neo.Optimizer
             OK,     // One of the branches may return without exception
             THROW,  // All branches surely has exceptions, but can be catched
             ABORT,  // All branches abort, and cannot be catched
+            UNCOVERED,
         }
 
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JObject debugInfo)
         {
-            Dictionary<int, bool> coveredMap = FindCoveredInstructions(nef, manifest, debugInfo);
+            Dictionary<int, BranchType> coveredMap = FindCoveredInstructions(nef, manifest, debugInfo);
             Script oldScript = nef.Script;
             List<(int, Instruction)> oldAddressAndInstructionsList = oldScript.EnumerateInstructions().ToList();
             Dictionary<int, Instruction> oldAddressToInstruction = new();
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
                 oldAddressToInstruction.Add(a, i);
+            //DumpNef.GenerateDumpNef(nef, debugInfo);
+            //coveredMap.Where(kv => !kv.Value).Select(kv => (kv.Key, oldAddressToInstruction[kv.Key].OpCode)).ToList();
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
             {
-                if (coveredMap[a])
+                if (coveredMap[a] != BranchType.UNCOVERED)
                 {
                     simplifiedInstructionsToAddress.Add(i, currentAddress);
                     currentAddress += i.Size;
@@ -59,8 +60,8 @@ namespace Neo.Optimizer
                 else
                     continue;
             }
-            (ConcurrentDictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
-            ConcurrentDictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets)
+            (Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
+            Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets, _)
             = FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
 
             List<byte> simplifiedScript = new();
@@ -70,10 +71,15 @@ namespace Neo.Optimizer
                 simplifiedScript.Add((byte)i.OpCode);
                 int operandSizeLength = OperandSizePrefixTable[(int)i.OpCode];
                 simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(i.Operand.Length)[0..operandSizeLength]).ToList();
-                if (jumpInstructionSourceToTargets.ContainsKey(i))
+                if (jumpInstructionSourceToTargets.TryGetValue(i, out Instruction? dst))
                 {
-                    Instruction dst = jumpInstructionSourceToTargets[i];
-                    int delta = (int)simplifiedInstructionsToAddress[dst]! - a;
+                    int delta;
+                    if (simplifiedInstructionsToAddress.Contains(dst))  // target instruction not deleted
+                        delta = (int)simplifiedInstructionsToAddress[dst]! - a;
+                    else if (i.OpCode == OpCode.PUSHA)
+                        delta = 0;  // TODO: decide a good target
+                    else
+                        throw new BadScriptException($"Target instruction of {i.OpCode} at address {a} is deleted");
                     if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
                         simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
@@ -112,7 +118,14 @@ namespace Neo.Optimizer
                     continue;
                 }
                 int methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
-                int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
+                // The instruction at the end of the method may have been deleted.
+                // We need to find the last instruction that is not deleted.
+                //int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
+                int oldMethodEndNotDeleted = oldAddressToInstruction.Where(kv =>
+                kv.Key >= oldMethodStart && kv.Key <= oldMethodEnd &&
+                simplifiedInstructionsToAddress.Contains(kv.Value)
+                ).Max(kv => kv.Key);
+                int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEndNotDeleted]]!;
                 method["range"] = $"{methodStart}-{methodEnd}";
 
                 int previousSequencePoint = methodStart;
@@ -146,23 +159,24 @@ namespace Neo.Optimizer
             return (nef, manifest, debugInfo);
         }
 
-        public static Dictionary<int, bool>
+        public static Dictionary<int, BranchType>
             FindCoveredInstructions(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
             Script script = nef.Script;
-            Dictionary<int, bool> coveredMap = new();
-            foreach ((int addr, Instruction inst) in script.EnumerateInstructions())
-                coveredMap.Add(addr, false);
+            Dictionary<int, BranchType> coveredMap = new();
+            foreach ((int addr, Instruction _) in script.EnumerateInstructions())
+                coveredMap.Add(addr, BranchType.UNCOVERED);
 
             Dictionary<int, string> publicMethodStartingAddressToName = new();
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
                 publicMethodStartingAddressToName.Add(method.Offset, method.Name);
 
-            Parallel.ForEach(manifest.Abi.Methods, method =>
-                CoverInstruction(method.Offset, script, coveredMap)
-            );
-            //foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-            //    CoverInstruction(method.Offset, script, coveredMap);
+            // It is unsafe to go parallel, because the coveredMap value is not true/false
+            //Parallel.ForEach(manifest.Abi.Methods, method =>
+            //    CoverInstruction(method.Offset, script, coveredMap)
+            //);
+            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+                CoverInstruction(method.Offset, script, coveredMap);
             // start from _deploy method
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -187,8 +201,9 @@ namespace Neo.Optimizer
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>
-        public static BranchType CoverInstruction(int addr, Script script, Dictionary<int, bool> coveredMap, Stack<((int returnAddr, int finallyAddr), TryStack stackType)>? stack = null, bool throwed = false)
+        public static BranchType CoverInstruction(int addr, Script script, Dictionary<int, BranchType> coveredMap, Stack<((int returnAddr, int finallyAddr), TryStack stackType)>? stack = null, bool throwed = false)
         {
+            int entranceAddr = addr;
             stack ??= new();
             if (stack.Count == 0)
                 stack.Push(((-1, -1), TryStack.ENTRY));
@@ -202,7 +217,7 @@ namespace Neo.Optimizer
                 int catchAddr; int finallyAddr;
                 do
                     ((catchAddr, finallyAddr), stackType) = stack.Pop();
-                while (stackType != TryStack.TRY && stack.Count > 0);
+                while (stackType != TryStack.TRY && stackType != TryStack.CATCH && stack.Count > 0);
                 if (stackType == TryStack.TRY)  // goto CATCH or FINALLY
                 {
                     throwed = false;
@@ -230,12 +245,12 @@ namespace Neo.Optimizer
             HANDLE_NORMAL_CASE:
                 if (!coveredMap.ContainsKey(addr))
                     throw new BadScriptException($"wrong address {addr}");
-                if (coveredMap[addr])
+                if (coveredMap[addr] != BranchType.UNCOVERED)
                     // We have visited the code. Skip it.
-                    return BranchType.OK;
+                    return coveredMap[addr];
                 Instruction instruction = script.GetInstruction(addr);
                 if (instruction.OpCode != OpCode.NOP)
-                    coveredMap[addr] = true;
+                    coveredMap[addr] = BranchType.OK;
 
                 // TODO: ABORTMSG may THROW instead of ABORT. Just throw new NotImplementedException for ABORTMSG?
                 if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
@@ -243,12 +258,19 @@ namespace Neo.Optimizer
                     // See if we are in a try. There may still be runtime exceptions
                     ((catchAddr, finallyAddr), stackType) = stack.Peek();
                     if (stackType == TryStack.TRY && catchAddr != -1)
+                    {
                         // Visit catchAddr because there may still be exceptions at runtime
-                        return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        coveredMap[entranceAddr] = CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        return coveredMap[entranceAddr];
+                    }
                     if (stackType == TryStack.CATCH && finallyAddr != -1)
+                    {
                         // Visit finallyAddr because there may still be exceptions at runtime
-                        return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
-                    return BranchType.ABORT;
+                        coveredMap[entranceAddr] = CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                        return coveredMap[entranceAddr];
+                    }
+                    coveredMap[entranceAddr] = BranchType.ABORT;
+                    return coveredMap[entranceAddr];
                 }
                 if (callWithJump.Contains(instruction.OpCode))
                 {
@@ -264,12 +286,19 @@ namespace Neo.Optimizer
                         // See if we are in a try. There may still be runtime exceptions
                         ((catchAddr, finallyAddr), stackType) = stack.Peek();
                         if (stackType == TryStack.TRY && catchAddr != -1)
+                        {
                             // Visit catchAddr because there may still be exceptions at runtime
-                            return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                            coveredMap[entranceAddr] = CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                            return coveredMap[entranceAddr];
+                        }
                         if (stackType == TryStack.CATCH && finallyAddr != -1)
+                        {
                             // Visit finallyAddr because there may still be exceptions at runtime
-                            return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
-                        return BranchType.ABORT;
+                            coveredMap[entranceAddr] = CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                            return coveredMap[entranceAddr];
+                        }
+                        coveredMap[entranceAddr] = BranchType.ABORT;
+                        return coveredMap[entranceAddr];
                     }
                     if (returnedType == BranchType.THROW)
                         goto HANDLE_THROW;
@@ -284,7 +313,8 @@ namespace Neo.Optimizer
                     if (stackType == TryStack.CATCH && finallyAddr != -1)
                         // Visit finallyAddr because there may still be exceptions at runtime
                         CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
-                    return BranchType.OK;
+                    coveredMap[entranceAddr] = BranchType.OK;
+                    return coveredMap[entranceAddr];
                 }
                 if (tryThrowFinally.Contains(instruction.OpCode))
                 {
@@ -332,9 +362,10 @@ namespace Neo.Optimizer
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
-                        ((_, addr), stackType) = stack.Pop();
+                        ((_, _), stackType) = stack.Pop();
                         if (stackType != TryStack.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
+                        addr += instruction.Size;
                         continue;
                     }
                 }
@@ -358,19 +389,27 @@ namespace Neo.Optimizer
                         if (stackType == TryStack.CATCH && finallyAddr != -1)
                             // Visit finallyAddr because there may still be exceptions at runtime
                             CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
-                        return BranchType.OK;
+                        coveredMap[entranceAddr] = BranchType.OK;
+                        return coveredMap[entranceAddr];
                     }
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
                     {
                         // See if we are in a try. There may still be runtime exceptions
                         ((catchAddr, finallyAddr), stackType) = stack.Peek();
                         if (stackType == TryStack.TRY && catchAddr != -1)
+                        {
                             // Visit catchAddr because there may still be exceptions at runtime
-                            return CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                            coveredMap[entranceAddr] = CoverInstruction(catchAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                            return coveredMap[entranceAddr];
+                        }
                         if (stackType == TryStack.CATCH && finallyAddr != -1)
+                        {
                             // Visit finallyAddr because there may still be exceptions at runtime
-                            return CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
-                        return BranchType.ABORT;
+                            coveredMap[entranceAddr] = CoverInstruction(finallyAddr, script, coveredMap, stack: new(stack.Reverse()), throwed: true);
+                            return coveredMap[entranceAddr];
+                        }
+                        coveredMap[entranceAddr] = BranchType.ABORT;
+                        return coveredMap[entranceAddr];
                     }
                     if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
                         goto HANDLE_THROW;
@@ -379,7 +418,8 @@ namespace Neo.Optimizer
 
                 addr += instruction.Size;
             }
-            return throwed ? BranchType.THROW : BranchType.OK;
+            coveredMap[entranceAddr] = throwed ? BranchType.THROW : BranchType.OK;
+            return coveredMap[entranceAddr];
         }
     }
 }

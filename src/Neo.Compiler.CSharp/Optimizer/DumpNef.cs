@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Neo.Optimizer
 {
-    public static class DumpNef
+    static class DumpNef
     {
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         private static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
