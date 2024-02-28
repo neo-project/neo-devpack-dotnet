@@ -31,34 +31,8 @@ namespace Transfer;
 [ContractPermission(Permission.WildCard, Method.WildCard)]
 public class TransferContract : SmartContract
 {
-
     [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
     private static readonly UInt160 Owner = default;
-
-    [DisplayName("_deploy")]
-    public static void OnDeployment(object data, bool update)
-    {
-        if (update)
-        {
-            // Add logic for fixing contract on update
-            return;
-        }
-        // Add logic here for 1st time deployed
-    }
-
-    // TODO: Allow ONLY contract owner to call update
-    public static bool Update(ByteString nefFile, string manifest)
-    {
-        ContractManagement.Update(nefFile, manifest);
-        return true;
-    }
-
-    // TODO: Allow ONLY contract owner to call destroy
-    public static bool Destroy()
-    {
-        ContractManagement.Destroy();
-        return true;
-    }
 
     /// <summary>
     /// Transfer method that demonstrate how to transfer NEO and GAS
