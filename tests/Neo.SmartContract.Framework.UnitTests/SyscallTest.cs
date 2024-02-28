@@ -10,7 +10,7 @@ using System.Linq;
 using System.Numerics;
 using SyscallAttribute = scfx.Neo.SmartContract.Framework.Attributes.SyscallAttribute;
 
-namespace Neo.SmartContract.Framework.UnitTests.Old
+namespace Neo.SmartContract.Framework.UnitTests
 {
     class MySymbolVisitor : SymbolVisitor<IEnumerable<string>>
     {
