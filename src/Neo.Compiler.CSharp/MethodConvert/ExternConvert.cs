@@ -33,7 +33,7 @@ partial class MethodConvert
             bool emitted = false;
             foreach (AttributeData attribute in Symbol.GetAttributes())
             {
-                using var sequencePoint = InsertSequencePoint(attribute.ApplicationSyntaxReference!);
+                using var sequencePoint = InsertSequencePoint(attribute.ApplicationSyntaxReference);
 
                 switch (attribute.AttributeClass!.Name)
                 {
@@ -80,7 +80,7 @@ partial class MethodConvert
         }
         else
         {
-            using var sequencePoint = InsertSequencePoint(contractAttribute.ApplicationSyntaxReference!);
+            using var sequencePoint = InsertSequencePoint(contractAttribute.ApplicationSyntaxReference);
 
             UInt160 hash = UInt160.Parse((string)contractAttribute.ConstructorArguments[0].Value!);
             if (Symbol.MethodKind == MethodKind.PropertyGet)
