@@ -11,7 +11,6 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Interfaces;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -27,7 +26,7 @@ namespace NEP17
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep17)]
-    public class SampleNep17Token : Nep17Token, INep17Payable
+    public class SampleNep17Token : Nep17Token
     {
         #region Owner
 
@@ -120,27 +119,6 @@ namespace NEP17
             if (IsOwner() == false && IsMinter() == false)
                 throw new InvalidOperationException("No Authorization!");
             Nep17Token.Burn(account, amount);
-        }
-
-        #endregion
-
-        #region Payment
-
-        public static bool Withdraw(UInt160 to, BigInteger amount)
-        {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            if (amount <= 0)
-                return false;
-            // TODO: Add logic
-            return true;
-        }
-
-        // NOTE: Allow NEP-17 tokens to be received for this contract
-        /// <inheritdoc />
-        public void OnNEP17Payment(UInt160 from, BigInteger amount, object? data)
-        {
-            // TODO: Add logic
         }
 
         #endregion
