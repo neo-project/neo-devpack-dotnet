@@ -3,7 +3,7 @@ extern alias scfx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using scfxStackItemType = scfx.Neo.SmartContract.Framework.StackItemType;
 
-namespace Neo.SmartContract.Framework.UnitTests.Old
+namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
     public class StackItemTypeTest
