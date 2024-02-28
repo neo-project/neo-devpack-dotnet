@@ -6,6 +6,7 @@ using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -83,7 +84,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Get neo token smart contract and mock balanceOf to always return 123
 
             var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash,
-                mock => mock.Setup(o => o.BalanceOf(It.IsAny<UInt160>())).Returns(123),
+                mock => mock.Setup(o => o.BalanceOf(It.IsAny<UInt160>())).Returns(new BigInteger(123)),
                 false);
 
             // Test direct call

@@ -58,7 +58,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Attach to Transfer event
 
             var raisedEvent = false;
-            engine.Native.NEO.OnTransfer += (UInt160 from, UInt160 to, BigInteger amount) =>
+            engine.Native.NEO.OnTransfer += (from, to, amount) =>
                 {
                     Assert.AreEqual(engine.Transaction.Sender, from);
                     Assert.AreEqual(addressTo, to);
