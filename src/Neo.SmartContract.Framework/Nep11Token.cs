@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -17,8 +17,8 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
-    [SupportedStandards("NEP-11")]
-    [ContractPermission("*", "onNEP11Payment")]
+    [SupportedStandards(NepStandard.Nep11)]
+    [ContractPermission(Permission.WildCard, Method.OnNEP11Payment)]
     public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {
