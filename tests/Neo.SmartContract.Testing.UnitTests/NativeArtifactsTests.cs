@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 
 namespace Neo.SmartContract.Testing.UnitTests
