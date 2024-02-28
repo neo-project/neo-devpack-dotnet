@@ -62,8 +62,8 @@ namespace Neo.Optimizer
                 else
                     continue;
             }
-            (ConcurrentDictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
-            ConcurrentDictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets, _)
+            (Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
+            Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets, _)
             = FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
 
             List<byte> simplifiedScript = new();
@@ -173,11 +173,12 @@ namespace Neo.Optimizer
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
                 publicMethodStartingAddressToName.Add(method.Offset, method.Name);
 
-            Parallel.ForEach(manifest.Abi.Methods, method =>
-                CoverInstruction(method.Offset, script, coveredMap)
-            );
-            //foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-            //    CoverInstruction(method.Offset, script, coveredMap);
+            // It is unsafe to go parallel, because the coveredMap value is not true/false
+            //Parallel.ForEach(manifest.Abi.Methods, method =>
+            //    CoverInstruction(method.Offset, script, coveredMap)
+            //);
+            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+                CoverInstruction(method.Offset, script, coveredMap);
             // start from _deploy method
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
