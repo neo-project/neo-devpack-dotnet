@@ -33,7 +33,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual("7b7d", (Contract.TestClear(key) as ByteString).GetSpan().ToHexString());
         }
 
-
         [TestMethod]
         public void TestByteArray2()
         {
