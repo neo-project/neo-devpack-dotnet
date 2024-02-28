@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
     [TestClass]
     public class TestCleanup
     {
-        private static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
+        internal static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         /// <summary>
         /// Required coverage to be success
@@ -22,8 +22,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         public static decimal RequiredCoverage { get; set; } = 0.85M;
 
         [TestMethod]
-        public void EnsureArtifactsUpToDate()
+        public static void EnsureArtifactsUpToDate()
         {
+            if (DebugInfos.Count > 0) return; // Maybe a UT call it
+
             // Define paths
 
             string testContractsPath = Path.GetFullPath("../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj");
