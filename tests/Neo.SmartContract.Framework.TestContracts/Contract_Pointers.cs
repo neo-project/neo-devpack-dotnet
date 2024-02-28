@@ -1,5 +1,3 @@
-using Neo.SmartContract.Framework.Services;
-using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
