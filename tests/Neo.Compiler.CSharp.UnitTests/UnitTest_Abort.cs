@@ -10,6 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Abort
     {
         TestEngine testengine;
+        bool[] falseTrue = new bool[] { false, true };
         [TestInitialize]
         public void Initialize()
         {
@@ -20,39 +21,65 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Abort()
         {
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbort").Count, 0);
-            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(testengine.Nef, testengine.DebugInfo, "testAbort", OpCode.ABORT);
-            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, AbortAddresses[0]);
-            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 0);
+            string method = "testAbort";
+            Assert.AreEqual(testengine.ExecuteTestCaseStandard(method).Count, 0);
+            // All the ABORT instruction addresses in "testAbort" method
+            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(testengine.Nef, testengine.DebugInfo, method, OpCode.ABORT);
+            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
+            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 0);  // v==0
+            Assert.AreEqual(testengine.State, VMState.FAULT);
+        }
+
+        [TestMethod]
+        public void Test_AbortMsg()
+        {
+            string method = "testAbortMsg";
+            Assert.AreEqual(testengine.ExecuteTestCaseStandard(method).Count, 0);
+            // All the ABORTMSG instruction addresses in "testAbortMsg" method
+            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(testengine.Nef, testengine.DebugInfo, method, OpCode.ABORTMSG);
+            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
+            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 0);  // v==0
             Assert.AreEqual(testengine.State, VMState.FAULT);
         }
 
         [TestMethod]
         public void Test_AbortInFunction()
         {
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInFunction").Count, 0);
-            Assert.AreEqual(testengine.State, VMState.FAULT);
+            foreach (bool b in falseTrue)
+            {
+                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInFunction", b).Count, 0);
+                Assert.AreEqual(testengine.State, VMState.FAULT);
+            }
         }
 
         [TestMethod]
         public void Test_AbortInTry()
         {
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInTry").Count, 0);
-            Assert.AreEqual(testengine.State, VMState.FAULT);
+            foreach (bool b in falseTrue)
+            {
+                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInTry", b).Count, 0);
+                Assert.AreEqual(testengine.State, VMState.FAULT);
+            }
         }
 
         [TestMethod]
         public void Test_AbortInCatch()
         {
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInCatch").Count, 0);
-            Assert.AreEqual(testengine.State, VMState.FAULT);
+            foreach (bool b in falseTrue)
+            {
+                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInCatch", b).Count, 0);
+                Assert.AreEqual(testengine.State, VMState.FAULT);
+            }
         }
 
         [TestMethod]
         public void Test_AbortInFinally()
         {
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInFinally").Count, 0);
-            Assert.AreEqual(testengine.State, VMState.FAULT);
+            foreach (bool b in falseTrue)
+            {
+                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInFinally", b).Count, 0);
+                Assert.AreEqual(testengine.State, VMState.FAULT);
+            }
         }
     }
 }
