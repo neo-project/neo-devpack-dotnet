@@ -57,17 +57,22 @@ namespace Neo.Optimizer
         }
 
         public static (ConcurrentDictionary<Instruction, Instruction>,
-            ConcurrentDictionary<Instruction, (Instruction, Instruction)>)
+            ConcurrentDictionary<Instruction, (Instruction, Instruction)>,
+            ConcurrentDictionary<Instruction, HashSet<Instruction>>)
             FindAllJumpAndTrySourceToTargets(NefFile nef)
         {
             Script script = nef.Script;
             return FindAllJumpAndTrySourceToTargets(script);
         }
         public static (ConcurrentDictionary<Instruction, Instruction>,
-            ConcurrentDictionary<Instruction, (Instruction, Instruction)>)
+            ConcurrentDictionary<Instruction, (Instruction, Instruction)>,
+            ConcurrentDictionary<Instruction, HashSet<Instruction>>)
             FindAllJumpAndTrySourceToTargets(Script script) => FindAllJumpAndTrySourceToTargets(script.EnumerateInstructions().ToList());
-        public static (ConcurrentDictionary<Instruction, Instruction>,
-            ConcurrentDictionary<Instruction, (Instruction, Instruction)>)
+        public static (
+            ConcurrentDictionary<Instruction, Instruction>,  // jump source to target
+            ConcurrentDictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
+            ConcurrentDictionary<Instruction, HashSet<Instruction>>  // target to source
+            )
             FindAllJumpAndTrySourceToTargets(List<(int, Instruction)> addressAndInstructionsList)
         {
             Dictionary<int, Instruction> addressToInstruction = new();
@@ -75,17 +80,32 @@ namespace Neo.Optimizer
                 addressToInstruction.Add(a, i);
             ConcurrentDictionary<Instruction, Instruction> jumpSourceToTargets = new();
             ConcurrentDictionary<Instruction, (Instruction, Instruction)> trySourceToTargets = new();
+            ConcurrentDictionary<Instruction, HashSet<Instruction>> targetToSources = new();
             Parallel.ForEach(addressAndInstructionsList, item =>
             {
                 (int a, Instruction i) = (item.Item1, item.Item2);
                 if (SingleJumpInOperand(i))
-                    jumpSourceToTargets.TryAdd(i, addressToInstruction[ComputeJumpTarget(a, i)]);
+                {
+                    Instruction target = addressToInstruction[ComputeJumpTarget(a, i)];
+                    jumpSourceToTargets.TryAdd(i, target);
+                    targetToSources.GetOrAdd(target, new HashSet<Instruction>()).Add(i);
+                }
                 if (i.OpCode == TRY)
-                    trySourceToTargets.TryAdd(i, (addressToInstruction[a + i.TokenI8], addressToInstruction[a + i.TokenI8_1]));
+                {
+                    (Instruction t1, Instruction t2) = (addressToInstruction[a + i.TokenI8], addressToInstruction[a + i.TokenI8_1]);
+                    trySourceToTargets.TryAdd(i, (t1, t2));
+                    targetToSources.GetOrAdd(t1, new HashSet<Instruction>()).Add(i);
+                    targetToSources.GetOrAdd(t2, new HashSet<Instruction>()).Add(i);
+                }
                 if (i.OpCode == TRY_L)
-                    trySourceToTargets.TryAdd(i, (addressToInstruction[a + i.TokenI32], addressToInstruction[a + i.TokenI32_1]));
+                {
+                    (Instruction t1, Instruction t2) = (addressToInstruction[a + i.TokenI32], addressToInstruction[a + i.TokenI32_1]);
+                    trySourceToTargets.TryAdd(i, (t1, t2));
+                    targetToSources.GetOrAdd(t1, new HashSet<Instruction>()).Add(i);
+                    targetToSources.GetOrAdd(t2, new HashSet<Instruction>()).Add(i);
+                }
             });
-            return (jumpSourceToTargets, trySourceToTargets);
+            return (jumpSourceToTargets, trySourceToTargets, targetToSources);
         }
     }
 }

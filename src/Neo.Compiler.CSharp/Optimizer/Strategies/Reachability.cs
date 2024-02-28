@@ -62,7 +62,7 @@ namespace Neo.Optimizer
                     continue;
             }
             (ConcurrentDictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
-            ConcurrentDictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets)
+            ConcurrentDictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets, _)
             = FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
 
             List<byte> simplifiedScript = new();
@@ -74,7 +74,13 @@ namespace Neo.Optimizer
                 simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(i.Operand.Length)[0..operandSizeLength]).ToList();
                 if (jumpInstructionSourceToTargets.TryGetValue(i, out Instruction? dst))
                 {
-                    int delta = (int)simplifiedInstructionsToAddress[dst]! - a;
+                    int delta;
+                    if (simplifiedInstructionsToAddress.Contains(dst))  // target instruction not deleted
+                        delta = (int)simplifiedInstructionsToAddress[dst]! - a;
+                    else if (i.OpCode == OpCode.PUSHA)
+                        delta = 0;  // TODO: decide a good target
+                    else
+                        throw new BadScriptException($"Target instruction of {i.OpCode} at address {a} is deleted");
                     if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
                         simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
