@@ -24,6 +24,10 @@ namespace HelloWorld;
 [ContractPermission(Permission.WildCard, Method.WildCard)]
 public class HelloWorldorld : SmartContract
 {
+    /// <summary>
+    /// Hello world from NEO!
+    /// </summary>
+    /// <returns>Hello world string</returns>
     [Safe]
     public static string SayHello()
     {

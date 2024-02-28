@@ -34,9 +34,7 @@ public class SampleEvent : SmartContract
     {
         byte[] ba = new byte[] { 0x01, 0x02, 0x03 };
         event_name(ba, "oi", 10); // will Example.SmartContract.Runtime.Notify: 'new_event_name', '\x01\x02\x03', 'oi', 10
-
         event2(ba, 50); // will Example.SmartContract.Runtime.Notify: 'event2', '\x01\x02\x03', '\x32'
-
         return false;
     }
 }

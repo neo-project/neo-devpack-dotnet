@@ -25,11 +25,18 @@ namespace Inscription
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     public class SampleInscription : SmartContract
     {
-        // Neo.SmartContract.Examples.Event for logging inscriptions
+        /// <summary>
+        /// Neo.SmartContract.Examples.Event for logging inscriptions
+        /// </summary>
         [DisplayName("InscriptionAdded")]
         public static event Action<UInt160, string> InscriptionAdded;
 
-        // Method to store an inscription
+        /// <summary>
+        /// Method to store an inscription
+        /// </summary>
+        /// <param name="address">Address</param>
+        /// <param name="inscription">Inscription</param>
+        /// <exception cref="Exception">Failure when is not signed by the address</exception>
         public static void AddInscription(UInt160 address, string inscription)
         {
             if (!Runtime.CheckWitness(address))
@@ -39,7 +46,11 @@ namespace Inscription
             InscriptionAdded(address, inscription);
         }
 
-        // Method to read an inscription
+        /// <summary>
+        /// Method to read an inscription
+        /// </summary>
+        /// <param name="address">Address</param>
+        /// <returns>Inscription readed</returns>
         [Safe]
         public static string GetInscription(UInt160 address)
         {
