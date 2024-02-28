@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 
-namespace Neo.SmartContract.Framework.UnitTests.Old
+namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
     public class ManifestExtraTest
