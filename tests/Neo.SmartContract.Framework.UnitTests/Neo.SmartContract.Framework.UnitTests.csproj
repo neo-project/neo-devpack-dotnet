@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <RootNamespace>Neo.SmartContract.Framework.UnitTests</RootNamespace>
+		<Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

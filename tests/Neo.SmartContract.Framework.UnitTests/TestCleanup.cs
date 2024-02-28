@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.SmartContract.Testing.Extensions;
 using System;
 using System.Collections.Generic;
@@ -63,7 +64,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
                     // Ensure that it exists
 
-                    DebugInfos[type] = CreateArtifact(result.ContractName, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), true);
+                    DebugInfos[type] = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), true);
                     results.Remove(result);
                 }
             }
@@ -74,7 +75,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             {
                 foreach (var result in results.Where(u => u.Success))
                 {
-                    CreateArtifact(result.ContractName, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), false);
+                    CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), false);
                 }
 
                 Assert.Fail("Error compiling templates");
@@ -97,68 +98,71 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             return debug;
         }
 
-        /*
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
             // Join here all of your coverage sources
 
-            var coverageNep17 = Nep17ContractTests.Coverage;
-            coverageNep17?.Join(OwnerContractTests.Coverage);
-            var coverageOwnable = OwnableContractTests.Coverage;
-            var coverageOracle = OracleRequestTests.Coverage;
+            CoverageBase? coverage = null;
+            var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+            var list = new List<(CoveredContract Contract, NeoDebugInfo DebugInfo)>();
 
-            // Dump coverage to console
+            foreach (var infos in DebugInfos)
+            {
+                Type type = typeof(Testing.TestingStandards.TestBase<>).MakeGenericType(infos.Key);
+                CoveredContract? cov = null;
 
-            Assert.IsNotNull(coverageNep17, "NEP17 coverage can't be null");
-            Assert.IsNotNull(coverageOwnable, "Ownable coverage can't be null");
-            Assert.IsNotNull(coverageOracle, "Oracle coverage can't be null");
+                foreach (var aType in allTypes)
+                {
+                    if (type.IsAssignableFrom(aType))
+                    {
+                        cov = type.GetProperty("Coverage")!.GetValue(null) as CoveredContract;
+                        Assert.IsNotNull(cov, $"{infos.Key} coverage can't be null");
 
-            var coverage = coverageNep17 + coverageOwnable + coverageOracle;
+                        // It doesn't require join, because we have only one UnitTest class per contract
 
-            Assert.IsNotNull(coverage, "Coverage can't be null");
+                        coverage += cov;
+                        list.Add((cov, infos.Value));
+                        break;
+                    }
+                }
+
+                if (cov is null)
+                {
+                    Console.Error.WriteLine($"Coverage not found for {infos.Key}");
+                }
+            }
+
+            // Ensure we have coverage
+
+            Assert.IsNotNull(coverage, $"Coverage can't be null");
 
             // Dump current coverage
 
             Console.WriteLine(coverage.Dump(DumpFormat.Console));
             File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
 
-            if (DebugInfo_NEP17 is not null &&
-                DebugInfo_Ownable is not null &&
-                DebugInfo_Oracle is not null)
+            // Write the cobertura format
+
+            File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(list.ToArray()).Dump());
+
+            // Write the report to the specific path
+
+            CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
+
+            // Merge coverlet json
+
+            if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
+                !string.IsNullOrEmpty(mergeWith))
             {
-                // Write the cobertura format
+                new CoverletJsonFormat(list.ToArray()).Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
 
-                File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
-                    (coverageNep17, DebugInfo_NEP17),
-                    (coverageOwnable, DebugInfo_Ownable),
-                    (coverageOracle, DebugInfo_Oracle)
-                    ).Dump());
-
-                // Write the report to the specific path
-
-                CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
-
-                // Merge coverlet json
-
-                if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
-                    !string.IsNullOrEmpty(mergeWith))
-                {
-                    new CoverletJsonFormat(
-                       (coverageNep17, DebugInfo_NEP17),
-                       (coverageOwnable, DebugInfo_Ownable),
-                       (coverageOracle, DebugInfo_Oracle)
-                       ).
-                       Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
-
-                    Console.WriteLine($"Coverage merged with: {mergeWith}");
-                }
+                Console.WriteLine($"Coverage merged with: {mergeWith}");
             }
 
             // Ensure that the coverage is more than X% at the end of the tests
 
             Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
-        */
     }
 }
