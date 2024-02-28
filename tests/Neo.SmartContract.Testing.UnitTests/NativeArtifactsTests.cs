@@ -42,16 +42,20 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestCandidate()
         {
-            var engine = new TestEngine(true);
+            var engine = new TestEngine(true) { Gas = 1001_0000_0000 };
 
-            // Check Candidate deserialization
+            // Check initial value
 
             Assert.AreEqual(0, engine.Native.NEO.Candidates?.Length);
 
-            engine.Gas = 1001_0000_0000;
+            // Register
+
             var candidate = ECPoint.Parse("03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c", ECCurve.Secp256r1);
             engine.SetTransactionSigners(Contract.CreateSignatureContract(candidate).ScriptHash);
             Assert.IsTrue(engine.Native.NEO.RegisterCandidate(candidate));
+
+            // Check
+
             Assert.AreEqual(1, engine.Native.NEO.Candidates?.Length);
             Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates[0].PublicKey.ToString());
         }
