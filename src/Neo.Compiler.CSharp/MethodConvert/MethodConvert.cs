@@ -137,7 +137,7 @@ namespace Neo.Compiler
 
         private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
         {
-            return new SequencePointInserter(_instructions, syntax?.SyntaxTree.GetLocation(syntax.Span));
+            return new SequencePointInserter(_instructions, syntax);
         }
 
         private SequencePointInserter InsertSequencePoint(Location? location)

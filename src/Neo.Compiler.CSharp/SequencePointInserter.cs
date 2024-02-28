@@ -24,6 +24,10 @@ namespace Neo.Compiler
             this(instructions, syntax?.GetLocation())
         { }
 
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxReference? syntax) :
+           this(instructions, syntax?.SyntaxTree.GetLocation(syntax.Span))
+        { }
+
         public SequencePointInserter(IReadOnlyList<Instruction> instructions, Location? location)
         {
             this.instructions = instructions;
