@@ -159,6 +159,5 @@ namespace NEP17
         }
 
         #endregion
-
     }
 }
