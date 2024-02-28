@@ -8,7 +8,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         [ByteArray("0a0b0c0d0E0F")]
         private static readonly byte[] data = default;
 
-        [Hash160("NL1JGjDe22U44R57ZXVSeTYFBavEkVmkgF")]
+        [Hash160("Nj36aekV3CLybZQJ5NfjYoFgRXEzhV9GtS")]
         private static readonly byte[] hashResult = default;
 
         public static byte[] TestHexToBytes()

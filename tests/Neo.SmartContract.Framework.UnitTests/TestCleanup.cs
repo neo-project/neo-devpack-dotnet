@@ -27,10 +27,11 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             string testContractsPath = Path.GetFullPath("../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj");
             string artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
+            var root = Path.GetPathRoot(testContractsPath) ?? "";
 
             // Compile
 
-            var result = new CompilationEngine(new CompilationOptions()
+            var results = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
                 Optimize = CompilationOptions.OptimizationType.All,
@@ -40,8 +41,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             // Ensure that all was well compiled
 
-            if (!result.All(u => u.Success))
+            if (!results.All(u => u.Success))
             {
+                results.SelectMany(u => u.Diagnostics)
+                    .Where(u => u.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error)
+                    .ToList().ForEach(Console.Error.WriteLine);
+
                 Assert.Fail("Error compiling templates");
             }
 
@@ -51,38 +56,45 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             {
                 if (typeof(Testing.SmartContract).IsAssignableFrom(type))
                 {
+                    // Find result
+
+                    var result = results.Where(u => u.ContractName == type.Name).SingleOrDefault();
+                    if (result == null) continue;
+
                     // Ensure that it exists
 
-                    var root = Path.GetPathRoot(testContractsPath) ?? "";
-                    (var artifact, var debug) = CreateArtifact(type, result[0], root,
-                        Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
-
-                    DebugInfos[type] = debug;
+                    DebugInfos[type] = CreateArtifact(result.ContractName, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), true);
+                    results.Remove(result);
                 }
             }
 
             // Ensure that all match
 
-            if (result.Count() != DebugInfos.Count)
+            if (results.Count() > 0)
             {
+                foreach (var result in results.Where(u => u.Success))
+                {
+                    CreateArtifact(result.ContractName, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), false);
+                }
+
                 Assert.Fail("Error compiling templates");
             }
         }
 
-        private static (string artifact, NeoDebugInfo debugInfo) CreateArtifact(Type type, CompilationContext context, string rootDebug, string artifactsPath)
+        private static NeoDebugInfo CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath, bool failIfWrong)
         {
             (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
-            var artifact = manifest.GetArtifactsSource(type.Name, nef, generateProperties: true);
+            var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
-            if (artifact != File.ReadAllText(artifactsPath))
+            if (!File.Exists(artifactsPath) || artifact != File.ReadAllText(artifactsPath))
             {
                 // Uncomment to overwrite the artifact file
-                // File.WriteAllText(artifactsPath, artifact);
-                Assert.Fail($"{type.Name} artifact was wrong");
+                File.WriteAllText(artifactsPath, artifact);
+                if (failIfWrong) Assert.Fail($"{typeName} artifact was wrong");
             }
 
-            return (artifact, debug);
+            return debug;
         }
 
         /*

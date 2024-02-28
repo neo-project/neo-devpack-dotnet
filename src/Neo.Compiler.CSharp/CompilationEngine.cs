@@ -249,7 +249,7 @@ namespace Neo.Compiler
             if (!remove.Contains("*.cs"))
             {
                 var obj = Path.Combine(folder, "obj");
-                var binSc = Path.Combine(Path.Combine(folder, "bin"), "sc");
+                var binSc = Path.Combine(folder, "bin");
                 foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                       .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
                       .Select(u => u))
