@@ -47,6 +47,8 @@ namespace Neo.Optimizer
             Dictionary<int, Instruction> oldAddressToInstruction = new();
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
                 oldAddressToInstruction.Add(a, i);
+            //DumpNef.GenerateDumpNef(nef, debugInfo);
+            //coveredMap.Where(kv => !kv.Value).Select(kv => (kv.Key, oldAddressToInstruction[kv.Key].OpCode)).ToList();
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
@@ -202,7 +204,7 @@ namespace Neo.Optimizer
                 int catchAddr; int finallyAddr;
                 do
                     ((catchAddr, finallyAddr), stackType) = stack.Pop();
-                while (stackType != TryStack.TRY && stack.Count > 0);
+                while (stackType != TryStack.TRY && stackType != TryStack.CATCH && stack.Count > 0);
                 if (stackType == TryStack.TRY)  // goto CATCH or FINALLY
                 {
                     throwed = false;
@@ -332,9 +334,10 @@ namespace Neo.Optimizer
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
-                        ((_, addr), stackType) = stack.Pop();
+                        ((_, _), stackType) = stack.Pop();
                         if (stackType != TryStack.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
+                        addr += instruction.Size;
                         continue;
                     }
                 }
