@@ -4,18 +4,16 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using static Neo.Optimizer.JumpTarget;
 using static Neo.Optimizer.OpCodeTypes;
 using static Neo.Optimizer.Optimizer;
 
 namespace Neo.Optimizer
 {
-    public static class Reachability
+    static class Reachability
     {
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         private static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);

@@ -8,7 +8,7 @@ using static Neo.VM.OpCode;
 
 namespace Neo.Optimizer
 {
-    public static class JumpTarget
+    static class JumpTarget
     {
         public static bool SingleJumpInOperand(Instruction instruction) => SingleJumpInOperand(instruction.OpCode);
         public static bool SingleJumpInOperand(OpCode opcode)
