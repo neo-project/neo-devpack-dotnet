@@ -72,9 +72,8 @@ namespace Neo.Optimizer
                 simplifiedScript.Add((byte)i.OpCode);
                 int operandSizeLength = OperandSizePrefixTable[(int)i.OpCode];
                 simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(i.Operand.Length)[0..operandSizeLength]).ToList();
-                if (jumpInstructionSourceToTargets.ContainsKey(i))
+                if (jumpInstructionSourceToTargets.TryGetValue(i, out Instruction? dst))
                 {
-                    Instruction dst = jumpInstructionSourceToTargets[i];
                     int delta = (int)simplifiedInstructionsToAddress[dst]! - a;
                     if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
                         simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
@@ -160,7 +159,7 @@ namespace Neo.Optimizer
         {
             Script script = nef.Script;
             Dictionary<int, bool> coveredMap = new();
-            foreach ((int addr, Instruction inst) in script.EnumerateInstructions())
+            foreach ((int addr, Instruction _) in script.EnumerateInstructions())
                 coveredMap.Add(addr, false);
 
             Dictionary<int, string> publicMethodStartingAddressToName = new();
