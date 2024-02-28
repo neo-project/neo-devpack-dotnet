@@ -112,7 +112,7 @@ public class Nep17Tests<T> : TestBase<T>
         Assert.AreEqual(0, raisedTransfer.Count);
     }
 
-    #endregion 
+    #endregion
 
     #region Tests
 

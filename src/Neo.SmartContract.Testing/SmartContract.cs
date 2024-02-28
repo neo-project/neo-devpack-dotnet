@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Testing
                 script.Emit(OpCode.PACK);
             }
 
-            script.EmitPush(CallFlags.All);
+            script.EmitPush(Engine.CallFlags);
             script.EmitPush(methodName);
             script.EmitPush(Hash);
             script.EmitSysCall(ApplicationEngine.System_Contract_Call);

@@ -3,12 +3,15 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
 public class TestBase<T> where T : SmartContract
 {
+    private readonly List<string> _contractLogs = new();
+
     public static CoveredContract? Coverage { get; private set; }
     public static Signer Alice { get; } = TestEngine.GetNewSigner();
     public static Signer Bob { get; } = TestEngine.GetNewSigner();
@@ -53,13 +56,44 @@ public class TestBase<T> where T : SmartContract
             Coverage = Contract.GetCoverage()!;
             Assert.IsNotNull(Coverage);
         }
+
+        Contract.OnRuntimeLog += Contract_OnRuntimeLog;
     }
+
+    private void Contract_OnRuntimeLog(string message)
+    {
+        _contractLogs.Add(message);
+    }
+
+    #region Asserts
+
+    /// <summary>
+    /// Assert that Log event was raised
+    /// </summary>
+    /// <param name="logs">Logs</param>
+    public void AssertLogs(params string[] logs)
+    {
+        Assert.AreEqual(_contractLogs.Count, logs.Length);
+        CollectionAssert.AreEqual(_contractLogs, logs);
+        _contractLogs.Clear();
+    }
+
+    /// <summary>
+    /// Assert that Transfer event was NOT raised
+    /// </summary>
+    public void AssertNoLogs()
+    {
+        Assert.AreEqual(0, _contractLogs.Count);
+    }
+
+    #endregion
 
     [TestCleanup]
     public virtual void OnCleanup()
     {
         // Join the current coverage into the static one
 
+        Contract.OnRuntimeLog -= Contract_OnRuntimeLog;
         Coverage?.Join(Contract.GetCoverage());
     }
 }
