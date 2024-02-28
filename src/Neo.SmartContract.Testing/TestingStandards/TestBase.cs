@@ -73,7 +73,7 @@ public class TestBase<T> where T : SmartContract
     /// <param name="logs">Logs</param>
     public void AssertLogs(params string[] logs)
     {
-        Assert.AreEqual(_contractLogs.Count, logs.Length);
+        Assert.AreEqual(logs.Length, _contractLogs.Count);
         CollectionAssert.AreEqual(_contractLogs, logs);
         _contractLogs.Clear();
     }
