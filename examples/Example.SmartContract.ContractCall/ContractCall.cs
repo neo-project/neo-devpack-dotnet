@@ -9,12 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using System.ComponentModel;
-using Neo;
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace ContractCall;
@@ -32,9 +30,9 @@ public class SampleContractCall : SmartContract
 
     public static void onNEP17Payment(UInt160 from, BigInteger amount, BigInteger data)
     {
-        UInt160 tokenHash = Runtime.CallingScriptHash;
         if (!data.Equals(123)) return;
         UInt160 @this = Runtime.ExecutingScriptHash;
+        UInt160 tokenHash = Runtime.CallingScriptHash;
         BigInteger balanceOf = (BigInteger)Contract.Call(tokenHash, "balanceOf", CallFlags.All, @this);
         Contract.Call(DummyTarget, "dummyMethod", CallFlags.All, @this, tokenHash, balanceOf);
     }

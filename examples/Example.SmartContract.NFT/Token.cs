@@ -9,10 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
+
 namespace NFT
 {
     public class TokenState : Nep11TokenState
@@ -33,7 +33,7 @@ namespace NFT
 
         public void OwnerOnly()
         {
-            Tools.Require(Runtime.CheckWitness(Owner), "Authorization failed.");
+            ExecutionEngine.Assert(Runtime.CheckWitness(Owner), "Authorization failed.");
         }
     }
 }

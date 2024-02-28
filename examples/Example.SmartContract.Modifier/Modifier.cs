@@ -17,11 +17,11 @@ using System.ComponentModel;
 
 namespace Modifier
 {
-    public class OwnerOnlyAttribute : ModifierAttribute
+    public class OnlyOwnerAttribute : ModifierAttribute
     {
         readonly UInt160 _owner;
 
-        public OwnerOnlyAttribute(string hex)
+        public OnlyOwnerAttribute(string hex)
         {
             _owner = (UInt160)(byte[])StdLib.Base64Decode(hex);
         }
@@ -41,7 +41,7 @@ namespace Modifier
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     public class SampleModifier : SmartContract
     {
-        [OwnerOnly("AAAAAAAAAAAAAAAAAAAAAAAAAAA=")]
+        [OnlyOwner("AAAAAAAAAAAAAAAAAAAAAAAAAAA=")]
         public static bool Test()
         {
             return true;

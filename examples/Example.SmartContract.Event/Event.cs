@@ -11,7 +11,6 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Native;
 using System;
 using System.ComponentModel;
 using System.Numerics;

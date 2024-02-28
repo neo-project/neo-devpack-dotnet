@@ -37,7 +37,7 @@ namespace NFT
         [Safe]
         public override Map<string, object> Properties(ByteString tokenId)
         {
-            Tools.Require(Runtime.EntryScriptHash == Runtime.CallingScriptHash);
+            ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash);
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
             Map<string, object> map = new()
@@ -54,7 +54,7 @@ namespace NFT
         private TokenState GetToken(BigInteger tokenId)
         {
             TokenState token = (TokenState)StdLib.Deserialize(TokenMap[tokenId.ToString()]);
-            Tools.Require(token is not null, "Token not exists");
+            ExecutionEngine.Assert(token is not null, "Token not exists");
             return token;
         }
 
@@ -141,22 +141,18 @@ namespace NFT
 
         /// <summary>
         /// Security Requirements:
-        ///
-        /// <0> Has to check the validity of the token Id
+        /// [0] Has to check the validity of the token Id
         ///     both the upper and lower bound
-        ///
-        /// <1> shall not be called from a contract
-        ///
-        /// <3> tx shall fault if token already taken
-        ///
-        /// <4> update the token map.
+        /// [1] shall not be called from a contract
+        /// [3] tx shall fault if token already taken
+        /// [4] update the token map.
         /// </summary>
         /// <param name="tokenId"></param>
         public void Claim(BigInteger tokenId)
         {
             // 222 reserved to the developer
-            Tools.Require(!tokenId.IsZero && tokenId < 7778, "Token ID invalid");
-            Tools.Require(Runtime.EntryScriptHash == Runtime.CallingScriptHash, "Contract calls are not allowed");
+            ExecutionEngine.Assert(!tokenId.IsZero && tokenId < 7778, "Token ID invalid");
+            ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash, "Contract calls are not allowed");
             Transaction tx = (Transaction)Runtime.ScriptContainer;
             MintToken(tokenId, tx.Sender);
             EventMsg("Player mints success");
@@ -164,16 +160,14 @@ namespace NFT
 
         /// <summary>
         /// Security Requirements:
-        ///
-        /// <0> only the owner can call this function
-        ///
-        /// <1> the range of the tokenid is to be in (7777, 8001)
+        /// [0] only the owner can call this function
+        /// [1] the range of the tokenid is to be in (7777, 8001)
         /// </summary>
         /// <param name="tokenId"></param>
         public void OwnerClaim(BigInteger tokenId)
         {
             OwnerOnly();
-            Tools.Require(tokenId > 7777 && tokenId < 8001, "Token ID invalid");
+            ExecutionEngine.Assert(tokenId > 7777 && tokenId < 8001, "Token ID invalid");
             var sender = GetOwner();
             MintToken(tokenId, sender);
             EventMsg("Owner mints success");
@@ -181,11 +175,8 @@ namespace NFT
 
         /// <summary>
         /// Security Requirements:
-        ///
-        /// <0> the transaction should `FAULT` if the token already taken
-        ///
-        /// <1> has to update the taken map if a new token is mint.
-        ///
+        /// [0] the transaction should `FAULT` if the token already taken
+        /// [1] has to update the taken map if a new token is mint.
         /// </summary>
         /// <param name="tokenId"></param>
         /// <param name="sender"></param>
@@ -200,10 +191,8 @@ namespace NFT
 
         /// <summary>
         /// Security requirements:
-        ///
-        /// <0> throw exception if token already taken
-        ///
-        /// <1> should get a random number as credential that
+        /// [0] throw exception if token already taken
+        /// [1] should get a random number as credential that
         ///     is not predictable and not linked to the tokenId
         /// </summary>
         /// <param name="tokenId"></param>
@@ -212,7 +201,7 @@ namespace NFT
         private BigInteger CheckClaim(BigInteger tokenId)
         {
             // <0> -- confirmed
-            Tools.Require(TokenIndexMap.Get(tokenId.ToString()) != "taken", "Token already claimed.");
+            ExecutionEngine.Assert(TokenIndexMap.Get(tokenId.ToString()) != "taken", "Token already claimed.");
             // <1> -- confirmed
             return Runtime.GetRandom();
         }

@@ -9,8 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo;
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -30,11 +28,9 @@ namespace NFT
     ///  [Destroy]  -- confirmed by jinghui
     ///  [Pause]    -- confirmed by jinghui
     ///  [Resume]   -- confirmed by jinghui
-    ///
     /// </summary>
     public partial class Loot
     {
-
         [Hash160("NaA5nQieb5YGg5nSFjhJMVEXQCQ5HdukwP")]
         static readonly UInt160 Owner = default;
 
@@ -46,10 +42,8 @@ namespace NFT
 
         public static bool Verify() => Runtime.CheckWitness(GetOwner());
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void OwnerOnly() => Tools.Require(Verify(), "Authorization failed.");
-
+        private static void OwnerOnly() => ExecutionEngine.Assert(Verify(), "Authorization failed.");
 
         /// <summary>
         /// Security Requirements:
@@ -58,7 +52,6 @@ namespace NFT
         ///
         /// <1> the new address should be
         /// a valid address: constrained internally
-        ///
         /// </summary>
         /// <param name="newOwner"></param>
         /// <returns></returns>
@@ -67,7 +60,7 @@ namespace NFT
             // <0> -- confirmed by jinghui
             OwnerOnly();
             // <1> -- confirmed by jinghui
-            Tools.Require(newOwner.IsValid, "Loot::UInt160 is invalid.");
+            ExecutionEngine.Assert(newOwner.IsValid, "Loot::UInt160 is invalid.");
             OwnerMap.Put("owner", newOwner);
             return GetOwner();
         }
@@ -77,11 +70,6 @@ namespace NFT
         {
             var owner = OwnerMap.Get("owner");
             return owner != null ? (UInt160)owner : Owner;
-        }
-
-        public static void _deploy(object _, bool update)
-        {
-            if (update) return;
         }
 
         public static void Update(ByteString nefFile, string manifest)

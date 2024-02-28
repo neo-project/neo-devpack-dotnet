@@ -11,7 +11,6 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
@@ -45,31 +44,6 @@ namespace Inscription
         public static string GetInscription(UInt160 address)
         {
             return Storage.Get(Storage.CurrentContext, address);
-        }
-
-        [DisplayName("_deploy")]
-        public static void OnDeployment(object data, bool update)
-        {
-            if (update)
-            {
-                // Add logic for fixing contract on update
-                return;
-            }
-            // Add logic here for 1st time deployed
-        }
-
-        // TODO: Allow ONLY contract owner to call update
-        public static bool Update(ByteString nefFile, string manifest)
-        {
-            ContractManagement.Update(nefFile, manifest);
-            return true;
-        }
-
-        // TODO: Allow ONLY contract owner to call destroy
-        public static bool Destroy()
-        {
-            ContractManagement.Destroy();
-            return true;
         }
     }
 }

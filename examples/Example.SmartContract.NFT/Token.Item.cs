@@ -14,25 +14,25 @@ namespace NFT
     public partial class Loot
     {
         private readonly string[] _weapons = {
-        "Warhammer",
-        "Quarterstaff",
-        "Maul",
-        "Mace",
-        "Club",
-        "Katana",
-        "Falchion",
-        "Scimitar",
-        "Long Sword",
-        "Short Sword",
-        "Ghost Wand",
-        "Grave Wand",
-        "Bone Wand",
-        "Wand",
-        "Grimoire",
-        "Chronicle",
-        "Tome",
-        "Book"
-    };
+            "Warhammer",
+            "Quarterstaff",
+            "Maul",
+            "Mace",
+            "Club",
+            "Katana",
+            "Falchion",
+            "Scimitar",
+            "Long Sword",
+            "Short Sword",
+            "Ghost Wand",
+            "Grave Wand",
+            "Bone Wand",
+            "Wand",
+            "Grimoire",
+            "Chronicle",
+            "Tome",
+            "Book"
+        };
 
         private readonly string[] _chestArmor = {
             "Divine Robe",
@@ -89,39 +89,39 @@ namespace NFT
         };
 
         private readonly string[] _footArmor = {
-        "Holy Greaves",
-        "Ornate Greaves",
-        "Greaves",
-        "Chain Boots",
-        "Heavy Boots",
-        "Demonhide Boots",
-        "Dragonskin Boots",
-        "Studded Leather Boots",
-        "Hard Leather Boots",
-        "Leather Boots",
-        "Divine Slippers",
-        "Silk Slippers",
-        "Wool Shoes",
-        "Linen Shoes",
-        "Shoes"
+            "Holy Greaves",
+            "Ornate Greaves",
+            "Greaves",
+            "Chain Boots",
+            "Heavy Boots",
+            "Demonhide Boots",
+            "Dragonskin Boots",
+            "Studded Leather Boots",
+            "Hard Leather Boots",
+            "Leather Boots",
+            "Divine Slippers",
+            "Silk Slippers",
+            "Wool Shoes",
+            "Linen Shoes",
+            "Shoes"
         };
 
         private readonly string[] _handArmor = {
-        "Holy Gauntlets",
-        "Ornate Gauntlets",
-        "Gauntlets",
-        "Chain Gloves",
-        "Heavy Gloves",
-        "Demon's Hands",
-        "Dragonskin Gloves",
-        "Studded Leather Gloves",
-        "Hard Leather Gloves",
-        "Leather Gloves",
-        "Divine Gloves",
-        "Silk Gloves",
-        "Wool Gloves",
-        "Linen Gloves",
-        "Gloves"
+            "Holy Gauntlets",
+            "Ornate Gauntlets",
+            "Gauntlets",
+            "Chain Gloves",
+            "Heavy Gloves",
+            "Demon's Hands",
+            "Dragonskin Gloves",
+            "Studded Leather Gloves",
+            "Hard Leather Gloves",
+            "Leather Gloves",
+            "Divine Gloves",
+            "Silk Gloves",
+            "Wool Gloves",
+            "Linen Gloves",
+            "Gloves"
         };
 
         private readonly string[] _necklaces = {
@@ -131,62 +131,62 @@ namespace NFT
         };
 
         private readonly string[] _rings = {
-        "Gold Ring",
-        "Silver Ring",
-        "Bronze Ring",
-        "Platinum Ring",
-        "Titanium Ring"
-    };
+            "Gold Ring",
+            "Silver Ring",
+            "Bronze Ring",
+            "Platinum Ring",
+            "Titanium Ring"
+        };
 
         private readonly string[] _suffixes = {
-        "of Power",
-        "of Giants",
-        "of Titans",
-        "of Skill",
-        "of Perfection",
-        "of Brilliance",
-        "of Enlightenment",
-        "of Protection",
-        "of Anger",
-        "of Rage",
-        "of Fury",
-        "of Vitriol",
-        "of the Fox",
-        "of Detection",
-        "of Reflection",
-        "of the Twins"
-    };
+            "of Power",
+            "of Giants",
+            "of Titans",
+            "of Skill",
+            "of Perfection",
+            "of Brilliance",
+            "of Enlightenment",
+            "of Protection",
+            "of Anger",
+            "of Rage",
+            "of Fury",
+            "of Vitriol",
+            "of the Fox",
+            "of Detection",
+            "of Reflection",
+            "of the Twins"
+        };
 
         private readonly string[] _namePrefixes = {
-        "Agony", "Apocalypse", "Armageddon", "Beast", "Behemoth", "Blight", "Blood", "Bramble",
-        "Brimstone", "Brood", "Carrion", "Cataclysm", "Chimeric", "Corpse", "Corruption", "Damnation",
-        "Death", "Demon", "Dire", "Dragon", "Dread", "Doom", "Dusk", "Eagle", "Empyrean", "Fate", "Foe",
-        "Gale", "Ghoul", "Gloom", "Glyph", "Golem", "Grim", "Hate", "Havoc", "Honour", "Horror", "Hypnotic",
-        "Kraken", "Loath", "Maelstrom", "Mind", "Miracle", "Morbid", "Oblivion", "Onslaught", "Pain",
-        "Pandemonium", "Phoenix", "Plague", "Rage", "Rapture", "Rune", "Skull", "Sol", "Soul", "Sorrow",
-        "Spirit", "Storm", "Tempest", "Torment", "Vengeance", "Victory", "Viper", "Vortex", "Woe", "Wrath",
-        "Light's", "Shimmering"
-    };
+            "Agony", "Apocalypse", "Armageddon", "Beast", "Behemoth", "Blight", "Blood", "Bramble",
+            "Brimstone", "Brood", "Carrion", "Cataclysm", "Chimeric", "Corpse", "Corruption", "Damnation",
+            "Death", "Demon", "Dire", "Dragon", "Dread", "Doom", "Dusk", "Eagle", "Empyrean", "Fate", "Foe",
+            "Gale", "Ghoul", "Gloom", "Glyph", "Golem", "Grim", "Hate", "Havoc", "Honour", "Horror", "Hypnotic",
+            "Kraken", "Loath", "Maelstrom", "Mind", "Miracle", "Morbid", "Oblivion", "Onslaught", "Pain",
+            "Pandemonium", "Phoenix", "Plague", "Rage", "Rapture", "Rune", "Skull", "Sol", "Soul", "Sorrow",
+            "Spirit", "Storm", "Tempest", "Torment", "Vengeance", "Victory", "Viper", "Vortex", "Woe", "Wrath",
+            "Light's", "Shimmering"
+        };
 
         private readonly string[] _nameSuffixes = {
-        "Bane",
-        "Root",
-        "Bite",
-        "Song",
-        "Roar",
-        "Grasp",
-        "Instrument",
-        "Glow",
-        "Bender",
-        "Shadow",
-        "Whisper",
-        "Shout",
-        "Growl",
-        "Tear",
-        "Peak",
-        "Form",
-        "Sun",
-        "Moon"
-    };
+            "Bane",
+            "Root",
+            "Bite",
+            "Song",
+            "Roar",
+            "Grasp",
+            "Instrument",
+            "Glow",
+            "Bender",
+            "Shadow",
+            "Whisper",
+            "Shout",
+            "Growl",
+            "Tear",
+            "Peak",
+            "Form",
+            "Sun",
+            "Moon"
+        };
     }
 }

@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Json", "neo\src\Neo.Jso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.VM", "neo\src\Neo.VM\Neo.VM.csproj", "{D6D53889-5A10-46A4-BA66-E78B56EC1881}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependency", "Dependency", "{49D5873D-7B38-48A5-B853-85146F032091}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependency", "dependency", "{49D5873D-7B38-48A5-B853-85146F032091}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Testing", "src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj", "{648DCE6F-A0BA-4032-951B-20CF5BBFD998}"
 EndProject
@@ -38,35 +38,35 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Testing.U
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Template.UnitTests", "tests\Neo.SmartContract.Template.UnitTests\Neo.SmartContract.Template.UnitTests.csproj", "{17F45E0B-AB1C-4796-8C99-E5212A5592F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.Extensions", "neo\src\Neo.Extensions\Neo.Extensions.csproj", "{E5EFB018-810D-4297-8921-940FA0B1ED97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Extensions", "neo\src\Neo.Extensions\Neo.Extensions.csproj", "{E5EFB018-810D-4297-8921-940FA0B1ED97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.IO", "neo\src\Neo.IO\Neo.IO.csproj", "{C2B7927F-AAA5-432A-8E76-B5080BD7EFB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.IO", "neo\src\Neo.IO\Neo.IO.csproj", "{C2B7927F-AAA5-432A-8E76-B5080BD7EFB9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{C10F9957-077F-42C8-B350-8607D4899B7E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{C10F9957-077F-42C8-B350-8607D4899B7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.ContractCall", "examples\Example.SmartContract.ContractCall\Example.SmartContract.ContractCall.csproj", "{AE9BF707-FA85-41CB-BE04-3B0AD024329B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.ContractCall", "examples\Example.SmartContract.ContractCall\Example.SmartContract.ContractCall.csproj", "{AE9BF707-FA85-41CB-BE04-3B0AD024329B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Event", "examples\Example.SmartContract.Event\Example.SmartContract.Event.csproj", "{826888EC-9EEF-42DA-A136-048C031D9CAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Event", "examples\Example.SmartContract.Event\Example.SmartContract.Event.csproj", "{826888EC-9EEF-42DA-A136-048C031D9CAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Exception", "examples\Example.SmartContract.Exception\Example.SmartContract.Exception.csproj", "{07936699-8820-4D5B-9B3D-DF3FA944FE1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Exception", "examples\Example.SmartContract.Exception\Example.SmartContract.Exception.csproj", "{07936699-8820-4D5B-9B3D-DF3FA944FE1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.HelloWorld", "examples\Example.SmartContract.HelloWorld\Example.SmartContract.HelloWorld.csproj", "{43617A35-2E3A-43F5-80B3-685ADBF4F908}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.HelloWorld", "examples\Example.SmartContract.HelloWorld\Example.SmartContract.HelloWorld.csproj", "{43617A35-2E3A-43F5-80B3-685ADBF4F908}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Inscription", "examples\Example.SmartContract.Inscription\Example.SmartContract.Inscription.csproj", "{9AF351B8-E3E9-42A7-853A-C98FC159A9E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Inscription", "examples\Example.SmartContract.Inscription\Example.SmartContract.Inscription.csproj", "{9AF351B8-E3E9-42A7-853A-C98FC159A9E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Modifier", "examples\Example.SmartContract.Modifier\Example.SmartContract.Modifier.csproj", "{50E8D694-AC3C-456C-B901-3530E9AFF555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Modifier", "examples\Example.SmartContract.Modifier\Example.SmartContract.Modifier.csproj", "{50E8D694-AC3C-456C-B901-3530E9AFF555}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.NEP17", "examples\Example.SmartContract.NEP17\Example.SmartContract.NEP17.csproj", "{FBDF111C-65C0-45E4-8D25-9BE78C35CDC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.NEP17", "examples\Example.SmartContract.NEP17\Example.SmartContract.NEP17.csproj", "{FBDF111C-65C0-45E4-8D25-9BE78C35CDC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.NFT", "examples\Example.SmartContract.NFT\Example.SmartContract.NFT.csproj", "{051A2A1E-2225-405F-82F6-79E4D5345DF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.NFT", "examples\Example.SmartContract.NFT\Example.SmartContract.NFT.csproj", "{051A2A1E-2225-405F-82F6-79E4D5345DF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Oracle", "examples\Example.SmartContract.Oracle\Example.SmartContract.Oracle.csproj", "{A39DA537-024A-430F-A3BA-034D6E947FA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Oracle", "examples\Example.SmartContract.Oracle\Example.SmartContract.Oracle.csproj", "{A39DA537-024A-430F-A3BA-034D6E947FA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Storage", "examples\Example.SmartContract.Storage\Example.SmartContract.Storage.csproj", "{18A5C205-2102-4F4B-BB76-37660F74709C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Storage", "examples\Example.SmartContract.Storage\Example.SmartContract.Storage.csproj", "{18A5C205-2102-4F4B-BB76-37660F74709C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Transfer", "examples\Example.SmartContract.Transfer\Example.SmartContract.Transfer.csproj", "{5319BE3E-A5E9-4AFF-94D6-A669DA214F24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.Transfer", "examples\Example.SmartContract.Transfer\Example.SmartContract.Transfer.csproj", "{5319BE3E-A5E9-4AFF-94D6-A669DA214F24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.ZKP", "examples\Example.SmartContract.ZKP\Example.SmartContract.ZKP.csproj", "{141AD5BA-1735-4583-93B6-145CF72721E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.ZKP", "examples\Example.SmartContract.ZKP\Example.SmartContract.ZKP.csproj", "{141AD5BA-1735-4583-93B6-145CF72721E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

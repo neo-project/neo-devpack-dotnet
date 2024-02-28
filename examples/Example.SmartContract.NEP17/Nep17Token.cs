@@ -11,12 +11,12 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Interfaces;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
 using System.Numerics;
-using Neo.SmartContract.Framework.Interfaces;
 
 namespace NEP17
 {
