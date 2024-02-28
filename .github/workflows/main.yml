@@ -59,7 +59,8 @@ jobs:
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         --no-build \
-        -l "console;verbosity=normal" \
+        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -l "console;verbosity=detailed" \
         -p:CollectCoverage=true \
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
