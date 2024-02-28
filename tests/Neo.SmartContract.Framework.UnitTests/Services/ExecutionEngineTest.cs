@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Framework.UnitTests.Services.Models;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.Attributes;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
@@ -10,32 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ExecutionEngineTest : TestBase<Contract_ExecutionEngine>
     {
-        public class Transaction
-        {
-            [FieldOrder(0)]
-            public UInt256? Hash { get; set; }
-
-            [FieldOrder(1)]
-            public byte Version { get; set; }
-
-            [FieldOrder(2)]
-            public uint Nonce { get; set; }
-
-            [FieldOrder(3)]
-            public UInt160? Sender { get; set; }
-
-            [FieldOrder(4)]
-            public long SystemFee { get; set; }
-
-            [FieldOrder(5)]
-            public long NetworkFee { get; set; }
-
-            [FieldOrder(6)]
-            public uint ValidUntilBlock { get; set; }
-
-            [FieldOrder(7)]
-            public ByteString? Script { get; set; }
-        }
 
         public ExecutionEngineTest() : base(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest) { }
 
