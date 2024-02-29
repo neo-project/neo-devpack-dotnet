@@ -4,15 +4,16 @@ using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
+using Neo.SmartContract.TestEngine;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
-using Neo.SmartContract.TestEngine;
-using Neo.SmartContract.Framework.UnitTests.Old;
 
-namespace Neo.SmartContract.Framework.UnitTests.Old.Services
+namespace Neo.SmartContract.Framework.UnitTests.Services
 {
+    // TODO: Migrate this UT
+
     [TestClass]
     public class BlockchainTest
     {
