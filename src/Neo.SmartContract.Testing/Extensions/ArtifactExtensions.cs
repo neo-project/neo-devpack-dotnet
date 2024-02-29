@@ -1,7 +1,5 @@
 using Neo.IO;
-using Neo.Json;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;
@@ -58,6 +56,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
+            sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Collections.Generic;");
             sourceCode.WriteLine("using System.ComponentModel;");
             sourceCode.WriteLine("using System.Numerics;");
@@ -180,6 +179,7 @@ namespace Neo.SmartContract.Testing.Extensions
         private static (ContractMethodDescriptor[] methods, (ContractMethodDescriptor getter, ContractMethodDescriptor? setter)[] properties)
             ProcessAbiMethods(ContractMethodDescriptor[] methods)
         {
+            HashSet<string> propertyNames = new();
             List<ContractMethodDescriptor> methodList = new(methods);
             List<(ContractMethodDescriptor, ContractMethodDescriptor?)> properties = new();
 
@@ -199,6 +199,13 @@ namespace Neo.SmartContract.Testing.Extensions
                         u.ReturnType == ContractParameterType.Void
                         ) : null;
 
+                // Avoid property repetition
+
+                var propertyName = GetPropertyName(getter);
+                if (!propertyNames.Add(propertyName)) continue;
+
+                // Add property and remove method
+
                 properties.Add((getter, setter));
                 methodList.Remove(getter);
 
@@ -209,6 +216,11 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             return (methodList.ToArray(), properties.ToArray());
+        }
+
+        private static string GetPropertyName(ContractMethodDescriptor getter)
+        {
+            return TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
         }
 
         /// <summary>
@@ -296,7 +308,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
         {
-            var propertyName = TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
+            var propertyName = GetPropertyName(getter);
             var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
 
             var builder = new StringBuilder();

@@ -61,12 +61,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>Coverage dump</returns>
         public override string Dump(DumpFormat format = DumpFormat.Console)
         {
-            switch (format)
+            return format switch
             {
-                case DumpFormat.Console: return new ConsoleFormat(GetEntries()).Dump();
-                case DumpFormat.Html: return new IntructionHtmlFormat(GetEntries()).Dump();
-                default: throw new NotImplementedException();
-            }
+                DumpFormat.Console => new ConsoleFormat(GetEntries()).Dump(),
+                DumpFormat.Html => new IntructionHtmlFormat(GetEntries()).Dump(),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         /// <summary>
