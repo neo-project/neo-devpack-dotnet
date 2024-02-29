@@ -27,13 +27,13 @@ namespace Neo.SmartContract.Testing
         static TestingApplicationEngine()
         {
             var items = typeof(ApplicationEngine)
-                .GetField("services", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                .GetField("services", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(null) as Dictionary<uint, InteropDescriptor>;
 
             InteropDescriptor descriptor = new()
             {
-                Name = DynamicArgumentSyscall.Name,
-                Handler = typeof(TestingApplicationEngine).GetMethod(nameof(InvokeDynamicArgumentSyscall),
+                Name = TestingSyscall.Name,
+                Handler = typeof(TestingApplicationEngine).GetMethod(nameof(InvokeTestingSyscall),
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
                 FixedPrice = 0,
                 RequiredCallFlags = CallFlags.None,
@@ -48,9 +48,9 @@ namespace Neo.SmartContract.Testing
         public TestEngine Engine { get; }
 
         /// <summary>
-        /// DynamicArgumentSyscall
+        /// Testing syscall
         /// </summary>
-        public DynamicArgumentSyscall? DynamicArgumentSyscall { get; set; } = null;
+        public TestingSyscall? TestingSyscall { get; set; } = null;
 
         /// <summary>
         /// Override CallingScriptHash
@@ -82,9 +82,9 @@ namespace Neo.SmartContract.Testing
             Engine = engine;
         }
 
-        internal void InvokeDynamicArgumentSyscall(int index)
+        internal void InvokeTestingSyscall(int index)
         {
-            Push(DynamicArgumentSyscall?.Invoke(index) ?? StackItem.Null);
+            TestingSyscall?.Invoke(this, index);
         }
 
         protected override void PreExecuteInstruction(Instruction instruction)
