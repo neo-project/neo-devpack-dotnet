@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Testing
         }
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
-                    : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
+            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
         {
             Engine = engine;
         }

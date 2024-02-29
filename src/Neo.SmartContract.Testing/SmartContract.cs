@@ -109,6 +109,14 @@ namespace Neo.SmartContract.Testing
                         script.EmitSysCall(DynamicArgumentSyscall.Hash, dynArgument.Add(() => interop));
                         continue;
                     }
+                    else if (arg is Func<StackItem> onItem)
+                    {
+                        // We create a syscall in order to detect it and push the item
+
+                        dynArgument ??= new DynamicArgumentSyscall();
+                        script.EmitSysCall(DynamicArgumentSyscall.Hash, dynArgument.Add(onItem));
+                        continue;
+                    }
 
                     script.EmitPush(arg);
                 }
