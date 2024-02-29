@@ -1,4 +1,3 @@
-using Akka.Util;
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing.Attributes;
 using Neo.VM.Types;
