@@ -49,17 +49,30 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_VerifySignatureWithMessage()
         {
-            var _key = GenerateKey(32);
+            // secp256r1
+
+            var key = GenerateKey(32);
             var data = Engine.Transaction.GetSignData(ProtocolSettings.Default.Network);
-            var signature = Crypto.Sign(data, _key.PrivateKey, _key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+            var signature = Crypto.Sign(data, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
 
-            // False
+            // Check
 
-            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), _key.PublicKey, signature));
+            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signature));
+            Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, key.PublicKey, signature));
 
-            // True
+            // TODO: secp256k1
 
-            Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, _key.PublicKey, signature));
+            /*
+            // secp256k1
+
+            var pub = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
+            signature = Crypto.Sign(data, key.PrivateKey, pub.EncodePoint(false).Skip(1).ToArray());
+
+            // Check
+
+            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pub, signature));
+            Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pub, signature));
+            */
         }
 
         [TestMethod]
