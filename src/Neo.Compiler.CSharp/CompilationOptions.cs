@@ -32,7 +32,7 @@ namespace Neo.Compiler
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }
         public bool NoInline { get; set; }
-        public byte AddressVersion { get; set; }
+        public byte AddressVersion { get; set; } = 0x35;
         public string? BaseName { get; set; }
 
         private CSharpParseOptions? parseOptions = null;
