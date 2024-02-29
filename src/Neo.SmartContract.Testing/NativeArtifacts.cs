@@ -122,7 +122,7 @@ namespace Neo.SmartContract.Testing
 
                 method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
+                using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)

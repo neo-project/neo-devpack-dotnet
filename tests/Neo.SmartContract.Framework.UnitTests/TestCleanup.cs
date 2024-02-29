@@ -90,7 +90,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
-            if (!File.Exists(artifactsPath) || artifact != File.ReadAllText(artifactsPath))
+            if (!File.Exists(artifactsPath) || artifact.Trim() != File.ReadAllText(artifactsPath).Trim())
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);

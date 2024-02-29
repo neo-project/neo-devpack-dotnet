@@ -1,14 +1,3 @@
-using Moq;
-using Neo.Cryptography.ECC;
-using Neo.IO;
-using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.Coverage;
-using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.Storage;
-using Neo.VM;
-using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,6 +6,19 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Moq;
+using Neo.Cryptography;
+using Neo.Cryptography.ECC;
+using Neo.IO;
+using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
+using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
+using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Storage;
+using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.SmartContract.Testing
 {
@@ -746,5 +748,121 @@ namespace Neo.SmartContract.Testing
                 Scopes = scope,
             };
         }
+
+        #region Add block
+
+        /// <summary>
+        /// Add block to the ledger
+        /// </summary>
+        /// <param name="elapsed">Elapsed</param>
+        /// <param name="nonce">Nonce</param>
+        /// <returns>Block added</returns>
+        public Block AddBlock(TimeSpan elapsed, ulong nonce = 0)
+        {
+            return AddBlock(System.Array.Empty<Transaction>(), System.Array.Empty<VMState>(), elapsed, nonce);
+        }
+
+        /// <summary>
+        /// Add block to the ledger
+        /// </summary>
+        /// <param name="tx">Transaction</param>
+        /// <param name="elapsed">Elapsed</param>
+        /// <param name="state">State</param>
+        /// <param name="nonce">Nonce</param>
+        /// <returns>Block added</returns>
+        public Block AddBlock(Transaction tx, TimeSpan elapsed, VMState state = VMState.HALT, ulong nonce = 0)
+        {
+            return AddBlock(new[] { tx }, new[] { state }, elapsed, nonce);
+        }
+
+        /// <summary>
+        /// Add blok to the ledger
+        /// </summary>
+        /// <param name="txs">Transactions</param>
+        /// <param name="states">States</param>
+        /// <param name="elapsed">Elapsed</param>
+        /// <param name="nonce">Nonce</param>
+        /// <returns>Block added</returns>
+        public Block AddBlock(Transaction[] txs, VMState[] states, TimeSpan elapsed, ulong nonce = 0)
+        {
+            if (txs.Length != states.Length)
+            {
+                throw new ArgumentException("Transactions count and states count are different");
+            }
+
+            var previous = Native.Ledger.GetBlock(Native.Ledger.CurrentHash.ToArray())!;
+
+            Block block = new()
+            {
+                Header = new Header()
+                {
+                    Version = previous.Version,
+                    Index = previous.Index + 1,
+                    MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray()),
+                    NextConsensus = previous.NextConsensus,
+                    Nonce = nonce,
+                    PrevHash = previous.Hash,
+                    PrimaryIndex = previous.PrimaryIndex,
+                    Timestamp = previous.Timestamp + (ulong)elapsed.TotalMilliseconds,
+                    Witness = new Witness()
+                    {
+                        InvocationScript = System.Array.Empty<byte>(),
+                        VerificationScript = System.Array.Empty<byte>(),
+                    }
+                },
+                Transactions = txs
+            };
+
+            // Invoke Ledger.OnPersist
+
+            var native = NativeContract.Ledger;
+            var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            DataCache clonedSnapshot = Storage.Snapshot.CreateSnapshot();
+
+            using (var engine = new TestingApplicationEngine(this, TriggerType.OnPersist, block, clonedSnapshot, block))
+            {
+                engine.LoadScript(System.Array.Empty<byte>());
+                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                    throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
+
+                task.GetAwaiter().GetResult();
+
+                if (engine.Execute() != VMState.HALT)
+                    throw new Exception($"Error executing {native.Name}.OnPersist");
+            }
+
+            // Invoke Ledger.PostPersist
+
+            method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            using (var engine = new TestingApplicationEngine(this, TriggerType.PostPersist, block, clonedSnapshot, block))
+            {
+                engine.LoadScript(System.Array.Empty<byte>());
+                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                    throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
+
+                task.GetAwaiter().GetResult();
+                if (engine.Execute() != VMState.HALT)
+                    throw new Exception($"Error executing {native.Name}.PostPersist");
+            }
+
+            // Update states
+
+            const byte prefix_Transaction = 11;
+
+            for (int x = 0; x < txs.Length; x++)
+            {
+                var transactionState = clonedSnapshot.TryGet(new KeyBuilder(Native.Ledger.Storage.Id, prefix_Transaction).Add(txs[x].Hash));
+                transactionState.GetInteroperable<TransactionState>().State = states[x];
+            }
+
+            // Commit changes and return block
+
+            clonedSnapshot.Commit();
+            return block;
+        }
+
+        #endregion
     }
 }

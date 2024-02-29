@@ -1,28 +1,12 @@
-using Neo.Cryptography.ECC;
-using Neo.SmartContract.Iterators;
-using Neo.SmartContract.Testing.Attributes;
 using System.ComponentModel;
 using System.Numerics;
+using Neo.Cryptography.ECC;
+using Neo.SmartContract.Iterators;
 
 namespace Neo.SmartContract.Testing.Native;
 
 public abstract class NeoToken : SmartContract
 {
-    public class Candidate
-    {
-        /// <summary>
-        /// Public key
-        /// </summary>
-        [FieldOrder(0)]
-        public ECPoint? PublicKey { get; set; }
-
-        /// <summary>
-        /// Votes
-        /// </summary>
-        [FieldOrder(1)]
-        public BigInteger Votes { get; set; }
-    }
-
     #region Events
 
     public delegate void delCandidateStateChanged(ECPoint pubkey, bool registered, BigInteger votes);
@@ -54,7 +38,7 @@ public abstract class NeoToken : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract Candidate[] Candidates { [DisplayName("getCandidates")] get; }
+    public abstract Models.Candidate[] Candidates { [DisplayName("getCandidates")] get; }
 
     /// <summary>
     /// Safe property

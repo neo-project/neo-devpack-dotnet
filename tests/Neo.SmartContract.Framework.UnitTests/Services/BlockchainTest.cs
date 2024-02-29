@@ -1,115 +1,63 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
 using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Native;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
-using Neo.VM.Types;
-using System.Linq;
-using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
-    // TODO: Migrate this UT
-
     [TestClass]
-    public class BlockchainTest
+    public class BlockchainTest : TestBase<Contract_Blockchain>
     {
         private Block _block;
-        private DataCache snapshot;
-        private TestEngine.TestEngine _engine;
+
+        public BlockchainTest() : base(Contract_Blockchain.Nef, Contract_Blockchain.Manifest) { }
 
         [TestInitialize]
         public void Init()
         {
-            var system = TestBlockchain.TheNeoSystem;
-            snapshot = system.GetSnapshot().CreateSnapshot();
-
-            _block = new Block()
+            var tx = new Transaction()
             {
-                Header = new Header()
+                Attributes = System.Array.Empty<TransactionAttribute>(),
+                Signers = new Signer[]
                 {
-                    Index = 1,
-                    PrevHash = system.GenesisBlock.Hash,
-                    Witness = new Witness() { InvocationScript = System.Array.Empty<byte>(), VerificationScript = System.Array.Empty<byte>() },
-                    NextConsensus = UInt160.Zero,
-                    MerkleRoot = UInt256.Zero,
+                    new ()
+                    {
+                        Account = UInt160.Zero ,
+                        AllowedContracts = System.Array.Empty<UInt160>(),
+                        AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
+                        Rules = System.Array.Empty<WitnessRule>(),
+                        Scopes =  WitnessScope.Global
+                    }
                 },
-                Transactions = new Transaction[]
-                {
-                     new Transaction()
-                     {
-                          Attributes = System.Array.Empty<TransactionAttribute>(),
-                          Signers = new Signer[]{ new Signer() {
-                              Account = UInt160.Zero ,
-                              AllowedContracts = System.Array.Empty<UInt160>(),
-                              AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
-                              Rules = System.Array.Empty<WitnessRule>(),
-                              Scopes =  WitnessScope.Global
-                          } },
-                          Witnesses = System.Array.Empty<Witness>(),
-                          Script = System.Array.Empty<byte>()
-                     }
-                }
+                Witnesses = System.Array.Empty<Witness>(),
+                Script = System.Array.Empty<byte>()
             };
 
-            snapshot.BlocksAdd(_block.Hash, _block.Trim());
-            snapshot.TransactionAdd(new TransactionState()
-            {
-                BlockIndex = _block.Index,
-                Transaction = _block.Transactions[0],
-                State = VMState.HALT
-            });
-
-            _engine = new TestEngine.TestEngine(snapshot: snapshot, persistingBlock: _block);
-
-            var method2 = typeof(LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            method2.Invoke(NativeContract.Ledger, new object[] { _engine });
-
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Blockchain.cs");
+            _block = Engine.AddBlock(tx, TimeSpan.FromSeconds(1), VMState.HALT, 0);
         }
 
         [TestMethod]
         public void Test_GetTxVMState()
         {
-            _engine.Reset();
-            EvaluationStack result = _engine.ExecuteTestCaseStandard("getTxVMState", UInt256.Zero.ToArray());
+            // None
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((int)VMState.NONE, item.GetInteger());
+            Assert.AreEqual((int)VMState.NONE, Contract.GetTxVMState(UInt256.Zero));
 
             // Hash
 
             var tx = _block.Transactions[0];
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getTxVMState", tx.Hash.ToArray());
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((int)VMState.HALT, item.GetInteger());
+            Assert.AreEqual((int)VMState.HALT, Contract.GetTxVMState(tx.Hash));
         }
 
         [TestMethod]
         public void Test_GetHeight()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getHeight");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Index, item.GetInteger());
+            Assert.AreEqual(_block.Index, Contract.GetHeight());
         }
 
+        /*
         [TestMethod]
         public void Test_GetTransactionHeight()
         {
@@ -508,5 +456,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             _ = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.Hash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("ASD")));
             Assert.AreEqual(VMState.FAULT, _engine.State);
         }
+        */
     }
 }

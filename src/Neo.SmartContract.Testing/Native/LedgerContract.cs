@@ -1,8 +1,7 @@
-using Neo.Network.P2P.Payloads;
-using Neo.SmartContract.Native;
-using Neo.VM;
 using System.ComponentModel;
 using System.Numerics;
+using Neo.Network.P2P.Payloads;
+using Neo.VM;
 
 namespace Neo.SmartContract.Testing.Native;
 
@@ -28,13 +27,13 @@ public abstract class LedgerContract : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getBlock")]
-    public abstract TrimmedBlock? GetBlock(byte[]? indexOrHash);
+    public abstract Models.Block? GetBlock(byte[]? indexOrHash);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getTransaction")]
-    public abstract Transaction? GetTransaction(UInt256? hash);
+    public abstract Models.Block? GetTransaction(UInt256? hash);
 
     /// <summary>
     /// Safe method

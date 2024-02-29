@@ -33,8 +33,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsTrue(Contract.NEO_RegisterCandidate(pubKey));
             // After RegisterCandidate
             Assert.AreEqual(1, Contract.NEO_GetCandidates()?.Count);
-            Assert.AreEqual(pubKey, ((Testing.Native.NeoToken.Candidate)Contract.NEO_GetCandidates()?
-                .Cast<StackItem>().First().ConvertTo(typeof(Testing.Native.NeoToken.Candidate))!).PublicKey);
+            Assert.AreEqual(pubKey, ((Testing.Native.Models.Candidate)Contract.NEO_GetCandidates()?
+                .Cast<StackItem>().First().ConvertTo(typeof(Testing.Native.Models.Candidate))!).PublicKey);
         }
 
         [TestMethod]
