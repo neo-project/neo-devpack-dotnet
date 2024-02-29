@@ -1,4 +1,3 @@
-using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography.ECC;
 using Neo.IO;
@@ -6,6 +5,7 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native.Models;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Numerics;
 
 namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
 {

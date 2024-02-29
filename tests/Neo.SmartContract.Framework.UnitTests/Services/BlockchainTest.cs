@@ -1,9 +1,9 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
+using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {

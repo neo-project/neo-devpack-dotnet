@@ -1,11 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 using Moq;
 using Neo.Cryptography;
 using Neo.Cryptography.ECC;
@@ -19,6 +11,14 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
 
 namespace Neo.SmartContract.Testing
 {
