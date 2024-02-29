@@ -55,6 +55,20 @@ namespace Neo.SmartContract.Testing
 
             using ScriptBuilder script = new();
 
+            ConvertArgs(script, args);
+
+            script.EmitPush(Engine.CallFlags);
+            script.EmitPush(methodName);
+            script.EmitPush(Hash);
+            script.EmitSysCall(ApplicationEngine.System_Contract_Call);
+
+            // Execute
+
+            return Engine.Execute(script.ToArray());
+        }
+
+        private void ConvertArgs(ScriptBuilder script, object[] args)
+        {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
             else
@@ -62,6 +76,11 @@ namespace Neo.SmartContract.Testing
                 for (int i = args.Length - 1; i >= 0; i--)
                 {
                     var arg = args[i];
+                    if (arg is object[] arg2)
+                    {
+                        ConvertArgs(script, arg2);
+                        break;
+                    }
 
                     if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidLength) ||
                         ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidLength))
@@ -79,15 +98,6 @@ namespace Neo.SmartContract.Testing
                 script.EmitPush(args.Length);
                 script.Emit(OpCode.PACK);
             }
-
-            script.EmitPush(CallFlags.All);
-            script.EmitPush(methodName);
-            script.EmitPush(Hash);
-            script.EmitSysCall(ApplicationEngine.System_Contract_Call);
-
-            // Execute
-
-            return Engine.Execute(script.ToArray());
         }
 
         /// <summary>

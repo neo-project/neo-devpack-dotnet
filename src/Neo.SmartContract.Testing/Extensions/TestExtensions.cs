@@ -1,4 +1,3 @@
-using Akka.Util;
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing.Attributes;
 using Neo.VM.Types;
@@ -50,6 +49,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             return type switch
             {
+                _ when type == stackItem.GetType() => stackItem,
                 _ when type == typeof(object) => stackItem,
                 _ when type == typeof(string) => Utility.StrictUTF8.GetString(stackItem.GetSpan()),
                 _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),

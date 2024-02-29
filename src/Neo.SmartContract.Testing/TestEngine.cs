@@ -173,6 +173,11 @@ namespace Neo.SmartContract.Testing
         public UInt160 Sender => Transaction.Sender;
 
         /// <summary>
+        /// Call flags
+        /// </summary>
+        public CallFlags CallFlags { get; set; } = CallFlags.All;
+
+        /// <summary>
         /// Native artifacts
         /// </summary>
         public NativeArtifacts Native
