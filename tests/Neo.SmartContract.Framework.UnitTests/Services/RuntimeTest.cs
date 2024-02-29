@@ -5,7 +5,6 @@ using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
 using System.Numerics;
-using Transaction = Neo.SmartContract.Framework.UnitTests.Services.Models.Transaction;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -229,7 +228,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_GetTransaction()
         {
-            var tx = (Transaction)(Contract.GetTransaction() as StackItem)!.ConvertTo(typeof(Transaction))!;
+            var tx = (Testing.Native.Models.Transaction)(Contract.GetTransaction() as StackItem)!.ConvertTo(typeof(Testing.Native.Models.Transaction))!;
 
             Assert.AreEqual(Engine.Transaction.Nonce, tx.Nonce);
             Assert.AreEqual(Engine.Transaction.NetworkFee, tx.NetworkFee);

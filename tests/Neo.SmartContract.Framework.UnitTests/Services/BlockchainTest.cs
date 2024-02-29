@@ -1,9 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
+using Neo.VM.Types;
 using System;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -57,405 +61,191 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(_block.Index, Contract.GetHeight());
         }
 
-        /*
         [TestMethod]
         public void Test_GetTransactionHeight()
         {
             // Not found
 
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getTransactionHeight", new ByteString(UInt256.Zero.ToArray()));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.MinusOne, item.GetInteger());
+            Assert.AreEqual(BigInteger.MinusOne, Contract.GetTransactionHeight(UInt256.Zero));
 
             // Found
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getTransactionHeight", new ByteString(_block.Transactions[0].Hash.ToArray()));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Index, item.GetInteger());
+            Assert.AreEqual(_block.Index, Contract.GetTransactionHeight(_block.Transactions[0].Hash));
         }
 
         [TestMethod]
         public void Test_GetBlockByHash()
         {
-            Test_GetBlock("getBlockByHash", new ByteString(_block.Hash.ToArray()), new ByteString(UInt256.Parse("0x0000000000000000000000000000000000000000000000000000000000000001").ToArray()));
+            Test_GetBlock(Contract.GetBlockByHash, _block.Hash, UInt256.Parse("0x0000000000000000000000000000000000000000000000000000000000000001"));
+        }
+
+        [TestMethod]
+        public void Test_GetBlockByIndex()
+        {
+            Test_GetBlock((a, b) => Contract.GetBlockByIndex(a, b), new BigInteger(_block.Index), new BigInteger(_block.Index + 100));
+        }
+
+        public void Test_GetBlock<T>(Func<T?, string?, object?> method, T foundArg, T notFoundArg)
+        {
+            // Not found
+
+            Assert.IsNull(method(notFoundArg, ""));
+
+            // Hash
+
+            CollectionAssert.AreEqual(_block.Hash.ToArray(), (method(foundArg, "Hash") as StackItem)!.GetSpan().ToArray());
+
+            // Index
+
+            Assert.AreEqual(_block.Index, (method(foundArg, "Index") as StackItem)!.GetInteger());
+
+            // MerkleRoot
+
+            CollectionAssert.AreEqual(_block.MerkleRoot.ToArray(), (method(foundArg, "MerkleRoot") as StackItem)!.GetSpan().ToArray());
+
+            // NextConsensus
+
+            CollectionAssert.AreEqual(_block.NextConsensus.ToArray(), (method(foundArg, "NextConsensus") as StackItem)!.GetSpan().ToArray());
+
+            // PrevHash
+
+            CollectionAssert.AreEqual(_block.PrevHash.ToArray(), (method(foundArg, "PrevHash") as StackItem)!.GetSpan().ToArray());
+
+            // Timestamp
+
+            Assert.AreEqual(_block.Timestamp, (method(foundArg, "Timestamp") as StackItem)!.GetInteger());
+
+            // TransactionsCount
+
+            Assert.AreEqual(_block.Transactions.Length, (method(foundArg, "TransactionsCount") as StackItem)!.GetInteger());
+
+            // Version
+
+            Assert.AreEqual(_block.Version, (method(foundArg, "Version") as StackItem)!.GetInteger());
+
+            // Uknown property
+
+            Assert.ThrowsException<VMUnhandledException>(() => method(foundArg, "¿...?"));
         }
 
         [TestMethod]
         public void Test_GetTxByHash()
         {
-            Test_GetTransaction("getTxByHash", new StackItem[] { new ByteString(_block.Transactions[0].Hash.ToArray()) },
-                new StackItem[] { new ByteString(UInt256.Zero.ToArray()) },
+            Test_GetTransaction(
+                a => Contract.GetTxByHash(_block.Transactions[0].Hash, a),
+                a => Contract.GetTxByHash(UInt256.Zero, a),
                 true);
         }
 
         [TestMethod]
         public void Test_GetTxByBlockIndex()
         {
-            Test_GetTransaction("getTxByBlockIndex", new StackItem[] {
-                new Integer(_block.Index), new Integer(0) },
-                new StackItem[] { new Integer(_block.Index), new Integer(_block.Transactions.Length + 1) },
+            Test_GetTransaction(
+                a => Contract.GetTxByBlockIndex(_block.Index, 0, a),
+                a => Contract.GetTxByBlockIndex(_block.Index, _block.Transactions.Length + 1, a),
                 false);
         }
 
         [TestMethod]
         public void Test_GetTxByBlockHash()
         {
-            Test_GetTransaction("getTxByBlockHash", new StackItem[] {
-                new ByteString(_block.Hash.ToArray()), new Integer(0) },
-                new StackItem[] { new ByteString(_block.Hash.ToArray()), new Integer(_block.Transactions.Length + 1) },
-                false);
+            Test_GetTransaction(
+               a => Contract.GetTxByBlockHash(_block.Hash, 0, a),
+               a => Contract.GetTxByBlockHash(_block.Hash, _block.Transactions.Length + 1, a),
+               false);
         }
 
-        public void Test_GetTransaction(string method, StackItem[] foundArgs, StackItem[] notFoundArgs, bool expectedNullAsNotFound)
+        public void Test_GetTransaction(Func<string, object?> found, Func<string, object?> notFoundArg, bool expectedNullAsNotFound)
         {
             // Not found
 
-            _engine.Reset();
-            EvaluationStack result = _engine.ExecuteTestCaseStandard(method, Concat(notFoundArgs, new ByteString(System.Array.Empty<byte>())));
-
             if (expectedNullAsNotFound)
             {
-                Assert.AreEqual(VMState.HALT, _engine.State);
-                Assert.AreEqual(1, result.Count);
-                Assert.IsInstanceOfType(result.Pop(), typeof(Null));
+                Assert.IsNull(notFoundArg(""));
             }
             else
             {
-                Assert.AreEqual(VMState.FAULT, _engine.State);
-                Assert.AreEqual(0, result.Count);
+                Assert.ThrowsException<VMUnhandledException>(() => found(""));
             }
 
             var tx = _block.Transactions[0];
 
             // Hash
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Hash"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(tx.Hash.ToArray(), item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(tx.Hash.ToArray(), (found("Hash") as StackItem)!.GetSpan().ToArray());
 
             // NetworkFee
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("NetworkFee"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.NetworkFee, item.GetInteger());
+            Assert.AreEqual(tx.NetworkFee, (found("NetworkFee") as StackItem)!.GetInteger());
 
             // Nonce
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Nonce"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.Nonce, item.GetInteger());
+            Assert.AreEqual(tx.Nonce, (found("Nonce") as StackItem)!.GetInteger());
 
             // SystemFee
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("SystemFee"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.SystemFee, item.GetInteger());
+            Assert.AreEqual(tx.SystemFee, (found("SystemFee") as StackItem)!.GetInteger());
 
             // ValidUntilBlock
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("ValidUntilBlock"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.ValidUntilBlock, item.GetInteger());
+            Assert.AreEqual(tx.ValidUntilBlock, (found("ValidUntilBlock") as StackItem)!.GetInteger());
 
             // Version
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Version"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(tx.Version, item.GetInteger());
+            Assert.AreEqual(tx.Version, (found("Version") as StackItem)!.GetInteger());
 
             // Script
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Script"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(tx.Script.ToArray(), item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(tx.Script.ToArray(), (found("Script") as StackItem)!.GetSpan().ToArray());
 
             // Sender
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Sender"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(tx.Sender.ToArray(), item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(tx.Sender.ToArray(), (found("Sender") as StackItem)!.GetSpan().ToArray());
 
             // Signers
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("Signers"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            var item = found("Signers") as VM.Types.Array;
+            Assert.IsNotNull(item);
 
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(1, (item as Array).Count);
-            Assert.AreEqual(5, ((item as Array)[0] as Array).Count);
+            Assert.AreEqual(1, item.Count);
+            Assert.AreEqual(5, (item[0] as VM.Types.Array)!.Count);
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, Concat(foundArgs, new ByteString(Utility.StrictUTF8.GetBytes("FirstScope"))));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            // First scope
 
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((int)WitnessScope.Global, item.GetInteger());
-        }
-
-        private static StackItem[] Concat(StackItem[] a, ByteString b)
-        {
-            return a.Concat(new StackItem[] { b }).ToArray();
-        }
-
-        [TestMethod]
-        public void Test_GetBlockByIndex()
-        {
-            Test_GetBlock("getBlockByIndex", new Integer(_block.Index), new Integer(_block.Index + 100));
-        }
-
-        public void Test_GetBlock(string method, StackItem foundArg, StackItem notFoundArg)
-        {
-            // Not found
-
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard(method, notFoundArg, new ByteString(System.Array.Empty<byte>()));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
-
-            // Hash
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Hash")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(_block.Hash.ToArray(), item.GetSpan().ToArray());
-
-            // Index
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Index")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Index, item.GetInteger());
-
-            // MerkleRoot
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("MerkleRoot")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(_block.MerkleRoot.ToArray(), item.GetSpan().ToArray());
-
-            // NextConsensus
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("NextConsensus")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(_block.NextConsensus.ToArray(), item.GetSpan().ToArray());
-
-            // PrevHash
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("PrevHash")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(_block.PrevHash.ToArray(), item.GetSpan().ToArray());
-
-            // Timestamp
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Timestamp")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Timestamp, item.GetInteger());
-
-            // TransactionsCount
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("TransactionsCount")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Transactions.Length, item.GetInteger());
-
-            // Version
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("Version")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(_block.Version, item.GetInteger());
-
-            // Uknown property
-
-            _engine.Reset();
-            _ = _engine.ExecuteTestCaseStandard(method, foundArg, new ByteString(Utility.StrictUTF8.GetBytes("ASD")));
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.AreEqual((int)WitnessScope.Global, (found("FirstScope") as StackItem)!.GetInteger());
         }
 
         [TestMethod]
         public void GetContract()
         {
-            var contract = new ContractState()
-            {
-                Hash = new byte[] { 0x01, 0x02, 0x03 }.ToScriptHash(),
-                Nef = new NefFile()
-                {
-                    Script = new byte[] { 0x01, 0x02, 0x03 },
-                    Compiler = "neon-test",
-                    Source = string.Empty,
-                    Tokens = System.Array.Empty<MethodToken>()
-                },
-                Manifest = new ContractManifest()
-                {
-                    Name = "Name",
-                    SupportedStandards = System.Array.Empty<string>(),
-                    Groups = System.Array.Empty<ContractGroup>(),
-                    Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
-                    Permissions = System.Array.Empty<ContractPermission>(),
-                    Abi = new ContractAbi()
-                    {
-                        Methods = System.Array.Empty<ContractMethodDescriptor>(),
-                        Events = System.Array.Empty<ContractEventDescriptor>(),
-                    },
-                }
-            };
-            snapshot.ContractAdd(contract);
-
             // Not found
 
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(UInt160.Zero.ToArray()), new ByteString(new byte[20]));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
+            Assert.IsNull(Contract.GetContract(UInt160.Zero, ""));
 
             // Found + Manifest
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.Hash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("Manifest")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            var item = Contract.GetContract(Contract.Hash, "Manifest") as Struct;
+            Assert.IsNotNull(item);
 
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Struct));
             var ritem = new ContractManifest();
             ((IInteroperable)ritem).FromStackItem(item);
-            Assert.AreEqual(contract.Manifest.ToString(), ritem.ToString());
+            Assert.AreEqual(Contract_Blockchain.Manifest.ToJson().ToString(), ritem.ToJson().ToString());
 
             // Found + UpdateCounter
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.Hash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("UpdateCounter")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
+            Assert.AreEqual(0, ((StackItem)Contract.GetContract(Contract.Hash, "UpdateCounter")!).GetInteger());
 
             // Found + Id
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.Hash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("Id")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
+            Assert.AreEqual(1, ((StackItem)Contract.GetContract(Contract.Hash, "Id")!).GetInteger());
 
             // Found + Hash
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.Hash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("Hash")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            CollectionAssert.AreEqual(contract.Hash.ToArray(), item.GetSpan().ToArray());
+            CollectionAssert.AreEqual(Contract.Hash.ToArray(), (Contract.GetContract(Contract.Hash, "Hash") as StackItem)!.GetSpan().ToArray());
 
             // Found + Uknown property
 
-            _engine.Reset();
-            _ = _engine.ExecuteTestCaseStandard("getContract", new ByteString(contract.Hash.ToArray()), new ByteString(Utility.StrictUTF8.GetBytes("ASD")));
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
         }
-        */
     }
 }

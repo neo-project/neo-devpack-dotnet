@@ -39,7 +39,7 @@ public abstract class LedgerContract : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getTransactionFromBlock")]
-    public abstract Transaction? GetTransactionFromBlock(byte[]? blockIndexOrHash, BigInteger? txIndex);
+    public abstract Models.Transaction? GetTransactionFromBlock(byte[]? blockIndexOrHash, BigInteger? txIndex);
 
     /// <summary>
     /// Safe method

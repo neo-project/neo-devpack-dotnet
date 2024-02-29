@@ -1,6 +1,6 @@
 using Neo.SmartContract.Testing.Attributes;
 
-namespace Neo.SmartContract.Framework.UnitTests.Services.Models
+namespace Neo.SmartContract.Testing.Native.Models
 {
     public class Transaction
     {

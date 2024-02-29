@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Framework.UnitTests.Services.Models;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -10,7 +9,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ExecutionEngineTest : TestBase<Contract_ExecutionEngine>
     {
-
         public ExecutionEngineTest() : base(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest) { }
 
         [TestMethod]
@@ -37,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void ScriptContainerTest()
         {
             var item = Contract.ScriptContainer() as StackItem;
-            var tx = item?.ConvertTo(typeof(Transaction)) as Transaction;
+            var tx = item?.ConvertTo(typeof(Testing.Native.Models.Transaction)) as Testing.Native.Models.Transaction;
 
             Assert.AreEqual(Engine.Transaction.Hash.ToString(), tx?.Hash?.ToString());
         }
@@ -46,7 +44,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void TransactionTest()
         {
             var item = Contract.Transaction() as StackItem;
-            var tx = item?.ConvertTo(typeof(Transaction)) as Transaction;
+            var tx = item?.ConvertTo(typeof(Testing.Native.Models.Transaction)) as Testing.Native.Models.Transaction;
 
             Assert.AreEqual(Engine.Transaction.Hash.ToString(), tx?.Hash?.ToString());
         }
