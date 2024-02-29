@@ -1,11 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography;
+using Neo.IO;
 using Neo.Network.P2P;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.Wallets;
+using Org.BouncyCastle.Crypto;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -60,19 +63,26 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signature));
             Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, key.PublicKey, signature));
 
-            // TODO: secp256k1
-
-            /*
             // secp256k1
 
-            var pub = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
-            signature = Crypto.Sign(data, key.PrivateKey, pub.EncodePoint(false).Skip(1).ToArray());
+            var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
+            var pubKeyData = pubkey.EncodePoint(false).Skip(1).ToArray();
+            var ecdsa = ECDsa.Create(new ECParameters
+            {
+                Curve = ECCurve.CreateFromFriendlyName("secP256k1"),
+                D = key.PrivateKey,
+                Q = new ECPoint
+                {
+                    X = pubKeyData[..32],
+                    Y = pubKeyData[32..]
+                }
+            });
+            signature = ecdsa.SignData(data, HashAlgorithmName.SHA256);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pub, signature));
-            Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pub, signature));
-            */
+            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pubkey, signature));
         }
 
         [TestMethod]
