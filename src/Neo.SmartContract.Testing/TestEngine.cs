@@ -683,6 +683,20 @@ namespace Neo.SmartContract.Testing
         /// Set Transaction Signers using CalledByEntry
         /// </summary>
         /// <param name="signers">Signers</param>
+        public void SetTransactionSigners(params ECPoint[] signers)
+        {
+            Transaction.Signers = signers.Select(pubkey => new Signer()
+            {
+                Account = Contract.CreateSignatureRedeemScript(pubkey).ToScriptHash(),
+                Scopes = WitnessScope.CalledByEntry
+            })
+            .ToArray();
+        }
+
+        /// <summary>
+        /// Set Transaction Signers using CalledByEntry
+        /// </summary>
+        /// <param name="signers">Signers</param>
         public void SetTransactionSigners(params UInt160[] signers)
         {
             Transaction.Signers = signers.Select(u => new Signer() { Account = u, Scopes = WitnessScope.CalledByEntry }).ToArray();
