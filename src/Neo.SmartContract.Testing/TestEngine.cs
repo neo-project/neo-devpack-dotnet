@@ -211,9 +211,13 @@ namespace Neo.SmartContract.Testing
 
             Transaction = new Transaction()
             {
+                Version = 0,
                 Attributes = System.Array.Empty<TransactionAttribute>(),
                 Script = System.Array.Empty<byte>(),
                 NetworkFee = ApplicationEngine.TestModeGas,
+                SystemFee = 0,
+                ValidUntilBlock = 0,
+                Nonce = 0x01020304,
                 Signers = new Signer[]
                 {
                     new()
@@ -659,6 +663,14 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Clear Transaction Signers
+        /// </summary>
+        public void SetTransactionSigners()
+        {
+            Transaction.Signers = System.Array.Empty<Signer>();
+        }
+
+        /// <summary>
         /// Set Transaction signers
         /// </summary>
         /// <param name="signers">Signers</param>
@@ -674,14 +686,6 @@ namespace Neo.SmartContract.Testing
         public void SetTransactionSigners(params UInt160[] signers)
         {
             Transaction.Signers = signers.Select(u => new Signer() { Account = u, Scopes = WitnessScope.CalledByEntry }).ToArray();
-        }
-
-        /// <summary>
-        /// Clear Transaction Signers
-        /// </summary>
-        public void SetTransactionSigners()
-        {
-            Transaction.Signers = System.Array.Empty<Signer>();
         }
 
         /// <summary>
