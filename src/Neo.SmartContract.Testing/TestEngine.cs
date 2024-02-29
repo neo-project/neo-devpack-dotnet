@@ -211,9 +211,13 @@ namespace Neo.SmartContract.Testing
 
             Transaction = new Transaction()
             {
+                Version = 0,
                 Attributes = System.Array.Empty<TransactionAttribute>(),
                 Script = System.Array.Empty<byte>(),
                 NetworkFee = ApplicationEngine.TestModeGas,
+                SystemFee = 0,
+                ValidUntilBlock = 0,
+                Nonce = 0x01020304,
                 Signers = new Signer[]
                 {
                     new()
@@ -526,8 +530,10 @@ namespace Neo.SmartContract.Testing
         /// Execute raw script
         /// </summary>
         /// <param name="script">Script</param>
+        /// <param name="initialPosition">Initial position (default=0)</param>
+        /// <param name="beforeExecute">Before execute</param>
         /// <returns>StackItem</returns>
-        public StackItem Execute(Script script)
+        public StackItem Execute(Script script, int initialPosition = 0, Action<ApplicationEngine>? beforeExecute = null)
         {
             // Store the script in current transaction
 
@@ -539,7 +545,7 @@ namespace Neo.SmartContract.Testing
 
             using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, CurrentBlock);
 
-            engine.LoadScript(script);
+            engine.LoadScript(script, initialPosition: initialPosition);
 
             // Clean events, if we Execute inside and execute
             // becaus it's a mock, we can register twice
@@ -554,6 +560,7 @@ namespace Neo.SmartContract.Testing
 
             // Execute
 
+            beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
 
             // Detach to static event
@@ -659,12 +666,44 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Clear Transaction Signers
+        /// </summary>
+        public void SetTransactionSigners()
+        {
+            Transaction.Signers = System.Array.Empty<Signer>();
+        }
+
+        /// <summary>
         /// Set Transaction signers
         /// </summary>
         /// <param name="signers">Signers</param>
         public void SetTransactionSigners(params Signer[] signers)
         {
             Transaction.Signers = signers;
+        }
+
+        /// <summary>
+        /// Set Transaction Signers using CalledByEntry
+        /// </summary>
+        /// <param name="signers">Signers</param>
+        public void SetTransactionSigners(params ECPoint[] signers)
+        {
+            SetTransactionSigners(WitnessScope.CalledByEntry, signers);
+        }
+
+        /// <summary>
+        /// Set Transaction Signers
+        /// </summary>
+        /// <param name="scope">Scope</param>
+        /// <param name="signers">Signers</param>
+        public void SetTransactionSigners(WitnessScope scope, params ECPoint[] signers)
+        {
+            Transaction.Signers = signers.Select(pubkey => new Signer()
+            {
+                Account = Contract.CreateSignatureRedeemScript(pubkey).ToScriptHash(),
+                Scopes = scope
+            })
+            .ToArray();
         }
 
         /// <summary>

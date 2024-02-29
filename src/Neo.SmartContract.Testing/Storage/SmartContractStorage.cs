@@ -11,6 +11,11 @@ namespace Neo.SmartContract.Testing.Storage
         private int? _contractId;
 
         /// <summary>
+        /// Storage Id
+        /// </summary>
+        public int Id => GetContractId();
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="smartContract">Smart Contract</param>
