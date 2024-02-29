@@ -6,6 +6,7 @@ using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using System.Collections.Generic;
 
 namespace Neo.SmartContract.Testing
 {
@@ -21,9 +22,35 @@ namespace Neo.SmartContract.Testing
         private bool? BranchPath;
 
         /// <summary>
+        /// Register dynamic argument syscall
+        /// </summary>
+        static TestingApplicationEngine()
+        {
+            var items = typeof(ApplicationEngine)
+                .GetField("services", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                .GetValue(null) as Dictionary<uint, InteropDescriptor>;
+
+            InteropDescriptor descriptor = new()
+            {
+                Name = DynamicArgumentSyscall.Name,
+                Handler = typeof(TestingApplicationEngine).GetMethod(nameof(InvokeDynamicArgumentSyscall),
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
+                FixedPrice = 0,
+                RequiredCallFlags = CallFlags.None,
+            };
+
+            items?.Add(descriptor.Hash, descriptor);
+        }
+
+        /// <summary>
         /// Testing engine
         /// </summary>
         public TestEngine Engine { get; }
+
+        /// <summary>
+        /// DynamicArgumentSyscall
+        /// </summary>
+        public DynamicArgumentSyscall? DynamicArgumentSyscall { get; set; } = null;
 
         /// <summary>
         /// Override CallingScriptHash
@@ -50,9 +77,14 @@ namespace Neo.SmartContract.Testing
         }
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
-            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
+                    : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
         {
             Engine = engine;
+        }
+
+        internal void InvokeDynamicArgumentSyscall(int index)
+        {
+            Push(DynamicArgumentSyscall?.Invoke(index) ?? StackItem.Null);
         }
 
         protected override void PreExecuteInstruction(Instruction instruction)

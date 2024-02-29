@@ -53,9 +53,10 @@ namespace Neo.SmartContract.Testing
         {
             // Compose script
 
+            DynamicArgumentSyscall? dynArgument = null;
             using ScriptBuilder script = new();
 
-            ConvertArgs(script, args);
+            ConvertArgs(script, args, ref dynArgument);
 
             script.EmitPush(Engine.CallFlags);
             script.EmitPush(methodName);
@@ -64,10 +65,17 @@ namespace Neo.SmartContract.Testing
 
             // Execute
 
-            return Engine.Execute(script.ToArray());
+            return Engine.Execute(script.ToArray(), 0, dynArgument is null ? null : engine => ConfigureEngine(engine, dynArgument));
         }
 
-        private void ConvertArgs(ScriptBuilder script, object[] args)
+        private void ConfigureEngine(ApplicationEngine engine, DynamicArgumentSyscall dynArgument)
+        {
+            if (engine is not TestingApplicationEngine testEngine) throw new InvalidOperationException();
+
+            testEngine.DynamicArgumentSyscall = dynArgument;
+        }
+
+        private void ConvertArgs(ScriptBuilder script, object[] args, ref DynamicArgumentSyscall? dynArgument)
         {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
@@ -78,7 +86,7 @@ namespace Neo.SmartContract.Testing
                     var arg = args[i];
                     if (arg is object[] arg2)
                     {
-                        ConvertArgs(script, arg2);
+                        ConvertArgs(script, arg2, ref dynArgument);
                         break;
                     }
 
@@ -91,6 +99,15 @@ namespace Neo.SmartContract.Testing
                         ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidType))
                     {
                         arg = BigInteger.Zero;
+                    }
+                    else if (arg is InteropInterface interop)
+                    {
+                        // We can't send the interopInterface by an script
+                        // We create a syscall in order to detect it and push the item
+
+                        dynArgument ??= new DynamicArgumentSyscall();
+                        script.EmitSysCall(DynamicArgumentSyscall.Hash, dynArgument.Add(() => interop));
+                        continue;
                     }
 
                     script.EmitPush(arg);
