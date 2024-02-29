@@ -211,9 +211,13 @@ namespace Neo.SmartContract.Testing
 
             Transaction = new Transaction()
             {
+                Version = 0,
                 Attributes = System.Array.Empty<TransactionAttribute>(),
                 Script = System.Array.Empty<byte>(),
                 NetworkFee = ApplicationEngine.TestModeGas,
+                SystemFee = 0,
+                ValidUntilBlock = 0,
+                Nonce = 0x01020304,
                 Signers = new Signer[]
                 {
                     new()

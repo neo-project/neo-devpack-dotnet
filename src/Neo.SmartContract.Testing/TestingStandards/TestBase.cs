@@ -13,8 +13,8 @@ public class TestBase<T> where T : SmartContract
     private readonly List<string> _contractLogs = new();
 
     public static CoveredContract? Coverage { get; private set; }
-    public static Signer Alice { get; } = TestEngine.GetNewSigner();
-    public static Signer Bob { get; } = TestEngine.GetNewSigner();
+    public static Signer Alice { get; set; } = TestEngine.GetNewSigner();
+    public static Signer Bob { get; set; } = TestEngine.GetNewSigner();
 
     public NefFile NefFile { get; }
     public ContractManifest Manifest { get; }

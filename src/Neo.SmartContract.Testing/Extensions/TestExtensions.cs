@@ -47,10 +47,10 @@ namespace Neo.SmartContract.Testing.Extensions
         public static object? ConvertTo(this StackItem stackItem, Type type)
         {
             if (stackItem is null || stackItem.IsNull) return null;
-            if (stackItem.GetType() == type) return stackItem;
 
             return type switch
             {
+                _ when type == stackItem.GetType() => stackItem,
                 _ when type == typeof(object) => stackItem,
                 _ when type == typeof(string) => Utility.StrictUTF8.GetString(stackItem.GetSpan()),
                 _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),
