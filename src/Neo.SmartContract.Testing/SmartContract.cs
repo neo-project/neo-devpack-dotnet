@@ -53,7 +53,7 @@ namespace Neo.SmartContract.Testing
         {
             // Compose script
 
-            DynamicArgumentSyscall? dynArgument = null;
+            TestingSyscall? dynArgument = null;
             using ScriptBuilder script = new();
 
             ConvertArgs(script, args, ref dynArgument);
@@ -68,14 +68,14 @@ namespace Neo.SmartContract.Testing
             return Engine.Execute(script.ToArray(), 0, dynArgument is null ? null : engine => ConfigureEngine(engine, dynArgument));
         }
 
-        private void ConfigureEngine(ApplicationEngine engine, DynamicArgumentSyscall dynArgument)
+        private void ConfigureEngine(ApplicationEngine engine, TestingSyscall testingSyscall)
         {
             if (engine is not TestingApplicationEngine testEngine) throw new InvalidOperationException();
 
-            testEngine.DynamicArgumentSyscall = dynArgument;
+            testEngine.TestingSyscall = testingSyscall;
         }
 
-        private void ConvertArgs(ScriptBuilder script, object[] args, ref DynamicArgumentSyscall? dynArgument)
+        private void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
         {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
@@ -87,12 +87,12 @@ namespace Neo.SmartContract.Testing
 
                     if (arg is object[] arg2)
                     {
-                        ConvertArgs(script, arg2, ref dynArgument);
+                        ConvertArgs(script, arg2, ref testingSyscall);
                         continue;
                     }
                     else if (arg is IEnumerable<object> argEnumerable)
                     {
-                        ConvertArgs(script, argEnumerable.ToArray(), ref dynArgument);
+                        ConvertArgs(script, argEnumerable.ToArray(), ref testingSyscall);
                         continue;
                     }
 
@@ -113,16 +113,16 @@ namespace Neo.SmartContract.Testing
                         // We can't send the interopInterface by an script
                         // We create a syscall in order to detect it and push the item
 
-                        dynArgument ??= new DynamicArgumentSyscall();
-                        script.EmitSysCall(DynamicArgumentSyscall.Hash, dynArgument.Add(() => interop));
+                        testingSyscall ??= new TestingSyscall();
+                        script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => e.Push(interop)));
                         continue;
                     }
-                    else if (arg is Func<StackItem> onItem)
+                    else if (arg is Action<ApplicationEngine> onItem)
                     {
                         // We create a syscall in order to detect it and push the item
 
-                        dynArgument ??= new DynamicArgumentSyscall();
-                        script.EmitSysCall(DynamicArgumentSyscall.Hash, dynArgument.Add(onItem));
+                        testingSyscall ??= new TestingSyscall();
+                        script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => onItem(e)));
                         continue;
                     }
 

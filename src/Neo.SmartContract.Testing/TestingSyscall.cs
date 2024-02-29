@@ -1,5 +1,4 @@
 using Neo.Cryptography;
-using Neo.VM.Types;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -7,14 +6,14 @@ using System.Text;
 
 namespace Neo.SmartContract.Testing
 {
-    internal class DynamicArgumentSyscall
+    internal class TestingSyscall
     {
-        private readonly List<Func<StackItem>> _actions = new();
+        private readonly List<Action<TestingApplicationEngine>> _actions = new();
 
         /// <summary>
         /// Syscall Name
         /// </summary>
-        public const string Name = $"{nameof(DynamicArgumentSyscall)}.Invoke";
+        public const string Name = $"Neo.SmartContract.Testing.Invoke";
 
         /// <summary>
         /// Syscall hash
@@ -25,21 +24,21 @@ namespace Neo.SmartContract.Testing
         /// Add action
         /// </summary>
         /// <param name="action">Action</param>
-        /// <returns>Sycall argument</returns>
-        public int Add(Func<StackItem> action)
+        /// <returns>Action index</returns>
+        public int Add(Action<TestingApplicationEngine> action)
         {
             _actions.Add(action);
             return _actions.Count - 1;
         }
 
         /// <summary>
-        /// Get item
+        /// Invoke action
         /// </summary>
-        /// <param name="index">Index</param>
-        /// <returns>Stack item</returns>
-        public StackItem Invoke(int index)
+        /// <param name="engine">Engine</param>
+        /// <param name="index">Action index</param>
+        internal void Invoke(TestingApplicationEngine engine, int index)
         {
-            return _actions[index]();
+            _actions[index](engine);
         }
     }
 }
