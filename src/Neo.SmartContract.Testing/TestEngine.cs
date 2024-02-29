@@ -677,6 +677,14 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Clear Transaction Signers
+        /// </summary>
+        public void SetTransactionSigners()
+        {
+            Transaction.Signers = System.Array.Empty<Signer>();
+        }
+
+        /// <summary>
         /// Set Transaction Signers
         /// </summary>
         /// <param name="scope">Scope</param>
