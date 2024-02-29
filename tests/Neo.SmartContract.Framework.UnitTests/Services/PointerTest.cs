@@ -34,7 +34,20 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_ExecutePointerWithArgs()
         {
+            // Internall
+
             Assert.AreEqual(new BigInteger(new byte[] { 11, 22, 33 }), Contract.CallFuncPointerWithArg());
+
+            // With pointer
+
+            var item = Contract.CreateFuncPointerWithArg();
+            Assert.IsInstanceOfType(item, typeof(Pointer));
+
+            // Test pointer
+
+            item = Engine.Execute(Contract_Pointers.Nef.Script, ((Pointer)item).Position, (e) => { e.Push(123); });
+            Assert.IsInstanceOfType(item, typeof(Integer));
+            Assert.AreEqual(123, ((Integer)item).GetInteger());
         }
     }
 }
