@@ -53,8 +53,30 @@ namespace Neo.SmartContract.Testing
         {
             // Compose script
 
+            TestingSyscall? dynArgument = null;
             using ScriptBuilder script = new();
 
+            ConvertArgs(script, args, ref dynArgument);
+
+            script.EmitPush(Engine.CallFlags);
+            script.EmitPush(methodName);
+            script.EmitPush(Hash);
+            script.EmitSysCall(ApplicationEngine.System_Contract_Call);
+
+            // Execute
+
+            return Engine.Execute(script.ToArray(), 0, dynArgument is null ? null : engine => ConfigureEngine(engine, dynArgument));
+        }
+
+        private void ConfigureEngine(ApplicationEngine engine, TestingSyscall testingSyscall)
+        {
+            if (engine is not TestingApplicationEngine testEngine) throw new InvalidOperationException();
+
+            testEngine.TestingSyscall = testingSyscall;
+        }
+
+        private void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
+        {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
             else
@@ -63,15 +85,45 @@ namespace Neo.SmartContract.Testing
                 {
                     var arg = args[i];
 
+                    if (arg is object[] arg2)
+                    {
+                        ConvertArgs(script, arg2, ref testingSyscall);
+                        continue;
+                    }
+                    else if (arg is IEnumerable<object> argEnumerable)
+                    {
+                        ConvertArgs(script, argEnumerable.ToArray(), ref testingSyscall);
+                        continue;
+                    }
+
                     if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidLength) ||
-                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidLength))
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidLength) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidECPoint.InvalidLength))
                     {
                         arg = System.Array.Empty<byte>();
                     }
                     else if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidType) ||
-                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidType))
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidType) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidECPoint.InvalidType))
                     {
                         arg = BigInteger.Zero;
+                    }
+                    else if (arg is InteropInterface interop)
+                    {
+                        // We can't send the interopInterface by an script
+                        // We create a syscall in order to detect it and push the item
+
+                        testingSyscall ??= new TestingSyscall();
+                        script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => e.Push(interop)));
+                        continue;
+                    }
+                    else if (arg is Action<ApplicationEngine> onItem)
+                    {
+                        // We create a syscall in order to detect it and push the item
+
+                        testingSyscall ??= new TestingSyscall();
+                        script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => onItem(e)));
+                        continue;
                     }
 
                     script.EmitPush(arg);
@@ -79,15 +131,6 @@ namespace Neo.SmartContract.Testing
                 script.EmitPush(args.Length);
                 script.Emit(OpCode.PACK);
             }
-
-            script.EmitPush(CallFlags.All);
-            script.EmitPush(methodName);
-            script.EmitPush(Hash);
-            script.EmitSysCall(ApplicationEngine.System_Contract_Call);
-
-            // Execute
-
-            return Engine.Execute(script.ToArray());
         }
 
         /// <summary>
