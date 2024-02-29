@@ -84,19 +84,27 @@ namespace Neo.SmartContract.Testing
                 for (int i = args.Length - 1; i >= 0; i--)
                 {
                     var arg = args[i];
+
                     if (arg is object[] arg2)
                     {
                         ConvertArgs(script, arg2, ref dynArgument);
-                        break;
+                        continue;
+                    }
+                    else if (arg is IEnumerable<object> argEnumerable)
+                    {
+                        ConvertArgs(script, argEnumerable.ToArray(), ref dynArgument);
+                        continue;
                     }
 
                     if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidLength) ||
-                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidLength))
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidLength) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidECPoint.InvalidLength))
                     {
                         arg = System.Array.Empty<byte>();
                     }
                     else if (ReferenceEquals(arg, InvalidTypes.InvalidUInt160.InvalidType) ||
-                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidType))
+                        ReferenceEquals(arg, InvalidTypes.InvalidUInt256.InvalidType) ||
+                        ReferenceEquals(arg, InvalidTypes.InvalidECPoint.InvalidType))
                     {
                         arg = BigInteger.Zero;
                     }

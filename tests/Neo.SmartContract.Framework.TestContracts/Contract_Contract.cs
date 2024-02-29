@@ -1,8 +1,10 @@
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
+    [ContractPermission(Permission.WildCard, Method.WildCard)]
     public class Contract_Contract : SmartContract
     {
         public static object Call(UInt160 scriptHash, string method, CallFlags flag, object[] args)
@@ -13,16 +15,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static object Create(byte[] nef, string manifest)
         {
             return ContractManagement.Deploy((ByteString)nef, manifest, null);
-        }
-
-        public static void Update(byte[] nef, string manifest)
-        {
-            ContractManagement.Update((ByteString)nef, manifest, null);
-        }
-
-        public static void Destroy()
-        {
-            ContractManagement.Destroy();
         }
 
         public static int GetCallFlags()
