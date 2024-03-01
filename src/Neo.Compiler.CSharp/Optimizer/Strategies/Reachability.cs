@@ -167,28 +167,12 @@ namespace Neo.Optimizer
             foreach ((int addr, Instruction _) in script.EnumerateInstructions())
                 coveredMap.Add(addr, BranchType.UNCOVERED);
 
-            Dictionary<int, string> publicMethodStartingAddressToName = new();
-            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-                publicMethodStartingAddressToName.Add(method.Offset, method.Name);
-
             // It is unsafe to go parallel, because the coveredMap value is not true/false
             //Parallel.ForEach(manifest.Abi.Methods, method =>
             //    CoverInstruction(method.Offset, script, coveredMap)
             //);
-            foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-                CoverInstruction(method.Offset, script, coveredMap);
-            // start from _deploy method
-            foreach (JToken? method in (JArray)debugInfo["methods"]!)
-            {
-                string name = method!["name"]!.AsString();  // NFTLoan.NFTLoan,RegisterRental
-                name = name[(name.LastIndexOf(',') + 1)..];  // RegisterRental
-                name = char.ToLower(name[0]) + name[1..];  // registerRental
-                if (name == "_deploy")
-                {
-                    int startAddr = int.Parse(method!["range"]!.AsString().Split("-")[0]);
-                    CoverInstruction(startAddr, script, coveredMap);
-                }
-            }
+            foreach ((int addr, _) in EntryPoint.EntryPointsByMethod(manifest, debugInfo))
+                CoverInstruction(addr, script, coveredMap);
             return coveredMap;
         }
 
