@@ -1,3 +1,4 @@
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing.Attributes;
 
 namespace Neo.SmartContract.Testing.Native.Models
@@ -33,5 +34,25 @@ namespace Neo.SmartContract.Testing.Native.Models
 
         [FieldOrder(9)]
         public int TransactionsCount { get; set; }
+
+        /// <summary>
+        /// Convert to Header
+        /// </summary>
+        /// <returns>Header</returns>
+        internal Header AsHeader()
+        {
+            return new Header()
+            {
+                Version = Version,
+                PrevHash = PrevHash,
+                MerkleRoot = MerkleRoot,
+                Timestamp = Timestamp,
+                Index = Index,
+                NextConsensus = NextConsensus,
+                Nonce = Nonce,
+                PrimaryIndex = PrimaryIndex,
+                Witness = null
+            };
+        }
     }
 }

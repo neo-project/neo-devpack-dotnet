@@ -546,7 +546,7 @@ namespace Neo.SmartContract.Testing
 
             // Create persisting block, required for GasRewards
 
-            var persistingBlock = CreateNextBlock(TimeSpan.FromSeconds(15));
+            var persistingBlock = CreateNextBlock(false, TimeSpan.FromSeconds(15));
             using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, persistingBlock);
 
             engine.LoadScript(script, initialPosition: initialPosition);
@@ -595,7 +595,7 @@ namespace Neo.SmartContract.Testing
         {
             if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
             {
-                var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
+                var state = NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
                 if (state == null) return null;
 
                 coveredContract = new(MethodDetection, contract.Hash, state);
@@ -792,7 +792,7 @@ namespace Neo.SmartContract.Testing
                 throw new ArgumentException("Transactions count and states count are different");
             }
 
-            var block = CreateNextBlock(elapsed, nonce, txs);
+            var block = CreateNextBlock(true, elapsed, nonce, txs);
 
             // Invoke Ledger.OnPersist
 
@@ -845,20 +845,24 @@ namespace Neo.SmartContract.Testing
             return block;
         }
 
-        private Block CreateNextBlock(TimeSpan elapsed, ulong nonce = 0, params Transaction[] txs)
+        private Block CreateNextBlock(bool fromStorage, TimeSpan elapsed, ulong nonce = 0, params Transaction[] txs)
         {
+            var previous = fromStorage && Storage.IsInitialized ?
+                Native.Ledger.GetBlock(Native.Ledger.CurrentHash.ToArray())!.AsHeader() :
+                CurrentBlock.Header;
+
             return new Block()
             {
                 Header = new Header()
                 {
-                    Version = CurrentBlock.Version,
-                    Index = CurrentBlock.Index + 1,
+                    Version = previous.Version,
+                    Index = previous.Index + 1,
                     MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray()),
-                    NextConsensus = CurrentBlock.NextConsensus,
+                    NextConsensus = previous.NextConsensus,
                     Nonce = nonce,
-                    PrevHash = CurrentBlock.Hash,
-                    PrimaryIndex = CurrentBlock.PrimaryIndex,
-                    Timestamp = CurrentBlock.Timestamp + (ulong)elapsed.TotalMilliseconds,
+                    PrevHash = previous.Hash,
+                    PrimaryIndex = previous.PrimaryIndex,
+                    Timestamp = previous.Timestamp + (ulong)elapsed.TotalMilliseconds,
                     Witness = new Witness()
                     {
                         InvocationScript = System.Array.Empty<byte>(),
