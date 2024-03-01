@@ -48,10 +48,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
     }
 }")!;
 
-            Engine.Native.Oracle.OnOracleRequest += (ulong id, UInt160 requestContract, string url, string filter) =>
+            Engine.Native.Oracle.OnOracleRequest += (id, requestContract, url, filter) =>
             {
                 requestId = id;
-                response = data.JsonPath(filter).ToString(false);
+                response = data.JsonPath(filter!).ToString(false);
             };
 
             Contract.DoRequest();
