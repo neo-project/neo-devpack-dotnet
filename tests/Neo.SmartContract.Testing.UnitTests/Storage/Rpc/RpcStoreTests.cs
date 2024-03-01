@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
     {
         public abstract class DummyContract : SmartContract
         {
-            public abstract BigInteger GetCandidateVote(ECPoint point);
+            public abstract BigInteger? GetCandidateVote(ECPoint? point);
             protected DummyContract(SmartContractInitialize initialize) : base(initialize) { }
         }
 
