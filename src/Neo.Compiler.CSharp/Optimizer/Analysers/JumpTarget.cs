@@ -56,7 +56,7 @@ namespace Neo.Optimizer
 
         public static (Dictionary<Instruction, Instruction>,
             Dictionary<Instruction, (Instruction, Instruction)>,
-            Dictionary<Instruction, HashSet<Instruction>>)
+            Dictionary<int, HashSet<int>>)
             FindAllJumpAndTrySourceToTargets(NefFile nef)
         {
             Script script = nef.Script;
@@ -64,12 +64,12 @@ namespace Neo.Optimizer
         }
         public static (Dictionary<Instruction, Instruction>,
             Dictionary<Instruction, (Instruction, Instruction)>,
-            Dictionary<Instruction, HashSet<Instruction>>)
+            Dictionary<int, HashSet<int>>)
             FindAllJumpAndTrySourceToTargets(Script script) => FindAllJumpAndTrySourceToTargets(script.EnumerateInstructions().ToList());
         public static (
             Dictionary<Instruction, Instruction>,  // jump source to target
             Dictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
-            Dictionary<Instruction, HashSet<Instruction>>  // target to source
+            Dictionary<int, HashSet<int>>  // target to source
             )
             FindAllJumpAndTrySourceToTargets(List<(int, Instruction)> addressAndInstructionsList)
         {
@@ -78,33 +78,40 @@ namespace Neo.Optimizer
                 addressToInstruction.Add(a, i);
             Dictionary<Instruction, Instruction> jumpSourceToTargets = new();
             Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets = new();
-            Dictionary<Instruction, HashSet<Instruction>> targetToSources = new();
+            Dictionary<int, HashSet<int>> targetToSources = new();
             foreach ((int a, Instruction i) in addressAndInstructionsList)
             {
                 if (SingleJumpInOperand(i))
                 {
-                    Instruction target = addressToInstruction[ComputeJumpTarget(a, i)];
+                    int targetAddr = ComputeJumpTarget(a, i);
+                    Instruction target = addressToInstruction[targetAddr];
                     jumpSourceToTargets.TryAdd(i, target);
-                    if (!targetToSources.TryGetValue(target, out HashSet<Instruction>? sources)) sources = new();
-                    sources.Add(i);
+                    if (!targetToSources.TryGetValue(targetAddr, out HashSet<int>? sources))
+                    {
+                        sources = new();
+                        targetToSources.Add(targetAddr, sources);
+                    }
+                    sources.Add(a);
                 }
-                if (i.OpCode == TRY)
+                if (i.OpCode == TRY || i.OpCode == TRY_L)
                 {
-                    (Instruction t1, Instruction t2) = (addressToInstruction[a + i.TokenI8], addressToInstruction[a + i.TokenI8_1]);
+                    (int a1, int a2) = i.OpCode == TRY ?
+                        (a + i.TokenI8, a + i.TokenI8_1) :
+                        (a + i.TokenI32, a + i.TokenI32_1);
+                    (Instruction t1, Instruction t2) = (addressToInstruction[a1], addressToInstruction[a2]);
                     trySourceToTargets.TryAdd(i, (t1, t2));
-                    if (!targetToSources.TryGetValue(t1, out HashSet<Instruction>? sources1)) sources1 = new();
-                    sources1.Add(i);
-                    if (!targetToSources.TryGetValue(t2, out HashSet<Instruction>? sources2)) sources2 = new();
-                    sources2.Add(i);
-                }
-                if (i.OpCode == TRY_L)
-                {
-                    (Instruction t1, Instruction t2) = (addressToInstruction[a + i.TokenI32], addressToInstruction[a + i.TokenI32_1]);
-                    trySourceToTargets.TryAdd(i, (t1, t2));
-                    if (!targetToSources.TryGetValue(t1, out HashSet<Instruction>? sources1)) sources1 = new();
-                    sources1.Add(i);
-                    if (!targetToSources.TryGetValue(t2, out HashSet<Instruction>? sources2)) sources2 = new();
-                    sources2.Add(i);
+                    if (!targetToSources.TryGetValue(a1, out HashSet<int>? sources1))
+                    {
+                        sources1 = new();
+                        targetToSources.Add(a1, sources1);
+                    }
+                    sources1.Add(a);
+                    if (!targetToSources.TryGetValue(a1, out HashSet<int>? sources2))
+                    {
+                        sources2 = new();
+                        targetToSources.Add(a2, sources2);
+                    }
+                    sources2.Add(a);
                 }
             }
             return (jumpSourceToTargets, trySourceToTargets, targetToSources);
