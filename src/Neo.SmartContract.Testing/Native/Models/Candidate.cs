@@ -1,6 +1,6 @@
-using System.Numerics;
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing.Attributes;
+using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native.Models
 {
