@@ -2,8 +2,6 @@ using Neo.Cryptography.ECC;
 using Neo.SmartContract.Iterators;
 using System.ComponentModel;
 using System.Numerics;
-using Neo.Cryptography.ECC;
-using Neo.SmartContract.Iterators;
 
 namespace Neo.SmartContract.Testing.Native;
 
