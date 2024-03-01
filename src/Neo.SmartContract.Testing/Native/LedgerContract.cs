@@ -39,7 +39,7 @@ public abstract class LedgerContract : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getTransaction")]
-    public abstract Models.Block? GetTransaction(UInt256? hash);
+    public abstract Models.Transaction? GetTransaction(UInt256? hash);
 
     /// <summary>
     /// Safe method
