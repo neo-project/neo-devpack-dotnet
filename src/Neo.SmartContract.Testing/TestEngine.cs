@@ -134,9 +134,9 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// BFTAddress
+        /// CurrentBlock
         /// </summary>
-        public Block CurrentBlock { get; }
+        public Block CurrentBlock { get; private set; }
 
         /// <summary>
         /// Transaction
@@ -206,7 +206,6 @@ namespace Neo.SmartContract.Testing
         {
             ProtocolSettings = settings;
             CurrentBlock = NeoSystem.CreateGenesisBlock(ProtocolSettings);
-            CurrentBlock.Header.Index++;
 
             var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
             var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
@@ -545,7 +544,10 @@ namespace Neo.SmartContract.Testing
 
             var snapshot = Storage.Snapshot.CreateSnapshot();
 
-            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, CurrentBlock);
+            // Create persisting block, required for GasRewards
+
+            var persistingBlock = CreateNextBlock(TimeSpan.FromSeconds(15));
+            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, persistingBlock);
 
             engine.LoadScript(script, initialPosition: initialPosition);
 
@@ -790,28 +792,7 @@ namespace Neo.SmartContract.Testing
                 throw new ArgumentException("Transactions count and states count are different");
             }
 
-            var previous = Native.Ledger.GetBlock(Native.Ledger.CurrentHash.ToArray())!;
-
-            Block block = new()
-            {
-                Header = new Header()
-                {
-                    Version = previous.Version,
-                    Index = previous.Index + 1,
-                    MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray()),
-                    NextConsensus = previous.NextConsensus,
-                    Nonce = nonce,
-                    PrevHash = previous.Hash,
-                    PrimaryIndex = previous.PrimaryIndex,
-                    Timestamp = previous.Timestamp + (ulong)elapsed.TotalMilliseconds,
-                    Witness = new Witness()
-                    {
-                        InvocationScript = System.Array.Empty<byte>(),
-                        VerificationScript = System.Array.Empty<byte>(),
-                    }
-                },
-                Transactions = txs
-            };
+            var block = CreateNextBlock(elapsed, nonce, txs);
 
             // Invoke Ledger.OnPersist
 
@@ -859,8 +840,33 @@ namespace Neo.SmartContract.Testing
 
             // Commit changes and return block
 
+            CurrentBlock = block;
             clonedSnapshot.Commit();
             return block;
+        }
+
+        private Block CreateNextBlock(TimeSpan elapsed, ulong nonce = 0, params Transaction[] txs)
+        {
+            return new Block()
+            {
+                Header = new Header()
+                {
+                    Version = CurrentBlock.Version,
+                    Index = CurrentBlock.Index + 1,
+                    MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray()),
+                    NextConsensus = CurrentBlock.NextConsensus,
+                    Nonce = nonce,
+                    PrevHash = CurrentBlock.Hash,
+                    PrimaryIndex = CurrentBlock.PrimaryIndex,
+                    Timestamp = CurrentBlock.Timestamp + (ulong)elapsed.TotalMilliseconds,
+                    Witness = new Witness()
+                    {
+                        InvocationScript = System.Array.Empty<byte>(),
+                        VerificationScript = System.Array.Empty<byte>(),
+                    }
+                },
+                Transactions = txs
+            };
         }
 
         #endregion

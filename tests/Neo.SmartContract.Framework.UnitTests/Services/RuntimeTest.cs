@@ -4,6 +4,7 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -57,7 +58,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_Time()
         {
-            Assert.AreEqual(Engine.CurrentBlock.Timestamp, Contract.GetTime());
+            Assert.AreEqual((ulong)TimeSpan.FromMilliseconds(Engine.CurrentBlock.Timestamp).Add(TimeSpan.FromSeconds(15)).TotalMilliseconds, Contract.GetTime());
         }
 
         [TestMethod]
@@ -78,7 +79,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Engine.SetTransactionSigners(Alice);
             Engine.Transaction.Nonce = 0x01020304;
             Engine.CurrentBlock.Header.Nonce = 0x01020304;
-            Assert.AreEqual(BigInteger.Parse("191567297262786054653319845383492561111"), Contract.GetRandom());
+            Assert.AreEqual(BigInteger.Parse("32143745332948484090283164054512903484"), Contract.GetRandom());
         }
 
         [TestMethod]
