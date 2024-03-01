@@ -11,5 +11,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return value.IsZero;
         }
+
+        public static string ToAddress(UInt160 value)
+        {
+            return value.ToAddress();
+        }
     }
 }
