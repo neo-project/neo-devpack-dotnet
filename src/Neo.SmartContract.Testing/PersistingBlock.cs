@@ -151,7 +151,7 @@ namespace Neo.SmartContract.Testing
 
             // Commit changes and return block
 
-            UnderlyingBlock.Header = CreateNextHeader(UnderlyingBlock.Header, TimeSpan.FromSeconds(15), UnderlyingBlock.Nonce);
+            UnderlyingBlock.Header = CreateNextHeader(persist.Header, TimeSpan.FromSeconds(15), persist.Nonce);
             clonedSnapshot.Commit();
 
             return persist;
