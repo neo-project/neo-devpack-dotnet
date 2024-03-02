@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract partial class NeoToken : SmartContract, TestingStandards.INep17Standard
+public abstract class NeoToken : SmartContract, TestingStandards.INep17Standard
 {
     #region Compiled data
 
@@ -15,8 +15,7 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
 
     #region Events
 
-    public delegate void delCandidateStateChanged(ECPoint? pubkey, bool? registered, BigInteger? votes);
-
+    public delegate void delCandidateStateChanged(ECPoint pubkey, bool registered, BigInteger votes);
     [DisplayName("CandidateStateChanged")]
     public event delCandidateStateChanged? OnCandidateStateChanged;
 
@@ -46,7 +45,7 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract IIterator? AllCandidates { [DisplayName("getAllCandidates")] get; }
+    public abstract IIterator AllCandidates { [DisplayName("getAllCandidates")] get; }
 
     /// <summary>
     /// Safe property
@@ -56,22 +55,22 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract ECPoint[]? Committee { [DisplayName("getCommittee")] get; }
+    public abstract ECPoint[] Committee { [DisplayName("getCommittee")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? GasPerBlock { [DisplayName("getGasPerBlock")] get; [DisplayName("setGasPerBlock")] set; }
+    public abstract BigInteger GasPerBlock { [DisplayName("getGasPerBlock")] get; [DisplayName("setGasPerBlock")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract ECPoint[]? NextBlockValidators { [DisplayName("getNextBlockValidators")] get; }
+    public abstract ECPoint[] NextBlockValidators { [DisplayName("getNextBlockValidators")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? RegisterPrice { [DisplayName("getRegisterPrice")] get; [DisplayName("setRegisterPrice")] set; }
+    public abstract long RegisterPrice { [DisplayName("getRegisterPrice")] get; [DisplayName("setRegisterPrice")] set; }
 
     /// <summary>
     /// Safe property
@@ -97,19 +96,19 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract Neo.SmartContract.Native.NeoToken.NeoAccountState? GetAccountState(UInt160? account);
+    public abstract Neo.SmartContract.Native.NeoToken.NeoAccountState GetAccountState(UInt160 account);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getCandidateVote")]
-    public abstract BigInteger? GetCandidateVote(ECPoint? pubKey);
+    public abstract BigInteger GetCandidateVote(ECPoint pubKey);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("unclaimedGas")]
-    public abstract BigInteger? UnclaimedGas(UInt160? account, BigInteger? end);
+    public abstract BigInteger UnclaimedGas(UInt160 account, uint end);
 
     #endregion
 
@@ -119,7 +118,7 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
     /// Unsafe method
     /// </summary>
     [DisplayName("registerCandidate")]
-    public abstract bool? RegisterCandidate(ECPoint? pubkey);
+    public abstract bool RegisterCandidate(ECPoint pubkey);
 
     /// <summary>
     /// Unsafe method
@@ -131,13 +130,13 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
     /// Unsafe method
     /// </summary>
     [DisplayName("unregisterCandidate")]
-    public abstract bool? UnregisterCandidate(ECPoint? pubkey);
+    public abstract bool UnregisterCandidate(ECPoint pubkey);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("vote")]
-    public abstract bool? Vote(UInt160? account, ECPoint? voteTo);
+    public abstract bool Vote(UInt160 account, ECPoint? voteTo);
 
     #endregion
 
