@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Script = System.Array.Empty<byte>()
             };
 
-            _block = Engine.AddBlock(tx, TimeSpan.FromSeconds(1), VMState.HALT, 0);
+            _block = Engine.PersistingBlock.Persist(tx, VMState.HALT);
         }
 
         [TestMethod]

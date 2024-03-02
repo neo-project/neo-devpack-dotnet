@@ -1,3 +1,4 @@
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.VM;
 using System.ComponentModel;
@@ -28,6 +29,34 @@ public abstract class LedgerContract : SmartContract
     #endregion
 
     #region Safe methods
+
+    #region Helpers
+
+    /// <summary>
+    /// Safe helper method
+    /// </summary>
+    public Models.Block? GetBlock(UInt256 hash)
+        => GetBlock(hash.ToArray());
+
+    /// <summary>
+    /// Safe helper method
+    /// </summary>
+    public Models.Block? GetBlock(uint index)
+        => GetBlock(new BigInteger(index).ToByteArray());
+
+    /// <summary>
+    /// Safe helper method
+    /// </summary>
+    public Models.Transaction? GetTransactionFromBlock(uint blockIndex, uint txIndex)
+        => GetTransactionFromBlock(new BigInteger(blockIndex).ToByteArray(), txIndex);
+
+    /// <summary>
+    /// Safe helper method
+    /// </summary>
+    public Models.Transaction? GetTransactionFromBlock(UInt256 blockHash, uint txIndex)
+        => GetTransactionFromBlock(blockHash.ToArray(), txIndex);
+
+    #endregion
 
     /// <summary>
     /// Safe method

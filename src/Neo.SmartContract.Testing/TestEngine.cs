@@ -1,5 +1,4 @@
 using Moq;
-using Neo.Cryptography;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
@@ -77,7 +76,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Storage
         /// </summary>
-        public EngineStorage Storage { get; set; } = new EngineStorage(new MemoryStore());
+        public EngineStorage Storage { get; internal set; }
 
         /// <summary>
         /// Protocol Settings
@@ -109,7 +108,7 @@ namespace Neo.SmartContract.Testing
                     return validatorsScript.ToScriptHash();
                 }
 
-                var validators = Neo.SmartContract.Native.NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
+                var validators = NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
                 return Contract.GetBFTAddress(validators);
             }
         }
@@ -129,14 +128,14 @@ namespace Neo.SmartContract.Testing
                     return committeeScript.ToScriptHash();
                 }
 
-                return Neo.SmartContract.Native.NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
+                return NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
             }
         }
 
         /// <summary>
-        /// CurrentBlock
+        /// Persisting Block
         /// </summary>
-        public Block CurrentBlock { get; private set; }
+        public PersistingBlock PersistingBlock { get; }
 
         /// <summary>
         /// Transaction
@@ -195,17 +194,38 @@ namespace Neo.SmartContract.Testing
         /// Constructor
         /// </summary>
         /// <param name="initializeNativeContracts">Initialize native contracts</param>
-        public TestEngine(bool initializeNativeContracts = true) : this(Default, initializeNativeContracts) { }
+        public TestEngine(bool initializeNativeContracts = true)
+            : this(new EngineStorage(new MemoryStore()), Default, initializeNativeContracts)
+        { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="storage">Storage</param>
+        /// <param name="initializeNativeContracts">Initialize native contracts</param>
+        public TestEngine(EngineStorage storage, bool initializeNativeContracts = true)
+            : this(storage, Default, initializeNativeContracts)
+        { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="settings">Settings</param>
         /// <param name="initializeNativeContracts">Initialize native contracts</param>
-        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = true)
+        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = true) :
+            this(new EngineStorage(new MemoryStore()), settings, initializeNativeContracts)
+        { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="storage">Storage</param>
+        /// <param name="settings">Settings</param>
+        /// <param name="initializeNativeContracts">Initialize native contracts</param>
+        public TestEngine(EngineStorage storage, ProtocolSettings settings, bool initializeNativeContracts = true)
         {
+            Storage = storage;
             ProtocolSettings = settings;
-            CurrentBlock = NeoSystem.CreateGenesisBlock(ProtocolSettings);
 
             var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
             var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
@@ -237,9 +257,25 @@ namespace Neo.SmartContract.Testing
                 Witnesses = System.Array.Empty<Witness>() // Not required
             };
 
+            // Check initialization
+
             if (initializeNativeContracts)
             {
                 Native.Initialize(false);
+                PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
+            }
+            else
+            {
+                if (Storage.IsInitialized)
+                {
+                    PersistingBlock = new PersistingBlock(this,
+                        NativeContract.Ledger.GetBlock(Storage.Snapshot, NativeContract.Ledger.CurrentHash(Storage.Snapshot))
+                        );
+                }
+                else
+                {
+                    PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
+                }
             }
         }
 
@@ -546,8 +582,7 @@ namespace Neo.SmartContract.Testing
 
             // Create persisting block, required for GasRewards
 
-            var persistingBlock = CreateNextBlock(false, TimeSpan.FromSeconds(15));
-            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, persistingBlock);
+            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, PersistingBlock.UnderlyingBlock);
 
             engine.LoadScript(script, initialPosition: initialPosition);
 
@@ -750,129 +785,5 @@ namespace Neo.SmartContract.Testing
                 Scopes = scope,
             };
         }
-
-        #region Add block
-
-        /// <summary>
-        /// Add block to the ledger
-        /// </summary>
-        /// <param name="elapsed">Elapsed</param>
-        /// <param name="nonce">Nonce</param>
-        /// <returns>Block added</returns>
-        public Block AddBlock(TimeSpan elapsed, ulong nonce = 0)
-        {
-            return AddBlock(System.Array.Empty<Transaction>(), System.Array.Empty<VMState>(), elapsed, nonce);
-        }
-
-        /// <summary>
-        /// Add block to the ledger
-        /// </summary>
-        /// <param name="tx">Transaction</param>
-        /// <param name="elapsed">Elapsed</param>
-        /// <param name="state">State</param>
-        /// <param name="nonce">Nonce</param>
-        /// <returns>Block added</returns>
-        public Block AddBlock(Transaction tx, TimeSpan elapsed, VMState state = VMState.HALT, ulong nonce = 0)
-        {
-            return AddBlock(new[] { tx }, new[] { state }, elapsed, nonce);
-        }
-
-        /// <summary>
-        /// Add blok to the ledger
-        /// </summary>
-        /// <param name="txs">Transactions</param>
-        /// <param name="states">States</param>
-        /// <param name="elapsed">Elapsed</param>
-        /// <param name="nonce">Nonce</param>
-        /// <returns>Block added</returns>
-        public Block AddBlock(Transaction[] txs, VMState[] states, TimeSpan elapsed, ulong nonce = 0)
-        {
-            if (txs.Length != states.Length)
-            {
-                throw new ArgumentException("Transactions count and states count are different");
-            }
-
-            var block = CreateNextBlock(true, elapsed, nonce, txs);
-
-            // Invoke Ledger.OnPersist
-
-            var native = NativeContract.Ledger;
-            var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            DataCache clonedSnapshot = Storage.Snapshot.CreateSnapshot();
-
-            using (var engine = new TestingApplicationEngine(this, TriggerType.OnPersist, block, clonedSnapshot, block))
-            {
-                engine.LoadScript(System.Array.Empty<byte>());
-                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                    throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
-
-                task.GetAwaiter().GetResult();
-
-                if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing {native.Name}.OnPersist");
-            }
-
-            // Invoke Ledger.PostPersist
-
-            method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            using (var engine = new TestingApplicationEngine(this, TriggerType.PostPersist, block, clonedSnapshot, block))
-            {
-                engine.LoadScript(System.Array.Empty<byte>());
-                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                    throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
-
-                task.GetAwaiter().GetResult();
-                if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing {native.Name}.PostPersist");
-            }
-
-            // Update states
-
-            const byte prefix_Transaction = 11;
-
-            for (int x = 0; x < txs.Length; x++)
-            {
-                var transactionState = clonedSnapshot.TryGet(new KeyBuilder(Native.Ledger.Storage.Id, prefix_Transaction).Add(txs[x].Hash));
-                transactionState.GetInteroperable<TransactionState>().State = states[x];
-            }
-
-            // Commit changes and return block
-
-            CurrentBlock = block;
-            clonedSnapshot.Commit();
-            return block;
-        }
-
-        private Block CreateNextBlock(bool fromStorage, TimeSpan elapsed, ulong nonce = 0, params Transaction[] txs)
-        {
-            var previous = fromStorage && Storage.IsInitialized ?
-                Native.Ledger.GetBlock(Native.Ledger.CurrentHash.ToArray())!.AsHeader() :
-                CurrentBlock.Header;
-
-            return new Block()
-            {
-                Header = new Header()
-                {
-                    Version = previous.Version,
-                    Index = previous.Index + 1,
-                    MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray()),
-                    NextConsensus = previous.NextConsensus,
-                    Nonce = nonce,
-                    PrevHash = previous.Hash,
-                    PrimaryIndex = previous.PrimaryIndex,
-                    Timestamp = previous.Timestamp + (ulong)elapsed.TotalMilliseconds,
-                    Witness = new Witness()
-                    {
-                        InvocationScript = System.Array.Empty<byte>(),
-                        VerificationScript = System.Array.Empty<byte>(),
-                    }
-                },
-                Transactions = txs
-            };
-        }
-
-        #endregion
     }
 }
