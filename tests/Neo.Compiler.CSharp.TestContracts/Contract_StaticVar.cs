@@ -6,10 +6,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     /// <summary>
     /// A smart contract designed for testing the definition and initialization of static fields within a contract.
-    /// Since contract interfaces exposed to the blockchain must be static, any field to be used within these interfaces
+    /// Since contract interfaces exposed to the blockchain can be static, any field to be used within these static interfaces
     /// must also be defined as static.
     /// This contract demonstrates both traditional direct assignment of static fields and the use of the InitialValue
     /// attribute for types that cannot be directly assigned.
+    /// <remarks>public interfaces of <see cref="SmartContract"/> can be static and non-static.</remarks>
     /// </summary>
     public class Contract_StaticVar : SmartContract.Framework.SmartContract
     {
