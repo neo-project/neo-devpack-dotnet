@@ -23,21 +23,21 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// A static field of type ECPoint initialized with the InitialValue attribute. This is used to demonstrate initializing
         /// complex types like ECPoint at compile time to avoid runtime overhead.
         /// </summary>
-        [PublicKey("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
-        private static readonly ECPoint eCPoint = default;
+        // [PublicKey("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
+        private static readonly ECPoint eCPoint = "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9";
 
         /// <summary>
         /// A static field of type UInt160 initialized with the InitialValue attribute. This allows for compile-time
         /// initialization of blockchain-specific types like addresses, represented here as Hash160.
         /// </summary>
-        [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
-        private static readonly UInt160 uInt160 = default;
+        // [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
+        private static readonly UInt160 uInt160 = "NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq";
 
         /// <summary>
         /// A static string field initialized with the InitialValue attribute. This demonstrates initializing contract fields that cannot be directly assigned with their value at compile time.
         /// </summary>
-        [String("hello world")]
-        public static readonly string a4 = default;
+        // [String("hello world")]
+        public static readonly string a4 = "hello world";
 
         /// <summary>
         /// Tests retrieval of the static field initialized with an initial value.
@@ -80,6 +80,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static ECPoint testGetECPoint()
         {
             return eCPoint;
+        }
+
+        public static string testGetString()
+        {
+            return a4;
         }
     }
 }

@@ -1,13 +1,14 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
@@ -71,5 +72,23 @@ namespace Neo.SmartContract.Framework
             data = Helper.Concat(data, this);
             return StdLib.Base58CheckEncode((ByteString)data);
         }
+
+
+        /// <summary>
+        /// Implicitly converts a hexadecimal string to a UInt160 object.
+        /// Assumes the string is a valid hexadecimal representation.
+        /// </summary>
+        public static implicit operator UInt160(string value)
+        {
+            // Convert the hexadecimal string to a byte array.
+            // Ensure the byte array is of the expected size for a UInt160.
+            if (value.Length != 20) // UInt160 is expected to be 20 bytes.
+            {
+                throw new Exception("The provided string does not represent a valid UInt160 value.");
+            }
+            // Use the explicit byte[] to UInt160 conversion defined earlier.
+            return value;
+        }
+
     }
 }
