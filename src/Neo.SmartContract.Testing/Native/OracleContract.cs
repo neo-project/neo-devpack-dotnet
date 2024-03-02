@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
@@ -13,12 +12,12 @@ public abstract class OracleContract : SmartContract, TestingStandards.IVerifica
 
     #region Events
 
-    public delegate void delOracleRequest(ulong? Id, UInt160? RequestContract, string? Url, string? Filter);
+    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string? Filter);
 
     [DisplayName("OracleRequest")]
     public event delOracleRequest? OnOracleRequest;
 
-    public delegate void delOracleResponse(ulong? Id, UInt256? OriginalTx);
+    public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
 
     [DisplayName("OracleResponse")]
     public event delOracleResponse? OnOracleResponse;
@@ -30,7 +29,7 @@ public abstract class OracleContract : SmartContract, TestingStandards.IVerifica
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }
+    public abstract long Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }
 
     /// <summary>
     /// Safe property
@@ -51,7 +50,7 @@ public abstract class OracleContract : SmartContract, TestingStandards.IVerifica
     /// Unsafe method
     /// </summary>
     [DisplayName("request")]
-    public abstract void Request(string? url, string? filter, string? callback, object? userData, BigInteger? gasForResponse);
+    public abstract void Request(string url, string? filter, string callback, object? userData, ulong gasForResponse);
 
     #endregion
 
