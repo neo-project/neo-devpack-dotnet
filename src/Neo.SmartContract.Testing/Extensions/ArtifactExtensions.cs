@@ -35,8 +35,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="name">Class name, by default is manifest.Name</param>
         /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
+        /// <param name="nullable">Nullable</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, bool nullable = true)
         {
             name ??= manifest.Name;
 
@@ -94,7 +95,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 foreach (var ev in manifest.Abi.Events.OrderBy(u => u.Name))
                 {
-                    sourceCode.Write(CreateSourceEventFromManifest(ev, inheritance));
+                    sourceCode.Write(CreateSourceEventFromManifest(ev, inheritance, nullable));
                     sourceCode.WriteLine();
                 }
 
@@ -117,7 +118,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     foreach (var property in properties.OrderBy(u => u.getter.Name))
                     {
-                        sourceCode.Write(CreateSourcePropertyFromManifest(property.getter, property.setter));
+                        sourceCode.Write(CreateSourcePropertyFromManifest(property.getter, property.setter, nullable));
                         sourceCode.WriteLine();
                     }
 
@@ -137,7 +138,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     if (method.Name.StartsWith("_")) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nullable));
                     sourceCode.WriteLine();
                 }
 
@@ -156,7 +157,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     if (method.Name.StartsWith("_")) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nullable));
                     sourceCode.WriteLine();
                 }
                 sourceCode.WriteLine("    #endregion");
@@ -228,8 +229,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="ev">Event</param>
         /// <param name="inheritance">Inheritance</param>
+        /// <param name="nullable">Nullable</param>
         /// <returns>Source</returns>
-        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev, IList<Type> inheritance)
+        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev, IList<Type> inheritance, bool nullable)
         {
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
@@ -283,7 +285,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 if (!isFirst) sourceCode.Write(", ");
                 else isFirst = false;
 
-                sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                sourceCode.Write($"{TypeToSource(arg.Type, nullable)} {EscapeName(arg.Name)}");
             }
 
             sourceCode.WriteLine(");");
@@ -305,8 +307,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="getter">Getter</param>
         /// <param name="setter">Setter</param>
+        /// <param name="nullable">Nullable</param>
         /// <returns>Source</returns>
-        private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
+        private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter, bool nullable)
         {
             var propertyName = GetPropertyName(getter);
             var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
@@ -320,7 +323,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine($"    /// <summary>");
             sourceCode.WriteLine($"    /// {(getter.Safe ? "Safe property" : "Unsafe property")}");
             sourceCode.WriteLine($"    /// </summary>");
-            sourceCode.WriteLine($"    public abstract {TypeToSource(getter.ReturnType)} {propertyName} {getset}");
+            sourceCode.WriteLine($"    public abstract {TypeToSource(getter.ReturnType, nullable)} {propertyName} {getset}");
 
             return builder.ToString();
         }
@@ -329,8 +332,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// Create source code from manifest method
         /// </summary>
         /// <param name="method">Contract method</param>
+        /// <param name="nullable">Nullable</param>
         /// <returns>Source</returns>
-        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method)
+        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method, bool nullable)
         {
             var methodName = TongleLowercase(EscapeName(method.Name));
 
@@ -347,7 +351,7 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 sourceCode.WriteLine($"    [DisplayName(\"{method.Name}\")]");
             }
-            sourceCode.Write($"    public abstract {TypeToSource(method.ReturnType)} {methodName}(");
+            sourceCode.Write($"    public abstract {TypeToSource(method.ReturnType, nullable)} {methodName}(");
 
             var isFirst = true;
             for (int x = 0; x < method.Parameters.Length; x++)
@@ -362,11 +366,11 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // it will be object X, we can add a default value
 
-                    sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)} = null");
+                    sourceCode.Write($"{TypeToSource(arg.Type, nullable)} {EscapeName(arg.Name)} = null");
                 }
                 else
                 {
-                    sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                    sourceCode.Write($"{TypeToSource(arg.Type, nullable)} {EscapeName(arg.Name)}");
                 }
             }
 
@@ -409,9 +413,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="type">Type</param>
         /// <returns>c# type</returns>
-        private static string TypeToSource(ContractParameterType type)
+        private static string TypeToSource(ContractParameterType type, bool nullable)
         {
-            return type switch
+            var ret = type switch
             {
                 ContractParameterType.Boolean => "bool?",
                 ContractParameterType.Integer => "BigInteger?",
@@ -426,6 +430,13 @@ namespace Neo.SmartContract.Testing.Extensions
                 ContractParameterType.Void => "void",
                 _ => "object?",
             };
+
+            if (!nullable && ret.EndsWith("?"))
+            {
+                ret = ret[..^1];
+            }
+
+            return ret;
         }
     }
 }
