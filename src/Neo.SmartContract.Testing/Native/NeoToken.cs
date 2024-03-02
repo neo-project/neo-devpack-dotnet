@@ -60,6 +60,11 @@ public abstract class NeoToken : SmartContract, TestingStandards.INep17Standard
     /// <summary>
     /// Safe property
     /// </summary>
+    public abstract UInt160? CommitteeAddress { [DisplayName("getCommitteeAddress")] get; }
+
+    /// <summary>
+    /// Safe property
+    /// </summary>
     public abstract BigInteger GasPerBlock { [DisplayName("getGasPerBlock")] get; [DisplayName("setGasPerBlock")] set; }
 
     /// <summary>
