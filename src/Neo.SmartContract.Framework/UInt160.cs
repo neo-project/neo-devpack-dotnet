@@ -73,7 +73,6 @@ namespace Neo.SmartContract.Framework
             return StdLib.Base58CheckEncode((ByteString)data);
         }
 
-
         /// <summary>
         /// Implicitly converts a hexadecimal string to a UInt160 object.
         /// Assumes the string is a valid hexadecimal representation.
@@ -89,6 +88,5 @@ namespace Neo.SmartContract.Framework
             // Use the explicit byte[] to UInt160 conversion defined earlier.
             return value;
         }
-
     }
 }
