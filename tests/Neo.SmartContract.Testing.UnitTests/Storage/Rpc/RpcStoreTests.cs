@@ -19,10 +19,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         [TestMethod]
         public void TestRpcStore()
         {
-            var engine = new TestEngine(false)
-            {
-                Storage = new EngineStorage(new RpcStore("http://seed2t5.neo.org:20332"))
-            };
+            var engine = new TestEngine(new EngineStorage(new RpcStore("http://seed2t5.neo.org:20332")), false);
 
             // check network values
 

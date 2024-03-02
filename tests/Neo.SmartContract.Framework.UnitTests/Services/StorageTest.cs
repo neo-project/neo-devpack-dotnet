@@ -1,75 +1,40 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Linq;
-using Neo.SmartContract.TestEngine;
-using static Neo.Helper;
+using System.Reflection;
+using System.Text;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StorageTest
+    public class StorageTest : TestBase<Contract_Storage>
     {
-        private static void Put(TestEngine.TestEngine testengine, string method, byte[] prefix, byte[] key, byte[] value)
-        {
-            var result = testengine.ExecuteTestCaseStandard(method, key, value);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            var rItem = result.Pop();
-
-            Assert.IsInstanceOfType(rItem, typeof(VM.Types.Boolean));
-            Assert.AreEqual(true, rItem.GetBoolean());
-            Assert.AreEqual(1,
-                testengine.Snapshot.GetChangeSet()
-                .Count(a =>
-                    a.Key.Key.Span.SequenceEqual(Concat(prefix, key)) &&
-                    a.Item.Value.Span.SequenceEqual(value)));
-        }
-
-        private static byte[] Get(TestEngine.TestEngine testengine, string method, byte[] prefix, byte[] key)
-        {
-            var result = testengine.ExecuteTestCaseStandard(method, key);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-            var rItem = result.Pop();
-            Assert.IsInstanceOfType(rItem, typeof(VM.Types.Buffer));
-            ReadOnlySpan<byte> data = rItem.GetSpan();
-            Assert.AreEqual(1, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.Span.SequenceEqual(Concat(prefix, key))));
-            return data.ToArray();
-        }
-
-        private static void Delete(TestEngine.TestEngine testengine, string method, byte[] prefix, byte[] key)
-        {
-            var result = testengine.ExecuteTestCaseStandard(method, new VM.Types.ByteString(key));
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(0, testengine.Snapshot.GetChangeSet().Count(a => a.Key.Key.Span.SequenceEqual(Concat(prefix, key))));
-        }
-
-        private TestEngine.TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot().CreateSnapshot();
-
-            testengine = new TestEngine.TestEngine(snapshot: snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Storage.cs");
-            snapshot.ContractAdd(new ContractState()
-            {
-                Hash = testengine.EntryScriptHash,
-                Nef = testengine.Nef,
-                Manifest = new Manifest.ContractManifest()
-            });
-        }
+        public StorageTest() : base(Contract_Storage.Nef, Contract_Storage.Manifest) { }
 
         [TestMethod]
         public void Test_StorageMap()
         {
-            testengine.Reset();
-            var ret = testengine.ExecuteTestCaseStandard("serializeTest", new byte[] { 1, 2, 3 }, 456);
-            Assert.AreEqual(1, ret.Count);
-            Assert.AreEqual(456, ret.Pop().GetInteger());
+            Assert.AreEqual(456, Contract.SerializeTest(new byte[] { 1, 2, 3 }, 456));
+        }
+
+        private void EnsureChanges(byte[] prefix, byte[] key, byte[] value, int count)
+        {
+            var concat = prefix.Concat(key).ToArray();
+
+            Assert.AreEqual(count, Engine.Storage.Snapshot.GetChangeSet()
+                .Count(a =>
+                    a.Key.Key.Span.SequenceEqual(concat) &&
+                    a.Item.Value.Span.SequenceEqual(value)));
+        }
+
+        private void EnsureChanges(byte[] prefix, byte[] key, int count)
+        {
+            var concat = prefix.Concat(key).ToArray();
+
+            Assert.AreEqual(count, Engine.Storage.Snapshot.GetChangeSet()
+                .Count(a => a.Key.Key.Span.SequenceEqual(concat)));
         }
 
         [TestMethod]
@@ -81,18 +46,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
 
-            Put(testengine, "testPutByte", prefix, key, value);
+            Assert.IsTrue(Contract.TestPutByte(key, value));
+            EnsureChanges(prefix, key, value, 1);
 
             // Get
 
-            testengine.Reset();
-            var getVal = Get(testengine, "testGetByte", prefix, key);
+            var getVal = Contract.TestGetByte(key);
             CollectionAssert.AreEqual(value, getVal);
+            EnsureChanges(prefix, key, value, 1);
 
             // Delete
 
-            testengine.Reset();
-            Delete(testengine, "testDeleteByte", prefix, key);
+            Contract.TestDeleteByte(key);
+            EnsureChanges(prefix, key, 0);
         }
 
         [TestMethod]
@@ -104,32 +70,29 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
 
-            Put(testengine, "testPutByteArray", prefix, key, value);
+            Assert.IsTrue(Contract.TestPutByteArray(key, value));
+            EnsureChanges(prefix, key, value, 1);
 
             // Get
 
-            testengine.Reset();
-            var getVal = Get(testengine, "testGetByteArray", prefix, key);
+            var getVal = Contract.TestGetByteArray(key);
             CollectionAssert.AreEqual(value, getVal);
+            EnsureChanges(prefix, key, value, 1);
 
             // Delete
 
-            testengine.Reset();
-            Delete(testengine, "testDeleteByteArray", prefix, key);
+            Contract.TestDeleteByteArray(key);
+            EnsureChanges(prefix, key, 0);
         }
 
         [TestMethod]
         public void Test_LongBytes()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testOver16Bytes");
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var bs = result.Pop().GetSpan().ToArray();
-            var value = new byte[] { 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02 };
-
-            CollectionAssert.AreEqual(value, bs);
+            CollectionAssert.AreEqual(new byte[] {
+                0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23,
+                0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23,
+                0x02, 0x23, 0x23, 0x02
+                }, Contract.TestOver16Bytes());
         }
 
         [TestMethod]
@@ -141,19 +104,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
 
-            testengine.Reset();
-            Put(testengine, "testPutString", prefix, key, value);
+            Assert.IsTrue(Contract.TestPutString(key, value));
+            EnsureChanges(prefix, key, value, 1);
 
             // Get
 
-            testengine.Reset();
-            var getVal = Get(testengine, "testGetString", prefix, key);
+            var getVal = Contract.TestGetString(key);
             CollectionAssert.AreEqual(value, getVal);
+            EnsureChanges(prefix, key, value, 1);
 
             // Delete
 
-            testengine.Reset();
-            Delete(testengine, "testDeleteString", prefix, key);
+            Contract.TestDeleteString(key);
+            EnsureChanges(prefix, key, 0);
         }
 
         [TestMethod]
@@ -164,60 +127,35 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
 
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testPutReadOnly", new VM.Types.ByteString(key), new VM.Types.ByteString(value));
-            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestPutReadOnly(key, value));
         }
 
         [TestMethod]
         public void Test_Find()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testFind");
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(new ByteString(new byte[] { 0x01 }), result.Pop());
+            CollectionAssert.AreEqual(new byte[] { 0x01 }, Contract.TestFind());
         }
 
         [TestMethod]
         public void Test_Index()
         {
-            testengine.Reset();
-            var value = "123";
-            var result = testengine.ExecuteTestCaseStandard("testIndexPut", "key", value);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(true, result.Pop());
+            var key = Encoding.UTF8.GetBytes("key");
+            var value = Encoding.UTF8.GetBytes("123");
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testIndexGet", "key");
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(value, result.Pop().GetString());
+            Assert.AreEqual(true, Contract.TestIndexPut(key, value));
+            CollectionAssert.AreEqual(value, Contract.TestIndexGet(key));
         }
 
         [TestMethod]
         public void Test_NewGetMethods()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testNewGetMethods");
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(true, result.Pop().GetBoolean());
+            Assert.AreEqual(true, Contract.TestNewGetMethods());
         }
 
         [TestMethod]
         public void Test_NewGetByteArray()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testNewGetByteArray");
-            var testArr = new byte[] { 0x00, 0x01 };
-            Assert.AreEqual(1, result.Count);
-            var res = result.Pop().GetSpan().ToArray();
-            Assert.AreEqual(VM.VMState.HALT, testengine.State);
-            Assert.AreEqual(testArr[0], res[0]);
-            Assert.AreEqual(testArr[1], res[1]);
+            CollectionAssert.AreEqual(new byte[] { 0x00, 0x01 }, Contract.TestNewGetByteArray());
         }
     }
 }

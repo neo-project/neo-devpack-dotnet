@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -8,13 +9,10 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestExtraAttribute()
         {
-            var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ExtraAttribute.cs");
+            var extra = Contract_ExtraAttribute.Manifest.Extra;
 
-            var extra = testengine.Manifest.Extra;
-
-            Assert.AreEqual("Neo", extra["Author"].GetString());
-            Assert.AreEqual("dev@neo.org", extra["E-mail"].GetString());
+            Assert.AreEqual("Neo", extra["Author"]?.GetString());
+            Assert.AreEqual("dev@neo.org", extra["E-mail"]?.GetString());
         }
     }
 }

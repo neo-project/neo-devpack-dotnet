@@ -1,3 +1,4 @@
+using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Testing.Native;
 using System;
@@ -80,7 +81,8 @@ namespace Neo.SmartContract.Testing
         /// Initialize native contracts
         /// </summary>
         /// <param name="commit">Initialize native contracts</param>
-        public void Initialize(bool commit = false)
+        /// <returns>Genesis block</returns>
+        public Block Initialize(bool commit = false)
         {
             _engine.Transaction.Script = Array.Empty<byte>(); // Store the script in the current transaction
 
@@ -122,7 +124,7 @@ namespace Neo.SmartContract.Testing
 
                 method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
+                using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
@@ -145,6 +147,8 @@ namespace Neo.SmartContract.Testing
 
             ApplicationEngine.Log -= _engine.ApplicationEngineLog;
             ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
+
+            return genesis;
         }
     }
 }

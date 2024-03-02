@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             // Create new test engine without initialize
             // and set the storage to the restored one
 
-            engine = new TestEngine(false) { Storage = storage };
+            engine = new TestEngine(storage, false);
 
             // Ensure that all works
 
@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             storage = new EngineStorage(new MemoryStore());
             new EngineCheckpoint(new MemoryStream(checkpoint.ToArray())).Restore(storage.Snapshot);
 
-            engine = new TestEngine(false) { Storage = storage };
+            engine = new TestEngine(storage, false);
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
         }
 

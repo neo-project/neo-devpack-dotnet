@@ -112,9 +112,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             throw new Exception("Uknown property");
         }
 
-        public static object GetTxVMState(UInt256 hash)
+        public static BigInteger GetTxVMState(UInt256 hash)
         {
-            return Ledger.GetTransactionVMState(hash);
+            return (int)Ledger.GetTransactionVMState(hash);
         }
     }
 }

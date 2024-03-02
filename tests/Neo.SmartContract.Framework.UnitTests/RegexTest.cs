@@ -1,82 +1,49 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM.Types;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class RegexTest
+    public class RegexTest : TestBase<Contract_Regex>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Regex.cs");
-        }
+        public RegexTest() : base(Contract_Regex.Nef, Contract_Regex.Manifest) { }
 
         [TestMethod]
         public void TestStartWith()
         {
-            var result = _engine.ExecuteTestCaseStandard("testStartWith");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop<Boolean>();
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.TestStartWith());
         }
 
         [TestMethod]
         public void TestIndexOf()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testIndexOf");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop<Integer>();
-            Assert.AreEqual(4, item.GetInteger());
+            Assert.AreEqual(4, Contract.TestIndexOf());
         }
 
         [TestMethod]
         public void TestEndWith()
         {
-            var result = _engine.ExecuteTestCaseStandard("testEndWith");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop<Boolean>();
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.TestEndWith());
         }
         [TestMethod]
         public void TestContains()
         {
-            var result = _engine.ExecuteTestCaseStandard("testContains");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop<Boolean>();
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.TestContains());
         }
 
         [TestMethod]
         public void TestNumberOnly()
         {
-            var result = _engine.ExecuteTestCaseStandard("testNumberOnly");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop<Boolean>();
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.TestNumberOnly());
         }
 
         [TestMethod]
         public void TestAlphabetOnly()
         {
-            var result = _engine.ExecuteTestCaseStandard("testAlphabetOnly");
-            Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result.Pop<Boolean>().GetBoolean());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testLowerAlphabetOnly");
-            Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result.Pop<Boolean>().GetBoolean());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testUpperAlphabetOnly");
-            Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result.Pop<Boolean>().GetBoolean());
+            Assert.IsTrue(Contract.TestAlphabetOnly());
+            Assert.IsTrue(Contract.TestLowerAlphabetOnly());
+            Assert.IsTrue(Contract.TestUpperAlphabetOnly());
         }
     }
 }

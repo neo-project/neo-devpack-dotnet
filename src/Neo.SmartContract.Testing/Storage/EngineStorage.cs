@@ -11,8 +11,8 @@ namespace Neo.SmartContract.Testing.Storage
     /// </summary>
     public class EngineStorage
     {
-        // Key to check if native contracts are initialized, by default: Neo.votersCountPrefix
-        private static readonly StorageKey _initKey = new() { Id = Neo.SmartContract.Native.NativeContract.NEO.Id, Key = new byte[] { 1 } };
+        // Key to check if native contracts are initialized, by default: ContractManagement.Prefix_NextAvailableId
+        private static readonly StorageKey _initKey = new() { Id = Neo.SmartContract.Native.NativeContract.ContractManagement.Id, Key = new byte[] { 15 } };
 
         /// <summary>
         /// Store
