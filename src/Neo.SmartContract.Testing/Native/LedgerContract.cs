@@ -19,12 +19,12 @@ public abstract class LedgerContract : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract UInt256? CurrentHash { [DisplayName("currentHash")] get; }
+    public abstract UInt256 CurrentHash { [DisplayName("currentHash")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? CurrentIndex { [DisplayName("currentIndex")] get; }
+    public abstract uint CurrentIndex { [DisplayName("currentIndex")] get; }
 
     #endregion
 
@@ -47,13 +47,13 @@ public abstract class LedgerContract : SmartContract
     /// <summary>
     /// Safe helper method
     /// </summary>
-    public Models.Transaction? GetTransactionFromBlock(uint blockIndex, uint txIndex)
+    public Models.Transaction? GetTransactionFromBlock(uint blockIndex, int txIndex)
         => GetTransactionFromBlock(new BigInteger(blockIndex).ToByteArray(), txIndex);
 
     /// <summary>
     /// Safe helper method
     /// </summary>
-    public Models.Transaction? GetTransactionFromBlock(UInt256 blockHash, uint txIndex)
+    public Models.Transaction? GetTransactionFromBlock(UInt256 blockHash, int txIndex)
         => GetTransactionFromBlock(blockHash.ToArray(), txIndex);
 
     #endregion
@@ -68,13 +68,13 @@ public abstract class LedgerContract : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getTransaction")]
-    public abstract Models.Transaction? GetTransaction(UInt256? hash);
+    public abstract Models.Transaction? GetTransaction(UInt256 hash);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getTransactionFromBlock")]
-    public abstract Models.Transaction? GetTransactionFromBlock(byte[]? blockIndexOrHash, BigInteger? txIndex);
+    public abstract Models.Transaction? GetTransactionFromBlock(byte[] blockIndexOrHash, int txIndex);
 
     /// <summary>
     /// Safe method
@@ -92,7 +92,7 @@ public abstract class LedgerContract : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getTransactionVMState")]
-    public abstract VMState? GetTransactionVMState(UInt256? hash);
+    public abstract VMState GetTransactionVMState(UInt256 hash);
 
     #endregion
 
