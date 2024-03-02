@@ -17,13 +17,10 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "3.6.0"
-        },
-        {
-          "choice": "3.6.2"
+          "choice": "3.6.2-CI00519"
         }
       ],
-      "defaultValue": "3.6.2",
+      "defaultValue": "3.6.2-CI00519",
       "replaces": "TemplateNeoVersion"
     }
   }

@@ -18,6 +18,8 @@ public interface IOracle
     /// <example>
     /// public static void OnOracleResponse(string url, object userData, OracleResponseCode code, string result)
     /// {
+    ///     // This check ensures that this method can only be called by the native oracle contract
+    ///     // where <see cref="Runtime.CallingScriptHash"/> returns the hash of the native oracle contract here
     ///     if (Runtime.CallingScriptHash != Oracle.Hash) throw new Exception("Unauthorized!");
     ///     Storage.Put(Storage.CurrentContext, PreData, result);
     /// }

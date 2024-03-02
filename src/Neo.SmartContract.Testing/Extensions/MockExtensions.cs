@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 // Sometimes method comparation with Equals doesn't work as expected with moq
 
-                if (method.DeclaringType.Equals(mSetup.DeclaringType) &&
+                if (method.DeclaringType?.Equals(mSetup.DeclaringType) == true &&
                     method.Attributes.Equals(mSetup.Attributes) &&
                     method.Name.Equals(mSetup.Name) &&
                     method.ReturnType.Equals(mSetup.ReturnType) &&
@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     )
                .MakeGenericMethod(returnType);
 
-            var setup = setupMethod.Invoke(mock, new object[] { exp })!;
+            var setup = setupMethod.Invoke(mock, new[] { exp })!;
 
             var retMethod = setup.GetType()
                .GetMethod("Returns", new Type[] { typeof(InvocationFunc) })!;
@@ -119,7 +119,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     u.GetParameters()[0].ParameterType.ToString().Contains("[System.Action`")
                     );
 
-            var setup = setupMethod.Invoke(mock, new object[] { exp })!;
+            var setup = setupMethod.Invoke(mock, new[] { exp })!;
 
             var retMethod = setup.GetType()
                .GetMethod("Callback", new Type[] { typeof(InvocationAction) })!;

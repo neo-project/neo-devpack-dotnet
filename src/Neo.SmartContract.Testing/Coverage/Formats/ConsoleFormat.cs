@@ -16,10 +16,10 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         /// Constructor
         /// </summary>
         /// <param name="contract">Contract</param>
-        /// <param name="Filter">Method Filter</param>
-        public ConsoleFormat(CoveredContract contract, Func<CoveredMethod, bool>? Filter = null)
+        /// <param name="filter">Method Filter</param>
+        public ConsoleFormat(CoveredContract contract, Func<CoveredMethod, bool>? filter = null)
         {
-            Entries = new (CoveredContract, Func<CoveredMethod, bool>?)[] { (contract, Filter) };
+            Entries = new[] { (contract, filter) };
         }
 
         /// <summary>
@@ -69,13 +69,13 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                     max[2] = Math.Max(coverLines.Length, max[2]);
                 }
 
-                writer.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┬-{"─".PadLeft(max[1], '─')}-┐");
-                writer.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │ {string.Format($"{{0,{max[2]}}}", "Branch", max[1])} │");
-                writer.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┼-{"─".PadLeft(max[1], '─')}-┤");
+                writer.WriteLine($"┌-{"─".PadLeft(max[0], '─')}-┬-{"─".PadLeft(max[1], '─')}-┬-{"─".PadLeft(max[2], '─')}-┐");
+                writer.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", "Method", max[0])} │ {string.Format($"{{0,{max[1]}}}", "Line  ", max[1])} │ {string.Format($"{{0,{max[2]}}}", "Branch", max[2])} │");
+                writer.WriteLine($"├-{"─".PadLeft(max[0], '─')}-┼-{"─".PadLeft(max[1], '─')}-┼-{"─".PadLeft(max[2], '─')}-┤");
 
                 foreach (var print in rows)
                 {
-                    writer.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │ {string.Format($"{{0,{max[1]}}}", print[2], max[2])} │");
+                    writer.WriteLine($"│ {string.Format($"{{0,-{max[0]}}}", print[0], max[0])} │ {string.Format($"{{0,{max[1]}}}", print[1], max[1])} │ {string.Format($"{{0,{max[2]}}}", print[2], max[2])} │");
                 }
 
                 writer.WriteLine($"└-{"─".PadLeft(max[0], '─')}-┴-{"─".PadLeft(max[1], '─')}-┴-{"─".PadLeft(max[2], '─')}-┘");

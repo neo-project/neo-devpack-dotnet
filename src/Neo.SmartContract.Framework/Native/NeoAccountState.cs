@@ -8,7 +8,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.Cryptography.ECC;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Native

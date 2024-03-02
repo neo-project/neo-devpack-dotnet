@@ -8,43 +8,24 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Generic;
+using System;
 
 namespace Neo.Compiler
 {
-    public class Options
+    public class Options : CompilationOptions
     {
-        public enum GenerateArtifactsKind
+        [Flags]
+        public enum GenerateArtifactsKind : byte
         {
-            None,
-            Source,
-            Library,
-            All
+            None = 0,
+            Source = 1,
+            Library = 2,
+
+            All = Source | Library
         }
 
         public string? Output { get; set; }
-        public string? BaseName { get; set; }
-        public NullableContextOptions Nullable { get; set; }
-        public bool Checked { get; set; }
-        public bool Debug { get; set; }
         public bool Assembly { get; set; }
-        public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.Source;
-        public bool NoOptimize { get; set; }
-        public bool NoInline { get; set; }
-        public byte AddressVersion { get; set; }
-
-        private CSharpParseOptions? parseOptions = null;
-        public CSharpParseOptions GetParseOptions()
-        {
-            if (parseOptions is null)
-            {
-                List<string> preprocessorSymbols = new();
-                if (Debug) preprocessorSymbols.Add("DEBUG");
-                parseOptions = new CSharpParseOptions(preprocessorSymbols: preprocessorSymbols);
-            }
-            return parseOptions;
-        }
+        public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.None;
     }
 }

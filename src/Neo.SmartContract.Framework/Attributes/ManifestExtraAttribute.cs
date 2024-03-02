@@ -20,12 +20,16 @@ namespace Neo.SmartContract.Framework.Attributes
         {
         }
 
-        internal static readonly Dictionary<string, string> AttributeType = new Dictionary<string, string>
+        public ManifestExtraAttribute(string key, string value, string value2)
         {
-            { nameof(AuthorAttribute), "Author" },
-            { nameof(EmailAttribute), "E-mail" },
-            { nameof(DescriptionAttribute), "Description" },
-            { nameof(VersionAttribute), "Version" },
+        }
+
+        internal static readonly Dictionary<string, string> AttributeType = new()
+        {
+            { nameof(ContractAuthorAttribute), "Author" },
+            { nameof(ContractEmailAttribute), "E-mail" },
+            { nameof(ContractDescriptionAttribute), "Description" },
+            { nameof(ContractVersionAttribute), "Version" },
         };
     }
 }

@@ -13,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.SmartContract;
@@ -103,13 +104,13 @@ namespace Neo.Compiler
 
         private void RemoveAnonymousVariable(byte index)
         {
-            if (!_context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 _anonymousVariables.Remove(index);
         }
 
         private void RemoveLocalVariable(ILocalSymbol symbol)
         {
-            if (!_context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 _localVariables.Remove(symbol);
         }
 
@@ -130,10 +131,21 @@ namespace Neo.Compiler
             });
         }
 
-        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken syntax)
+        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
         {
             return new SequencePointInserter(_instructions, syntax);
         }
+
+        private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
+        {
+            return new SequencePointInserter(_instructions, syntax);
+        }
+
+        private SequencePointInserter InsertSequencePoint(Location? location)
+        {
+            return new SequencePointInserter(_instructions, location);
+        }
+
         #endregion
 
         #region Convert
@@ -226,8 +238,8 @@ namespace Neo.Compiler
                 // it comes from modifier clean up
                 AddInstruction(OpCode.RET);
             }
-            if (!_context.Options.NoOptimize)
-                Optimizer.RemoveNops(_instructions);
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                BasicOptimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }
 
@@ -244,7 +256,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -275,10 +287,20 @@ namespace Neo.Compiler
             {
                 preInitialize?.Invoke();
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
-                ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+                var attributeName = initialValue.AttributeClass!.Name;
+                ContractParameterType parameterType = attributeName switch
+                {
+                    nameof(InitialValueAttribute) => (ContractParameterType)initialValue.ConstructorArguments[1].Value!,
+                    nameof(Hash160Attribute) => ContractParameterType.Hash160,
+                    nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
+                    nameof(ByteArrayAttribute) => ContractParameterType.ByteArray,
+                    nameof(StringAttribute) => ContractParameterType.String,
+                    _ => throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {attributeName}"),
+                };
+
                 try
                 {
-                    switch (type)
+                    switch (parameterType)
                     {
                         case ContractParameterType.String:
                             Push(value);
@@ -293,12 +315,12 @@ namespace Neo.Compiler
                             Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                             break;
                         default:
-                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
+                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {parameterType}");
                     }
                 }
                 catch (Exception ex) when (ex is not CompilationException)
                 {
-                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {type}");
+                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {parameterType}");
                 }
                 postInitialize?.Invoke();
             }

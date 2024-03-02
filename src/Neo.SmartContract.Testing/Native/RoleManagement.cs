@@ -7,9 +7,16 @@ namespace Neo.SmartContract.Testing.Native;
 
 public abstract class RoleManagement : SmartContract
 {
+    #region Compiled data
+
+    public static readonly Manifest.ContractManifest Manifest = Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""RoleManagement"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""designateAsRole"",""parameters"":[{""name"":""role"",""type"":""Integer""},{""name"":""nodes"",""type"":""Array""}],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""getDesignatedByRole"",""parameters"":[{""name"":""role"",""type"":""Integer""},{""name"":""index"",""type"":""Integer""}],""returntype"":""Array"",""offset"":7,""safe"":true}],""events"":[{""name"":""Designation"",""parameters"":[{""name"":""Role"",""type"":""Integer""},{""name"":""BlockIndex"",""type"":""Integer""}]}]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":null}");
+
+    #endregion
+
     #region Events
 
     public delegate void delDesignation(BigInteger Role, BigInteger BlockIndex);
+
     [DisplayName("Designation")]
     public event delDesignation? OnDesignation;
 
@@ -21,7 +28,7 @@ public abstract class RoleManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getDesignatedByRole")]
-    public abstract ECPoint[] GetDesignatedByRole(Role? role, BigInteger? index);
+    public abstract ECPoint[] GetDesignatedByRole(Role role, uint index);
 
     #endregion
 
@@ -31,7 +38,7 @@ public abstract class RoleManagement : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("designateAsRole")]
-    public abstract void DesignateAsRole(Role? role, ECPoint[]? nodes);
+    public abstract void DesignateAsRole(Role role, ECPoint[] nodes);
 
     #endregion
 

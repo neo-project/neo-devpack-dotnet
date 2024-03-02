@@ -1,34 +1,21 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM;
-using Neo.VM.Types;
-using System.Collections.Generic;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
+using System;
+using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class HelperTest
+    public class HelperTest : TestBase<Contract_Helper>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine.TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Helper.cs");
-        }
+        public HelperTest() : base(Contract_Helper.Nef, Contract_Helper.Manifest) { }
 
         [TestMethod]
         public void TestHexToBytes()
         {
             // 0a0b0c0d0E0F
-
-            var result = _engine.ExecuteTestCaseStandard("testHexToBytes");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("0a0b0c0d0e0f", (item as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("0a0b0c0d0e0f", Contract.TestHexToBytes().ToHexString());
         }
 
         [TestMethod]
@@ -36,218 +23,108 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // 0
 
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testToBigInteger", StackItem.Null);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsTrue(item.IsNull);
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(System.Array.Empty<byte>()));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
+            Assert.IsNull(Contract.TestToBigInteger(null));
+            Assert.AreEqual(0, Contract.TestToBigInteger(System.Array.Empty<byte>()));
 
             // Value
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testToBigInteger", new ByteString(new byte[] { 123 }));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, item.GetInteger());
+            Assert.AreEqual(123, Contract.TestToBigInteger(new byte[] { 123 }));
         }
 
         [TestMethod]
         public void TestModPow()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("modMultiply", 4, 7, 6);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(4, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("modInverse", 3, 26);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(9, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("modPow", 23895, 15, 14189);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(344, item.GetInteger());
+            Assert.AreEqual(4, Contract.ModMultiply(4, 7, 6));
+            Assert.AreEqual(9, Contract.ModInverse(3, 26));
+            Assert.AreEqual(344, Contract.ModPow(23895, 15, 14189));
         }
 
         [TestMethod]
         public void TestBigIntegerParseandCast()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testBigIntegerCast", new ByteString(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(2000000000000000, item.GetInteger());
-
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("testBigIntegerParseHexString", "00008d49fd1a07");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.IsNotNull(_engine.FaultException);
+            Assert.AreEqual(2000000000000000, Contract.TestBigIntegerCast(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
+            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
         }
 
         [TestMethod]
         public void TestAssert()
         {
             // With extension
-            var logList = new List<string>();
-            var logsMethod = new System.EventHandler<LogEventArgs>((object sender, LogEventArgs e) => { logList.Add(e.Message); });
-            ApplicationEngine.Log += logsMethod;
-            var result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.True);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(item.GetInteger(), 5);
-            Assert.AreEqual(logList.Count, 0);
+            Assert.AreEqual(5, Contract.AssertCall(true));
+            AssertNoLogs();
 
-            _engine.Reset(); logList.Clear();
-            result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.False);
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(logList.Count, 0);
-            Assert.IsTrue(_engine.FaultException.Message.Contains("UT-ERROR-123"));
+            var ex = Assert.ThrowsException<Exception>(() => Contract.AssertCall(false));
+            AssertNoLogs();
+            Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
 
             // Test without notification right
 
-            _engine.Reset(); logList.Clear();
-            _engine.OnPreExecuteTestCaseStandard += RemoveAllowNotifyCallFlag;
-            result = _engine.ExecuteTestCaseStandard("assertCall", StackItem.False);
-            _engine.OnPreExecuteTestCaseStandard -= RemoveAllowNotifyCallFlag;
-
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
-            Assert.AreEqual(logList.Count, 0);
-            Assert.IsTrue(_engine.FaultException.Message.Contains("UT-ERROR-123"));
+            Engine.CallFlags &= ~CallFlags.AllowNotify;
+            ex = Assert.ThrowsException<Exception>(() => Contract.AssertCall(false));
+            Engine.CallFlags = CallFlags.All;
+            AssertNoLogs();
+            Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
 
             // Void With extension
 
-            _engine.Reset(); logList.Clear();
-            result = _engine.ExecuteTestCaseStandard("voidAssertCall", StackItem.True);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(logList.Count, 0);
-            Assert.AreEqual(0, result.Count);
+            Contract.VoidAssertCall(true);
+            AssertNoLogs();
 
-            _engine.Reset(); logList.Clear();
-            result = _engine.ExecuteTestCaseStandard("voidAssertCall", StackItem.False);
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(logList.Count, 0);
-            Assert.AreEqual(0, result.Count);
-            ApplicationEngine.Log -= logsMethod;
-        }
-
-        private void RemoveAllowNotifyCallFlag(object sender, ExecutionContext e)
-        {
-            e.GetState<ExecutionContextState>().CallFlags &= ~CallFlags.AllowNotify;
+            ex = Assert.ThrowsException<Exception>(() => Contract.VoidAssertCall(false));
         }
 
         [TestMethod]
         public void Test_ByteToByteArray()
         {
-            var result = _engine.ExecuteTestCaseStandard("testByteToByteArray").Pop();
-
-            StackItem wantResult = new byte[] { 0x01 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x01 }, Contract.TestByteToByteArray());
         }
 
         [TestMethod]
         public void Test_Reverse()
         {
-            var result = _engine.ExecuteTestCaseStandard("testReverse").Pop();
-
-            StackItem wantResult = new byte[] { 0x03, 0x02, 0x01 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x03, 0x02, 0x01 }, Contract.TestReverse());
         }
 
         [TestMethod]
         public void Test_SbyteToByteArray()
         {
-            var result = _engine.ExecuteTestCaseStandard("testSbyteToByteArray").Pop();
-
-            StackItem wantResult = new byte[] { 255 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 255 }, Contract.TestSbyteToByteArray());
         }
 
         [TestMethod]
         public void Test_StringToByteArray()
         {
-            var result = _engine.ExecuteTestCaseStandard("testStringToByteArray").Pop();
-
-            StackItem wantResult = new byte[] { 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100 }, Contract.TestStringToByteArray());
         }
 
         [TestMethod]
         public void Test_Concat()
         {
-            var result = _engine.ExecuteTestCaseStandard("testConcat").Pop();
-
-            StackItem wantResult = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }, Contract.TestConcat());
         }
 
         [TestMethod]
         public void Test_Range()
         {
-            var result = _engine.ExecuteTestCaseStandard("testRange").Pop();
-
-            StackItem wantResult = new byte[] { 0x02 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x02 }, Contract.TestRange());
         }
 
         [TestMethod]
         public void Test_Take()
         {
-            var result = _engine.ExecuteTestCaseStandard("testTake").Pop();
-
-            StackItem wantResult = new byte[] { 0x01, 0x02 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x02 }, Contract.TestTake());
         }
 
         [TestMethod]
         public void Test_Last()
         {
-            var result = _engine.ExecuteTestCaseStandard("testLast").Pop();
-
-            StackItem wantResult = new byte[] { 0x02, 0x03 };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x02, 0x03 }, Contract.TestLast());
         }
 
         [TestMethod]
         public void Test_ToScriptHash()
         {
-            var result = _engine.ExecuteTestCaseStandard("testToScriptHash").Pop();
-
-            StackItem wantResult = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xaa, 0xbb, 0xcc, 0xdd, 0xee };
-            Assert.AreEqual(wantResult.ConvertTo(VM.Types.StackItemType.ByteString), result.ConvertTo(VM.Types.StackItemType.ByteString));
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xaa, 0xbb, 0xcc, 0xdd, 0xee }, Contract.TestToScriptHash());
         }
     }
 }

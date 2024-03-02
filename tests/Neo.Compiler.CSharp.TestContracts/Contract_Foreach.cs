@@ -1,14 +1,12 @@
-using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract;
-using Neo.Cryptography.ECC;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Foreach : SmartContract.Framework.SmartContract
     {
-        [InitialValue("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", ContractParameterType.ByteArray)]
+        [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
         private static readonly byte[] rawECpoint = default;
 
         struct Pending

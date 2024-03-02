@@ -181,7 +181,7 @@ partial class MethodConvert
                 Call(NativeContract.StdLib.Hash, "itoa", 1, true);
                 break;
             case "string":
-            case "Neo.Cryptography.ECC.ECPoint":
+            case "Neo.SmartContract.Framework.ECPoint":
             case "Neo.SmartContract.Framework.ByteString":
             case "Neo.SmartContract.Framework.UInt160":
             case "Neo.SmartContract.Framework.UInt256":

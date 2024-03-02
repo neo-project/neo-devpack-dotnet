@@ -3,7 +3,7 @@ using System;
 namespace Neo.Optimizer
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class StrategyAttribute : Attribute
+    class StrategyAttribute : Attribute
     {
         /// <summary>
         /// Strategy name

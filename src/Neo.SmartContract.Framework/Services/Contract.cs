@@ -46,9 +46,9 @@ namespace Neo.SmartContract.Framework.Services
         public static extern CallFlags GetCallFlags();
 
         [Syscall("System.Contract.CreateStandardAccount")]
-        public static extern UInt160 CreateStandardAccount(Cryptography.ECC.ECPoint pubKey);
+        public static extern UInt160 CreateStandardAccount(ECPoint pubKey);
 
         [Syscall("System.Contract.CreateMultisigAccount")]
-        public static extern UInt160 CreateMultisigAccount(int m, params Cryptography.ECC.ECPoint[] pubKey);
+        public static extern UInt160 CreateMultisigAccount(int m, params ECPoint[] pubKey);
     }
 }

@@ -171,20 +171,7 @@ namespace Neo.Compiler
                 string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
 
-                NefFile nef = context.CreateExecutable();
-                ContractManifest manifest = context.CreateManifest();
-                JToken debugInfo = context.CreateDebugInformation(folder);
-                if (!options.NoOptimize)
-                {
-                    try
-                    {
-                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Failed to optimize: {ex}");
-                    }
-                }
+                (NefFile nef, ContractManifest manifest, JToken debugInfo) = context.CreateResults(folder);
 
                 try
                 {
@@ -212,16 +199,16 @@ namespace Neo.Compiler
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
-                    var artifact = manifest.GetArtifactsSource(baseName, nef, debugInfo);
+                    var artifact = manifest.GetArtifactsSource(baseName, nef);
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Source))
                     {
                         path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
                         File.WriteAllText(path, artifact);
                         Console.WriteLine($"Created {path}");
                     }
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Library)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
                     {
                         try
                         {

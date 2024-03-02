@@ -6,18 +6,18 @@ using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Text;
 
-namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
+namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
 {
     /// <summary>
     /// You need to build the solution to resolve OracleRequest class.
     /// </summary>
     [TestClass]
-    public class OracleRequestTests : TestBase<OracleRequest>
+    public class OracleRequestTests : TestBase<OracleRequestTemplate>
     {
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public OracleRequestTests() : base(OracleRequest.Nef, OracleRequest.Manifest) { }
+        public OracleRequestTests() : base(OracleRequestTemplate.Nef, OracleRequestTemplate.Manifest) { }
 
         [TestMethod]
         public void TestGetResponse()
@@ -48,10 +48,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
     }
 }")!;
 
-            Engine.Native.Oracle.OnOracleRequest += (ulong id, UInt160 requestContract, string url, string filter) =>
+            Engine.Native.Oracle.OnOracleRequest += (id, requestContract, url, filter) =>
             {
                 requestId = id;
-                response = data.JsonPath(filter).ToString(false);
+                response = data.JsonPath(filter!).ToString(false);
             };
 
             Contract.DoRequest();
