@@ -1,15 +1,14 @@
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
-using Neo.SmartContract.Testing.Native;
 using System;
 using System.Reflection;
 
-namespace Neo.SmartContract.Testing
+namespace Neo.SmartContract.Testing.Native
 {
     /// <summary>
-    /// NativeArtifacts makes it easier to access native contracts
+    /// NativeContracts makes it easier to access native contracts
     /// </summary>
-    public class NativeArtifacts
+    public class NativeContracts
     {
         private readonly TestEngine _engine;
 
@@ -26,27 +25,27 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// GasToken
         /// </summary>
-        public GasToken GAS { get; }
+        public GAS GAS { get; }
 
         /// <summary>
         /// NeoToken
         /// </summary>
-        public NeoToken NEO { get; }
+        public NEO NEO { get; }
 
         /// <summary>
         /// LedgerContract
         /// </summary>
-        public LedgerContract Ledger { get; }
+        public Ledger Ledger { get; }
 
         /// <summary>
         /// OracleContract
         /// </summary>
-        public OracleContract Oracle { get; }
+        public Oracle Oracle { get; }
 
         /// <summary>
         /// PolicyContract
         /// </summary>
-        public PolicyContract Policy { get; }
+        public Policy Policy { get; }
 
         /// <summary>
         /// RoleManagement
@@ -62,17 +61,17 @@ namespace Neo.SmartContract.Testing
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
-        public NativeArtifacts(TestEngine engine)
+        public NativeContracts(TestEngine engine)
         {
             _engine = engine;
 
             ContractManagement = _engine.FromHash<ContractManagement>(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash, Neo.SmartContract.Native.NativeContract.ContractManagement.Id);
             CryptoLib = _engine.FromHash<CryptoLib>(Neo.SmartContract.Native.NativeContract.CryptoLib.Hash, Neo.SmartContract.Native.NativeContract.CryptoLib.Id);
-            GAS = _engine.FromHash<GasToken>(Neo.SmartContract.Native.NativeContract.GAS.Hash, Neo.SmartContract.Native.NativeContract.GAS.Id);
-            NEO = _engine.FromHash<NeoToken>(Neo.SmartContract.Native.NativeContract.NEO.Hash, Neo.SmartContract.Native.NativeContract.NEO.Id);
-            Ledger = _engine.FromHash<LedgerContract>(Neo.SmartContract.Native.NativeContract.Ledger.Hash, Neo.SmartContract.Native.NativeContract.Ledger.Id);
-            Oracle = _engine.FromHash<OracleContract>(Neo.SmartContract.Native.NativeContract.Oracle.Hash, Neo.SmartContract.Native.NativeContract.Oracle.Id);
-            Policy = _engine.FromHash<PolicyContract>(Neo.SmartContract.Native.NativeContract.Policy.Hash, Neo.SmartContract.Native.NativeContract.Policy.Id);
+            GAS = _engine.FromHash<GAS>(Neo.SmartContract.Native.NativeContract.GAS.Hash, Neo.SmartContract.Native.NativeContract.GAS.Id);
+            NEO = _engine.FromHash<NEO>(Neo.SmartContract.Native.NativeContract.NEO.Hash, Neo.SmartContract.Native.NativeContract.NEO.Id);
+            Ledger = _engine.FromHash<Ledger>(Neo.SmartContract.Native.NativeContract.Ledger.Hash, Neo.SmartContract.Native.NativeContract.Ledger.Id);
+            Oracle = _engine.FromHash<Oracle>(Neo.SmartContract.Native.NativeContract.Oracle.Hash, Neo.SmartContract.Native.NativeContract.Oracle.Id);
+            Policy = _engine.FromHash<Policy>(Neo.SmartContract.Native.NativeContract.Policy.Hash, Neo.SmartContract.Native.NativeContract.Policy.Id);
             RoleManagement = _engine.FromHash<RoleManagement>(Neo.SmartContract.Native.NativeContract.RoleManagement.Hash, Neo.SmartContract.Native.NativeContract.RoleManagement.Id);
             StdLib = _engine.FromHash<StdLib>(Neo.SmartContract.Native.NativeContract.StdLib.Hash, Neo.SmartContract.Native.NativeContract.StdLib.Id);
         }

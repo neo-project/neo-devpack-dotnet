@@ -9,7 +9,8 @@ public abstract class RoleManagement : SmartContract
 {
     #region Compiled data
 
-    public static readonly Manifest.ContractManifest Manifest = Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""RoleManagement"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""designateAsRole"",""parameters"":[{""name"":""role"",""type"":""Integer""},{""name"":""nodes"",""type"":""Array""}],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""getDesignatedByRole"",""parameters"":[{""name"":""role"",""type"":""Integer""},{""name"":""index"",""type"":""Integer""}],""returntype"":""Array"",""offset"":7,""safe"":true}],""events"":[{""name"":""Designation"",""parameters"":[{""name"":""Role"",""type"":""Integer""},{""name"":""BlockIndex"",""type"":""Integer""}]}]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":null}");
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.RoleManagement.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
 
     #endregion
 
