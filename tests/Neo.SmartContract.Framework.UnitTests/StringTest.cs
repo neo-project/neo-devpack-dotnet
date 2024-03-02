@@ -1,61 +1,31 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class StringTest
+    public class StringTest : TestBase<Contract_String>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_String.cs");
-        }
+        public StringTest() : base(Contract_String.Nef, Contract_String.Manifest) { }
 
         [TestMethod]
         public void TestStringAdd()
         {
             // ab => 3
-            var result = _engine.ExecuteTestCaseStandard("testStringAdd", "a", "b");
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(3, item);
+            Assert.AreEqual(3, Contract.TestStringAdd("a", "b"));
 
             // hello => 4
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testStringAdd", "he", "llo");
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(4, item);
+            Assert.AreEqual(4, Contract.TestStringAdd("he", "llo"));
 
             // world => 5
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testStringAdd", "wo", "rld");
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, item);
+            Assert.AreEqual(5, Contract.TestStringAdd("wo", "rld"));
         }
 
         [TestMethod]
         public void TestStringAddInt()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testStringAddInt", "Neo", 3);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("Neo3", item.GetString());
+            Assert.AreEqual("Neo3", Contract.TestStringAddInt("Neo", 3));
         }
     }
 }

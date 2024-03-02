@@ -51,7 +51,7 @@ public abstract partial class NeoToken : SmartContract, TestingStandards.INep17S
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract Candidate[]? Candidates { [DisplayName("getCandidates")] get; }
+    public abstract Models.Candidate[] Candidates { [DisplayName("getCandidates")] get; }
 
     /// <summary>
     /// Safe property

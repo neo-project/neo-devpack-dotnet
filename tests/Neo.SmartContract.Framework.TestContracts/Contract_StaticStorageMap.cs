@@ -1,13 +1,12 @@
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
-using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_StaticStorageMap : SmartContract
     {
-        private static StorageMap Data = new StorageMap(Storage.CurrentContext, "data");
-        private static readonly StorageMap ReadonlyData = new StorageMap(Storage.CurrentContext, "readonlydata");
+        private static StorageMap Data = new(Storage.CurrentContext, "data");
+        private static readonly StorageMap ReadonlyData = new(Storage.CurrentContext, "readonlydata");
 
         public static void Put(string message)
         {

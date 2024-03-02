@@ -1,7 +1,3 @@
-using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Services;
-using Neo.SmartContract.Framework.Native;
-
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_SequencePointInserter : SmartContract
