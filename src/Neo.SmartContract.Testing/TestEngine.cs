@@ -261,16 +261,14 @@ namespace Neo.SmartContract.Testing
 
             if (initializeNativeContracts)
             {
-                Native.Initialize(false);
-                PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
+                PersistingBlock = new PersistingBlock(this, Native.Initialize(false));
             }
             else
             {
                 if (Storage.IsInitialized)
                 {
-                    PersistingBlock = new PersistingBlock(this,
-                        NativeContract.Ledger.GetBlock(Storage.Snapshot, NativeContract.Ledger.CurrentHash(Storage.Snapshot))
-                        );
+                    var currentHash = NativeContract.Ledger.CurrentHash(Storage.Snapshot);
+                    PersistingBlock = new PersistingBlock(this, NativeContract.Ledger.GetBlock(Storage.Snapshot, currentHash));
                 }
                 else
                 {
