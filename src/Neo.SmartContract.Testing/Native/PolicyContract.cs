@@ -16,17 +16,17 @@ public abstract class PolicyContract : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract uint ExecFeeFactor { [DisplayName("getExecFeeFactor")] get; [DisplayName("setExecFeeFactor")] set; }
+    public abstract BigInteger? ExecFeeFactor { [DisplayName("getExecFeeFactor")] get; [DisplayName("setExecFeeFactor")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract long FeePerByte { [DisplayName("getFeePerByte")] get; [DisplayName("setFeePerByte")] set; }
+    public abstract BigInteger? FeePerByte { [DisplayName("getFeePerByte")] get; [DisplayName("setFeePerByte")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract uint StoragePrice { [DisplayName("getStoragePrice")] get; [DisplayName("setStoragePrice")] set; }
+    public abstract BigInteger? StoragePrice { [DisplayName("getStoragePrice")] get; [DisplayName("setStoragePrice")] set; }
 
     #endregion
 
@@ -36,13 +36,13 @@ public abstract class PolicyContract : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getAttributeFee")]
-    public abstract uint GetAttributeFee(byte attributeType);
+    public abstract BigInteger? GetAttributeFee(BigInteger? attributeType);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("isBlocked")]
-    public abstract bool IsBlocked(UInt160 account);
+    public abstract bool? IsBlocked(UInt160? account);
 
     #endregion
 
@@ -52,19 +52,19 @@ public abstract class PolicyContract : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("blockAccount")]
-    public abstract bool BlockAccount(UInt160 account);
+    public abstract bool? BlockAccount(UInt160? account);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("setAttributeFee")]
-    public abstract void SetAttributeFee(BigInteger attributeType, uint value);
+    public abstract void SetAttributeFee(BigInteger? attributeType, BigInteger? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unblockAccount")]
-    public abstract bool UnblockAccount(UInt160 account);
+    public abstract bool? UnblockAccount(UInt160? account);
 
     #endregion
 

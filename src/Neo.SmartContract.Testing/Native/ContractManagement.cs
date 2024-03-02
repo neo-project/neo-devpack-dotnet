@@ -14,17 +14,17 @@ public abstract class ContractManagement : SmartContract
 
     #region Events
 
-    public delegate void delDeploy(UInt160 Hash);
+    public delegate void delDeploy(UInt160? Hash);
 
     [DisplayName("Deploy")]
     public event delDeploy? OnDeploy;
 
-    public delegate void delDestroy(UInt160 Hash);
+    public delegate void delDestroy(UInt160? Hash);
 
     [DisplayName("Destroy")]
     public event delDestroy? OnDestroy;
 
-    public delegate void delUpdate(UInt160 Hash);
+    public delegate void delUpdate(UInt160? Hash);
 
     [DisplayName("Update")]
     public event delUpdate? OnUpdate;
@@ -36,12 +36,12 @@ public abstract class ContractManagement : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract IIterator ContractHashes { [DisplayName("getContractHashes")] get; }
+    public abstract IIterator? ContractHashes { [DisplayName("getContractHashes")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger MinimumDeploymentFee { [DisplayName("getMinimumDeploymentFee")] get; [DisplayName("setMinimumDeploymentFee")] set; }
+    public abstract BigInteger? MinimumDeploymentFee { [DisplayName("getMinimumDeploymentFee")] get; [DisplayName("setMinimumDeploymentFee")] set; }
 
     #endregion
 
@@ -51,19 +51,19 @@ public abstract class ContractManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getContract")]
-    public abstract ContractState? GetContract(UInt160 hash);
+    public abstract ContractState? GetContract(UInt160? hash);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getContractById")]
-    public abstract ContractState? GetContractById(int id);
+    public abstract ContractState? GetContractById(BigInteger? id);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("hasMethod")]
-    public abstract bool HasMethod(UInt160 hash, string method, int pcount);
+    public abstract bool? HasMethod(UInt160? hash, string? method, BigInteger? pcount);
 
     #endregion
 
@@ -73,13 +73,13 @@ public abstract class ContractManagement : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("deploy")]
-    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest);
+    public abstract ContractState? Deploy(byte[]? nefFile, byte[]? manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("deploy")]
-    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest, object? data = null);
+    public abstract ContractState? Deploy(byte[]? nefFile, byte[]? manifest, object? data = null);
 
     /// <summary>
     /// Unsafe method
