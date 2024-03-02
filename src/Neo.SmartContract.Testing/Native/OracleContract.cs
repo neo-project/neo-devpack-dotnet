@@ -12,7 +12,7 @@ public abstract class OracleContract : SmartContract, TestingStandards.IVerifica
 
     #region Events
 
-    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string Filter);
+    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string? Filter);
 
     [DisplayName("OracleRequest")]
     public event delOracleRequest? OnOracleRequest;
