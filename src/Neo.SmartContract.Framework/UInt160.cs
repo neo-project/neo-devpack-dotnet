@@ -80,6 +80,10 @@ namespace Neo.SmartContract.Framework
         /// 20 bytes hex string: "01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4" (no prefix)
         ///             Address: "NZNosnRn6FpRjwGKx8VdXv5Sn7BvzrjZVb"
         /// </example>
+        /// <remarks>
+        /// This is a compile time conversion, only work with constant string.
+        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// </remarks>
         /// </summary>
         public static extern implicit operator UInt160(string value);
     }

@@ -49,6 +49,10 @@ namespace Neo.SmartContract.Framework
         /// PublicKey from a 33 bytes (66 characters) hexadecimal string:
         ///     "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9"
         /// </example>
+        /// <remarks>
+        /// This is a compile time conversion, only work with constant string.
+        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// </remarks>
         public static extern implicit operator ECPoint(string value);
     }
 }

@@ -56,6 +56,10 @@ namespace Neo.SmartContract.Framework
         /// 32 bytes (64 characters) hexadecimal string: "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f" (no prefix)
         /// </example>
         /// <remarks>The input `MUST` be a valid hex string of a 32 bytes data.</remarks>
+        /// <remarks>
+        /// This is a compile time conversion, only work with constant string.
+        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// </remarks>
         /// </summary>
         public static extern implicit operator UInt256(string value);
     }
