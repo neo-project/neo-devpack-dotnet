@@ -5,7 +5,6 @@ using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace Neo.SmartContract.Testing
 {
@@ -107,36 +106,35 @@ namespace Neo.SmartContract.Testing
 
             // Invoke Ledger.OnPersist
 
-            var native = NativeContract.Ledger;
-            var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+            byte[] script;
+            using (ScriptBuilder sb = new())
+            {
+                sb.EmitSysCall(ApplicationEngine.System_Contract_NativeOnPersist);
+                script = sb.ToArray();
+            }
 
             DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, persist, clonedSnapshot, persist))
             {
-                engine.LoadScript(Array.Empty<byte>());
-                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                    throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
-
-                task.GetAwaiter().GetResult();
-
+                engine.LoadScript(script);
                 if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing {native.Name}.OnPersist");
+                    throw new Exception($"Error executing OnPersist");
             }
 
             // Invoke Ledger.PostPersist
 
-            method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+            using (ScriptBuilder sb = new())
+            {
+                sb.EmitSysCall(ApplicationEngine.System_Contract_NativePostPersist);
+                script = sb.ToArray();
+            }
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, persist, clonedSnapshot, persist))
             {
-                engine.LoadScript(Array.Empty<byte>());
-                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                    throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
-
-                task.GetAwaiter().GetResult();
+                engine.LoadScript(script);
                 if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing {native.Name}.PostPersist");
+                    throw new Exception($"Error executing PostPersist");
             }
 
             // Update states
