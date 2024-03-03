@@ -5,13 +5,27 @@ using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace Neo.SmartContract.Testing
 {
     public class PersistingBlock
     {
+        private readonly static Script onPersistScript, postPersistScript;
         private readonly TestEngine _engine;
+
+        static PersistingBlock()
+        {
+            using (ScriptBuilder sb = new())
+            {
+                sb.EmitSysCall(ApplicationEngine.System_Contract_NativeOnPersist);
+                onPersistScript = sb.ToArray();
+            }
+            using (ScriptBuilder sb = new())
+            {
+                sb.EmitSysCall(ApplicationEngine.System_Contract_NativePostPersist);
+                postPersistScript = sb.ToArray();
+            }
+        }
 
         /// <summary>
         /// Underlying block
@@ -105,38 +119,24 @@ namespace Neo.SmartContract.Testing
             };
             persist.Header.MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray());
 
-            // Invoke Ledger.OnPersist
-
-            var native = NativeContract.Ledger;
-            var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+            // Invoke OnPersist
 
             DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, persist, clonedSnapshot, persist))
             {
-                engine.LoadScript(Array.Empty<byte>());
-                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                    throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
-
-                task.GetAwaiter().GetResult();
-
+                engine.LoadScript(onPersistScript);
                 if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing {native.Name}.OnPersist");
+                    throw new Exception($"Error executing OnPersist");
             }
 
-            // Invoke Ledger.PostPersist
-
-            method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+            // Invoke PostPersist
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, persist, clonedSnapshot, persist))
             {
-                engine.LoadScript(Array.Empty<byte>());
-                if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                    throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
-
-                task.GetAwaiter().GetResult();
+                engine.LoadScript(postPersistScript);
                 if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing {native.Name}.PostPersist");
+                    throw new Exception($"Error executing PostPersist");
             }
 
             // Update states

@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_SequencePointInserter()
         {
-            TestCleanup.EnsureArtifactsUpToDate();
+            TestCleanup.EnsureArtifactsUpToDateInternal();
 
             var debug = TestCleanup.DebugInfos[typeof(Contract_SequencePointInserter)];
             Assert.IsNotNull(debug);
