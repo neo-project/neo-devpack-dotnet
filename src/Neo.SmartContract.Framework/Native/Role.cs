@@ -13,6 +13,7 @@ namespace Neo.SmartContract.Framework.Native
     public enum Role : byte
     {
         StateValidator = 4,
-        Oracle = 8
+        Oracle = 8,
+        NeoFSAlphabetNode = 16
     }
 }
