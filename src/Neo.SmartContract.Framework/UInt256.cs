@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -48,5 +48,19 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt256 value);
+
+        /// <summary>
+        /// Implicitly converts a hexadecimal string to a UInt256 object.
+        /// Assumes the string is a valid hexadecimal representation.
+        /// <example>
+        /// 32 bytes (64 characters) hexadecimal string: "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f" (no prefix)
+        /// </example>
+        /// <remarks>The input `MUST` be a valid hex string of a 32 bytes data.</remarks>
+        /// <remarks>
+        /// This is a compile time conversion, only work with constant string.
+        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// </remarks>
+        /// </summary>
+        public static extern implicit operator UInt256(string value);
     }
 }

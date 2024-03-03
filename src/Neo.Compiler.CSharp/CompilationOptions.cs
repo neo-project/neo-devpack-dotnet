@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Neo.Compiler
 {
@@ -34,7 +35,7 @@ namespace Neo.Compiler
         public bool NoInline { get; set; }
         public byte AddressVersion { get; set; } = 0x35;
         public string? BaseName { get; set; }
-
+        public string CompilerVersion { get; set; }
         private CSharpParseOptions? parseOptions = null;
         public CSharpParseOptions GetParseOptions()
         {
@@ -45,6 +46,18 @@ namespace Neo.Compiler
                 parseOptions = new CSharpParseOptions(preprocessorSymbols: preprocessorSymbols);
             }
             return parseOptions;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public CompilationOptions()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            var titleAttribute = assembly.GetCustomAttribute<AssemblyTitleAttribute>()!;
+            var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!;
+
+            CompilerVersion = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}";
         }
     }
 }

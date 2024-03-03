@@ -65,6 +65,16 @@ jobs:
         -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
         -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
         -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+    - name: Test Neo.SmartContract.Testing.UnitTests
+      run: |
+        dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
+        --no-build \
+        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -l "console;verbosity=detailed" \
+        -p:CollectCoverage=true \
+        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
+        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \

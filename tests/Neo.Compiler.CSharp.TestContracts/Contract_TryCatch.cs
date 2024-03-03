@@ -11,8 +11,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         private static readonly ByteString byteString2Ecpoint = default;
         [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
         private static readonly ByteString validUInt160 = default;
-        [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
-        private static readonly byte[] validUInt256 = default;
+        // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
+        private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
         public static object try01()
         {
             int v = 0;
