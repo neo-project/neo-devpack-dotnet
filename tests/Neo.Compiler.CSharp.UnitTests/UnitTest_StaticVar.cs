@@ -124,5 +124,16 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(value.ToArray().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
         }
+
+        [TestMethod]
+        public void Test_GetString()
+        {
+            using var testengine = new TestEngine(snapshot: new TestDataCache());
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticVar.cs");
+            var result = testengine.ExecuteTestCaseStandard("testGetString");
+            var value = result.Pop().GetString();
+
+            Assert.AreEqual(value, "hello world");
+        }
     }
 }

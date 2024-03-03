@@ -279,7 +279,7 @@ namespace Neo.Compiler
                 using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
-                    ConvertExpression(model, initializer.Value);
+                    ConvertExpression(model, initializer.Value, syntaxNode);
                     postInitialize?.Invoke();
                 }
             }

@@ -31,8 +31,8 @@ namespace Transfer;
 [ContractPermission(Permission.WildCard, Method.WildCard)]
 public class TransferContract : SmartContract
 {
-    [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
-    private static readonly UInt160 Owner = default;
+    // [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
+    private static readonly UInt160 Owner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
     /// <summary>
     /// Transfer method that demonstrate how to transfer NEO and GAS

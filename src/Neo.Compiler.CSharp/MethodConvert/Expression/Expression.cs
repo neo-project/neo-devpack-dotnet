@@ -15,19 +15,67 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using System.Numerics;
+using Neo.Cryptography.ECC;
+using Neo.IO;
+using Neo.Wallets;
 
 namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax)
+    private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
     {
         using var sequence = InsertSequencePoint(syntax);
 
         Optional<object?> constant = model.GetConstantValue(syntax);
         if (constant.HasValue)
         {
-            Push(constant.Value);
+            var value = constant.Value;
+
+            ITypeSymbol? typeSymbol = null;
+            if (syntaxNode is VariableDeclaratorSyntax variableDeclarator)
+            {
+                var declaration = variableDeclarator.Parent as VariableDeclarationSyntax;
+                if (declaration != null)
+                {
+                    typeSymbol = ModelExtensions.GetTypeInfo(model, declaration.Type).Type;
+                }
+            }
+            else if (syntaxNode is PropertyDeclarationSyntax propertyDeclaration)
+            {
+                typeSymbol = ModelExtensions.GetTypeInfo(model, propertyDeclaration.Type).Type;
+            }
+
+            if (typeSymbol != null)
+            {
+                string fullName = typeSymbol.ToDisplayString();
+
+                switch (fullName)
+                {
+                    case "Neo.SmartContract.Framework.UInt160":
+                        var strValue = (string)value;
+                        value = (UInt160.TryParse(strValue, out var hash)
+                            ? hash
+                            : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
+                        break;
+                    case "Neo.SmartContract.Framework.UInt256":
+                        strValue = (string)value;
+                        value = strValue.HexToBytes(true);
+                        if (((byte[])value).Length != 32)
+                            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid UInt256 literal");
+                        break;
+                    case "Neo.SmartContract.Framework.ECPoint":
+                        strValue = (string)value;
+                        value = ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
+                        break;
+                    case "Neo.SmartContract.Framework.ByteArray":
+                        strValue = (string)value;
+                        value = strValue.HexToBytes(true);
+                        break;
+                }
+            }
+
+            Push(value);
             return;
         }
 
@@ -165,7 +213,7 @@ partial class MethodConvert
 
     private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
     {
-        ITypeSymbol? type = model.GetTypeInfo(expression).Type;
+        ITypeSymbol? type = ModelExtensions.GetTypeInfo(model, expression).Type;
         switch (type?.ToString())
         {
             case "sbyte":
