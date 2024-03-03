@@ -10,7 +10,22 @@ namespace Neo.SmartContract.Testing
 {
     public class PersistingBlock
     {
+        private readonly static Script onPersistScript, postPersistScript;
         private readonly TestEngine _engine;
+
+        static PersistingBlock()
+        {
+            using (ScriptBuilder sb = new())
+            {
+                sb.EmitSysCall(ApplicationEngine.System_Contract_NativeOnPersist);
+                onPersistScript = sb.ToArray();
+            }
+            using (ScriptBuilder sb = new())
+            {
+                sb.EmitSysCall(ApplicationEngine.System_Contract_NativePostPersist);
+                postPersistScript = sb.ToArray();
+            }
+        }
 
         /// <summary>
         /// Underlying block
@@ -104,35 +119,22 @@ namespace Neo.SmartContract.Testing
             };
             persist.Header.MerkleRoot = MerkleTree.ComputeRoot(txs.Select(p => p.Hash).ToArray());
 
-            // Invoke Ledger.OnPersist
-
-            byte[] script;
-            using (ScriptBuilder sb = new())
-            {
-                sb.EmitSysCall(ApplicationEngine.System_Contract_NativeOnPersist);
-                script = sb.ToArray();
-            }
+            // Invoke OnPersist
 
             DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, persist, clonedSnapshot, persist))
             {
-                engine.LoadScript(script);
+                engine.LoadScript(onPersistScript);
                 if (engine.Execute() != VMState.HALT)
                     throw new Exception($"Error executing OnPersist");
             }
 
-            // Invoke Ledger.PostPersist
-
-            using (ScriptBuilder sb = new())
-            {
-                sb.EmitSysCall(ApplicationEngine.System_Contract_NativePostPersist);
-                script = sb.ToArray();
-            }
+            // Invoke PostPersist
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, persist, clonedSnapshot, persist))
             {
-                engine.LoadScript(script);
+                engine.LoadScript(postPersistScript);
                 if (engine.Execute() != VMState.HALT)
                     throw new Exception($"Error executing PostPersist");
             }
