@@ -1,13 +1,15 @@
+using Neo.SmartContract.Native;
 using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class GasToken : SmartContract, TestingStandards.INep17Standard
+public abstract class GAS : SmartContract, TestingStandards.INep17Standard
 {
     #region Compiled data
 
-    public static readonly Manifest.ContractManifest Manifest = Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""GasToken"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-17""],""abi"":{""methods"":[{""name"":""balanceOf"",""parameters"":[{""name"":""account"",""type"":""Hash160""}],""returntype"":""Integer"",""offset"":0,""safe"":true},{""name"":""decimals"",""parameters"":[],""returntype"":""Integer"",""offset"":7,""safe"":true},{""name"":""symbol"",""parameters"":[],""returntype"":""String"",""offset"":14,""safe"":true},{""name"":""totalSupply"",""parameters"":[],""returntype"":""Integer"",""offset"":21,""safe"":true},{""name"":""transfer"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""to"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""data"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":28,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":null}");
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.GAS.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
 
     #endregion
 
@@ -59,7 +61,7 @@ public abstract class GasToken : SmartContract, TestingStandards.INep17Standard
 
     #region Constructor for internal use only
 
-    protected GasToken(SmartContractInitialize initialize) : base(initialize) { }
+    protected GAS(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

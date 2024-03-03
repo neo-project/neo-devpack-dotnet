@@ -36,6 +36,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
+                CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })

@@ -7,6 +7,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
@@ -28,7 +29,7 @@ namespace Neo.SmartContract.Testing
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
-        private NativeArtifacts? _native;
+        private NativeContracts? _native;
 
         /// <summary>
         /// Default Protocol Settings
@@ -181,11 +182,11 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Native artifacts
         /// </summary>
-        public NativeArtifacts Native
+        public NativeContracts Native
         {
             get
             {
-                _native ??= new NativeArtifacts(this);
+                _native ??= new NativeContracts(this);
                 return _native;
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -48,8 +49,8 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         {
             foreach ((var contract, var methods) in Entries)
             {
-                var coverLines = $"{contract.CoveredLinesPercentage:P2}";
-                var coverBranch = $"{contract.CoveredBranchPercentage:P2}";
+                var coverLines = contract.CoveredLinesPercentage.ToString("P2", CultureInfo.InvariantCulture);
+                var coverBranch = contract.CoveredBranchPercentage.ToString("P2", CultureInfo.InvariantCulture);
                 writer.WriteLine($"{contract.Name} [{coverLines} - {coverBranch}]");
 
                 List<string[]> rows = new();
@@ -60,8 +61,8 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                     .OrderBy(u => u.Method.Name)
                     .OrderByDescending(u => u.CoveredLinesPercentage))
                 {
-                    coverLines = $"{method.CoveredLinesPercentage:P2}";
-                    coverBranch = $"{method.CoveredBranchPercentage:P2}";
+                    coverLines = method.CoveredLinesPercentage.ToString("P2", CultureInfo.InvariantCulture);
+                    coverBranch = method.CoveredBranchPercentage.ToString("P2", CultureInfo.InvariantCulture);
                     rows.Add(new string[] { method.Method.ToString(), coverLines, coverBranch });
 
                     max[0] = Math.Max(method.Method.ToString().Length, max[0]);

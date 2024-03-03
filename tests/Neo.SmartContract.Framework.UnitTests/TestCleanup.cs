@@ -22,7 +22,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         public static decimal RequiredCoverage { get; set; } = 0.85M;
 
         [TestMethod]
-        public static void EnsureArtifactsUpToDate()
+        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
+
+        internal static void EnsureArtifactsUpToDateInternal()
         {
             if (DebugInfos.Count > 0) return; // Maybe a UT call it
 
@@ -37,6 +39,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var results = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
+                CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
