@@ -1,13 +1,14 @@
 // Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.SmartContract.Framework is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework
@@ -39,5 +40,19 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](ECPoint value);
+
+        /// <summary>
+        /// Implicitly converts a hexadecimal string to a PublicKey object.
+        /// Assumes the string is a valid hexadecimal representation.
+        /// </summary>
+        /// <example>
+        /// PublicKey from a 33 bytes (66 characters) hexadecimal string:
+        ///     "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9"
+        /// </example>
+        /// <remarks>
+        /// This is a compile time conversion, only work with constant string.
+        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// </remarks>
+        public static extern implicit operator ECPoint(string value);
     }
 }
