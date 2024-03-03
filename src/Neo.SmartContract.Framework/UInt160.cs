@@ -75,18 +75,12 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Implicitly converts a hexadecimal string to a UInt160 object.
-        /// Assumes the string is a valid hexadecimal representation.
+        /// This can be a 20 bytes hex string or a neo address.
+        /// <example>
+        /// 20 bytes hex string: "01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4" (no prefix)
+        ///             Address: "NZNosnRn6FpRjwGKx8VdXv5Sn7BvzrjZVb"
+        /// </example>
         /// </summary>
-        public static implicit operator UInt160(string value)
-        {
-            // Convert the hexadecimal string to a byte array.
-            // Ensure the byte array is of the expected size for a UInt160.
-            if (value.Length != 20) // UInt160 is expected to be 20 bytes.
-            {
-                throw new Exception("The provided string does not represent a valid UInt160 value.");
-            }
-            // Use the explicit byte[] to UInt160 conversion defined earlier.
-            return value;
-        }
+        public static extern implicit operator UInt160(string value);
     }
 }

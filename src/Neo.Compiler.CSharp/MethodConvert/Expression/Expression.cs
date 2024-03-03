@@ -58,6 +58,12 @@ partial class MethodConvert
                             ? hash
                             : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
                         break;
+                    case "Neo.SmartContract.Framework.UInt256":
+                        strValue = (string)value;
+                        value = strValue.HexToBytes(true);
+                        if (((byte[])value).Length != 32)
+                            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid UInt256 literal");
+                        break;
                     case "Neo.SmartContract.Framework.ECPoint":
                         strValue = (string)value;
                         value = ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);

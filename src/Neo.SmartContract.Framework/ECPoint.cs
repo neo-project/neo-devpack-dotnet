@@ -45,9 +45,6 @@ namespace Neo.SmartContract.Framework
         /// Implicitly converts a hexadecimal string to a PublicKey object.
         /// Assumes the string is a valid hexadecimal representation.
         /// </summary>
-        public static implicit operator ECPoint(string value)
-        {
-            return value;
-        }
+        public static extern implicit operator ECPoint(string value);
     }
 }
