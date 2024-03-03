@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(@"
-NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
+NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00% - 100.00%]
 ┌-───────────────────────────────-┬-───────-┬-───────-┐
 │ Method                          │  Line   │  Branch │
 ├-───────────────────────────────-┼-───────-┼-───────-┤
@@ -30,6 +30,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
 │ getCandidates()                 │   0.00% │ 100.00% │
 │ getCandidateVote(pubKey)        │   0.00% │ 100.00% │
 │ getCommittee()                  │   0.00% │ 100.00% │
+│ getCommitteeAddress()           │   0.00% │ 100.00% │
 │ getGasPerBlock()                │   0.00% │ 100.00% │
 │ getNextBlockValidators()        │   0.00% │ 100.00% │
 │ getRegisterPrice()              │   0.00% │ 100.00% │
@@ -45,7 +46,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
 ".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
 
             Assert.AreEqual(@"
-NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
+NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00% - 100.00%]
 ┌-─────────────-┬-───────-┬-───────-┐
 │ Method        │  Line   │  Branch │
 ├-─────────────-┼-───────-┼-───────-┤
@@ -74,7 +75,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.GetCoverage(engine.Native.NEO)?.Hash);
-            Assert.AreEqual(57, engine.GetCoverage(engine.Native.NEO)?.TotalLines);
+            Assert.AreEqual(60, engine.GetCoverage(engine.Native.NEO)?.TotalLines);
             Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.CoveredLines);
             Assert.AreEqual(3, engine.GetCoverage(engine.Native.NEO)?.CoveredLinesAll);
 
@@ -82,7 +83,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
 
             Assert.AreEqual(0, engine.Native.NEO.BalanceOf(engine.Native.NEO.Hash));
 
-            Assert.AreEqual(57, engine.GetCoverage(engine.Native.NEO)?.TotalLines);
+            Assert.AreEqual(60, engine.GetCoverage(engine.Native.NEO)?.TotalLines);
             Assert.AreEqual(6, engine.GetCoverage(engine.Native.NEO)?.CoveredLines);
             Assert.AreEqual(6, engine.GetCoverage(engine.Native.NEO)?.CoveredLinesAll);
 
@@ -145,7 +146,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
             Assert.AreEqual(engine.Native.NEO.Hash, engine.Native.NEO.GetCoverage()?.Hash);
-            Assert.AreEqual(57, engine.Native.NEO.GetCoverage()?.TotalLines);
+            Assert.AreEqual(60, engine.Native.NEO.GetCoverage()?.TotalLines);
             Assert.AreEqual(3, engine.Native.NEO.GetCoverage()?.CoveredLines);
             Assert.AreEqual(3, engine.Native.NEO.GetCoverage()?.CoveredLinesAll);
 
@@ -153,7 +154,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.26% - 100.00%]
 
             Assert.AreEqual(0, engine.Native.NEO.BalanceOf(engine.Native.NEO.Hash));
 
-            Assert.AreEqual(57, engine.Native.NEO.GetCoverage()?.TotalLines);
+            Assert.AreEqual(60, engine.Native.NEO.GetCoverage()?.TotalLines);
             Assert.AreEqual(6, engine.Native.NEO.GetCoverage()?.CoveredLines);
             Assert.AreEqual(6, engine.Native.NEO.GetCoverage()?.CoveredLinesAll);
 
