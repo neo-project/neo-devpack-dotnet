@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             // check with Seek (RPC doesn't support Backward, it could be slow)
 
-            Assert.IsTrue(engine.Native.NEO.GasPerBlock == 500000000);
+            Assert.IsTrue(engine.Native.NEO.GasPerBlock == 5_0000_0000);
 
             // check deploy
 
