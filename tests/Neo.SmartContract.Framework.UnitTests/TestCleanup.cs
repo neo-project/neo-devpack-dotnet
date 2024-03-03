@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         public static decimal RequiredCoverage { get; set; } = 0.85M;
 
         [TestMethod]
-        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDate();
+        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
 
         internal static void EnsureArtifactsUpToDateInternal()
         {
