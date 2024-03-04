@@ -19,6 +19,26 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// The conditional logical OR operator ||, also known as the "short-circuiting" logical OR operator, computes the logical OR of its operands.
+    /// The result of x || y is true if either x or y evaluates to true.
+    /// Otherwise, the result is false. If x evaluates to true, y isn't evaluated.
+    /// 
+    /// The conditional logical AND operator &&, also known as the "short-circuiting" logical AND operator, computes the logical AND of its operands.
+    /// The result of x && y is true if both x and y evaluate to true.
+    /// Otherwise, the result is false. If x evaluates to false, y isn't evaluated.
+    ///
+    /// The is operator checks if the run-time type of an expression result is compatible with a given type. The is operator also tests an expression result against a pattern.
+    ///
+    /// The as operator explicitly converts the result of an expression to a given reference or nullable value type. If the conversion isn't possible, the as operator returns null. Unlike a cast expression, the as operator never throws an exception.
+    /// 
+    /// The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null;
+    /// otherwise, it evaluates the right-hand operand and returns its result.
+    /// The ?? operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null. 
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about binary expression.</param>
+    /// <param name="expression">The syntax representation of the binary expression statement being converted.</param>
+    /// <exception cref="CompilationException">If an unsupported operator is encountered</exception>
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
