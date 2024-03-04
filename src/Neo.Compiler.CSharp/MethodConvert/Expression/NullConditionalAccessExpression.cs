@@ -20,10 +20,10 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
-    /// This method converts a conditional access expression to OpCodes.
+    /// This method converts a null-conditional access expression to OpCodes.
     /// </summary>
-    /// /// <param name="model">The semantic model providing context and information about conditional access expression.</param>
-    /// <param name="expression">The syntax representation of the conditional access expression statement being converted.</param>
+    /// /// <param name="model">The semantic model providing context and information about null-conditional access expression.</param>
+    /// <param name="expression">The syntax representation of the null-conditional access expression statement being converted.</param>
     /// <remarks>
     /// The method evaluates the expression and checks if it is null.
     /// If the expression is not null, it converts the 'WhenNotNull' part of the expression.
@@ -47,7 +47,7 @@ partial class MethodConvert
     /// Runtime.Log(firstItem?.Timestamp.ToString());
     /// </code>
     /// </example>
-    private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
+    private void ConvertNullConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         JumpTarget nullTarget = new();
