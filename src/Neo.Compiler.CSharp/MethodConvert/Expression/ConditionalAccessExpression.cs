@@ -19,6 +19,34 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts a conditional access expression to OpCodes.
+    /// </summary>
+    /// /// <param name="model">The semantic model providing context and information about conditional access expression.</param>
+    /// <param name="expression">The syntax representation of the conditional access expression statement being converted.</param>
+    /// <remarks>
+    /// The method evaluates the expression and checks if it is null.
+    /// If the expression is not null, it converts the 'WhenNotNull' part of the expression.
+    /// If the resulting type of the expression is 'System.Void', it handles the case differently by dropping the result.
+    /// A null-conditional operator applies a member access (?.) or element access (?[]) operation to its operand only if that operand evaluates to non-null;
+    /// otherwise, it returns null.
+    /// </remarks>
+    /// <example>
+    /// If Block is not null, get the block's timestamp; otherwise, it returns null.
+    /// <code>
+    /// var block = Ledger.GetBlock(10000);
+    /// var timestamp = block?.Timestamp;
+    /// Runtime.Log(timestamp.ToString());
+    /// </code>
+    /// If array is not null, get the array's element; otherwise, it returns null.
+    /// <code>
+    /// var a = Ledger.GetBlock(10000);
+    /// var b = Ledger.GetBlock(10001);
+    /// var array = new[] { a, b };
+    /// var firstItem = array?[0];
+    /// Runtime.Log(firstItem?.Timestamp.ToString());
+    /// </code>
+    /// </example>
     private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
