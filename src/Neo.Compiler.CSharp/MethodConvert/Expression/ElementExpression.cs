@@ -20,6 +20,17 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts an element access expression to OpCodes.
+    /// An element access expression accesses a single element in an array or a collection.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about element access expression.</param>
+    /// <param name="expression">The syntax representation of the element access expression statement being converted.</param>
+    /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
+    /// <remarks>
+    /// If the accessed element is a property, the method calls the property's getter.
+    /// If the accessed element is an array or a collection, the method generates IL instructions to fetch the element.
+    /// </remarks>
     private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
     {
         if (expression.ArgumentList.Arguments.Count != 1)
@@ -36,6 +47,16 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// This method converts an element binding expression to OpCodes.
+    /// An element binding expression is used to access a single element in a collection initializer.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about element binding expression.</param>
+    /// <param name="expression">The syntax representation of the element binding expression statement being converted.</param>
+    /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
+    /// <remarks>
+    /// The method generates IL instructions to fetch the element based on the given index or range.
+    /// </remarks>
     private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
     {
         if (expression.ArgumentList.Arguments.Count != 1)
@@ -44,6 +65,18 @@ partial class MethodConvert
         ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
     }
 
+    /// <summary>
+    /// This method converts an index or range expression to OpCodes.
+    /// An index or range expression specifies the index or range of elements to access in an array or a collection.
+    /// </summary>
+    /// <param name="model">The semantic model providing contextual information for the expression.</param>
+    /// <param name="type">The type symbol of the array or collection being accessed.</param>
+    /// <param name="indexOrRange">The expression representing the index or range.</param>
+    /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
+    /// <remarks>
+    /// If the expression is a range, it calculates the start and end indices and extracts the relevant sub-array or sub-collection.
+    /// If the expression is an index, it generates IL instructions to fetch the element at the specified index.
+    /// </remarks>
     private void ConvertIndexOrRange(SemanticModel model, ITypeSymbol type, ExpressionSyntax indexOrRange)
     {
         if (indexOrRange is RangeExpressionSyntax range)
