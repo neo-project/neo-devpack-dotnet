@@ -19,6 +19,16 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts a cast expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about cast expression.</param>
+    /// <param name="expression">The syntax representation of the cast expression statement being converted.</param>
+    /// <remarks>
+    /// This method determines the source type and the target type of the cast expression.
+    /// If the cast can be resolved to a method symbol, it calls the corresponding method.
+    /// Otherwise, it generates IL instructions based on the types involved in the cast operation.
+    /// </remarks>
     private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
     {
         ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
