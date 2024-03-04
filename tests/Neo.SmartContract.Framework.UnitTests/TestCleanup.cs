@@ -10,11 +10,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Neo.SmartContract.Template.UnitTests.templates
+namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public partial class TestCleanup
+    public class TestCleanup
     {
+        private static readonly Regex WhiteSpaceRegex = new("\\s");
         internal static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
             string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
-            if (writtenArtifact == "" || WhiteSpaceRegex().Replace(artifact, "") != WhiteSpaceRegex().Replace(writtenArtifact, ""))
+            if (writtenArtifact == "" || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);
@@ -171,8 +172,5 @@ namespace Neo.SmartContract.Template.UnitTests.templates
 
             Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
-
-        [GeneratedRegex(@"\s")]
-        private static partial Regex WhiteSpaceRegex();
     }
 }

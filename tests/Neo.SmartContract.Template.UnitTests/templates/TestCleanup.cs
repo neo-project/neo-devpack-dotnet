@@ -12,8 +12,10 @@ using System.Text.RegularExpressions;
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
-    public partial class TestCleanup
+    public class TestCleanup
     {
+        private static readonly Regex WhiteSpaceRegex = new("\\s");
+
         private static NeoDebugInfo? DebugInfo_NEP17;
         private static NeoDebugInfo? DebugInfo_Oracle;
         private static NeoDebugInfo? DebugInfo_Ownable;
@@ -67,9 +69,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
         }
 
-        [GeneratedRegex(@"\s")]
-        private static partial Regex WhiteSpaceRegex();
-
         private static (string artifact, NeoDebugInfo debugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug, string artifactsPath)
         {
             (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
@@ -77,7 +76,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true);
 
             string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
-            if (writtenArtifact == "" || WhiteSpaceRegex().Replace(artifact, "") != WhiteSpaceRegex().Replace(writtenArtifact, ""))
+            if (writtenArtifact == "" || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);
