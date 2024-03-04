@@ -21,7 +21,7 @@ namespace Neo.Optimizer
     public enum BranchType
     {
         OK,     // One of the branches may return without exception
-        THROW,  // All branches surely has exceptions, but can be catched
+        THROW,  // All branches surely have exceptions, but can be catched
         ABORT,  // All branches abort, and cannot be catched
         UNCOVERED,
     }
