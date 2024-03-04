@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
-    public partial class TestCleanup
+    public class TestCleanup
     {
         private static NeoDebugInfo? DebugInfo_NEP17;
         private static NeoDebugInfo? DebugInfo_Oracle;

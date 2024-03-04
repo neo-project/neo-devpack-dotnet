@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
-    public partial class TestCleanup
+    public class TestCleanup
     {
         internal static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
 
