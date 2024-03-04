@@ -20,6 +20,26 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts an identifier name expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about identifier name expression.</param>
+    /// <param name="expression">The syntax representation of the identifier name expression statement being converted.</param>
+    /// <exception cref="CompilationException">Unsupported symbols will result in a compilation exception.</exception>
+    /// <example>
+    /// Processing of the identifier "param" goes to the "IParameterSymbol parameter" branch of the code;
+    /// processing of the identifier "temp" goes to the "ILocalSymbol local" branch of the code.
+    /// Unused identifier "param2" will not be processed.
+    /// <code>
+    /// public static void MyMethod(int param, int param2)
+    /// {
+    ///     int temp = int.MaxValue;
+    ///     Runtime.Log(temp.ToString());
+    ///     Runtime.Log(param.ToString());
+    ///     Runtime.Log(a.ToString());
+    /// }
+    /// </code>
+    /// </example>
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
