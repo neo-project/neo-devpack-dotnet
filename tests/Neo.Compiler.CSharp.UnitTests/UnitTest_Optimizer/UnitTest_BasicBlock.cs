@@ -22,10 +22,6 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             .Where(i => Neo.Optimizer.JumpTarget.SingleJumpInOperand(i) && i != OpCode.PUSHA || Neo.Optimizer.JumpTarget.DoubleJumpInOperand(i)).ToHashSet()
             .Union(new HashSet<OpCode>() { OpCode.RET, OpCode.ABORT, OpCode.ABORTMSG, OpCode.THROW, OpCode.ENDFINALLY }).ToHashSet();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fileName">"Contract_TryCatch.cs"</param>
         public void Test_SingleContractBasicBlockStartEnd(string fileName)
         {
             testengine = new TestEngine();
