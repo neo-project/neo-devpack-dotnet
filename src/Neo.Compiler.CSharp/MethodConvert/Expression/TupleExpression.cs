@@ -18,6 +18,21 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for tuple type into a sequence of instructions.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the tuple type.</param>
+    /// <param name="expression">The syntax representation of the tuple type statement being converted.</param>
+    /// <example>
+    /// The tuples feature provides concise syntax to group multiple data elements in a lightweight data structure.
+    /// The following example shows how you can declare a tuple variable, initialize it, and access its data members:
+    /// <code>
+    /// (string, int) t1 = ("chris", 3);
+    /// Runtime.Log($"Tuple with elements {t1.Item1} and {t1.Item2}.");
+    /// (string Name, int Count) t2 = ("chris", 3);
+    /// Runtime.Log($"Sum of {t2.Name} elements is {t2.Count}.");
+    /// </code>
+    /// </example>
     private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
     {
         AddInstruction(OpCode.NEWSTRUCT0);
