@@ -1,39 +1,37 @@
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Iterators;
-using Neo.SmartContract.Testing.Attributes;
+using Neo.SmartContract.Native;
 using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class NeoToken : SmartContract
+public abstract class NEO : SmartContract, TestingStandards.INep17Standard
 {
-    public class Candidate
-    {
-        /// <summary>
-        /// Public key
-        /// </summary>
-        [FieldOrder(0)]
-        public ECPoint? PublicKey { get; set; }
+    #region Compiled data
 
-        /// <summary>
-        /// Votes
-        /// </summary>
-        [FieldOrder(1)]
-        public BigInteger Votes { get; set; }
-    }
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.NEO.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+
+    #endregion
 
     #region Events
 
     public delegate void delCandidateStateChanged(ECPoint pubkey, bool registered, BigInteger votes);
+
     [DisplayName("CandidateStateChanged")]
     public event delCandidateStateChanged? OnCandidateStateChanged;
 
-    public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount);
     [DisplayName("Transfer")]
-    public event delTransfer? OnTransfer;
+    public event TestingStandards.INep17Standard.delTransfer? OnTransfer;
 
-    public delegate void delVote(UInt160 account, ECPoint from, ECPoint to, BigInteger amount);
+    public delegate void delCommitteeChanged(ECPoint[] old, ECPoint[] @new);
+
+    [DisplayName("CommitteeChanged")]
+    public event delCommitteeChanged? OnCommitteeChanged;
+
+    public delegate void delVote(UInt160 account, ECPoint? from, ECPoint? to, BigInteger amount);
+
     [DisplayName("Vote")]
     public event delVote? OnVote;
 
@@ -44,7 +42,7 @@ public abstract class NeoToken : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger Decimals { [DisplayName("decimals")] get; }
+    public abstract BigInteger? Decimals { [DisplayName("decimals")] get; }
 
     /// <summary>
     /// Safe property
@@ -54,12 +52,17 @@ public abstract class NeoToken : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract Candidate[] Candidates { [DisplayName("getCandidates")] get; }
+    public abstract Models.Candidate[] Candidates { [DisplayName("getCandidates")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
     public abstract ECPoint[] Committee { [DisplayName("getCommittee")] get; }
+
+    /// <summary>
+    /// Safe property
+    /// </summary>
+    public abstract UInt160? CommitteeAddress { [DisplayName("getCommitteeAddress")] get; }
 
     /// <summary>
     /// Safe property
@@ -74,17 +77,17 @@ public abstract class NeoToken : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger RegisterPrice { [DisplayName("getRegisterPrice")] get; [DisplayName("setRegisterPrice")] set; }
+    public abstract long RegisterPrice { [DisplayName("getRegisterPrice")] get; [DisplayName("setRegisterPrice")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string Symbol { [DisplayName("symbol")] get; }
+    public abstract string? Symbol { [DisplayName("symbol")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger TotalSupply { [DisplayName("totalSupply")] get; }
+    public abstract BigInteger? TotalSupply { [DisplayName("totalSupply")] get; }
 
     #endregion
 
@@ -94,25 +97,25 @@ public abstract class NeoToken : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("balanceOf")]
-    public abstract BigInteger BalanceOf(UInt160? account);
+    public abstract BigInteger? BalanceOf(UInt160? account);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract Neo.SmartContract.Native.NeoToken.NeoAccountState GetAccountState(UInt160? account);
+    public abstract Neo.SmartContract.Native.NeoToken.NeoAccountState GetAccountState(UInt160 account);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getCandidateVote")]
-    public abstract BigInteger GetCandidateVote(ECPoint? pubKey);
+    public abstract BigInteger GetCandidateVote(ECPoint pubKey);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("unclaimedGas")]
-    public abstract BigInteger UnclaimedGas(UInt160? account, BigInteger? end);
+    public abstract BigInteger UnclaimedGas(UInt160 account, uint end);
 
     #endregion
 
@@ -122,31 +125,31 @@ public abstract class NeoToken : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("registerCandidate")]
-    public abstract bool RegisterCandidate(ECPoint? pubkey);
+    public abstract bool RegisterCandidate(ECPoint pubkey);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
+    public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unregisterCandidate")]
-    public abstract bool UnregisterCandidate(ECPoint? pubkey);
+    public abstract bool UnregisterCandidate(ECPoint pubkey);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("vote")]
-    public abstract bool Vote(UInt160? account, ECPoint? voteTo);
+    public abstract bool Vote(UInt160 account, ECPoint? voteTo);
 
     #endregion
 
     #region Constructor for internal use only
 
-    protected NeoToken(SmartContractInitialize initialize) : base(initialize) { }
+    protected NEO(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

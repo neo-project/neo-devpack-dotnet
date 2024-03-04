@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,16 +20,15 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using scfx::Neo.SmartContract.Framework;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using scfx::Neo.SmartContract.Framework;
-using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
@@ -166,12 +164,9 @@ namespace Neo.Compiler
 
         public NefFile CreateExecutable()
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            var titleAttribute = assembly.GetCustomAttribute<AssemblyTitleAttribute>()!;
-            var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!;
             NefFile nef = new()
             {
-                Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
+                Compiler = _engine.Options.CompilerVersion,
                 Source = Source ?? string.Empty,
                 Tokens = _methodTokens.ToArray(),
                 Script = Script

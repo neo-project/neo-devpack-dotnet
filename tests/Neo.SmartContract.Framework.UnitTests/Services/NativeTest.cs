@@ -1,175 +1,53 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography.ECC;
 using Neo.Network.P2P.Payloads;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
+using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class NativeTest
+    public class NativeTest : TestBase<Contract_Native>
     {
-        private TestEngine.TestEngine _engine;
-        private readonly byte[] pubKey = "03ea01cb94bdaf0cd1c01b159d474f9604f4af35a3e2196f6bdfdb33b2aa4961fa".HexToBytes();
-        private readonly byte[] account = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
-
-        [TestInitialize]
-        public void Init()
-        {
-            // Deploy native contracts
-            var block = new Block()
-            {
-                Header = new Header()
-                {
-                    Index = 0,
-                    Witness = new Witness()
-                    {
-                        InvocationScript = System.Array.Empty<byte>(),
-                        VerificationScript = Contract.CreateSignatureRedeemScript(ECPoint.FromBytes(pubKey, ECCurve.Secp256k1))
-                    },
-                    NextConsensus = UInt160.Zero,
-                    MerkleRoot = UInt256.Zero,
-                    PrevHash = UInt256.Zero
-                },
-                Transactions = System.Array.Empty<Transaction>(),
-            };
-
-            _engine = new TestEngine.TestEngine(TriggerType.Application, block, new TestDataCache(block));
-            _engine.Reset();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Native.cs");
-        }
+        public NativeTest() : base(Contract_Native.Nef, Contract_Native.Manifest) { }
 
         [TestMethod]
         public void Test_NEO()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("NEO_Decimals");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_BalanceOf", account);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
+            Assert.AreEqual(0, Contract.NEO_Decimals());
+            Assert.AreEqual(5_0000_0000, Contract.NEO_GetGasPerBlock());
+            Assert.IsNull(Contract.NEO_GetAccountState(Bob.Account));
+            Assert.AreEqual(100_000_000, Contract.NEO_BalanceOf(Engine.ValidatorsAddress));
+            Assert.AreEqual(0, Contract.NEO_UnclaimedGas(Bob.Account, 0));
+            Assert.IsFalse(Contract.NEO_Transfer(Bob.Account, Bob.Account, 0));
 
             // Before RegisterCandidate
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_GetCandidates");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(0, ((Array)item).Count);
-
+            Assert.AreEqual(0, Contract.NEO_GetCandidates()?.Count);
             // RegisterCandidate
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_RegisterCandidate", pubKey);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(true, item.GetBoolean());
-
+            Engine.Gas = 1005_0000_0000;
+            var pubKey = ECPoint.Parse("03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c", ECCurve.Secp256r1);
+            Engine.SetTransactionSigners(WitnessScope.Global, pubKey);
+            Assert.IsTrue(Contract.NEO_RegisterCandidate(pubKey));
             // After RegisterCandidate
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_GetCandidates");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            Assert.AreEqual(1, ((Array)item).Count);
-            var candidate = ((Array)item)[0];
-            Assert.IsInstanceOfType(candidate, typeof(Struct));
-            var candidatePubKey = ((Struct)candidate)[0];
-            var candidateVotes = ((Struct)candidate)[1];
-            Assert.IsInstanceOfType(candidatePubKey, typeof(ByteString));
-            Assert.AreEqual(true, candidatePubKey.Equals((ByteString)pubKey));
-            Assert.IsInstanceOfType(candidateVotes, typeof(Integer));
-            Assert.AreEqual(0, candidateVotes.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_Transfer", account, account, 0);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(false, item.GetBoolean());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_UnclaimedGas", account, 0);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(0, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_GetGasPerBlock");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(500000000, item.GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("NEO_GetAccountState", account);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
+            Assert.AreEqual(1, Contract.NEO_GetCandidates()?.Count);
+            Assert.AreEqual(pubKey, ((Testing.Native.Models.Candidate)Contract.NEO_GetCandidates()?
+                .Cast<StackItem>().First().ConvertTo(typeof(Testing.Native.Models.Candidate))!).PublicKey);
         }
 
         [TestMethod]
         public void Test_GAS()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("GAS_Decimals");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(8, item.GetInteger());
+            Assert.AreEqual(8, Contract.GAS_Decimals());
         }
 
         [TestMethod]
         public void Test_Policy()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("Policy_GetFeePerByte");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(1000L, item.GetInteger());
-
-            _engine.Reset();
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("Policy_IsBlocked", account);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(false, item.GetBoolean());
+            Assert.AreEqual(1000L, Contract.Policy_GetFeePerByte());
+            Assert.IsFalse(Contract.Policy_IsBlocked(Alice.Account));
         }
     }
 }

@@ -1,4 +1,5 @@
 using Neo.SmartContract.Iterators;
+using Neo.SmartContract.Native;
 using System.ComponentModel;
 using System.Numerics;
 
@@ -6,20 +7,30 @@ namespace Neo.SmartContract.Testing.Native;
 
 public abstract class ContractManagement : SmartContract
 {
+    #region Compiled data
+
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.ContractManagement.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+
+    #endregion
+
     #region Events
 
     public delegate void delDeploy(UInt160 Hash);
 
     [DisplayName("Deploy")]
     public event delDeploy? OnDeploy;
+
     public delegate void delDestroy(UInt160 Hash);
 
     [DisplayName("Destroy")]
     public event delDestroy? OnDestroy;
+
     public delegate void delUpdate(UInt160 Hash);
 
     [DisplayName("Update")]
     public event delUpdate? OnUpdate;
+
     #endregion
 
     #region Properties
@@ -48,13 +59,13 @@ public abstract class ContractManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getContractById")]
-    public abstract ContractState? GetContractById(BigInteger id);
+    public abstract ContractState? GetContractById(int id);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("hasMethod")]
-    public abstract bool HasMethod(UInt160 hash, string method, BigInteger pcount);
+    public abstract bool HasMethod(UInt160 hash, string method, int pcount);
 
     #endregion
 
@@ -82,13 +93,13 @@ public abstract class ContractManagement : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[] nefFile, byte[] manifest);
+    public abstract void Update(byte[]? nefFile, byte[]? manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[] nefFile, byte[] manifest, object? data = null);
+    public abstract void Update(byte[]? nefFile, byte[]? manifest, object? data = null);
 
     #endregion
 

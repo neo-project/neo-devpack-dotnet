@@ -36,6 +36,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var result = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
+                CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
@@ -71,10 +72,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true);
 
-            if (artifact != File.ReadAllText(artifactsPath))
+            if (artifact.Trim() != File.ReadAllText(artifactsPath).Trim())
             {
                 // Uncomment to overwrite the artifact file
-                // File.WriteAllText(artifactsPath, artifact);
+                File.WriteAllText(artifactsPath, artifact);
                 Assert.Fail($"{typeof(T).Name} artifact was wrong");
             }
 

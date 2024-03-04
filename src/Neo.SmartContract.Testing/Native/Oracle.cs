@@ -1,17 +1,26 @@
+using Neo.SmartContract.Native;
 using System.ComponentModel;
-using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class OracleContract : SmartContract
+public abstract class Oracle : SmartContract, TestingStandards.IVerificable
 {
+    #region Compiled data
+
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.Oracle.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+
+    #endregion
+
     #region Events
 
-    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string Filter);
+    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string? Filter);
+
     [DisplayName("OracleRequest")]
     public event delOracleRequest? OnOracleRequest;
 
     public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
+
     [DisplayName("OracleResponse")]
     public event delOracleResponse? OnOracleResponse;
 
@@ -22,12 +31,12 @@ public abstract class OracleContract : SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }
+    public abstract long Price { [DisplayName("getPrice")] get; [DisplayName("setPrice")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract bool Verify { [DisplayName("verify")] get; }
+    public abstract bool? Verify { [DisplayName("verify")] get; }
 
     #endregion
 
@@ -43,13 +52,13 @@ public abstract class OracleContract : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("request")]
-    public abstract void Request(string? url, string? filter, string? callback, object? userData, BigInteger? gasForResponse);
+    public abstract void Request(string url, string? filter, string callback, object? userData, ulong gasForResponse);
 
     #endregion
 
     #region Constructor for internal use only
 
-    protected OracleContract(SmartContractInitialize initialize) : base(initialize) { }
+    protected Oracle(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

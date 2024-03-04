@@ -75,11 +75,10 @@ The publicly exposed read-only properties are as follows:
 - **ValidatorsAddress**: Defines the address for the validators of the defined *ProtocolSettings*.
 - **CommitteeAddress**: Returns the address of the current chain's committee.
 - **Transaction**: Defines the transaction that will be used as `ScriptContainer` for the neo virtual machine, by default it updates the script of the same as calls are composed and executed, and the `Signers` will be used as validators for the `CheckWitness`, regardless of whether the signature is correct or not, so if you want to test with different wallets or scopes, you do not need to sign the transaction correctly, just set the desired signers.
-- **CurrentBlock**: Defaults to `Genesis` for the defined `ProtocolSettings`, but the height has been incremented by 1 to avoid issues related to the generation of gas from native contracts.
+- **PersistingBlock**: The block that will be persisted.
+- **Storage**: Abstracts access to storage, allowing for easy `Snapshots` as well as reverting them. Allows access to the storage of contracts, as well as manually altering their state. It's worth noting that a storage class is provided, which allows for reading the storage from an RPC endpoint. The class in question is named `RpcStore` and is available in the namespace `Neo.SmartContract.Testing.Storage.Rpc`.
 
 And for read and write, we have:
-
-- **Storage**: Abstracts access to storage, allowing for easy `Snapshots` as well as reverting them. Allows access to the storage of contracts, as well as manually altering their state. It's worth noting that a storage class is provided, which allows for reading the storage from an RPC endpoint. The class in question is named `RpcStore` and is available in the namespace `Neo.SmartContract.Testing.Storage.Rpc`.
 
 - **Gas**: Sets the gas execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
 - **EnableCoverageCapture**: Enables or disables the coverage capture. 

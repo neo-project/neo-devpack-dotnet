@@ -1,34 +1,26 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class PointerTest
+    public class PointerTest : TestBase<Contract_Pointers>
     {
+        public PointerTest() : base(Contract_Pointers.Nef, Contract_Pointers.Manifest) { }
+
         [TestMethod]
         public void Test_CreatePointer()
         {
-            var engine = new TestEngine.TestEngine(TriggerType.Application);
-            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pointers.cs");
-
-            var result = engine.ExecuteTestCaseStandard("createFuncPointer");
-            Assert.AreEqual(VMState.HALT, engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
+            var item = Contract.CreateFuncPointer();
             Assert.IsInstanceOfType(item, typeof(Pointer));
 
             // Test pointer
 
-            engine.Reset();
-            engine.ExecuteTestCaseStandard(((Pointer)item).Position, 1);
-            Assert.AreEqual(VMState.HALT, engine.State);
-            Assert.AreEqual(1, result.Count);
+            item = Engine.Execute(Contract_Pointers.Nef.Script, ((Pointer)item).Position, (e) => { e.Push(1); });
 
-            item = result.Pop();
             Assert.IsInstanceOfType(item, typeof(Integer));
             Assert.AreEqual(123, ((Integer)item).GetInteger());
         }
@@ -36,31 +28,26 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_ExecutePointer()
         {
-            var engine = new TestEngine.TestEngine(TriggerType.Application);
-            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pointers.cs");
-
-            var result = engine.ExecuteTestCaseStandard("callFuncPointer");
-            Assert.AreEqual(VMState.HALT, engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(123, ((Integer)item).GetInteger());
+            Assert.AreEqual(123, Contract.CallFuncPointer());
         }
 
         [TestMethod]
         public void Test_ExecutePointerWithArgs()
         {
-            var engine = new TestEngine.TestEngine(TriggerType.Application);
-            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pointers.cs");
+            // Internall
 
-            var result = engine.ExecuteTestCaseStandard("callFuncPointerWithArg");
-            Assert.AreEqual(VMState.HALT, engine.State);
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
+            Assert.AreEqual(new BigInteger(new byte[] { 11, 22, 33 }), Contract.CallFuncPointerWithArg());
+
+            // With pointer
+
+            var item = Contract.CreateFuncPointerWithArg();
+            Assert.IsInstanceOfType(item, typeof(Pointer));
+
+            // Test pointer
+
+            item = Engine.Execute(Contract_Pointers.Nef.Script, ((Pointer)item).Position, (e) => { e.Push(123); });
             Assert.IsInstanceOfType(item, typeof(Integer));
-            var wantResult = new BigInteger(new byte[] { 11, 22, 33 });
-            Assert.AreEqual(wantResult, ((Integer)item).GetInteger());
+            Assert.AreEqual(123, ((Integer)item).GetInteger());
         }
     }
 }

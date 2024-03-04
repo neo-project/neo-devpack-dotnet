@@ -1,37 +1,22 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class UIntTest
+    public class UIntTest : TestBase<Contract_UInt>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine.TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UInt.cs");
-        }
+        public UIntTest() : base(Contract_UInt.Nef, Contract_UInt.Manifest) { }
 
         [TestMethod]
         public void TestStringAdd()
         {
-            var result = _engine.ExecuteTestCaseStandard("isZeroUInt256", UInt256.Zero.ToArray());
-            Assert.IsTrue(result.Pop().GetBoolean());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("isZeroUInt160", UInt160.Zero.ToArray());
-            Assert.IsTrue(result.Pop().GetBoolean());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("isZeroUInt256", UInt256.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff01").ToArray());
-            Assert.IsFalse(result.Pop().GetBoolean());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("isZeroUInt160", UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4").ToArray());
-            Assert.IsFalse(result.Pop().GetBoolean());
+            Assert.IsTrue(Contract.IsZeroUInt256(UInt256.Zero));
+            Assert.IsTrue(Contract.IsZeroUInt160(UInt160.Zero));
+            Assert.IsFalse(Contract.IsZeroUInt256(UInt256.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff01")));
+            Assert.IsFalse(Contract.IsZeroUInt160(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
+            Assert.AreEqual("Nas9CRigvY94DyqA59HiBZNrgWHRsgrUgt", Contract.ToAddress(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
         }
     }
 }

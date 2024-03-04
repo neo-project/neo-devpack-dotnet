@@ -1,182 +1,107 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Cryptography.ECC;
 using Neo.IO;
-using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.InvalidTypes;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System;
-using Neo.SmartContract.TestEngine;
+using System.Collections.Generic;
+using System.Reflection;
 using Array = Neo.VM.Types.Array;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ContractTest
+    public class ContractTest : TestBase<Contract_Contract>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            var system = new NeoSystem(TestProtocolSettings.Default);
-            _engine = new TestEngine.TestEngine(verificable: new Transaction()
-            {
-                Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
-                Witnesses = System.Array.Empty<Witness>(),
-                Attributes = System.Array.Empty<TransactionAttribute>()
-            },
-            snapshot: new TestDataCache(system.GenesisBlock),
-            persistingBlock: system.GenesisBlock);
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Contract.cs");
-        }
+        public ContractTest() : base(Contract_Contract.Nef, Contract_Contract.Manifest) { }
 
         [TestMethod]
         public void Test_CreateCallDestroy()
         {
-            // Create
-
-            TestEngine.TestEngine engine = new();
-            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Create.cs");
-            var manifest = engine.Manifest;
-            var nef = new NefFile() { Script = engine.Nef.Script, Compiler = engine.Nef.Compiler, Source = engine.Nef.Source, Tokens = engine.Nef.Tokens };
-            nef.CheckSum = NefFile.ComputeChecksum(nef);
-
-            var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
-
-            // Create
-
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            var itemArray = item as Array;
-            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
-            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
-            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
-            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-            var ritem = new ContractManifest();
-            ((IInteroperable)ritem).FromStackItem(itemArray[4]);
-            Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
-
-            // Call
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All, new Array());
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual(manifest.Name, item.GetString());
-
-            //getContractById
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "getContractById", (byte)CallFlags.All, new Array() { 1 });
-            itemArray = result.Pop() as Array;
-            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
-            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
-            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
-            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-
-            //getContractHashes
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "getContractHashes", (byte)CallFlags.All, new Array());
-            Assert.AreEqual(hash.ToArray(), result.Pop()); // Hash
+            Engine.Storage.Commit();
+            var created = Test_CreateCall();
 
             // Destroy
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("destroy", _engine.Nef);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual((byte)CallFlags.All, created.GetCallFlags());
+            created.Destroy();
 
             // Check again for failures
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray());
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.ThrowsException<TargetInvocationException>(() => created.GetCallFlags());
+            Engine.Storage.Rollback();
+        }
+
+        public Contract_Create Test_CreateCall()
+        {
+            // Create
+
+            Engine.SetTransactionSigners(Bob);
+            var hash = Engine.GetDeployHash(Contract_Create.Nef, Contract_Create.Manifest);
+
+            // Create
+
+            var item = Contract.Create(Contract_Create.Nef.ToArray(), Contract_Create.Manifest.ToJson().ToString()) as Array;
+            Assert.IsNotNull(item);
+            Assert.AreEqual(2, item[0].GetInteger()); // Id
+            Assert.AreEqual(0, item[1].GetInteger()); // UpdateCounter
+            Assert.AreEqual(hash.ToArray(), item[2]); // Hash
+            Assert.AreEqual(Contract_Create.Nef.ToJson().AsString(), item[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
+
+            var ritem = new ContractManifest();
+            ((IInteroperable)ritem).FromStackItem(item[4]);
+            Assert.AreEqual(Contract_Create.Manifest.ToString(), ritem.ToString()); // Manifest
+
+            var created = Engine.FromHash<Contract_Create>(hash, true);
+
+            // Call
+
+            var item2 = Contract.Call(hash, "oldContract", (byte)CallFlags.All, new List<object>()) as ByteString;
+
+            Assert.IsNotNull(item2);
+            Assert.AreEqual(Contract_Contract.Manifest.Name, item2.GetString());
+
+            // getContractById
+            item = Contract.Call(hash, "getContractById", (byte)CallFlags.All, new List<object>() { 2 }) as Array;
+
+            Assert.IsNotNull(item);
+            Assert.AreEqual(2, item[0].GetInteger()); // Id
+            Assert.AreEqual(0, item[1].GetInteger()); // UpdateCounter
+            CollectionAssert.AreEqual(hash.ToArray(), item[2].GetSpan().ToArray()); // Hash
+            Assert.AreEqual(Contract_Create.Nef.ToJson().AsString(), item[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
+
+            // getContractHashes
+            item2 = Contract.Call(hash, "getContractHashes", (byte)CallFlags.All, new List<object>()) as ByteString;
+            Assert.IsNotNull(item2);
+            CollectionAssert.AreEqual(Contract.Hash.ToArray(), item2.GetSpan().ToArray()); // Hash
+
+            return created;
         }
 
         [TestMethod]
         public void Test_Update()
         {
-            // Create
+            Engine.Storage.Commit();
+            var created = Test_CreateCall();
 
-            TestEngine.TestEngine engine = new();
-            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_CreateAndUpdate.cs");
-            var manifest = engine.Manifest;
-            var nef = new NefFile()
-            {
-                Script = engine.Nef.Script,
-                Compiler = engine.Nef.Compiler,
-                Source = engine.Nef.Source,
-                Tokens = engine.Nef.Tokens
-            };
-            nef.CheckSum = NefFile.ComputeChecksum(nef);
+            // Update
 
-            var hash = Helper.GetContractHash((_engine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
+            var manifest = Contract_Update.Manifest.ToJson();
+            manifest["name"] = Contract_Create.Manifest.Name; // Can't change the name
 
-            engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Update.cs");
-            var manifestUpdate = engine.Manifest;
-            manifestUpdate.Name = manifest.Name; // Must be the same name
-
-            // Create
-
-            Console.WriteLine("Create");
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Array));
-            var itemArray = item as Array;
-            Assert.AreEqual(1, itemArray[0].GetInteger()); // Id
-            Assert.AreEqual(0, itemArray[1].GetInteger()); // UpdateCounter
-            Assert.AreEqual(hash.ToArray(), itemArray[2]); // Hash
-            Assert.AreEqual(nef.ToJson().AsString(), itemArray[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
-            var ritem = new ContractManifest();
-            ((IInteroperable)ritem).FromStackItem(itemArray[4]);
-            Assert.AreEqual(manifest.ToString(), ritem.ToString()); // Manifest
-
-            // Call & Update
-
-            Console.WriteLine("Update");
-            _engine.Reset();
-            nef.Script = engine.Nef.Script;
-            nef.Tokens = engine.Nef.Tokens;
-            nef.CheckSum = NefFile.ComputeChecksum(nef);
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", (byte)CallFlags.All,
-                new Array(_engine.ReferenceCounter, new StackItem[] { nef.ToArray(), manifestUpdate.ToJson().ToString() }));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual(manifest.Name, item.GetString());
+            Assert.AreEqual(0, Engine.Native.ContractManagement.GetContract(created.Hash)!.UpdateCounter);
+            created.Update(Contract_Update.Nef.ToArray(), manifest.ToString());
+            Assert.AreEqual(1, Engine.Native.ContractManagement.GetContract(created.Hash)!.UpdateCounter);
 
             // Call Again
 
-            Console.WriteLine("Call");
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "newContract", (byte)CallFlags.All, new Array());
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            var update = Engine.FromHash<Contract_Update>(created, true);
+            Assert.AreEqual("YES", update.ImUpdated());
 
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual(manifest.Name, item.GetString());
-
-            // Check again for failures
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("call", hash.ToArray(), "oldContract", new Array());
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
+            Engine.Storage.Rollback();
         }
 
         [TestMethod]
@@ -184,43 +109,38 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Wrong pubKey
 
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("createStandardAccount", new byte[] { 0x01, 0x02 });
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
-
-            _engine.Reset();
+            Assert.ThrowsException<TargetInvocationException>(() => Contract.CreateStandardAccount(null));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
 
             // Good pubKey (compressed)
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("createStandardAccount", new byte[] { 0x02, 0x48, 0x6f, 0xd1, 0x57, 0x02, 0xc4, 0x49, 0x0a, 0x26, 0x70, 0x31, 0x12, 0xa5, 0xcc, 0x1d, 0x09, 0x23, 0xfd, 0x69, 0x7a, 0x33, 0x40, 0x6b, 0xd5, 0xa1, 0xc0, 0x0e, 0x00, 0x13, 0xb0, 0x9a, 0x70 });
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            var point = ECPoint.FromBytes(new byte[] {
+                    0x02, 0x48, 0x6f, 0xd1, 0x57, 0x02, 0xc4, 0x49, 0x0a, 0x26,
+                    0x70, 0x31, 0x12, 0xa5, 0xcc, 0x1d, 0x09, 0x23, 0xfd, 0x69,
+                    0x7a, 0x33, 0x40, 0x6b, 0xd5, 0xa1, 0xc0, 0x0e, 0x00, 0x13,
+                    0xb0, 0x9a, 0x70 }, ECCurve.Secp256r1);
 
-            var item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.ByteString);
-            Assert.AreEqual("50388280481974baebeb7e2217d60dc8a74978ba", item.GetSpan().ToHexString());
+            Assert.AreEqual("0xba7849a7c80dd617227eebebba74194880823850", Contract.CreateStandardAccount(point)?.ToString());
 
             // Good pubKey (uncompressed)
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("createStandardAccount", new byte[] { 0x04, 0x48, 0x6f, 0xd1, 0x57, 0x02, 0xc4, 0x49, 0x0a, 0x26, 0x70, 0x31, 0x12, 0xa5, 0xcc, 0x1d, 0x09, 0x23, 0xfd, 0x69, 0x7a, 0x33, 0x40, 0x6b, 0xd5, 0xa1, 0xc0, 0x0e, 0x00, 0x13, 0xb0, 0x9a, 0x70, 0x05, 0x43, 0x6c, 0x08, 0x2c, 0x2c, 0x88, 0x08, 0x5b, 0x4b, 0x53, 0xd5, 0x4c, 0x55, 0x66, 0xba, 0x44, 0x8d, 0x5c, 0x3e, 0x2a, 0x2a, 0x5c, 0x3a, 0x3e, 0xa5, 0x00, 0xe1, 0x40, 0x77, 0x55, 0x9c });
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            point = ECPoint.FromBytes(new byte[] {
+                    0x04, 0x48, 0x6f, 0xd1, 0x57, 0x02, 0xc4, 0x49, 0x0a, 0x26,
+                    0x70, 0x31, 0x12, 0xa5, 0xcc, 0x1d, 0x09, 0x23, 0xfd, 0x69,
+                    0x7a, 0x33, 0x40, 0x6b, 0xd5, 0xa1, 0xc0, 0x0e, 0x00, 0x13,
+                    0xb0, 0x9a, 0x70, 0x05, 0x43, 0x6c, 0x08, 0x2c, 0x2c, 0x88,
+                    0x08, 0x5b, 0x4b, 0x53, 0xd5, 0x4c, 0x55, 0x66, 0xba, 0x44,
+                    0x8d, 0x5c, 0x3e, 0x2a, 0x2a, 0x5c, 0x3a, 0x3e, 0xa5, 0x00,
+                    0xe1, 0x40, 0x77, 0x55, 0x9c }, ECCurve.Secp256r1);
 
-            item = result.Pop();
-            Assert.IsTrue(item.Type == StackItemType.ByteString);
-            Assert.AreEqual("50388280481974baebeb7e2217d60dc8a74978ba", item.GetSpan().ToHexString());
+            Assert.AreEqual("0xba7849a7c80dd617227eebebba74194880823850", Contract.CreateStandardAccount(point)?.ToString());
         }
 
         [TestMethod]
         public void Test_GetCallFlags()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("getCallFlags").Pop();
-            StackItem wantResult = 0b00001111;
-            Assert.AreEqual(wantResult, result);
+            Assert.AreEqual(0b00001111, Contract.GetCallFlags());
         }
     }
 }

@@ -201,9 +201,10 @@ namespace Neo.SmartContract.Testing
 
             if (!Engine.Coverage.TryGetValue(contractHash, out var coveredContract))
             {
-                // We need the contract state without pay gas
+                // We need the contract state without pay gas, but the entry script does never exists
 
-                var state = NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
+                var state = ReferenceEquals(EntryContext, InstructionContext) ? null :
+                    NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
 
                 coveredContract = new(Engine.MethodDetection, contractHash, state);
                 Engine.Coverage[contractHash] = coveredContract;

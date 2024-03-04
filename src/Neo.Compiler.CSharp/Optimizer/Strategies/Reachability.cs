@@ -142,7 +142,7 @@ namespace Neo.Optimizer
                 method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
             Script newScript = new(simplifiedScript.ToArray());
             nef.Script = newScript;
-            nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
+            //nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             return (nef, manifest, debugInfo);
         }

@@ -4,8 +4,10 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
 using Neo.VM.Types;
@@ -27,7 +29,7 @@ namespace Neo.SmartContract.Testing
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
-        private NativeArtifacts? _native;
+        private NativeContracts? _native;
 
         /// <summary>
         /// Default Protocol Settings
@@ -75,7 +77,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Storage
         /// </summary>
-        public EngineStorage Storage { get; set; } = new EngineStorage(new MemoryStore());
+        public EngineStorage Storage { get; internal set; }
 
         /// <summary>
         /// Protocol Settings
@@ -107,7 +109,7 @@ namespace Neo.SmartContract.Testing
                     return validatorsScript.ToScriptHash();
                 }
 
-                var validators = Neo.SmartContract.Native.NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
+                var validators = NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
                 return Contract.GetBFTAddress(validators);
             }
         }
@@ -127,14 +129,14 @@ namespace Neo.SmartContract.Testing
                     return committeeScript.ToScriptHash();
                 }
 
-                return Neo.SmartContract.Native.NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
+                return NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
             }
         }
 
         /// <summary>
-        /// BFTAddress
+        /// Persisting Block
         /// </summary>
-        public Block CurrentBlock { get; }
+        public PersistingBlock PersistingBlock { get; }
 
         /// <summary>
         /// Transaction
@@ -180,11 +182,11 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Native artifacts
         /// </summary>
-        public NativeArtifacts Native
+        public NativeContracts Native
         {
             get
             {
-                _native ??= new NativeArtifacts(this);
+                _native ??= new NativeContracts(this);
                 return _native;
             }
         }
@@ -193,18 +195,38 @@ namespace Neo.SmartContract.Testing
         /// Constructor
         /// </summary>
         /// <param name="initializeNativeContracts">Initialize native contracts</param>
-        public TestEngine(bool initializeNativeContracts = true) : this(Default, initializeNativeContracts) { }
+        public TestEngine(bool initializeNativeContracts = true)
+            : this(new EngineStorage(new MemoryStore()), Default, initializeNativeContracts)
+        { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="storage">Storage</param>
+        /// <param name="initializeNativeContracts">Initialize native contracts</param>
+        public TestEngine(EngineStorage storage, bool initializeNativeContracts = true)
+            : this(storage, Default, initializeNativeContracts)
+        { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="settings">Settings</param>
         /// <param name="initializeNativeContracts">Initialize native contracts</param>
-        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = true)
+        public TestEngine(ProtocolSettings settings, bool initializeNativeContracts = true) :
+            this(new EngineStorage(new MemoryStore()), settings, initializeNativeContracts)
+        { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="storage">Storage</param>
+        /// <param name="settings">Settings</param>
+        /// <param name="initializeNativeContracts">Initialize native contracts</param>
+        public TestEngine(EngineStorage storage, ProtocolSettings settings, bool initializeNativeContracts = true)
         {
+            Storage = storage;
             ProtocolSettings = settings;
-            CurrentBlock = NeoSystem.CreateGenesisBlock(ProtocolSettings);
-            CurrentBlock.Header.Index++;
 
             var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
             var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
@@ -236,9 +258,23 @@ namespace Neo.SmartContract.Testing
                 Witnesses = System.Array.Empty<Witness>() // Not required
             };
 
+            // Check initialization
+
             if (initializeNativeContracts)
             {
-                Native.Initialize(false);
+                PersistingBlock = new PersistingBlock(this, Native.Initialize(false));
+            }
+            else
+            {
+                if (Storage.IsInitialized)
+                {
+                    var currentHash = NativeContract.Ledger.CurrentHash(Storage.Snapshot);
+                    PersistingBlock = new PersistingBlock(this, NativeContract.Ledger.GetBlock(Storage.Snapshot, currentHash));
+                }
+                else
+                {
+                    PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
+                }
             }
         }
 
@@ -543,7 +579,9 @@ namespace Neo.SmartContract.Testing
 
             var snapshot = Storage.Snapshot.CreateSnapshot();
 
-            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, CurrentBlock);
+            // Create persisting block, required for GasRewards
+
+            using var engine = new TestingApplicationEngine(this, Trigger, Transaction, snapshot, PersistingBlock.UnderlyingBlock);
 
             engine.LoadScript(script, initialPosition: initialPosition);
 
@@ -591,7 +629,7 @@ namespace Neo.SmartContract.Testing
         {
             if (!Coverage.TryGetValue(contract.Hash, out var coveredContract))
             {
-                var state = Neo.SmartContract.Native.NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
+                var state = NativeContract.ContractManagement.GetContract(Storage.Snapshot, contract.Hash);
                 if (state == null) return null;
 
                 coveredContract = new(MethodDetection, contract.Hash, state);
