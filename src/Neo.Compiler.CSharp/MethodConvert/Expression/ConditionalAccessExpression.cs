@@ -47,7 +47,7 @@ partial class MethodConvert
     /// Runtime.Log(firstItem?.Timestamp.ToString());
     /// </code>
     /// </example>
-    private void ConvertNullConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
+    private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         JumpTarget nullTarget = new();

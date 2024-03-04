@@ -34,7 +34,7 @@ partial class MethodConvert
     /// Runtime.Log(state.ToString());
     /// </code>
     /// </example>
-    private void ConvertTernaryConditionalExpression(SemanticModel model, ConditionalExpressionSyntax expression)
+    private void ConvertConditionalExpression(SemanticModel model, ConditionalExpressionSyntax expression)
     {
         JumpTarget falseTarget = new();
         JumpTarget endTarget = new();

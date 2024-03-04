@@ -103,10 +103,10 @@ partial class MethodConvert
                 ConvertCheckedExpression(model, expression);
                 break;
             case ConditionalAccessExpressionSyntax expression:
-                ConvertNullConditionalAccessExpression(model, expression);
+                ConvertConditionalAccessExpression(model, expression);
                 break;
             case ConditionalExpressionSyntax expression:
-                ConvertTernaryConditionalExpression(model, expression);
+                ConvertConditionalExpression(model, expression);
                 break;
             case ElementAccessExpressionSyntax expression:
                 ConvertElementAccessExpression(model, expression);
