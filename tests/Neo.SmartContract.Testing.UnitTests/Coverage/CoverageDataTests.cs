@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace Neo.SmartContract.Testing.UnitTests.Coverage
 {
     [TestClass]
-    public class CoverageDataTests
+    public partial class CoverageDataTests
     {
         [GeneratedRegex(@"\s")]
         private static partial Regex WhiteSpaceRegex();
