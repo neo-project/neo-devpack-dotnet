@@ -18,6 +18,26 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Implicitly typed arrays are those arrays in which the type of the array is deduced from the element specified in the array initializer.
+    /// The implicitly typed arrays are similar to implicitly typed variable.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about implicit array creation expression.</param>
+    /// <param name="expression">The syntax representation of the implicit array creation expression statement being converted.</param>
+    /// <example>
+    /// Below program illustrates how to use 1-Dimensional Implicitly typed array.
+    /// <code>
+    /// var authorNames = new[] {"Shilpa", "Soniya", "Shivi", "Ritika"};
+    /// Runtime.Log("List of Authors is: ");
+    /// foreach (var name in authorNames)
+    /// {
+    ///     Runtime.Log(name);
+    /// }
+    /// </code>
+    /// </example>
+    /// <remarks>
+    /// Multidimensional implicitly typed arrays are not supported.
+    /// </remarks>
     private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
     {
         IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
