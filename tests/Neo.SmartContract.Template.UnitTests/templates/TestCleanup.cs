@@ -7,12 +7,15 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.SmartContract.Testing.Extensions;
+using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
     public class TestCleanup
     {
+        private static readonly Regex WhiteSpaceRegex = new("\\s");
+
         private static NeoDebugInfo? DebugInfo_NEP17;
         private static NeoDebugInfo? DebugInfo_Oracle;
         private static NeoDebugInfo? DebugInfo_Ownable;
@@ -72,7 +75,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true);
 
-            if (artifact.Trim() != File.ReadAllText(artifactsPath).Trim())
+            string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
+            if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);
