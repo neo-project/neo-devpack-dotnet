@@ -18,6 +18,25 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts an 'is' pattern expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about is pattern expression.</param>
+    /// <param name="expression">The syntax representation of the is pattern expression statement being converted.</param>
+    /// <example>
+    /// In this example, the 'is' pattern expression is used to check if obj is an instance of the string type.
+    /// <code>
+    /// object obj = "Hello";
+    /// if (obj is string str)
+    /// {
+    ///     Runtime.Log($"The object is a string: {str}");
+    /// }
+    /// else
+    /// {
+    ///     Runtime.Log("The object is not a string.");
+    /// }
+    /// </code>
+    /// </example>
     private void ConvertIsPatternExpression(SemanticModel model, IsPatternExpressionSyntax expression)
     {
         byte anonymousIndex = AddAnonymousVariable();
