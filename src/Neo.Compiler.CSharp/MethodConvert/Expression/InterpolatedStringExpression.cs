@@ -18,6 +18,28 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts an interpolated string expression to OpCodes.
+    /// The $ character identifies a string literal as an interpolated string.
+    /// An interpolated string is a string literal that might contain interpolation expressions.
+    /// When an interpolated string is resolved to a result string,
+    /// items with interpolation expressions are replaced by the string representations of the expression results.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about interpolated string expression.</param>
+    /// <param name="expression">The syntax representation of the interpolated string expression statement being converted.</param>
+    /// <remarks>
+    /// The method processes each interpolated string content segment and concatenates them using the CAT opcode.
+    /// If the interpolated string contains no segments, it pushes an empty string onto the evaluation stack.
+    /// If the interpolated string contains two or more segments, it changes the type of the resulting string to ByteString.
+    /// </remarks>
+    /// <example>
+    /// The following interpolated string will be divided into 5 parts and concatenated via OpCode.CAT
+    /// <code>
+    /// var name = "Mark";
+    /// var timestamp = Ledger.GetBlock(Ledger.CurrentHash).Timestamp;
+    /// Runtime.Log($"Hello, {name}! Current timestamp is {timestamp}.");
+    /// </code>
+    /// </example>
     private void ConvertInterpolatedStringExpression(SemanticModel model, InterpolatedStringExpressionSyntax expression)
     {
         if (expression.Contents.Count == 0)

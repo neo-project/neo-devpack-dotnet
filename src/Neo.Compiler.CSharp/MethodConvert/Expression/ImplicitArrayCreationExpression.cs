@@ -19,6 +19,7 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
+    /// This method converts an implicit array creation expression to OpCodes.
     /// Implicitly typed arrays are those arrays in which the type of the array is deduced from the element specified in the array initializer.
     /// The implicitly typed arrays are similar to implicitly typed variable.
     /// </summary>
