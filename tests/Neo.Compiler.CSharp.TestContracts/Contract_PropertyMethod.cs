@@ -2,8 +2,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses;
 
 public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
 {
-
-
     public static string testProperty()
     {
         var p = new Person("NEO3");
