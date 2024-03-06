@@ -180,7 +180,6 @@ partial class MethodConvert
                 AddInstruction(target._instructions[i].Clone());
         else
             Jump(OpCode.CALL_L, target._startTarget);
-
     }
 
     private void CallVirtual(IMethodSymbol symbol)
