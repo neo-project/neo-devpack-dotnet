@@ -57,7 +57,7 @@ public static class ByteStringExtension
     {
         foreach (var value in byteString)
         {
-            if (!((value >= 65 && value <= 90) || (value >= 97 && value <= 122)))
+            if (value is (< 65 or > 90) and (< 97 or > 122))
                 return false;
         }
         return true;
