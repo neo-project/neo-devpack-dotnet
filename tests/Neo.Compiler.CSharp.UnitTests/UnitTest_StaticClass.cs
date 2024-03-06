@@ -8,7 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StaticClass
     {
-
         private TestEngine testengine;
 
         [TestInitialize]
