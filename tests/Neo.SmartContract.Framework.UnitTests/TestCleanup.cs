@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
-namespace Neo.SmartContract.Template.UnitTests.templates
+namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
     public class TestCleanup
     {
+        private static readonly Regex WhiteSpaceRegex = new("\\s");
         internal static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         /// <summary>
@@ -93,7 +95,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
-            if (!File.Exists(artifactsPath) || artifact.Trim() != File.ReadAllText(artifactsPath).Trim())
+            string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
+            if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);

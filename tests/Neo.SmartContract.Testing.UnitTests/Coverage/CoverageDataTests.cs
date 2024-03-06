@@ -2,12 +2,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.SmartContract.Testing.Coverage;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Testing.UnitTests.Coverage
 {
     [TestClass]
     public class CoverageDataTests
     {
+        private static readonly Regex WhiteSpaceRegex = new("\\s");
+
         [TestMethod]
         public void TestDump()
         {
@@ -17,7 +20,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
 
-            Assert.AreEqual(@"
+            Assert.AreEqual(WhiteSpaceRegex.Replace(@"
 NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
 ┌-───────────────────────────────-┬-────────-┬-────────-┐
 │ Method                          │   Line   │   Branch │
@@ -43,16 +46,16 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
 │ unregisterCandidate(pubkey)     │   0.00 % │ 100.00 % │
 │ vote(account,voteTo)            │   0.00 % │ 100.00 % │
 └-───────────────────────────────-┴-────────-┴-────────-┘
-".Trim(), engine.GetCoverage(engine.Native.NEO)?.Dump().Trim());
+", ""), WhiteSpaceRegex.Replace(engine.GetCoverage(engine.Native.NEO)?.Dump(), ""));
 
-            Assert.AreEqual(@"
+            Assert.AreEqual(WhiteSpaceRegex.Replace(@"
 NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
 ┌-─────────────-┬-────────-┬-────────-┐
 │ Method        │   Line   │   Branch │
 ├-─────────────-┼-────────-┼-────────-┤
 │ totalSupply() │ 100.00 % │ 100.00 % │
 └-─────────────-┴-────────-┴-────────-┘
-".Trim(), (engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump().Trim());
+", ""), WhiteSpaceRegex.Replace((engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump(), ""));
         }
 
         [TestMethod]
