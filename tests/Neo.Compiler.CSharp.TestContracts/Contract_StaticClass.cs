@@ -3,13 +3,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses;
 public class Contract_StaticClass : SmartContract.Framework.SmartContract
 {
     private static readonly TestClass _testClass = new();
+    private static readonly TestClass _testClass2 = new();
 
     public static int TestStaticClass()
     {
-        // _testClass.TestStaticClass();
         _testClass.TestStaticClassAdd();
-        // _testClass.TestStaticClassAdd();
-        return _testClass.TestStaticClass();
+        return _testClass2.TestStaticClass();
     }
 }
 
@@ -22,14 +21,4 @@ class TestClass
     public int TestStaticClass() => _a1;
 
     public void TestStaticClassAdd() => _a1 += 1;
-
-    public int TestStaticClass2()
-    {
-        return _a1;
-    }
-
-    public int TestStaticClassAdd2()
-    {
-        return _a1 += 1;
-    }
 }
