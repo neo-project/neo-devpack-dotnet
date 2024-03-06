@@ -21,6 +21,33 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for complex assignment expression into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about complex assignment expression.</param>
+    /// <param name="expression">The syntax representation of the complex assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <remarks>
+    /// For a binary operator op, a compound assignment expression of the form "x op= y" is equivalent to "x = x op y" except that x is only evaluated once.
+    /// </remarks>
+    /// <example>
+    /// The following example demonstrates the usage of compound assignment with arithmetic operators:
+    /// The corresponding code branch is "ConvertComplexAssignmentExpression"
+    /// <code>
+    /// int a = 5;
+    /// a += 9;
+    /// Runtime.Log(a.ToString());
+    /// a -= 4;
+    /// Runtime.Log(a.ToString());
+    /// a *= 2;
+    /// Runtime.Log(a.ToString());
+    /// a /= 4;
+    /// Runtime.Log(a.ToString());
+    /// a %= 3;
+    /// Runtime.Log(a.ToString());
+    /// </code>
+    /// output: 14, 10, 20, 5, 2
+    /// </example>
     private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;

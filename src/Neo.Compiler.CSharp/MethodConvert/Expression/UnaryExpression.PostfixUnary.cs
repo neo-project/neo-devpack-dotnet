@@ -21,6 +21,21 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the postfix operator into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the postfix operator.</param>
+    /// <param name="expression">The syntax representation of the postfix operator being converted.</param>
+    /// <example>
+    /// The result of x++ is the value of x before the operation, as the following example shows:
+    /// <code>
+    /// int i = 3;
+    /// Runtime.Log(i.ToString());
+    /// Runtime.Log(i++.ToString());
+    /// Runtime.Log(i.ToString());
+    /// </code>
+    /// output: 3、3、4
+    /// </example>
     private void ConvertPostfixUnaryExpression(SemanticModel model, PostfixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)

@@ -19,7 +19,7 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
-    /// Converts the code for tuple type into a sequence of instructions.
+    /// Converts the code for tuple type into OpCodes.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about the tuple type.</param>
     /// <param name="expression">The syntax representation of the tuple type statement being converted.</param>

@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
-    /// Converts the code for constructing arrays and initializing arrays into a sequence of instructions.
+    /// Converts the code for constructing arrays and initializing arrays into OpCodes.
     /// This method includes analyzing the array length, array type, array dimension and initial data.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about the array creation.</param>

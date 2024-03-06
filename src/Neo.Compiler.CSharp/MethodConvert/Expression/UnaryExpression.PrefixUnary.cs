@@ -21,6 +21,21 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the prefix operator into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the prefix operator.</param>
+    /// <param name="expression">The syntax representation of the prefix operator being converted.</param>
+    /// <example>
+    /// The result of ++x is the value of x before the operation, as the following example shows:
+    /// <code>
+    /// int i = 3;
+    /// Runtime.Log(i.ToString());
+    /// Runtime.Log(++i.ToString());
+    /// Runtime.Log(i.ToString());
+    /// </code>
+    /// output: 3、4、4
+    /// </example>
     private void ConvertPrefixUnaryExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)

@@ -21,6 +21,40 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for null-coalescing assignment expression into OpCodes.
+    /// The null-coalescing assignment operator ??= assigns the value of its right-hand operand to its left-hand operand only if the left-hand operand evaluates to null.
+    /// The ??= operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about coalesce assignment expression.</param>
+    /// <param name="expression">The syntax representation of the coalesce assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <remarks>
+    /// The result of an assignment expression is the value assigned to the left-hand operand.
+    /// The type of the right-hand operand must be the same as the type of the left-hand operand or implicitly convertible to it.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// public class Cat
+    /// {
+    ///     public string Name { get; set; }
+    /// }
+    /// </code>
+    /// <code>
+    /// Cat nullableCat = null;
+    /// Cat nonNullableCat = new() { Name = "Mimi" };
+    /// nullableCat ??= nonNullableCat;
+    /// Runtime.Log("Nullable cat: " + nullableCat.Name);
+    /// </code>
+    /// "nullableCat ??= nonNullableCat;" this line is evaluated as
+    /// <code>
+    /// nullableCat = nullableCat ?? nonNullableCat;
+    /// </code>
+    /// is evaluated as
+    /// <code>
+    /// if (nullableCat == null) nullableCat = nonNullableCat;
+    /// </code>
+    /// </example>
     private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.Left)
