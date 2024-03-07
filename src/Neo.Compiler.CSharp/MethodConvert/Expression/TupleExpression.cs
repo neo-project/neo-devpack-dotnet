@@ -20,6 +20,7 @@ partial class MethodConvert
 {
     /// <summary>
     /// Converts the code for tuple type into OpCodes.
+    /// Tuple types expressions are a new feature introduced in C# 7.0(Released March, 2017).
     /// </summary>
     /// <param name="model">The semantic model providing context and information about the tuple type.</param>
     /// <param name="expression">The syntax representation of the tuple type statement being converted.</param>
@@ -33,6 +34,7 @@ partial class MethodConvert
     /// Runtime.Log($"Sum of {t2.Name} elements is {t2.Count}.");
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-tuples">Tuple types</seealso>
     private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
     {
         AddInstruction(OpCode.NEWSTRUCT0);

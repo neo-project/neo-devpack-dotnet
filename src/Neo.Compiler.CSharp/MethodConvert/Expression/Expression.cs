@@ -81,12 +81,18 @@ partial class MethodConvert
 
         switch (syntax)
         {
+            //Convert an expression that creates an object of an anonymous type.
+            //Example: new { Amount = 108, Message = "Hello" };
             case AnonymousObjectCreationExpressionSyntax expression:
                 ConvertAnonymousObjectCreationExpression(model, expression);
                 break;
+            //Convert an expression that creates an array.
+            //Example: new int[4] { 5, 6, 7, 8};
             case ArrayCreationExpressionSyntax expression:
                 ConvertArrayCreationExpression(model, expression);
                 break;
+            //Convert an assignment expression. 
+            //Example: new int[4] { 5, 6, 7, 8};
             case AssignmentExpressionSyntax expression:
                 ConvertAssignmentExpression(model, expression);
                 break;

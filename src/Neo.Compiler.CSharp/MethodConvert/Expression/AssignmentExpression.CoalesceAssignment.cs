@@ -25,6 +25,7 @@ partial class MethodConvert
     /// Converts the code for null-coalescing assignment expression into OpCodes.
     /// The null-coalescing assignment operator ??= assigns the value of its right-hand operand to its left-hand operand only if the left-hand operand evaluates to null.
     /// The ??= operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+    /// Null-coalescing assignment expressions are a new feature introduced in C# 8.0(Released September, 2019).
     /// </summary>
     /// <param name="model">The semantic model providing context and information about coalesce assignment expression.</param>
     /// <param name="expression">The syntax representation of the coalesce assignment expression statement being converted.</param>
@@ -42,15 +43,10 @@ partial class MethodConvert
     /// nullableCat ??= nonNullableCat;
     /// Runtime.Log("Nullable cat: " + nullableCat.Name);
     /// </code>
-    /// "nullableCat ??= nonNullableCat;" this line is evaluated as
-    /// <code>
-    /// nullableCat = nullableCat ?? nonNullableCat;
-    /// </code>
-    /// is evaluated as
-    /// <code>
-    /// if (nullableCat == null) nullableCat = nonNullableCat;
-    /// </code>
+    /// <c>nullableCat ??= nonNullableCat;</c> this line is evaluated as
+    /// <c>nullableCat = nullableCat ?? nonNullableCat;</c> is evaluated as <c>if (nullableCat == null) nullableCat = nonNullableCat;</c>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-coalescing-operator">?? and ??= operators - the null-coalescing operators</seealso>
     private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.Left)

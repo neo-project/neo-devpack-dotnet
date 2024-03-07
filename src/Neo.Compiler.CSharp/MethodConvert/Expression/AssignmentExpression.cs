@@ -41,7 +41,7 @@ partial class MethodConvert
     /// Runtime.Log(log);
     /// </code>
     /// </example>
-
+    /// <seealso cref="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator"/>
     private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)

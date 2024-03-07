@@ -30,11 +30,9 @@ partial class MethodConvert
     /// </remarks>
     /// <example>
     /// The following example shows an anonymous type that is initialized with two properties named Amount and Message.
-    /// <code>
-    /// var v = new { Amount = 108, Message = "Hello" };
-    /// Runtime.Log(v.Amount + v.Message);
-    /// </code>
+    /// <c>var v = new { Amount = 108, Message = "Hello" };</c>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/anonymous-types">Anonymous types</seealso>
     private void ConvertAnonymousObjectCreationExpression(SemanticModel model, AnonymousObjectCreationExpressionSyntax expression)
     {
         AddInstruction(OpCode.NEWARRAY0);

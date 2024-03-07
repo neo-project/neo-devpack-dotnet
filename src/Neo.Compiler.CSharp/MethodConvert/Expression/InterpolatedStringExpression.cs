@@ -24,6 +24,7 @@ partial class MethodConvert
     /// An interpolated string is a string literal that might contain interpolation expressions.
     /// When an interpolated string is resolved to a result string,
     /// items with interpolation expressions are replaced by the string representations of the expression results.
+    /// Interpolated string expression are a new feature introduced in C# 8.0(Released September, 2019).
     /// </summary>
     /// <param name="model">The semantic model providing context and information about interpolated string expression.</param>
     /// <param name="expression">The syntax representation of the interpolated string expression statement being converted.</param>
@@ -40,6 +41,7 @@ partial class MethodConvert
     /// Runtime.Log($"Hello, {name}! Current timestamp is {timestamp}.");
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated">String interpolation using $</seealso>
     private void ConvertInterpolatedStringExpression(SemanticModel model, InterpolatedStringExpressionSyntax expression)
     {
         if (expression.Contents.Count == 0)

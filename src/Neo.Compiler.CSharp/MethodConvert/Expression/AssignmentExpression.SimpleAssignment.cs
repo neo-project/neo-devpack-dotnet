@@ -36,14 +36,9 @@ partial class MethodConvert
     /// </remarks>
     /// <example>
     /// The assignment operator = is right-associative, that is, an expression of the form
-    /// <code>
-    /// a = b = c
-    /// </code>
-    /// is evaluated as
-    /// <code>
-    /// a = (b = c)
-    /// </code>
+    /// <c>a = b = c</c> is evaluated as <c>a = (b = c)</c>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator">Assignment operators</seealso>
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ConvertExpression(model, expression.Right);

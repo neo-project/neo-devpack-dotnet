@@ -39,6 +39,7 @@ partial class MethodConvert
     /// <remarks>
     /// Multidimensional implicitly typed arrays are not supported.
     /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/arrays#implicitly-typed-arrays">Implicitly typed arrays</seealso>
     private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
     {
         IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;

@@ -32,15 +32,12 @@ partial class MethodConvert
     /// </remarks>
     /// <example>
     /// Example of a array creation syntax:
-    /// <code>
-    /// var array = new byte[4];
-    /// </code>
+    /// <c>var array = new byte[4];</c>
     /// The compilation result of the example code is: OpCode.PUSH4, OpCode.NEWBUFFER
-    /// <code>
-    /// var array = new int[4] { 5, 6, 7, 8};
-    /// </code>
+    /// <c>var array = new int[4] { 5, 6, 7, 8};</c>
     /// The compilation result of the example code is: OpCode.PUSH8, OpCode.PUSH7, OpCode.PUSH6, OpCode.PUSH5, OpCode.PUSH4, OpCode.PACK
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/arrays">Arrays</seealso>
     private void ConvertArrayCreationExpression(SemanticModel model, ArrayCreationExpressionSyntax expression)
     {
         ArrayRankSpecifierSyntax specifier = expression.Type.RankSpecifiers[0];

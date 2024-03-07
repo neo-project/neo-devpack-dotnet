@@ -22,7 +22,7 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
-    /// Converts the code for complex assignment expression into OpCodes.
+    /// Converts the code for complex assignment (or compound assignment) expression into OpCodes.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about complex assignment expression.</param>
     /// <param name="expression">The syntax representation of the complex assignment expression statement being converted.</param>
@@ -48,6 +48,7 @@ partial class MethodConvert
     /// </code>
     /// output: 14, 10, 20, 5, 2
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator#compound-assignment">Compound assignment</seealso>
     private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;

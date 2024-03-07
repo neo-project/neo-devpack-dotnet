@@ -40,6 +40,7 @@ partial class MethodConvert
     /// }
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names">C# identifier naming rules and conventions</seealso>
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;

@@ -37,6 +37,7 @@ partial class MethodConvert
     /// }
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/type-testing-and-cast#is-operator">is operator</seealso>
     private void ConvertIsPatternExpression(SemanticModel model, IsPatternExpressionSyntax expression)
     {
         byte anonymousIndex = AddAnonymousVariable();

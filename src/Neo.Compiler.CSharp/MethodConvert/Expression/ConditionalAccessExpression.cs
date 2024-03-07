@@ -47,6 +47,7 @@ partial class MethodConvert
     /// Runtime.Log(firstItem?.Timestamp.ToString());
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-">Null-conditional operators ?. and ?[]</seealso>
     private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;

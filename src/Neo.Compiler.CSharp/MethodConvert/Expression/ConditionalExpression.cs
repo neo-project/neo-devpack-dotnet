@@ -34,6 +34,7 @@ partial class MethodConvert
     /// Runtime.Log(state.ToString());
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/conditional-operator">?: operator - the ternary conditional operator</seealso>
     private void ConvertConditionalExpression(SemanticModel model, ConditionalExpressionSyntax expression)
     {
         JumpTarget falseTarget = new();

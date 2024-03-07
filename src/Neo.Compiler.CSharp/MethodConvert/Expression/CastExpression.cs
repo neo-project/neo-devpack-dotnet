@@ -40,6 +40,7 @@ partial class MethodConvert
     /// Runtime.Log(point.ToString());
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/type-testing-and-cast#cast-expression">Cast expression</seealso>
     private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
     {
         ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;

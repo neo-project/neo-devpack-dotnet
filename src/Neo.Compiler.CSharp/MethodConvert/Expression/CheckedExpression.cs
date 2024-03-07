@@ -48,8 +48,9 @@ partial class MethodConvert
     ///     int a = temp * 2;
     /// }
     /// </code>
-    /// For a checked statement, see the ../Statement/CheckedStatement.cs file.
+    /// For a checked statement, see <see cref="ConvertCheckedStatement(SemanticModel, CheckedStatementSyntax)"/>
     /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/zh-cn/dotnet/csharp/language-reference/operators/arithmetic-operators#integer-arithmetic-overflow">Integer arithmetic overflow</seealso>
     private void ConvertCheckedExpression(SemanticModel model, CheckedExpressionSyntax expression)
     {
         _checkedStack.Push(expression.Keyword.IsKind(SyntaxKind.CheckedKeyword));

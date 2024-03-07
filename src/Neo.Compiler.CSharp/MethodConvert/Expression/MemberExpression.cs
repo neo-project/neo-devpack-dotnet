@@ -40,6 +40,7 @@ partial class MethodConvert
     /// Runtime.Log(Ledger.CurrentHash.ToString());
     /// </code>
     /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#member-access-expression-">Member access expression</seealso>
     private void ConvertMemberAccessExpression(SemanticModel model, MemberAccessExpressionSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
