@@ -141,7 +141,8 @@ partial class MethodConvert
             case ImplicitArrayCreationExpressionSyntax expression:
                 ConvertImplicitArrayCreationExpression(model, expression);
                 break;
-            //TODO
+            //Converts an initialValue attribute
+            //Example: [InitialValue("NVg7LjGcUSrgxgjX3zEgqaksfMaiS8Z6e1"]
             case InitializerExpressionSyntax expression:
                 ConvertInitializerExpression(model, expression);
                 break;
@@ -150,7 +151,8 @@ partial class MethodConvert
             case InterpolatedStringExpressionSyntax expression:
                 ConvertInterpolatedStringExpression(model, expression);
                 break;
-            //TODO
+            //Converts Invocation, include method invocation, event invocation and delegate invocation
+            //Example: Runtime.Log("hello");
             case InvocationExpressionSyntax expression:
                 ConvertInvocationExpression(model, expression);
                 break;

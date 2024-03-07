@@ -21,6 +21,11 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts Invocation, include method invocation, event invocation and delegate invocation to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about invocation expression.</param>
+    /// <param name="expression">The syntax representation of the invocation expression statement being converted.</param>
     private void ConvertInvocationExpression(SemanticModel model, InvocationExpressionSyntax expression)
     {
         ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
@@ -39,6 +44,13 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Convert the event invocation expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about event invocation expression.</param>
+    /// <param name="symbol">Symbol of the event</param>
+    /// <param name="arguments">Arguments of the event</param>
+    /// <example><see href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/examples/Example.SmartContract.Event/Event.cs"/></example>
     private void ConvertEventInvocationExpression(SemanticModel model, IEventSymbol symbol, ArgumentSyntax[] arguments)
     {
         AddInstruction(OpCode.NEWARRAY0);
@@ -52,6 +64,16 @@ partial class MethodConvert
         Call(ApplicationEngine.System_Runtime_Notify);
     }
 
+    /// <summary>
+    /// Convert the method invocation expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about method invocation expression.</param>
+    /// <param name="symbol">Symbol of the method</param>
+    /// <param name="expression">The syntax representation of the method invocation expression statement being converted.</param>
+    /// <param name="arguments">Arguments of the method</param>
+    /// <example>
+    /// <c>Runtime.Log("hello World!");</c>
+    /// </example>
     private void ConvertMethodInvocationExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax expression, ArgumentSyntax[] arguments)
     {
         switch (expression)
@@ -73,6 +95,15 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Convert the delegate invocation expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about delegate invocation expression.</param>
+    /// <param name="expression">The syntax representation of the delegate invocation expression statement being converted.</param>
+    /// <param name="arguments">Arguments of the delegate</param>
+    /// <example>
+    /// TODO
+    /// </example>
     private void ConvertDelegateInvocationExpression(SemanticModel model, ExpressionSyntax expression, ArgumentSyntax[] arguments)
     {
         INamedTypeSymbol type = (INamedTypeSymbol)model.GetTypeInfo(expression).Type!;
