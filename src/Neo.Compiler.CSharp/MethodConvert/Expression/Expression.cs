@@ -102,57 +102,88 @@ partial class MethodConvert
             case BinaryExpressionSyntax expression:
                 ConvertBinaryExpression(model, expression);
                 break;
+            //Converts a cast expression.
+            //Example: (ECPoint)ByteString.Empty;
             case CastExpressionSyntax expression:
                 ConvertCastExpression(model, expression);
                 break;
+            //Converts a checked expression.
+            //Example: checked(temp * 2);
             case CheckedExpressionSyntax expression:
                 ConvertCheckedExpression(model, expression);
                 break;
+            //Converts a null-conditional access expression.
+            //Example: people?.Name; array?[i];
             case ConditionalAccessExpressionSyntax expression:
                 ConvertConditionalAccessExpression(model, expression);
                 break;
+            //Converts a null-conditional access expression.
+            //Example: var x = a > b ? a : b;
             case ConditionalExpressionSyntax expression:
                 ConvertConditionalExpression(model, expression);
                 break;
+            //Converts an array element or indexer access ([]) expression.
+            //Example: array[i];
             case ElementAccessExpressionSyntax expression:
                 ConvertElementAccessExpression(model, expression);
                 break;
+            // ????
             case ElementBindingExpressionSyntax expression:
                 ConvertElementBindingExpression(model, expression);
                 break;
+            //Converts an identifier name expression.
+            //Example: int a = 1;
             case IdentifierNameSyntax expression:
                 ConvertIdentifierNameExpression(model, expression);
                 break;
+            //Converts an implicit array creation expression.
+            //Example: var authorNames = new[] {"Shilpa", "Soniya", "Shivi", "Ritika"};
             case ImplicitArrayCreationExpressionSyntax expression:
                 ConvertImplicitArrayCreationExpression(model, expression);
                 break;
+            //TODO
             case InitializerExpressionSyntax expression:
                 ConvertInitializerExpression(model, expression);
                 break;
+            //Converts an interpolated string expression;
+            //Example: $"Hello, {name}"
             case InterpolatedStringExpressionSyntax expression:
                 ConvertInterpolatedStringExpression(model, expression);
                 break;
+            //TODO
             case InvocationExpressionSyntax expression:
                 ConvertInvocationExpression(model, expression);
                 break;
+            //Converts an 'is' pattern expression;
+            //Example: if (obj is string)
             case IsPatternExpressionSyntax expression:
                 ConvertIsPatternExpression(model, expression);
                 break;
+            //Converts a member access expression.
+            //Example: Ledger.CurrentHash
             case MemberAccessExpressionSyntax expression:
                 ConvertMemberAccessExpression(model, expression);
                 break;
+            // ????
             case MemberBindingExpressionSyntax expression:
                 ConvertMemberBindingExpression(model, expression);
                 break;
+            //TODO
             case ParenthesizedExpressionSyntax expression:
                 ConvertExpression(model, expression.Expression);
                 break;
+            //Converts postfix operator.
+            //Example: i++, i--
             case PostfixUnaryExpressionSyntax expression:
                 ConvertPostfixUnaryExpression(model, expression);
                 break;
+            //Converts prefix operator.
+            //Example: ++i, --i, !flag
             case PrefixUnaryExpressionSyntax expression:
                 ConvertPrefixUnaryExpression(model, expression);
                 break;
+            //Converts a switch  expression.
+            //Example: day switch { 1 => "Monday", 2 => "Tuesday", 3 => "Wednesday", 4 => "Thursday", 5 => "Friday", 6 => "Saturday", 7 => "Sunday", _ => "Unknown" };
             case SwitchExpressionSyntax expression:
                 ConvertSwitchExpression(model, expression);
                 break;
@@ -163,6 +194,8 @@ partial class MethodConvert
             case ThrowExpressionSyntax expression:
                 Throw(model, expression.Expression);
                 break;
+            //Converts a tuple type expression.
+            //Example: (string, int) t1 = ("chris", 3);
             case TupleExpressionSyntax expression:
                 ConvertTupleExpression(model, expression);
                 break;

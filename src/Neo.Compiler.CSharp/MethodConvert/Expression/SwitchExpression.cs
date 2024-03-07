@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
-    /// This method converts a switch expression expression to OpCodes.
+    /// This method converts a switch expression to OpCodes.
     /// Switch expressions are a new feature introduced in C# 8.0(Released September, 2019).
     /// For a traditional switch statement, see <see cref="ConvertSwitchStatement(SemanticModel, SwitchStatementSyntax)"/>.
     /// </summary>
