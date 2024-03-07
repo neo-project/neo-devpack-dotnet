@@ -28,7 +28,7 @@ partial class MethodConvert
     /// <exception cref="CompilationException">Unsupported symbols will result in a compilation exception, such as non-static methods.</exception>
     /// <remarks>
     /// The method determines the symbol associated with the member access expression from the semantic model.
-    /// It then generates IL instructions based on the type of symbol.
+    /// It then generates OpCodes based on the type of symbol.
     /// Supported symbols include fields, methods, and properties.
     /// For fields, it handles constant fields, static fields, and instance fields.
     /// For methods, it handles static methods.

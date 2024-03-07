@@ -29,7 +29,7 @@ partial class MethodConvert
     /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
     /// <remarks>
     /// If the accessed element is a property, the method calls the property's getter.
-    /// If the accessed element is an array or a collection, the method generates IL instructions to fetch the element.
+    /// If the accessed element is an array or a collection, the method generates OpCodes to fetch the element.
     /// </remarks>
     private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
     {
@@ -55,7 +55,7 @@ partial class MethodConvert
     /// <param name="expression">The syntax representation of the element binding expression statement being converted.</param>
     /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
     /// <remarks>
-    /// The method generates IL instructions to fetch the element based on the given index or range.
+    /// The method generates OpCodes to fetch the element based on the given index or range.
     /// </remarks>
     private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
     {
@@ -75,7 +75,7 @@ partial class MethodConvert
     /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
     /// <remarks>
     /// If the expression is a range, it calculates the start and end indices and extracts the relevant sub-array or sub-collection.
-    /// If the expression is an index, it generates IL instructions to fetch the element at the specified index.
+    /// If the expression is an index, it generates OpCodes to fetch the element at the specified index.
     /// </remarks>
     private void ConvertIndexOrRange(SemanticModel model, ITypeSymbol type, ExpressionSyntax indexOrRange)
     {

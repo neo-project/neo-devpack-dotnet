@@ -29,10 +29,6 @@ partial class MethodConvert
     /// <param name="model">The semantic model providing context and information about coalesce assignment expression.</param>
     /// <param name="expression">The syntax representation of the coalesce assignment expression statement being converted.</param>
     /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
-    /// <remarks>
-    /// The result of an assignment expression is the value assigned to the left-hand operand.
-    /// The type of the right-hand operand must be the same as the type of the left-hand operand or implicitly convertible to it.
-    /// </remarks>
     /// <example>
     /// <code>
     /// public class Cat
