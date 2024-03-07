@@ -2,10 +2,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses;
 
 public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
 {
-    public static string testProperty()
+    public static (string, int) testProperty()
     {
-        var p = new Person("NEO3");
-        return p.Name;
+        var p = new Person("NEO3", 10);
+        return (p.Name, p.Age);
     }
 
     public class Person
@@ -13,10 +13,10 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
         public string Name { get; set; }
         public int Age;
 
-        public Person(string name)
+        public Person(string name, int age)
         {
             Name = name;
-            Age = 3;
+            Age = age;
         }
     }
 }

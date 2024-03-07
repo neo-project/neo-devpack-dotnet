@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.TestEngine;
 using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -22,7 +23,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             testEngine.Reset();
             var res = testEngine.ExecuteTestCaseStandard("testProperty");
             Assert.AreEqual(testEngine.State, VMState.HALT);
-            Assert.AreEqual(res.Pop().GetString(), "NEO3");
+            var arr = (Array)res.Pop();
+            Assert.AreEqual(arr[0].GetString(), "NEO3");
+            Assert.AreEqual(arr[1].GetInteger(), 10);
         }
     }
 }
