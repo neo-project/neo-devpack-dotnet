@@ -48,6 +48,7 @@ partial class MethodConvert
     ///     int a = temp * 2;
     /// }
     /// </code>
+    /// For a checked statement, see the ../Statement/CheckedStatement.cs file.
     /// </remarks>
     private void ConvertCheckedExpression(SemanticModel model, CheckedExpressionSyntax expression)
     {

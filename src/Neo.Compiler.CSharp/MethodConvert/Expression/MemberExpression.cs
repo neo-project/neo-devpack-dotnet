@@ -78,6 +78,17 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// This method converts a member binding expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about member binding expression.</param>
+    /// <param name="expression">The syntax representation of the member binding expression statement being converted.</param>
+    /// <exception cref="CompilationException">Unsupported symbols will result in a compilation exception, such as methods.</exception>
+    /// <remarks>
+    /// The method determines the symbol associated with the member binding expression from the semantic model.
+    /// It then generates OpCodes based on the type of symbol.
+    /// Supported symbols include fields and properties.
+    /// </remarks>
     private void ConvertMemberBindingExpression(SemanticModel model, MemberBindingExpressionSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;

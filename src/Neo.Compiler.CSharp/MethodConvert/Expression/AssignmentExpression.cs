@@ -23,6 +23,24 @@ partial class MethodConvert
     /// </summary>
     /// <param name="model">The semantic model providing context and information about assignment expression.</param>
     /// <param name="expression">The syntax representation of the assignment expression statement being converted.</param>
+    /// <example>
+    /// The following code covers three branches. If you want to see the example code for only one of the branches,
+    /// you can look at the comments of the corresponding method.
+    /// <code>
+    /// public class Cat
+    /// {
+    ///     public string Name { get; set; }
+    /// }
+    /// </code>
+    /// <code>
+    /// Cat nullableCat = null;
+    /// Cat nonNullableCat = new() { Name = "Mimi" };
+    /// nullableCat ??= nonNullableCat;
+    /// var logInfo = "Nullable cat: ";
+    /// logInfo += nullableCat.Name;
+    /// Runtime.Log(log);
+    /// </code>
+    /// </example>
 
     private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
