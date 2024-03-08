@@ -30,8 +30,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return value != null;
         }
 
-        
-
         public static string NullCollation(string code)
         {
             string myname = code ?? "linux";
