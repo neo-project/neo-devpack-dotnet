@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract;
 using Neo.VM;
+using System;
 using System.Linq;
 
 namespace Neo.Compiler;
@@ -102,7 +103,23 @@ partial class MethodConvert
     /// <param name="expression">The syntax representation of the delegate invocation expression statement being converted.</param>
     /// <param name="arguments">Arguments of the delegate</param>
     /// <example>
-    /// TODO
+    /// <code>
+    /// public delegate int MyDelegate(int x, int y);
+    /// 
+    /// static int CalculateSum(int x, int y)
+    /// {
+    ///     return x + y;
+    /// }
+    /// 
+    /// public void MyMethod()
+    /// {
+    ///     MyDelegate myDelegate = CalculateSum;
+    ///     int result = myDelegate(5, 6);
+    ///     Runtime.Log($"Sum: {result}");
+    /// }
+    /// </code>
+    /// <c>myDelegate(5, 6)</c> This line will be converted by the following method.
+    /// The  IdentifierNameSyntax is "myDelegate" the "type" is "MyDelegate".
     /// </example>
     private void ConvertDelegateInvocationExpression(SemanticModel model, ExpressionSyntax expression, ArgumentSyntax[] arguments)
     {
