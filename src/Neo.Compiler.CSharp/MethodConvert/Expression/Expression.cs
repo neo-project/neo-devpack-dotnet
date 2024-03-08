@@ -201,6 +201,9 @@ partial class MethodConvert
             case ThisExpressionSyntax:
                 AddInstruction(OpCode.LDARG0);
                 break;
+            //Converts a throw expression
+            //Examples: string a = null; var b = a ?? throw new Exception();
+            //Examples: var first = args.Length >= 1 ? args[0] : throw new Exception();
             case ThrowExpressionSyntax expression:
                 Throw(model, expression.Expression);
                 break;
