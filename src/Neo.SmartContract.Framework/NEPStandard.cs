@@ -7,7 +7,7 @@ namespace Neo.SmartContract.Framework
         Nep11,
         // The NEP-17 standard is used for fungible tokens.
         // Defined at https://github.com/neo-project/proposals/blob/master/nep-17.mediawiki
-        Nep17,
+        Nep17
     }
 
     public static class NepStandardExtensions
