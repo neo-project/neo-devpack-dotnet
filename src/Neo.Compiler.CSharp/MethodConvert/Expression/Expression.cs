@@ -172,7 +172,9 @@ partial class MethodConvert
             case MemberBindingExpressionSyntax expression:
                 ConvertMemberBindingExpression(model, expression);
                 break;
-            //TODO
+            //Converts a parenthesized expression.
+            //Continuing the recursive processing of the expression with the parentheses removed.
+            //Example: (a / b), (a + b), (new byte[33])
             case ParenthesizedExpressionSyntax expression:
                 ConvertExpression(model, expression.Expression);
                 break;
@@ -191,7 +193,11 @@ partial class MethodConvert
             case SwitchExpressionSyntax expression:
                 ConvertSwitchExpression(model, expression);
                 break;
+            //Converts a base  expression.
+            //Example: public A() : base() { }
             case BaseExpressionSyntax:
+            //Converts a extended methods
+            //Examples: UInt160.Zero.ToAddress();
             case ThisExpressionSyntax:
                 AddInstruction(OpCode.LDARG0);
                 break;
