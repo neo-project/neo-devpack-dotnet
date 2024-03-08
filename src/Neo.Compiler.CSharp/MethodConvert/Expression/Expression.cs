@@ -142,8 +142,8 @@ partial class MethodConvert
             case ImplicitArrayCreationExpressionSyntax expression:
                 ConvertImplicitArrayCreationExpression(model, expression);
                 break;
-            //Converts an initialValue attribute
-            //Example: [InitialValue("NVg7LjGcUSrgxgjX3zEgqaksfMaiS8Z6e1"]
+            //Converts initialization of array fields
+            //Example: static UInt160 Owner = UInt160.Zero;
             case InitializerExpressionSyntax expression:
                 ConvertInitializerExpression(model, expression);
                 break;

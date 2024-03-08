@@ -21,19 +21,27 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
     /// <summary>
-    /// Converts an InitialValue attribute into OpCodes.
+    /// Converts initialization of array fields into OpCodes.
     /// </summary>
-    /// <param name="model">The semantic model providing context and information about InitialValue expression.</param>
-    /// <param name="expression">The syntax representation of the InitialValue expression statement being converted.</param>
+    /// <param name="model">The semantic model providing context and information about initialization of array fields expression.</param>
+    /// <param name="expression">The syntax representation of the initialization of array fields expression statement being converted.</param>
     /// <example>
-    /// Specifies an initial value for a static field within a smart contract,
-    /// Example of initializing a UInt160 field with a Hash160 address
+    /// The following 4 static fields will each be converted in this method.
     /// <code>
-    /// [InitialValue("NVg7LjGcUSrgxgjX3zEgqaksfMaiS8Z6e1", ContractParameterType.Hash160)]
-    /// static readonly UInt160 Owner = default;
+    /// static string[] A = { "BTC", "NEO", "GAS" };
+    /// static int[] B = { 1, 2 };
+    /// static byte[] C = { 1, 2 };
+    /// static UInt160 D = UInt160.Zero;
+    /// 
+    /// public static void MyMethod()
+    /// {
+    ///     Runtime.Log(A[0]);
+    ///     Runtime.Log(B[0]);
+    ///     Runtime.Log(C[0]);
+    ///     Runtime.Log(D.ToAddress());
+    /// }
     /// </code>
     /// </example>
-    /// <seealso href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/src/Neo.SmartContract.Framework/Attributes/InitialValueAttribute.cs">InitialValueAttribute</seealso>
     private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
     {
         IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
