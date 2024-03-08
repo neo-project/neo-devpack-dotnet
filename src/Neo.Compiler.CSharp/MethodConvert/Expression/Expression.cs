@@ -127,7 +127,8 @@ partial class MethodConvert
             case ElementAccessExpressionSyntax expression:
                 ConvertElementAccessExpression(model, expression);
                 break;
-            // ????
+            //Further conversion of the ?[] statement in the ConvertConditionalAccessExpression method.
+            //Example: array?[i];
             case ElementBindingExpressionSyntax expression:
                 ConvertElementBindingExpression(model, expression);
                 break;
@@ -166,7 +167,8 @@ partial class MethodConvert
             case MemberAccessExpressionSyntax expression:
                 ConvertMemberAccessExpression(model, expression);
                 break;
-            // ????
+            //Further conversion of the ?. statement in the ConvertConditionalAccessExpression method
+            //Example: people?.Name;
             case MemberBindingExpressionSyntax expression:
                 ConvertMemberBindingExpression(model, expression);
                 break;

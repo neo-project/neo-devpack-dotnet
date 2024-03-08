@@ -79,6 +79,28 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Further conversion of the ?. statement in the <see cref="ConvertConditionalAccessExpression"/> method
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about member binding expression.</param>
+    /// <param name="expression">The syntax representation of the member binding expression statement being converted.</param>
+    /// <exception cref="CompilationException">Only attributes and fields are supported, otherwise an exception is thrown.</exception>
+    /// <example>
+    /// <code>
+    /// public class Person
+    /// {
+    ///     public string Name;
+    ///     public int Age { get; set; }
+    /// }
+    /// </code>
+    /// <code>
+    /// Person person = null;
+    /// Runtime.Log(person?.Name);
+    /// Runtime.Log(person?.Age.ToString());
+    /// </code>
+    /// <c>person?.Name</c> code executes the <c>case IFieldSymbol field</c> branch;
+    /// <c>person?.Age</c> code executes the <c>case IPropertySymbol property</c> branch.
+    /// </example>
     private void ConvertMemberBindingExpression(SemanticModel model, MemberBindingExpressionSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;

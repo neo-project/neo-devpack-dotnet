@@ -30,6 +30,7 @@ partial class MethodConvert
     /// If the resulting type of the expression is 'System.Void', it handles the case differently by dropping the result.
     /// A null-conditional operator applies a member access (?.) or element access (?[]) operation to its operand only if that operand evaluates to non-null;
     /// otherwise, it returns null.
+    /// It will jump to <see cref="ConvertMemberBindingExpression"/> and <see cref="ConvertElementBindingExpression"/> to handle the case where the variable or array is not null.
     /// </remarks>
     /// <example>
     /// If Block is not null, get the block's timestamp; otherwise, it returns null.

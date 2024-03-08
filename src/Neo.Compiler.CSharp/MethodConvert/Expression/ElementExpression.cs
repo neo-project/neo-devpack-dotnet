@@ -60,6 +60,21 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Further conversion of the ?[] statement in the <see cref="ConvertConditionalAccessExpression"/> method
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about element binding expression.</param>
+    /// <param name="expression">The syntax representation of the element binding expression statement being converted.</param>
+    /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
+    /// <example>
+    /// <code>
+    /// var a = Ledger.GetBlock(10000);
+    /// var b = Ledger.GetBlock(10001);
+    /// var array = new[] { a, b };
+    /// var firstItem = array?[0];
+    /// Runtime.Log(firstItem?.Timestamp.ToString());
+    /// </code>
+    /// </example>
     private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
     {
         if (expression.ArgumentList.Arguments.Count != 1)

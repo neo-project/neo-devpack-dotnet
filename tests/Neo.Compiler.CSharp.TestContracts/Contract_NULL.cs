@@ -30,11 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return value != null;
         }
 
-        public static string NullCoalescing(string code)
-        {
-            string myname = code?.Substring(1, 2);
-            return myname;
-        }
+        
 
         public static string NullCollation(string code)
         {
