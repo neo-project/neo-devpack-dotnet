@@ -33,8 +33,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(false, value);
         }
 
-
-
         [TestMethod]
         public void Between2_Test()
         {
@@ -61,7 +59,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             value = result.Pop().GetBoolean();
             Assert.AreEqual(false, value);
         }
-
 
         [TestMethod]
         public void Between3_Test()
