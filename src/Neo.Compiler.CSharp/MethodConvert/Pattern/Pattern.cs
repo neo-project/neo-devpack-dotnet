@@ -42,6 +42,9 @@ partial class MethodConvert
             case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                 ConvertNotPattern(model, unaryPattern, localIndex);
                 break;
+            case ParenthesizedPatternSyntax parenthesizedPattern:
+                ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
+                break;
             default:
                 throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
         }
