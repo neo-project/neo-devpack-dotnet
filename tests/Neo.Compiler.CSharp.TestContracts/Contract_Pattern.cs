@@ -5,8 +5,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Pattern : SmartContract.Framework.SmartContract
     {
-
-
         public bool between(int value)
         {
             return value is > 1 and < 100;
@@ -26,8 +24,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 _ => false,
             };
         }
-
     }
-
-
 }
