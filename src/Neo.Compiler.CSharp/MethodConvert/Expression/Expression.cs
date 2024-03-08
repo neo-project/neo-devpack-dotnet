@@ -196,7 +196,9 @@ partial class MethodConvert
             //Converts a base  expression.
             //Example: public A() : base() { }
             case BaseExpressionSyntax:
-            //Converts a extended methods
+            //Converts "this" keyword
+            //The "this" keyword in extended methods is also handled here.
+            //Examples: private string name; public void MyMethod(){ Runtime.Log(this.name); }
             //Examples: UInt160.Zero.ToAddress();
             case ThisExpressionSyntax:
                 AddInstruction(OpCode.LDARG0);

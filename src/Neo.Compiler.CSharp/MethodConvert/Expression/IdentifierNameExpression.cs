@@ -33,12 +33,14 @@ partial class MethodConvert
     /// <code>
     /// public static void MyMethod(int param, int param2)
     /// {
-    ///     int temp = int.MaxValue;
+    ///     int temp = 0;
+    ///     byte[] temp2 = new byte[1];
     ///     Runtime.Log(temp.ToString());
+    ///     Runtime.Log(temp2[0].ToString());
     ///     Runtime.Log(param.ToString());
-    ///     Runtime.Log(a.ToString());
     /// }
     /// </code>
+    ///  The <c>symbol.Name</c> of the above code is as follows: "temp", "temp2", "param";
     /// </example>
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names">C# identifier naming rules and conventions</seealso>
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
