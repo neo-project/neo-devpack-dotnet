@@ -143,7 +143,7 @@ partial class MethodConvert
                 // public class Person
                 // {
                 //     public Person(string firstName) => FirstName = firstName;
-                //     // Readonly set property method
+                //     // Readonly property
                 //     public string FirstName { get; }
                 // }
                 if (withinConstructor && property.SetMethod == null)
