@@ -97,7 +97,7 @@ partial class MethodConvert
     private void ConvertIdentifierNameAssignment(SemanticModel model, IdentifierNameSyntax left)
     {
         ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
-        // Define a lambda function to check if we're inside a constructor
+        // Lambda function to check if we're inside a constructor
         Func<SyntaxNode, bool> isInConstructor = (node) =>
         {
             while (node != null)
@@ -107,7 +107,6 @@ partial class MethodConvert
             }
             return false;
         };
-
         // Use the lambda function with the current node
         bool withinConstructor = isInConstructor(left);
 
