@@ -149,7 +149,6 @@ partial class MethodConvert
                 if (withinConstructor && property.SetMethod == null)
                 {
                     IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-
                     fields = fields.Where(p => !p.IsStatic).ToArray();
                     int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
                     AccessSlot(OpCode.LDARG, 0);
