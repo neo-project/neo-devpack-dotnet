@@ -138,6 +138,7 @@ partial class MethodConvert
                 break;
             case IPropertySymbol property:
                 // Check if the property is within a constructor and is readonly
+                // C# document here https://learn.microsoft.com/en-us/dotnet/csharp/properties
                 // example of this syntax:
                 // public class Person
                 // {
