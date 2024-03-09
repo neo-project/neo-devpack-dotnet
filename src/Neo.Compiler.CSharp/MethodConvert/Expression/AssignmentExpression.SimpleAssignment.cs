@@ -149,22 +149,13 @@ partial class MethodConvert
                 if (withinConstructor && property.SetMethod == null)
                 {
                     IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-                    if (Symbol.IsStatic)
-                    {
-                        IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-                        byte backingFieldIndex = _context.AddStaticField(backingField);
-                        if (!_inline) AccessSlot(OpCode.LDARG, 0);
-                        AccessSlot(OpCode.STSFLD, backingFieldIndex);
-                    }
-                    else
-                    {
-                        fields = fields.Where(p => !p.IsStatic).ToArray();
-                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                        AccessSlot(OpCode.LDARG, 0);
-                        Push(backingFieldIndex);
-                        AddInstruction(OpCode.ROT);
-                        AddInstruction(OpCode.SETITEM);
-                    }
+
+                    fields = fields.Where(p => !p.IsStatic).ToArray();
+                    int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                    AccessSlot(OpCode.LDARG, 0);
+                    Push(backingFieldIndex);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SETITEM);
                 }
                 else if (property.SetMethod != null)
                 {
