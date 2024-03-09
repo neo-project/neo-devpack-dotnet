@@ -8,10 +8,15 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
         return (p.Name, p.Age);
     }
 
+    public static void testProperty2()
+    {
+        var p = new Person("NEO3", 10);
+    }
+
     public class Person
     {
         public string Name { get; set; }
-        public int Age;
+        public int Age { get; }
 
         public Person(string name, int age)
         {

@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
@@ -96,6 +97,20 @@ partial class MethodConvert
     private void ConvertIdentifierNameAssignment(SemanticModel model, IdentifierNameSyntax left)
     {
         ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
+        // Define a lambda function to check if we're inside a constructor
+        Func<SyntaxNode, bool> isInConstructor = (node) =>
+        {
+            while (node != null)
+            {
+                if (node is ConstructorDeclarationSyntax) return true;
+                node = node.Parent;
+            }
+            return false;
+        };
+
+        // Use the lambda function with the current node
+        bool withinConstructor = isInConstructor(left);
+
         switch (symbol)
         {
             case IDiscardSymbol:
@@ -123,8 +138,43 @@ partial class MethodConvert
                 AccessSlot(OpCode.STARG, _parameters[parameter]);
                 break;
             case IPropertySymbol property:
-                if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
-                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                // Check if the property is within a constructor and is readonly
+                // example of this syntax:
+                // public class Person
+                // {
+                //     public Person(string firstName) => FirstName = firstName;
+                //     // Readonly set property method
+                //     public string FirstName { get; }
+                // }
+                if (withinConstructor && property.SetMethod == null)
+                {
+                    IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+                    if (Symbol.IsStatic)
+                    {
+                        IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+                        byte backingFieldIndex = _context.AddStaticField(backingField);
+                        if (!_inline) AccessSlot(OpCode.LDARG, 0);
+                        AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                    }
+                    else
+                    {
+                        fields = fields.Where(p => !p.IsStatic).ToArray();
+                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                        AccessSlot(OpCode.LDARG, 0);
+                        Push(backingFieldIndex);
+                        AddInstruction(OpCode.ROT);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                }
+                else if (property.SetMethod != null)
+                {
+                    if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
+                    Call(model, property.SetMethod, CallingConvention.Cdecl);
+                }
+                else
+                {
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Property is readonly and not within a constructor: {property.Name}");
+                }
                 break;
             default:
                 throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");

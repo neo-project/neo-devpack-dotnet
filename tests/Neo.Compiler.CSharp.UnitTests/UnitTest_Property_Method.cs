@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testEngine = new TestEngine();
-            testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_PropertyMethod.cs");
+            testEngine.AddNoOptimizeEntryScript(Utils.Extensions.TestContractRoot + "Contract_PropertyMethod.cs");
         }
 
         [TestMethod]
@@ -26,6 +26,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             var arr = (Array)res.Pop();
             Assert.AreEqual(arr[0].GetString(), "NEO3");
             Assert.AreEqual(arr[1].GetInteger(), 10);
+        }
+
+        [TestMethod]
+        public void TestPropertyMethod2()
+        {
+            testEngine.Reset();
+            var res = testEngine.ExecuteTestCaseStandard("testProperty2");
+            Assert.AreEqual(testEngine.State, VMState.HALT);
         }
     }
 }
