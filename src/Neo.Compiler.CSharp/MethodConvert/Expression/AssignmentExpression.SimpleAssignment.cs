@@ -21,7 +21,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     /// <summary>
     /// Converts the code for simple assignment expression into OpCodes.
     /// The assignment operator = assigns the value of its right-hand operand to a variable,
