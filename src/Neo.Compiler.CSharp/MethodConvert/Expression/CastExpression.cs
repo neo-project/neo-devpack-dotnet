@@ -19,6 +19,28 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts a cast expression to OpCodes.
+    /// A cast expression of the form (T)E performs an explicit conversion of the result of expression E to type T.
+    /// If no explicit conversion exists from the type of E to type T, a compile-time error occurs.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about cast expression.</param>
+    /// <param name="expression">The syntax representation of the cast expression statement being converted.</param>
+    /// <remarks>
+    /// This method determines the source type and the target type of the cast expression.
+    /// If the cast can be resolved to a method symbol, it calls the corresponding method.
+    /// Otherwise, it generates OpCodes based on the types involved in the cast operation.
+    /// </remarks>
+    /// <example>
+    /// This code is cast a ByteString type to an ECPoint type,
+    /// where the source type is ByteString and the target type is ECPoint.
+    /// <code>
+    /// ByteString bytes = ByteString.Empty;
+    /// ECPoint point = (ECPoint)bytes;
+    /// Runtime.Log(point.ToString());
+    /// </code>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/type-testing-and-cast#cast-expression">Cast expression</seealso>
     private void ConvertCastExpression(SemanticModel model, CastExpressionSyntax expression)
     {
         ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;

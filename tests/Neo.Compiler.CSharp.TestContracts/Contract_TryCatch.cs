@@ -114,6 +114,8 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             {
                 v = 3;
             }
+            v = 4;
+            return v;
         }
 
         public static object tryFinally()
