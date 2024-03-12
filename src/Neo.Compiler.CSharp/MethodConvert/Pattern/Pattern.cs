@@ -31,27 +31,40 @@ partial class MethodConvert
     {
         switch (pattern)
         {
+            //Convet "and" / "or" pattern  to OpCodes.
+            //Example: return value is > 1 and < 100;
+            //Example: return value is >= 80 or <= 20;
             case BinaryPatternSyntax binaryPattern:
                 ConvertBinaryPattern(model, binaryPattern, localIndex);
                 break;
+            //Convet constant pattern  to OpCodes.
+            //Example: return value is > 1;
+            //Example: return value is null;
             case ConstantPatternSyntax constantPattern:
                 ConvertConstantPattern(model, constantPattern, localIndex);
                 break;
+            //TODO
             case DeclarationPatternSyntax declarationPattern:
                 ConvertDeclarationPattern(model, declarationPattern, localIndex);
                 break;
+            //TODO
             case DiscardPatternSyntax:
                 Push(true);
                 break;
+            //TODO
             case RelationalPatternSyntax relationalPattern:
                 ConvertRelationalPattern(model, relationalPattern, localIndex);
                 break;
+            //TODO
             case TypePatternSyntax typePattern:
                 ConvertTypePattern(model, typePattern, localIndex);
                 break;
+            //Convet "not" pattern  to OpCodes.
+            //Example: return value is not null;
             case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                 ConvertNotPattern(model, unaryPattern, localIndex);
                 break;
+            //TODO
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
