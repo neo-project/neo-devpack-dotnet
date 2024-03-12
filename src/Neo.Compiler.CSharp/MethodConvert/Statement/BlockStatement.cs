@@ -18,7 +18,7 @@ namespace Neo.Compiler
     partial class MethodConvert
     {
         /// <summary>
-        /// Converts a block statement to a sequence of instructions. This method is used for parsing
+        /// Converts a block statement to OpCodes. This method is used for parsing
         /// the syntax of block statements within the context of a semantic model. A block statement
         /// typically consists of a series of statements enclosed in braces `{}`.
         /// </summary>

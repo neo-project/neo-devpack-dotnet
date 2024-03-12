@@ -21,7 +21,23 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
+    /// <summary>
+    /// Converts the code for simple assignment expression into OpCodes.
+    /// The assignment operator = assigns the value of its right-hand operand to a variable,
+    /// a property, or an indexer element given by its left-hand operand.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about simple assignment expression.</param>
+    /// <param name="expression">The syntax representation of the simple assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <remarks>
+    /// The result of an assignment expression is the value assigned to the left-hand operand.
+    /// The type of the right-hand operand must be the same as the type of the left-hand operand or implicitly convertible to it.
+    /// </remarks>
+    /// <example>
+    /// The assignment operator = is right-associative, that is, an expression of the form
+    /// <c>a = b = c</c> is evaluated as <c>a = (b = c)</c>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator">Assignment operators</seealso>
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ConvertExpression(model, expression.Right);
