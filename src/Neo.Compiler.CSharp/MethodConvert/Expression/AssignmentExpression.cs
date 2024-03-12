@@ -17,6 +17,31 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for assignment expression into OpCodes.
+    /// Include assignment operator (=), null-coalescing assignment operator (??=) and compound assignment(+=, -=, *=, /= ... )
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about assignment expression.</param>
+    /// <param name="expression">The syntax representation of the assignment expression statement being converted.</param>
+    /// <example>
+    /// The following code covers three branches. If you want to see the example code for only one of the branches,
+    /// you can look at the comments of the corresponding method.
+    /// <code>
+    /// public class Cat
+    /// {
+    ///     public string Name { get; set; }
+    /// }
+    /// </code>
+    /// <code>
+    /// Cat nullableCat = null;
+    /// Cat nonNullableCat = new() { Name = "Mimi" };
+    /// nullableCat ??= nonNullableCat;
+    /// var logInfo = "Nullable cat: ";
+    /// logInfo += nullableCat.Name;
+    /// Runtime.Log(log);
+    /// </code>
+    /// </example>
+    /// <seealso cref="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator"/>
     private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
