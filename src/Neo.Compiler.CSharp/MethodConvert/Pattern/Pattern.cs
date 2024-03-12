@@ -17,6 +17,16 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Convert pattern to OpCodes.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="pattern"></param>
+    /// <param name="localIndex"></param>
+    /// <exception cref="CompilationException"></exception>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/patterns#logical-patterns">
+    /// Pattern matching - the is and switch expressions, and operators and, or and not in patterns
+    /// </seealso>
     private void ConvertPattern(SemanticModel model, PatternSyntax pattern, byte localIndex)
     {
         switch (pattern)

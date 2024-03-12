@@ -33,29 +33,98 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Convet a "and" pattern to OpCodes.
+    /// </summary>
+    /// <remarks>
+    /// Conjunctive "and" pattern that matches an expression when both patterns match the expression.
+    /// </remarks>
+    /// <param name="model">The semantic model providing context and information about "and" pattern.</param>
+    /// <param name="left">The left pattern to be converted.</param>
+    /// <param name="right">The right pattern to be converted.</param>
+    /// <param name="localIndex">The index of the local variable.</param>
+    /// <example>
+    /// The following example shows how you can combine relational patterns to check if a value is in a certain range:
+    /// <code>
+    /// public static string Classify(int measurement) => measurement switch
+    /// {
+    ///     < -40 => "Too low",
+    ///     >= -40 and < 0 => "Low",
+    ///     >= 0 and < 10 => "Acceptable",
+    ///     >= 10 and < 20 => "High",
+    ///     >= 20 => "Too high"
+    /// };
+    /// </code>
+    /// </example>
     private void ConvertAndPattern(SemanticModel model, PatternSyntax left, PatternSyntax right, byte localIndex)
     {
+        // Define jump targets for the right pattern and the end of the conversion process
         JumpTarget rightTarget = new();
         JumpTarget endTarget = new();
+
+        // Convert the left pattern
         ConvertPattern(model, left, localIndex);
+
+        // Jump to the right pattern if the left pattern matches
         Jump(OpCode.JMPIF_L, rightTarget);
+
+        // Push 'false' onto the evaluation stack and jump to the end if the left pattern does not match
         Push(false);
         Jump(OpCode.JMP_L, endTarget);
+
+        // Define an instruction for the right pattern and convert it
         rightTarget.Instruction = AddInstruction(OpCode.NOP);
         ConvertPattern(model, right, localIndex);
+
+        // Define an instruction for the end of the conversion process
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
+    /// <summary>
+    /// Convet a "or" pattern to OpCodes.
+    /// </summary>
+    /// <remarks>
+    /// Disjunctive "or" pattern that matches an expression when either pattern matches the expression. 
+    /// </remarks>
+    /// <param name="model">The semantic model providing context and information about "or" pattern.</param>
+    /// <param name="left">The left pattern to be converted.</param>
+    /// <param name="right">The right pattern to be converted.</param>
+    /// <param name="localIndex">The index of the local variable.</param>
+    /// <example>
+    /// As the following example shows:
+    /// <code>
+    /// public static string GetCalendarSeason(int month) => month switch
+    /// {
+    ///     3 or 4 or 5 => "spring",
+    ///     6 or 7 or 8 => "summer",
+    ///     9 or 10 or 11 => "autumn",
+    ///     12 or 1 or 2 => "winter",
+    ///     _ => throw new Exception($"Unexpected month: {month}."),
+    /// };
+    /// </code>
+    /// As the preceding example shows, you can repeatedly use the pattern combinators in a pattern.
+    /// </example>
     private void ConvertOrPattern(SemanticModel model, PatternSyntax left, PatternSyntax right, byte localIndex)
     {
+        // Define jump targets for the right pattern and the end of the conversion process
         JumpTarget rightTarget = new();
         JumpTarget endTarget = new();
+
+        // Convert the left pattern
         ConvertPattern(model, left, localIndex);
+
+        // Jump to the right pattern if the left pattern does not match
         Jump(OpCode.JMPIFNOT_L, rightTarget);
+
+        // Push 'true' onto the evaluation stack and jump to the end if the left pattern matches
         Push(true);
         Jump(OpCode.JMP_L, endTarget);
+
+        // Define an instruction for the right pattern and convert it
         rightTarget.Instruction = AddInstruction(OpCode.NOP);
         ConvertPattern(model, right, localIndex);
+
+        // Define an instruction for the end of the conversion process
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 }

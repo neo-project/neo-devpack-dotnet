@@ -24,5 +24,30 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 _ => false,
             };
         }
+
+        public bool between4(int value)
+        {
+            return value is <= 0;
+        }
+
+        public static bool TestNotPattern(bool? x) => x is not null;
+
+        public static string Classify(int measurement) => measurement switch
+        {
+            < -40 => "Too low",
+            >= -40 and < 0 => "Low",
+            >= 0 and < 10 => "Acceptable",
+            >= 10 and < 20 => "High",
+            >= 20 => "Too high"
+        };
+
+        public static string GetCalendarSeason(int month) => month switch
+        {
+            3 or 4 or 5 => "spring",
+            6 or 7 or 8 => "summer",
+            9 or 10 or 11 => "autumn",
+            12 or 1 or 2 => "winter",
+            _ => throw new Exception($"Unexpected month: {month}."),
+        };
     }
 }
