@@ -81,12 +81,18 @@ partial class MethodConvert
 
         switch (syntax)
         {
+            //Convert an expression that creates an object of an anonymous type.
+            //Example: new { Amount = 108, Message = "Hello" };
             case AnonymousObjectCreationExpressionSyntax expression:
                 ConvertAnonymousObjectCreationExpression(model, expression);
                 break;
+            //Convert an expression that creates an array.
+            //Example: new int[4] { 5, 6, 7, 8};
             case ArrayCreationExpressionSyntax expression:
                 ConvertArrayCreationExpression(model, expression);
                 break;
+            //Convert an assignment expression. 
+            //Example: new int[4] { 5, 6, 7, 8};
             case AssignmentExpressionSyntax expression:
                 ConvertAssignmentExpression(model, expression);
                 break;
@@ -96,67 +102,115 @@ partial class MethodConvert
             case BinaryExpressionSyntax expression:
                 ConvertBinaryExpression(model, expression);
                 break;
+            //Converts a cast expression.
+            //Example: (ECPoint)ByteString.Empty;
             case CastExpressionSyntax expression:
                 ConvertCastExpression(model, expression);
                 break;
+            //Converts a checked expression.
+            //Example: checked(temp * 2);
             case CheckedExpressionSyntax expression:
                 ConvertCheckedExpression(model, expression);
                 break;
+            //Converts a null-conditional access expression.
+            //Example: people?.Name; array?[i];
             case ConditionalAccessExpressionSyntax expression:
                 ConvertConditionalAccessExpression(model, expression);
                 break;
+            //Converts a null-conditional access expression.
+            //Example: var x = a > b ? a : b;
             case ConditionalExpressionSyntax expression:
                 ConvertConditionalExpression(model, expression);
                 break;
+            //Converts an array element or indexer access ([]) expression.
+            //Example: array[i];
             case ElementAccessExpressionSyntax expression:
                 ConvertElementAccessExpression(model, expression);
                 break;
+            //Further conversion of the ?[] statement in the ConvertConditionalAccessExpression method.
+            //Example: array?[i];
             case ElementBindingExpressionSyntax expression:
                 ConvertElementBindingExpression(model, expression);
                 break;
+            //Converts an identifier name expression.
+            //Example: int a = 1;
             case IdentifierNameSyntax expression:
                 ConvertIdentifierNameExpression(model, expression);
                 break;
+            //Converts an implicit array creation expression.
+            //Example: var authorNames = new[] {"Shilpa", "Soniya", "Shivi", "Ritika"};
             case ImplicitArrayCreationExpressionSyntax expression:
                 ConvertImplicitArrayCreationExpression(model, expression);
                 break;
+            //Converts initialization of array fields
+            //Example: static UInt160 Owner = UInt160.Zero;
             case InitializerExpressionSyntax expression:
                 ConvertInitializerExpression(model, expression);
                 break;
+            //Converts an interpolated string expression;
+            //Example: $"Hello, {name}"
             case InterpolatedStringExpressionSyntax expression:
                 ConvertInterpolatedStringExpression(model, expression);
                 break;
+            //Converts Invocation, include method invocation, event invocation and delegate invocation
+            //Example: Runtime.Log("hello");
             case InvocationExpressionSyntax expression:
                 ConvertInvocationExpression(model, expression);
                 break;
+            //Converts an 'is' pattern expression;
+            //Example: if (obj is string)
             case IsPatternExpressionSyntax expression:
                 ConvertIsPatternExpression(model, expression);
                 break;
+            //Converts a member access expression.
+            //Example: Ledger.CurrentHash
             case MemberAccessExpressionSyntax expression:
                 ConvertMemberAccessExpression(model, expression);
                 break;
+            //Further conversion of the ?. statement in the ConvertConditionalAccessExpression method
+            //Example: people?.Name;
             case MemberBindingExpressionSyntax expression:
                 ConvertMemberBindingExpression(model, expression);
                 break;
+            //Converts a parenthesized expression.
+            //Continuing the recursive processing of the expression with the parentheses removed.
+            //Example: (a / b), (a + b), (new byte[33])
             case ParenthesizedExpressionSyntax expression:
                 ConvertExpression(model, expression.Expression);
                 break;
+            //Converts postfix operator.
+            //Example: i++, i--
             case PostfixUnaryExpressionSyntax expression:
                 ConvertPostfixUnaryExpression(model, expression);
                 break;
+            //Converts prefix operator.
+            //Example: ++i, --i, !flag
             case PrefixUnaryExpressionSyntax expression:
                 ConvertPrefixUnaryExpression(model, expression);
                 break;
+            //Converts a switch  expression.
+            //Example: day switch { 1 => "Monday", 2 => "Tuesday", 3 => "Wednesday", 4 => "Thursday", 5 => "Friday", 6 => "Saturday", 7 => "Sunday", _ => "Unknown" };
             case SwitchExpressionSyntax expression:
                 ConvertSwitchExpression(model, expression);
                 break;
+            //Converts a base  expression.
+            //Example: public A() : base() { }
             case BaseExpressionSyntax:
+            //Converts "this" keyword
+            //The "this" keyword in extended methods is also handled here.
+            //Examples: private string name; public void MyMethod(){ Runtime.Log(this.name); }
+            //Examples: UInt160.Zero.ToAddress();
             case ThisExpressionSyntax:
                 AddInstruction(OpCode.LDARG0);
                 break;
+            //Converts a throw expression
+            //Examples: string a = null; var b = a ?? throw new Exception();
+            //Examples: var first = args.Length >= 1 ? args[0] : throw new Exception();
             case ThrowExpressionSyntax expression:
                 Throw(model, expression.Expression);
                 break;
+            //Converts a tuple type expression.
+            //Example: (string, int) t1 = ("chris", 3);
             case TupleExpressionSyntax expression:
                 ConvertTupleExpression(model, expression);
                 break;

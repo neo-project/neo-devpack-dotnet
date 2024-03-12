@@ -20,6 +20,29 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// This method converts an identifier name expression to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about identifier name expression.</param>
+    /// <param name="expression">The syntax representation of the identifier name expression statement being converted.</param>
+    /// <exception cref="CompilationException">Unsupported symbols will result in a compilation exception.</exception>
+    /// <example>
+    /// Processing of the identifier "param" goes to the "IParameterSymbol parameter" branch of the code;
+    /// processing of the identifier "temp" goes to the "ILocalSymbol local" branch of the code.
+    /// Unused identifier "param2" will not be processed.
+    /// <code>
+    /// public static void MyMethod(int param, int param2)
+    /// {
+    ///     int temp = 0;
+    ///     byte[] temp2 = new byte[1];
+    ///     Runtime.Log(temp.ToString());
+    ///     Runtime.Log(temp2[0].ToString());
+    ///     Runtime.Log(param.ToString());
+    /// }
+    /// </code>
+    ///  The <c>symbol.Name</c> of the above code is as follows: "temp", "temp2", "param";
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names">C# identifier naming rules and conventions</seealso>
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;

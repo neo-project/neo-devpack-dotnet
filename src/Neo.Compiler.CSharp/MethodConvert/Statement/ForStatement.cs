@@ -19,7 +19,7 @@ namespace Neo.Compiler
     partial class MethodConvert
     {
         /// <summary>
-        /// Converts a 'for' loop statement into a sequence of instructions. This method handles the parsing
+        /// Converts a 'for' loop statement into OpCodes. This method handles the parsing
         /// and translation of the 'for' loop construct, including its initialization, condition, and
         /// increment expressions, as well as the loop body.
         /// </summary>
