@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -22,7 +23,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             "Usage of float is not allowed in neo contract",
-            "Neo contract does not support double data type: {0}",
+            "Neo contract does not support float data type: {0}",
             "Type",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
@@ -81,44 +82,75 @@ namespace Neo.SmartContract.Analyzer
                 var initializer = variable.Initializer;
                 if (initializer != null)
                 {
-                    // Determine if the type of the variable is explicitly float
+                    // Determine if the type of the variable is explicitly float or if it's a var presumed to be float
                     bool isFloatType = declaration.Type.IsKind(SyntaxKind.PredefinedType) &&
                                        ((PredefinedTypeSyntax)declaration.Type).Keyword.IsKind(SyntaxKind.FloatKeyword);
+                    bool isVarType = declaration.Type.IsKind(SyntaxKind.IdentifierName) &&
+                                     ((IdentifierNameSyntax)declaration.Type).Identifier.Text == "var";
 
                     ExpressionSyntax updatedExpression = initializer.Value;
-                    if (isFloatType)
+
+                    if (isFloatType || (isVarType && IsPotentialFloatInitializer(initializer.Value)))
                     {
-                        // Change the type to int for float types
+                        // Change the type to int for float types or var declarations presumed to be float
                         var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
                         editor.ReplaceNode(declaration.Type, newType);
 
-                        // Cast to int if the initializer is not already a cast expression
-                        if (!initializer.Value.IsKind(SyntaxKind.CastExpression))
+                        // Check if the initializer value is a cast expression and specifically cast to float
+                        if (initializer.Value is CastExpressionSyntax castExpression &&
+                            castExpression.Type is PredefinedTypeSyntax predefinedTypeSyntax &&
+                            predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.FloatKeyword))
                         {
+                            // Replace float cast with int cast
                             updatedExpression = SyntaxFactory.CastExpression(
                                 SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
-                                initializer.Value);
+                                castExpression.Expression);
                         }
-                    }
-                    else if (declaration.Type.IsVar)
-                    {
-                        // If it's a var declaration, explicitly cast to int
-                        updatedExpression = SyntaxFactory.CastExpression(
-                            SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
-                            initializer.Value);
-                    }
+                        else if (initializer.Value is LiteralExpressionSyntax literalExpression &&
+                                 literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
+                        {
+                            // Convert float literal to int cast
+                            var literalValue = double.Parse(literalExpression.Token.ValueText);
+                            updatedExpression = SyntaxFactory.CastExpression(
+                                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
+                                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literalValue)));
+                        }
 
-                    var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
-                        .WithLeadingTrivia(initializer.GetLeadingTrivia())
-                        .WithTrailingTrivia(initializer.GetTrailingTrivia());
+                        var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
+                            .WithLeadingTrivia(initializer.GetLeadingTrivia())
+                            .WithTrailingTrivia(initializer.GetTrailingTrivia());
 
-                    var newVariable = variable.WithInitializer(newInitializer);
-                    editor.ReplaceNode(variable, newVariable);
+                        var newVariable = variable.WithInitializer(newInitializer);
+                        editor.ReplaceNode(variable, newVariable);
+                    }
                 }
             }
 
             var newRoot = editor.GetChangedRoot();
             return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static bool IsPotentialFloatInitializer(ExpressionSyntax expression)
+        {
+            // Check if the expression is a literal expression with a float value
+            if (expression is LiteralExpressionSyntax literalExpression)
+            {
+                if (literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
+                {
+                    var literalValue = double.Parse(literalExpression.Token.ValueText);
+                    return literalValue != Math.Floor(literalValue);
+                }
+            }
+
+            // Check if the expression is a cast expression to float
+            if (expression is CastExpressionSyntax castExpression &&
+                castExpression.Type is PredefinedTypeSyntax predefinedTypeSyntax &&
+                predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.FloatKeyword))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

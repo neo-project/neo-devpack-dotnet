@@ -64,9 +64,7 @@ namespace Neo.SmartContract.Analyzer
                 return false;
 
             // Check if the namespace is 'System.Linq'
-            return containingNamespace.Name == "Linq" &&
-                   containingNamespace.ContainingNamespace != null &&
-                   containingNamespace.ContainingNamespace.Name == "System";
+            return containingNamespace is { Name: "Linq", ContainingNamespace.Name: "System" };
         }
     }
 }

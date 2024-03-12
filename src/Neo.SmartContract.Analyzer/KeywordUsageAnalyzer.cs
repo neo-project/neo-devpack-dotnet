@@ -44,25 +44,25 @@ namespace Neo.SmartContract.Analyzer
                 SyntaxKind.UnsafeStatement,
                 SyntaxKind.StackAllocArrayCreationExpression,
                 SyntaxKind.AwaitExpression,
-                SyntaxKind.PointerType,
                 SyntaxKind.QueryExpression,
-                SyntaxKind.ImplicitKeyword,
-                SyntaxKind.ExplicitKeyword,
                 SyntaxKind.YieldKeyword,
-                SyntaxKind.WhereKeyword);
+                SyntaxKind.InvocationExpression,
+                SyntaxKind.WhereClause,
+                SyntaxKind.ConversionOperatorDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeType, SyntaxKind.IdentifierName);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
-            // Logic to check for the presence of the banned keywords
-            // and report a diagnostic if found
             var nodeText = context.Node.ToString();
             foreach (var keyword in bannedKeywords)
             {
-                if (!nodeText.Contains(keyword)) continue;
-                var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation(), keyword);
-                context.ReportDiagnostic(diagnostic);
+                if (nodeText.Contains(keyword))
+                {
+                    var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation(), keyword);
+                    context.ReportDiagnostic(diagnostic);
+                    break;
+                }
             }
         }
 
@@ -128,13 +128,8 @@ namespace Neo.SmartContract.Analyzer
                 case StackAllocArrayCreationExpressionSyntax stackAllocExpression:
                     editor.RemoveNode(stackAllocExpression);
                     break;
-                case LocalFunctionStatementSyntax localFunction:
-                    var unmanagedToken = localFunction.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.UnmanagedKeyword));
-                    if (unmanagedToken != default)
-                    {
-                        var newModifiers = localFunction.Modifiers.Remove(unmanagedToken);
-                        editor.ReplaceNode(localFunction, localFunction.WithModifiers(newModifiers));
-                    }
+                case AwaitExpressionSyntax awaitExpression:
+                    editor.ReplaceNode(awaitExpression, awaitExpression.Expression);
                     break;
                 case QueryExpressionSyntax queryExpression:
                     editor.RemoveNode(queryExpression);

@@ -14,12 +14,12 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4006";
 
         private readonly string[] _unsupportedBigIntegerMethods = {
-            "Add", "BitwiseAnd", "BitwiseOr",
-            "CompareTo", "Divide", "DivRem", "Equals",
+            "BitwiseAnd", "BitwiseOr",
+            "CompareTo", "DivRem", "Equals",
             "Exp", "GreatestCommonDivisor", "LeftShift", "Log",
-            "Log10", "Multiply", "Negate", "OnesComplement", "Parse",
-            "Remainder", "RightShift", "Subtract",
-            "ToByteArray", "TryParse", "Xor",
+            "Log10", "OnesComplement", "Parse",
+            "RightShift", "Subtract",
+            "TryParse", "Xor",
             "IsPowerOfTwo",
         };
 

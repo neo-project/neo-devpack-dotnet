@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Analyzer
@@ -60,9 +61,9 @@ namespace Neo.SmartContract.Analyzer
                                 var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), standardValue);
                                 context.ReportDiagnostic(diagnostic);
                             }
-                            else if (standardValue == "NEP11" || standardValue == "NEP17")
+                            else if (standardValue is "NEP11" or "NEP17")
                             {
-                                var standard = standardValue == "NEP11" ? NEPStandard.NEP11 : NEPStandard.NEP17;
+                                var standard = standardValue == "NEP11" ? NepStandard.Nep11 : NepStandard.Nep11;
                                 var suggestionMessage = GetSuggestionMessage(standard);
                                 var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), suggestionMessage);
                                 context.ReportDiagnostic(diagnostic);
@@ -75,12 +76,12 @@ namespace Neo.SmartContract.Analyzer
 
         private bool IsSupportedStandard(string value)
         {
-            return value == "NEP-11" || value == "NEP11" || value == "NEP-17" || value == "NEP17";
+            return value is "NEP-11" or "NEP11" or "NEP-17" or "NEP17";
         }
 
-        private string GetSuggestionMessage(NEPStandard standard)
+        private string GetSuggestionMessage(NepStandard standard)
         {
-            return standard == NEPStandard.NEP11 ? "Consider using [SupportedStandards(NEPStandard.NEP11)]" : "Consider using [SupportedStandards(NEPStandard.NEP17)]";
+            return standard == NepStandard.Nep11 ? "Consider using [SupportedStandards(NepStandard.Nep11)]" : "Consider using [SupportedStandards(NepStandard.Nep17)]";
         }
     }
 

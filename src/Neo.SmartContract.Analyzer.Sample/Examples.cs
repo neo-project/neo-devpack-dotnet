@@ -46,8 +46,7 @@ namespace Neo.SmartContract.Analyzer.Sample
 
         public void TestDecimal()
         {
-#pragma warning disable CS0168,CS0219
-            decimal a = 10;
+            long a = (long)10;
 #pragma warning restore CS0168,CS0219
         }
 
@@ -235,75 +234,69 @@ namespace Neo.SmartContract.Analyzer.Sample
 #pragma warning disable CS0168
             // List
             List<int> list = new List<int> { 1, 2, 3 };
-
-            // Dictionary
-            Dictionary<string, int> dictionary = new Dictionary<string, int>
+            Map<string, int> dictionary = new Dictionary<string, int>
             {
                 ["one"] = 1,
                 ["two"] = 2
             };
 
             // Stack
-            Stack<int> stack = new Stack<int>();
+            System.Collections.Generic.List<T> stack = new Stack<int>();
             stack.Push(1);
             stack.Push(2);
 
             // Queue
-            Queue<int> queue = new Queue<int>();
+            System.Collections.Generic.List<T> queue = new Queue<int>();
             queue.Enqueue(1);
             queue.Enqueue(2);
 
             // HashSet
-            HashSet<int> hashSet = new HashSet<int> { 1, 2, 3 };
+            System.Collections.Generic.List<T> hashSet = new HashSet<int> { 1, 2, 3 };
 
             // SortedSet
-            SortedSet<int> sortedSet = new SortedSet<int> { 1, 2, 3 };
+            System.Collections.Generic.List<T> sortedSet = new SortedSet<int> { 1, 2, 3 };
 
             // LinkedList
-            LinkedList<int> linkedList = new LinkedList<int>();
+            System.Collections.Generic.List<T> linkedList = new LinkedList<int>();
             linkedList.AddLast(1);
             linkedList.AddLast(2);
 
             // ObservableCollection
-            ObservableCollection<int> observableCollection = new ObservableCollection<int> { 1, 2, 3 };
+            System.Collections.Generic.List<T> observableCollection = new ObservableCollection<int> { 1, 2, 3 };
 
             // ConcurrentQueue
-            ConcurrentQueue<int> concurrentQueue = new ConcurrentQueue<int>();
+            System.Collections.Generic.List<T> concurrentQueue = new ConcurrentQueue<int>();
             concurrentQueue.Enqueue(1);
             concurrentQueue.Enqueue(2);
 
             // ConcurrentStack
-            ConcurrentStack<int> concurrentStack = new ConcurrentStack<int>();
+            System.Collections.Generic.List<T> concurrentStack = new ConcurrentStack<int>();
             concurrentStack.Push(1);
             concurrentStack.Push(2);
 
             // ConcurrentBag
-            ConcurrentBag<int> concurrentBag = new ConcurrentBag<int>();
+            System.Collections.Generic.List<T> concurrentBag = new ConcurrentBag<int>();
             concurrentBag.Add(1);
             concurrentBag.Add(2);
-
-            // ConcurrentDictionary
-            ConcurrentDictionary<string, int> concurrentDictionary = new ConcurrentDictionary<string, int>();
+            Map<string, int> concurrentDictionary = new ConcurrentDictionary<string, int>();
             concurrentDictionary.TryAdd("one", 1);
             concurrentDictionary.TryAdd("two", 2);
 
             // ImmutableList
-            ImmutableList<int> immutableList = ImmutableList.Create(1, 2, 3);
+            System.Collections.Generic.List<T> immutableList = ImmutableList.Create(1, 2, 3);
 
             // ImmutableStack
-            ImmutableStack<int> immutableStack = ImmutableStack.Create(1, 2, 3);
+            System.Collections.Generic.List<T> immutableStack = ImmutableStack.Create(1, 2, 3);
 
             // ImmutableQueue
-            ImmutableQueue<int> immutableQueue = ImmutableQueue.Create(1, 2, 3);
+            System.Collections.Generic.List<T> immutableQueue = ImmutableQueue.Create(1, 2, 3);
 
             // ImmutableHashSet
-            ImmutableHashSet<int> immutableHashSet = ImmutableHashSet.Create(1, 2, 3);
+            System.Collections.Generic.List<T> immutableHashSet = ImmutableHashSet.Create(1, 2, 3);
 
             // ImmutableSortedSet
-            ImmutableSortedSet<int> immutableSortedSet = ImmutableSortedSet.Create(1, 2, 3);
-
-            // ImmutableDictionary
-            ImmutableDictionary<string, int> immutableDictionary = ImmutableDictionary.CreateBuilder<string, int>().ToImmutable();
+            System.Collections.Generic.List<T> immutableSortedSet = ImmutableSortedSet.Create(1, 2, 3);
+            Map<string, int> immutableDictionary = ImmutableDictionary.CreateBuilder<string, int>().ToImmutable();
 #pragma warning restore CS0168
         }
 
@@ -333,7 +326,7 @@ namespace Neo.SmartContract.Analyzer.Sample
             }
 
             // await (in an async context)
-            Task.Run(async () => await Task.Delay(1000));
+            Task.Run(GeneratedMethod());
 
             // dynamic
             dynamic dynamicVar = 100;
@@ -353,6 +346,10 @@ namespace Neo.SmartContract.Analyzer.Sample
             a = 10;
             int b = 20;
             return (b, a);
+        }
+
+        private System.Threading.Tasks.Task? GeneratedMethod()
+        {
         }
     }
 }

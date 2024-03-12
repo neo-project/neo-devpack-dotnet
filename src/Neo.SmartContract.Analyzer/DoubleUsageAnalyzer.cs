@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -33,18 +34,17 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.PredefinedType);
+            context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
         }
 
-        private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeOperation(OperationAnalysisContext context)
         {
-            var predefinedTypeSyntax = (PredefinedTypeSyntax)context.Node;
+            if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
+            var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
+            if (variableDeclaration.GetDeclaredVariables().All(p => p.Type.SpecialType != SpecialType.System_Double)) return;
 
-            if (predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.DoubleKeyword))
-            {
-                var diagnostic = Diagnostic.Create(Rule, predefinedTypeSyntax.GetLocation(), predefinedTypeSyntax.ToString());
-                context.ReportDiagnostic(diagnostic);
-            }
+            var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
+            context.ReportDiagnostic(diagnostic);
         }
     }
 
@@ -66,13 +66,13 @@ namespace Neo.SmartContract.Analyzer
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: "Cast to int or long",
-                    createChangedDocument: c => CastDoubleToIntOrLong(context.Document, declaration, c),
-                    equivalenceKey: "Cast to int or long"),
+                    title: "Cast to long",
+                    createChangedDocument: c => CastDoubleToLong(context.Document, declaration, c),
+                    equivalenceKey: "Cast to long"),
                 diagnostic);
         }
 
-        private static async Task<Document> CastDoubleToIntOrLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
+        private static async Task<Document> CastDoubleToLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
@@ -82,44 +82,39 @@ namespace Neo.SmartContract.Analyzer
                 var initializer = variable.Initializer;
                 if (initializer != null)
                 {
-                    // Determine if the type of the variable is explicitly double
+                    // Determine if the type of the variable is explicitly double or if it's a var presumed to be double
                     bool isDoubleType = declaration.Type.IsKind(SyntaxKind.PredefinedType) &&
                                         ((PredefinedTypeSyntax)declaration.Type).Keyword.IsKind(SyntaxKind.DoubleKeyword);
+                    bool isVarType = declaration.Type.IsKind(SyntaxKind.IdentifierName) &&
+                                     ((IdentifierNameSyntax)declaration.Type).Identifier.Text == "var";
 
                     ExpressionSyntax updatedExpression = initializer.Value;
 
-                    // Check if the initializer contains a cast to long
-                    bool containsCastToLong = updatedExpression.DescendantNodesAndSelf()
-                        .OfType<CastExpressionSyntax>()
-                        .Any(cast => cast.Type is PredefinedTypeSyntax pts && pts.Keyword.IsKind(SyntaxKind.LongKeyword));
-
-                    if (isDoubleType)
+                    if (isDoubleType || (isVarType && IsPotentialDoubleInitializer(initializer.Value)))
                     {
-                        // Change the type to long for double types
+                        // Change the type to long for double types or var declarations presumed to be double
                         var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
                         editor.ReplaceNode(declaration.Type, newType);
 
-                        // If not already casted to long, add a cast to long
-                        if (!containsCastToLong)
+                        // Check if the initializer value is a cast expression and specifically cast to double
+                        if (initializer.Value is CastExpressionSyntax castExpression &&
+                            castExpression.Type is PredefinedTypeSyntax predefinedTypeSyntax &&
+                            predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.DoubleKeyword))
                         {
+                            // Replace double cast with long cast
                             updatedExpression = SyntaxFactory.CastExpression(
                                 SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
-                                updatedExpression);
+                                castExpression.Expression);
                         }
-
-                        var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
-                            .WithLeadingTrivia(initializer.GetLeadingTrivia())
-                            .WithTrailingTrivia(initializer.GetTrailingTrivia());
-
-                        var newVariable = variable.WithInitializer(newInitializer);
-                        editor.ReplaceNode(variable, newVariable);
-                    }
-                    else if (declaration.Type.IsVar && !containsCastToLong)
-                    {
-                        // If it's a var declaration and not already casted, explicitly cast to long
-                        updatedExpression = SyntaxFactory.CastExpression(
-                            SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
-                            updatedExpression);
+                        else if (initializer.Value is LiteralExpressionSyntax literalExpression &&
+                                 literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
+                        {
+                            // Convert double literal to long cast
+                            var literalValue = double.Parse(literalExpression.Token.ValueText);
+                            updatedExpression = SyntaxFactory.CastExpression(
+                                SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
+                                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literalValue)));
+                        }
 
                         var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
                             .WithLeadingTrivia(initializer.GetLeadingTrivia())
@@ -133,6 +128,29 @@ namespace Neo.SmartContract.Analyzer
 
             var newRoot = editor.GetChangedRoot();
             return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static bool IsPotentialDoubleInitializer(ExpressionSyntax expression)
+        {
+            // Check if the expression is a literal expression with a double value
+            if (expression is LiteralExpressionSyntax literalExpression)
+            {
+                if (literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
+                {
+                    var literalValue = double.Parse(literalExpression.Token.ValueText);
+                    return literalValue != Math.Floor(literalValue);
+                }
+            }
+
+            // Check if the expression is a cast expression to double
+            if (expression is CastExpressionSyntax castExpression &&
+                castExpression.Type is PredefinedTypeSyntax predefinedTypeSyntax &&
+                predefinedTypeSyntax.Keyword.IsKind(SyntaxKind.DoubleKeyword))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
