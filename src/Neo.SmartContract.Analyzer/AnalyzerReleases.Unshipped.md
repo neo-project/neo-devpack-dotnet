@@ -22,3 +22,4 @@ NC4018 | Naming | Error | SmartContractMethodNamingAnalyzer
 NC4019 | Usage | Error | NotifyEventNameAnalyzer
 NC4020 | Naming | Warning | SmartContractMethodNamingAnalyzerUnderline
 NC4021 | Usage | Warning | SupportedStandardsAnalyzer
+NC4022 | Usage | Warning | BigIntegerUsingUsageAnalyzer
