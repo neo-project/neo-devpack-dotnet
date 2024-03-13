@@ -18,7 +18,7 @@ namespace Neo.Compiler
     partial class MethodConvert
     {
         /// <summary>
-        /// Converts an expression statement into a sequence of instructions.
+        /// Converts an expression statement into OpCodes.
         /// This method handles the translation of a given expression within a statement,
         /// considering the type of the expression to determine the necessary instructions.
         /// </summary>

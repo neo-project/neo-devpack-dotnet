@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
@@ -128,6 +130,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object TestSupportedStandards()
         {
             return SupportedStandards;
+        }
+
+        public static void TestElementBinding()
+        {
+            var a = Ledger.GetBlock(10000);
+            var b = Ledger.GetBlock(10001);
+            var array = new[] { a, b };
+            var firstItem = array?[0];
+            Runtime.Log(firstItem?.Timestamp.ToString());
         }
     }
 }

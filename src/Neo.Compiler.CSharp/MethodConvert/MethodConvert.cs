@@ -556,6 +556,31 @@ namespace Neo.Compiler
             });
         }
 
+        /// <summary>
+        /// Convert a throw expression or throw statement to OpCodes.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the Throw.</param>
+        /// <param name="exception">The content of exception</param>
+        /// <exception cref="CompilationException">Only a single parameter is supported for exceptions.</exception>
+        /// <example>
+        /// throw statement:
+        /// <code>
+        /// if (shapeAmount <= 0)
+        /// {
+        ///     throw new Exception("Amount of shapes must be positive.");
+        /// }
+        ///</code>
+        /// throw expression:
+        /// <code>
+        /// string a = null;
+        /// var b = a ?? throw new Exception();
+        /// </code>
+        /// <code>
+        /// var first = args.Length >= 1 ? args[0] : throw new Exception();
+        /// </code>
+        /// </example>
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-throw-expression">The throw expression</seealso>
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-try-catch-statement">Exception-handling statements - throw</seealso>
         private void Throw(SemanticModel model, ExpressionSyntax? exception)
         {
             if (exception is not null)
