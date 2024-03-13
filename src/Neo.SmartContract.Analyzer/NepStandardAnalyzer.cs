@@ -42,45 +42,45 @@ namespace Neo.SmartContract.Analyzer
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
-{
-    if (context.Node is AttributeSyntax attributeSyntax)
-    {
-        var attributeName = attributeSyntax.Name.ToString();
-        if (attributeName == "SupportedStandards")
         {
-            var argumentList = attributeSyntax.ArgumentList;
-            if (argumentList != null && argumentList.Arguments.Count > 0)
+            if (context.Node is AttributeSyntax attributeSyntax)
             {
-                var argument = argumentList.Arguments[0].Expression;
-                if (argument is LiteralExpressionSyntax literalExpression)
+                var attributeName = attributeSyntax.Name.ToString();
+                if (attributeName == "SupportedStandards")
                 {
-                    var standardValue = literalExpression.Token.ValueText.ToUpper();
-                    if (standardValue is "NEP11" or "NEP-11" or "NEP17" or "NEP-17")
+                    var argumentList = attributeSyntax.ArgumentList;
+                    if (argumentList != null && argumentList.Arguments.Count > 0)
                     {
-                        var standard = standardValue is "NEP11" or "NEP-11" ? NepStandard.Nep11 : NepStandard.Nep17;
-                        var expectedSyntax = SyntaxFactory.AttributeArgument(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName("NepStandard"),
-                                SyntaxFactory.IdentifierName(standard.ToString())));
-
-                        if (!argumentList.Arguments[0].Expression.IsEquivalentTo(expectedSyntax.Expression))
+                        var argument = argumentList.Arguments[0].Expression;
+                        if (argument is LiteralExpressionSyntax literalExpression)
                         {
-                            var suggestionMessage = $"Consider using [SupportedStandards(NepStandard.{standard})]";
-                            var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), suggestionMessage);
-                            context.ReportDiagnostic(diagnostic);
+                            var standardValue = literalExpression.Token.ValueText.ToUpper();
+                            if (standardValue is "NEP11" or "NEP-11" or "NEP17" or "NEP-17")
+                            {
+                                var standard = standardValue is "NEP11" or "NEP-11" ? NepStandard.Nep11 : NepStandard.Nep17;
+                                var expectedSyntax = SyntaxFactory.AttributeArgument(
+                                    SyntaxFactory.MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        SyntaxFactory.IdentifierName("NepStandard"),
+                                        SyntaxFactory.IdentifierName(standard.ToString())));
+
+                                if (!argumentList.Arguments[0].Expression.IsEquivalentTo(expectedSyntax.Expression))
+                                {
+                                    var suggestionMessage = $"Consider using [SupportedStandards(NepStandard.{standard})]";
+                                    var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), suggestionMessage);
+                                    context.ReportDiagnostic(diagnostic);
+                                }
+                            }
+                            else if (!IsSupportedStandard(standardValue))
+                            {
+                                var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), standardValue);
+                                context.ReportDiagnostic(diagnostic);
+                            }
                         }
-                    }
-                    else if (!IsSupportedStandard(standardValue))
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), standardValue);
-                        context.ReportDiagnostic(diagnostic);
                     }
                 }
             }
         }
-    }
-}
 
         private static bool IsSupportedStandard(string value)
         {
