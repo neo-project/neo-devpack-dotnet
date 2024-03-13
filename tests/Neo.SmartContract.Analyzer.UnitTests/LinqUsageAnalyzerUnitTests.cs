@@ -10,19 +10,21 @@ namespace Neo.SmartContract.Analyzer.Test
         [Fact]
         public async Task LINQMethodUsage_ShouldReportDiagnostic()
         {
-            var test = @"
-using System;
-using System.Linq;
-using System.Collections.Generic;
+            var test = """
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
-        var evenNumbers = numbers.Where(n => n % 2 == 0).ToList();
-    }
-}";
+                       using System;
+                       using System.Linq;
+                       using System.Collections.Generic;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+                               var evenNumbers = numbers.Where(n => n % 2 == 0).ToList();
+                           }
+                       }
+                       """;
 
             DiagnosticResult[] expectedDiagnostics = new[]
             {
@@ -40,21 +42,23 @@ class TestClass
         [Fact]
         public async Task LINQQuerySyntaxUsage_ShouldReportDiagnostic()
         {
-            var test = @"
-using System;
-using System.Linq;
-using System.Collections.Generic;
+            var test = """
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
-        var evenNumbers = from n in numbers
-                          where n % 2 == 0
-                          select n;
-    }
-}";
+                       using System;
+                       using System.Linq;
+                       using System.Collections.Generic;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+                               var evenNumbers = from n in numbers
+                                                 where n % 2 == 0
+                                                 select n;
+                           }
+                       }
+                       """;
 
             var expectedDiagnostic = VerifyCS.Diagnostic(LinqUsageAnalyzer.DiagnosticId)
                 // Update the WithLocation call to match the actual start column (27)

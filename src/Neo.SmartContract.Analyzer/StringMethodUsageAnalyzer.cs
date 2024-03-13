@@ -22,8 +22,8 @@ namespace Neo.SmartContract.Analyzer
             "IndexOfAny", "Insert", "Intern", "IsInterned",
             "IsNormalized", "Join", "LastIndexOf", "LastIndexOfAny",
             "Normalize", "PadLeft", "PadRight", "Remove",
-            "Replace", "Split", "StartsWith", "Substring",
-            "ToCharArray", "ToLower", "ToLowerInvariant", "ToString",
+            "Replace", "Split", "StartsWith",
+            "ToCharArray", "ToLower", "ToLowerInvariant",
             "ToUpper", "ToUpperInvariant", "Trim", "TrimEnd",
             "TrimStart"
         };

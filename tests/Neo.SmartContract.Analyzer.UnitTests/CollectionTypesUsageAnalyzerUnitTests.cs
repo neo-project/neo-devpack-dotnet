@@ -8,39 +8,45 @@ namespace Neo.SmartContract.Analyzer.Test
 {
     public class CollectionTypesUsageAnalyzerUnitTests
     {
-        private const string TestNamespace = @"using System.Collections.Generic;
+        private const string TestNamespace = """
+                                             using System.Collections.Generic;
 
-    public class Map<TKey, TValue>
-    {
-        public Map() { }
-    }
+                                                 public class Map<TKey, TValue>
+                                                 {
+                                                     public Map() { }
+                                                 }
 
-    public class List<T>
-    {
-        public List() { }
-    }
+                                                 public class List<T>
+                                                 {
+                                                     public List() { }
+                                                 }
 
-";
+
+                                             """;
         [Fact]
         public async Task UnsupportedDictionaryType_ShouldReportDiagnostic_AndFixToMap()
         {
-            var test = TestNamespace + @"
-class TestClass
-{
-    public void TestMethod()
-    {
-        Dictionary<int, string> dict = new Dictionary<int, string>();
-    }
-}";
+            var test = TestNamespace + """
 
-            const string fixTest = TestNamespace + @"
-class TestClass
-{
-    public void TestMethod()
-    {
-        Map<int, string> dict = new Map<int, string>();
-    }
-}";
+                                       class TestClass
+                                       {
+                                           public void TestMethod()
+                                           {
+                                               Dictionary<int, string> dict = new Dictionary<int, string>();
+                                           }
+                                       }
+                                       """;
+
+            const string fixTest = TestNamespace + """
+
+                                                   class TestClass
+                                                   {
+                                                       public void TestMethod()
+                                                       {
+                                                           Map<int, string> dict = new Map<int, string>();
+                                                       }
+                                                   }
+                                                   """;
 
             var expectedDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
                 .WithLocation(18, 9)
@@ -52,23 +58,27 @@ class TestClass
         [Fact]
         public async Task UnsupportedListType_ShouldReportDiagnostic_AndFixToList()
         {
-            var test = TestNamespace + @"
-class TestClass
-{
-    public void TestMethod()
-    {
-        Stack<int> stack = new Stack<int>();
-    }
-}";
+            var test = TestNamespace + """
 
-            var fixtest = TestNamespace + @"
-class TestClass
-{
-    public void TestMethod()
-    {
-        List<int> stack = new List<int>();
-    }
-}";
+                                       class TestClass
+                                       {
+                                           public void TestMethod()
+                                           {
+                                               Stack<int> stack = new Stack<int>();
+                                           }
+                                       }
+                                       """;
+
+            var fixtest = TestNamespace + """
+
+                                          class TestClass
+                                          {
+                                              public void TestMethod()
+                                              {
+                                                  List<int> stack = new List<int>();
+                                              }
+                                          }
+                                          """;
 
             var expectedDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
                 .WithLocation(18, 9)
@@ -80,15 +90,17 @@ class TestClass
         [Fact]
         public async Task SupportedCollectionType_ShouldNotReportDiagnostic()
         {
-            var test = TestNamespace + @"
-class TestClass
-{
-    public void TestMethod()
-    {
-        List<int> list = new List<int>();
-        Map<int, string> map = new Map<int, string>();
-    }
-}";
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public void TestMethod()
+                                           {
+                                               List<int> list = new List<int>();
+                                               Map<int, string> map = new Map<int, string>();
+                                           }
+                                       }
+                                       """;
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }

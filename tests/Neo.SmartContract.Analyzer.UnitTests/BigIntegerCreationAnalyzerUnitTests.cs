@@ -33,16 +33,18 @@ class TestClass
         [TestMethod]
         public async Task BigIntegerCreationWithInt_ShouldNotReportDiagnostic()
         {
-            var test = @"
-using System.Numerics;
+            var test = """
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        BigInteger x = 42;
-    }
-}";
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               BigInteger x = 42;
+                           }
+                       }
+                       """;
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
@@ -50,27 +52,31 @@ class TestClass
         [TestMethod]
         public async Task BigIntegerCreationWithInt_ShouldReplaceWithDirectAssignment()
         {
-            var test = @"
-using System.Numerics;
+            var test = """
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        BigInteger x = new BigInteger(42);
-    }
-}";
+                       using System.Numerics;
 
-            var fixtest = @"
-using System.Numerics;
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               BigInteger x = new BigInteger(42);
+                           }
+                       }
+                       """;
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        BigInteger x = 42;
-    }
-}";
+            var fixtest = """
+
+                          using System.Numerics;
+
+                          class TestClass
+                          {
+                              public void TestMethod()
+                              {
+                                  BigInteger x = 42;
+                              }
+                          }
+                          """;
 
             var expectedDiagnostic = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
                 .WithLocation(8, 24)

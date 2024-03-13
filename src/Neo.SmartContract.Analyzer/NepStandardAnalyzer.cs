@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -10,18 +11,16 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Analyzer
 {
-
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SupportedStandardsAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4021";
         private static readonly string Title = "Supported Standards";
-        private static readonly string MessageFormat = "Unsupported standard '{0}' used";
-        private static readonly string Description = "Checks for the usage of unsupported NEP standards.";
+        private static readonly string MessageFormat = "Standard format suggestion: '{0}'";
+        private static readonly string Description = "Checks for the usage of supported NEP standards.";
         private const string Category = "Usage";
 
         private static readonly DiagnosticDescriptor Rule = new(
@@ -29,7 +28,7 @@ namespace Neo.SmartContract.Analyzer
             Title,
             MessageFormat,
             Category,
-            DiagnosticSeverity.Error, // Set the severity to Error
+            DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: Description);
 
@@ -43,45 +42,54 @@ namespace Neo.SmartContract.Analyzer
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+{
+    if (context.Node is AttributeSyntax attributeSyntax)
+    {
+        var attributeName = attributeSyntax.Name.ToString();
+        if (attributeName == "SupportedStandards")
         {
-            if (context.Node is AttributeSyntax attributeSyntax)
+            var argumentList = attributeSyntax.ArgumentList;
+            if (argumentList != null && argumentList.Arguments.Count > 0)
             {
-                var attributeName = attributeSyntax.Name.ToString();
-                if (attributeName == "SupportedStandards")
+                var argument = argumentList.Arguments[0].Expression;
+                if (argument is LiteralExpressionSyntax literalExpression)
                 {
-                    var argumentList = attributeSyntax.ArgumentList;
-                    if (argumentList != null && argumentList.Arguments.Count > 0)
+                    var standardValue = literalExpression.Token.ValueText.ToUpper();
+                    if (standardValue is "NEP11" or "NEP-11" or "NEP17" or "NEP-17")
                     {
-                        var argument = argumentList.Arguments[0].Expression;
-                        if (argument is LiteralExpressionSyntax literalExpression)
+                        var standard = standardValue is "NEP11" or "NEP-11" ? NepStandard.Nep11 : NepStandard.Nep17;
+                        var expectedSyntax = SyntaxFactory.AttributeArgument(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName("NepStandard"),
+                                SyntaxFactory.IdentifierName(standard.ToString())));
+
+                        if (!argumentList.Arguments[0].Expression.IsEquivalentTo(expectedSyntax.Expression))
                         {
-                            var standardValue = literalExpression.Token.ValueText;
-                            if (!IsSupportedStandard(standardValue))
-                            {
-                                var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), standardValue);
-                                context.ReportDiagnostic(diagnostic);
-                            }
-                            else if (standardValue is "NEP11" or "NEP17")
-                            {
-                                var standard = standardValue == "NEP11" ? NepStandard.Nep11 : NepStandard.Nep11;
-                                var suggestionMessage = GetSuggestionMessage(standard);
-                                var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), suggestionMessage);
-                                context.ReportDiagnostic(diagnostic);
-                            }
+                            var suggestionMessage = $"Consider using [SupportedStandards(NepStandard.{standard})]";
+                            var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), suggestionMessage);
+                            context.ReportDiagnostic(diagnostic);
                         }
+                    }
+                    else if (!IsSupportedStandard(standardValue))
+                    {
+                        var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), standardValue);
+                        context.ReportDiagnostic(diagnostic);
                     }
                 }
             }
         }
+    }
+}
 
-        private bool IsSupportedStandard(string value)
+        private static bool IsSupportedStandard(string value)
         {
-            return value is "NEP-11" or "NEP11" or "NEP-17" or "NEP17";
+            return Enum.TryParse<NepStandard>(value, out _);
         }
 
         private string GetSuggestionMessage(NepStandard standard)
         {
-            return standard == NepStandard.Nep11 ? "Consider using [SupportedStandards(NepStandard.Nep11)]" : "Consider using [SupportedStandards(NepStandard.Nep17)]";
+            return $"Consider using [SupportedStandards(NepStandard.{standard})]";
         }
     }
 
@@ -125,11 +133,11 @@ namespace Neo.SmartContract.Analyzer
                     var standardValue = literalExpression.Token.ValueText;
                     if (standardValue == "NEP11")
                     {
-                        newAttributeSyntax = attributeSyntax.WithArgumentList(SyntaxFactory.AttributeArgumentList().AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal("NEP-11")))));
+                        newAttributeSyntax = attributeSyntax.WithArgumentList(SyntaxFactory.AttributeArgumentList().AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("NepStandard"), SyntaxFactory.IdentifierName("Nep11")))));
                     }
                     else if (standardValue == "NEP17")
                     {
-                        newAttributeSyntax = attributeSyntax.WithArgumentList(SyntaxFactory.AttributeArgumentList().AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal("NEP-17")))));
+                        newAttributeSyntax = attributeSyntax.WithArgumentList(SyntaxFactory.AttributeArgumentList().AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("NepStandard"), SyntaxFactory.IdentifierName("Nep17")))));
                     }
                 }
             }

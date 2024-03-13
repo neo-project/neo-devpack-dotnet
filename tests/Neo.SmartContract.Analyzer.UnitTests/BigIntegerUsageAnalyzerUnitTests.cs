@@ -11,18 +11,20 @@ namespace Neo.SmartContract.Analyzer.Test
         [Fact]
         public async Task SupportedBigIntegerMethod_ShouldNotReportDiagnostic()
         {
-            var test = @"
-using System.Numerics;
+            var test = """
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        BigInteger x = 42;
-        BigInteger y = 24;
-        BigInteger z = BigInteger.Add(x, y);
-    }
-}";
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               BigInteger x = 42;
+                               BigInteger y = 24;
+                               BigInteger z = BigInteger.Add(x, y);
+                           }
+                       }
+                       """;
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
@@ -30,17 +32,19 @@ class TestClass
         [Fact]
         public async Task UnsupportedBigIntegerProperty_ShouldReportDiagnostic()
         {
-            var test = @"
-using System.Numerics;
+            var test = """
 
-class TestClass
-{
-    public void TestMethod()
-    {
-        BigInteger x = 42;
-        bool isPowerOfTwo = x.IsPowerOfTwo;
-    }
-}";
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               BigInteger x = 42;
+                               bool isPowerOfTwo = x.IsPowerOfTwo;
+                           }
+                       }
+                       """;
 
             var expectedDiagnostic = VerifyCS.Diagnostic(BigIntegerUsageAnalyzer.DiagnosticId)
                 .WithLocation(9, 29)
