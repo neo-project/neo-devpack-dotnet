@@ -1,13 +1,8 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -47,48 +42,6 @@ namespace Neo.SmartContract.Analyzer
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, memberAccessExpr.Name.GetLocation()));
             }
-        }
-    }
-
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(BanCastMethodCodeFixProvider))]
-    public class BanCastMethodCodeFixProvider : CodeFixProvider
-    {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(BanCastMethodAnalyzer.DiagnosticId);
-
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-
-            var invocationExpr = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
-            if (invocationExpr is null) return;
-
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: "Replace with direct type casting",
-                    createChangedDocument: c => ReplaceWithDirectCastAsync(context.Document, invocationExpr, c),
-                    equivalenceKey: "Replace with direct type casting"),
-                diagnostic);
-        }
-
-        private static async Task<Document> ReplaceWithDirectCastAsync(Document document, InvocationExpressionSyntax invocationExpr, CancellationToken cancellationToken)
-        {
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-            var typeArgument = invocationExpr.DescendantNodes().OfType<TypeArgumentListSyntax>().FirstOrDefault()?.Arguments.FirstOrDefault();
-            if (typeArgument is null) return document;
-
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-            if (root is null) return document;
-
-            var newExpr = SyntaxFactory.ParenthesizedExpression(
-                SyntaxFactory.CastExpression(typeArgument, invocationExpr.Expression)
-            );
-
-            var newRoot = root.ReplaceNode(invocationExpr, newExpr);
-            return document.WithSyntaxRoot(newRoot);
         }
     }
 }
