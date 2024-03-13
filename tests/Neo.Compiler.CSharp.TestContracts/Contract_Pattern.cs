@@ -1,5 +1,6 @@
 using System;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -49,5 +50,19 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             12 or 1 or 2 => "winter",
             _ => throw new Exception($"Unexpected month: {month}."),
         };
+
+        public static void TestDeclarationPattern()
+        {
+            object greeting = "Hello, World!";
+            if (greeting is string message)
+            {
+                Runtime.Log(message);
+            }
+            object greeting2 = "Hello, World!";
+            if (greeting2 is string _)
+            {
+                Runtime.Log("greeting2 is string");
+            }
+        }
     }
 }

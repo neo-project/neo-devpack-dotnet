@@ -18,6 +18,30 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Convet declaration pattern to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about declaration pattern.</param>
+    /// <param name="pattern">The declaration pattern to be converted.</param>
+    /// <param name="localIndex">The index of the local variable.</param>
+    /// <example>
+    /// With a declaration pattern, you can also declare a new local variable.
+    /// When a declaration pattern matches an expression, that variable is assigned a converted expression result,
+    /// as the following example shows:
+    /// <code>
+    /// object greeting = "Hello, World!";
+    /// if (greeting is string message)
+    /// {
+    ///     Runtime.Log(message);
+    /// }
+    /// object greeting2 = "Hello, World!";
+    /// if (greeting2 is string _)
+    /// {
+    ///     Runtime.Log("greeting2 is string");
+    /// }
+    /// </code>
+    /// <c>string message</c> is DiscardDesignationSyntax, <c>string _</c> is SingleVariableDesignationSyntax.
+    /// </example>
     private void ConvertDeclarationPattern(SemanticModel model, DeclarationPatternSyntax pattern, byte localIndex)
     {
         ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;

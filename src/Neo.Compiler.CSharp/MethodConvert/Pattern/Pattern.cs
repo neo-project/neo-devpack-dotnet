@@ -37,13 +37,14 @@ partial class MethodConvert
             case BinaryPatternSyntax binaryPattern:
                 ConvertBinaryPattern(model, binaryPattern, localIndex);
                 break;
-            //Convet constant pattern  to OpCodes.
+            //Convet constant pattern to OpCodes.
             //Example: return value is > 1;
             //Example: return value is null;
             case ConstantPatternSyntax constantPattern:
                 ConvertConstantPattern(model, constantPattern, localIndex);
                 break;
-            //TODO
+            //Convet declaration pattern to OpCodes.
+            //Example: if (greeting is string message)
             case DeclarationPatternSyntax declarationPattern:
                 ConvertDeclarationPattern(model, declarationPattern, localIndex);
                 break;
@@ -69,6 +70,9 @@ partial class MethodConvert
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
             default:
+                //Example:
+                //object greeting = "Hello, World!";
+                //if (greeting3 is var message) { }
                 throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
         }
     }
