@@ -42,7 +42,6 @@ partial class MethodConvert
     /// Not supported ByteString, BigInteger.
     /// <see cref="Helper.GetPatternType(ITypeSymbol)"/>
     /// </remarks>
-
     private void ConvertTypePattern(SemanticModel model, TypePatternSyntax pattern, byte localIndex)
     {
         ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
