@@ -71,6 +71,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             {
                 case byte[]: break;
                 case string: break;
+                case bool: break;
             }
         }
     }
