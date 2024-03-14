@@ -96,21 +96,26 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var result = testengine.ExecuteTestCaseStandard("testTypePattern", 1);
             var value = result.Pop().GetInteger();
-            Assert.AreEqual(4, value);
+            Assert.AreEqual(2, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("testTypePattern", "1");
 
             value = result.Pop().GetInteger();
-            Assert.AreEqual(1, value);
+            Assert.AreEqual(0, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("testTypePattern", new ByteString(new byte[] { 1 }));
             value = result.Pop().GetInteger();
-            Assert.AreEqual(1, value);
+            Assert.AreEqual(0, value);
 
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("testTypePattern", new byte[] { 1 });
+            value = result.Pop().GetInteger();
+            Assert.AreEqual(0, value);
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testTypePattern", true);
             value = result.Pop().GetInteger();
             Assert.AreEqual(1, value);
         }

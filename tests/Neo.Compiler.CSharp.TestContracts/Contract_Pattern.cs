@@ -70,11 +70,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return t switch
             {
-                byte[] => 0,
-                string => 1,
-                bool => 2,
-                ByteString => 3,
-                BigInteger => 4,
+                byte[] or string or ByteString => 0,
+                bool => 1,
+                BigInteger => 2,
                 _ => 5
             };
         }
