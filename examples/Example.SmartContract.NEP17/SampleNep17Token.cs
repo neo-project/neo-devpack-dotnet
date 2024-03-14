@@ -94,7 +94,7 @@ namespace NEP17
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newMinter is not { IsValid: true }) return;
+            if (newMinter != null && newMinter.IsValid) return;
             Storage.Put(new[] { PrefixMinter }, newMinter);
             OnSetMinter(newMinter);
         }

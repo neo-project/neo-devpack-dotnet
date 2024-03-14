@@ -26,11 +26,8 @@
     </ItemGroup>
 
     <Target Name="ExecuteBBeforeBuild" BeforeTargets="PreBuildEvent">
-        <MSBuild Projects="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" Targets="Build" />
-        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net7.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" />
+        <MSBuild Projects="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" Targets="Build" ContinueOnError="true" />
+        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net7.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true" />
     </Target>
 
-<!--    <Target Name="PostBuild" AfterTargets="PostBuildEvent">-->
-<!--        <Exec Command="dotnet nccs &quot;$(MSBuildProjectFile)&quot;" />-->
-<!--    </Target>-->
 </Project>
