@@ -9,9 +9,6 @@
 // modifications are permitted.
 
 extern alias scfx;
-using System;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
