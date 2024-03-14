@@ -18,6 +18,20 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Convet a parenthesized pattern to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about parenthesized pattern.</param>
+    /// <param name="pattern">The parenthesized pattern to be converted.</param>
+    /// <param name="localIndex">The index of the local variable.</param>
+    /// <remarks>
+    /// You can put parentheses around any pattern.
+    /// Typically, you do that to emphasize or change the precedence in logical patterns,
+    /// as the following example shows:
+    /// </remarks>
+    /// <example>
+    /// <c>return value is (> 1 and < 100);</c>
+    /// </example>
     private void ConvertParenthesizedPatternSyntax(SemanticModel model, ParenthesizedPatternSyntax pattern, byte localIndex)
     {
         ConvertPattern(model, pattern.Pattern, localIndex);
