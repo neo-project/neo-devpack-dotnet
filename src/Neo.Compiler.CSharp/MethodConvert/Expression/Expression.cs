@@ -215,6 +215,7 @@ partial class MethodConvert
                 ConvertTupleExpression(model, expression);
                 break;
             default:
+                //Example: typeof(Transaction);
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
         }
     }
