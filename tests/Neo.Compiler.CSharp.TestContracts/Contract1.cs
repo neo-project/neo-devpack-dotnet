@@ -34,12 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static void testArgs3(int a, int b)
         {
-            UInt160? newOwner = null;
-            if (newOwner is { IsValid: true })
-            {
-            }
-
-            // a = a + 2;
+            a = a + 2;
         }
 
         public static int testArgs4(int a, int b)

@@ -24,5 +24,16 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 _ => false,
             };
         }
+
+        public bool testRecursivePattern()
+        {
+            UInt160? newOwner = UInt160.Zero;
+
+            return newOwner switch
+            {
+                { IsValid: true, IsZero: false } => true,
+                _ => false,
+            };
+        }
     }
 }

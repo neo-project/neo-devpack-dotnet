@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2023 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -9,7 +9,9 @@
 // modifications are permitted.
 
 extern alias scfx;
+using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,46 +23,40 @@ partial class MethodConvert
 {
     private void ConvertRecursivePattern(SemanticModel model, RecursivePatternSyntax pattern, byte localIndex)
     {
-            ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
+        if (pattern.PropertyPatternClause is { } propertyClause)
+        {
             AccessSlot(OpCode.LDLOC, localIndex);
-            IsType(type.GetPatternType());
-
-            ILocalSymbol? positionLocal = null;
-            if (pattern.PositionalPatternClause is PositionalPatternClauseSyntax positionalClause)
+            foreach (var subpattern in propertyClause.Subpatterns)
             {
-                positionLocal = (ILocalSymbol)model.GetDeclaredSymbol(positionalClause.Subpatterns.FirstOrDefault())!;
-                byte positionIndex = AddLocalVariable(positionLocal);
-
-                AccessSlot(OpCode.LDLOC, localIndex);
-                Call(type.GetMembers("Deconstruct").OfType<IMethodSymbol>().First());
-                AccessSlot(OpCode.STLOC, positionIndex);
-            }
-
-            if (pattern.PropertyPatternClause is PropertyPatternClauseSyntax propertyClause)
-            {
-                foreach (SubpatternSyntax subpattern in propertyClause.Subpatterns)
+                if (subpattern is { Pattern: ConstantPatternSyntax constantPattern })
                 {
-                    ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(subpattern)!;
-                    byte index = AddLocalVariable(local);
+                    // Example:
+                    // if (newOwner is { IsValid: true, IsZero:false})
+                    // {
+                    // }
+                    var propertySymbol = model.GetSymbolInfo(subpattern.NameColon!.Name).Symbol!;
 
-                    AccessSlot(OpCode.LDLOC, localIndex);
-                    Call(((IPropertySymbol)model.GetSymbolInfo(subpattern.NameColon!.Name).Symbol!).GetMethod!);
-                    AccessSlot(OpCode.STLOC, index);
+                    if (propertySymbol is IPropertySymbol property)
+                    {
+                        Call(model, property.GetMethod!);
+                    }
+                    else
+                    {
+                        throw new CompilationException(subpattern, DiagnosticId.SyntaxNotSupported, $"Unsupported property or field: {subpattern.NameColon.Name}");
+                    }
+                    object? constantValue = model.GetConstantValue(constantPattern.Expression).Value;
+                    Push(constantValue);
+                    AddInstruction(OpCode.EQUAL);
+                }
+                else
+                {
+                    throw new CompilationException(subpattern, DiagnosticId.SyntaxNotSupported, $"Unsupported subpattern: {subpattern}");
                 }
             }
-
-            if (pattern.Designation is ParenthesizedVariableDesignationSyntax designation)
-            {
-                ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(designation.Variables.First())!;
-                byte index = AddLocalVariable(local);
-
-                AccessSlot(OpCode.LDLOC, localIndex);
-                AccessSlot(OpCode.STLOC, index);
-            }
-
-            if (positionLocal is not null)
-            {
-                RemoveLocalVariable(positionLocal);
-            }
         }
+        else
+        {
+            throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
+        }
+    }
 }
