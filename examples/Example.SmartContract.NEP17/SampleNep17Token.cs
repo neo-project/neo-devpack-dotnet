@@ -57,7 +57,7 @@ namespace NEP17
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newOwner is { IsValid: true })
+            if (newOwner != null && newOwner.IsValid)
             {
                 Storage.Put(new[] { PrefixOwner }, newOwner);
                 OnSetOwner(newOwner);
