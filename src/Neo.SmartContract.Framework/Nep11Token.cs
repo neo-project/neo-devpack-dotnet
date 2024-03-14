@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework
         {
             var tokenMap = new StorageMap(Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
-           return new Map<string, object>()
+            return new Map<string, object>()
             {
                 ["name"] = token.Name
             };
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator Tokens()
         {
-            var tokenMap = new StorageMap( Prefix_Token);
+            var tokenMap = new StorageMap(Prefix_Token);
             return tokenMap.Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 

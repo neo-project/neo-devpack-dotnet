@@ -61,7 +61,7 @@ namespace ExampleStorage
         public static bool TestPutString(byte[] key, byte[] value)
         {
             var prefix = "aa";
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
@@ -88,7 +88,7 @@ namespace ExampleStorage
         public static bool TestPutByteArray(byte[] key, byte[] value)
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
@@ -96,14 +96,14 @@ namespace ExampleStorage
         public static void TestDeleteByteArray(byte[] key)
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
             storage.Delete((ByteString)key);
         }
 
         public static byte[] TestGetByteArray(byte[] key)
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
             var value = storage.Get((ByteString)key);
             return (byte[])value;
         }
@@ -111,7 +111,7 @@ namespace ExampleStorage
         public static bool TestNewGetMethods()
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
 
             var boolValue = true;
             var intValue = 123;
@@ -158,7 +158,7 @@ namespace ExampleStorage
         public static byte[] TestNewGetByteArray()
         {
             var prefix = new byte[] { 0x00, 0xFF };
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
             var byteArray = new byte[] { 0x00, 0x01 };
             storage.Put("byteArray", byteArray);
             var byteArray2 = storage.GetByteArray("byteArray");
@@ -185,7 +185,7 @@ namespace ExampleStorage
         public static int SerializeTest(byte[] key, int value)
         {
             var prefix = new byte[] { 0x01, 0xAA };
-            var storage = new StorageMap( prefix);
+            var storage = new StorageMap(prefix);
             var val = new Value { Val = value };
             storage.PutObject(key, val);
             val = (Value)storage.GetObject(key);
