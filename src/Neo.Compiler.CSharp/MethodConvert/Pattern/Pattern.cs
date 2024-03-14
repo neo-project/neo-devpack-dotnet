@@ -45,6 +45,9 @@ partial class MethodConvert
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
+            case RecursivePatternSyntax recursivePattern:
+                ConvertRecursivePattern(model, recursivePattern, localIndex);
+                break;
             default:
                 throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
         }

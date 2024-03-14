@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework;
+
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract1 : SmartContract.Framework.SmartContract
@@ -32,7 +34,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static void testArgs3(int a, int b)
         {
-            a = a + 2;
+            UInt160? newOwner = null;
+            if (newOwner is { IsValid: true })
+            {
+            }
+
+            // a = a + 2;
         }
 
         public static int testArgs4(int a, int b)
@@ -40,5 +47,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             a = a + 2;
             return a + b;
         }
+
     }
 }
