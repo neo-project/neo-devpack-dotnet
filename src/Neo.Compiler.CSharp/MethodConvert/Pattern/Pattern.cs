@@ -48,15 +48,23 @@ partial class MethodConvert
             case DeclarationPatternSyntax declarationPattern:
                 ConvertDeclarationPattern(model, declarationPattern, localIndex);
                 break;
-            //TODO
+            //Convet discard pattern (_) to OpCodes.
+            //Example: if (greeting2 is string _)
             case DiscardPatternSyntax:
                 Push(true);
                 break;
-            //TODO
+            //Convet relational pattern to OpCodes.
+            //Example: return value is > 1;
             case RelationalPatternSyntax relationalPattern:
                 ConvertRelationalPattern(model, relationalPattern, localIndex);
                 break;
-            //TODO
+            //Convert type pattern to OpCodes.
+            //Example:
+            //switch (o1)
+            //{
+            //    case byte[]: break;
+            //    case string: break;
+            //}
             case TypePatternSyntax typePattern:
                 ConvertTypePattern(model, typePattern, localIndex);
                 break;
@@ -65,7 +73,8 @@ partial class MethodConvert
             case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                 ConvertNotPattern(model, unaryPattern, localIndex);
                 break;
-            //TODO
+            //Convet parenthesized to OpCodes.
+            //Example: return value is (> 1 and < 100);
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
@@ -73,6 +82,12 @@ partial class MethodConvert
                 //Example:
                 //object greeting = "Hello, World!";
                 //if (greeting3 is var message) { }
+                //Example:
+                //public static void M(object o1, object o2)
+                //{
+                //  var t = (o1, o2);
+                //  if (t is (int, string)) { }
+                //}
                 throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
         }
     }

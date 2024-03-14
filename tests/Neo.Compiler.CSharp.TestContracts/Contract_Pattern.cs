@@ -64,5 +64,14 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 Runtime.Log("greeting2 is string");
             }
         }
+
+        public void TestTypePattern(object o1)
+        {
+            switch (o1)
+            {
+                case byte[]: break;
+                case string: break;
+            }
+        }
     }
 }

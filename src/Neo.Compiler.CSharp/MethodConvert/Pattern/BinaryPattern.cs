@@ -18,6 +18,14 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Convet a binary pattern to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about binary pattern.</param>
+    /// <param name="pattern">The binary pattern to be converted.</param>
+    /// <param name="localIndex">The index of the local variable.</param>
+    /// <see cref="ConvertAndPattern(SemanticModel, PatternSyntax, PatternSyntax, byte)"/>
+    /// <see cref="ConvertOrPattern(SemanticModel, PatternSyntax, PatternSyntax, byte)"/>
     private void ConvertBinaryPattern(SemanticModel model, BinaryPatternSyntax pattern, byte localIndex)
     {
         switch (pattern.OperatorToken.ValueText)
