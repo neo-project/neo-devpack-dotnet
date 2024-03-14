@@ -113,19 +113,6 @@ partial class MethodConvert
     private void ConvertIdentifierNameAssignment(SemanticModel model, IdentifierNameSyntax left)
     {
         ISymbol symbol = model.GetSymbolInfo(left).Symbol!;
-        // Lambda function to check if we're inside a constructor
-        Func<SyntaxNode, bool> isInConstructor = (node) =>
-        {
-            while (node != null)
-            {
-                if (node is ConstructorDeclarationSyntax) return true;
-                node = node.Parent;
-            }
-            return false;
-        };
-        // Use the lambda function with the current node
-        bool withinConstructor = isInConstructor(left);
-
         switch (symbol)
         {
             case IDiscardSymbol:
@@ -162,7 +149,7 @@ partial class MethodConvert
                 //     // Readonly property
                 //     public string FirstName { get; }
                 // }
-                if (withinConstructor && property.SetMethod == null)
+                if (property.SetMethod == null)
                 {
                     IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
                     fields = fields.Where(p => !p.IsStatic).ToArray();
