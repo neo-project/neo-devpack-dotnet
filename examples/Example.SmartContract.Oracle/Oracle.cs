@@ -15,6 +15,7 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
+using Neo.SmartContract.Framework.Interfaces;
 
 namespace Oracle
 {
@@ -24,7 +25,7 @@ namespace Oracle
     [ContractVersion("0.0.1")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
-    public class SampleOracle : SmartContract
+    public class SampleOracle : SmartContract,IOracle
     {
         [Safe]
         public static string GetResponse()
@@ -54,10 +55,11 @@ namespace Oracle
                 ReturnValueType = string array
             */
             var requestUrl = "https://api.jsonbin.io/v3/qs/6520ad3c12a5d3765988542a";
-            Neo.SmartContract.Framework.Native.Oracle.Request(requestUrl, "$.record.propertyName", "onOracleResponse", null, Neo.SmartContract.Framework.Native.Oracle.MinimumResponseFee);
+            Neo.SmartContract.Framework.Native.Oracle.Request(requestUrl, "$.record.propertyName", Method.OnOracleResponse, null, Neo.SmartContract.Framework.Native.Oracle.MinimumResponseFee);
         }
 
         /// <summary>
+        /// This implements the IOracle interface
         /// This method is called after the Oracle receives response from requested URL
         /// </summary>
         /// <param name="requestedUrl">Requested url</param>
@@ -66,7 +68,7 @@ namespace Oracle
         /// <param name="jsonString">Oracle response data</param>
         /// <exception cref="InvalidOperationException">It was not called by the oracle</exception>
         /// <exception cref="Exception">It was not a success</exception>
-        public static void onOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse, string jsonString)
+        public void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse, string jsonString)
         {
             if (Runtime.CallingScriptHash != Neo.SmartContract.Framework.Native.Oracle.Hash)
                 throw new InvalidOperationException("No Authorization!");

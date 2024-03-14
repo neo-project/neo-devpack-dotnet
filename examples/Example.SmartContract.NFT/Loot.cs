@@ -30,8 +30,8 @@ namespace NFT
     {
         public override string Symbol { [Safe] get => "sLoot"; }
 
-        private static readonly StorageMap TokenIndexMap = new(Storage.CurrentContext, (byte)StoragePrefix.Token);
-        private static readonly StorageMap TokenMap = new(Storage.CurrentContext, Prefix_Token);
+        private static readonly StorageMap TokenIndexMap = new((byte)StoragePrefix.Token);
+        private static readonly StorageMap TokenMap = new(Prefix_Token);
         public static event Action<string> EventMsg;
 
         [Safe]
@@ -153,7 +153,7 @@ namespace NFT
             // 222 reserved to the developer
             ExecutionEngine.Assert(!tokenId.IsZero && tokenId < 7778, "Token ID invalid");
             ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash, "Contract calls are not allowed");
-            Transaction tx = (Transaction)Runtime.ScriptContainer;
+            Transaction tx = Runtime.Transaction;
             MintToken(tokenId, tx.Sender);
             EventMsg("Player mints success");
         }

@@ -12,11 +12,10 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
-
 using System.ComponentModel;
 using System.Numerics;
-using Neo;
 using Neo.SmartContract.Framework.Services;
+using UInt160 = Neo.SmartContract.Framework.UInt160;
 
 namespace Transfer;
 
@@ -24,14 +23,13 @@ namespace Transfer;
 /// This is a sample contract that can be used as a template for creating new contracts.
 /// </summary>
 [DisplayName("SampleTransferContract")]
-[ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
-[ContractDescription("<Description Here>")]
+[ContractAuthor("code-dev", "core@neo.org")]
+[ContractDescription("A sample contract to demonstrate how to transfer NEO and GAS")]
 [ContractVersion("1.0.0.0")]
 [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
 [ContractPermission(Permission.WildCard, Method.WildCard)]
 public class TransferContract : SmartContract
 {
-    // [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
     private static readonly UInt160 Owner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
     /// <summary>
