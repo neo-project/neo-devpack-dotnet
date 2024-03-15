@@ -94,30 +94,42 @@ namespace Neo.Compiler.CSharp.UnitTests
             using var testengine = new TestEngine();
             testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pattern.cs");
 
-            var result = testengine.ExecuteTestCaseStandard("testTypePattern", 1);
+            var result = testengine.ExecuteTestCaseStandard("testTypePattern2", 1);
             var value = result.Pop().GetInteger();
             Assert.AreEqual(2, value);
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testTypePattern", "1");
+            result = testengine.ExecuteTestCaseStandard("testTypePattern2", "1");
 
             value = result.Pop().GetInteger();
             Assert.AreEqual(0, value);
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testTypePattern", new ByteString(new byte[] { 1 }));
+            result = testengine.ExecuteTestCaseStandard("testTypePattern2", new ByteString(new byte[] { 1 }));
             value = result.Pop().GetInteger();
             Assert.AreEqual(0, value);
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testTypePattern", new byte[] { 1 });
+            result = testengine.ExecuteTestCaseStandard("testTypePattern2", new byte[] { 1 });
             value = result.Pop().GetInteger();
             Assert.AreEqual(0, value);
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testTypePattern", true);
+            result = testengine.ExecuteTestCaseStandard("testTypePattern2", true);
             value = result.Pop().GetInteger();
             Assert.AreEqual(1, value);
+
+            testengine.Reset();
+            testengine.ExecuteTestCaseStandard("testTypePattern", "1");
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+
+            testengine.Reset();
+            testengine.ExecuteTestCaseStandard("testTypePattern", 1);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
+
+            testengine.Reset();
+            testengine.ExecuteTestCaseStandard("testTypePattern", true);
+            Assert.AreEqual(VM.VMState.HALT, testengine.State);
         }
     }
 }

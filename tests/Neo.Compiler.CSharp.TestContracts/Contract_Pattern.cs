@@ -66,7 +66,17 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
         }
 
-        public int TestTypePattern(object t)
+        public void TestTypePattern(object o1)
+        {
+            switch (o1)
+            {
+                case byte[]: break;
+                case string: break;
+                case bool: break;
+            }
+        }
+
+        public int TestTypePattern2(object t)
         {
             return t switch
             {
