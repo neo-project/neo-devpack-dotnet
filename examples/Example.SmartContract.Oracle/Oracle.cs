@@ -20,7 +20,7 @@ using Neo.SmartContract.Framework.Interfaces;
 namespace Oracle
 {
     [DisplayName("SampleOracle")]
-    [ContractAuthor("code-dev", "core@neo.org")]
+    [ContractAuthor("code-dev", "dev@neo.org")]
     [ContractDescription("A sample contract to demonstrate how to use Example.SmartContract.Oracle Service")]
     [ContractVersion("0.0.1")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]

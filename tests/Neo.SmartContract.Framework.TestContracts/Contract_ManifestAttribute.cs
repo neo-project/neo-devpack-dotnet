@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Attributes;
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     [ContractAuthor("core-dev")]
-    [ContractEmail("core@neo.org")]
+    [ContractEmail("dev@neo.org")]
     [ContractVersion("v3.6.3")]
     [ContractDescription("This is a test contract.")]
     [ManifestExtra("ExtraKey", "ExtraValue")]

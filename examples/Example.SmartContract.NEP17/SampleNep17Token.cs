@@ -21,7 +21,7 @@ namespace NEP17
 {
     /// <inheritdoc />
     [DisplayName("SampleNep17Token")]
-    [ContractAuthor("core-dev", "core@neo.org")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractVersion("0.0.1")]
     [ContractDescription("A sample NEP-17 token")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
@@ -94,7 +94,7 @@ namespace NEP17
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newMinter != null && newMinter.IsValid) return;
+            if (newMinter != null && !newMinter.IsValid) return;
             Storage.Put(new[] { PrefixMinter }, newMinter);
             OnSetMinter(newMinter);
         }
