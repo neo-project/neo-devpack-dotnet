@@ -69,7 +69,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             for (int x = 0; x < notifications.Length; x++)
             {
                 var notify = notifications[x];
-                sum += (int)notify.State[0];
+                sum += (int)notify.State[2];
             }
 
             return sum;
@@ -82,34 +82,34 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
             for (int x = 0; x < notifications.Length; x++)
             {
-                sum += (int)notifications[x].State[0];
+                sum += (int)notifications[x].State[2];
             }
 
             return sum;
         }
 
-        public static object GetTransactionHash()
+        public static UInt256 GetTransactionHash()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.Hash;
+            return tx!.Hash;
         }
 
-        public static object GetTransactionVersion()
+        public static byte GetTransactionVersion()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.Version;
+            return tx!.Version;
         }
 
-        public static object GetTransactionNonce()
+        public static uint GetTransactionNonce()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.Nonce;
+            return tx!.Nonce;
         }
 
-        public static object GetTransactionSender()
+        public static UInt160 GetTransactionSender()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.Sender;
+            return tx!.Sender;
         }
 
         public static object GetTransaction()
@@ -118,28 +118,28 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return tx;
         }
 
-        public static object GetTransactionSystemFee()
+        public static long GetTransactionSystemFee()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.SystemFee;
+            return tx!.SystemFee;
         }
 
-        public static object GetTransactionNetworkFee()
+        public static long GetTransactionNetworkFee()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.NetworkFee;
+            return tx!.NetworkFee;
         }
 
-        public static object GetTransactionValidUntilBlock()
+        public static uint GetTransactionValidUntilBlock()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.ValidUntilBlock;
+            return tx!.ValidUntilBlock;
         }
 
-        public static object GetTransactionScript()
+        public static ByteString GetTransactionScript()
         {
             var tx = (Transaction)Runtime.ScriptContainer;
-            return tx?.Script;
+            return tx!.Script;
         }
 
         public static int DynamicSum(int a, int b)

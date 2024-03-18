@@ -45,7 +45,7 @@ partial class MethodConvert
         if (Symbol.IsStatic)
         {
             IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-            byte backingFieldIndex = context.AddStaticField(backingField);
+            byte backingFieldIndex = _context.AddStaticField(backingField);
             switch (Symbol.MethodKind)
             {
                 case MethodKind.PropertyGet:
@@ -185,7 +185,7 @@ partial class MethodConvert
             if (Symbol.IsStatic)
             {
                 IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-                byte backingFieldIndex = context.AddStaticField(backingField);
+                byte backingFieldIndex = _context.AddStaticField(backingField);
                 AccessSlot(OpCode.STSFLD, backingFieldIndex);
             }
             else

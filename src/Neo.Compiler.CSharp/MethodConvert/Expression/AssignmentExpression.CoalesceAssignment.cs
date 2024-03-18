@@ -21,6 +21,32 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for null-coalescing assignment expression into OpCodes.
+    /// The null-coalescing assignment operator ??= assigns the value of its right-hand operand to its left-hand operand only if the left-hand operand evaluates to null.
+    /// The ??= operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+    /// Null-coalescing assignment expressions are a new feature introduced in C# 8.0(Released September, 2019).
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about coalesce assignment expression.</param>
+    /// <param name="expression">The syntax representation of the coalesce assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <example>
+    /// <code>
+    /// public class Cat
+    /// {
+    ///     public string Name { get; set; }
+    /// }
+    /// </code>
+    /// <code>
+    /// Cat nullableCat = null;
+    /// Cat nonNullableCat = new() { Name = "Mimi" };
+    /// nullableCat ??= nonNullableCat;
+    /// Runtime.Log("Nullable cat: " + nullableCat.Name);
+    /// </code>
+    /// <c>nullableCat ??= nonNullableCat;</c> this line is evaluated as
+    /// <c>nullableCat = nullableCat ?? nonNullableCat;</c> is evaluated as <c>if (nullableCat == null) nullableCat = nonNullableCat;</c>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-coalescing-operator">?? and ??= operators - the null-coalescing operators</seealso>
     private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.Left)
@@ -129,7 +155,7 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (left.IsStatic)
         {
-            byte index = context.AddStaticField(left);
+            byte index = _context.AddStaticField(left);
             AccessSlot(OpCode.LDSFLD, index);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
@@ -232,7 +258,7 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (field.IsStatic)
         {
-            byte index = context.AddStaticField(field);
+            byte index = _context.AddStaticField(field);
             AccessSlot(OpCode.LDSFLD, index);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);

@@ -399,7 +399,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void event_Test()
         {
-            var system = new NeoSystem(TestProtocolSettings.Default, new MemoryStore());
+            var system = new NeoSystem(TestProtocolSettings.Default);
             using var testengine = new TestEngine(verificable: new Transaction()
             {
                 Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },

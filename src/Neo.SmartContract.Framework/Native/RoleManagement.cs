@@ -19,6 +19,6 @@ namespace Neo.SmartContract.Framework.Native
     {
         [ContractHash]
         public static extern UInt160 Hash { get; }
-        public static extern Cryptography.ECC.ECPoint[] GetDesignatedByRole(Role role, uint index);
+        public static extern ECPoint[] GetDesignatedByRole(Role role, uint index);
     }
 }

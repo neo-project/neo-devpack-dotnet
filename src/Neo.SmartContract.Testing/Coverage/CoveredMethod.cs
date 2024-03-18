@@ -1,4 +1,6 @@
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage.Formats;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -55,8 +57,17 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// Dump coverage
         /// </summary>
+        /// <param name="format">Format</param>
         /// <returns>Coverage dump</returns>
-        public string Dump(DumpFormat format = DumpFormat.Console) => Contract.Dump(format, this);
+        public override string Dump(DumpFormat format = DumpFormat.Console)
+        {
+            return format switch
+            {
+                DumpFormat.Console => new ConsoleFormat(Contract, m => ReferenceEquals(m, this)).Dump(),
+                DumpFormat.Html => new IntructionHtmlFormat(Contract, m => ReferenceEquals(m, this)).Dump(),
+                _ => throw new NotImplementedException(),
+            };
+        }
 
         public override string ToString() => Method.ToString();
     }

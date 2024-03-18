@@ -1,60 +1,34 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
-using System.Text;
-using Neo.SmartContract.TestEngine;
+using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class JsonTest
+    public class JsonTest : TestBase<Contract_Json>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine.TestEngine(snapshot: new TestDataCache());
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Json.cs");
-        }
+        public JsonTest() : base(Contract_Json.Nef, Contract_Json.Manifest) { }
 
         [TestMethod]
         public void Test_SerializeDeserialize()
         {
             // Empty Serialize
 
-            var result = _engine.ExecuteTestCaseStandard("serialize");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual("null", Contract.Serialize());
 
             // Empty Serialize
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("deserialize");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
-            Assert.AreEqual(0, result.Count);
+            Assert.ThrowsException<TargetInvocationException>(() => Contract.Deserialize(null));
 
             // Serialize
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("serialize", new Array(_engine.ReferenceCounter, new StackItem[]{
-                 StackItem.Null, StackItem.True, new ByteString(Encoding.ASCII.GetBytes("asd"))
-            }));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.ByteString));
-            Assert.AreEqual("[null,true,\"asd\"]", item.GetString());
+            Assert.AreEqual("[null,true,\"asd\"]", Contract.Serialize(new object?[] { null, true, "asd" }));
 
             // Deserialize
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("deserialize", new ByteString(Encoding.ASCII.GetBytes("[null,true,\"asd\"]")));
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            item = result.Pop();
+            var item = Contract.Deserialize("[null,true,\"asd\"]");
             Assert.IsInstanceOfType(item, typeof(Array));
 
             var entry = ((Array)item)[0];
@@ -63,7 +37,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.IsInstanceOfType(entry, typeof(Boolean));
             Assert.AreEqual(true, entry.GetBoolean());
             entry = ((Array)item)[2];
-            Assert.IsInstanceOfType(entry, typeof(VM.Types.ByteString));
+            Assert.IsInstanceOfType(entry, typeof(ByteString));
             Assert.AreEqual("asd", entry.GetString());
         }
     }

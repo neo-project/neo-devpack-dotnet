@@ -23,5 +23,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return Runtime.ScriptContainer;
         }
+
+        public static object Transaction()
+        {
+            return Runtime.Transaction;
+        }
     }
 }

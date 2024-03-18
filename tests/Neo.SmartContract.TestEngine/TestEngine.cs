@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Numerics;
 using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,6 +8,8 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
+using System.ComponentModel;
+using System.Numerics;
 using ExecutionContext = Neo.VM.ExecutionContext;
 
 namespace Neo.SmartContract.TestEngine
@@ -50,6 +50,12 @@ namespace Neo.SmartContract.TestEngine
         {
         }
 
+        /// <summary>
+        /// Though the compiler can compile multiple smart contract files,
+        /// only one smart contract context is returned.
+        /// </summary>
+        /// <param name="files">Source file path of the smart contracts</param>
+        /// <returns>The first or default contract <see cref="CompilationContext"/></returns>
         public CompilationContext AddEntryScript(params string[] files)
         {
             return AddEntryScript(true, true, files);
@@ -60,26 +66,38 @@ namespace Neo.SmartContract.TestEngine
             return AddEntryScript(false, true, files);
         }
 
+        // TODO: Should not be hard to specify signer from here to enable contracts direct call.
         public CompilationContext AddEntryScript(bool optimize = true, bool debug = true, params string[] files)
         {
-            CompilationContext context = CompilationContext.Compile(files, references, new Options
+            return AddEntryScripts(optimize, debug, files).FirstOrDefault()!;
+        }
+
+        public List<CompilationContext> AddEntryScripts(bool optimize = true, bool debug = true, params string[] files)
+        {
+            var contexts = new CompilationEngine(new Options
             {
                 AddressVersion = ProtocolSettings.Default.AddressVersion,
                 Debug = debug,
-                NoOptimize = !optimize
-            });
-            if (context.Success)
+                Optimize = optimize ? Compiler.CompilationOptions.OptimizationType.All : Compiler.CompilationOptions.OptimizationType.None
+            }).Compile(files, references);
+
+            if (contexts == null || contexts.Count == 0)
             {
-                Nef = context.CreateExecutable();
-                Manifest = context.CreateManifest();
-                DebugInfo = context.CreateDebugInformation();
+                throw new InvalidOperationException("No SmartContract is found in the sources.");
+            }
+
+            if (contexts.All(p => p.Success))
+            {
+                var context = contexts.FirstOrDefault()!;
+                (Nef, Manifest, DebugInfo) = context.CreateResults("");
                 Reset();
             }
             else
             {
-                context.Diagnostics.ForEach(Console.Error.WriteLine);
+                contexts.ForEach(c => c.Diagnostics.ForEach(Console.Error.WriteLine));
             }
-            return context;
+
+            return contexts;
         }
 
         public void Reset()
@@ -148,13 +166,13 @@ namespace Neo.SmartContract.TestEngine
         public EvaluationStack ExecuteTestCaseStandard(int offset, ushort rvcount, NefFile? contract, params StackItem[] args)
         {
             var context = InvocationStack.Pop();
-            context = CreateContext(context.Script, rvcount, offset);
+            context = CreateContext(Nef!.Script, rvcount, offset);
             LoadContext(context);
             // Mock contract
             var contextState = CurrentContext!.GetState<ExecutionContextState>();
             contextState.Contract ??= new ContractState()
             {
-                Nef = contract,
+                Nef = Nef,
                 Manifest = Manifest
             };
             OnPreExecuteTestCaseStandard?.Invoke(this, context);

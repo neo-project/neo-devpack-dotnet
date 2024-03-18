@@ -84,7 +84,7 @@ public class RpcStore : IStore
 
             using var httpClient = new HttpClient();
             var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult().EnsureSuccessStatusCode();
+            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
 
             JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -119,7 +119,7 @@ public class RpcStore : IStore
 
                 if (jo["error"]?.Value<JObject>() is JObject error &&
                     error["code"]?.Value<int>() is int errorCode &&
-                    errorCode == -100)
+                    (errorCode == -100 || errorCode == -104))
                 {
                     yield break;
                 }
@@ -144,7 +144,7 @@ public class RpcStore : IStore
 
         using var httpClient = new HttpClient();
         var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult().EnsureSuccessStatusCode();
+        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
 
         JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -160,7 +160,7 @@ public class RpcStore : IStore
 
             if (jo["error"]?.Value<JObject>() is JObject error &&
                 error["code"]?.Value<int>() is int errorCode &&
-                errorCode == -100)
+                (errorCode == -100 || errorCode == -104))
             {
                 return null;
             }

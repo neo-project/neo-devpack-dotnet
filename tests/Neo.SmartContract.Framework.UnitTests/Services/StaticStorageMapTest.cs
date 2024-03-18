@@ -1,108 +1,48 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
+using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StaticStorageMapTest
+    public class StaticStorageMapTest : TestBase<Contract_StaticStorageMap>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot().CreateSnapshot();
-
-            _engine = new TestEngine.TestEngine(snapshot: snapshot);
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_StaticStorageMap.cs");
-            snapshot.ContractAdd(new ContractState()
-            {
-                Hash = _engine.EntryScriptHash,
-                Nef = _engine.Nef,
-                Manifest = new Manifest.ContractManifest()
-            });
-        }
+        public StaticStorageMapTest() : base(Contract_StaticStorageMap.Nef, Contract_StaticStorageMap.Manifest) { }
 
         [TestMethod]
         public void Test_Storage()
         {
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("put2", "a");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("get2", "a");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(3, result.Pop());
+            Contract.Put2("a");
+            Assert.AreEqual(3, Contract.Get2("a"));
         }
 
         [TestMethod]
         public void Test_StaticStorageMap()
         {
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("put", "a");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("get", "a");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Pop());
-
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("putReadonly", "a");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("getReadonly", "a");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(2, result.Pop());
+            Contract.Put("a");
+            Assert.AreEqual(1, Contract.Get("a"));
+            Contract.PutReadonly("a");
+            Assert.AreEqual(2, Contract.GetReadonly("a"));
         }
 
         [TestMethod]
         public void Test_StaticStorageMapBytePrefix()
         {
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("teststoragemap_Putbyteprefix", 0);
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            Contract.Teststoragemap_Putbyteprefix(0);
+            Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(0));
 
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("teststoragemap_Getbyteprefix", 0);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(123, result.Pop());
+            Contract.Teststoragemap_Putbyteprefix(255);
+            Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(255));
 
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("teststoragemap_Putbyteprefix", 255);
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            Contract.Teststoragemap_Putbyteprefix(-128);
+            Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(-128));
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("teststoragemap_Getbyteprefix", 255);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(123, result.Pop());
+            Contract.Teststoragemap_Putbyteprefix(127);
+            Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(127));
 
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("teststoragemap_Putbyteprefix", -128);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("teststoragemap_Getbyteprefix", -128);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(123, result.Pop());
-
-
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("teststoragemap_Putbyteprefix", 127);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("teststoragemap_Getbyteprefix", 127);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(123, result.Pop());
-
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("teststoragemap_Putbyteprefix", 256);
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<InvalidOperationException>(() => Contract.Teststoragemap_Putbyteprefix(256));
         }
     }
 }

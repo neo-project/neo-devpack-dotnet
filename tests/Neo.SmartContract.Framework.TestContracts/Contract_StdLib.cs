@@ -1,8 +1,9 @@
 using Neo.SmartContract.Framework.Native;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    public class Contract_Binary : SmartContract
+    public class Contract_StdLib : SmartContract
     {
         public static string base58CheckEncode(ByteString input)
         {
@@ -34,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return StdLib.Base58Encode((ByteString)input);
         }
 
-        public static object atoi(string value, int @base)
+        public static BigInteger atoi(string value, int @base)
         {
             return StdLib.Atoi(value, @base);
         }

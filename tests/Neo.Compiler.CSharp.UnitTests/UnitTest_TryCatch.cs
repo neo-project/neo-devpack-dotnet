@@ -77,6 +77,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_ThrowInCatch()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("throwInCatch");
+            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
+            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+            var v = testengine.CurrentContext.LocalVariables[0];
+            Assert.AreEqual(v.GetInteger(), 3);
+        }
+
+        [TestMethod]
         public void Test_TryFinally()
         {
             testengine.Reset();

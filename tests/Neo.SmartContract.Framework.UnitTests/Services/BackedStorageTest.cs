@@ -1,141 +1,80 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Linq;
 using System.Numerics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BackedStorageTest
+    public class BackedStorageTest : TestBase<Contract_Stored>
     {
-        private TestEngine.TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot().CreateSnapshot();
-
-            _engine = new TestEngine.TestEngine(snapshot: snapshot);
-            Assert.IsTrue(_engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Stored.cs").Success);
-            snapshot.ContractAdd(new ContractState()
-            {
-                Id = 0,
-                Hash = _engine.EntryScriptHash,
-                Nef = _engine.Nef,
-                Manifest = new Manifest.ContractManifest()
-            });
-        }
+        public BackedStorageTest() : base(Contract_Stored.Nef, Contract_Stored.Manifest) { }
 
         [TestMethod]
         public void Test()
         {
-            Assert.AreEqual(0, _engine.Snapshot.GetChangeSet().Count(u => u.Key.Id == 0));
+            Assert.AreEqual(0, Engine.Storage.Snapshot.GetChangeSet().Count(u => u.Key.Id == Contract.Storage.Id));
 
-            Test_Kind("WithoutConstructor");
-            Test_Kind("WithKey");
-            Test_Kind("WithString");
+            Test_Kind(Contract.GetWithoutConstructor, () => Contract.WithoutConstructor, i => Contract.PutWithoutConstructor(i));
+            Test_Kind(Contract.GetWithKey, () => Contract.WithKey, i => Contract.PutWithKey(i));
+            Test_Kind(Contract.GetWithString, () => Contract.WithString, i => Contract.PutWithString(i));
 
-            Assert.AreEqual(3, _engine.Snapshot.GetChangeSet().Count(u => u.Key.Id == 0));
+            Assert.AreEqual(3, Engine.Storage.Snapshot.GetChangeSet().Count(u => u.Key.Id == Contract.Storage.Id));
         }
 
         [TestMethod]
         public void Test_Private_Getter_Public_Setter()
         {
-            // Read initial value
-            Console.WriteLine("GET");
-            _engine.Reset();
+            // Read initial value & Test private getter
 
-            // Test private getter
-
-            var result = _engine.ExecuteTestCaseStandard("getPrivateGetterPublicSetter");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(0, result.Pop());
+            Assert.AreEqual(0, Contract.PrivateGetterPublicSetter);
 
             // Test public setter
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("setPrivateGetterPublicSetter", 123);
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            Contract.PrivateGetterPublicSetter = 123;
 
             // check public setter
 
-            Console.WriteLine("GET");
-            _engine.Reset();
-
-            result = _engine.ExecuteTestCaseStandard("getPrivateGetterPublicSetter");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
+            Assert.AreEqual(123, Contract.PrivateGetterPublicSetter);
         }
 
         [TestMethod]
         public void Test_Non_Static_Private_Getter_Public_Setter()
         {
-            // Read initial value
-            Console.WriteLine("GET");
-            _engine.Reset();
+            // Read initial value & Test private getter
 
-            // Test private getter
-
-            var result = _engine.ExecuteTestCaseStandard("getNonStaticPrivateGetterPublicSetter");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(0, result.Pop());
+            Assert.AreEqual(0, Contract.NonStaticPrivateGetterPublicSetter);
 
             // Test public setter
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("setNonStaticPrivateGetterPublicSetter", 123);
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            Contract.NonStaticPrivateGetterPublicSetter = 123;
 
             // check public setter
 
-            Console.WriteLine("GET");
-            _engine.Reset();
-
-            result = _engine.ExecuteTestCaseStandard("getNonStaticPrivateGetterPublicSetter");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
+            Assert.AreEqual(123, Contract.NonStaticPrivateGetterPublicSetter);
         }
 
-        public void Test_Kind(string kind)
+        public void Test_Kind(Func<BigInteger?> getter, Func<BigInteger?> publicGetter, Action<BigInteger> put)
         {
             // Read initial value
 
-            Console.WriteLine("GET");
-            _engine.Reset();
-
-            var result = _engine.ExecuteTestCaseStandard("get" + kind);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(0, result.Pop());
+            Assert.AreEqual(0, getter());
 
             // Test public getter
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(kind[0].ToString().ToLowerInvariant() + kind[1..]);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(0, result.Pop());
+            Assert.AreEqual(0, publicGetter());
 
             // Put
 
-            Console.WriteLine("PUT");
-            _engine.Reset();
+            put(123);
 
-            _engine.ExecuteTestCaseStandard("put" + kind, 123);
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            // Get
 
-            Console.WriteLine("GET");
-            _engine.Reset();
-
-            result = _engine.ExecuteTestCaseStandard("get" + kind);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
+            Assert.AreEqual(123, getter());
 
             // Test public getter
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard(kind[0].ToString().ToLowerInvariant() + kind[1..]);
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(new BigInteger(123), result.Pop().GetInteger());
+            Assert.AreEqual(123, publicGetter());
         }
     }
 }

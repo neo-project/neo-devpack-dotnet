@@ -93,6 +93,13 @@ namespace Neo.SmartContract.Testing.Coverage
             }
         }
 
+        /// <summary>
+        /// Dump coverage
+        /// </summary>
+        /// <param name="format">Format</param>
+        /// <returns>Coverage dump</returns>
+        public abstract string Dump(DumpFormat format = DumpFormat.Console);
+
         public static decimal CalculateHitRate(int total, int hits)
                     => total == 0 ? 1m : new decimal(hits) / new decimal(total);
 

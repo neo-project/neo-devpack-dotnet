@@ -61,19 +61,19 @@ partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
-        foreach (INamedTypeSymbol @class in context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
+        foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
         {
             foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
             {
                 if (field.IsConst || !field.IsStatic) continue;
                 ProcessFieldInitializer(model, field, null, () =>
                 {
-                    byte index = context.AddStaticField(field);
+                    byte index = _context.AddStaticField(field);
                     AccessSlot(OpCode.STSFLD, index);
                 });
             }
         }
-        foreach (var (fieldIndex, type) in context.VTables)
+        foreach (var (fieldIndex, type) in _context.VTables)
         {
             IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
             for (int i = virtualMethods.Length - 1; i >= 0; i--)
@@ -85,7 +85,7 @@ partial class MethodConvert
                 }
                 else
                 {
-                    MethodConvert convert = context.ConvertMethod(model, method);
+                    MethodConvert convert = _context.ConvertMethod(model, method);
                     Jump(OpCode.PUSHA, convert._startTarget);
                 }
             }

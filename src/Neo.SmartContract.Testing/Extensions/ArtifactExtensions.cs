@@ -1,3 +1,4 @@
+using Neo.IO;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
@@ -32,9 +33,10 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="manifest">Manifest</param>
         /// <param name="name">Class name, by default is manifest.Name</param>
+        /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true)
         {
             name ??= manifest.Name;
 
@@ -54,6 +56,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
+            sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Collections.Generic;");
             sourceCode.WriteLine("using System.ComponentModel;");
             sourceCode.WriteLine("using System.Numerics;");
@@ -62,6 +65,25 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance));
             sourceCode.WriteLine("{");
+
+            // Write compiled data
+
+            sourceCode.WriteLine("    #region Compiled data");
+            sourceCode.WriteLine();
+
+            var value = manifest.ToJson().ToString(false).Replace("\"", "\"\"");
+            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} Manifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
+            sourceCode.WriteLine();
+
+            if (nef is not null)
+            {
+                value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
+                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine();
+            }
+
+            sourceCode.WriteLine("    #endregion");
+            sourceCode.WriteLine();
 
             // Crete events
 
@@ -145,7 +167,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             sourceCode.WriteLine("    #region Constructor for internal use only");
             sourceCode.WriteLine();
-            sourceCode.WriteLine($"    protected {name}(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) {{ }}");
+            sourceCode.WriteLine($"    protected {name}({typeof(SmartContractInitialize).FullName} initialize) : base(initialize) {{ }}");
             sourceCode.WriteLine();
             sourceCode.WriteLine("    #endregion");
 
@@ -157,6 +179,7 @@ namespace Neo.SmartContract.Testing.Extensions
         private static (ContractMethodDescriptor[] methods, (ContractMethodDescriptor getter, ContractMethodDescriptor? setter)[] properties)
             ProcessAbiMethods(ContractMethodDescriptor[] methods)
         {
+            HashSet<string> propertyNames = new();
             List<ContractMethodDescriptor> methodList = new(methods);
             List<(ContractMethodDescriptor, ContractMethodDescriptor?)> properties = new();
 
@@ -176,6 +199,13 @@ namespace Neo.SmartContract.Testing.Extensions
                         u.ReturnType == ContractParameterType.Void
                         ) : null;
 
+                // Avoid property repetition
+
+                var propertyName = GetPropertyName(getter);
+                if (!propertyNames.Add(propertyName)) continue;
+
+                // Add property and remove method
+
                 properties.Add((getter, setter));
                 methodList.Remove(getter);
 
@@ -186,6 +216,11 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             return (methodList.ToArray(), properties.ToArray());
+        }
+
+        private static string GetPropertyName(ContractMethodDescriptor getter)
+        {
+            return TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
         }
 
         /// <summary>
@@ -212,7 +247,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[2].Type == ContractParameterType.Integer)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;");
+                            sourceCode.WriteLine($"    public event {typeof(INep17Standard).FullName}.delTransfer? OnTransfer;");
                             return builder.ToString();
                         }
 
@@ -225,7 +260,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine("    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner? OnSetOwner;");
+                            sourceCode.WriteLine($"    public event {typeof(IOwnable).FullName}.delSetOwner? OnSetOwner;");
                             return builder.ToString();
                         }
 
@@ -273,7 +308,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
         {
-            var propertyName = TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
+            var propertyName = GetPropertyName(getter);
             var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
 
             var builder = new StringBuilder();

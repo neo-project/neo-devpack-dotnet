@@ -13,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.SmartContract;
@@ -32,7 +33,7 @@ namespace Neo.Compiler
     {
         #region Fields
 
-        private readonly CompilationContext context;
+        private readonly CompilationContext _context;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _internalInline;
@@ -73,7 +74,7 @@ namespace Neo.Compiler
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
             this.Symbol = symbol;
-            this.context = context;
+            this._context = context;
             this._checkedStack.Push(context.Options.Checked);
         }
 
@@ -103,13 +104,13 @@ namespace Neo.Compiler
 
         private void RemoveAnonymousVariable(byte index)
         {
-            if (!context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 _anonymousVariables.Remove(index);
         }
 
         private void RemoveLocalVariable(ILocalSymbol symbol)
         {
-            if (!context.Options.NoOptimize)
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
                 _localVariables.Remove(symbol);
         }
 
@@ -130,10 +131,21 @@ namespace Neo.Compiler
             });
         }
 
-        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken syntax)
+        private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
         {
             return new SequencePointInserter(_instructions, syntax);
         }
+
+        private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
+        {
+            return new SequencePointInserter(_instructions, syntax);
+        }
+
+        private SequencePointInserter InsertSequencePoint(Location? location)
+        {
+            return new SequencePointInserter(_instructions, location);
+        }
+
         #endregion
 
         #region Convert
@@ -144,12 +156,12 @@ namespace Neo.Compiler
                 if (Symbol.Name == "_initialize")
                 {
                     ProcessStaticFields(model);
-                    if (context.StaticFieldCount > 0)
+                    if (_context.StaticFieldCount > 0)
                     {
                         _instructions.Insert(0, new Instruction
                         {
                             OpCode = OpCode.INITSSLOT,
-                            Operand = new[] { (byte)context.StaticFieldCount }
+                            Operand = new[] { (byte)_context.StaticFieldCount }
                         });
                     }
                 }
@@ -178,12 +190,12 @@ namespace Neo.Compiler
                 }
                 var modifiers = ConvertModifier(model).ToArray();
                 ConvertSource(model);
-                if (Symbol.MethodKind == MethodKind.StaticConstructor && context.StaticFieldCount > 0)
+                if (Symbol.MethodKind == MethodKind.StaticConstructor && _context.StaticFieldCount > 0)
                 {
                     _instructions.Insert(0, new Instruction
                     {
                         OpCode = OpCode.INITSSLOT,
-                        Operand = new[] { (byte)context.StaticFieldCount }
+                        Operand = new[] { (byte)_context.StaticFieldCount }
                     });
                 }
                 if (_initslot)
@@ -226,8 +238,8 @@ namespace Neo.Compiler
                 // it comes from modifier clean up
                 AddInstruction(OpCode.RET);
             }
-            if (!context.Options.NoOptimize)
-                Optimizer.RemoveNops(_instructions);
+            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                BasicOptimizer.RemoveNops(_instructions);
             _startTarget.Instruction = _instructions[0];
         }
 
@@ -244,7 +256,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer;
@@ -267,7 +279,7 @@ namespace Neo.Compiler
                 using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
-                    ConvertExpression(model, initializer.Value);
+                    ConvertExpression(model, initializer.Value, syntaxNode);
                     postInitialize?.Invoke();
                 }
             }
@@ -275,10 +287,20 @@ namespace Neo.Compiler
             {
                 preInitialize?.Invoke();
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
-                ContractParameterType type = (ContractParameterType)initialValue.ConstructorArguments[1].Value!;
+                var attributeName = initialValue.AttributeClass!.Name;
+                ContractParameterType parameterType = attributeName switch
+                {
+                    nameof(InitialValueAttribute) => (ContractParameterType)initialValue.ConstructorArguments[1].Value!,
+                    nameof(Hash160Attribute) => ContractParameterType.Hash160,
+                    nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
+                    nameof(ByteArrayAttribute) => ContractParameterType.ByteArray,
+                    nameof(StringAttribute) => ContractParameterType.String,
+                    _ => throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {attributeName}"),
+                };
+
                 try
                 {
-                    switch (type)
+                    switch (parameterType)
                     {
                         case ContractParameterType.String:
                             Push(value);
@@ -287,23 +309,22 @@ namespace Neo.Compiler
                             Push(value.HexToBytes(true));
                             break;
                         case ContractParameterType.Hash160:
-                            Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(context.Options.AddressVersion)).ToArray());
+                            Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(_context.Options.AddressVersion)).ToArray());
                             break;
                         case ContractParameterType.PublicKey:
                             Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                             break;
                         default:
-                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type}");
+                            throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {parameterType}");
                     }
                 }
                 catch (Exception ex) when (ex is not CompilationException)
                 {
-                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {type}");
+                    throw new CompilationException(field, DiagnosticId.InvalidInitialValue, $"Invalid initial value: {value} of type: {parameterType}");
                 }
                 postInitialize?.Invoke();
             }
         }
-
 
         private IEnumerable<(byte fieldIndex, AttributeData attribute)> ConvertModifier(SemanticModel model)
         {
@@ -313,12 +334,12 @@ namespace Neo.Compiler
                     continue;
 
                 JumpTarget notNullTarget = new();
-                byte fieldIndex = context.AddAnonymousStaticField();
+                byte fieldIndex = _context.AddAnonymousStaticField();
                 AccessSlot(OpCode.LDSFLD, fieldIndex);
                 AddInstruction(OpCode.ISNULL);
                 Jump(OpCode.JMPIFNOT_L, notNullTarget);
 
-                MethodConvert constructor = context.ConvertMethod(model, attribute.AttributeConstructor!);
+                MethodConvert constructor = _context.ConvertMethod(model, attribute.AttributeConstructor!);
                 CreateObject(model, attribute.AttributeClass, null);
                 foreach (var arg in attribute.ConstructorArguments.Reverse())
                     Push(arg.Value);
@@ -331,7 +352,7 @@ namespace Neo.Compiler
                 var enterSymbol = attribute.AttributeClass.GetAllMembers()
                     .OfType<IMethodSymbol>()
                     .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
-                MethodConvert enterMethod = context.ConvertMethod(model, enterSymbol);
+                MethodConvert enterMethod = _context.ConvertMethod(model, enterSymbol);
                 EmitCall(enterMethod);
                 yield return (fieldIndex, attribute);
             }
@@ -342,7 +363,7 @@ namespace Neo.Compiler
             var exitSymbol = attribute.AttributeClass!.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .First(p => p.Name == nameof(ModifierAttribute.Exit) && p.Parameters.Length == 0);
-            MethodConvert exitMethod = context.ConvertMethod(model, exitSymbol);
+            MethodConvert exitMethod = _context.ConvertMethod(model, exitSymbol);
             if (exitMethod.IsEmpty) return null;
             var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
             EmitCall(exitMethod);
@@ -519,7 +540,7 @@ namespace Neo.Compiler
             IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
             if (virtualMethods.Length > 0)
             {
-                byte index = context.AddVTable(type);
+                byte index = _context.AddVTable(type);
                 AddInstruction(OpCode.DUP);
                 AccessSlot(OpCode.LDSFLD, index);
                 AddInstruction(OpCode.APPEND);
@@ -535,6 +556,31 @@ namespace Neo.Compiler
             });
         }
 
+        /// <summary>
+        /// Convert a throw expression or throw statement to OpCodes.
+        /// </summary>
+        /// <param name="model">The semantic model providing context and information about the Throw.</param>
+        /// <param name="exception">The content of exception</param>
+        /// <exception cref="CompilationException">Only a single parameter is supported for exceptions.</exception>
+        /// <example>
+        /// throw statement:
+        /// <code>
+        /// if (shapeAmount <= 0)
+        /// {
+        ///     throw new Exception("Amount of shapes must be positive.");
+        /// }
+        ///</code>
+        /// throw expression:
+        /// <code>
+        /// string a = null;
+        /// var b = a ?? throw new Exception();
+        /// </code>
+        /// <code>
+        /// var first = args.Length >= 1 ? args[0] : throw new Exception();
+        /// </code>
+        /// </example>
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-throw-expression">The throw expression</seealso>
+        /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-try-catch-statement">Exception-handling statements - throw</seealso>
         private void Throw(SemanticModel model, ExpressionSyntax? exception)
         {
             if (exception is not null)

@@ -1,34 +1,37 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Neo.SmartContract.Testing.Coverage.Formats
 {
-    public partial class IntructionHtmlFormat : ICoverageFormat
+    public partial class IntructionHtmlFormat : CoverageFormatBase
     {
         /// <summary>
-        /// Contract
+        /// Entries
         /// </summary>
-        public CoveredContract Contract { get; }
-
-        /// <summary>
-        /// Selective methods
-        /// </summary>
-        public CoveredMethod[] Methods { get; }
+        public (CoveredContract Contract, Func<CoveredMethod, bool>? Filter)[] Entries { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="contract">Contract</param>
-        /// <param name="methods">Methods</param>
-        public IntructionHtmlFormat(CoveredContract contract, params CoveredMethod[] methods)
+        /// <param name="Filter">Method Filter</param>
+        public IntructionHtmlFormat(CoveredContract contract, Func<CoveredMethod, bool>? filter = null)
         {
-            Contract = contract;
-            Methods = methods;
+            Entries = new (CoveredContract, Func<CoveredMethod, bool>?)[] { (contract, filter) };
         }
 
-        public void WriteReport(Action<string, Action<Stream>> writeAttachement)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="entries">Entries</param>
+        public IntructionHtmlFormat(IEnumerable<(CoveredContract, Func<CoveredMethod, bool>?)> entries)
+        {
+            Entries = entries.ToArray();
+        }
+
+        public override void WriteReport(Action<string, Action<Stream>> writeAttachement)
         {
             writeAttachement("coverage.cobertura.html", stream =>
             {
@@ -73,23 +76,28 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 <body>
 ");
 
-            writer.WriteLine($@"
+            foreach ((var contract, var methods) in Entries)
+            {
+                writer.WriteLine($@"
 <div class=""bar"">
-    <div class=""hash"">{Contract.Hash}</div>
-    <div class=""coverage"">&nbsp;{Contract.CoveredBranchPercentage:P2}&nbsp;</div>
-    <div class=""coverage"">&nbsp;{Contract.CoveredLinesPercentage:P2}&nbsp;</div>
+    <div class=""hash"">{contract.Name}</div>
+    <div class=""coverage"">&nbsp;{contract.CoveredBranchPercentage:P2}&nbsp;</div>
+    <div class=""coverage"">&nbsp;{contract.CoveredLinesPercentage:P2}&nbsp;</div>
     <div style=""clear: both;""></div>
 </div>
 <div class=""container"">
 ");
 
-            foreach (var method in Methods.OrderBy(u => u.Method.Name).OrderByDescending(u => u.CoveredLinesPercentage))
-            {
-                var kind = "low";
-                if (method.CoveredLinesPercentage > 0.7M) kind = "medium";
-                if (method.CoveredLinesPercentage > 0.8M) kind = "high";
+                foreach (var method in contract.Methods
+                    .Where(u => methods is null || methods.Invoke(u))
+                    .OrderBy(u => u.Method.Name)
+                    .OrderByDescending(u => u.CoveredLinesPercentage))
+                {
+                    var kind = "low";
+                    if (method.CoveredLinesPercentage > 0.7M) kind = "medium";
+                    if (method.CoveredLinesPercentage > 0.8M) kind = "high";
 
-                writer.WriteLine($@"
+                    writer.WriteLine($@"
 <div class=""method {kind}-coverage"">
     <div class=""method-name"">{method.Method}</div>
     <div class=""coverage"">&nbsp;{method.CoveredBranchPercentage:P2}&nbsp;</div>
@@ -97,28 +105,29 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
     <div style=""clear: both;""></div>
 </div>
 ");
-                writer.WriteLine($@"<div class=""details"">");
+                    writer.WriteLine($@"<div class=""details"">");
 
-                foreach (var hit in method.Lines)
-                {
-                    var noHit = hit.Hits == 0 ? "no-" : "";
-                    var icon = hit.Hits == 0 ? "✘" : "✔";
-                    var branch = "";
-
-                    if (Contract.TryGetBranch(hit.Offset, out var b))
+                    foreach (var hit in method.Lines)
                     {
-                        branch = $" <span class=\"branch\">[ᛦ {b.Hits}/{b.Count}]</span>";
+                        var noHit = hit.Hits == 0 ? "no-" : "";
+                        var icon = hit.Hits == 0 ? "✘" : "✔";
+                        var branch = "";
+
+                        if (contract.TryGetBranch(hit.Offset, out var b))
+                        {
+                            branch = $" <span class=\"branch\">[ᛦ {b.Hits}/{b.Count}]</span>";
+                        }
+
+                        writer.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{hit.Description}{branch}</div>");
                     }
 
-                    writer.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{hit.Description}{branch}</div>");
+                    writer.WriteLine($@"</div>");
                 }
 
-                writer.WriteLine($@"</div>
-");
+                writer.WriteLine($@"</div>");
             }
 
             writer.WriteLine(@"
-</div>
 <script>
     document.querySelector('.bar').addEventListener('click', () => {
         const container = document.querySelector('.container');
@@ -136,7 +145,6 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
         });
     });
 </script>
-
 </body>
 </html>
 ");

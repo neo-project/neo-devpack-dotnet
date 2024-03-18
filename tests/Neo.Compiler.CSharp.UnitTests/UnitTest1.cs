@@ -25,9 +25,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultipleContracts()
         {
             var testengine = new TestEngine();
-            var context = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Multiple.cs");
-            Assert.IsFalse(context.Success);
-            Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.MultiplyContracts));
+            var contexts = testengine.AddEntryScripts(true, true, Utils.Extensions.TestContractRoot + "Contract_Multiple.cs");
+
+            Assert.IsTrue(contexts.Count == 2);
+            Assert.IsTrue(contexts.All(c => c.Success));
+            Assert.IsTrue(contexts.All(c => c.Diagnostics.Count == 0));
         }
 
         [TestMethod]
@@ -52,7 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_PrivateMethod()
         {
             var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract1.cs");
+            testengine.AddEntryScript(false, true, Utils.Extensions.TestContractRoot + "Contract1.cs");
             Assert.IsTrue(Encoding.ASCII.GetString(testengine.Nef.Script.Span).Contains("NEO3"));
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
 
 namespace Neo.SmartContract.Framework.UnitTests;
 
@@ -8,10 +9,7 @@ public class ManifestAttributeTest
     [TestMethod]
     public void TestManifestAttribute()
     {
-        var testEngine = new TestEngine.TestEngine();
-        testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ManifestAttribute.cs");
-
-        var extra = testEngine.Manifest!.Extra;
+        var extra = Contract_ManifestAttribute.Manifest!.Extra;
 
         Assert.AreEqual(5, extra.Count);
         // [Author("core-dev")]

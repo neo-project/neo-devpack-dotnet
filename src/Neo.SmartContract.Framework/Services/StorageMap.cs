@@ -15,7 +15,6 @@ using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Neo.Cryptography.ECC;
 
 namespace Neo.SmartContract.Framework.Services
 {

@@ -65,6 +65,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             neoSyscalls.Remove("System.Contract.NativeOnPersist");
             neoSyscalls.Remove("System.Contract.NativePostPersist");
             neoSyscalls.Remove("System.Contract.CallNative");
+            neoSyscalls.Remove("Neo.SmartContract.Testing.Invoke");
 
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             MetadataReference[] references = new[]

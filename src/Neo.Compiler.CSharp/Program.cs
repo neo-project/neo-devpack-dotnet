@@ -18,6 +18,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Extensions;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
@@ -51,7 +52,7 @@ namespace Neo.Compiler
             return rootCommand.Invoke(args);
         }
 
-        private static void Handle(RootCommand command, Options options, string[] paths, InvocationContext context)
+        private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
         {
             if (paths is null || paths.Length == 0)
             {
@@ -127,15 +128,35 @@ namespace Neo.Compiler
 
         private static int ProcessCsproj(Options options, string path)
         {
-            return ProcessOutputs(options, Path.GetDirectoryName(path)!, CompilationContext.CompileProject(path, options));
+            return ProcessOutputs(options, Path.GetDirectoryName(path)!, new CompilationEngine(options).CompileProject(path));
         }
 
         private static int ProcessSources(Options options, string folder, string[] sourceFiles)
         {
-            return ProcessOutputs(options, folder, CompilationContext.CompileSources(sourceFiles, options));
+            return ProcessOutputs(options, folder, new CompilationEngine(options).CompileSources(sourceFiles));
         }
 
-        private static int ProcessOutputs(Options options, string folder, CompilationContext context)
+        private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
+        {
+            int result = 0;
+            List<Exception> exceptions = new();
+            foreach (CompilationContext context in contexts)
+                try
+                {
+                    if (ProcessOutput(options, folder, context) != 0)
+                        result = 1;
+                }
+                catch (Exception e)
+                {
+                    result = 1;
+                    exceptions.Add(e);
+                }
+            foreach (Exception e in exceptions)
+                Console.Error.WriteLine(e.ToString());
+            return result;
+        }
+
+        private static int ProcessOutput(Options options, string folder, CompilationContext context)
         {
             foreach (Diagnostic diagnostic in context.Diagnostics)
             {
@@ -150,20 +171,7 @@ namespace Neo.Compiler
                 string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
 
-                NefFile nef = context.CreateExecutable();
-                ContractManifest manifest = context.CreateManifest();
-                JToken debugInfo = context.CreateDebugInformation(folder);
-                if (!options.NoOptimize)
-                {
-                    try
-                    {
-                        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Failed to optimize: {ex}");
-                    }
-                }
+                (NefFile nef, ContractManifest manifest, JToken debugInfo) = context.CreateResults(folder);
 
                 try
                 {
@@ -191,16 +199,16 @@ namespace Neo.Compiler
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
-                    var artifact = manifest.GetArtifactsSource(baseName);
+                    var artifact = manifest.GetArtifactsSource(baseName, nef);
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Source)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Source))
                     {
                         path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
                         File.WriteAllText(path, artifact);
                         Console.WriteLine($"Created {path}");
                     }
 
-                    if (options.GenerateArtifacts == Options.GenerateArtifactsKind.All || options.GenerateArtifacts == Options.GenerateArtifactsKind.Library)
+                    if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
                     {
                         try
                         {

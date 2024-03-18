@@ -1,5 +1,3 @@
-using Neo.Cryptography.ECC;
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 
@@ -7,14 +5,14 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_TryCatch : SmartContract.Framework.SmartContract
     {
-        [InitialValue("0a0b0c0d0E0F", ContractParameterType.ByteArray)]
+        [ByteArray("0a0b0c0d0E0F")]
         private static readonly ByteString invalidECpoint = default;
-        [InitialValue("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", ContractParameterType.ByteArray)]
+        [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
         private static readonly ByteString byteString2Ecpoint = default;
-        [InitialValue("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq", ContractParameterType.Hash160)]
+        [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
         private static readonly ByteString validUInt160 = default;
-        [InitialValue("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925", ContractParameterType.ByteArray)]
-        private static readonly byte[] validUInt256 = default;
+        // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
+        private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
         public static object try01()
         {
             int v = 0;
@@ -96,6 +94,27 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             {
                 v++;
             }
+            return v;
+        }
+
+        public static object throwInCatch()
+        {
+            int v = 0;
+            try
+            {
+                v = 1;
+                throw new System.Exception();
+            }
+            catch
+            {
+                v = 2;
+                throw new System.Exception();
+            }
+            finally
+            {
+                v = 3;
+            }
+            v = 4;
             return v;
         }
 
