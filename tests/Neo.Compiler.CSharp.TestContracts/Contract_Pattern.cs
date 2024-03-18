@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
@@ -84,6 +85,17 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 case string: break;
                 case bool: break;
             }
+        }
+
+        public int TestTypePattern2(object t)
+        {
+            return t switch
+            {
+                byte[] or string or ByteString => 0,
+                bool => 1,
+                BigInteger => 2,
+                _ => 5
+            };
         }
     }
 }
