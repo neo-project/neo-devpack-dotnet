@@ -9,12 +9,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
     /// You need to build the solution to resolve Nep17Contract class.
     /// </summary>
     [TestClass]
-    public class OwnerContractTests : OwnableTests<Nep17Contract>
+    public class OwnerContractTests : OwnableTests<Nep17ContractTemplate>
     {
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public OwnerContractTests() : base(Nep17Contract.Nef, Nep17Contract.Manifest) { }
+        public OwnerContractTests() : base(Nep17ContractTemplate.Nef, Nep17ContractTemplate.Manifest) { }
 
         [TestMethod]
         public override void TestSetGetOwner()

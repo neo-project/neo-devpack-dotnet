@@ -11,12 +11,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
     /// You need to build the solution to resolve Ownable class.
     /// </summary>
     [TestClass]
-    public class OwnableContractTests : OwnableTests<Ownable>
+    public class OwnableContractTests : OwnableTests<OwnableTemplate>
     {
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public OwnableContractTests() : base(Ownable.Nef, Ownable.Manifest) { }
+        public OwnableContractTests() : base(OwnableTemplate.Nef, OwnableTemplate.Manifest) { }
 
         [TestMethod]
         public override void TestSetGetOwner()
@@ -65,9 +65,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 
             // Try with invalid owners
 
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Ownable>(NefFile, Manifest, UInt160.Zero));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Ownable>(NefFile, Manifest, InvalidUInt160.InvalidLength));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Ownable>(NefFile, Manifest, InvalidUInt160.InvalidType));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, UInt160.Zero));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, InvalidUInt160.InvalidLength));
+            Assert.ThrowsException<Exception>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, InvalidUInt160.InvalidType));
 
             // Test SetOwner notification
 
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
             UInt160? newOwnerRaised = null;
 
             var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
-            var check = Engine.FromHash<Ownable>(expectedHash, false);
+            var check = Engine.FromHash<OwnableTemplate>(expectedHash, false);
             check.OnSetOwner += (previous, newOwner) =>
             {
                 previousOwnerRaised = previous;
@@ -86,7 +86,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
             // because the contract hash contains the Sender, and now it's random
 
             var rand = TestEngine.GetNewSigner().Account;
-            var nep17 = Engine.Deploy<Ownable>(NefFile, Manifest, rand);
+            var nep17 = Engine.Deploy<OwnableTemplate>(NefFile, Manifest, rand);
             Assert.AreEqual(check.Hash, nep17.Hash);
 
             Coverage?.Join(nep17.GetCoverage());

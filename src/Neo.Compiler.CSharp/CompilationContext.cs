@@ -9,26 +9,28 @@
 // modifications are permitted.
 
 extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using scfx::Neo.SmartContract.Framework;
+using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using scfx::Neo.SmartContract.Framework.Attributes;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
+using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
 namespace Neo.Compiler
 {
@@ -36,21 +38,21 @@ namespace Neo.Compiler
     {
         private readonly CompilationEngine _engine;
         readonly INamedTypeSymbol _targetContract;
-        internal Options Options => _engine.Options;
+        internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
-        private readonly List<Diagnostic> _diagnostics = new();
+        private readonly System.Collections.Generic.List<Diagnostic> _diagnostics = new();
         private readonly HashSet<string> _supportedStandards = new();
-        private readonly List<AbiMethod> _methodsExported = new();
-        private readonly List<AbiEvent> _eventsExported = new();
+        private readonly System.Collections.Generic.List<AbiMethod> _methodsExported = new();
+        private readonly System.Collections.Generic.List<AbiEvent> _eventsExported = new();
         private readonly PermissionBuilder _permissions = new();
         private readonly HashSet<string> _trusts = new();
         private readonly JObject _manifestExtra = new();
         // We can not reuse these converted methods as the offsets are determined while converting
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
-        private readonly List<MethodToken> _methodTokens = new();
+        private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
-        private readonly List<byte> _anonymousStaticFields = new();
+        private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
@@ -131,19 +133,40 @@ namespace Neo.Compiler
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
-                if (!Options.NoOptimize) Optimizer.CompressJumps(instructions);
+                if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                {
+                    BasicOptimizer.CompressJumps(instructions);
+                }
                 instructions.RebuildOperands();
             }
         }
 
+        public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder = "")
+        {
+            NefFile nef = CreateExecutable();
+            ContractManifest manifest = CreateManifest();
+            JObject debugInfo = CreateDebugInformation(folder);
+
+            if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Experimental))
+            {
+                try
+                {
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to optimize: {ex}");
+                }
+            }
+
+            return (nef, manifest, debugInfo);
+        }
+
         public NefFile CreateExecutable()
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            var titleAttribute = assembly.GetCustomAttribute<AssemblyTitleAttribute>()!;
-            var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!;
             NefFile nef = new()
             {
-                Compiler = $"{titleAttribute.Title} {versionAttribute.InformationalVersion}",
+                Compiler = _engine.Options.CompilerVersion,
                 Source = Source ?? string.Empty,
                 Tokens = _methodTokens.ToArray(),
                 Script = Script
@@ -227,11 +250,11 @@ namespace Neo.Compiler
 
         public JObject CreateDebugInformation(string folder = "")
         {
-            List<string> documents = new();
-            List<JObject> methods = new();
+            System.Collections.Generic.List<string> documents = new();
+            System.Collections.Generic.List<JObject> methods = new();
             foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
-                List<JString> sequencePoints = new();
+                System.Collections.Generic.List<JString> sequencePoints = new();
                 foreach (var ins in m.Instructions.Where(i => i.SourceLocation?.SourceTree is not null))
                 {
                     var doc = ins.SourceLocation!.SourceTree!.FilePath;
@@ -325,9 +348,6 @@ namespace Neo.Compiler
                 {
                     return;
                 }
-                // Process the target contract
-                // add this compilation context
-                _engine.Contexts.Add(symbol, this);
 
                 foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
@@ -362,8 +382,8 @@ namespace Neo.Compiler
                                 attribute.ConstructorArguments[0].Values
                                     .Select(p => p.Value)
                                     .Select(p =>
-                                        p is int ip && Enum.IsDefined(typeof(NEPStandard), ip)
-                                            ? ((NEPStandard)ip).ToStandard()
+                                        p is int ip && Enum.IsDefined(typeof(NepStandard), ip)
+                                            ? ((NepStandard)ip).ToStandard()
                                             : p as string
                                     )
                                     .Where(v => v != null)! // Ensure null values are not added

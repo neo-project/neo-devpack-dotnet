@@ -1,118 +1,52 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
-using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
-using System;
-using System.IO;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ExecutionEngineTest
+    public class ExecutionEngineTest : TestBase<Contract_ExecutionEngine>
     {
-        class DummyVerificable : IVerifiable, IInteroperable
-        {
-            public Witness[] Witnesses { get; set; }
-
-            public int Size => 0;
-
-            public void Deserialize(ref MemoryReader reader)
-            {
-            }
-
-            public void DeserializeUnsigned(ref MemoryReader reader)
-            {
-            }
-
-            public void FromStackItem(StackItem stackItem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public UInt160[] GetScriptHashesForVerifying(DataCache snapshot)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Serialize(BinaryWriter writer)
-            {
-            }
-
-            public void SerializeUnsigned(BinaryWriter writer)
-            {
-            }
-
-            public StackItem ToStackItem(ReferenceCounter referenceCounter)
-            {
-                return new VM.Types.Array();
-            }
-        }
-
-        private TestEngine.TestEngine _engine;
-        private string scriptHash;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine.TestEngine(TriggerType.Application, new DummyVerificable());
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ExecutionEngine.cs");
-            scriptHash = _engine.Nef.Script.Span.ToScriptHash().ToArray().ToHexString();
-        }
+        public ExecutionEngineTest() : base(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest) { }
 
         [TestMethod]
         public void CallingScriptHashTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("callingScriptHash");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
+            var hash = Contract.CallingScriptHash();
+            Assert.AreEqual(Engine.Transaction.Script.Span.ToScriptHash().ToString(), new UInt160(hash!).ToString());
         }
 
         [TestMethod]
         public void EntryScriptHashTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("entryScriptHash");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
-            //test by this way is bad idea? how to sure got a fix hash always?
-            var gothash = item.GetSpan().ToHexString();
-            Assert.AreEqual(scriptHash, gothash);
+            var hash = Contract.EntryScriptHash();
+            Assert.AreEqual(Engine.Transaction.Script.Span.ToScriptHash().ToString(), new UInt160(hash!).ToString());
         }
 
         [TestMethod]
         public void ExecutingScriptHashTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("executingScriptHash");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
-            //test by this way is bad idea? how to sure got a fix hash always?
-            var gothash = item.GetSpan().ToHexString();
-            Assert.AreEqual(scriptHash, gothash);
+            Assert.AreEqual(Contract.Hash.ToString(), new UInt160(Contract.ExecutingScriptHash()).ToString());
         }
 
         [TestMethod]
         public void ScriptContainerTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("scriptContainer");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(1, result.Count);
+            var item = Contract.ScriptContainer() as StackItem;
+            var tx = item?.ConvertTo(typeof(Testing.Native.Models.Transaction)) as Testing.Native.Models.Transaction;
 
-            var item = result.Pop() as VM.Types.Array;
-            Assert.AreEqual(0, item.Count);
+            Assert.AreEqual(Engine.Transaction.Hash.ToString(), tx?.Hash?.ToString());
+        }
+
+        [TestMethod]
+        public void TransactionTest()
+        {
+            var item = Contract.Transaction() as StackItem;
+            var tx = item?.ConvertTo(typeof(Testing.Native.Models.Transaction)) as Testing.Native.Models.Transaction;
+
+            Assert.AreEqual(Engine.Transaction.Hash.ToString(), tx?.Hash?.ToString());
         }
     }
 }

@@ -20,6 +20,28 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Converts initialization of array fields into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about initialization of array fields expression.</param>
+    /// <param name="expression">The syntax representation of the initialization of array fields expression statement being converted.</param>
+    /// <example>
+    /// The following 4 static fields will each be converted in this method.
+    /// <code>
+    /// static string[] A = { "BTC", "NEO", "GAS" };
+    /// static int[] B = { 1, 2 };
+    /// static byte[] C = { 1, 2 };
+    /// static UInt160 D = UInt160.Zero;
+    /// 
+    /// public static void MyMethod()
+    /// {
+    ///     Runtime.Log(A[0]);
+    ///     Runtime.Log(B[0]);
+    ///     Runtime.Log(C[0]);
+    ///     Runtime.Log(D.ToAddress());
+    /// }
+    /// </code>
+    /// </example>
     private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
     {
         IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;

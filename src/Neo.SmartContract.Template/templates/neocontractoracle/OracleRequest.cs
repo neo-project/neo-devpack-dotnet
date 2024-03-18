@@ -1,4 +1,3 @@
-using Neo;
 using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
@@ -51,7 +50,15 @@ namespace Neo.SmartContract.Template
             Oracle.Request(requestUrl, "$.record.propertyName", "onOracleResponse", null, Oracle.MinimumResponseFee);
         }
 
-        // This method is called after the Oracle receives response from requested URL
+        /// <summary>
+        /// This method is called after the Oracle receives response from requested URL
+        /// </summary>
+        /// <param name="requestedUrl">Requested url</param>
+        /// <param name="userData">User data provided during the request</param>
+        /// <param name="oracleResponse">Oracle response code</param>
+        /// <param name="jsonString">Oracle response data</param>
+        /// <exception cref="InvalidOperationException">It was not called by the oracle</exception>
+        /// <exception cref="Exception">It was not a success</exception>
         public static void onOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse, string jsonString)
         {
             if (Runtime.CallingScriptHash != Oracle.Hash)

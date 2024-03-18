@@ -10,7 +10,6 @@
 
 #pragma warning disable CS0626
 
-using Neo.Cryptography.ECC;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
@@ -40,6 +39,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern Iterator<(ECPoint, BigInteger)> GetAllCandidates();
         public static extern BigInteger GetCandidateVote(ECPoint pubkey);
         public static extern ECPoint[] GetCommittee();
+        public static extern UInt160 GetCommitteeAddress();
         public static extern ECPoint[] GetNextBlockValidators();
         public static extern NeoAccountState GetAccountState(UInt160 account);
     }

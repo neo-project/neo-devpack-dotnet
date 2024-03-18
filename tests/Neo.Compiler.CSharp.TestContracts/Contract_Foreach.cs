@@ -1,14 +1,13 @@
-using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract;
-using Neo.Cryptography.ECC;
+using Neo.SmartContract.Framework.Services;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Foreach : SmartContract.Framework.SmartContract
     {
-        [InitialValue("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", ContractParameterType.ByteArray)]
+        [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
         private static readonly byte[] rawECpoint = default;
 
         struct Pending
@@ -149,7 +148,25 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             {
                 foreach (var item in a)
                 {
-                    if (breakIndex-- <= 0) break;
+                    if (breakIndex-- <= 0)
+                        break;
+                    sum += item;
+                }
+            }
+            catch { }
+            return sum;
+        }
+
+        public static int TestContinue()
+        {
+            int[] a = new int[] { 1, 2, 3, 4, 5 };
+            int sum = 0;
+            try
+            {
+                foreach (var item in a)
+                {
+                    if (item % 2 == 0)
+                        continue;
                     sum += item;
                 }
             }
@@ -167,6 +184,46 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 sum += a[i];
             }
             return sum;
+        }
+
+        public static void TestIteratorForEach()
+        {
+            var tokens = new StorageMap(Storage.CurrentContext, 3).Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
+            foreach (var item in tokens)
+            {
+                Runtime.Log(item.ToString());
+            }
+        }
+
+        static (int, string)[] Function1() => new (int, string)[] { new(1, "hello"), new(2, "world") };
+
+        public static void TestForEachVariable()
+        {
+
+            foreach (var (a, b) in Function1())
+            {
+                Runtime.Log($"{a}: {b}");
+            }
+        }
+
+        public static void TestDo()
+        {
+            int n = 0;
+            do
+            {
+                Runtime.Log(n.ToString());
+                n++;
+            } while (n < 5);
+        }
+
+        public static void TestWhile()
+        {
+            int n = 0;
+            while (n < 5)
+            {
+                Runtime.Log(n.ToString());
+                n++;
+            }
         }
     }
 }

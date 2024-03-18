@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -8,25 +9,19 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestAttribute()
         {
-            var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandards.cs");
-            CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-10", "NEP-5" });
+            CollectionAssert.AreEqual(Contract_SupportedStandards.Manifest.SupportedStandards, new string[] { "NEP-10", "NEP-5" });
         }
 
         [TestMethod]
         public void TestStandardNEP11AttributeEnum()
         {
-            var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandard11Enum.cs");
-            CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-11" });
+            CollectionAssert.AreEqual(Contract_SupportedStandard11Enum.Manifest.SupportedStandards, new string[] { "NEP-11" });
         }
 
         [TestMethod]
         public void TestStandardNEP17AttributeEnum()
         {
-            var testengine = new TestEngine.TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SupportedStandard17Enum.cs");
-            CollectionAssert.AreEqual(testengine.Manifest.SupportedStandards, new string[] { "NEP-17" });
+            CollectionAssert.AreEqual(Contract_SupportedStandard17Enum.Manifest.SupportedStandards, new string[] { "NEP-17" });
         }
     }
 }

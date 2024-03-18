@@ -8,7 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-namespace Neo.SmartContract
+namespace Neo.SmartContract.Framework
 {
     public enum ContractParameterType : byte
     {

@@ -1,34 +1,30 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Json;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class SequencePointInserterTest
+    public class SequencePointInserterTest : TestBase<Contract_SequencePointInserter>
     {
-        private TestEngine.TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            var system = TestBlockchain.TheNeoSystem;
-            var snapshot = system.GetSnapshot().CreateSnapshot();
-
-            testengine = new TestEngine.TestEngine(snapshot: snapshot);
-            Assert.IsTrue(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SequencePointInserter.cs").Success);
-        }
+        public SequencePointInserterTest() : base(Contract_SequencePointInserter.Nef, Contract_SequencePointInserter.Manifest) { }
 
         [TestMethod]
         public void Test_SequencePointInserter()
         {
-            var points = (testengine.DebugInfo["methods"][0]["sequence-points"] as JArray).Select(u => u.GetString()).ToArray();
+            TestCleanup.EnsureArtifactsUpToDateInternal();
+
+            var debug = TestCleanup.DebugInfos[typeof(Contract_SequencePointInserter)];
+            Assert.IsNotNull(debug);
+
+            var points = debug.Methods[0].SequencePoints.Select(u => u.Address).ToArray();
 
             // Ensure that all the instructions have sequence point
 
             var ip = 0;
-            Script script = testengine.Nef.Script;
+            Script script = NefFile.Script;
 
             while (ip < script.Length)
             {
@@ -36,7 +32,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
                 if (ip != 0) // Avoid INITSLOT
                 {
-                    Assert.IsTrue(points.Any(u => u.StartsWith($"{ip}[")), $"Offset {ip} with '{instruction.OpCode}' is not in sequence points.");
+                    Assert.IsTrue(points.Contains(ip), $"Offset {ip} with '{instruction.OpCode}' is not in sequence points.");
                 }
 
                 ip += instruction.Size;
@@ -46,15 +42,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_If()
         {
-            testengine.Reset();
-            var ret = testengine.ExecuteTestCaseStandard("test", 1);
-            Assert.AreEqual(1, ret.Count);
-            Assert.AreEqual(23, ret.Pop().GetInteger());
-
-            testengine.Reset();
-            ret = testengine.ExecuteTestCaseStandard("test", 0);
-            Assert.AreEqual(1, ret.Count);
-            Assert.AreEqual(45, ret.Pop().GetInteger());
+            Assert.AreEqual(23, Contract.Test(1));
+            Assert.AreEqual(45, Contract.Test(0));
         }
     }
 }

@@ -7,9 +7,17 @@ namespace Neo.SmartContract.Testing.Native;
 
 public abstract class RoleManagement : SmartContract
 {
+    #region Compiled data
+
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.RoleManagement.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+
+    #endregion
+
     #region Events
 
     public delegate void delDesignation(BigInteger Role, BigInteger BlockIndex);
+
     [DisplayName("Designation")]
     public event delDesignation? OnDesignation;
 
@@ -21,7 +29,7 @@ public abstract class RoleManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getDesignatedByRole")]
-    public abstract ECPoint[] GetDesignatedByRole(Role? role, BigInteger? index);
+    public abstract ECPoint[] GetDesignatedByRole(Role role, uint index);
 
     #endregion
 
@@ -31,7 +39,7 @@ public abstract class RoleManagement : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("designateAsRole")]
-    public abstract void DesignateAsRole(Role? role, ECPoint[]? nodes);
+    public abstract void DesignateAsRole(Role role, ECPoint[] nodes);
 
     #endregion
 
