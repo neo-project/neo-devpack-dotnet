@@ -89,6 +89,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void RecursivePattern_Test()
+        {
+            using var testengine = new TestEngine();
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Pattern.cs");
+
+            var result = testengine.ExecuteTestCaseStandard("testRecursivePattern");
+            var value = result.Pop().GetBoolean();
+            Assert.AreEqual(true, value);
+        }
+
+        [TestMethod]
         public void TestTypePattern_Test()
         {
             using var testengine = new TestEngine();
