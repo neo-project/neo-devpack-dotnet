@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
@@ -139,8 +140,34 @@ partial class MethodConvert
                 AccessSlot(OpCode.STARG, _parameters[parameter]);
                 break;
             case IPropertySymbol property:
-                if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
-                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                // Check if the property is within a constructor and is readonly
+                // C# document here https://learn.microsoft.com/en-us/dotnet/csharp/properties
+                // example of this syntax:
+                // public class Person
+                // {
+                //     public Person(string firstName) => FirstName = firstName;
+                //     // Readonly property
+                //     public string FirstName { get; }
+                // }
+                if (property.SetMethod == null)
+                {
+                    IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+                    fields = fields.Where(p => !p.IsStatic).ToArray();
+                    int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                    AccessSlot(OpCode.LDARG, 0);
+                    Push(backingFieldIndex);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SETITEM);
+                }
+                else if (property.SetMethod != null)
+                {
+                    if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
+                    Call(model, property.SetMethod, CallingConvention.Cdecl);
+                }
+                else
+                {
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Property is readonly and not within a constructor: {property.Name}");
+                }
                 break;
             default:
                 throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
