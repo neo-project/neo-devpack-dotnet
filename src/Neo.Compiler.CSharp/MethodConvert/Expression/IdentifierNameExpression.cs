@@ -93,6 +93,10 @@ partial class MethodConvert
                     Call(model, property.GetMethod!);
                 }
                 break;
+            case ITypeSymbol type:
+                IsType(type.GetPatternType());
+                Push(true);
+                break;
             default:
                 throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
         }

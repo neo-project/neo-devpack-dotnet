@@ -18,6 +18,30 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Convet type pattern to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about type pattern.</param>
+    /// <param name="pattern">The type pattern to be converted.</param>
+    /// <param name="localIndex">The index of the local variable.</param>
+    /// <example>
+    /// <code>
+    /// public void M(object o1)
+    /// {
+    ///     switch (o1)
+    ///     {
+    ///         case byte[]: break;
+    ///         case string: break;
+    ///     }
+    /// }
+    /// </code>
+    /// <c>byte[]</c> and <c>string</c> is TypePatternSyntax.
+    /// </example>
+    /// <remarks>
+    /// Only few type judgments are supported, such as: bool, byte[], string,
+    /// Not supported ByteString, BigInteger.
+    /// <see cref="Helper.GetPatternType(ITypeSymbol)"/>
+    /// </remarks>
     private void ConvertTypePattern(SemanticModel model, TypePatternSyntax pattern, byte localIndex)
     {
         ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
