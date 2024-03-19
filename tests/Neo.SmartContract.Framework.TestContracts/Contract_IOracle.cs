@@ -6,7 +6,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_IOracle : SmartContract, IOracle
     {
-        public void OnOracleResponse(string url, object userData, OracleResponseCode code, string result)
+        public static void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode oracleResponse,
+            string jsonString)
         {
             if (Runtime.CallingScriptHash != Oracle.Hash)
                 throw new System.Exception("Unauthorized!");

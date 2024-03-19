@@ -24,7 +24,7 @@ public interface IOracle
     ///     Storage.Put(Storage.CurrentContext, PreData, result);
     /// }
     /// </example>
-    public void OnOracleResponse(
+    static abstract void OnOracleResponse(
         string requestedUrl,
         object userData,
         OracleResponseCode oracleResponse,
