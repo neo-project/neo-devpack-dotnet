@@ -23,6 +23,11 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Indicates that the transaction conflicts with <see cref="Conflicts.Hash"/>.
         /// </summary>
-        Conflicts = 0x21
+        Conflicts = 0x21,
+
+        /// <summary>
+        /// Indicates that the transaction is aimed to service notary request with <see cref="NotaryAssisted.NKeys" number of keys/>.
+        /// </summary>
+        NotaryAssisted = 0x22
     }
 }
