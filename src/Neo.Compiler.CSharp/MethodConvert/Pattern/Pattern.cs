@@ -78,6 +78,9 @@ partial class MethodConvert
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
+            case RecursivePatternSyntax recursivePattern:
+                ConvertRecursivePattern(model, recursivePattern, localIndex);
+                break;
             default:
                 //Example:
                 //object greeting = "Hello, World!";
