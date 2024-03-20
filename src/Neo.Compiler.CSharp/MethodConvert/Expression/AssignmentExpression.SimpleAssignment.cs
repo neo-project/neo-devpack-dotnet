@@ -133,10 +133,10 @@ partial class MethodConvert
                 }
                 break;
             case ILocalSymbol local:
-                AccessSlot(OpCode.STLOC, _localVariables[local]);
+                StlocSlot(local);
                 break;
             case IParameterSymbol parameter:
-                AccessSlot(OpCode.STARG, _parameters[parameter]);
+                StargSlot(parameter);
                 break;
             case IPropertySymbol property:
                 if (!property.IsStatic) AddInstruction(OpCode.LDARG0);

@@ -18,6 +18,7 @@ using System.Numerics;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Wallets;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -214,10 +215,67 @@ partial class MethodConvert
             case TupleExpressionSyntax expression:
                 ConvertTupleExpression(model, expression);
                 break;
+            case ParenthesizedLambdaExpressionSyntax expression:
+                ConvertParenthesizedLambdaExpression(model, expression);
+                break;
+            case SimpleLambdaExpressionSyntax expression:
+                ConvertSimpleLambdaExpression(model, expression);
+                break;
             default:
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax[{syntax.GetType().Name}]: {syntax}");
         }
     }
+
+
+    private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
+    {
+        var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        var mc = _context.ConvertMethod(model, symbol);
+        ConvertLocalToStaticFields(mc);
+        AddInstruction(new Instruction
+        {
+            OpCode = OpCode.PUSHA,
+            Target = mc._startTarget
+        });
+    }
+
+
+    private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
+    {
+        var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        var mc = _context.ConvertMethod(model, symbol);
+        ConvertLocalToStaticFields(mc);
+        AddInstruction(new Instruction
+        {
+            OpCode = OpCode.PUSHA,
+            Target = mc._startTarget
+        });
+    }
+
+    private void ConvertLocalToStaticFields(MethodConvert mc)
+    {
+        if (mc.CapturedLocalSymbols.Count > 0)
+        {
+            foreach (var local in mc.CapturedLocalSymbols)
+            {
+                //copy captured local variable/parameter value to related static fields
+                var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
+                switch (local)
+                {
+                    case ILocalSymbol localSymbol:
+                        var localIndex = _localVariables[localSymbol];
+                        AccessSlot(OpCode.LDLOC, localIndex);
+                        break;
+                    case IParameterSymbol parameterSymbol:
+                        var paraIndex = _parameters[parameterSymbol];
+                        AccessSlot(OpCode.LDARG, paraIndex);
+                        break;
+                }
+                AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            }
+        }
+    }
+
 
     private void EnsureIntegerInRange(ITypeSymbol type)
     {

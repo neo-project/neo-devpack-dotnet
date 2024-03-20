@@ -67,6 +67,11 @@ namespace Neo.Compiler
             || (_instructions.Count == 1 && _instructions[^1].OpCode == OpCode.RET)
             || (_instructions.Count == 2 && _instructions[^1].OpCode == OpCode.RET && _instructions[0].OpCode == OpCode.INITSLOT);
 
+        /// <summary>
+        /// captured local variable/parameter symbols when converting current method
+        /// </summary>
+        public HashSet<ISymbol> CapturedLocalSymbols { get; } = new(SymbolEqualityComparer.Default);
+
         #endregion
 
         #region Constructors
@@ -202,7 +207,7 @@ namespace Neo.Compiler
                 {
                     byte pc = (byte)_parameters.Count;
                     byte lc = (byte)_localsCount;
-                    if (!Symbol.IsStatic) pc++;
+                    if (IsInstanceMethod(Symbol)) pc++;
                     if (pc > 0 || lc > 0)
                     {
                         _instructions.Insert(0, new Instruction
@@ -372,6 +377,102 @@ namespace Neo.Compiler
         #endregion
 
         #region Helper
+
+        /// <summary>
+        /// load parameter value
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        private Instruction LdargSlot(IParameterSymbol parameter)
+        {
+            if (_context.TryGetCaptruedStaticField(parameter, out var staticFieldIndex))
+            {
+                //using created static fields
+                return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
+            }
+            if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter))
+            {
+                //create static fields from captrued parameter
+                var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
+                CapturedLocalSymbols.Add(parameter);
+                return AccessSlot(OpCode.LDSFLD, staticIndex);
+            }
+            // local parameter in current method
+            byte index = _parameters[parameter];
+            return AccessSlot(OpCode.LDARG, index);
+        }
+
+        /// <summary>
+        /// store value to parameter
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        private Instruction StargSlot(IParameterSymbol parameter)
+        {
+            if (_context.TryGetCaptruedStaticField(parameter, out var staticFieldIndex))
+            {
+                //using created static fields
+                return AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            }
+            if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter))
+            {
+                //create static fields from captrued parameter
+                var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
+                CapturedLocalSymbols.Add(parameter);
+                return AccessSlot(OpCode.STSFLD, staticIndex);
+            }
+            // local parameter in current method
+            byte index = _parameters[parameter];
+            return AccessSlot(OpCode.STARG, index);
+        }
+
+        /// <summary>
+        /// load local variable value
+        /// </summary>
+        /// <param name="local"></param>
+        /// <returns></returns>
+        private Instruction LdlocSlot(ILocalSymbol local)
+        {
+            if (_context.TryGetCaptruedStaticField(local, out var staticFieldIndex))
+            {
+                //using created static fields
+                return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
+            }
+            if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
+            {
+                //create static fields from captrued local
+                byte staticIndex = _context.GetOrAddCapturedStaticField(local);
+                CapturedLocalSymbols.Add(local);
+                return AccessSlot(OpCode.LDSFLD, staticIndex);
+            }
+            // local variables in current method
+            byte index = _localVariables[local];
+            return AccessSlot(OpCode.LDLOC, index);
+        }
+
+        /// <summary>
+        /// store value to local variable
+        /// </summary>
+        /// <param name="local"></param>
+        /// <returns></returns>
+        private Instruction StlocSlot(ILocalSymbol local)
+        {
+            if (_context.TryGetCaptruedStaticField(local, out var staticFieldIndex))
+            {
+                //using created static fields
+                return AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            }
+            if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
+            {
+                //create static fields from captrued local
+                byte staticIndex = _context.GetOrAddCapturedStaticField(local);
+                CapturedLocalSymbols.Add(local);
+                return AccessSlot(OpCode.STSFLD, staticIndex);
+            }
+            byte index = _localVariables[local];
+            return AccessSlot(OpCode.STLOC, index);
+        }
+
         private Instruction AccessSlot(OpCode opcode, byte index)
         {
             return index >= 7

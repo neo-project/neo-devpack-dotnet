@@ -152,20 +152,18 @@ partial class MethodConvert
 
     private void ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
     {
-        byte index = _localVariables[symbol];
-        AccessSlot(OpCode.LDLOC, index);
+        LdlocSlot(symbol);
         AddInstruction(OpCode.DUP);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
-        AccessSlot(OpCode.STLOC, index);
+        StlocSlot(symbol);
     }
 
     private void ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
     {
-        byte index = _parameters[symbol];
-        AccessSlot(OpCode.LDARG, index);
+        LdargSlot(symbol);
         AddInstruction(OpCode.DUP);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
-        AccessSlot(OpCode.STARG, index);
+        StargSlot(symbol);
     }
 
     private void ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
