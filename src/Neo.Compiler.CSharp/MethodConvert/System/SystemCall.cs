@@ -22,21 +22,42 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Attempts to process system constructors. Performs different processing operations based on the method symbol.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
+    /// <param name="symbol">The method symbol to be processed.</param>
+    /// <param name="arguments">A list of syntax nodes representing the arguments of the method.</param>
+    /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
     {
         switch (symbol.ToString())
         {
+            //For the BigInteger(byte[]) constructor, prepares method arguments and changes the return type to integer.
             case "System.Numerics.BigInteger.BigInteger(byte[])":
                 PrepareArgumentsForMethod(model, symbol, arguments);
                 ChangeType(VM.Types.StackItemType.Integer);
                 return true;
+            //For other constructors, such as List<T>(), return processing failure.
             default:
                 return false;
         }
     }
 
+    /// <summary>
+    /// Attempts to process system methods. Performs different processing operations based on the method symbol.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
+    /// <param name="symbol">The method symbol to be processed.</param>
+    /// <param name="instanceExpression">The instance expression representing the instance of method invocation, if any.</param>
+    /// <param name="arguments">A list of syntax nodes representing the arguments of the method.</param>
+    /// <returns>True if system methods are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        //If the method belongs to a delegate and the method name is "Invoke",
+        //calls the PrepareArgumentsForMethod method with CallingConvention.Cdecl convention and changes the return type to integer.
+        //Example: Func<int, int, int>(privateSum).Invoke(a, b);
+        //see ~/tests/Neo.Compiler.CSharp.TestContracts/Contract_Delegate.cs
         if (symbol.ContainingType.TypeKind == TypeKind.Delegate && symbol.Name == "Invoke")
         {
             if (arguments is not null)
@@ -47,27 +68,34 @@ partial class MethodConvert
         }
         switch (symbol.ToString())
         {
+            #region Property of System.Numerics.BigInteger
+            //Gets a value that represents the number one (1).
             case "System.Numerics.BigInteger.One.get":
                 Push(1);
                 return true;
+            //Gets a value that represents the number negative one (-1).
             case "System.Numerics.BigInteger.MinusOne.get":
                 Push(-1);
                 return true;
+            //Gets a value that represents the number 0 (zero).
             case "System.Numerics.BigInteger.Zero.get":
                 Push(0);
                 return true;
+            //Indicates whether the value of the current BigInteger object is Zero.
             case "System.Numerics.BigInteger.IsZero.get":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
                 Push(0);
                 AddInstruction(OpCode.NUMEQUAL);
                 return true;
+            //Indicates whether the value of the current BigInteger object is One.
             case "System.Numerics.BigInteger.IsOne.get":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
                 Push(1);
                 AddInstruction(OpCode.NUMEQUAL);
                 return true;
+            //Indicates whether the value of the current BigInteger object is an even number.
             case "System.Numerics.BigInteger.IsEven.get":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -76,11 +104,15 @@ partial class MethodConvert
                 Push(0);
                 AddInstruction(OpCode.NUMEQUAL);
                 return true;
+            //Gets a number that indicates the sign (negative, positive, or zero) of the current BigInteger object.
             case "System.Numerics.BigInteger.Sign.get":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
                 AddInstruction(OpCode.SIGN);
                 return true;
+            #endregion
+
+            #region Method of System.Numerics.BigInteger
             case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
@@ -276,6 +308,80 @@ partial class MethodConvert
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 return true;
+            case "System.Numerics.BigInteger.Parse(string)":
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                return true;
+            case "System.Math.Abs(sbyte)":
+            case "System.Math.Abs(short)":
+            case "System.Math.Abs(int)":
+            case "System.Math.Abs(long)":
+            case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                AddInstruction(OpCode.ABS);
+                return true;
+            case "System.Math.Sign(sbyte)":
+            case "System.Math.Sign(short)":
+            case "System.Math.Sign(int)":
+            case "System.Math.Sign(long)":
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                AddInstruction(OpCode.SIGN);
+                return true;
+            case "System.Math.Max(byte, byte)":
+            case "System.Math.Max(sbyte, sbyte)":
+            case "System.Math.Max(short, short)":
+            case "System.Math.Max(ushort, ushort)":
+            case "System.Math.Max(int, int)":
+            case "System.Math.Max(uint, uint)":
+            case "System.Math.Max(long, long)":
+            case "System.Math.Max(ulong, ulong)":
+            case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                AddInstruction(OpCode.MAX);
+                return true;
+            case "System.Math.Min(byte, byte)":
+            case "System.Math.Min(sbyte, sbyte)":
+            case "System.Math.Min(short, short)":
+            case "System.Math.Min(ushort, ushort)":
+            case "System.Math.Min(int, int)":
+            case "System.Math.Min(uint, uint)":
+            case "System.Math.Min(long, long)":
+            case "System.Math.Min(ulong, ulong)":
+            case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                AddInstruction(OpCode.MIN);
+                return true;
+
+            case "sbyte.ToString()":
+            case "byte.ToString()":
+            case "short.ToString()":
+            case "ushort.ToString()":
+            case "int.ToString()":
+            case "uint.ToString()":
+            case "long.ToString()":
+            case "ulong.ToString()":
+            case "System.Numerics.BigInteger.ToString()":
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                Call(NativeContract.StdLib.Hash, "itoa", 1, true);
+                return true;
+            case "System.Numerics.BigInteger.Equals(long)":
+            case "System.Numerics.BigInteger.Equals(ulong)":
+            case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                AddInstruction(OpCode.NUMEQUAL);
+                return true;
+            #endregion
+
+            #region Method of string
             case "System.Array.Length.get":
             case "string.Length.get":
                 if (instanceExpression is not null)
@@ -402,88 +508,6 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
-            case "System.Numerics.BigInteger.Parse(string)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                Call(NativeContract.StdLib.Hash, "atoi", 1, true);
-                return true;
-            case "System.Math.Abs(sbyte)":
-            case "System.Math.Abs(short)":
-            case "System.Math.Abs(int)":
-            case "System.Math.Abs(long)":
-            case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.ABS);
-                return true;
-            case "System.Math.Sign(sbyte)":
-            case "System.Math.Sign(short)":
-            case "System.Math.Sign(int)":
-            case "System.Math.Sign(long)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.SIGN);
-                return true;
-            case "System.Math.Max(byte, byte)":
-            case "System.Math.Max(sbyte, sbyte)":
-            case "System.Math.Max(short, short)":
-            case "System.Math.Max(ushort, ushort)":
-            case "System.Math.Max(int, int)":
-            case "System.Math.Max(uint, uint)":
-            case "System.Math.Max(long, long)":
-            case "System.Math.Max(ulong, ulong)":
-            case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.MAX);
-                return true;
-            case "System.Math.Min(byte, byte)":
-            case "System.Math.Min(sbyte, sbyte)":
-            case "System.Math.Min(short, short)":
-            case "System.Math.Min(ushort, ushort)":
-            case "System.Math.Min(int, int)":
-            case "System.Math.Min(uint, uint)":
-            case "System.Math.Min(long, long)":
-            case "System.Math.Min(ulong, ulong)":
-            case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.MIN);
-                return true;
-            case "bool.ToString()":
-                {
-                    JumpTarget trueTarget = new(), endTarget = new();
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
-                    Jump(OpCode.JMPIF_L, trueTarget);
-                    Push("False");
-                    Jump(OpCode.JMP_L, endTarget);
-                    trueTarget.Instruction = Push("True");
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
-                }
-                return true;
-            case "sbyte.ToString()":
-            case "byte.ToString()":
-            case "short.ToString()":
-            case "ushort.ToString()":
-            case "int.ToString()":
-            case "uint.ToString()":
-            case "long.ToString()":
-            case "ulong.ToString()":
-            case "System.Numerics.BigInteger.ToString()":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Call(NativeContract.StdLib.Hash, "itoa", 1, true);
-                return true;
-            case "System.Numerics.BigInteger.Equals(long)":
-            case "System.Numerics.BigInteger.Equals(ulong)":
-            case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
             case "object.Equals(object?)":
             case "string.Equals(string?)":
                 if (instanceExpression is not null)
@@ -517,6 +541,21 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            case "bool.ToString()":
+                {
+                    JumpTarget trueTarget = new(), endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Jump(OpCode.JMPIF_L, trueTarget);
+                    Push("False");
+                    Jump(OpCode.JMP_L, endTarget);
+                    trueTarget.Instruction = Push("True");
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                }
+                return true;
+            #endregion
+
+            //Non-system methods, such as user-defined methods
             default:
                 return false;
         }
