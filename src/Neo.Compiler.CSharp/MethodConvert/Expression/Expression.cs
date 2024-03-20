@@ -222,7 +222,8 @@ partial class MethodConvert
                 ConvertSimpleLambdaExpression(model, expression);
                 break;
             default:
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax[{syntax.GetType().Name}]: {syntax}");
+                //Example: typeof(Transaction);
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
         }
     }
 

@@ -17,35 +17,80 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    /// <summary>
+    /// Convert pattern to OpCodes.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="pattern"></param>
+    /// <param name="localIndex"></param>
+    /// <exception cref="CompilationException"></exception>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/patterns#logical-patterns">
+    /// Pattern matching - the is and switch expressions, and operators and, or and not in patterns
+    /// </seealso>
     private void ConvertPattern(SemanticModel model, PatternSyntax pattern, byte localIndex)
     {
         switch (pattern)
         {
+            //Convet "and" / "or" pattern  to OpCodes.
+            //Example: return value is > 1 and < 100;
+            //Example: return value is >= 80 or <= 20;
             case BinaryPatternSyntax binaryPattern:
                 ConvertBinaryPattern(model, binaryPattern, localIndex);
                 break;
+            //Convet constant pattern to OpCodes.
+            //Example: return value is > 1;
+            //Example: return value is null;
             case ConstantPatternSyntax constantPattern:
                 ConvertConstantPattern(model, constantPattern, localIndex);
                 break;
+            //Convet declaration pattern to OpCodes.
+            //Example: if (greeting is string message)
             case DeclarationPatternSyntax declarationPattern:
                 ConvertDeclarationPattern(model, declarationPattern, localIndex);
                 break;
+            //Convet discard pattern (_) to OpCodes.
+            //Example: if (greeting2 is string _)
             case DiscardPatternSyntax:
                 Push(true);
                 break;
+            //Convet relational pattern to OpCodes.
+            //Example: return value is > 1;
             case RelationalPatternSyntax relationalPattern:
                 ConvertRelationalPattern(model, relationalPattern, localIndex);
                 break;
+            //Convert type pattern to OpCodes.
+            //Example:
+            //switch (o1)
+            //{
+            //    case byte[]: break;
+            //    case string: break;
+            //}
             case TypePatternSyntax typePattern:
                 ConvertTypePattern(model, typePattern, localIndex);
                 break;
+            //Convet "not" pattern  to OpCodes.
+            //Example: return value is not null;
             case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                 ConvertNotPattern(model, unaryPattern, localIndex);
                 break;
+            //Convet parenthesized to OpCodes.
+            //Example: return value is (> 1 and < 100);
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
+            case RecursivePatternSyntax recursivePattern:
+                ConvertRecursivePattern(model, recursivePattern, localIndex);
+                break;
             default:
+                //Example:
+                //object greeting = "Hello, World!";
+                //if (greeting3 is var message) { }
+                //Example:
+                //public static void M(object o1, object o2)
+                //{
+                //  var t = (o1, o2);
+                //  if (t is (int, string)) { }
+                //}
                 throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
         }
     }
