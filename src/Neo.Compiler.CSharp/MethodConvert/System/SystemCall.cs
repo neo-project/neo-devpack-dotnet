@@ -110,49 +110,60 @@ partial class MethodConvert
                     ConvertExpression(model, instanceExpression);
                 AddInstruction(OpCode.SIGN);
                 return true;
+            //Missing BigInteger.IsPowerOfTwo Property
             #endregion
 
             #region Method of System.Numerics.BigInteger
+            //Raises a BigInteger value to the power of a specified value.
             case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.POW);
                 return true;
+            //Performs modulus division on a number raised to the power of another number.
             case "System.Numerics.BigInteger.ModPow(System.Numerics.BigInteger, System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.MODPOW);
                 return true;
+            //Adds two BigInteger values and returns the result.
             case "System.Numerics.BigInteger.Add(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.ADD);
                 return true;
+            //Subtracts one BigInteger value from another and returns the result.
             case "System.Numerics.BigInteger.Subtract(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.SUB);
                 return true;
+            //Negates a specified BigInteger value.
             case "System.Numerics.BigInteger.Negate(System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.NEGATE);
                 return true;
+            //Returns the product of two BigInteger values.
             case "System.Numerics.BigInteger.Multiply(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.MUL);
                 return true;
+            //Divides one BigInteger value by another and returns the result.
             case "System.Numerics.BigInteger.Divide(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.DIV);
                 return true;
+            //Performs integer division on two BigInteger values and returns the remainder.
             case "System.Numerics.BigInteger.Remainder(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.MOD);
                 return true;
+            //Compares two BigInteger values and returns an integer that indicates whether the first value is less than,
+            //equal to, or greater than the second value.
             case "System.Numerics.BigInteger.Compare(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
@@ -162,6 +173,7 @@ partial class MethodConvert
                 AddInstruction(OpCode.SUB);
                 AddInstruction(OpCode.SIGN);
                 return true;
+            //Finds the greatest common divisor of two BigInteger values.
             case "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
@@ -179,11 +191,13 @@ partial class MethodConvert
                 AddInstruction(OpCode.DROP);
                 AddInstruction(OpCode.ABS);
                 return true;
+            //Converts a BigInteger value to a byte array.
             case "System.Numerics.BigInteger.ToByteArray()":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
                 ChangeType(VM.Types.StackItemType.Buffer);
                 return true;
+            //Defines an explicit conversion of a BigInteger object to a signed 8-bit value.
             case "System.Numerics.BigInteger.explicit operator sbyte(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -198,6 +212,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to an unsigned byte value.
             case "System.Numerics.BigInteger.explicit operator byte(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -212,6 +227,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to a 16-bit signed integer value.
             case "System.Numerics.BigInteger.explicit operator short(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -226,6 +242,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to an unsigned 16-bit integer value.
             case "System.Numerics.BigInteger.explicit operator ushort(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -240,6 +257,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to a 32-bit signed integer value.
             case "System.Numerics.BigInteger.explicit operator int(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -254,6 +272,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to an unsigned 32-bit integer value.
             case "System.Numerics.BigInteger.explicit operator uint(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -268,6 +287,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to a 64-bit signed integer value.
             case "System.Numerics.BigInteger.explicit operator long(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -282,6 +302,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Defines an explicit conversion of a BigInteger object to an unsigned 64-bit integer value.
             case "System.Numerics.BigInteger.explicit operator ulong(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
@@ -296,6 +317,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Initializes a new instance of the BigInteger structure.
             case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(char)":
             case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(sbyte)":
             case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(byte)":
@@ -308,6 +330,7 @@ partial class MethodConvert
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 return true;
+            //Converts the string representation of a number to its BigInteger equivalent.
             case "System.Numerics.BigInteger.Parse(string)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
@@ -317,11 +340,13 @@ partial class MethodConvert
             case "System.Math.Abs(short)":
             case "System.Math.Abs(int)":
             case "System.Math.Abs(long)":
+            //Gets the absolute value of a BigInteger object.
             case "System.Numerics.BigInteger.Abs(System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.ABS);
                 return true;
+            //Returns an integer that indicates the sign of a number.
             case "System.Math.Sign(sbyte)":
             case "System.Math.Sign(short)":
             case "System.Math.Sign(int)":
@@ -338,6 +363,7 @@ partial class MethodConvert
             case "System.Math.Max(uint, uint)":
             case "System.Math.Max(long, long)":
             case "System.Math.Max(ulong, ulong)":
+            //Returns the larger of two BigInteger values.
             case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
@@ -351,12 +377,12 @@ partial class MethodConvert
             case "System.Math.Min(uint, uint)":
             case "System.Math.Min(long, long)":
             case "System.Math.Min(ulong, ulong)":
+            //Returns the smaller of two BigInteger values.
             case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MIN);
                 return true;
-
             case "sbyte.ToString()":
             case "byte.ToString()":
             case "short.ToString()":
@@ -365,6 +391,7 @@ partial class MethodConvert
             case "uint.ToString()":
             case "long.ToString()":
             case "ulong.ToString()":
+            //Converts the numeric value of the current BigInteger object to its equivalent string representation.
             case "System.Numerics.BigInteger.ToString()":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -372,6 +399,7 @@ partial class MethodConvert
                 return true;
             case "System.Numerics.BigInteger.Equals(long)":
             case "System.Numerics.BigInteger.Equals(ulong)":
+            //Returns a value that indicates whether two numeric values are equal.
             case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -382,12 +410,15 @@ partial class MethodConvert
             #endregion
 
             #region Method of string
+            //Gets the total number of elements in all the dimensions of the Array.
             case "System.Array.Length.get":
+            //Gets the number of characters in the current String object.
             case "string.Length.get":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
                 AddInstruction(OpCode.SIZE);
                 return true;
+            //Converts the string representation of a number to its 8-bit signed integer equivalent.
             case "sbyte.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -403,6 +434,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its Byte equivalent.
             case "byte.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -418,6 +450,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its 16-bit signed integer equivalent.
             case "short.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -433,6 +466,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its 16-bit unsigned integer equivalent.
             case "ushort.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -448,6 +482,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its 32-bit signed integer equivalent.
             case "int.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -463,6 +498,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its 32-bit unsigned integer equivalent.
             case "uint.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -478,6 +514,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its 64-bit signed integer equivalent.
             case "long.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -493,6 +530,7 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Converts the string representation of a number to its 64-bit unsigned integer equivalent.
             case "ulong.Parse(string)":
                 {
                     JumpTarget endTarget = new();
@@ -508,7 +546,9 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
                 return true;
+            //Determines whether two object instances are equal.
             case "object.Equals(object?)":
+            //Determines whether two String objects have the same value.
             case "string.Equals(string?)":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -516,6 +556,7 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.EQUAL);
                 return true;
+            //Getting characters in a string by index
             case "string.this[int].get":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -523,6 +564,8 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.PICKITEM);
                 return true;
+            //Retrieves a substring from this instance.
+            //The substring starts at a specified character position and continues to the end of the string.
             case "string.Substring(int)":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -534,6 +577,8 @@ partial class MethodConvert
                 AddInstruction(OpCode.SUB);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            //Retrieves a substring from this instance.
+            //The substring starts at a specified character position and has a specified length.
             case "string.Substring(int, int)":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
@@ -541,6 +586,7 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            //Converts the value of this instance to its equivalent string representation (either "True" or "False").
             case "bool.ToString()":
                 {
                     JumpTarget trueTarget = new(), endTarget = new();
