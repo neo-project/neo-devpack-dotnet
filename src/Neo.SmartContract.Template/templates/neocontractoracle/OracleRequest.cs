@@ -11,10 +11,9 @@ using System.ComponentModel;
 namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(OracleRequest))]
-    [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ManifestExtra("Description", "<Description Here>")]
-    [ManifestExtra("Email", "<Your Public Email Here>")]
-    [ManifestExtra("Version", "<Version String Here>")]
+    [ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
+    [ContractDescription( "<Description Here>")]
+    [ContractVersion("<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs")]
     [ContractPermission("*", "*")]
     public class OracleRequest : Neo.SmartContract.Framework.SmartContract

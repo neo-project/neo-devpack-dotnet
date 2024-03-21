@@ -18,7 +18,7 @@ using System.ComponentModel;
 namespace Inscription
 {
     [DisplayName("SampleInscription")]
-    [ContractAuthor("core-dev", "core@neo.org")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractDescription("A sample inscription contract.")]
     [ContractVersion("0.0.1")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
