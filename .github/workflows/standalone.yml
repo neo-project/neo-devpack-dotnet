@@ -19,6 +19,11 @@ jobs:
         runtime: [linux-x64, linux-arm64, linux-musl-arm64, osx-x64, osx-arm64, win-x64, win-arm64]
 
     steps:
+    - name: Set Application Version (Environment Variable)
+      run:
+        APP_VERSION=$(echo '${{ env.APP_VERSION }}' | cut -d 'v' -f 2)
+        echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+
     - name: Checkout Repository Code
       uses: actions/checkout@v4
       with:
@@ -38,7 +43,7 @@ jobs:
         --self-contained true \
         --output ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }} \
         --verbosity normal \
-        -p:VersionPrefix=${{ github.event.release.tag_name }} \
+        -p:VersionPrefix=${{ env.APP_VERSION }} \
         -p:RuntimeIdentifier=${{ matrix.runtime }} \
         -p:SelfContained=true \
         -p:IncludeNativeLibrariesForSelfExtract=false \
@@ -59,37 +64,37 @@ jobs:
     - name: Create Tarball File (linux)
       if: ${{ startsWith(matrix.runtime, 'linux') }}
       working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
-      run: tar -czvf ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.gz .
+      run: tar -czvf ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.tar.gz .
 
     - name: Create Tarball File (osx)
       if: ${{ startsWith(matrix.runtime, 'osx') }}
       working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
-      run: tar -cJf ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.xz .
+      run: tar -cJf ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.tar.xz .
 
     - name: Create Zip File (win)
       if: ${{ startsWith(matrix.runtime, 'win') }}
       working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
-      run: zip ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.zip -r *
+      run: zip ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.zip -r *
 
     - name: Create Checksum File (linux)
       if: ${{ startsWith(matrix.runtime, 'linux') }}
       working-directory: ${{ env.DIST_PATH }}
       env:
-        FILENAME: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}
+        FILENAME: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}
       run: sha256sum ${{ env.FILENAME }}.tar.gz > ${{ env.FILENAME }}.sha256
 
     - name: Create Checksum File (osx)
       if: ${{ startsWith(matrix.runtime, 'osx') }}
       working-directory: ${{ env.DIST_PATH }}
       env:
-        FILENAME: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}
+        FILENAME: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}
       run: sha256sum ${{ env.FILENAME }}.tar.xz > ${{ env.FILENAME }}.sha256
 
     - name: Create Checksum File (win)
       if: ${{ startsWith(matrix.runtime, 'win') }}
       working-directory: ${{ env.DIST_PATH }}
       env:
-        FILENAME: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}
+        FILENAME: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}
       run: sha256sum ${{ env.FILENAME }}.zip > ${{ env.FILENAME }}.sha256
 
     - name: Output/Distribution Directory Contents
@@ -104,8 +109,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.gz
-          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.gz
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.tar.gz
+          asset_name: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.tar.gz
           asset_content_type: application/x-gtar
 
     - name: Upload Tarball File (osx)
@@ -115,8 +120,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.xz
-          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.xz
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.tar.xz
+          asset_name: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.tar.xz
           asset_content_type: application/x-gtar
 
     - name: Upload Zip File (win)
@@ -126,8 +131,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.zip
-          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.zip
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.zip
+          asset_name: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.zip
           asset_content_type: application/zip
 
     - name: Upload Checksum File (all)
@@ -136,6 +141,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.sha256
-          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.sha256
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.sha256
+          asset_name: nccs.${{ env.APP_VERSION }}-${{ matrix.runtime }}.sha256
           asset_content_type: text/plain
