@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="./neo.ico" Visible="false" Pack="false" />
+    <None Include="./neo.ico" Visible="false" Pack="true" />
   </ItemGroup>
 
 </Project>
