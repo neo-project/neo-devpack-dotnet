@@ -1,12 +1,8 @@
-name: Build & Release (nccs)
+name: Publish & Release (nccs)
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        type: string
-        description: 'Version Number (Example: 1.0.0)'
-        required: true
+  release:
+    types: [published]
 
 env:
   DOTNET_VERSION: 7.0.x
@@ -42,7 +38,7 @@ jobs:
         --self-contained true \
         --output ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }} \
         --verbosity normal \
-        -p:VersionPrefix=${{ github.event.inputs.version }} \
+        -p:VersionPrefix=${{ github.event.release.tag_name }} \
         -p:RuntimeIdentifier=${{ matrix.runtime }} \
         -p:SelfContained=true \
         -p:IncludeNativeLibrariesForSelfExtract=false \
@@ -63,106 +59,83 @@ jobs:
     - name: Create Tarball File (linux)
       if: ${{ startsWith(matrix.runtime, 'linux') }}
       working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
-      run: tar -czvf ${{ env.DIST_PATH }}/nccs.${{ github.event.inputs.version }}-${{ matrix.runtime }}.tar.gz .
+      run: tar -czvf ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.gz .
 
     - name: Create Tarball File (osx)
       if: ${{ startsWith(matrix.runtime, 'osx') }}
       working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
-      run: tar -cJf ${{ env.DIST_PATH }}/nccs.${{ github.event.inputs.version }}-${{ matrix.runtime }}.tar.xz .
+      run: tar -cJf ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.xz .
 
     - name: Create Zip File (win)
       if: ${{ startsWith(matrix.runtime, 'win') }}
       working-directory: ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
-      run: zip ${{ env.DIST_PATH }}/nccs.${{ github.event.inputs.version }}-${{ matrix.runtime }}.zip -r *
+      run: zip ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.zip -r *
+
+    - name: Create Checksum File (linux)
+      if: ${{ startsWith(matrix.runtime, 'linux') }}
+      working-directory: ${{ env.DIST_PATH }}
+      env:
+        FILENAME: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}
+      run: sha256sum ${{ env.FILENAME }}.tar.gz > ${{ env.FILENAME }}.sha256
+
+    - name: Create Checksum File (osx)
+      if: ${{ startsWith(matrix.runtime, 'osx') }}
+      working-directory: ${{ env.DIST_PATH }}
+      env:
+        FILENAME: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}
+      run: sha256sum ${{ env.FILENAME }}.tar.xz > ${{ env.FILENAME }}.sha256
+
+    - name: Create Checksum File (win)
+      if: ${{ startsWith(matrix.runtime, 'win') }}
+      working-directory: ${{ env.DIST_PATH }}
+      env:
+        FILENAME: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}
+      run: sha256sum ${{ env.FILENAME }}.zip > ${{ env.FILENAME }}.sha256
 
     - name: Output/Distribution Directory Contents
       run: |
         ls -l ${{ env.DIST_PATH }}
         ls -l ${{ env.OUTPUT_PATH }}/${{ matrix.runtime }}
 
-    - name: Cache Distribution
-      uses: actions/cache/save@v3
+    - name: Upload Tarball File (linux)
+      if: ${{ startsWith(matrix.runtime, 'linux') }}
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: ${{ env.DIST_PATH }}/*
-        key: ${{ matrix.runtime }}
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.gz
+          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.gz
+          asset_content_type: application/x-gtar
 
-  release-nccs:
-    name: Release nccs (github)
-    needs: [build-nccs]
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Get Distribution Caches (linux-x64)
-      uses: actions/cache/restore@v3
+    - name: Upload Tarball File (osx)
+      if: ${{ startsWith(matrix.runtime, 'osx') }}
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: ${{ env.DIST_PATH }}/*
-        key: linux-x64
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.xz
+          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.tar.xz
+          asset_content_type: application/x-gtar
 
-    - name: Get Distribution Caches (linux-arm64)
-      uses: actions/cache/restore@v3
+    - name: Upload Zip File (win)
+      if: ${{ startsWith(matrix.runtime, 'win') }}
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: ${{ env.DIST_PATH }}/*
-        key: linux-arm64
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.zip
+          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.zip
+          asset_content_type: application/zip
 
-    - name: Get Distribution Caches (linux-musl-arm64)
-      uses: actions/cache/restore@v3
+    - name: Upload Checksum File (all)
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: ${{ env.DIST_PATH }}/*
-        key: linux-musl-arm64
-
-    - name: Get Distribution Caches (osx-x64)
-      uses: actions/cache/restore@v3
-      with:
-        path: ${{ env.DIST_PATH }}/*
-        key: osx-x64
-
-    - name: Get Distribution Caches (osx-arm64)
-      uses: actions/cache/restore@v3
-      with:
-        path: ${{ env.DIST_PATH }}/*
-        key: osx-arm64
-
-    - name: Get Distribution Caches (win-x64)
-      uses: actions/cache/restore@v3
-      with:
-        path: ${{ env.DIST_PATH }}/*
-        key: win-x64
-
-    - name: Get Distribution Caches (win-arm64)
-      uses: actions/cache/restore@v3
-      with:
-        path: ${{ env.DIST_PATH }}/*
-        key: win-arm64
-
-    - name: Publish Release (github)
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
-        title: v${{ github.event.inputs.version }}
-        automatic_release_tag: v${{ github.event.inputs.version }}
-        files: ${{ env.DIST_PATH }}/*
-
-  cleanup:
-    needs: [release-nccs]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cleanup
-        run: |
-          gh extension install actions/gh-actions-cache
-          
-          echo "Fetching list of cache key"
-          cacheKeysForPR=$(gh actions-cache list -R $REPO -B $BRANCH -L 100 | cut -f 1 )
-
-          ## Setting this to not fail the workflow while deleting cache keys. 
-          set +e
-          echo "Deleting caches..."
-          for cacheKey in $cacheKeysForPR
-          do
-              gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
-          done
-          echo "Done"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          BRANCH: ${{ github.ref }}
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.DIST_PATH }}/nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.sha256
+          asset_name: nccs.${{ github.event.release.tag_name }}-${{ matrix.runtime }}.sha256
+          asset_content_type: text/plain
