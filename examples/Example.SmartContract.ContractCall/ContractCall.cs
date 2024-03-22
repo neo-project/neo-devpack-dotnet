@@ -18,8 +18,7 @@ using System.Numerics;
 namespace ContractCall;
 
 [DisplayName("SampleContractCall")]
-[ContractAuthor("core-dev")]
-[ContractEmail("core@neo.org")]
+[ContractAuthor("core-dev", "dev@neo.org")]
 [ContractVersion("0.0.1")]
 [ContractDescription("A sample contract to demonstrate how to call a contract")]
 [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]

@@ -1,4 +1,5 @@
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
@@ -124,6 +125,21 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return input.IsEven;
         }
 
+        public static bool testIsZero(BigInteger input)
+        {
+            return input.IsZero;
+        }
+
+        public static bool testIsOne(BigInteger input)
+        {
+            return input.IsOne;
+        }
+
+        public static int testSign(BigInteger input)
+        {
+            return input.Sign;
+        }
+
         public static BigInteger TestAdd(BigInteger x, BigInteger y)
         {
             return BigInteger.Add(x, y);
@@ -162,6 +178,19 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static BigInteger TestGreatestCommonDivisor(BigInteger x, BigInteger y)
         {
             return BigInteger.GreatestCommonDivisor(x, y);
+        }
+
+        public static bool TestEquals(BigInteger x, BigInteger y)
+        {
+            return x.Equals(y);
+        }
+
+        public static void TestModPow()
+        {
+            BigInteger number = 10;
+            int exponent = 3;
+            BigInteger modulus = 30;
+            Runtime.Log($"({number}^{exponent}) Mod {modulus} = {BigInteger.ModPow(number, exponent, modulus)}");
         }
     }
 }

@@ -16,4 +16,9 @@ public static class Method
     /// The name of the method that is called when a contract receives NEP-11 tokens.
     /// </summary>
     public const string OnNEP11Payment = "onNEP11Payment";
+
+    /// <summary>
+    /// The name of the method that is called when a contract receives Oracle response.
+    /// </summary>
+    public const string OnOracleResponse = "onOracleResponse";
 }
