@@ -12,5 +12,19 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var timestamp = Ledger.GetBlock(Ledger.CurrentHash).Timestamp;
             Runtime.Log($"Hello, {firstName} {lastName}! Current timestamp is {timestamp}.");
         }
+
+        public static void TestEqual()
+        {
+            var str = "hello";
+            var str2 = "hello";
+            Runtime.Log(str.Equals(str2).ToString());
+        }
+
+        public static void TestSubstring()
+        {
+            var str = "01234567";
+            Runtime.Log(str.Substring(1));
+            Runtime.Log(str.Substring(1, 4));
+        }
     }
 }
