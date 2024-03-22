@@ -1,8 +1,6 @@
-using Castle.Components.DictionaryAdapter.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.TestEngine;
 using Neo.VM.Types;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -19,7 +17,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine = new TestEngine(snapshot: snapshot);
             testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Lambda.cs");
         }
-
 
         [TestMethod]
         public void Test_AnyGreatThanZero()
@@ -59,7 +56,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(false, result.GetBoolean());
         }
 
-
         [TestMethod]
         public void Test_WhereGreatThanZero()
         {
@@ -82,9 +78,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1, result[0]);
             Assert.AreEqual(100, result[1]);
             Assert.AreEqual(56, result[2]);
-
         }
-
 
         [TestMethod]
         public void Test_ForEachVar()
@@ -151,7 +145,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("fibo", 2).Pop();
             Assert.AreEqual(1, result.GetInteger());
 
-
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("fibo", 3).Pop();
             Assert.AreEqual(2, result.GetInteger());
@@ -160,7 +153,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = testengine.ExecuteTestCaseStandard("fibo", 4).Pop();
             Assert.AreEqual(3, result.GetInteger());
         }
-
 
         [TestMethod]
         public void Test_CheckZero()
@@ -176,9 +168,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkZero", -1).Pop();
             Assert.AreEqual(false, result.GetBoolean());
-
         }
-
 
         [TestMethod]
         public void Test_CheckZero2()
@@ -195,7 +185,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = testengine.ExecuteTestCaseStandard("checkZero2", -1).Pop();
             Assert.AreEqual(false, result.GetBoolean());
         }
-
 
         [TestMethod]
         public void Test_CheckZero3()
@@ -231,7 +220,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             testengine.Reset();
             result = testengine.ExecuteTestCaseStandard("checkPositiveOdd", -1).Pop();
             Assert.AreEqual(false, result.GetBoolean());
-
         }
     }
 }

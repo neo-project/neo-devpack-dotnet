@@ -1,10 +1,3 @@
-using System;
-using System.Numerics;
-using System.Collections.Generic;
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services;
-
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Lambda : SmartContract.Framework.SmartContract
@@ -12,15 +5,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         private const int z = 0;
         private static readonly int Z = 0;
         public static Predicate<int> isZero = k => k == Z;
-
         public static Predicate<int> isPositiveOdd = k => k > z && k % 2 == 1;
-
         public static Func<int, int, int> sum = (x, y) => x + y;
-
 
         public static bool CheckZero(int i)
         {
-
             return isZero(i);
         }
 
@@ -35,13 +24,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return Invoke(n => n == zero, num);
         }
 
-
         public static bool CheckPositiveOdd(int i)
         {
             return isPositiveOdd(i);
         }
-
-
 
         public static object InvokeSum(int a, int b)
         {
@@ -67,7 +53,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             name += " !!!";
             return a();
         }
-
 
         public static object ChangeName2(string name)
         {

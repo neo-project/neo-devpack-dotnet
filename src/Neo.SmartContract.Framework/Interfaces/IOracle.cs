@@ -1,4 +1,5 @@
 using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.Interfaces;
 
