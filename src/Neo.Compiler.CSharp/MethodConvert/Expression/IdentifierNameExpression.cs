@@ -70,7 +70,7 @@ partial class MethodConvert
                 if (local.IsConst)
                     Push(local.ConstantValue);
                 else
-                    LdlocSlot(local);
+                    LdLocSlot(local);
                 break;
             case IMethodSymbol method:
                 if (!method.IsStatic)
@@ -79,7 +79,7 @@ partial class MethodConvert
                 Jump(OpCode.PUSHA, convert._startTarget);
                 break;
             case IParameterSymbol parameter:
-                if (!_internalInline) LdargSlot(parameter);
+                if (!_internalInline) LdArgSlot(parameter);
                 break;
             case IPropertySymbol property:
                 if (property.IsStatic)

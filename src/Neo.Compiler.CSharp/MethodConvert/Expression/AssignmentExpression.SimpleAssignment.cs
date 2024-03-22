@@ -134,10 +134,10 @@ partial class MethodConvert
                 }
                 break;
             case ILocalSymbol local:
-                StlocSlot(local);
+                StLocSlot(local);
                 break;
             case IParameterSymbol parameter:
-                StargSlot(parameter);
+                StArgSlot(parameter);
                 break;
             case IPropertySymbol property:
                 // Check if the property is within a constructor and is readonly

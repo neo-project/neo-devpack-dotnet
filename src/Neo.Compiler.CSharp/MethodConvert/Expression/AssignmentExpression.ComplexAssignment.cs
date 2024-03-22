@@ -168,20 +168,20 @@ partial class MethodConvert
 
     private void ConvertLocalIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ILocalSymbol left, ExpressionSyntax right)
     {
-        LdlocSlot(left);
+        LdLocSlot(left);
         ConvertExpression(model, right);
         EmitComplexAssignmentOperator(type, operatorToken);
         AddInstruction(OpCode.DUP);
-        StlocSlot(left);
+        StLocSlot(left);
     }
 
     private void ConvertParameterIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IParameterSymbol left, ExpressionSyntax right)
     {
-        LdargSlot(left);
+        LdArgSlot(left);
         ConvertExpression(model, right);
         EmitComplexAssignmentOperator(type, operatorToken);
         AddInstruction(OpCode.DUP);
-        StargSlot(left);
+        StArgSlot(left);
     }
 
     private void ConvertPropertyIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IPropertySymbol left, ExpressionSyntax right)

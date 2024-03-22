@@ -192,15 +192,15 @@ partial class MethodConvert
     {
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
-        LdlocSlot(left);
+        LdLocSlot(left);
         AddInstruction(OpCode.ISNULL);
         Jump(OpCode.JMPIF_L, assignmentTarget);
-        LdlocSlot(left);
+        LdLocSlot(left);
         Jump(OpCode.JMP_L, endTarget);
         assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
         ConvertExpression(model, right);
         AddInstruction(OpCode.DUP);
-        StlocSlot(left);
+        StLocSlot(left);
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
@@ -208,15 +208,15 @@ partial class MethodConvert
     {
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
-        LdargSlot(left);
+        LdArgSlot(left);
         AddInstruction(OpCode.ISNULL);
         Jump(OpCode.JMPIF_L, assignmentTarget);
-        LdargSlot(left);
+        LdArgSlot(left);
         Jump(OpCode.JMP_L, endTarget);
         assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
         ConvertExpression(model, right);
         AddInstruction(OpCode.DUP);
-        StargSlot(left);
+        StArgSlot(left);
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 

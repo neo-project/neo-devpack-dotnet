@@ -383,7 +383,7 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        private Instruction LdargSlot(IParameterSymbol parameter)
+        private Instruction LdArgSlot(IParameterSymbol parameter)
         {
             if (_context.TryGetCaptruedStaticField(parameter, out var staticFieldIndex))
             {
@@ -407,7 +407,7 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        private Instruction StargSlot(IParameterSymbol parameter)
+        private Instruction StArgSlot(IParameterSymbol parameter)
         {
             if (_context.TryGetCaptruedStaticField(parameter, out var staticFieldIndex))
             {
@@ -431,7 +431,7 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="local"></param>
         /// <returns></returns>
-        private Instruction LdlocSlot(ILocalSymbol local)
+        private Instruction LdLocSlot(ILocalSymbol local)
         {
             if (_context.TryGetCaptruedStaticField(local, out var staticFieldIndex))
             {
@@ -455,7 +455,7 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="local"></param>
         /// <returns></returns>
-        private Instruction StlocSlot(ILocalSymbol local)
+        private Instruction StLocSlot(ILocalSymbol local)
         {
             if (_context.TryGetCaptruedStaticField(local, out var staticFieldIndex))
             {
