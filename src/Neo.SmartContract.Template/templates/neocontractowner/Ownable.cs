@@ -10,10 +10,9 @@ using System.ComponentModel;
 namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(Ownable))]
-    [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ManifestExtra("Description", "<Description Here>")]
-    [ManifestExtra("Email", "<Your Public Email Here>")]
-    [ManifestExtra("Version", "<Version String Here>")]
+    [ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
+    [ContractDescription( "<Description Here>")]
+    [ContractVersion("<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs")]
     [ContractPermission("*", "*")]
     public class Ownable : Neo.SmartContract.Framework.SmartContract

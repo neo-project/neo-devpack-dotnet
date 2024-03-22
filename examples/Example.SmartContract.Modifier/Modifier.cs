@@ -35,7 +35,7 @@ namespace Modifier
     }
 
     [DisplayName("SampleModifier")]
-    [ContractAuthor("core-dev", "core@neo.org")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractDescription("A sample contract to demonstrate how to use modifiers")]
     [ContractVersion("0.0.1")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
