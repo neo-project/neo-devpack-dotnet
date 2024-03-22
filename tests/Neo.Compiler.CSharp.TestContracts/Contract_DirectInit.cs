@@ -1,5 +1,6 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using System.Collections;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
@@ -24,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         /// <summary>
         /// A static field of type UInt160 initialized directly from a hex string. This allows for compile-time
-        /// initialization of blockchain-specific types like addresses, represented here as Hash256.
+        /// initialization of blockchain-specific types like txid/blockhash, represented here as Hash256.
         /// </summary>
         // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
