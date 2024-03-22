@@ -19,8 +19,9 @@ using System.Numerics;
 
 namespace NEP17
 {
+    /// <inheritdoc />
     [DisplayName("SampleNep17Token")]
-    [ContractAuthor("core-dev", "core@neo.org")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractVersion("0.0.1")]
     [ContractDescription("A sample NEP-17 token")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
@@ -32,8 +33,7 @@ namespace NEP17
 
         private const byte PrefixOwner = 0xff;
 
-        [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
-        private static readonly UInt160 InitialOwner = default;
+        private static readonly UInt160 InitialOwner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
         [Safe]
         public static UInt160 GetOwner()
@@ -53,7 +53,7 @@ namespace NEP17
         [DisplayName("SetOwner")]
         public static event OnSetOwnerDelegate OnSetOwner;
 
-        public static void SetOwner(UInt160 newOwner)
+        public static void SetOwner(UInt160? newOwner)
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
@@ -70,8 +70,7 @@ namespace NEP17
 
         private const byte PrefixMinter = 0xfd;
 
-        [Hash160("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP")]
-        private static readonly UInt160 InitialMinter = default;
+        private static readonly UInt160 InitialMinter = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
         [Safe]
         public static UInt160 GetMinter()
@@ -95,7 +94,7 @@ namespace NEP17
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newMinter is not { IsValid: true }) return;
+            if (!newMinter.IsValid) return;
             Storage.Put(new[] { PrefixMinter }, newMinter);
             OnSetMinter(newMinter);
         }
