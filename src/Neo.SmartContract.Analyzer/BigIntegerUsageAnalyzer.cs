@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Analyzer
 
         private readonly string[] _unsupportedBigIntegerMethods = {
             "BitwiseAnd", "BitwiseOr",
-            "CompareTo", "DivRem", "Equals",
+            "CompareTo", "DivRem",
             "Exp", "GreatestCommonDivisor", "LeftShift", "Log",
             "Log10", "OnesComplement", "Parse",
             "RightShift", "Subtract",
