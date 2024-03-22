@@ -52,6 +52,7 @@ partial class MethodConvert
 
                 switch (fullName)
                 {
+                    //complex types like UInt160 at compile time to avoid runtime overhead.
                     case "Neo.SmartContract.Framework.UInt160":
                         var strValue = (string)value;
                         value = (UInt160.TryParse(strValue, out var hash)
@@ -68,6 +69,7 @@ partial class MethodConvert
                         strValue = (string)value;
                         value = ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
                         break;
+                    //This type no longer exists.
                     case "Neo.SmartContract.Framework.ByteArray":
                         strValue = (string)value;
                         value = strValue.HexToBytes(true);
@@ -220,6 +222,11 @@ partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Ensures that the value of the incoming integer type is within the specified range.
+    /// If the type is BigInteger, no range check is performed.
+    /// </summary>
+    /// <param name="type">The integer type to be checked.</param>
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
         if (type.Name == "BigInteger") return;
@@ -266,6 +273,16 @@ partial class MethodConvert
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
+    /// <summary>
+    /// Converts an object to a string. Different conversion methods are used based on the type of the object.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain type information of the expression.</param>
+    /// <param name="expression">The expression to be converted to a string.</param>
+    /// <remarks>
+    /// For integer types and BigInteger type, call the itoa method of NativeContract.StdLib.Hash for conversion.
+    /// For string type and specific types in Neo.SmartContract.Framework, directly perform expression conversion.
+    /// </remarks>
+    /// <exception cref="CompilationException">For unsupported types, throw a compilation exception.</exception>
     private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
     {
         ITypeSymbol? type = ModelExtensions.GetTypeInfo(model, expression).Type;
