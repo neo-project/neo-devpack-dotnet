@@ -1,3 +1,10 @@
+using System;
+using System.Numerics;
+using System.Collections.Generic;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+
+
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Lambda : SmartContract.Framework.SmartContract
