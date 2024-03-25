@@ -31,16 +31,16 @@ namespace Neo.Optimizer
         Script script;
         // Starting from the address, whether the call will surely throw or surely abort, or may be OK
         public Dictionary<int, BranchType> coveredMap { get; protected set; }
-        public Dictionary<int, Dictionary<int, Instruction>> basicBlocks { get; protected set; }
+        public Dictionary<int, Dictionary<int, Instruction>> basicBlocksInDict { get; protected set; }
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
         public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
         public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
-        public Dictionary<int, HashSet<int>> jumpTargetToSources { get; init; }
+        public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
         public InstructionCoverage(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
             this.script = nef.Script;
             coveredMap = new();
-            basicBlocks = new();
+            basicBlocksInDict = new();
             addressAndInstructions = script.EnumerateInstructions().ToList();
             (jumpInstructionSourceToTargets, tryInstructionSourceToTargets, jumpTargetToSources) =
                 FindAllJumpAndTrySourceToTargets(addressAndInstructions);
@@ -159,18 +159,18 @@ namespace Neo.Optimizer
                 if (coveredMap[addr] != BranchType.UNCOVERED)
                     // We have visited the code. Skip it.
                     return coveredMap[addr];
-                if (jumpTargetToSources.ContainsKey(addr) && addr != entranceAddr)
+                Instruction instruction = script.GetInstruction(addr);
+                if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
                     return CoverInstruction(addr, stack, throwed);
-                Instruction instruction = script.GetInstruction(addr);
                 if (instruction.OpCode != OpCode.NOP)
                 {
                     coveredMap[addr] = BranchType.OK;
                     // Add a basic block starting from entranceAddr
-                    if (!basicBlocks.TryGetValue(entranceAddr, out Dictionary<int, Instruction>? instructions))
+                    if (!basicBlocksInDict.TryGetValue(entranceAddr, out Dictionary<int, Instruction>? instructions))
                     {
                         instructions = new Dictionary<int, Instruction>();
-                        basicBlocks.Add(entranceAddr, instructions);
+                        basicBlocksInDict.Add(entranceAddr, instructions);
                     }
                     // Add this instruction to the basic block starting from entranceAddr
                     instructions.Add(addr, instruction);

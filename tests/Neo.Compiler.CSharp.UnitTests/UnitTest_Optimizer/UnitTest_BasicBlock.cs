@@ -28,43 +28,42 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             catch (Exception e) { return; }
             (NefFile nef, ContractManifest manifest, JToken debugInfo) = (testengine.Nef, testengine.Manifest, testengine.DebugInfo);
             if (nef == null) { return; }
-            Dictionary<int, Dictionary<int, VM.Instruction>> basicBlocks;
+            ContractInBasicBlocks basicBlocks;
             try
             {
-                basicBlocks = BasicBlock.FindBasicBlocks(nef, manifest, debugInfo);
+                basicBlocks = new(nef, manifest, debugInfo);
             }
             catch (Exception e) { return; }
             // TODO: support CALLA and do not return
 
             Script script = nef.Script;
-            List<(int a, VM.Instruction i)> instructions = script.EnumerateInstructions().ToList();
-            (_, _, Dictionary<int, HashSet<int>> jumpTargets) = Neo.Optimizer.JumpTarget.FindAllJumpAndTrySourceToTargets(instructions);
+            List<VM.Instruction> instructions = basicBlocks.EnumerateInstructions().ToList();
+            (_, _, Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets) = Neo.Optimizer.JumpTarget.FindAllJumpAndTrySourceToTargets(instructions);
 
-            Dictionary<int, int> nextAddrTable = new();
-            int prev = -1;
-            foreach ((int a, VM.Instruction i) in instructions)
+            Dictionary<VM.Instruction, VM.Instruction> nextAddrTable = new();
+            VM.Instruction prev = null;
+            foreach (VM.Instruction i in instructions)
             {
-                if (prev >= 0)
-                    nextAddrTable[prev] = a;
-                prev = a;
+                if (prev != null)
+                    nextAddrTable[prev] = i;
+                prev = i;
             }
 
-            foreach (Dictionary<int, VM.Instruction> basicBlock in basicBlocks.Values)
+            foreach (BasicBlock basicBlock in basicBlocks.basicBlocks)
             {
-                (int a, VM.Instruction i)[] sortedInstructions = (from kv in basicBlock orderby kv.Key ascending select (kv.Key, kv.Value)).ToArray();
                 // Basic block ends with allowed OpCodes only, or the next instruction is a jump target
-                Assert.IsTrue(OpCodeTypes.allowedBasicBlockEnds.Contains(sortedInstructions.Last().i.OpCode) || jumpTargets.ContainsKey(nextAddrTable[sortedInstructions.Last().a]));
+                Assert.IsTrue(OpCodeTypes.allowedBasicBlockEnds.Contains(basicBlock.instructions.Last().OpCode) || jumpTargets.ContainsKey(nextAddrTable[basicBlock.instructions.Last()]));
                 // Other instructions in the basic block are not those in allowedBasicBlockEnds
-                foreach ((int a, VM.Instruction i) in sortedInstructions.Take(sortedInstructions.Length - 1))
+                foreach (VM.Instruction i in basicBlock.instructions.Take(basicBlock.instructions.Count - 1))
                     Assert.IsFalse(OpCodeTypes.allowedBasicBlockEnds.Contains(i.OpCode));
             }
             // Each jump target starts a new basic block
-            foreach (int target in jumpTargets.Keys)
-                Assert.IsTrue(basicBlocks.ContainsKey(target));
+            foreach (VM.Instruction target in jumpTargets.Keys)
+                Assert.IsTrue(basicBlocks.basicBlocksByStartingInstruction.ContainsKey(target));
             // Each instruction is included in only 1 basic block
             HashSet<VM.Instruction> includedInstructions = new();
-            foreach (Dictionary<int, VM.Instruction> basicBlock in basicBlocks.Values)
-                foreach (VM.Instruction instruction in basicBlock.Values)
+            foreach (BasicBlock basicBlock in basicBlocks.basicBlocks)
+                foreach (VM.Instruction instruction in basicBlock.instructions)
                 {
                     Assert.IsFalse(includedInstructions.Contains(instruction));
                     includedInstructions.Add(instruction);
