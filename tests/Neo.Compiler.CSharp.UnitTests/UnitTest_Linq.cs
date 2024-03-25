@@ -72,40 +72,40 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_AnyGreatThanZero()
+        public void Test_AnyGreaterThanZero()
         {
             testengine.Reset();
             var array = new Array();
             array.Add(0);
             array.Add(-1);
             array.Add(-100);
-            var result = testengine.ExecuteTestCaseStandard("anyGreatThanZero", array).Pop();
+            var result = testengine.ExecuteTestCaseStandard("anyGreaterThanZero", array).Pop();
             Assert.AreEqual(false, result.GetBoolean());
 
             testengine.Reset();
             array.Add(1);
-            result = testengine.ExecuteTestCaseStandard("anyGreatThanZero", array).Pop();
+            result = testengine.ExecuteTestCaseStandard("anyGreaterThanZero", array).Pop();
             Assert.AreEqual(true, result.GetBoolean());
         }
 
         [TestMethod]
-        public void Test_AnyGreatThan()
+        public void Test_AnyGreaterThan()
         {
             testengine.Reset();
             var array = new Array();
             array.Add(0);
             array.Add(-1);
             array.Add(-100);
-            var result = testengine.ExecuteTestCaseStandard("anyGreatThan", array, 0).Pop();
+            var result = testengine.ExecuteTestCaseStandard("anyGreaterThan", array, 0).Pop();
             Assert.AreEqual(false, result.GetBoolean());
 
             testengine.Reset();
             array.Add(1);
-            result = testengine.ExecuteTestCaseStandard("anyGreatThan", array, 0).Pop();
+            result = testengine.ExecuteTestCaseStandard("anyGreaterThan", array, 0).Pop();
             Assert.AreEqual(true, result.GetBoolean());
 
             testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("anyGreatThan", array, 100).Pop();
+            result = testengine.ExecuteTestCaseStandard("anyGreaterThan", array, 100).Pop();
             Assert.AreEqual(false, result.GetBoolean());
         }
 
@@ -177,14 +177,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_CountGreatThanZero()
+        public void Test_CountGreaterThanZero()
         {
             testengine.Reset();
             var array = new Array();
             array.Add(0);
             array.Add(-1);
             array.Add(-100);
-            var result = testengine.ExecuteTestCaseStandard("countGreatThanZero", array).Pop();
+            var result = testengine.ExecuteTestCaseStandard("countGreaterThanZero", array).Pop();
             Assert.AreEqual(0, result.GetInteger());
 
             testengine.Reset();
@@ -193,7 +193,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(100);
             array.Add(56);
 
-            result = testengine.ExecuteTestCaseStandard("countGreatThanZero", array).Pop();
+            result = testengine.ExecuteTestCaseStandard("countGreaterThanZero", array).Pop();
             Assert.AreEqual(3, result.GetInteger());
         }
 
@@ -219,7 +219,65 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_FirstGreatThanZero()
+        public void Test_ContainsText()
+        {
+            testengine.Reset();
+            var array = new Array();
+            array.Add("Hello");
+            array.Add("AA");
+            array.Add("bbb");
+            var result = testengine.ExecuteTestCaseStandard("containsText", array, "bbb").Pop();
+            Assert.AreEqual(true, result.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("containsText", array, "c").Pop();
+            Assert.AreEqual(false, result.GetBoolean());
+        }
+
+        [TestMethod]
+        public void Test_ContainsPerson()
+        {
+            testengine.Reset();
+            var array = new Array();
+            array.Add(0);
+            array.Add(-1);
+            array.Add(-100);
+            var result = testengine.ExecuteTestCaseStandard("containsPerson", array, 0).Pop();
+            Assert.AreEqual(false, result.GetBoolean());
+
+            testengine.Reset();
+            array.Add(1);
+            result = testengine.ExecuteTestCaseStandard("containsPerson", array, 1).Pop();
+            Assert.AreEqual(false, result.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("containsPersonIndex", array, 0).Pop();
+            Assert.AreEqual(true, result.GetBoolean());
+        }
+
+        [TestMethod]
+        public void Test_ContainsPersonS()
+        {
+            testengine.Reset();
+            var array = new Array();
+            array.Add(0);
+            array.Add(-1);
+            array.Add(-100);
+            var result = testengine.ExecuteTestCaseStandard("containsPersonS", array, 0).Pop();
+            Assert.AreEqual(true, result.GetBoolean());
+
+            testengine.Reset();
+            array.Add(1);
+            result = testengine.ExecuteTestCaseStandard("containsPersonS", array, 10).Pop();
+            Assert.AreEqual(false, result.GetBoolean());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("containsPersonS", array, -100).Pop();
+            Assert.AreEqual(true, result.GetBoolean());
+        }
+
+        [TestMethod]
+        public void Test_FirstGreaterThanZero()
         {
             testengine.Reset();
             var array = new Array();
@@ -227,7 +285,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(-1);
             array.Add(-100);
             array.Add(1);
-            var result = testengine.ExecuteTestCaseStandard("firstGreatThanZero", array).Pop();
+            var result = testengine.ExecuteTestCaseStandard("firstGreaterThanZero", array).Pop();
             Assert.AreEqual(1, result.GetInteger());
 
             testengine.Reset();
@@ -236,9 +294,48 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(0);
             array.Add(-1);
             array.Add(-100);
-            result = testengine.ExecuteTestCaseStandard("firstGreatThanZero", array).Pop();
+            result = testengine.ExecuteTestCaseStandard("firstGreaterThanZero", array).Pop();
             Assert.AreEqual(2, result.GetInteger());
         }
+
+        [TestMethod]
+        public void Test_SelectTwice()
+        {
+            testengine.Reset();
+            var array = new Array();
+            array.Add(0);
+            array.Add(-1);
+            array.Add(-100);
+            var result = (Array)testengine.ExecuteTestCaseStandard("selectTwice", array).Pop();
+            Assert.AreEqual(3, result.Count);
+
+            testengine.Reset();
+            array.Add(5);
+            result = (Array)testengine.ExecuteTestCaseStandard("selectTwice", array).Pop();
+            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(0, result[0]);
+            Assert.AreEqual(-2, result[1]);
+            Assert.AreEqual(-200, result[2]);
+            Assert.AreEqual(10, result[3]);
+        }
+
+        [TestMethod]
+        public void Test_SelectPersonS()
+        {
+            testengine.Reset();
+            var array = new Array();
+            array.Add(0);
+            array.Add(-1);
+            array.Add(-100);
+            array.Add(5);
+            var result = (Array)testengine.ExecuteTestCaseStandard("selectPersonS", array).Pop();
+            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(array[0], ((Struct)result[0])[1]);
+            Assert.AreEqual(array[1], ((Struct)result[1])[1]);
+            Assert.AreEqual(array[2], ((Struct)result[2])[1]);
+            Assert.AreEqual(array[3], ((Struct)result[3])[1]);
+        }
+
 
         [TestMethod]
         public void Test_Skip()
@@ -306,6 +403,23 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = (Array)testengine.ExecuteTestCaseStandard("take", array, 2).Pop();
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(0, result[0]);
+        }
+
+        [TestMethod]
+        public void Test_ToMap()
+        {
+            testengine.Reset();
+            var array = new Array();
+            array.Add(0);
+            array.Add(-1);
+            array.Add(-100);
+            array.Add(5);
+            var result = (Map)testengine.ExecuteTestCaseStandard("toMap", array).Pop();
+            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(array[0], ((Struct)result[array[0].ToString()])[1]);
+            Assert.AreEqual(array[1], ((Struct)result[array[1].ToString()])[1]);
+            Assert.AreEqual(array[2], ((Struct)result[array[2].ToString()])[1]);
+            Assert.AreEqual(array[3], ((Struct)result[array[3].ToString()])[1]);
         }
 
         [TestMethod]

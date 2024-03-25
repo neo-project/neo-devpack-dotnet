@@ -224,7 +224,7 @@ namespace Neo.SmartContract.Framework.Linq
         }
 
         /// <summary>
-        /// Determines whether a sequence contains a specified element by using the default equality comparer.
+        /// Determines whether a sequence contains a specified element by using the default equality comparer.(Reference comparer for class, Value comparer for struct)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source">A sequence in which to locate a value.</param>
@@ -292,6 +292,25 @@ namespace Neo.SmartContract.Framework.Linq
                 if (predicate(item)) return item;
             }
             return defaultValue;
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence into a new form.
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="source"> A sequence of values to invoke a transform function on.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>An collection whose elements are the result of invoking the transform function on each element of source.</returns>
+        public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        {
+            AssertSourceNotNull(source);
+            var list = new List<TResult>();
+            foreach (var item in source)
+            {
+                list.Add(selector(item));
+            }
+            return list;
         }
 
         /// <summary>
@@ -436,6 +455,28 @@ namespace Neo.SmartContract.Framework.Linq
             }
             return list;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="elementSelector"></param>
+        /// <returns></returns>
+        public static Map<TKey, TValue> ToMap<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
+        {
+            AssertSourceNotNull(source);
+            var map = new Map<TKey, TValue>();
+            foreach (var item in source)
+            {
+                map[keySelector(item)] = elementSelector(item);
+            }
+            return map;
+        }
+
 
         /// <summary>
         ///  Filters a sequence of values based on a predicate.
