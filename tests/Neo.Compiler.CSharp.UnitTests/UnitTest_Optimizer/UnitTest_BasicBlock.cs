@@ -6,7 +6,6 @@ using Neo.SmartContract;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 using System.Linq;
-using Neo.VM;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -36,7 +35,6 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             catch (Exception e) { return; }
             // TODO: support CALLA and do not return
 
-            Script script = nef.Script;
             List<VM.Instruction> instructions = basicBlocks.EnumerateInstructions().ToList();
             (_, _, Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets) = Neo.Optimizer.JumpTarget.FindAllJumpAndTrySourceToTargets(instructions);
 
@@ -53,6 +51,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             {
                 // Basic block ends with allowed OpCodes only, or the next instruction is a jump target
                 Assert.IsTrue(OpCodeTypes.allowedBasicBlockEnds.Contains(basicBlock.instructions.Last().OpCode) || jumpTargets.ContainsKey(nextAddrTable[basicBlock.instructions.Last()]));
+                // Instructions except the first are not jump targets
+                foreach (VM.Instruction i in basicBlock.instructions.Skip(1))
+                    Assert.IsFalse(jumpTargets.ContainsKey(i));
                 // Other instructions in the basic block are not those in allowedBasicBlockEnds
                 foreach (VM.Instruction i in basicBlock.instructions.Take(basicBlock.instructions.Count - 1))
                     Assert.IsFalse(OpCodeTypes.allowedBasicBlockEnds.Contains(i.OpCode));

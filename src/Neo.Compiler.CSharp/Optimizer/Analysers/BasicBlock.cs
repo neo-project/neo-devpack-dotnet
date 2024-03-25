@@ -67,8 +67,10 @@ namespace Neo.Optimizer
                     basicBlocksByStartingInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartingInstruction[target];
                 if (coverage.tryInstructionSourceToTargets.TryGetValue(lastInstruction, out (Instruction, Instruction) targets))
                 {
-                    basicBlocksByStartingInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartingInstruction[targets.Item1];
-                    basicBlocksByStartingInstruction[block.First()].jumpTargetBlock2 = basicBlocksByStartingInstruction[targets.Item2];
+                    if (lastInstruction != targets.Item1)
+                        basicBlocksByStartingInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartingInstruction[targets.Item1];
+                    if (lastInstruction != targets.Item2)
+                        basicBlocksByStartingInstruction[block.First()].jumpTargetBlock2 = basicBlocksByStartingInstruction[targets.Item2];
                 }
             }
             this.basicBlocks = basicBlocksByStartingInstruction.Values.ToList();
