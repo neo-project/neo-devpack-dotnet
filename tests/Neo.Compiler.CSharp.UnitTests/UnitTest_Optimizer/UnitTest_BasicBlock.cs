@@ -18,10 +18,6 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
     {
         private TestEngine testengine;
 
-        HashSet<OpCode> allowedEnds = ((OpCode[])Enum.GetValues(typeof(OpCode)))
-            .Where(i => Neo.Optimizer.JumpTarget.SingleJumpInOperand(i) && i != OpCode.PUSHA || Neo.Optimizer.JumpTarget.DoubleJumpInOperand(i)).ToHashSet()
-            .Union(new HashSet<OpCode>() { OpCode.RET, OpCode.ABORT, OpCode.ABORTMSG, OpCode.THROW, OpCode.ENDFINALLY }).ToHashSet();
-
         public void Test_SingleContractBasicBlockStartEnd(string fileName)
         {
             testengine = new TestEngine();
@@ -57,10 +53,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             {
                 (int a, VM.Instruction i)[] sortedInstructions = (from kv in basicBlock orderby kv.Key ascending select (kv.Key, kv.Value)).ToArray();
                 // Basic block ends with allowed OpCodes only, or the next instruction is a jump target
-                Assert.IsTrue(allowedEnds.Contains(sortedInstructions.Last().i.OpCode) || jumpTargets.ContainsKey(nextAddrTable[sortedInstructions.Last().a]));
-                // Other instructions in the basic block are not those in allowedEnds
+                Assert.IsTrue(OpCodeTypes.allowedBasicBlockEnds.Contains(sortedInstructions.Last().i.OpCode) || jumpTargets.ContainsKey(nextAddrTable[sortedInstructions.Last().a]));
+                // Other instructions in the basic block are not those in allowedBasicBlockEnds
                 foreach ((int a, VM.Instruction i) in sortedInstructions.Take(sortedInstructions.Length - 1))
-                    Assert.IsFalse(allowedEnds.Contains(i.OpCode));
+                    Assert.IsFalse(OpCodeTypes.allowedBasicBlockEnds.Contains(i.OpCode));
             }
             // Each jump target starts a new basic block
             foreach (int target in jumpTargets.Keys)
