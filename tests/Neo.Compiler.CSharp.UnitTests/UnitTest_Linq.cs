@@ -260,6 +260,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(4, result.Count);
             Assert.AreEqual(-100, result[0]);
             Assert.AreEqual(100, result[3]);
+            Assert.AreEqual(100, result[3]);
         }
 
         [TestMethod]
