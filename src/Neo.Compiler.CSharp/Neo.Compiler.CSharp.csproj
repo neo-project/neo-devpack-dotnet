@@ -15,6 +15,7 @@
     <Description>Neo.Compiler.CSharp</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ApplicationIcon>neo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,10 @@
       <Aliases>scfx</Aliases>
     </ProjectReference>
     <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="./neo.ico" Visible="false" Pack="true" />
   </ItemGroup>
 
 </Project>
