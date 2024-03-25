@@ -33,6 +33,8 @@ namespace Neo.Optimizer
         public Dictionary<int, BranchType> coveredMap { get; protected set; }
         public Dictionary<int, Dictionary<int, Instruction>> basicBlocks { get; protected set; }
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
+        public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
+        public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
         public Dictionary<int, HashSet<int>> jumpTargetToSources { get; init; }
         public InstructionCoverage(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
@@ -40,7 +42,8 @@ namespace Neo.Optimizer
             coveredMap = new();
             basicBlocks = new();
             addressAndInstructions = script.EnumerateInstructions().ToList();
-            (_, _, jumpTargetToSources) = FindAllJumpAndTrySourceToTargets(addressAndInstructions);
+            (jumpInstructionSourceToTargets, tryInstructionSourceToTargets, jumpTargetToSources) =
+                FindAllJumpAndTrySourceToTargets(addressAndInstructions);
             foreach ((int addr, Instruction _) in addressAndInstructions)
                 coveredMap.Add(addr, BranchType.UNCOVERED);
 
