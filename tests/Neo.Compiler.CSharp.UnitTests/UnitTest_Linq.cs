@@ -109,7 +109,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(false, result.GetBoolean());
         }
 
-
         [TestMethod]
         public void Test_Average()
         {
@@ -219,7 +218,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(true, result.GetBoolean());
         }
 
-
         [TestMethod]
         public void Test_FirstGreatThanZero()
         {
@@ -241,7 +239,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = testengine.ExecuteTestCaseStandard("firstGreatThanZero", array).Pop();
             Assert.AreEqual(2, result.GetInteger());
         }
-
 
         [TestMethod]
         public void Test_Skip()
@@ -332,8 +329,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(100, result[1]);
             Assert.AreEqual(56, result[2]);
         }
-
-
-
     }
 }
