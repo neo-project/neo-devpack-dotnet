@@ -29,7 +29,7 @@ jobs:
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Build Neo.SmartContract.Template and test templates
       run: |
-        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
+        dotnet pack --configuration Debug ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
         dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep17/ --force
         dotnet new neocontractowner -n Ownable -o ./src/Neo.SmartContract.Template/bin/Debug/ownable/ --force
