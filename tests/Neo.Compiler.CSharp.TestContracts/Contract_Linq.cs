@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return array.Aggregate(0, (Sum, item) => Sum + item);
         }
 
-        public static bool AllGreatThanZero(int[] array)
+        public static bool AllGreaterThanZero(int[] array)
         {
             return array.All(x => x > 0);
         }

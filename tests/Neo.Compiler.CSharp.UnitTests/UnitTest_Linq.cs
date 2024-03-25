@@ -39,18 +39,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_AllGreatThanZero()
+        public void Test_AllGreaterThanZero()
         {
             testengine.Reset();
             var array = new Array();
             array.Add(1);
             array.Add(100);
-            var result = testengine.ExecuteTestCaseStandard("allGreatThanZero", array).Pop();
+            var result = testengine.ExecuteTestCaseStandard("allGreaterThanZero", array).Pop();
             Assert.AreEqual(true, result.GetBoolean());
 
             testengine.Reset();
             array.Add(0);
-            result = testengine.ExecuteTestCaseStandard("allGreatThanZero", array).Pop();
+            result = testengine.ExecuteTestCaseStandard("allGreaterThanZero", array).Pop();
             Assert.AreEqual(false, result.GetBoolean());
         }
 
