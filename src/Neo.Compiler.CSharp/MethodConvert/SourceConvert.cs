@@ -25,7 +25,7 @@ partial class MethodConvert
         {
             IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
             byte index = i;
-            if (!Symbol.IsStatic) index++;
+            if (IsInstanceMethod(Symbol)) index++;
             _parameters.Add(parameter, index);
         }
         switch (SyntaxNode)
@@ -59,6 +59,27 @@ partial class MethodConvert
                 else
                     ConvertStatement(model, syntax.Body);
                 break;
+
+            case SimpleLambdaExpressionSyntax syntax:
+                if (syntax.Block is null)
+                {
+                    ConvertExpression(model, syntax.ExpressionBody!);
+                }
+                else
+                {
+                    ConvertStatement(model, syntax.Block);
+                }
+                break;
+            case ParenthesizedLambdaExpressionSyntax syntax:
+                if (syntax.Block is null)
+                {
+                    ConvertExpression(model, syntax.ExpressionBody!);
+                }
+                else
+                {
+                    ConvertStatement(model, syntax.Block);
+                }
+                break;
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
@@ -83,4 +104,8 @@ partial class MethodConvert
         // For other types of BaseMethodDeclarationSyntax or cases without an expression body, default to no return value
         return false;
     }
+
+
+    private bool IsInstanceMethod(IMethodSymbol symbol) => !symbol.IsStatic && symbol.MethodKind != MethodKind.AnonymousFunction;
+
 }
