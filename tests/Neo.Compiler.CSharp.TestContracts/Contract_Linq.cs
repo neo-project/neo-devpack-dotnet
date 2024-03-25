@@ -1,7 +1,6 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Linq;
 
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Linq : SmartContract.Framework.SmartContract
@@ -31,7 +30,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return array.Any(x => x > target);
         }
 
-
         public static int Average(int[] array)
         {
             return array.Average();
@@ -41,7 +39,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return array.Average(a => 2 * a);
         }
-
 
         public static object Count(int[] array)
         {
@@ -57,7 +54,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return array.Contains(target);
         }
-
 
         public static int FirstGreatThanZero(int[] array)
         {
@@ -88,7 +84,5 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             return array.Where(x => x > 0);
         }
-
-
     }
 }
