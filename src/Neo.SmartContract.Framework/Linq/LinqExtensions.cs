@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-
 namespace Neo.SmartContract.Framework.Linq
 {
     public static class LinqExtensions
@@ -59,7 +58,6 @@ namespace Neo.SmartContract.Framework.Linq
             }
             return true;
         }
-
 
         /// <summary>
         /// Determines whether a sequence contains any elements.
