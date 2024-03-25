@@ -2,7 +2,7 @@ name: .NET Core Test and Publish
 
 on:
   push:
-    branches: [core-net8]
+    branches: [master]
   pull_request:
 
 env:
