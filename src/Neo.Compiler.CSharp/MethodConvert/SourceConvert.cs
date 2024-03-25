@@ -105,7 +105,6 @@ partial class MethodConvert
         return false;
     }
 
-
     private bool IsInstanceMethod(IMethodSymbol symbol) => !symbol.IsStatic && symbol.MethodKind != MethodKind.AnonymousFunction;
 
 }
