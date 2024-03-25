@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <AssemblyTitle>Neo.Compiler.CSharp</AssemblyTitle>
-    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>nccs</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Neo.Compiler.CSharp</PackageId>
