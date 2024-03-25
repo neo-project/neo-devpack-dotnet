@@ -54,6 +54,7 @@ namespace Neo.Compiler
         private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
@@ -517,6 +518,23 @@ namespace Neo.Compiler
             byte index = (byte)StaticFieldCount;
             _anonymousStaticFields.Add(index);
             return index;
+        }
+
+        internal byte GetOrAddCapturedStaticField(ISymbol local)
+        {
+            if (_capturedStaticFields.ContainsKey(local))
+            {
+                return _capturedStaticFields[local];
+            }
+            byte index = (byte)StaticFieldCount;
+            _anonymousStaticFields.Add(index);
+            _capturedStaticFields.Add(local, index);
+            return index;
+        }
+
+        internal bool TryGetCaptruedStaticField(ISymbol local, out byte staticFieldIndex)
+        {
+            return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);
         }
 
         internal byte AddVTable(ITypeSymbol type)

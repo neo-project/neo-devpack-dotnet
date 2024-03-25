@@ -134,10 +134,10 @@ partial class MethodConvert
                 }
                 break;
             case ILocalSymbol local:
-                AccessSlot(OpCode.STLOC, _localVariables[local]);
+                StLocSlot(local);
                 break;
             case IParameterSymbol parameter:
-                AccessSlot(OpCode.STARG, _parameters[parameter]);
+                StArgSlot(parameter);
                 break;
             case IPropertySymbol property:
                 // Check if the property is within a constructor and is readonly
