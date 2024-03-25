@@ -80,7 +80,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return array.Take(count);
         }
 
-        public static object WhereGreatThanZero(int[] array)
+        public static object WhereGreaterThanZero(int[] array)
         {
             return array.Where(x => x > 0);
         }

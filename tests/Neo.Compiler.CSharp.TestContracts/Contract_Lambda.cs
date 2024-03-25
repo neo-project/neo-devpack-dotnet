@@ -126,7 +126,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return Any(array, x => x > target);
         }
 
-        public static SmartContract.Framework.List<int> WhereGreatThanZero(int[] array)
+        public static SmartContract.Framework.List<int> WhereGreaterThanZero(int[] array)
         {
             return Where(array, x => x > 0);
         }
