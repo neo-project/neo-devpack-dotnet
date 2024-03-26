@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
-
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_Lambda : SmartContract.Framework.SmartContract
@@ -139,7 +138,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             return false;
         }
-
 
         private static SmartContract.Framework.List<T> Where<T>(IEnumerable<T> array, Predicate<T> pre)
         {
