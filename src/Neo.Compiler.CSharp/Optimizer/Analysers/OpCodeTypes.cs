@@ -1,4 +1,6 @@
 using Neo.VM;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 using static Neo.VM.OpCode;
 
@@ -7,6 +9,7 @@ namespace Neo.Optimizer
     static class OpCodeTypes
     {
         public static readonly HashSet<OpCode> push = new();
+        public static readonly HashSet<OpCode> allowedBasicBlockEnds;
 
         static OpCodeTypes()
         {
@@ -18,12 +21,16 @@ namespace Neo.Optimizer
             push.Add(PUSHNULL);
             foreach (OpCode op in pushData)
                 push.Add(op);
-            foreach (OpCode op in pushConst)
+            foreach (OpCode op in pushConstInt)
                 push.Add(op);
             foreach (OpCode op in pushStackOps)
                 push.Add(op);
             foreach (OpCode op in pushNewCompoundType)
                 push.Add(op);
+            allowedBasicBlockEnds = ((OpCode[])Enum.GetValues(typeof(OpCode)))
+                    .Where(i => JumpTarget.SingleJumpInOperand(i) && i != PUSHA || JumpTarget.DoubleJumpInOperand(i)).ToHashSet()
+                    .Union(new HashSet<OpCode>() { RET, ABORT, ABORTMSG, THROW, ENDFINALLY
+            }).ToHashSet();
         }
 
         public static readonly HashSet<OpCode> pushInt = new()
@@ -48,7 +55,7 @@ namespace Neo.Optimizer
             PUSHDATA4,
         };
 
-        public static readonly HashSet<OpCode> pushConst = new()
+        public static readonly HashSet<OpCode> pushConstInt = new()
         {
             PUSHM1,
             PUSH0,
@@ -130,6 +137,67 @@ namespace Neo.Optimizer
             JMPGE_L,
             JMPLT_L,
             JMPLE_L,
+        };
+
+        public static readonly HashSet<OpCode> loadStaticFieldsConst = new()
+        {
+            LDSFLD0,
+            LDSFLD1,
+            LDSFLD2,
+            LDSFLD3,
+            LDSFLD4,
+            LDSFLD5,
+            LDSFLD6,
+        };
+        public static readonly HashSet<OpCode> storeStaticFieldsConst = new()
+        {
+            STSFLD0,
+            STSFLD1,
+            STSFLD2,
+            STSFLD3,
+            STSFLD4,
+            STSFLD5,
+            STSFLD6,
+        };
+        public static readonly HashSet<OpCode> loadLocalVariablesConst = new()
+        {
+            LDLOC0,
+            LDLOC1,
+            LDLOC2,
+            LDLOC3,
+            LDLOC4,
+            LDLOC5,
+            LDLOC6,
+        };
+        public static readonly HashSet<OpCode> storeLocalVariablesConst = new()
+        {
+            STLOC0,
+            STLOC1,
+            STLOC2,
+            STLOC3,
+            STLOC4,
+            STLOC5,
+            STLOC6,
+        };
+        public static readonly HashSet<OpCode> loadArgumentsConst = new()
+        {
+            LDARG0,
+            LDARG1,
+            LDARG2,
+            LDARG3,
+            LDARG4,
+            LDARG5,
+            LDARG6,
+        };
+        public static readonly HashSet<OpCode> storeArgumentsConst = new()
+        {
+            STARG0,
+            STARG1,
+            STARG2,
+            STARG3,
+            STARG4,
+            STARG5,
+            STARG6,
         };
     }
 }
