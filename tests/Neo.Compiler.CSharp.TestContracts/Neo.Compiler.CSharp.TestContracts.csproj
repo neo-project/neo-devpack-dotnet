@@ -2,20 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Using Remove="System.Linq" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
   </ItemGroup>
