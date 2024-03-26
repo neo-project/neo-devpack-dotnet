@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var key = GenerateKey(32);
             var data = Engine.Transaction.GetSignData(ProtocolSettings.Default.Network);
-            var signature = Crypto.Sign(data, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+            var signature = Crypto.Sign(data, key.PrivateKey);
 
             // Check
 
