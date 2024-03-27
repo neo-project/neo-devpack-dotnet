@@ -1,7 +1,6 @@
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using Neo.SmartContract.Framework.Native;
-using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
