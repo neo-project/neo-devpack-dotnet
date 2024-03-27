@@ -11,6 +11,11 @@ namespace Neo.SmartContract.Framework.Linq
             if (source == null) throw new ArgumentNullException("source is null");
         }
 
+        private static void AssertNotNull(object obj, string name)
+        {
+            if (obj == null) throw new ArgumentNullException($"{name} is null");
+        }
+
         /// <summary>
         ///  Determines whether a sequence is null or contains any elements.
         /// </summary>
@@ -30,10 +35,12 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">An collections to aggregate over.</param>
         /// <param name="seed">The initial accumulator value.</param>
         /// <param name="func">An accumulator function to be invoked on each element.</param>
-        /// <returns></returns>
+        /// <returns>The final accumulator value.</returns>
+        /// <exception cref="ArgumentNullException">source or func is null.</exception>
         public static TAccumulate Aggregate<TSource, TAccumulate>(this IEnumerable<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> func)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(func, nameof(func));
             foreach (var item in source)
             {
                 seed = func(seed, item);
@@ -48,10 +55,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source"> An collections that contains the elements to apply the predicate to.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns> true if every element of the source sequence passes the test in the specified predicate, or if the sequence is empty; otherwise, false.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source or predicate is null.</exception>
         public static bool All<T>(this IEnumerable<T> source, Predicate<T> predicate)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(predicate, nameof(predicate));
             foreach (var i in source)
             {
                 if (!predicate(i)) return false;
@@ -65,7 +73,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="source"> An collections that contains the elements to apply the predicate to.</param>
         /// <returns>true if the source sequence contains any elements; otherwise, false.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static bool Any<T>(this IEnumerable<T> source)
         {
             AssertSourceNotNull(source);
@@ -83,10 +91,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source"> An collections that contains the elements to apply the predicate to.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns>true if the source sequence is not empty and at least one of its elements passes the test in the specified predicate; otherwise, false.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source or predicate is null.</exception>
         public static bool Any<T>(this IEnumerable<T> source, Predicate<T> predicate)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(predicate, nameof(predicate));
             foreach (var i in source)
             {
                 if (predicate(i)) return true;
@@ -97,10 +106,9 @@ namespace Neo.SmartContract.Framework.Linq
         /// <summary>
         ///  Computes the average of a sequence of System.Int32 values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <returns>The average of the sequence of values.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static int Average(this IEnumerable<int> source)
         {
             AssertSourceNotNull(source);
@@ -122,10 +130,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The average of the sequence of values.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static int Average<T>(this IEnumerable<T> source, Func<T, int> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             int count = 0;
             int sum = 0;
             foreach (var item in source)
@@ -140,10 +149,9 @@ namespace Neo.SmartContract.Framework.Linq
         /// <summary>
         ///  Computes the average of a sequence of System.Int64 values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <returns>The average of the sequence of values.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static long Average(this IEnumerable<long> source)
         {
             AssertSourceNotNull(source);
@@ -165,10 +173,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The average of the sequence of values.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static long Average<T>(this IEnumerable<T> source, Func<T, long> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             int count = 0;
             long sum = 0;
             foreach (var item in source)
@@ -183,10 +192,9 @@ namespace Neo.SmartContract.Framework.Linq
         /// <summary>
         ///  Computes the average of a sequence of BigInteger values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <returns>The average of the sequence of values.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static BigInteger Average(this IEnumerable<BigInteger> source)
         {
             AssertSourceNotNull(source);
@@ -208,10 +216,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The average of the sequence of values.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static BigInteger Average<T>(this IEnumerable<T> source, Func<T, BigInteger> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             int count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
@@ -230,6 +239,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence in which to locate a value.</param>
         /// <param name="value"> The value to locate in the sequence.</param>
         /// <returns>true if the source sequence contains an element that has the specified value; otherwise, false.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static bool Contains<T>(this IEnumerable<T> source, T value)
         {
             return Any(source, s => s.Equals(value));
@@ -241,7 +251,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="source">A sequence that contains elements to be counted.</param>
         /// <returns>The number of elements in the input sequence.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static int Count<T>(this IEnumerable<T> source)
         {
             AssertSourceNotNull(source);
@@ -262,10 +272,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence that contains elements to be counted.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns>A number that represents how many elements in the sequence satisfy the condition in the predicate function.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException">source or predicate is null.</exception>
         public static int Count<T>(this IEnumerable<T> source, Predicate<T> predicate)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(predicate, nameof(predicate));
             //if (source is List<T> list) return list.Count;
             //if (source is T[] array) return array.Length;
             int count = 0;
@@ -284,9 +295,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="defaultValue">The default value to return if the sequence is empty.</param>
         /// <returns>defaultValue if source is empty or if no element passes the test specified by predicate; otherwise, the first element in source that passes the test specified by predicate.</returns>
+        /// <exception cref="ArgumentNullException">source or predicate is null.</exception>
         public static T FirstOrDefault<T>(this IEnumerable<T> source, Predicate<T> predicate, T defaultValue)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(predicate, nameof(predicate));
             foreach (var item in source)
             {
                 if (predicate(item)) return item;
@@ -302,9 +315,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source"> A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>An collection whose elements are the result of invoking the transform function on each element of source.</returns>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             var list = new List<TResult>();
             foreach (var item in source)
             {
@@ -320,6 +335,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">An collections to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <returns> An collection that contains the elements that occur after the specified index in the input sequence.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static IEnumerable<T> Skip<T>(this IEnumerable<T> source, int count)
         {
             AssertSourceNotNull(source);
@@ -343,6 +359,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// </summary>
         /// <param name="source">A sequence of System.Int32 values to calculate the sum of.</param>
         /// <returns>The sum of the values in the sequence.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static int Sum(this IEnumerable<int> source)
         {
             AssertSourceNotNull(source);
@@ -360,9 +377,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence of values that are used to calculate a sum.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The sum of the projected values.</returns>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static int Sum<T>(this IEnumerable<T> source, Func<T, int> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             int sum = 0;
             foreach (var item in source)
             {
@@ -376,6 +395,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// </summary>
         /// <param name="source">A sequence of System.Int64 values to calculate the sum of.</param>
         /// <returns>The sum of the values in the sequence.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static long Sum(this IEnumerable<long> source)
         {
             AssertSourceNotNull(source);
@@ -393,9 +413,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence of values that are used to calculate a sum.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The sum of the projected values.</returns>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static long Sum<T>(this IEnumerable<T> source, Func<T, long> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             long sum = 0;
             foreach (var item in source)
             {
@@ -409,6 +431,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// </summary>
         /// <param name="source">A sequence of BigInteger values to calculate the sum of.</param>
         /// <returns>The sum of the values in the sequence.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static BigInteger Sum(this IEnumerable<BigInteger> source)
         {
             AssertSourceNotNull(source);
@@ -426,9 +449,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">A sequence of values that are used to calculate a sum.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The sum of the projected values.</returns>
+        /// <exception cref="ArgumentNullException">source or selector is null.</exception>
         public static BigInteger Sum<T>(this IEnumerable<T> source, Func<T, BigInteger> selector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(selector, nameof(selector));
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -443,6 +468,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">The sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
         /// <returns>An collection that contains the specified number of elements from the start of the input sequence.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
         public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
         {
             AssertSourceNotNull(source);
@@ -457,18 +483,21 @@ namespace Neo.SmartContract.Framework.Linq
         }
 
         /// <summary>
-        /// 
+        ///  Creates a Map<Tkey,TValue> from a collection according to specified key selector and element selector functions.
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="keySelector"></param>
-        /// <param name="elementSelector"></param>
-        /// <returns></returns>
+        /// <param name="source">A collection to create a Map from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="elementSelector"> A transform function to produce a result element value from each element.</param>
+        /// <returns> A Map<TKey,TValue> that contains values of type TElement selected from the input sequence.</returns>
+        /// <exception cref="ArgumentNullException">source or keySelector or elementSelector is null.</exception>
         public static Map<TKey, TValue> ToMap<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(keySelector, nameof(keySelector));
+            AssertNotNull(elementSelector, nameof(elementSelector));
             var map = new Map<TKey, TValue>();
             foreach (var item in source)
             {
@@ -485,10 +514,11 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="source">An collections to filter.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns>An collection that contains elements from the input sequence that satisfy the condition.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        ///<exception cref="ArgumentNullException">source or predicate is null.</exception>
         public static IEnumerable<T> Where<T>(this IEnumerable<T> source, Predicate<T> predicate)
         {
             AssertSourceNotNull(source);
+            AssertNotNull(predicate, nameof(predicate));
             var list = new List<T>();
             foreach (var i in source)
             {
