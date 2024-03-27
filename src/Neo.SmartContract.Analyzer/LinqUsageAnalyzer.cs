@@ -3,6 +3,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Composition;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -11,8 +17,8 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4011";
         private static readonly string Title = "LINQ usage";
-        private static readonly string MessageFormat = "LINQ method '{0}' is not supported";
-        private static readonly string Description = "LINQ methods are not supported in neo smart contract.";
+        private static readonly string MessageFormat = "Use Neo.SmartContract.Framework.Linq instead of System.Linq: {0}";
+        private static readonly string Description = "System.Linq is not supported in neo smart contract. Use Neo.SmartContract.Framework.Linq instead.";
         private const string Category = "Usage";
 
         private static readonly DiagnosticDescriptor Rule = new(
@@ -20,7 +26,7 @@ namespace Neo.SmartContract.Analyzer
             Title,
             MessageFormat,
             Category,
-            DiagnosticSeverity.Error,  // Or DiagnosticSeverity.Error
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: Description);
 
@@ -30,41 +36,51 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.InvocationExpression, SyntaxKind.QueryExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeUsingDirective, SyntaxKind.UsingDirective);
         }
 
-        private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private void AnalyzeUsingDirective(SyntaxNodeAnalysisContext context)
         {
-            // Check for LINQ method calls
-            if (context.Node is InvocationExpressionSyntax invocationExpression &&
-                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpr)
+            var usingDirective = (UsingDirectiveSyntax)context.Node;
+            if (usingDirective.Name.ToString() == "System.Linq")
             {
-                var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
-                if (IsLinqMethod(memberSymbol))
-                {
-                    var diagnostic = Diagnostic.Create(Rule, memberAccessExpr.Name.GetLocation(), memberAccessExpr.Name);
-                    context.ReportDiagnostic(diagnostic);
-                }
-            }
-            // Check for LINQ query syntax
-            else if (context.Node is QueryExpressionSyntax queryExpression)
-            {
-                var diagnostic = Diagnostic.Create(Rule, queryExpression.GetLocation(), "query");
+                var diagnostic = Diagnostic.Create(Rule, usingDirective.GetLocation(), usingDirective.Name);
                 context.ReportDiagnostic(diagnostic);
             }
         }
+    }
 
-        private static bool IsLinqMethod(IMethodSymbol? methodSymbol)
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LinqUsageCodeFixProvider)), Shared]
+    public class LinqUsageCodeFixProvider : CodeFixProvider
+    {
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(LinqUsageAnalyzer.DiagnosticId);
+
+        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+
+        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            if (methodSymbol is null)
-                return false;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var diagnostic = context.Diagnostics.First();
+            var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var containingNamespace = methodSymbol.ContainingNamespace;
-            if (containingNamespace is null)
-                return false;
+            var usingDirective = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<UsingDirectiveSyntax>().First();
+            if (usingDirective != null)
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: "Use Neo.SmartContract.Framework.Linq",
+                        createChangedDocument: c => FixSystemLinqUsage(context.Document, usingDirective, c),
+                        equivalenceKey: "Use Neo.SmartContract.Framework.Linq"),
+                    diagnostic);
+            }
+        }
 
-            // Check if the namespace is 'System.Linq'
-            return containingNamespace is { Name: "Linq", ContainingNamespace.Name: "System" };
+        private static async Task<Document> FixSystemLinqUsage(Document document, UsingDirectiveSyntax usingDirective, CancellationToken cancellationToken)
+        {
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var newUsingDirective = usingDirective.WithName(SyntaxFactory.ParseName("Neo.SmartContract.Framework.Linq"));
+            var newRoot = root.ReplaceNode(usingDirective, newUsingDirective);
+            return document.WithSyntaxRoot(newRoot);
         }
     }
 }

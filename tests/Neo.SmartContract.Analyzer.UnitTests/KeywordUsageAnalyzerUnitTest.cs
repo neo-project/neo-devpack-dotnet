@@ -1,13 +1,14 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.KeywordUsageAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
+    [TestClass]
     public class KeywordUsageAnalyzerUnitTest
     {
-        [Fact]
+        [TestMethod]
         public async Task TestLockStatement()
         {
             var test = """
@@ -27,7 +28,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestUnsafeStatement()
         {
             var test = """
@@ -47,7 +48,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestStackAllocExpression()
         {
             var test = """
@@ -64,7 +65,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestAwaitExpression()
         {
             var test = """
@@ -82,7 +83,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestDynamicType()
         {
             var test = """
@@ -100,7 +101,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestUnmanagedModifier()
         {
             var test = """
@@ -120,7 +121,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestQueryExpression()
         {
             var test = """
@@ -139,7 +140,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestNameofExpression()
         {
             var test = """
@@ -155,7 +156,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestImplicitKeyword()
         {
             var test = """
@@ -170,7 +171,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestExplicitKeyword()
         {
             var test = """

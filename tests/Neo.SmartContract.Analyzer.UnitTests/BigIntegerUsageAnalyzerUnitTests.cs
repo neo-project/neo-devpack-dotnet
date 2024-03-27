@@ -1,14 +1,14 @@
 using System.Threading.Tasks;
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Neo.SmartContract.Analyzer.BigIntegerUsageAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.Test
 {
 
+    [TestClass]
     public class BigIntegerUsageAnalyzerUnitTests
     {
-        [Fact]
+        [TestMethod]
         public async Task SupportedBigIntegerMethod_ShouldNotReportDiagnostic()
         {
             var test = """
@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Analyzer.Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task UnsupportedBigIntegerProperty_ShouldReportDiagnostic()
         {
             var test = """

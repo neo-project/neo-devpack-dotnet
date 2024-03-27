@@ -1,14 +1,15 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier =
     Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<Neo.SmartContract.Analyzer.FloatUsageAnalyzer,
         Neo.SmartContract.Analyzer.FloatUsageCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
+    [TestClass]
     public class FloatUsageAnalyzerUnitTest
     {
-        [Fact]
+        [TestMethod]
         public async Task FloatUsageAnalyzer_ReplaceWithCommonKeyword()
         {
             const string originalCode = """
@@ -36,7 +37,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
 
-        [Fact]
+        [TestMethod]
         public async Task FloatUsageAnalyzer_ReplaceWithVar()
         {
             const string originalCode = """
@@ -64,7 +65,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
 
-        [Fact]
+        [TestMethod]
         public async Task FloatUsageAnalyzer_ReplaceWithFloat()
         {
             const string originalCode = """
