@@ -57,14 +57,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_WhereGreatThanZero()
+        public void Test_WhereGreaterThanZero()
         {
             testengine.Reset();
             var array = new Array();
             array.Add(0);
             array.Add(-1);
             array.Add(-100);
-            var result = (Array)testengine.ExecuteTestCaseStandard("whereGreatThanZero", array).Pop();
+            var result = (Array)testengine.ExecuteTestCaseStandard("whereGreaterThanZero", array).Pop();
             Assert.AreEqual(0, result.Count);
 
             testengine.Reset();
@@ -73,7 +73,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(100);
             array.Add(56);
 
-            result = (Array)testengine.ExecuteTestCaseStandard("whereGreatThanZero", array).Pop();
+            result = (Array)testengine.ExecuteTestCaseStandard("whereGreaterThanZero", array).Pop();
             Assert.AreEqual(3, result.Count);
             Assert.AreEqual(1, result[0]);
             Assert.AreEqual(100, result[1]);
