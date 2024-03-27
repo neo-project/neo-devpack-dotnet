@@ -19,9 +19,9 @@ namespace Neo.SmartContract.Framework.Linq
         /// <summary>
         ///  Determines whether a sequence is null or contains any elements.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Type of the enumerable value</typeparam>
+        /// <param name="source">Enumerable source</param>
+        /// <returns>True if <see cref="source"/> is null or empty</returns>
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> source)
         {
             return source == null || !source.Any();
@@ -255,8 +255,6 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Count<T>(this IEnumerable<T> source)
         {
             AssertSourceNotNull(source);
-            //if (source is List<T> list) return list.Count;
-            //if (source is T[] array) return array.Length;
             int count = 0;
             foreach (var item in source)
             {
@@ -277,8 +275,6 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(predicate, nameof(predicate));
-            //if (source is List<T> list) return list.Count;
-            //if (source is T[] array) return array.Length;
             int count = 0;
             foreach (var item in source)
             {
