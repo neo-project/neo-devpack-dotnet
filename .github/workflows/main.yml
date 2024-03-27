@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  DOTNET_VERSION: 7.0.x
+  DOTNET_VERSION: 8.0.202
 
 jobs:
 
@@ -29,7 +29,7 @@ jobs:
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Build Neo.SmartContract.Template and test templates
       run: |
-        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
+        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
         dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep17/ --force
         dotnet new neocontractowner -n Ownable -o ./src/Neo.SmartContract.Template/bin/Debug/ownable/ --force
@@ -41,9 +41,9 @@ jobs:
         dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
         dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj package Neo.SmartContract.Framework
         dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net7.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net8.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net8.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net8.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
@@ -52,46 +52,46 @@ jobs:
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         --no-build \
-        -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
-        -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+        /p:CollectCoverage=true \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         --no-build \
-        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
-        -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
-        -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+        /p:CollectCoverage=true \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         --no-build \
-        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
-        -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
-        -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+        /p:CollectCoverage=true \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         --no-build \
-        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
-        -p:CollectCoverage=true \
-        -p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
-        -p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
-        -p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\" \
-        -p:CoverletOutputFormat=lcov
+        /p:CollectCoverage=true \
+        /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\" \
+        /p:CoverletOutputFormat=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@v2.2.3
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         format: lcov
-        file: ${GITHUB_WORKSPACE}/coverage/lcov.info
+        file: ${{ github.workspace }}/coverage/lcov.info
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
@@ -127,7 +127,7 @@ jobs:
         dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_NEO }}-${{ env.VERSION_SUFFIX_NEO }}
     - name : Build (Neo.SmartContract.Testing)
       run: |
-        dotnet build ./src/Neo.SmartContract.Testing -f net7.0
+        dotnet build ./src/Neo.SmartContract.Testing -f net8.0
         dotnet build ./src/Neo.SmartContract.Testing -f netstandard2.1
     - name : Pack (Neo.SmartContract.Testing)
       run: |

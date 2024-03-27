@@ -4,7 +4,7 @@
     <PropertyGroup>
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
         <VersionPrefix>3.6.2</VersionPrefix>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
         <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet/examples</PackageProjectUrl>
