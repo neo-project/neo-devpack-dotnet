@@ -35,7 +35,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             catch (Exception e) { return; }
             // TODO: support CALLA and do not return
 
-            List<VM.Instruction> instructions = basicBlocks.EnumerateInstructions().ToList();
+            List<VM.Instruction> instructions = basicBlocks.GetScriptInstructions().ToList();
             (_, _, Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets) = Neo.Optimizer.JumpTarget.FindAllJumpAndTrySourceToTargets(instructions);
 
             Dictionary<VM.Instruction, VM.Instruction> nextAddrTable = new();
