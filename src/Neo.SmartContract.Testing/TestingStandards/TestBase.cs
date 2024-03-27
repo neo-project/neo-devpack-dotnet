@@ -47,8 +47,7 @@ public class TestBase<T> where T : SmartContract
         Manifest = manifestFile;
         DebugInfo = debugInfo;
 
-        Engine = new TestEngine(true);
-        Engine.SetTransactionSigners(Alice);
+        Engine = CreateTestEngine();
         Contract = Engine.Deploy<T>(NefFile, Manifest, null);
 
         if (Coverage is null)
@@ -58,6 +57,17 @@ public class TestBase<T> where T : SmartContract
         }
 
         Contract.OnRuntimeLog += Contract_OnRuntimeLog;
+    }
+
+    /// <summary>
+    /// Configure the initial testEngine
+    /// </summary>
+    /// <returns>TestEngine</returns>
+    protected virtual TestEngine CreateTestEngine()
+    {
+        var engine = new TestEngine(true);
+        engine.SetTransactionSigners(Alice);
+        return engine;
     }
 
     private void Contract_OnRuntimeLog(string message)
