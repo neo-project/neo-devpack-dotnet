@@ -71,7 +71,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                           {
                               public void TestMethod()
                               {
-                                  long d = (long)1.0;
+                                  long d = (long)1.0m;
                               }
                           }
                           """;
