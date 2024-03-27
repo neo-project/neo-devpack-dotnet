@@ -94,7 +94,7 @@ namespace Neo.Optimizer
             this.basicBlocks = basicBlocksByStartingInstruction.Values.ToList();
         }
 
-        public IEnumerable<Instruction> EnumerateInstructions()
+        public IEnumerable<Instruction> GetScriptInstructions()
         {
             foreach (BasicBlock basicBlock in basicBlocks)
                 foreach (Instruction instruction in basicBlock.instructions)
