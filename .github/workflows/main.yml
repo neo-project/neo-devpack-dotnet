@@ -53,37 +53,37 @@ jobs:
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         --no-build \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
         /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         --no-build \
-        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
-        /p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
         /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         --no-build \
-        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage-join/ \
-        /p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
         /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         --no-build \
-        -e "COVERAGE_MERGE_JOIN=${GITHUB_WORKSPACE}/coverage-join/coverage.json" \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov \
-        /p:MergeWith=${GITHUB_WORKSPACE}/coverage-join/coverage.json \
+        /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
         /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\" \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
@@ -91,7 +91,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         format: lcov
-        file: ${GITHUB_WORKSPACE}/coverage/lcov.info
+        file: ${{ github.workspace }}/coverage/lcov.info
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
