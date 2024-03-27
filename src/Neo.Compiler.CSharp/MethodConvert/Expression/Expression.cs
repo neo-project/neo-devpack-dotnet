@@ -241,7 +241,6 @@ partial class MethodConvert
         });
     }
 
-
     private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
     {
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
