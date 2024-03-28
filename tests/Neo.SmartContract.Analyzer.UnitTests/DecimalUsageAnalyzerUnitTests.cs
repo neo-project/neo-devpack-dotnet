@@ -1,14 +1,15 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS =
     Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<Neo.SmartContract.Analyzer.DecimalUsageAnalyzer,
         Neo.SmartContract.Analyzer.DecimalUsageCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
+    [TestClass]
     public class DecimalUsageAnalyzerUnitTests
     {
-        [Fact]
+        [TestMethod]
         public async Task DecimalVariable_ShouldReportDiagnostic()
         {
             var test = """
@@ -29,7 +30,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task DoubleVariable_ShouldReportDiagnostic()
         {
             var test = """
@@ -50,7 +51,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task DecimalVariable_ShouldChangeTo_LongVariable()
         {
             var test = """
@@ -70,7 +71,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                           {
                               public void TestMethod()
                               {
-                                  long d = 1.0m;
+                                  long d = (long)1.0m;
                               }
                           }
                           """;
@@ -82,7 +83,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixtest);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task DoubleVariable_ShouldChangeTo_LongVariable()
         {
             var test = """
@@ -102,7 +103,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                           {
                               public void TestMethod()
                               {
-                                  long d = 1.0;
+                                  long d = (long)1.0;
                               }
                           }
                           """;

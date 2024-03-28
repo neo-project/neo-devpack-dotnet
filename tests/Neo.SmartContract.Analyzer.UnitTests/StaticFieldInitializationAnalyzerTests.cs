@@ -1,12 +1,13 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Neo.SmartContract.Analyzer.StaticFieldInitializationAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
+    [TestClass]
     public class StaticFieldInitializationAnalyzerUnitTest
     {
-        [Fact]
+        [TestMethod]
         public async Task ValidUInt256Initialization_NoDiagnostic()
         {
             const string code = """
@@ -23,7 +24,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(code);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task InvalidUInt256Initialization_ReportsDiagnostic()
         {
             const string code = """
@@ -43,7 +44,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(code, expectedDiagnostic);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task ValidUInt160HexInitialization_NoDiagnostic()
         {
             const string code = """
@@ -60,7 +61,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(code);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task ValidUInt160AddressInitialization_NoDiagnostic()
         {
             const string code = """
@@ -77,7 +78,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(code);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task InvalidUInt160Initialization_ReportsDiagnostic()
         {
             const string code = """
@@ -97,7 +98,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(code, expectedDiagnostic);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task ValidECPointInitialization_NoDiagnostic()
         {
             const string code = """
@@ -114,7 +115,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(code);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task InvalidECPointInitialization_ReportsDiagnostic()
         {
             const string code = """

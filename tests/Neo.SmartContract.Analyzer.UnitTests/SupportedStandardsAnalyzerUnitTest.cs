@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
     Neo.SmartContract.Analyzer.SupportedStandardsAnalyzer,
     Neo.SmartContract.Analyzer.SupportedStandardsCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
+    [TestClass]
     public class SupportedStandardsAnalyzerUnitTest
     {
         private const string TestNamespace = """
@@ -31,7 +32,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                              }
 
                                              """;
-        [Fact]
+        [TestMethod]
         public async Task SupportedStandardsAnalyzer_UnsupportedStandard_ShouldReportDiagnostic()
         {
             const string originalCode = TestNamespace + """
@@ -51,7 +52,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SupportedStandardsAnalyzer_Nep11Suggestion_ShouldReportDiagnostic()
         {
             const string originalCode = TestNamespace + """
@@ -71,7 +72,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SupportedStandardsAnalyzer_Nep17Suggestion_ShouldReportDiagnostic()
         {
             const string originalCode = TestNamespace + """
@@ -91,7 +92,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SupportedStandardsAnalyzer_UpdateNep11_ShouldFixCode()
         {
             const string originalCode = TestNamespace + """
@@ -122,7 +123,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SupportedStandardsAnalyzer_UpdateNep17_ShouldFixCode()
         {
             const string originalCode = TestNamespace + """

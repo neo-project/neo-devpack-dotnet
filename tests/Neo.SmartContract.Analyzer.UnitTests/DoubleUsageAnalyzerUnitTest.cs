@@ -1,14 +1,15 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier =
     Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<Neo.SmartContract.Analyzer.DoubleUsageAnalyzer,
         Neo.SmartContract.Analyzer.DoubleUsageCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
+    [TestClass]
     public class DoubleUsageAnalyzerUnitTest
     {
-        [Fact]
+        [TestMethod]
         public async Task DoubleUsageAnalyzer_ReplaceWithCommonKeyword()
         {
             const string originalCode = """
@@ -36,7 +37,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
 
-        [Fact]
+        [TestMethod]
         public async Task DoubleUsageAnalyzer_ReplaceWithVar()
         {
             const string originalCode = """
@@ -64,7 +65,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
 
-        [Fact]
+        [TestMethod]
         public async Task DoubleUsageAnalyzer_ReplaceWithDouble()
         {
             const string originalCode = """
