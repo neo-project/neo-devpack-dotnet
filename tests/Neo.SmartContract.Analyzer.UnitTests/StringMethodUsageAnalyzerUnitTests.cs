@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Neo.SmartContract.Analyzer.StringMethodUsageAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.Test
 {
+    [TestClass]
     public class StringMethodUsageAnalyzerUnitTests
     {
-        [Fact]
+        [TestMethod]
         public async Task SupportedStringMethod_ShouldNotReportDiagnostic()
         {
             var test = """
@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Analyzer.Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task UnsupportedStringMethod_ShouldReportDiagnostic()
         {
             var test = """

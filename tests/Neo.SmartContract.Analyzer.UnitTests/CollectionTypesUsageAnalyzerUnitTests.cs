@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
     Neo.SmartContract.Analyzer.CollectionTypesUsageAnalyzer,
     Neo.SmartContract.Analyzer.CollectionTypesUsageCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.Test
 {
+    [TestClass]
     public class CollectionTypesUsageAnalyzerUnitTests
     {
         private const string TestNamespace = """
@@ -23,7 +24,7 @@ namespace Neo.SmartContract.Analyzer.Test
 
 
                                              """;
-        [Fact]
+        [TestMethod]
         public async Task UnsupportedDictionaryType_ShouldReportDiagnostic_AndFixToMap()
         {
             var test = TestNamespace + """
@@ -55,7 +56,7 @@ namespace Neo.SmartContract.Analyzer.Test
             await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixTest);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task UnsupportedListType_ShouldReportDiagnostic_AndFixToList()
         {
             var test = TestNamespace + """
@@ -87,7 +88,7 @@ namespace Neo.SmartContract.Analyzer.Test
             await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixtest);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SupportedCollectionType_ShouldNotReportDiagnostic()
         {
             var test = TestNamespace + """

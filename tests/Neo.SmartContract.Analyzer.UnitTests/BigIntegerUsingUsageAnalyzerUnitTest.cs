@@ -1,15 +1,15 @@
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
     Neo.SmartContract.Analyzer.BigIntegerUsingUsageAnalyzer,
     Neo.SmartContract.Analyzer.BigIntegerUsingUsageCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
-
+    [TestClass]
     public class BigIntegerUsingUsageAnalyzerUnitTest
     {
-        [Fact]
+        [TestMethod]
         public async Task BigIntegerUsingUsageAnalyzer_IncorrectUsing_ShouldReportDiagnostic()
         {
             const string originalCode = """
@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task BigIntegerUsingUsageAnalyzer_CorrectUsing_ShouldNotReportDiagnostic()
         {
             const string originalCode = """

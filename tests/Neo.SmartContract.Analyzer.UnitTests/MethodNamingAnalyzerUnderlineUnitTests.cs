@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Neo.SmartContract.Analyzer.SmartContractMethodNamingAnalyzerUnderline>;
 
 namespace Neo.SmartContract.Analyzer.Test
 {
+    [TestClass]
     public class MethodNamingAnalyzerUnderlineUnitTests
     {
-        [Fact]
+        [TestMethod]
         public async Task MethodNameStartingWithUnderscoreAndSameParameterCount_ShouldReportDiagnostic()
         {
             var test = """
@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Analyzer.Test
             await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task MethodNameStartingWithUnderscoreButDifferentParameterCount_ShouldNotReportDiagnostic()
         {
             var test = """

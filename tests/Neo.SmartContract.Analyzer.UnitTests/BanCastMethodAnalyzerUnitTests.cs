@@ -1,14 +1,14 @@
 using System.Threading.Tasks;
-using Xunit;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.BanCastMethodAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.Test
 {
+    [TestClass]
     public class BanCastMethodAnalyzerUnitTests
     {
-        [Fact]
+        [TestMethod]
         public async Task CastMethod_ShouldReportDiagnostic()
         {
             var test = """
