@@ -17,17 +17,17 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace NEP11
+namespace NonDivisibleNEP11
 {
     /// <inheritdoc />
-    [DisplayName("SampleNep11Token")]
+    [DisplayName("SampleNonDivisibleNEP11Token")]
     [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractVersion("0.0.1")]
-    [ContractDescription("A sample NEP-11 token")]
+    [ContractDescription("A sample NonDivisibleNEP11 token")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep11)]
-    public class SampleNep11Token : Nep11Token<Nep11TokenState>
+    public class SampleNonDivisibleNEP11Token : Nep11Token<Nep11TokenState>
     {
         #region Owner
 
@@ -70,7 +70,7 @@ namespace NEP11
 
         private const byte PrefixMinter = 0xfd;
 
-        private const byte PrefixCount = 0xfc;
+        private const byte PrefixCounter = 0xee;
 
         private static readonly UInt160 InitialMinter = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
@@ -96,9 +96,11 @@ namespace NEP11
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (!newMinter.IsValid) return;
-            Storage.Put(new[] { PrefixMinter }, newMinter);
-            OnSetMinter(newMinter);
+            if (newMinter != null && newMinter.IsValid)
+            {
+                Storage.Put(new[] { PrefixMinter }, newMinter);
+                OnSetMinter(newMinter);
+            }
         }
 
         public static void Mint(UInt160 to)
@@ -117,23 +119,13 @@ namespace NEP11
 
         private static void SetCount(BigInteger count)
         {
-            StorageMap map = new(Storage.CurrentContext, PrefixCount);
-            map.Put("counter", count);
+            Storage.Put(new[] { PrefixCounter }, count);
         }
 
         [Safe]
         public static BigInteger CurrentCount()
         {
-            StorageMap map = new(Storage.CurrentReadOnlyContext, PrefixCount);
-            var data = map.Get("counter");
-            if (data is not null)
-            {
-                return (BigInteger)data;
-            }
-            else
-            {
-                return 0;
-            }
+            return (BigInteger)Storage.Get(new[] { PrefixCounter });
         }
 
         private static void IncreaseCount()
@@ -145,7 +137,7 @@ namespace NEP11
 
         #region Example.SmartContract.NEP11
 
-        public override string Symbol { [Safe] get => "SampleNep11Token"; }
+        public override string Symbol { [Safe] get => "SampleNonDivisibleNEP11Token"; }
 
         #endregion
 
@@ -155,11 +147,11 @@ namespace NEP11
         private static readonly UInt160 InitialRecipient = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
         private static readonly BigInteger InitialFactor = 700;
 
-        internal static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
+        public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            for(uint i = 0; i < royaltyInfos.Length; i++)
+            for (uint i = 0; i < royaltyInfos.Length; i++)
             {
                 if (((UInt160)royaltyInfos[i]["royaltyRecipient"]).IsValid == false ||
                     (BigInteger)royaltyInfos[i]["royaltyRecipient"] < 0 ||
@@ -167,21 +159,19 @@ namespace NEP11
                     )
                     throw new InvalidOperationException("Parameter error");
             }
-            StorageMap map = new(Storage.CurrentContext, PrefixRoyalty);
-            map.Put(tokenId, StdLib.Serialize(royaltyInfos));
+            Storage.Put(PrefixRoyalty + tokenId, StdLib.Serialize(royaltyInfos));
         }
 
         [Safe]
-        internal static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
+        public static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
         {
-            StorageMap map = new(Storage.CurrentReadOnlyContext, PrefixRoyalty);
-            byte[] data = (byte[])map.Get(tokenId);
-            if (data is null)
+            byte[] data = (byte[])Storage.Get(PrefixRoyalty + tokenId);
+            if (data == null)
             {
                 var royaltyInfo = new Map<string, object>();
                 royaltyInfo["royaltyRecipient"] = InitialRecipient;
                 royaltyInfo["royaltyAmount"] = InitialFactor;
-                return new Map<string, object>[] { royaltyInfo };
+                return new[] { royaltyInfo };
             }
             else
             {
@@ -202,7 +192,6 @@ namespace NEP11
             ContractManagement.Update(nefFile, manifest);
             return true;
         }
-
         #endregion
     }
 }
