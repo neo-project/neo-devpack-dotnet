@@ -11,11 +11,12 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
 using System.Numerics;
+using ContractManagement = Neo.SmartContract.Framework.Native.ContractManagement;
+using StdLib = Neo.SmartContract.Framework.Native.StdLib;
 
 namespace NonDivisibleNEP11
 {
@@ -33,7 +34,7 @@ namespace NonDivisibleNEP11
 
         private const byte PrefixOwner = 0xff;
 
-        private static readonly UInt160 InitialOwner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialOwner = "NefumXfVK6ah3RRRMoWDSAEgThpVAnxLzB";
 
         [Safe]
         public static UInt160 GetOwner()
@@ -57,7 +58,7 @@ namespace NonDivisibleNEP11
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newOwner != null && newOwner.IsValid)
+            if (newOwner != null && newOwner.IsValid && !newOwner.IsZero)
             {
                 Storage.Put(new[] { PrefixOwner }, newOwner);
                 OnSetOwner(newOwner);
@@ -72,7 +73,7 @@ namespace NonDivisibleNEP11
 
         private const byte PrefixCounter = 0xee;
 
-        private static readonly UInt160 InitialMinter = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialMinter = "NefumXfVK6ah3RRRMoWDSAEgThpVAnxLzB";
 
         [Safe]
         public static UInt160 GetMinter()
@@ -155,8 +156,7 @@ namespace NonDivisibleNEP11
             {
                 if (((UInt160)royaltyInfos[i]["royaltyRecipient"]).IsValid == false ||
                     (BigInteger)royaltyInfos[i]["royaltyRecipient"] < 0 ||
-                    (BigInteger)royaltyInfos[i]["royaltyRecipient"] > 10000
-                    )
+                    (BigInteger)royaltyInfos[i]["royaltyRecipient"] > 10000)
                     throw new InvalidOperationException("Parameter error");
             }
             Storage.Put(PrefixRoyalty + tokenId, StdLib.Serialize(royaltyInfos));
@@ -165,6 +165,7 @@ namespace NonDivisibleNEP11
         [Safe]
         public static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
         {
+            ExecutionEngine.Assert(OwnerOf(tokenId) != null, "TokenId doesn't exist!");
             byte[] data = (byte[])Storage.Get(PrefixRoyalty + tokenId);
             if (data == null)
             {
@@ -185,11 +186,10 @@ namespace NonDivisibleNEP11
         [Safe]
         public static bool Verify() => IsOwner();
 
-        public static bool Update(ByteString nefFile, string manifest)
+        public static bool Update(ByteString nefFile, string manifest, object data)
         {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            ContractManagement.Update(nefFile, manifest);
+            ExecutionEngine.Assert(IsOwner() == false, "No Authorization!");
+            ContractManagement.Update(nefFile, manifest, data);
             return true;
         }
         #endregion
