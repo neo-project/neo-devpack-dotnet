@@ -5,7 +5,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_MemberAccess : SmartContract.Framework.SmartContract
     {
-        public class Contract_1 : SmartContract
+        public class Contract_1 : SmartContract.Framework.SmartContract
         {
             public static void TestMain()
             {
