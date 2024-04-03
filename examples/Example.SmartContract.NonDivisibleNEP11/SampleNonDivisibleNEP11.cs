@@ -92,7 +92,7 @@ namespace NonDivisibleNEP11
         [DisplayName("SetMinter")]
         public static event OnSetMinterDelegate OnSetMinter;
 
-        public static void SetMinter(UInt160 newMinter)
+        public static void SetMinter(UInt160? newMinter)
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
