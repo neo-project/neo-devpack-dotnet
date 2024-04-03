@@ -147,9 +147,8 @@ namespace NonDivisibleNEP11
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
-            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
+            ExecutionEngine.Assert(tokenId.Length <= 64, "The argument \"tokenId\" should be 64 or less bytes long.");
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
             for (uint i = 0; i < royaltyInfos.Length; i++)
             {
                 if (((UInt160)royaltyInfos[i]["royaltyRecipient"]).IsValid == false ||
