@@ -33,7 +33,7 @@ namespace NonDivisibleNEP11
 
         private const byte PrefixOwner = 0xff;
 
-        private static readonly UInt160 InitialOwner = "NefumXfVK6ah3RRRMoWDSAEgThpVAnxLzB";
+        private static readonly UInt160 InitialOwner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
         [Safe]
         public static UInt160 GetOwner()
@@ -72,7 +72,7 @@ namespace NonDivisibleNEP11
 
         private const byte PrefixCounter = 0xee;
 
-        private static readonly UInt160 InitialMinter = "NefumXfVK6ah3RRRMoWDSAEgThpVAnxLzB";
+        private static readonly UInt160 InitialMinter = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
 
         [Safe]
         public static UInt160 GetMinter()
