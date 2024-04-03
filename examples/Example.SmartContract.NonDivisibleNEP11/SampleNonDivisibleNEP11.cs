@@ -94,8 +94,7 @@ namespace NonDivisibleNEP11
 
         public static void SetMinter(UInt160? newMinter)
         {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
             if (newMinter != null && newMinter.IsValid)
             {
                 Storage.Put(new[] { PrefixMinter }, newMinter);
