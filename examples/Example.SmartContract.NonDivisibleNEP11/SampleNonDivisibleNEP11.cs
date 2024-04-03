@@ -57,7 +57,7 @@ namespace NonDivisibleNEP11
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newOwner != null && newOwner.IsValid)
+            if (newOwner != null && newOwner.IsValid && !newOwner.IsZero)
             {
                 Storage.Put(new[] { PrefixOwner }, newOwner);
                 OnSetOwner(newOwner);
@@ -149,14 +149,14 @@ namespace NonDivisibleNEP11
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
+            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
             for (uint i = 0; i < royaltyInfos.Length; i++)
             {
                 if (((UInt160)royaltyInfos[i]["royaltyRecipient"]).IsValid == false ||
                     (BigInteger)royaltyInfos[i]["royaltyRecipient"] < 0 ||
-                    (BigInteger)royaltyInfos[i]["royaltyRecipient"] > 10000
-                    )
+                    (BigInteger)royaltyInfos[i]["royaltyRecipient"] > 10000)
                     throw new InvalidOperationException("Parameter error");
             }
             Storage.Put(PrefixRoyalty + tokenId, StdLib.Serialize(royaltyInfos));
@@ -165,6 +165,7 @@ namespace NonDivisibleNEP11
         [Safe]
         public static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
         {
+            ExecutionEngine.Assert(OwnerOf(tokenId) != null, "This TokenId doesn't exist!");
             byte[] data = (byte[])Storage.Get(PrefixRoyalty + tokenId);
             if (data == null)
             {
@@ -185,11 +186,10 @@ namespace NonDivisibleNEP11
         [Safe]
         public static bool Verify() => IsOwner();
 
-        public static bool Update(ByteString nefFile, string manifest)
+        public static bool Update(ByteString nefFile, string manifest, object data)
         {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
-            ContractManagement.Update(nefFile, manifest);
+            ExecutionEngine.Assert(IsOwner() == false, "No Authorization!");
+            ContractManagement.Update(nefFile, manifest, data);
             return true;
         }
         #endregion
