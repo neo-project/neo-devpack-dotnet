@@ -11,12 +11,11 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
 using System.Numerics;
-using ContractManagement = Neo.SmartContract.Framework.Native.ContractManagement;
-using StdLib = Neo.SmartContract.Framework.Native.StdLib;
 
 namespace NonDivisibleNEP11
 {
@@ -150,6 +149,7 @@ namespace NonDivisibleNEP11
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
+            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
             for (uint i = 0; i < royaltyInfos.Length; i++)
@@ -165,7 +165,7 @@ namespace NonDivisibleNEP11
         [Safe]
         public static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
         {
-            ExecutionEngine.Assert(OwnerOf(tokenId) != null, "TokenId doesn't exist!");
+            ExecutionEngine.Assert(OwnerOf(tokenId) != null, "This TokenId doesn't exist!");
             byte[] data = (byte[])Storage.Get(PrefixRoyalty + tokenId);
             if (data == null)
             {
