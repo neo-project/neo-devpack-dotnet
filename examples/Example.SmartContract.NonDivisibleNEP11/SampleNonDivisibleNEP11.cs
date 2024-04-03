@@ -104,8 +104,7 @@ namespace NonDivisibleNEP11
 
         public static void Mint(UInt160 to)
         {
-            if (IsOwner() == false && IsMinter() == false)
-                throw new InvalidOperationException("No Authorization!");
+            ExecutionEngine.Assert(IsOwner() || IsMinter(), "No Authorization!");
             IncreaseCount();
             BigInteger tokenId = CurrentCount();
             Nep11TokenState nep11TokenState = new Nep11TokenState()
