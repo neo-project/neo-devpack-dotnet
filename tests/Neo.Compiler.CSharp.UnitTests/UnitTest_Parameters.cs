@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var currentDir = System.Environment.CurrentDirectory;
             var file = "Contract_BigInteger.cs";
-            var path = $"{currentDir[..currentDir.IndexOf("Neo.Compiler.CSharp.UnitTests")]}Neo.Compiler.CSharp.TestContracts\\{file}";
+            var path = Path.Combine($"{currentDir[..currentDir.IndexOf("Neo.Compiler.CSharp.UnitTests")]}Neo.Compiler.CSharp.TestContracts", file);
             var outputDir = "output";
             var result = Program.Main([path, "-o", outputDir]);
             Assert.AreEqual(result, 0);
