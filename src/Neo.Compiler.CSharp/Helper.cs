@@ -136,7 +136,6 @@ namespace Neo.Compiler
             };
         }
 
-        // Has not been used, remove it?
         public static AttributeData? GetAttributeFromSelfOrParent(this IMethodSymbol symbol, string name)
         {
             ISymbol? i = symbol;
