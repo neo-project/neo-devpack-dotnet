@@ -196,7 +196,6 @@ namespace Neo.Compiler
             }
         }
 
-        // Has not been used, remove it?
         public static IEnumerable<AttributeData> GetAttributesWithInherited(this IPropertySymbol symbol)
         {
             foreach (var attribute in symbol.GetAttributes())
