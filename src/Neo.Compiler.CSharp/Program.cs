@@ -181,7 +181,7 @@ namespace Neo.Compiler
                 catch (Exception ex) when (ex is CompilationException)
                 {
                     Console.Error.WriteLine((ex as CompilationException).Diagnostic);
-                    return 1;
+                    return -1;
                 }
 
                 try
