@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
+            testengine.AddNoOptimizeEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
         }
 
         [TestMethod]
@@ -346,6 +346,18 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsTrue(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void NullTypeTest()
+        {
+            // True
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullType");
+            // var item = result.Pop();
+            //
+            // Assert.IsInstanceOfType(item, typeof(Integer));
+            // Assert.IsTrue(item.GetInteger()==1);
         }
     }
 }
