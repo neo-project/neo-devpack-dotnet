@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Init()
         {
             testengine = new TestEngine();
-            testengine.AddNoOptimizeEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
         }
 
         [TestMethod]
