@@ -12,19 +12,10 @@ using System.Text.RegularExpressions;
 
 namespace Example.SmartContract.NFT.UnitTests
 {
-    [TestClass]
     public class TestCleanup
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         internal static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
-
-        /// <summary>
-        /// Required coverage to be success
-        /// </summary>
-        public static decimal RequiredCoverage { get; set; } = 0.85M;
-
-        [TestMethod]
-        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
 
         internal static void EnsureArtifactsUpToDateInternal()
         {

@@ -11,6 +11,12 @@ namespace Example.SmartContract.NFT.UnitTests
         {
         }
 
+        [TestInitialize]
+        public void TestSetup()
+        {
+            TestCleanup.EnsureArtifactsUpToDateInternal();
+        }
+
         [TestMethod]
         public void TestClaim()
         {
