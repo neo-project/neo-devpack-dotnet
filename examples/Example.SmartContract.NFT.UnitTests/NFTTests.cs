@@ -1,8 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract;
-using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Example.SmartContract.NFT.UnitTests
@@ -19,6 +16,5 @@ namespace Example.SmartContract.NFT.UnitTests
         {
             Contract.Claim(7772);
         }
-
     }
 }
