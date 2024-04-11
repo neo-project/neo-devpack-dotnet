@@ -45,7 +45,7 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
         public void Test_DuplicateDisplayNames()
         {
             var testengine = new TestEngine();
-            var context = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_DuplicateNames.cs");
+            var context = testengine.AddEntryScript(Utils.Extensions.NotWorkingTestContractRoot + "Contract_DuplicateNames.cs");
             Assert.IsFalse(context.Success);
             Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.EventNameConflict));
         }

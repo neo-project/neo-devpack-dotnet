@@ -47,7 +47,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 var context = results.Single();
                 basicBlocks = new(context.CreateExecutable(), context.CreateManifest(), context.CreateDebugInformation());
             }
-            catch { return; }
+            catch
+            {
+                Console.WriteLine($"Error compiling: {fileName}");
+                return;
+            }
 
             // TODO: support CALLA and do not return
 
