@@ -57,7 +57,7 @@ namespace NonDivisibleNEP11
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No Authorization!");
-            if (newOwner != null && newOwner.IsValid && !newOwner.IsZero)
+            if (newOwner != null && newOwner.IsValid && newOwner.IsZero == false)
             {
                 Storage.Put(new[] { PrefixOwner }, newOwner);
                 OnSetOwner(newOwner);
