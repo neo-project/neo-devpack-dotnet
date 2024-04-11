@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// SampleNonDivisibleNEP11.cs file belongs to the neo project and is free
+// SampleRoyaltyNEP11Token.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -20,14 +20,14 @@ using System.Numerics;
 namespace NonDivisibleNEP11
 {
     /// <inheritdoc />
-    [DisplayName("SampleNonDivisibleNEP11Token")]
+    [DisplayName("SampleRoyaltyNEP11Token")]
     [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractVersion("0.0.1")]
-    [ContractDescription("A sample NonDivisibleNEP11 token")]
+    [ContractDescription("A sample of NEP-11 Royalty Feature")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.WildCard, Method.WildCard)]
     [SupportedStandards(NepStandard.Nep11)]
-    public class SampleNonDivisibleNEP11Token : Nep11Token<Nep11TokenState>
+    public class SampleRoyaltyNEP11Token : Nep11Token<Nep11TokenState>
     {
         #region Owner
 
@@ -109,7 +109,7 @@ namespace NonDivisibleNEP11
             BigInteger tokenId = CurrentCount();
             Nep11TokenState nep11TokenState = new Nep11TokenState()
             {
-                Name = "SampleNep11Token",
+                Name = "SampleRoyaltyNep11Token",
                 Owner = to
             };
             Mint((ByteString)tokenId, nep11TokenState);
@@ -135,7 +135,7 @@ namespace NonDivisibleNEP11
 
         #region Example.SmartContract.NEP11
 
-        public override string Symbol { [Safe] get => "SampleNonDivisibleNEP11Token"; }
+        public override string Symbol { [Safe] get => "SampleRoyalty"; }
 
         #endregion
 
@@ -159,6 +159,14 @@ namespace NonDivisibleNEP11
             Storage.Put(PrefixRoyalty + tokenId, StdLib.Serialize(royaltyInfos));
         }
 
+        /// <summary>
+        /// This implements Royalty Standard: https://github.com/neo-project/proposals/pull/155/
+        /// This method returns a map of NeoVM Array stack item with single or multi array, each array includes royaltyRecipient and royaltyAmount
+        /// </summary>
+        /// <param name="tokenId">tokenId</param>
+        /// <param name="royaltyToken">royaltyToken hash for payment</param>
+        /// <param name="salePrice">royaltyToken amount for payment</param>
+        /// <returns>royaltyInfo</returns>
         [Safe]
         public static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
         {
@@ -183,7 +191,7 @@ namespace NonDivisibleNEP11
         [Safe]
         public static bool Verify() => IsOwner();
 
-        public static bool Update(ByteString nefFile, string manifest, object data)
+        public static bool Update(ByteString nefFile, ByteString manifest, object data)
         {
             ExecutionEngine.Assert(IsOwner() == false, "No Authorization!");
             ContractManagement.Update(nefFile, manifest, data);
