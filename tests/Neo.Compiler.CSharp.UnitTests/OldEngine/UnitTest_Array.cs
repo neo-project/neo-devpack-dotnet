@@ -3,7 +3,7 @@ using Neo.VM.Types;
 using System.Linq;
 using Neo.SmartContract.TestEngine;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.OldEngine
 {
     [TestClass]
     public class UnitTest_Array
@@ -117,7 +117,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var bts = result.Pop() as Buffer;
             ByteString rt = bts.InnerBuffer.ToArray();
             ByteString test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
-            Assert.IsTrue(ByteString.Equals(rt, test));
+            Assert.IsTrue(Equals(rt, test));
         }
 
         [TestMethod]
@@ -162,7 +162,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var bts = result.Pop().ConvertTo(StackItemType.ByteString);
 
             ByteString test = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
-            Assert.IsTrue(ByteString.Equals(bts, test));
+            Assert.IsTrue(Equals(bts, test));
         }
 
         [TestMethod]
@@ -173,7 +173,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var result = testengine.ExecuteTestCaseStandard("testSupportedStandards");
 
             var bts = result.Pop().ConvertTo(StackItemType.Array);
-            var items = bts as VM.Types.Array;
+            var items = bts as Array;
 
             Assert.AreEqual((ByteString)"NEP-5", items[0]);
             Assert.AreEqual((ByteString)"NEP-10", items[1]);

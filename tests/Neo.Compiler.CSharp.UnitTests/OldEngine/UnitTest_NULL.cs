@@ -4,7 +4,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.TestEngine;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.OldEngine
 {
     [TestClass]
     public class UnitTest_NULL
