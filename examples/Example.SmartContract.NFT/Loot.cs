@@ -180,10 +180,11 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <param name="sender"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MintToken(BigInteger tokenId, UInt160 sender)
         {
-            var credential = CheckClaim(tokenId);
+            ExecutionEngine.Assert(TokenIndexMap.Get(tokenId.ToString()) != "taken", "Token already claimed.");
+            var credential = Runtime.GetRandom();
             TokenState token = TokenState.MintLoot(sender, tokenId, credential);
             Mint(tokenId.ToString(), token);
             TokenIndexMap.Put(tokenId.ToString(), "taken");
