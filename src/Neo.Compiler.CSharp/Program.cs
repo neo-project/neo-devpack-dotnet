@@ -178,9 +178,9 @@ namespace Neo.Compiler
                 {
                     (nef, manifest, debugInfo) = context.CreateResults(folder);
                 }
-                catch (Exception ex) when (ex is CompilationException)
+                catch (CompilationException ex)
                 {
-                    Console.Error.WriteLine((ex as CompilationException).Diagnostic);
+                    Console.Error.WriteLine(ex.Diagnostic);
                     return -1;
                 }
 
