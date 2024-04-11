@@ -31,9 +31,10 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Define paths
 
-            string testContractsPath = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj");
-            string artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
-            var root = Path.GetPathRoot(testContractsPath) ?? "";
+            var artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
+            var utPath = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/Working");
+            var testContractsFiles = Directory.GetFiles(utPath);
+            var root = Path.GetPathRoot(utPath) ?? "";
 
             // Compile
 
@@ -44,7 +45,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileProject(testContractsPath);
+            .CompileSources(testContractsFiles);
 
             // Ensure that all was well compiled
 
