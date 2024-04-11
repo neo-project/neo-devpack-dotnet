@@ -191,7 +191,7 @@ namespace NonDivisibleNEP11
         [Safe]
         public static bool Verify() => IsOwner();
 
-        public static bool Update(ByteString nefFile, string manifest, object data)
+        public static bool Update(ByteString nefFile, ByteString manifest, object data)
         {
             ExecutionEngine.Assert(IsOwner() == false, "No Authorization!");
             ContractManagement.Update(nefFile, manifest, data);
