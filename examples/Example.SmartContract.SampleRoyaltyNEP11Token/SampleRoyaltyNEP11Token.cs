@@ -94,7 +94,7 @@ namespace NonDivisibleNEP11
 
         public static void SetMinter(UInt160? newMinter)
         {
-            ExecutionEngine.Assert(IsOwner() || IsMinter(), "No Authorization!");
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
             if (newMinter != null && newMinter.IsValid)
             {
                 Storage.Put(new[] { PrefixMinter }, newMinter);
@@ -104,8 +104,7 @@ namespace NonDivisibleNEP11
 
         public static void Mint(UInt160 to)
         {
-            if (IsOwner() == false && IsMinter() == false)
-                throw new InvalidOperationException("No Authorization!");
+            ExecutionEngine.Assert(IsOwner() || IsMinter(), "No Authorization!");
             IncreaseCount();
             BigInteger tokenId = CurrentCount();
             Nep11TokenState nep11TokenState = new Nep11TokenState()
