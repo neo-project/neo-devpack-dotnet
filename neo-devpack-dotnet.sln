@@ -72,9 +72,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.ZKP",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Analyzer.UnitTests", "tests\Neo.SmartContract.Analyzer.UnitTests\Neo.SmartContract.Analyzer.UnitTests.csproj", "{F30E2375-012A-4A38-985B-31CB7DBA4D28}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.SampleRoyaltyNEP11Token", "examples\Example.SmartContract.SampleRoyaltyNEP11Token\Example.SmartContract.SampleRoyaltyNEP11Token.csproj", "{E826275C-FAF9-4F0F-B755-41EC812D0B09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.NFT.UnitTests", "examples\Example.SmartContract.NFT.UnitTests\Example.SmartContract.NFT.UnitTests.csproj", "{F1512011-B002-4854-8E4E-74E67F486FD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.NFT.UnitTests", "examples\Example.SmartContract.NFT.UnitTests\Example.SmartContract.NFT.UnitTests.csproj", "{F1512011-B002-4854-8E4E-74E67F486FD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.SampleRoyaltyNEP11Token", "examples\Example.SmartContract.SampleRoyaltyNEP11Token\Example.SmartContract.SampleRoyaltyNEP11Token.csproj", "{50A2DABC-6131-454A-9275-215A2B7A133B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -210,6 +210,10 @@ Global
 		{F1512011-B002-4854-8E4E-74E67F486FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1512011-B002-4854-8E4E-74E67F486FD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1512011-B002-4854-8E4E-74E67F486FD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A2DABC-6131-454A-9275-215A2B7A133B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A2DABC-6131-454A-9275-215A2B7A133B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A2DABC-6131-454A-9275-215A2B7A133B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A2DABC-6131-454A-9275-215A2B7A133B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -246,11 +250,8 @@ Global
 		{5319BE3E-A5E9-4AFF-94D6-A669DA214F24} = {C10F9957-077F-42C8-B350-8607D4899B7E}
 		{141AD5BA-1735-4583-93B6-145CF72721E5} = {C10F9957-077F-42C8-B350-8607D4899B7E}
 		{F30E2375-012A-4A38-985B-31CB7DBA4D28} = {D5266066-0AFD-44D5-A83E-2F73668A63C8}
-		{35A34EBD-F2BF-4D83-A096-D5F007B12732} = {49D5873D-7B38-48A5-B853-85146F032091}
-		{73223FBD-C562-4FA0-9722-C7F1C382A9DE} = {49D5873D-7B38-48A5-B853-85146F032091}
-		{D6D53889-5A10-46A4-BA66-E78B56EC1881} = {49D5873D-7B38-48A5-B853-85146F032091}
-		{D541BCE9-65BC-475B-94E5-19B6BFFF2B8E} = {49D5873D-7B38-48A5-B853-85146F032091}
 		{F1512011-B002-4854-8E4E-74E67F486FD5} = {C10F9957-077F-42C8-B350-8607D4899B7E}
+		{50A2DABC-6131-454A-9275-215A2B7A133B} = {C10F9957-077F-42C8-B350-8607D4899B7E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6DA935E1-C674-4364-B087-F1B511B79215}
