@@ -72,6 +72,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.ZKP",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neo.SmartContract.Analyzer.UnitTests", "tests\Neo.SmartContract.Analyzer.UnitTests\Neo.SmartContract.Analyzer.UnitTests.csproj", "{F30E2375-012A-4A38-985B-31CB7DBA4D28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.NFT.UnitTests", "examples\Example.SmartContract.NFT.UnitTests\Example.SmartContract.NFT.UnitTests.csproj", "{F1512011-B002-4854-8E4E-74E67F486FD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -202,6 +204,10 @@ Global
 		{F30E2375-012A-4A38-985B-31CB7DBA4D28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F30E2375-012A-4A38-985B-31CB7DBA4D28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F30E2375-012A-4A38-985B-31CB7DBA4D28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1512011-B002-4854-8E4E-74E67F486FD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1512011-B002-4854-8E4E-74E67F486FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1512011-B002-4854-8E4E-74E67F486FD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1512011-B002-4854-8E4E-74E67F486FD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -238,6 +244,7 @@ Global
 		{73223FBD-C562-4FA0-9722-C7F1C382A9DE} = {49D5873D-7B38-48A5-B853-85146F032091}
 		{D6D53889-5A10-46A4-BA66-E78B56EC1881} = {49D5873D-7B38-48A5-B853-85146F032091}
 		{D541BCE9-65BC-475B-94E5-19B6BFFF2B8E} = {49D5873D-7B38-48A5-B853-85146F032091}
+		{F1512011-B002-4854-8E4E-74E67F486FD5} = {C10F9957-077F-42C8-B350-8607D4899B7E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6DA935E1-C674-4364-B087-F1B511B79215}
