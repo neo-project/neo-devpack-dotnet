@@ -347,5 +347,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsTrue(item.GetBoolean());
         }
+
+        [TestMethod]
+        public void NullTypeTest()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullType");
+            Assert.AreEqual(0, result.Count);
+        }
     }
 }

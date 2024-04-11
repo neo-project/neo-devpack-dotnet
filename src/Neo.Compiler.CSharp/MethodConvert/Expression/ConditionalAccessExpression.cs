@@ -60,6 +60,7 @@ partial class MethodConvert
         ConvertExpression(model, expression.WhenNotNull);
         if (type.SpecialType == SpecialType.System_Void)
         {
+            //This branch is not covered, is there any c# code that matches the conditions?
             JumpTarget endTarget = new();
             Jump(OpCode.JMP_L, endTarget);
             nullTarget.Instruction = AddInstruction(OpCode.DROP);
