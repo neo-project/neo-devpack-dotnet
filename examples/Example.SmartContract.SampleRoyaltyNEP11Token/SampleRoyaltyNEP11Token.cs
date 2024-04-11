@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// Nep11Token.cs file belongs to the neo project and is free
+// SampleRoyaltyNEP11Token.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -92,10 +92,9 @@ namespace NonDivisibleNEP11
         [DisplayName("SetMinter")]
         public static event OnSetMinterDelegate OnSetMinter;
 
-        public static void SetMinter(UInt160 newMinter)
+        public static void SetMinter(UInt160? newMinter)
         {
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
+            ExecutionEngine.Assert(IsOwner() || IsMinter(), "No Authorization!");
             if (newMinter != null && newMinter.IsValid)
             {
                 Storage.Put(new[] { PrefixMinter }, newMinter);
@@ -149,9 +148,8 @@ namespace NonDivisibleNEP11
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
-            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
-            if (IsOwner() == false)
-                throw new InvalidOperationException("No Authorization!");
+            ExecutionEngine.Assert(tokenId.Length <= 64, "The argument \"tokenId\" should be 64 or less bytes long.");
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
             for (uint i = 0; i < royaltyInfos.Length; i++)
             {
                 if (((UInt160)royaltyInfos[i]["royaltyRecipient"]).IsValid == false ||
