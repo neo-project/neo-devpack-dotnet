@@ -12,6 +12,9 @@ using System;
 
 namespace Neo.SmartContract.Framework.Attributes
 {
+    /// <summary>
+    /// Specify the URL of the contract source code.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ContractSourceCodeAttribute : ManifestExtraAttribute
     {
