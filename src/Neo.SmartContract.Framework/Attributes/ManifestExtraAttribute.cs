@@ -30,6 +30,7 @@ namespace Neo.SmartContract.Framework.Attributes
             { nameof(ContractEmailAttribute), "E-mail" },
             { nameof(ContractDescriptionAttribute), "Description" },
             { nameof(ContractVersionAttribute), "Version" },
+            { nameof(ContractSourceCodeAttribute), "Sourcecode" },
         };
     }
 }
