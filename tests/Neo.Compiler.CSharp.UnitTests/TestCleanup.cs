@@ -32,9 +32,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Define paths
 
             var artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
-            var utPath = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/Working");
-            var testContractsFiles = Directory.GetFiles(utPath);
-            var root = Path.GetPathRoot(utPath) ?? "";
+            var testContractsPath = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj");
+            var root = Path.GetPathRoot(testContractsPath) ?? "";
 
             // Compile
 
@@ -45,11 +44,11 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileSources(testContractsFiles);
+            .CompileProject(testContractsPath);
 
             // Ensure that all was well compiled
 
-            if (!results.All(u => u.Success))
+            if (!results.Where(u => u.ContractName != "Contract_DuplicateNames").All(u => u.Success)) // TODO: Omit NotWorking better
             {
                 results.SelectMany(u => u.Diagnostics)
                     .Where(u => u.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error)
