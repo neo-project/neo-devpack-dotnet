@@ -1,5 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Json;
 using Neo.Optimizer;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,22 +18,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         public void Test_BasicBlockStartEnd()
         {
             var files = Directory.GetFiles(OldEngine.Utils.Extensions.TestContractRoot, "Contract*.cs");
-            Parallel.ForEach(files, file =>
-            {
-                try
-                {
-                    TestSingleContractBasicBlockStartEnd(file);
-                }
-                catch
-                {
-                    Console.WriteLine($"Omited: {file}");
-                }
-            });
+            Parallel.ForEach(files, TestSingleContractBasicBlockStartEnd);
         }
 
         public static void TestSingleContractBasicBlockStartEnd(string fileName)
         {
-            ContractInBasicBlocks basicBlocks;
             try
             {
                 // Compile
@@ -44,14 +36,35 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 })
                 .CompileSources(fileName);
 
-                var context = results.Single();
-                basicBlocks = new(context.CreateExecutable(), context.CreateManifest(), context.CreateDebugInformation());
+                if (results.Count == 0)
+                {
+                    throw new Exception("Compilation error");
+                }
+
+                // Test
+
+                foreach (var result in results)
+                {
+                    try
+                    {
+                        TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"Omited: {fileName}");
+                    }
+                }
             }
             catch
             {
                 Console.WriteLine($"Error compiling: {fileName}");
                 return;
             }
+        }
+
+        public static void TestSingleContractBasicBlockStartEnd(NefFile nef, ContractManifest manifest, JToken debugInfo)
+        {
+            var basicBlocks = new ContractInBasicBlocks(nef, manifest, debugInfo);
 
             // TODO: support CALLA and do not return
 
