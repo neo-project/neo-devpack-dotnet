@@ -41,7 +41,8 @@ namespace Neo.Compiler
                 }
                 else
                 {
-                    wildcardMethods.Add(method);
+                    if (wildcardMethods.Add(method))
+                        normalItems.RemoveWhere(p => p.Method == method);
                 }
             }
             else
