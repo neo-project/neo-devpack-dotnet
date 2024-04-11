@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Framework.Attributes
         /// Specify the URL of the contract source code.
         /// </summary>
         /// <param name="url">The url of the contract source code</param>
-        public ContractSourceCodeAttribute(string url) : base(AttributeType[nameof(ContractEmailAttribute)], url)
+        public ContractSourceCodeAttribute(string url) : base(AttributeType[nameof(ContractSourceCodeAttribute)], url)
         {
         }
     }
