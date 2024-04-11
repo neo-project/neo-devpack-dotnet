@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -50,6 +50,7 @@ partial class MethodConvert
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
             //Handles cases of string concatenation operator (+), concatenating a string with an object.
+            //Unsupported interpolation: object
             case "string.operator +(string, object)":
                 ConvertExpression(model, arguments[0]);
                 ConvertObjectToString(model, arguments[1]);
@@ -57,6 +58,7 @@ partial class MethodConvert
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
             //Handles cases of string concatenation operator (+), concatenating an object with a string.
+            //Unsupported interpolation: object
             case "string.operator +(object, string)":
                 ConvertObjectToString(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);

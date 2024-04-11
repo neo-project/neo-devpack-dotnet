@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.SmartContract.Framework is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -30,6 +30,7 @@ namespace Neo.SmartContract.Framework.Attributes
             { nameof(ContractEmailAttribute), "E-mail" },
             { nameof(ContractDescriptionAttribute), "Description" },
             { nameof(ContractVersionAttribute), "Version" },
+            { nameof(ContractSourceCodeAttribute), "Sourcecode" },
         };
     }
 }

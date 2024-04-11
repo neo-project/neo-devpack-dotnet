@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -37,6 +37,7 @@ partial class MethodConvert
     /// output: 3、3、4
     /// </example>
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/arithmetic-operators#postfix-increment-operator">Postfix increment operator</seealso>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-forgiving">! (null-forgiving) operator</seealso>
     private void ConvertPostfixUnaryExpression(SemanticModel model, PostfixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
