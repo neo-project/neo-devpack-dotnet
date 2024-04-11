@@ -29,7 +29,7 @@
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent">
         <MSBuild Projects="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" Targets="Build" ContinueOnError="true" />
-        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net7.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true" />
+        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net8.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true" />
     </Target>
 
 </Project>
