@@ -171,7 +171,18 @@ namespace Neo.Compiler
                 string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
 
-                (NefFile nef, ContractManifest manifest, JToken debugInfo) = context.CreateResults(folder);
+                NefFile nef;
+                ContractManifest manifest;
+                JToken debugInfo;
+                try
+                {
+                    (nef, manifest, debugInfo) = context.CreateResults(folder);
+                }
+                catch (CompilationException ex)
+                {
+                    Console.Error.WriteLine(ex.Diagnostic);
+                    return -1;
+                }
 
                 try
                 {
