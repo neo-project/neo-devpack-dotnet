@@ -57,7 +57,7 @@ namespace Example.SmartContract.NFT.UnitTests
                 {
                     // Find result
 
-                    var result = results.Where(u => u.ContractName == type.Name).SingleOrDefault();
+                    var result = results.SingleOrDefault(u => u.ContractName == type.Name);
                     if (result == null) continue;
 
                     // Ensure that it exists
@@ -91,17 +91,18 @@ namespace Example.SmartContract.NFT.UnitTests
             {
                 if (!File.Exists(artifactsPath))
                 {
-                    string directoryPath = Path.GetDirectoryName(artifactsPath);
+                    string? directoryPath = Path.GetDirectoryName(artifactsPath);
 
                     if (!Directory.Exists(directoryPath))
                     {
+                        if (directoryPath == null)
+                            throw new ArgumentNullException($"{nameof(directoryPath)} is null");
                         Directory.CreateDirectory(directoryPath);
                     }
 
                     File.Create(artifactsPath).Close();
                 }
 
-                // Uncomment to overwrite the artifact file
                 try
                 {
                     File.WriteAllText(artifactsPath, artifact);
