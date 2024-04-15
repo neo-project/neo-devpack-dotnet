@@ -94,7 +94,8 @@ namespace NonDivisibleNEP11
 
         public static void SetMinter(UInt160? newMinter)
         {
-            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
+            if (IsOwner() == false)
+                throw new InvalidOperationException("No Authorization!");
             if (newMinter != null && newMinter.IsValid)
             {
                 Storage.Put(new[] { PrefixMinter }, newMinter);
@@ -104,7 +105,8 @@ namespace NonDivisibleNEP11
 
         public static void Mint(UInt160 to)
         {
-            ExecutionEngine.Assert(IsOwner() || IsMinter(), "No Authorization!");
+            if (IsOwner() == false || IsMinter() == false)
+                throw new InvalidOperationException("No Authorization!");
             IncreaseCount();
             BigInteger tokenId = CurrentCount();
             Nep11TokenState nep11TokenState = new Nep11TokenState()
@@ -147,8 +149,10 @@ namespace NonDivisibleNEP11
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
-            ExecutionEngine.Assert(tokenId.Length <= 64, "The argument \"tokenId\" should be 64 or less bytes long.");
-            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
+            if (IsOwner() == false)
+                throw new InvalidOperationException("No Authorization!");
+            if (tokenId.Length > 64)
+                throw new InvalidOperationException("The argument \"tokenId\" should be 64 or less bytes long.");
             for (uint i = 0; i < royaltyInfos.Length; i++)
             {
                 if (((UInt160)royaltyInfos[i]["royaltyRecipient"]).IsValid == false ||
@@ -170,7 +174,8 @@ namespace NonDivisibleNEP11
         [Safe]
         public static Map<string, object>[] RoyaltyInfo(ByteString tokenId, UInt160 royaltyToken, BigInteger salePrice)
         {
-            ExecutionEngine.Assert(OwnerOf(tokenId) != null, "This TokenId doesn't exist!");
+            if (OwnerOf(tokenId) == null)
+                throw new InvalidOperationException("This TokenId doesn't exist!");
             byte[] data = (byte[])Storage.Get(PrefixRoyalty + tokenId);
             if (data == null)
             {
@@ -193,7 +198,8 @@ namespace NonDivisibleNEP11
 
         public static bool Update(ByteString nefFile, ByteString manifest, object data)
         {
-            ExecutionEngine.Assert(IsOwner() == false, "No Authorization!");
+            if (IsOwner() == false)
+                throw new InvalidOperationException("No Authorization!");
             ContractManagement.Update(nefFile, manifest, data);
             return true;
         }
