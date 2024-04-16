@@ -180,7 +180,6 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <param name="sender"></param>
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MintToken(BigInteger tokenId, UInt160 sender)
         {
             var credential = CheckClaim(tokenId);
@@ -197,7 +196,6 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <returns></returns>
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private BigInteger CheckClaim(BigInteger tokenId)
         {
             // <0> -- confirmed
