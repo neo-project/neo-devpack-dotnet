@@ -10,18 +10,23 @@ namespace Neo.SmartContract.Testing.TestingStandards;
 
 public class TestBase<T> where T : SmartContract
 {
-    private readonly List<string> _contractLogs = new();
+    private readonly List<string> _contractLogs = [];
 
     public static CoveredContract? Coverage { get; private set; }
     public static Signer Alice { get; set; } = TestEngine.GetNewSigner();
     public static Signer Bob { get; set; } = TestEngine.GetNewSigner();
 
-    public NefFile NefFile { get; }
-    public ContractManifest Manifest { get; }
-    public NeoDebugInfo? DebugInfo { get; }
-    public TestEngine Engine { get; }
-    public T Contract { get; }
+    public NefFile NefFile { get; private set; }
+    public ContractManifest Manifest { get; private set; }
+    public NeoDebugInfo? DebugInfo { get; set; }
+    public TestEngine Engine { get; private set; }
+    public T Contract { get; private set; }
     public UInt160 ContractHash => Contract.Hash;
+
+    /// <summary>
+    /// Empty constructor
+    /// </summary>
+    public TestBase(){}
 
     /// <summary>
     /// Constructor
@@ -42,6 +47,17 @@ public class TestBase<T> where T : SmartContract
     /// <param name="manifestFile">Manifest</param>
     /// <param name="debugInfo">Debug info</param>
     public TestBase(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
+    {
+        TestBaseSetup(nefFile, manifestFile, debugInfo);
+    }
+
+    /// <summary>
+    /// Setup the test contract
+    /// </summary>
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest</param>
+    /// <param name="debugInfo">Debug info</param>
+    public void TestBaseSetup(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
     {
         NefFile = nefFile;
         Manifest = manifestFile;
