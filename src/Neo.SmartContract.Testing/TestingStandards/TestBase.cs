@@ -26,7 +26,7 @@ public class TestBase<T> where T : SmartContract
     /// <summary>
     /// Empty constructor
     /// </summary>
-    public TestBase(){}
+    public TestBase() { }
 
     /// <summary>
     /// Constructor
