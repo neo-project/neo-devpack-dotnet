@@ -201,7 +201,7 @@ namespace NFT
             // <0> -- confirmed
             ExecutionEngine.Assert(TokenIndexMap.Get(tokenId.ToString()) != "taken", "Token already claimed.");
             // <1> -- confirmed
-            return 11111111111;
+            return Runtime.GetRandom();
         }
     }
 
