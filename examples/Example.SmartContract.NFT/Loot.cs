@@ -180,11 +180,9 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <param name="sender"></param>
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MintToken(BigInteger tokenId, UInt160 sender)
         {
-            ExecutionEngine.Assert(TokenIndexMap.Get(tokenId.ToString()) != "taken", "Token already claimed.");
-            var credential = Runtime.GetRandom();
+            var credential = CheckClaim(tokenId);
             TokenState token = TokenState.MintLoot(sender, tokenId, credential);
             Mint(tokenId.ToString(), token);
             TokenIndexMap.Put(tokenId.ToString(), "taken");
@@ -198,7 +196,6 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private BigInteger CheckClaim(BigInteger tokenId)
         {
             // <0> -- confirmed
