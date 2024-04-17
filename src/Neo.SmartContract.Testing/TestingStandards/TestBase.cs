@@ -57,7 +57,7 @@ public class TestBase<T> where T : SmartContract
     /// <param name="nefFile">Nef file</param>
     /// <param name="manifestFile">Manifest</param>
     /// <param name="debugInfo">Debug info</param>
-    public void TestBaseSetup(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
+    public virtual void TestBaseSetup(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
     {
         NefFile = nefFile;
         Manifest = manifestFile;
