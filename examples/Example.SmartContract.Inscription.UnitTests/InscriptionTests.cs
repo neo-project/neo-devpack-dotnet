@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.Inscription.UnitTest
+namespace Example.SmartContract.Inscription.UnitTests
 {
     [TestClass]
     public class InscriptionTests : TestBase<SampleInscription>

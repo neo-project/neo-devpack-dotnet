@@ -7,7 +7,7 @@ using System.Linq;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 
-namespace Example.SmartContract.Event.UnitTest
+namespace Example.SmartContract.Event.UnitTests
 {
     public class TestCleanup
     {

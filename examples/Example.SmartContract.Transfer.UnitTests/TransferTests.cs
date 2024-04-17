@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.Transfer.UnitTest
+namespace Example.SmartContract.Transfer.UnitTests
 {
     [TestClass]
     public class TransferTests : TestBase<SampleTransferContract>

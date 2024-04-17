@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.HelloWorld.UnitTest
+namespace Example.SmartContract.HelloWorld.UnitTests
 {
     [TestClass]
     public class HelloWorldTests : TestBase<SampleHelloWorld>

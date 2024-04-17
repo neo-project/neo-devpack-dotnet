@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.Event.UnitTest
+namespace Example.SmartContract.Event.UnitTests
 {
     [TestClass]
     public class EventTests : TestBase<SampleEvent>

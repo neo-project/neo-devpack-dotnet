@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.ZKP.UnitTest
+namespace Example.SmartContract.ZKP.UnitTests
 {
     [TestClass]
     public class ZKPTests : TestBase<SampleZKP>

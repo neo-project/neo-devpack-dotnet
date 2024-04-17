@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.Exception.UnitTest
+namespace Example.SmartContract.Exception.UnitTests
 {
     [TestClass]
     public class ExceptionTests : TestBase<SampleException>

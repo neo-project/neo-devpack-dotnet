@@ -1,7 +1,7 @@
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.Modifier.UnitTest
+namespace Example.SmartContract.Modifier.UnitTests
 {
     [TestClass]
     public class ModifierTests : TestBase<SampleModifier>
