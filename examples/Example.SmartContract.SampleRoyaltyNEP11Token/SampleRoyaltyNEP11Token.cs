@@ -54,12 +54,11 @@ namespace NonDivisibleNEP11
 
         public static void SetOwner(UInt160? newOwner)
         {
-            ExecutionEngine.Assert(IsOwner() == true, "No Authorization!");
-            if (newOwner != null && newOwner.IsValid && newOwner.IsZero == false)
-            {
-                Storage.Put(new[] { PrefixOwner }, newOwner);
-                OnSetOwner(newOwner);
-            }
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
+            ExecutionEngine.Assert(newOwner != null && newOwner.IsValid && !newOwner.IsZero, "Wrong newOwner");
+
+            Storage.Put(new[] { PrefixOwner }, newOwner);
+            OnSetOwner(newOwner);
         }
 
         #endregion
@@ -92,17 +91,16 @@ namespace NonDivisibleNEP11
 
         public static void SetMinter(UInt160? newMinter)
         {
-            ExecutionEngine.Assert(IsOwner() == true, "No Authorization!");
-            if (newMinter != null && newMinter.IsValid)
-            {
-                Storage.Put(new[] { PrefixMinter }, newMinter);
-                OnSetMinter(newMinter);
-            }
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
+            ExecutionEngine.Assert(newMinter != null && newMinter.IsValid && !newMinter.IsZero, "Wrong newMinter");
+
+            Storage.Put(new[] { PrefixMinter }, newMinter);
+            OnSetMinter(newMinter);
         }
 
         public static void Mint(UInt160 to)
         {
-            ExecutionEngine.Assert(IsOwner() == true || IsMinter() == true, "No Authorization!");
+            ExecutionEngine.Assert(IsOwner() || IsMinter(), "No Authorization!");
             IncreaseCount();
             BigInteger tokenId = CurrentCount();
             Nep11TokenState nep11TokenState = new Nep11TokenState()
@@ -145,7 +143,7 @@ namespace NonDivisibleNEP11
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)
         {
-            ExecutionEngine.Assert(IsOwner() == true, "No Authorization!");
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
             ExecutionEngine.Assert(tokenId.Length <= 64, "The argument \"tokenId\" should be 64 or less bytes long.");
             for (uint i = 0; i < royaltyInfos.Length; i++)
             {
@@ -188,10 +186,11 @@ namespace NonDivisibleNEP11
 
         public static bool Update(ByteString nefFile, ByteString manifest, object data)
         {
-            ExecutionEngine.Assert(IsOwner() == true, "No Authorization!");
+            ExecutionEngine.Assert(IsOwner(), "No Authorization!");
             ContractManagement.Update(nefFile, manifest, data);
             return true;
         }
+
         #endregion
     }
 }
