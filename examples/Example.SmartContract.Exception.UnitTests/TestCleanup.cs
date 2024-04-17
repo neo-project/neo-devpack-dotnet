@@ -7,7 +7,7 @@ using System.Linq;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 
-namespace Example.SmartContract.NFT.UnitTests
+namespace Example.SmartContract.Exception.UnitTest
 {
     public class TestCleanup
     {
@@ -64,7 +64,7 @@ namespace Example.SmartContract.NFT.UnitTests
             {
                 File.WriteAllText(artifactsPath, artifact);
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 Console.WriteLine(e);
                 throw;
