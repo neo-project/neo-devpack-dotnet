@@ -80,21 +80,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Contr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Event.UnitTests", "examples\Example.SmartContract.Event.UnitTests\Example.SmartContract.Event.UnitTests.csproj", "{994FD5D9-21FE-464A-9AE5-0028D97DE0B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Exception.UnitTests", "examples\Example.SmartContract.Exception.UnitTests\Example.SmartContract.Exception.unittests.csproj", "{EE2530BC-2C77-4BB3-959D-C18079BDF290}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Exception.UnitTests", "examples\Example.SmartContract.Exception.UnitTests\Example.SmartContract.Exception.UnitTests.csproj", "{EE2530BC-2C77-4BB3-959D-C18079BDF290}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.HelloWorld.UnitTests", "examples\Example.SmartContract.HelloWorld.UnitTests\Example.SmartContract.HelloWorld.unittests.csproj", "{518F4DFD-43A3-4183-89FB-77273718D3E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.HelloWorld.UnitTests", "examples\Example.SmartContract.HelloWorld.UnitTests\Example.SmartContract.HelloWorld.UnitTests.csproj", "{518F4DFD-43A3-4183-89FB-77273718D3E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Inscription.UnitTests", "examples\Example.SmartContract.Inscription.UnitTests\Example.SmartContract.Inscription.unittests.csproj", "{68561F04-3023-4369-9A0A-10DB3BB7D9DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Inscription.UnitTests", "examples\Example.SmartContract.Inscription.UnitTests\Example.SmartContract.Inscription.UnitTests.csproj", "{68561F04-3023-4369-9A0A-10DB3BB7D9DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Modifier.UnitTests", "examples\Example.SmartContract.Modifier.UnitTests\Example.SmartContract.Modifier.unittests.csproj", "{242F3DC0-40F6-48D4-A447-1333D88B5E07}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Modifier.UnitTests", "examples\Example.SmartContract.Modifier.UnitTests\Example.SmartContract.Modifier.UnitTests.csproj", "{242F3DC0-40F6-48D4-A447-1333D88B5E07}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Oracle.UnitTests", "examples\Example.SmartContract.Oracle.UnitTests\Example.SmartContract.Oracle.UnitTests.csproj", "{3ED83AB7-4FF0-4713-9900-B297C80018FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Storage.UnitTests", "examples\Example.SmartContract.Storage.UnitTests\Example.SmartContract.Storage.unittests.csproj", "{CF087348-4238-4C25-B6F6-E0758C201F5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Storage.UnitTests", "examples\Example.SmartContract.Storage.UnitTests\Example.SmartContract.Storage.UnitTests.csproj", "{CF087348-4238-4C25-B6F6-E0758C201F5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Transfer.UnitTests", "examples\Example.SmartContract.Transfer.UnitTests\Example.SmartContract.Transfer.unittests.csproj", "{4AEE26A1-596B-4F8C-ABEA-583001CFDFCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Transfer.UnitTests", "examples\Example.SmartContract.Transfer.UnitTests\Example.SmartContract.Transfer.UnitTests.csproj", "{4AEE26A1-596B-4F8C-ABEA-583001CFDFCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.ZKP.UnitTests", "examples\Example.SmartContract.ZKP.UnitTests\Example.SmartContract.ZKP.unittests.csproj", "{FD294EB0-2BE9-4256-92D8-D487197A994F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.ZKP.UnitTests", "examples\Example.SmartContract.ZKP.UnitTests\Example.SmartContract.ZKP.UnitTests.csproj", "{FD294EB0-2BE9-4256-92D8-D487197A994F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
