@@ -16,7 +16,7 @@ namespace Example.SmartContract.ContractCall.UnitTests
         [TestMethod]
         public void Test()
         {
-            
+
         }
     }
 }
