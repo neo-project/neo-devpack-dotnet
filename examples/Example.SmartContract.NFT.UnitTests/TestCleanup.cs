@@ -1,17 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
-using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 
 namespace Example.SmartContract.NFT.UnitTests
 {
     public class TestCleanup
     {
-        internal static void EnsureArtifactsUpToDateInternal()
+        internal static (NefFile nef, ContractManifest manifest) EnsureArtifactsUpToDateInternal()
         {
             // Define paths
             string testContractsPath = Path.GetFullPath("../../../../Example.SmartContract.NFT/Example.SmartContract.NFT.csproj");
@@ -41,10 +41,10 @@ namespace Example.SmartContract.NFT.UnitTests
             // Get all artifacts loaded in this assembly
             var result = compilationContexts.FirstOrDefault() ?? throw new ArgumentNullException($"Compilation context is null");
             // Ensure that it exists
-            CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+            return CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
         }
 
-        private static void CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
+        private static (NefFile nef, ContractManifest manifest) CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
         {
             var (nef, manifest, _) = context.CreateResults(rootDebug);
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
@@ -68,6 +68,8 @@ namespace Example.SmartContract.NFT.UnitTests
                 Console.WriteLine(e);
                 throw;
             }
+
+            return (nef, manifest);
         }
     }
 }
