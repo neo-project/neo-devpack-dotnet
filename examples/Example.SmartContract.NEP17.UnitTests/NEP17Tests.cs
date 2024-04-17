@@ -16,7 +16,8 @@ namespace Example.SmartContract.NEP17.UnitTests
         [TestMethod]
         public void Test()
         {
-            
+            Assert.AreEqual(Contract.Symbol, "SampleNep17Token");
+            Assert.AreEqual(Contract.Decimals, 8);
         }
     }
 }

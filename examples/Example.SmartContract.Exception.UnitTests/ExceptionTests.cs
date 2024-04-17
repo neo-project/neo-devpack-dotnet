@@ -16,7 +16,11 @@ namespace Example.SmartContract.Exception.UnitTests
         [TestMethod]
         public void Test()
         {
-
+            Contract.Try01();
+            Contract.Try02();
+            Contract.Try03();
+            Contract.TryFinally();
+            Contract.TryNest();
         }
     }
 }

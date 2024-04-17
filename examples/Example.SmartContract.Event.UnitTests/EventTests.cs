@@ -16,7 +16,7 @@ namespace Example.SmartContract.Event.UnitTests
         [TestMethod]
         public void Test()
         {
-
+            Assert.IsFalse(Contract.Main());
         }
     }
 }

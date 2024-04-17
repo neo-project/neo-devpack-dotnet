@@ -16,7 +16,7 @@ namespace Example.SmartContract.HelloWorld.UnitTests
         [TestMethod]
         public void Test()
         {
-
+            Assert.AreEqual(Contract.SayHello, "Hello, World!");
         }
     }
 }
