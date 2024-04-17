@@ -51,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.ZKP",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.ZKP.UnitTests", "Example.SmartContract.ZKP.UnitTests\Example.SmartContract.ZKP.UnitTests.csproj", "{8FCB5C06-EBBE-4519-8093-E70A2E87DEAD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.SmartContract.SampleRoyaltyNEP11Token.UnitTests", "Example.SmartContract.SampleRoyaltyNEP11Token.UnitTests\Example.SmartContract.SampleRoyaltyNEP11Token.UnitTests.csproj", "{6C0759A7-EAA8-4B27-BDD8-C4D7F535E113}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,10 @@ Global
 		{8FCB5C06-EBBE-4519-8093-E70A2E87DEAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FCB5C06-EBBE-4519-8093-E70A2E87DEAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8FCB5C06-EBBE-4519-8093-E70A2E87DEAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C0759A7-EAA8-4B27-BDD8-C4D7F535E113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C0759A7-EAA8-4B27-BDD8-C4D7F535E113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C0759A7-EAA8-4B27-BDD8-C4D7F535E113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C0759A7-EAA8-4B27-BDD8-C4D7F535E113}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
