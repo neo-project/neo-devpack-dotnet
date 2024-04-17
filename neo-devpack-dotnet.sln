@@ -88,7 +88,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Inscr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Modifier.UnitTests", "examples\Example.SmartContract.Modifier.UnitTests\Example.SmartContract.Modifier.unittests.csproj", "{242F3DC0-40F6-48D4-A447-1333D88B5E07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Oracle.UnitTests", "Example.SmartContract.Oracle.UnitTests\Example.SmartContract.Oracle.UnitTests.csproj", "{3ED83AB7-4FF0-4713-9900-B297C80018FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Oracle.UnitTests", "examples\Example.SmartContract.Oracle.UnitTests\Example.SmartContract.Oracle.UnitTests.csproj", "{3ED83AB7-4FF0-4713-9900-B297C80018FA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Storage.UnitTests", "examples\Example.SmartContract.Storage.UnitTests\Example.SmartContract.Storage.unittests.csproj", "{CF087348-4238-4C25-B6F6-E0758C201F5B}"
 EndProject
