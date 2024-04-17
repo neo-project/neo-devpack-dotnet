@@ -1,11 +1,7 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
-using Neo.SmartContract.Testing.Extensions;
-using System;
-using System.IO;
-using System.Linq;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Extensions;
 
 namespace Example.SmartContract.Inscription.UnitTests
 {
