@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <Nullable>disable</Nullable>
-        <RootNamespace>Transfer</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Nullable>disable</Nullable>
+    <RootNamespace>Transfer</RootNamespace>
+  </PropertyGroup>
 
 </Project>
