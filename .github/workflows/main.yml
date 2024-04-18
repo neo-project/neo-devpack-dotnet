@@ -75,16 +75,6 @@ jobs:
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
         /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
-    - name: Test Neo.SmartContract.Template.UnitTests
-      run: |
-        dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
-        --no-build \
-        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
-        -l "console;verbosity=detailed" \
-        /p:CollectCoverage=true \
-        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
-        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
     - name: Test Example.SmartContract.ContractCall.UnitTests
       run: |
         dotnet test ./examples/Example.SmartContract.ContractCall.UnitTests \
@@ -208,6 +198,16 @@ jobs:
     - name: Test Example.SmartContract.ZKP.UnitTests
       run: |
         dotnet test ./examples/Example.SmartContract.ZKP.UnitTests \
+        --no-build \
+        -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
+        -l "console;verbosity=detailed" \
+        /p:CollectCoverage=true \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+    - name: Test Neo.SmartContract.Template.UnitTests
+      run: |
+        dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         --no-build \
         -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
