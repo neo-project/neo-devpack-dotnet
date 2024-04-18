@@ -2,6 +2,7 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
+using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
@@ -139,6 +140,28 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var array = new[] { a, b };
             var firstItem = array?[0];
             Runtime.Log(firstItem?.Timestamp.ToString());
+        }
+
+        // This is new language feature introduced in C# 12
+        // ref. https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12#inline-arrays
+        public static (int[], List<string>, int[][], int[][]) TestCollectionexpressions()
+        {
+            // Create an array:
+            int[] a = [1, 2, 3, 4, 5, 6, 7, 8];
+
+            // Create a list:
+            List<string> b = ["one", "two", "three"];
+
+            // Create a jagged 2D array:
+            int[][] twoD = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+
+            // Create a jagged 2D array from variables:
+            int[] row0 = [1, 2, 3];
+            int[] row1 = [4, 5, 6];
+            int[] row2 = [7, 8, 9];
+            int[][] twoDFromVariables = [row0, row1, row2];
+
+            return (a, b, twoD, twoDFromVariables);
         }
     }
 }
