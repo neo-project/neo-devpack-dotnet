@@ -130,6 +130,20 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return Where(array, x => x > 0);
         }
 
+        // This tests the default value of a lambda parameter
+        // A new feature in C# 12.0 ref. https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12#default-lambda-parameters
+        public static int TestLambdaDefault(int a)
+        {
+            var sumDefault = (int x, int y = 1) => x + y;
+            return sumDefault(a);
+        }
+
+        public static int TestLambdaNotDefault(int a, int b)
+        {
+            var sumDefault = (int x, int y = 1) => x + y;
+            return sumDefault(a, b);
+        }
+
         private static bool Any<T>(IEnumerable<T> array, Predicate<T> pre)
         {
             foreach (var i in array)

@@ -221,5 +221,22 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = testengine.ExecuteTestCaseStandard("checkPositiveOdd", -1).Pop();
             Assert.AreEqual(false, result.GetBoolean());
         }
+
+        [TestMethod]
+        public void Test_LambdaDefault()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("testLambdaDefault", 3).Pop();
+            Assert.AreEqual(4, result.GetInteger());
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testLambdaDefault", 5).Pop();
+            Assert.AreEqual(6, result.GetInteger());
+
+
+            testengine.Reset();
+            result = testengine.ExecuteTestCaseStandard("testLambdaNotDefault", 5, 3).Pop();
+            Assert.AreEqual(8, result.GetInteger());
+        }
     }
 }
