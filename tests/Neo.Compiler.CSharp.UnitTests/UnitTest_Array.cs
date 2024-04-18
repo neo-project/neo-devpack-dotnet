@@ -178,5 +178,36 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual((ByteString)"NEP-5", items[0]);
             Assert.AreEqual((ByteString)"NEP-10", items[1]);
         }
+
+        [TestMethod]
+        public void Test_Collectionexpressions()
+        {
+            var testengine = new TestEngine();
+            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Array.cs");
+            var result = testengine.ExecuteTestCaseStandard("testCollectionexpressions");
+
+            var arr = (Array)result.Pop().ConvertTo(StackItemType.Array);
+            Assert.AreEqual(4, arr.Count);
+
+            var element0 = (Array)arr[0];
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8 },
+                element0.Cast<PrimitiveType>().Select(u => (int)u.GetInteger()).ToArray());
+
+            var element1 = (Array)arr[1];
+            CollectionAssert.AreEqual(new[] { "one", "two", "three" },
+                element1.Cast<PrimitiveType>().Select(u => u.GetString()).ToArray());
+
+            var element2 = (Array)arr[2];
+            Assert.AreEqual(3, element2.Count);
+            var element2_0 = (Array)element2[0];
+            CollectionAssert.AreEqual(new[] { 1, 2, 3 },
+                element2_0.Cast<PrimitiveType>().Select(u => (int)u.GetInteger()).ToArray());
+
+            var element3 = (Array)arr[3];
+            Assert.AreEqual(3, element3.Count);
+            var element3_0 = (Array)element3[0];
+            CollectionAssert.AreEqual(new[] { 1, 2, 3 },
+                element3_0.Cast<PrimitiveType>().Select(u => (int)u.GetInteger()).ToArray());
+        }
     }
 }
