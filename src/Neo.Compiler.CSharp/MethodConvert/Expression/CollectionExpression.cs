@@ -22,7 +22,6 @@ partial class MethodConvert
 {
     private void ConvertCollectionExpression(SemanticModel model, CollectionExpressionSyntax expression)
     {
-
         // IArrayTypeSymbol type = (IArrayTypeSymbol) model.GetTypeInfo(expression).ConvertedType!;
         for (int i = expression.Elements.Count - 1; i >= 0; i--)
         {
