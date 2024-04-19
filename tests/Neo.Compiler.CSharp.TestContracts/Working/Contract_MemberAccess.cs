@@ -5,18 +5,16 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
     public class Contract_MemberAccess : SmartContract.Framework.SmartContract
     {
-        public class Contract_1 : SmartContract.Framework.SmartContract
+        public static void TestMain()
         {
-            public static void TestMain()
-            {
                 var my = new MyClass();
                 Runtime.Log(my.Data1.ToString());
                 Runtime.Log(MyClass.Data2);
                 //Runtime.Log(MyClass.Data3.ToString());
                 Runtime.Log(my.Data4);
                 Runtime.Log(my.Method());
-            }
         }
+
 
         public class MyClass
         {

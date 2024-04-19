@@ -14,4 +14,8 @@
       <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="NotWorking\" />
+    </ItemGroup>
+
 </Project>

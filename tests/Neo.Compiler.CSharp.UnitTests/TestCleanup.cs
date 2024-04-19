@@ -59,7 +59,8 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Get all artifacts loaded in this assembly
 
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+            var b = Assembly.GetExecutingAssembly().GetTypes();
+            foreach (var type in b)
             {
                 if (typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type))
                 {
