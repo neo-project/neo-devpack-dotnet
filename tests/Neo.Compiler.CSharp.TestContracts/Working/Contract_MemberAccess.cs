@@ -7,12 +7,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     {
         public static void TestMain()
         {
-                var my = new MyClass();
-                Runtime.Log(my.Data1.ToString());
-                Runtime.Log(MyClass.Data2);
-                //Runtime.Log(MyClass.Data3.ToString());
-                Runtime.Log(my.Data4);
-                Runtime.Log(my.Method());
+            var my = new MyClass();
+            Runtime.Log(my.Data1.ToString());
+            Runtime.Log(MyClass.Data2);
+            //Runtime.Log(MyClass.Data3.ToString());
+            Runtime.Log(my.Data4);
+            Runtime.Log(my.Method());
         }
 
 
