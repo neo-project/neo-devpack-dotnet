@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
 using System.IO;
 
 namespace Neo.Compiler.CSharp.UnitTests.OldEngine
@@ -7,7 +6,7 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
     [TestClass]
     public class UnitTest_Parameters
     {
-        readonly string csFileDir = $"{System.Environment.CurrentDirectory[..System.Environment.CurrentDirectory.IndexOf("Neo.Compiler.CSharp.UnitTests")]}Neo.Compiler.CSharp.TestContracts";
+        readonly string csFileDir = Utils.Extensions.TestContractRoot;
 
         [TestMethod]
         public void TestNoParameter()
