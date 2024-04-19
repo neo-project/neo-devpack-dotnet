@@ -89,5 +89,19 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             Storage.Put(context, code, "111");
             return Storage.Get(context, code) ?? (ByteString)new byte[] { 123 };
         }
+
+        class TestClass
+        {
+            public void VoidMethod()
+            {
+            }
+            public int IntProperty => 42;
+        }
+
+        public static void NullType()
+        {
+            TestClass? obj1 = null;
+            obj1?.VoidMethod();
+        }
     }
 }

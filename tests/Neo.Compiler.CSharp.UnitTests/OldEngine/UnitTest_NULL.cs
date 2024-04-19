@@ -4,7 +4,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.TestEngine;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.CSharp.UnitTests.OldEngine
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_NULL
@@ -346,6 +346,14 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
 
             Assert.IsInstanceOfType(item, typeof(Boolean));
             Assert.IsTrue(item.GetBoolean());
+        }
+
+        [TestMethod]
+        public void NullTypeTest()
+        {
+            testengine.Reset();
+            var result = testengine.ExecuteTestCaseStandard("nullType");
+            Assert.AreEqual(0, result.Count);
         }
     }
 }
