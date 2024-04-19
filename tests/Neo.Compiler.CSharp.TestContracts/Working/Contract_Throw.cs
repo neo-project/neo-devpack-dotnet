@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         {
             get => name;
             set => name = value ??
-                throw new ArgumentNullException(paramName: nameof(value), message: "Name cannot be null");
+                throw new ArgumentNullException($"{nameof(value)} cannot be null");
         }
     }
 }

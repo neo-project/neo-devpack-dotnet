@@ -9,7 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         [DisplayName("Notify")]
         public static event Action<BigInteger> Notice;
 
-        [DisplayName("Notify")]
-        public static event Action<BigInteger> AA;
+        // [DisplayName("Notify")]
+        // public static event Action<BigInteger> AA;
     }
 }
