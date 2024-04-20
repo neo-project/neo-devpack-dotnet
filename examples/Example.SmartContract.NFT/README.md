@@ -1,4 +1,5 @@
 # Loot
+
 This is a migration of loot nft contract.
 This also solves the random issue in loot.
 
@@ -29,7 +30,9 @@ This also solves the random issue in loot.
     ]
 }
 ```
+
 `response`
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -48,7 +51,8 @@ This also solves the random issue in loot.
     }
 }
 ```
-copy the `tx` filed and send  the transaction with `sendrawtranaction` API
+
+copy the `tx` filed and send the transaction with `sendrawtranaction` API
 
 ## Get the loot token by calling tokenURI
 
@@ -69,7 +73,9 @@ copy the `tx` filed and send  the transaction with `sendrawtranaction` API
     ]
 }
 ```
+
 `response`
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -91,6 +97,7 @@ copy the `tx` filed and send  the transaction with `sendrawtranaction` API
 ```
 
 Decode the `value` with base64:
+
 ```html
 <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">
     <style>
