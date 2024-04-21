@@ -94,7 +94,7 @@ partial class MethodConvert
             case ArrayCreationExpressionSyntax expression:
                 ConvertArrayCreationExpression(model, expression);
                 break;
-            //Convert an assignment expression. 
+            //Convert an assignment expression.
             //Example: new int[4] { 5, 6, 7, 8};
             case AssignmentExpressionSyntax expression:
                 ConvertAssignmentExpression(model, expression);
@@ -222,6 +222,9 @@ partial class MethodConvert
                 break;
             case SimpleLambdaExpressionSyntax expression:
                 ConvertSimpleLambdaExpression(model, expression);
+                break;
+            case CollectionExpressionSyntax expression:
+                ConvertCollectionExpression(model, expression);
                 break;
             case WithExpressionSyntax expression:
                 ConvertWithExpressionSyntax(model, expression);

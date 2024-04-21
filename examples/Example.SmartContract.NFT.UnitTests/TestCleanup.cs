@@ -1,11 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
-using Neo.SmartContract.Testing.Extensions;
-using System;
-using System.IO;
-using System.Linq;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Extensions;
 
 namespace Example.SmartContract.NFT.UnitTests
 {
@@ -14,7 +11,8 @@ namespace Example.SmartContract.NFT.UnitTests
         internal static (NefFile nef, ContractManifest manifest) EnsureArtifactsUpToDateInternal()
         {
             // Define paths
-            string testContractsPath = Path.GetFullPath("../../../../Example.SmartContract.NFT/Example.SmartContract.NFT.csproj");
+            string testContractsName = System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType!.Namespace!.Replace(".UnitTests", "");
+            string testContractsPath = Path.GetFullPath($"../../../../{testContractsName}/{testContractsName}.csproj");
             string artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
             var root = Path.GetPathRoot(testContractsPath) ?? "";
 
