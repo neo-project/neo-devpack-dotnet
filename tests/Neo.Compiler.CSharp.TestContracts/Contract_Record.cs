@@ -5,7 +5,6 @@ using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 {
-
     record Student(string name, int age);
 
     public record StudentR
@@ -18,8 +17,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             Name = n;
         }
     }
-
-
 
     public class Contract_Record : SmartContract.Framework.SmartContract
     {
