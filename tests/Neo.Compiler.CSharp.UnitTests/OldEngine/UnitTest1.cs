@@ -33,24 +33,6 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
         }
 
         [TestMethod]
-        public void Test_InvalidNameMethodContracts()
-        {
-            // var testengine = new TestEngine();
-            // var context = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_InvalidName.cs");
-            // Assert.IsFalse(context.Success);
-            // Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.InvalidMethodName));
-        }
-
-        [TestMethod]
-        public void Test_DuplicateDisplayNames()
-        {
-            // var testengine = new TestEngine();
-            // var context = testengine.AddEntryScript(Utils.Extensions.NotWorkingTestContractRoot + "Contract_DuplicateNames.cs");
-            // Assert.IsFalse(context.Success);
-            // Assert.IsTrue(context.Diagnostics.Any(u => u.Id == DiagnosticId.EventNameConflict));
-        }
-
-        [TestMethod]
         public void Test_PrivateMethod()
         {
             var testengine = new TestEngine();

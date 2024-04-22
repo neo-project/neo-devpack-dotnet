@@ -16,31 +16,6 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
     [TestClass]
     public class UnitTest_Types
     {
-        #region Unsupported Types
-
-        [TestMethod]
-        public void float_Test()
-        {
-            // using var testengine = new TestEngine();
-            // Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Float.cs").Success);
-        }
-
-        [TestMethod]
-        public void decimal_Test()
-        {
-            // using var testengine = new TestEngine();
-            // Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Decimal.cs").Success);
-        }
-
-        [TestMethod]
-        public void double_Test()
-        {
-            // using var testengine = new TestEngine();
-            // Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Double.cs").Success);
-        }
-
-        #endregion
-
         [TestMethod]
         public void null_Test()
         {

@@ -15,15 +15,6 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
         }
 
         [TestMethod]
-        public void Test()
-        {
-            // var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            // Assert.AreEqual(Program.Main([path]), 0);
-            // Assert.IsTrue(File.Exists(Path.Combine(csFileDir, "bin", "sc", "Contract_BigInteger.nef")));
-            // Assert.IsTrue(File.Exists(Path.Combine(csFileDir, "bin", "sc", "Contract_BigInteger.manifest.json")));
-        }
-
-        [TestMethod]
         public void TestOutput()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
@@ -57,14 +48,6 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
             var path2 = Path.Combine(csFileDir, "Contract_Math.cs");
             Assert.AreEqual(Program.Main([path, path2]), 0);
-        }
-
-        [TestMethod]
-        public void TestGenerateArtifacts()
-        {
-            // var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            // Assert.AreEqual(Program.Main([path, "--generate-artifacts", "All"]), 0);
-            // Assert.IsTrue(File.Exists(Path.Combine(csFileDir, "bin", "sc", "Contract_BigInteger.artifacts.cs")));
         }
 
         [TestMethod]

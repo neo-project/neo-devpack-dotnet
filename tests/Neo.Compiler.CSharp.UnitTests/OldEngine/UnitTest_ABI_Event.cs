@@ -17,12 +17,5 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
             string expecteventabi = @"{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}";
             Assert.AreEqual(expecteventabi, events);
         }
-
-        [TestMethod]
-        public void Test_Wrong()
-        {
-            // var testengine = new TestEngine();
-            // Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_WrongEvent.cs").Success);
-        }
     }
 }
