@@ -53,7 +53,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(age, arr[1].GetInteger());
         }
 
-
         [TestMethod]
         public void Test_UpdateRecord2()
         {
@@ -68,7 +67,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("0" + name, arr[0].GetString());
             Assert.AreEqual(age + 1, arr[1].GetInteger());
         }
-
 
         [TestMethod]
         public void Test_DeconstructRecord()
