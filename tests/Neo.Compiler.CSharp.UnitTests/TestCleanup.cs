@@ -15,6 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class TestCleanup
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        private static CompilationContext[] compilationContexts;
         internal static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         /// <summary>
@@ -25,9 +26,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
 
-        internal static void EnsureArtifactsUpToDateInternal()
+        internal static CompilationContext[] EnsureArtifactsUpToDateInternal()
         {
-            if (DebugInfos.Count > 0) return; // Maybe a UT call it
+            if (DebugInfos.Count > 0) return compilationContexts; // Maybe a UT call it
 
             // Define paths
 
@@ -87,6 +88,9 @@ namespace Neo.Compiler.CSharp.UnitTests
 
                 Assert.Fail("Error compiling templates");
             }
+
+            compilationContexts = results.ToArray();
+            return compilationContexts;
         }
 
         private static NeoDebugInfo CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath, bool failIfWrong)

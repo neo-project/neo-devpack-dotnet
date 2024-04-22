@@ -5,7 +5,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,47 +16,26 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         public void Test_BasicBlockStartEnd()
         {
-            var files = Directory.GetFiles(Utils.Extensions.TestContractRoot, "Contract*.cs");
-            Parallel.ForEach(files, TestSingleContractBasicBlockStartEnd);
+            var contracts = TestCleanup.EnsureArtifactsUpToDateInternal();
+            Parallel.ForEach(contracts, TestSingleContractBasicBlockStartEnd);
         }
 
-        public static void TestSingleContractBasicBlockStartEnd(string fileName)
+        public static void TestSingleContractBasicBlockStartEnd(CompilationContext result)
         {
             try
             {
-                // Compile
-
-                var results = new CompilationEngine(new CompilationOptions()
+                try
                 {
-                    Debug = true,
-                    CompilerVersion = "TestingEngine",
-                    Optimize = CompilationOptions.OptimizationType.All,
-                    Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-                })
-                .CompileSources(fileName);
-
-                if (results.Count == 0)
-                {
-                    throw new Exception("Compilation error");
+                    TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
                 }
-
-                // Test
-
-                foreach (var result in results)
+                catch
                 {
-                    try
-                    {
-                        TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
-                    }
-                    catch
-                    {
-                        Console.WriteLine($"Omited: {fileName}");
-                    }
+                    Console.WriteLine($"Omited: {result.ContractName}");
                 }
             }
             catch
             {
-                Console.WriteLine($"Error compiling: {fileName}");
+                Console.WriteLine($"Error compiling: {result.ContractName}");
                 return;
             }
         }
