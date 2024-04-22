@@ -110,7 +110,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             return debug;
         }
 
-        //[AssemblyCleanup]
+        [AssemblyCleanup]
         public static void EnsureCoverage()
         {
             // Join here all of your coverage sources
