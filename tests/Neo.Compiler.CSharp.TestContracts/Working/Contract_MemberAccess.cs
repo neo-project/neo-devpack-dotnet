@@ -15,7 +15,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             Runtime.Log(my.Method());
         }
 
-
         public class MyClass
         {
             public int Data1 { get; set; }
