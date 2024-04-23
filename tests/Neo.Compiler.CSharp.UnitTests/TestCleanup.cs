@@ -32,9 +32,9 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Define paths
 
-            var artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
-            var testContractsPath = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj");
-            var root = Path.GetPathRoot(testContractsPath) ?? "";
+            var artifactsPath = new FileInfo("../../../TestingArtifacts").FullName;
+            var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj").FullName;
+            var root = new FileInfo(testContractsPath).Directory?.Root.FullName ?? "";
 
             // Compile
 
