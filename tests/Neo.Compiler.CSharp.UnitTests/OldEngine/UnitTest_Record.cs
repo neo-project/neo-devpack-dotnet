@@ -19,6 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_CreateRecord()
         {
+            testEngine.Reset();
             var name = "klsas";
             var age = 24;
             var result = testEngine.ExecuteTestCaseStandard("test_CreateRecord", name, age);
@@ -31,6 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_CreateRecord2()
         {
+            testEngine.Reset();
             var name = "klsas";
             var age = 24;
             var result = testEngine.ExecuteTestCaseStandard("test_CreateRecord2", name, age);
@@ -43,6 +45,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_UpdateRecord()
         {
+            testEngine.Reset();
             var name = "klsas";
             var age = 24;
             var result = testEngine.ExecuteTestCaseStandard("test_UpdateRecord", name, age);
@@ -55,6 +58,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_UpdateRecord2()
         {
+            testEngine.Reset();
             var name = "klsas";
             var age = 2;
             var result = testEngine.ExecuteTestCaseStandard("test_UpdateRecord2", name, age);
@@ -67,6 +71,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DeconstructRecord()
         {
+            testEngine.Reset();
             var name = "klsas";
             var age = 24;
             var result = testEngine.ExecuteTestCaseStandard("test_DeconstructRecord", name, age);
