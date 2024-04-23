@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts;
 {
     record Student(string name, int age);
 
