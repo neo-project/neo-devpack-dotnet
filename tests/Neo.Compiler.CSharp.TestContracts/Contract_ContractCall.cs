@@ -1,6 +1,6 @@
 using Neo.SmartContract.Framework.Attributes;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     [Contract("0102030405060708090A0102030405060708090A")]
     public class Contract_Call
@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
     {
         public static byte[] testContractCall()
         {
-            return Contract_Call.testArgs1((byte)4);
+            return Contract_Call.testArgs1(4);
         }
 
         public static void testContractCallVoid()

@@ -1,8 +1,7 @@
 using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     /// <summary>
     /// A smart contract designed for testing the definition and initialization of static fields within a contract.

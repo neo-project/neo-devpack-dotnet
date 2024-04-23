@@ -1,6 +1,6 @@
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Debug : SmartContract.Framework.SmartContract
     {
