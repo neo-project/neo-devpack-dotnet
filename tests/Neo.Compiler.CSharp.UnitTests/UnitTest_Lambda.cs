@@ -71,7 +71,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(100, (result[1] as Integer)!.GetInteger());
             Assert.AreEqual(56, (result[2] as Integer)!.GetInteger());
         }
-        
+
         [TestMethod]
         public void Test_ForEachVar()
         {
@@ -195,7 +195,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             result = Contract.CheckPositiveOdd(-1);
             Assert.AreEqual(false, result);
         }
-        
+
         [TestMethod]
         public void Test_LambdaDefault()
         {
