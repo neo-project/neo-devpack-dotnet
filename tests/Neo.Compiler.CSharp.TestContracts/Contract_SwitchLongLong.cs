@@ -1,4 +1,4 @@
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_SwitchInvalid : SmartContract.Framework.SmartContract
     {
@@ -17,7 +17,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                     a--;
                     break;
                 case "d":
-                    a = a * (-1);
+                    a = a * -1;
                     break;
                 case "e":
                     a = a * a;

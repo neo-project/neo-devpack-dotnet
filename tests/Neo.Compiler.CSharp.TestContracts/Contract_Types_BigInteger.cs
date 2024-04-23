@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Types_BigInteger : SmartContract.Framework.SmartContract
     {

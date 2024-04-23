@@ -32,9 +32,9 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Define paths
 
-            string testContractsPath = Path.GetFullPath("../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj");
-            string artifactsPath = Path.GetFullPath("../../../TestingArtifacts");
-            var root = Path.GetPathRoot(testContractsPath) ?? "";
+            var testContractsPath = new FileInfo("../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj").FullName;
+            var artifactsPath = new FileInfo("../../../TestingArtifacts").FullName;
+            var root = new FileInfo(testContractsPath).FullName ?? "";
 
             // Compile
 
