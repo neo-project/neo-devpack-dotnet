@@ -4,7 +4,7 @@ using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     struct State
     {

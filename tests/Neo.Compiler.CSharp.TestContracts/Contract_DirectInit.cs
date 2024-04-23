@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Attributes;
 using System.Collections;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
 
     public class Contract_DirectInit : SmartContract.Framework.SmartContract

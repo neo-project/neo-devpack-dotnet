@@ -1,7 +1,7 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Types_ECPoint : SmartContract.Framework.SmartContract
     {
@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static string ecpoint2String()
         {
-            return (ByteString)publicKey2Ecpoint;
+            return publicKey2Ecpoint;
         }
 
         public static ECPoint ecpointReturn()
