@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.TestContracts;
+namespace Neo.Compiler.CSharp.TestContracts
 {
     record Student(string name, int age);
 
@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.TestContracts;
             return p2;
         }
 
-        public static object Test_DeconstructRecord(string n, int a)
+        public static string Test_DeconstructRecord(string n, int a)
         {
             var p = new Student(n, a);
             var (name, age) = p;
