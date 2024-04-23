@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>Neo.Compiler.CSharp.UnitTests</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

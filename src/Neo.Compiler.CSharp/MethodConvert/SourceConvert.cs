@@ -80,10 +80,38 @@ partial class MethodConvert
                     ConvertStatement(model, syntax.Block);
                 }
                 break;
+            case RecordDeclarationSyntax record:
+                ConvertDefaultRecordConstruct(record);
+                break;
+            case ParameterSyntax parameter:
+                ConvertRecordPropertyInitMethod(parameter);
+                break;
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
         _initslot = !_inline;
+    }
+
+    private void ConvertDefaultRecordConstruct(RecordDeclarationSyntax recordDeclarationSyntax)
+    {
+        if (Symbol.MethodKind == MethodKind.Constructor && Symbol.ContainingType.IsRecord)
+        {
+            _initslot = true;
+            IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
+            for (byte i = 1; i <= fields.Length; i++)
+            {
+                AddInstruction(OpCode.LDARG0);
+                Push(i - 1);
+                AccessSlot(OpCode.LDARG, i);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+    }
+
+    private void ConvertRecordPropertyInitMethod(ParameterSyntax parameter)
+    {
+        IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
+        ConvertFieldBackedProperty(property);
     }
 
     private static bool IsExpressionReturningValue(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclaration)
