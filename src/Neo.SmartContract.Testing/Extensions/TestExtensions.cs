@@ -84,8 +84,8 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 _ when stackItem is VM.Types.Array ar => type switch
                 {
-                    _ when type == typeof(IList<object>) => new List<object>(ar.SubItems), // SubItems in StackItem type
-                    _ when type == typeof(List<object>) => new List<object>(ar.SubItems), // SubItems in StackItem type
+                    _ when type == typeof(IList<object>) => new List<object>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
+                    _ when type == typeof(List<object>) => new List<object>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
                     _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!),
                     _ when type.IsClass => CreateObject(ar.SubItems, type),
                     _ when type.IsValueType => CreateValueType(ar.SubItems, type),
@@ -93,13 +93,24 @@ namespace Neo.SmartContract.Testing.Extensions
                 },
                 _ when stackItem is Map mp => type switch
                 {
-                    _ when type == typeof(IDictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type
-                    _ when type == typeof(Dictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type
+                    _ when type == typeof(IDictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type except bool, buffer and int
+                    _ when type == typeof(Dictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type except bool, buffer and int
                     _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
                 },
 
                 _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
             };
+        }
+
+        private static object ConvertToBaseValue(StackItem u)
+        {
+            // if (u is Null) return null; // it require nullable return
+            if (u is Integer i) return i.GetInteger();
+            if (u is VM.Types.Boolean b) return b.GetBoolean();
+            if (u is VM.Types.Buffer bf) return bf.GetSpan().ToArray();
+            // if (u is ByteString s) return s.GetString(); // it could be a byte[]
+
+            return u;
         }
 
         private static object CreateObject(IEnumerable<StackItem> subItems, Type type)
@@ -163,7 +174,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             foreach (var entry in map)
             {
-                dictionary.Add(entry.Key, entry.Value);
+                dictionary.Add(ConvertToBaseValue(entry.Key), ConvertToBaseValue(entry.Value));
             }
 
             return dictionary;
@@ -195,7 +206,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return value;
         }
 
-        private static object CreateTypeArray(IEnumerable<StackItem> objects, Type elementType)
+        private static System.Array CreateTypeArray(IEnumerable<StackItem> objects, Type elementType)
         {
             var obj = objects.ToArray();
 
@@ -214,7 +225,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return obj;
         }
 
-        private static object CreateInteroperable(StackItem stackItem, Type type)
+        private static IInteroperable CreateInteroperable(StackItem stackItem, Type type)
         {
             var interoperable = (IInteroperable)Activator.CreateInstance(type)!;
             interoperable.FromStackItem(stackItem);

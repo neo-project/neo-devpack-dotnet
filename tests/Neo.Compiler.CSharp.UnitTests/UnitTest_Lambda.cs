@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM.Types;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -67,9 +67,9 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             result = Contract.WhereGreaterThanZero(array);
             Assert.AreEqual(3, result!.Count);
-            Assert.AreEqual(1, (result[0] as Integer)!.GetInteger());
-            Assert.AreEqual(100, (result[1] as Integer)!.GetInteger());
-            Assert.AreEqual(56, (result[2] as Integer)!.GetInteger());
+            Assert.AreEqual(new BigInteger(1), result[0]);
+            Assert.AreEqual(new BigInteger(100), result[1]);
+            Assert.AreEqual(new BigInteger(56), result[2]);
         }
 
         [TestMethod]
@@ -83,7 +83,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             };
             var result = Contract.ForEachVar(array);
             Assert.AreEqual(array.Count, result!.Count);
-            Assert.AreEqual(-100, (result[0] as Integer)!.GetInteger());
+            Assert.AreEqual(new BigInteger(-100), result[0]);
         }
 
         [TestMethod]
@@ -97,7 +97,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             };
             var result = Contract.ForVar(array);
             Assert.AreEqual(array.Count, result!.Count);
-            Assert.AreEqual(-100, (result[0] as Integer)!.GetInteger());
+            Assert.AreEqual(new BigInteger(-100), result[0]);
         }
 
         [TestMethod]
