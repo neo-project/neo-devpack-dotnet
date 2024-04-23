@@ -264,14 +264,16 @@ namespace Neo.Compiler
             AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
             if (initialValue is null)
             {
-                EqualsValueClauseSyntax? initializer;
+                EqualsValueClauseSyntax? initializer = null;
                 SyntaxNode syntaxNode;
                 if (field.DeclaringSyntaxReferences.IsEmpty)
                 {
                     if (field.AssociatedSymbol is not IPropertySymbol property) return;
-                    PropertyDeclarationSyntax syntax = (PropertyDeclarationSyntax)property.DeclaringSyntaxReferences[0].GetSyntax();
-                    syntaxNode = syntax;
-                    initializer = syntax.Initializer;
+                    syntaxNode = property.DeclaringSyntaxReferences[0].GetSyntax();
+                    if (syntaxNode is PropertyDeclarationSyntax syntax)
+                    {
+                        initializer = syntax.Initializer;
+                    }
                 }
                 else
                 {
@@ -621,9 +623,9 @@ namespace Neo.Compiler
         {
             ISymbol[] members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
             IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
-            if (fields.Length == 0 || type.IsValueType)
+            if (fields.Length == 0 || type.IsValueType || type.IsRecord)
             {
-                AddInstruction(type.IsValueType ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+                AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
                 foreach (IFieldSymbol field in fields)
                 {
                     AddInstruction(OpCode.DUP);
@@ -639,7 +641,7 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.PACK);
             }
             IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-            if (virtualMethods.Length > 0)
+            if (!type.IsRecord && virtualMethods.Length > 0)
             {
                 byte index = _context.AddVTable(type);
                 AddInstruction(OpCode.DUP);
