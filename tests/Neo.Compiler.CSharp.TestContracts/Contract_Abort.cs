@@ -1,7 +1,7 @@
 using Neo.SmartContract.Framework;
 using System;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Abort : SmartContract.Framework.SmartContract
     {
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public int TestAbortInCatch(bool abortMsg)
         {
             int v = 0;
-            try { v = 1; throw new System.Exception(); }
+            try { v = 1; throw new Exception(); }
             catch
             {
                 if (abortMsg)

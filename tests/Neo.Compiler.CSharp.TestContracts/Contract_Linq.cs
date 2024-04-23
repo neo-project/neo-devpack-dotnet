@@ -1,7 +1,7 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Linq;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Linq : SmartContract.Framework.SmartContract
     {
@@ -79,7 +79,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// <returns></returns>
         public static bool ContainsPerson(int[] array, int target)
         {
-            var list = new SmartContract.Framework.List<Person>();
+            var list = new List<Person>();
             foreach (var item in array)
             {
                 list.Add(new Person { Name = item.ToString(), Age = item });
@@ -96,7 +96,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// <returns></returns>
         public static bool ContainsPersonIndex(int[] array, int targetIndex)
         {
-            var list = new SmartContract.Framework.List<Person>();
+            var list = new List<Person>();
             foreach (var item in array)
             {
                 list.Add(new Person { Name = item.ToString(), Age = item });
@@ -113,7 +113,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// <returns></returns>
         public static bool ContainsPersonS(int[] array, int target)
         {
-            var list = new SmartContract.Framework.List<PersonS>();
+            var list = new List<PersonS>();
             foreach (var item in array)
             {
                 list.Add(new PersonS { Name = item.ToString(), Age = item });
@@ -133,7 +133,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static object SelectPersonS(int[] array)
         {
-            var list = new SmartContract.Framework.List<Person>();
+            var list = new List<Person>();
             foreach (var item in array)
             {
                 list.Add(new Person { Name = item.ToString(), Age = item });

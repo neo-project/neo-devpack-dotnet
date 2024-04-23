@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_shift : SmartContract.Framework.SmartContract
     {

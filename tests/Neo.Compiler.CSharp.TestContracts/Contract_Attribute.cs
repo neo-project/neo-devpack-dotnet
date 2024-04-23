@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class SampleAttribute : System.Attribute { }
 
@@ -9,7 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
     public class Contract_Attribute : Attr
     {
-        [SampleAttribute]
+        [Sample]
         public static bool test() => true;
     }
 }

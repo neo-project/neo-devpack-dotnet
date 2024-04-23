@@ -3,7 +3,7 @@ using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Pattern : SmartContract.Framework.SmartContract
     {
@@ -14,15 +14,15 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public bool between2(int value)
         {
-            return value is (> 1 and < 100);
+            return value is > 1 and < 100;
         }
 
         public bool between3(int value)
         {
             return value switch
             {
-                (> 1 and < 50) => true,
-                (>= 50 and < 100) => true,
+                > 1 and < 50 => true,
+                >= 50 and < 100 => true,
                 _ => false,
             };
         }
