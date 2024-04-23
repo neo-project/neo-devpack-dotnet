@@ -1,3 +1,4 @@
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Testing;
@@ -65,7 +66,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(4, array.Count);
             for (int i = 0; i < 4; i++)
             {
-                Assert.AreEqual(i, array[i]);
+                Assert.AreEqual(new BigInteger(i), array[i]);
             }
         }
 
