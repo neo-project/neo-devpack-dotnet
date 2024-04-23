@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Event</RootNamespace>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>Event</RootNamespace>
+    </PropertyGroup>
 
 </Project>

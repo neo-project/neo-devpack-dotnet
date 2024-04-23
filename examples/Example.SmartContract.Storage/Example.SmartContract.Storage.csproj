@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Storage</RootNamespace>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>Storage</RootNamespace>
+    </PropertyGroup>
 
 </Project>
