@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.TestEngine;
 using Neo.VM.Types;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.OnldEngine
 {
     [TestClass]
     public class UnitTest_Lambda
