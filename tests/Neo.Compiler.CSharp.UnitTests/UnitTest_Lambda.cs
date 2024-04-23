@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Numerics;
 
