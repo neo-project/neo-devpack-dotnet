@@ -65,8 +65,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(4, array.Count);
             for (int i = 0; i < 4; i++)
             {
-                Assert.IsTrue(array[i] is Integer);
-                Assert.AreEqual(i, ((Integer)array[i]).GetInteger());
+                Assert.AreEqual(i, array[i]);
             }
         }
 
