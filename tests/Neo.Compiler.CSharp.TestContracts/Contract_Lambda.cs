@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using System.Collections.Generic;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
@@ -19,12 +18,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return isZero(i);
         }
 
-        public static object CheckZero2(int num)
+        public static bool CheckZero2(int num)
         {
             return Invoke(isZero, num);
         }
 
-        public static object CheckZero3(int num)
+        public static bool CheckZero3(int num)
         {
             var zero = 0;
             return Invoke(n => n == zero, num);
@@ -35,32 +34,32 @@ namespace Neo.Compiler.CSharp.TestContracts
             return isPositiveOdd(i);
         }
 
-        public static object InvokeSum(int a, int b)
+        public static int InvokeSum(int a, int b)
         {
             return sum(a, b);
         }
 
-        public static object InvokeSum2(int a, int b)
+        public static int InvokeSum2(int a, int b)
         {
             int z = 1;
             return InvokeFunc((x, y) => x + y + z, a, b);
         }
 
-        public static object Fibo(int c)
+        public static int Fibo(int c)
         {
             Func<int, int> fibonacci = null;
             fibonacci = n => n < 2 ? n : fibonacci(n - 1) + fibonacci(n - 2);
             return fibonacci(c);
         }
 
-        public static object ChangeName(string name)
+        public static string ChangeName(string name)
         {
             Func<string> a = () => name;
             name += " !!!";
             return a();
         }
 
-        public static object ChangeName2(string name)
+        public static string ChangeName2(string name)
         {
             Func<string> a = () =>
             {
@@ -77,7 +76,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
-        public static object ForEachVar(int[] array)
+        public static SmartContract.Framework.List<int> ForEachVar(int[] array)
         {
             var list = new SmartContract.Framework.List<Func<int>>();
             foreach (var num in array)
@@ -98,7 +97,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
-        public static object ForVar(int[] array)
+        public static SmartContract.Framework.List<int> ForVar(int[] array)
         {
             var list = new SmartContract.Framework.List<Func<int>>();
             for (int i = 0; i < array.Length; i++)
@@ -130,6 +129,20 @@ namespace Neo.Compiler.CSharp.TestContracts
             return Where(array, x => x > 0);
         }
 
+        // This tests the default value of a lambda parameter
+        // A new feature in C# 12.0 ref. https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12#default-lambda-parameters
+        public static int TestLambdaDefault(int a)
+        {
+            var sumDefault = (int x, int y = 1) => x + y;
+            return sumDefault(a);
+        }
+
+        public static int TestLambdaNotDefault(int a, int b)
+        {
+            var sumDefault = (int x, int y = 1) => x + y;
+            return sumDefault(a, b);
+        }
+
         private static bool Any<T>(IEnumerable<T> array, Predicate<T> pre)
         {
             foreach (var i in array)
@@ -149,12 +162,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return list;
         }
 
-        private static object Invoke(Predicate<int> check, int para)
+        private static bool Invoke(Predicate<int> check, int para)
         {
             return check(para);
         }
 
-        private static object InvokeFunc(Func<int, int, int> f, int p1, int p2)
+        private static int InvokeFunc(Func<int, int, int> f, int p1, int p2)
         {
             return f(p1, p2);
         }
