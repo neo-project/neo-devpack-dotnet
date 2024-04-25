@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Exception</RootNamespace>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>Exception</RootNamespace>
+    </PropertyGroup>
 
 </Project>
