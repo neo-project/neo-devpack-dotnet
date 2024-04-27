@@ -2,11 +2,13 @@
 
 	<PropertyGroup>
 		<RootNamespace>Neo.SmartContract.TestEngine.UnitTests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
-	  <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+		<ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+		<ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
 </Project>
