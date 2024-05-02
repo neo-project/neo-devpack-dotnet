@@ -24,8 +24,15 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check symbols
 
+            engine.GasConsumed.Value = 0;
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
-            Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+            Assert.AreEqual(984060L, engine.GasConsumed);
+
+            using var gas = engine.CreateGasWatcher();
+            {
+                Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+                Assert.AreEqual(984060L, gas);
+            }
 
             // Ensure that the main address contains the totalSupply
 
