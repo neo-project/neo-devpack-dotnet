@@ -26,6 +26,7 @@ namespace Neo.SmartContract.Testing
     {
         public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
 
+        internal readonly List<GasWatcher> _gasWatchers = new();
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
@@ -170,6 +171,11 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Gas Consumed
+        /// </summary>
+        public GasWatcher GasConsumed { get; }
+
+        /// <summary>
         /// Sender
         /// </summary>
         public UInt160 Sender => Transaction.Sender;
@@ -227,6 +233,7 @@ namespace Neo.SmartContract.Testing
         {
             Storage = storage;
             ProtocolSettings = settings;
+            GasConsumed = new GasWatcher(this);
 
             var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
             var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
@@ -240,8 +247,8 @@ namespace Neo.SmartContract.Testing
                 SystemFee = 0,
                 ValidUntilBlock = 0,
                 Nonce = 0x01020304,
-                Signers = new Signer[]
-                {
+                Signers =
+                [
                     new()
                     {
                         // ValidatorsAddress
@@ -254,7 +261,7 @@ namespace Neo.SmartContract.Testing
                         Account = committeeScript.ToScriptHash(),
                         Scopes = WitnessScope.Global
                     }
-                },
+                ],
                 Witnesses = System.Array.Empty<Witness>() // Not required
             };
 
@@ -319,6 +326,15 @@ namespace Neo.SmartContract.Testing
         public void Restore(EngineCheckpoint checkpoint) => Storage.Restore(checkpoint);
 
         #endregion
+
+        /// <summary>
+        /// Create gas watcher
+        /// </summary>
+        /// <returns>Gas watcher</returns>
+        public GasWatcher CreateGasWatcher()
+        {
+            return new GasWatcher(this);
+        }
 
         /// <summary>
         /// Get deploy hash
@@ -600,6 +616,10 @@ namespace Neo.SmartContract.Testing
 
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
+
+            // Increment gas
+
+            foreach (var gasWatcher in _gasWatchers) gasWatcher.Value += engine.GasConsumed;
 
             // Detach to static event
 
