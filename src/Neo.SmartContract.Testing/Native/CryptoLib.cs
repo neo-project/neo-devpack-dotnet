@@ -78,7 +78,7 @@ public abstract class CryptoLib : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("verifyWithECDsa")]
-    public abstract bool VerifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, NamedCurve curve);
+    public abstract bool VerifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, NamedCurveHash curveHash);
 
     #endregion
 
