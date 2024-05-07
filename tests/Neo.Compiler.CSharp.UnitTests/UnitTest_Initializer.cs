@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initializer_Test()
         {
             Assert.AreEqual(3, Contract.Sum());
-            Assert.AreEqual(12, Contract.Sum1(5,7));
+            Assert.AreEqual(12, Contract.Sum1(5, 7));
             Assert.AreEqual(12, Contract.Sum2(5, 7));
         }
     }
