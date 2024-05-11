@@ -10,6 +10,7 @@
 
 #pragma warning disable CS0626
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework.Native
@@ -28,6 +29,9 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern ByteString Murmur32(ByteString value, uint seed);
 
+        [Obsolete("VerifyWithECDsa has changed its signature. Please, use a compatible version of VerifyWithECDsa with NamedCurveHash curveHash argument instead.")]
         public static extern bool VerifyWithECDsa(ByteString message, ECPoint pubkey, ByteString signature, NamedCurve curve);
+
+        public static extern bool VerifyWithECDsa(ByteString message, ECPoint pubkey, ByteString signature, NamedCurveHash curveHash);
     }
 }
