@@ -24,12 +24,22 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
-            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256r1);
+            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurveHash.secp256r1SHA256);
+        }
+
+        public static bool Secp256r1VerifyKeccakSignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
+        {
+            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurveHash.secp256r1Keccak256);
         }
 
         public static bool Secp256k1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
         {
-            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurve.secp256k1);
+            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurveHash.secp256k1SHA256);
+        }
+
+        public static bool Secp256k1VerifyKeccakSignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature)
+        {
+            return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurveHash.secp256k1Keccak256);
         }
 
         public static byte[] Bls12381Serialize(object data)
