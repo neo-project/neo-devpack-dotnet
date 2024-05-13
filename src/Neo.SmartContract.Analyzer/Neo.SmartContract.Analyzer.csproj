@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <TargetFrameworks>net8.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
@@ -8,7 +9,6 @@
         <RootNamespace>Neo.SmartContract.Analyzer</RootNamespace>
         <PackageId>Neo.SmartContract.Analyzer</PackageId>
         <PackAsTool>true</PackAsTool>
-        <RootNamespace>Neo.SmartContract.Analyzer</RootNamespace>
         <PackageTags>NEO;Blockchain;Smart Contract;Analyzer</PackageTags>
         <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
