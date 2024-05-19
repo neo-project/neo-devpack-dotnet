@@ -18,22 +18,25 @@ namespace Neo.SmartContract.Framework
         Nep11,
         // The NEP-17 standard is used for fungible tokens.
         // Defined at https://github.com/neo-project/proposals/blob/master/nep-17.mediawiki
-        Nep17
+        Nep17,
+        // This NEP defines a global standard to get royalty payment information for Non-Fungible Tokens (NFTs)
+        // in order to enable support for royalty payments across all NFT marketplaces in the NEO Smart Economy.
+        // This NEP requires NEP-11.
+        // Defined at https://github.com/neo-project/proposals/blob/master/nep-24.mediawiki
+        Nep24
     }
 
     public static class NepStandardExtensions
     {
         public static string ToStandard(this NepStandard standard)
         {
-            switch (standard)
+            return standard switch
             {
-                case NepStandard.Nep11:
-                    return "NEP-11";
-                case NepStandard.Nep17:
-                    return "NEP-17";
-                default:
-                    return standard.ToString();
-            }
+                NepStandard.Nep11 => "NEP-11",
+                NepStandard.Nep17 => "NEP-17",
+                NepStandard.Nep24 => "NEP-24",
+                _ => standard.ToString()
+            };
         }
     }
 }

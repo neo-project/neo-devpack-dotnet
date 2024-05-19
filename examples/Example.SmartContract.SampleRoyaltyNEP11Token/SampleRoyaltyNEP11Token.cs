@@ -11,6 +11,7 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Interfaces;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System.ComponentModel;
@@ -24,9 +25,9 @@ namespace NonDivisibleNEP11
     [ContractVersion("0.0.1")]
     [ContractDescription("A sample of NEP-11 Royalty Feature")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     [SupportedStandards(NepStandard.Nep11)]
-    public class SampleRoyaltyNEP11Token : Nep11Token<Nep11TokenState>
+    public class SampleRoyaltyNEP11Token : Nep11Token<Nep11TokenState>, INep24
     {
         #region Owner
 

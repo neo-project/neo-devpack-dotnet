@@ -9,6 +9,8 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+
 namespace Neo.SmartContract.Framework;
 
 public static class Method
@@ -16,7 +18,13 @@ public static class Method
     /// <summary>
     /// Indicates that the contract is allowed to call any method of allowed contract.
     /// </summary>
+    [Obsolete("Use Any instead.")]
     public const string WildCard = "*";
+
+    /// <summary>
+    /// Indicates that the contract is allowed to call any method of allowed contract.
+    /// </summary>
+    public const string Any = "*";
 
     /// <summary>
     /// The name of the method that is called when a contract receives NEP-17 tokens.
