@@ -6,11 +6,11 @@ namespace Neo.Compiler.CSharp.TestContracts
     public class Contract_TryCatch : SmartContract.Framework.SmartContract
     {
         [ByteArray("0a0b0c0d0E0F")]
-        private static readonly ByteString invalidECpoint = default;
+        private static readonly ByteString invalidECpoint = default!;
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
-        private static readonly ByteString byteString2Ecpoint = default;
+        private static readonly ByteString byteString2Ecpoint = default!;
         [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
-        private static readonly ByteString validUInt160 = default;
+        private static readonly ByteString validUInt160 = default!;
         // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
         public static object try01()

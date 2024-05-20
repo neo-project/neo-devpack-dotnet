@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public delegate EDummy enumDel();
         public delegate void del(string msg);
-        public static event del dummyEvent;
+        public static event del DummyEvent;
 
         public class DummyClass
         {
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
         public static void checkEvent()
         {
-            dummyEvent("neo");
+            DummyEvent("neo");
         }
         public static object checkClass()
         {

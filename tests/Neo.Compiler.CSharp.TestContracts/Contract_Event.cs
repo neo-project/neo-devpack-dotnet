@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         [DisplayName("transfer")]
         public static event Action<byte[], byte[], BigInteger> Transferred;
 
-        public static void Main(string method, object[] args)
+        public static void Main2(string method, object[] args)
         {
             MyStaticVar1 = 1;
             MyStaticVar2 = true;

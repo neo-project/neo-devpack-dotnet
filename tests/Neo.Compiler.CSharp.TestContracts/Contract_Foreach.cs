@@ -8,7 +8,7 @@ namespace Neo.Compiler.CSharp.TestContracts
     public class Contract_Foreach : SmartContract.Framework.SmartContract
     {
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
-        private static readonly byte[] rawECpoint = default;
+        private static readonly byte[] rawECpoint = default!;
 
         struct Pending
         {

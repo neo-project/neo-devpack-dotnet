@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         private static readonly byte[] data = default!;
 
         [Hash160("NL1JGjDe22U44R57ZXVSeTYFBavEkVmkgF")]
-        private static readonly byte[] hashResult = default;
+        private static readonly byte[] hashResult = default!;
 
         public static byte[] TestHexToBytes()
         {

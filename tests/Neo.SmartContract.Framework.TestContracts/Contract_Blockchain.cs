@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Ledger.GetTransactionHeight(hash);
         }
 
-        public static object GetBlockByHash(UInt256 hash, string whatReturn)
+        public static object? GetBlockByHash(UInt256 hash, string whatReturn)
         {
             var block = Ledger.GetBlock(hash);
             return GetBlockInfo(block, whatReturn);
@@ -49,13 +49,13 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             throw new Exception("Uknown property");
         }
 
-        public static object GetTxByHash(UInt256 hash, string whatReturn)
+        public static object? GetTxByHash(UInt256 hash, string whatReturn)
         {
             var tx = Ledger.GetTransaction(hash);
             return GetTxInfo(tx, whatReturn);
         }
 
-        public static object GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
+        public static object? GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
         {
             var tx = Ledger.GetTransactionFromBlock(blockHash, txIndex);
             return GetTxInfo(tx, whatReturn);
