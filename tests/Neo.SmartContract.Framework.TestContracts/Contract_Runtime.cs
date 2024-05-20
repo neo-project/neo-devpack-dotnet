@@ -90,25 +90,25 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static UInt256 GetTransactionHash()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.Hash;
         }
 
         public static byte GetTransactionVersion()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.Version;
         }
 
         public static uint GetTransactionNonce()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.Nonce;
         }
 
         public static UInt160 GetTransactionSender()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.Sender;
         }
 
@@ -120,25 +120,25 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static long GetTransactionSystemFee()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.SystemFee;
         }
 
         public static long GetTransactionNetworkFee()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.NetworkFee;
         }
 
         public static uint GetTransactionValidUntilBlock()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.ValidUntilBlock;
         }
 
         public static ByteString GetTransactionScript()
         {
-            var tx = (Transaction)Runtime.ScriptContainer;
+            var tx = Runtime.Transaction;
             return tx!.Script;
         }
 

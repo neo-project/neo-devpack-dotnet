@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     [ManifestExtra("E-mail", "dev@neo.org")]
     public class Contract_ExtraAttribute : SmartContract
     {
-        public static object Main(string method, object[] args)
+        public static object Main2(string method, object[] args)
         {
             return true;
         }

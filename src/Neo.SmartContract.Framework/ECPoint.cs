@@ -53,6 +53,8 @@ namespace Neo.SmartContract.Framework
         /// This is a compile time conversion, only work with constant string.
         /// If you want to convert a runtime string, convert it to byte[] first.
         /// </remarks>
+#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
         public static extern implicit operator ECPoint(string value);
+#pragma warning restore CS0626 // Method, operator, or accessor is marked external and has no attributes on it
     }
 }
