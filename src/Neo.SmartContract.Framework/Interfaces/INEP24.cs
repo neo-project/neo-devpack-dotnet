@@ -18,7 +18,6 @@ namespace Neo.SmartContract.Framework.Interfaces;
 /// </summary>
 public interface INep24
 {
-
     /// <summary>
     /// This implements Royalty Standard: https://github.com/neo-project/proposals/pull/155/
     /// This method returns a map of NeoVM Array stack item with single or multi array, each array includes royaltyRecipient and royaltyAmount
