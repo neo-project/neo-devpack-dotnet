@@ -22,7 +22,7 @@ namespace ZKP
     [ContractVersion("0.0.1")]
     [ContractDescription("A sample contract to demonstrate how to use Example.SmartContract.ZKPil")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class ExampleZKP : SmartContract
     {
         public static readonly byte[] alphaPoint =

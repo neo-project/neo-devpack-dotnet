@@ -18,7 +18,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep17)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP17Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP17Payment)]
     public abstract class Nep17Token : TokenContract
     {
         public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount);
