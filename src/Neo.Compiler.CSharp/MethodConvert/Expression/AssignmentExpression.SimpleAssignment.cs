@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -134,10 +134,10 @@ partial class MethodConvert
                 }
                 break;
             case ILocalSymbol local:
-                AccessSlot(OpCode.STLOC, _localVariables[local]);
+                StLocSlot(local);
                 break;
             case IParameterSymbol parameter:
-                AccessSlot(OpCode.STARG, _parameters[parameter]);
+                StArgSlot(parameter);
                 break;
             case IPropertySymbol property:
                 // Check if the property is within a constructor and is readonly

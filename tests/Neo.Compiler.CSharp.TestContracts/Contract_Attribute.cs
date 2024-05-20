@@ -1,15 +1,13 @@
 using System.ComponentModel;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class SampleAttribute : System.Attribute { }
 
-    [DisplayName("attr")]
-    public abstract class Attr : SmartContract.Framework.SmartContract { }
-
-    public class Contract_Attribute : Attr
+    [DisplayName("Contract_AttributeChanged")]
+    public class Contract_Attribute : SmartContract.Framework.SmartContract
     {
-        [SampleAttribute]
+        [Sample]
         public static bool test() => true;
     }
 }

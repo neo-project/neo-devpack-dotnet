@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -60,6 +60,7 @@ partial class MethodConvert
         ConvertExpression(model, expression.WhenNotNull);
         if (type.SpecialType == SpecialType.System_Void)
         {
+            //This branch is not covered, is there any c# code that matches the conditions?
             JumpTarget endTarget = new();
             Jump(OpCode.JMP_L, endTarget);
             nullTarget.Instruction = AddInstruction(OpCode.DROP);

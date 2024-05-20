@@ -1,30 +1,19 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Attribute
+    public class UnitTest_Attribute : TestBase<Contract_AttributeChanged>
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine();
-            Assert.IsTrue(_engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Attribute.cs").Success);
-        }
+        public UnitTest_Attribute() : base(Contract_AttributeChanged.Nef, Contract_AttributeChanged.Manifest) { }
 
         [TestMethod]
-        public void test()
+        public void AttributeTest()
         {
-            _engine.Reset();
-            Assert.AreEqual(_engine.Manifest.Name, "attr");
-            var result = _engine.ExecuteTestCaseStandard("test");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.IsTrue(result.Pop().GetBoolean());
+            Assert.AreEqual(Contract_AttributeChanged.Manifest.Name, "Contract_AttributeChanged");
+            Assert.IsTrue(Contract.Test());
         }
     }
 }

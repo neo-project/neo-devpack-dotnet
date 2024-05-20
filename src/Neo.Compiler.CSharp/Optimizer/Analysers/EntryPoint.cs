@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// EntryPoint.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -17,12 +28,11 @@ namespace Neo.Optimizer
     public static class EntryPoint
     {
         /// <summary>
-        /// 
+        /// Gets a dictionary of method entry points based on the contract manifest and debug information.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
-        /// <returns>(addr -> EntryType, hasCallA)</returns>
+        /// <param name="manifest">The contract manifest.</param>
+        /// <param name="debugInfo">The debug information.</param>
+        /// <returns>A dictionary containing method entry points. (addr -> EntryType, hasCallA)</returns>
         public static Dictionary<int, EntryType> EntryPointsByMethod(ContractManifest manifest, JToken debugInfo)
         {
             Dictionary<int, EntryType> result = new();
@@ -47,6 +57,11 @@ namespace Neo.Optimizer
             return result;
         }
 
+        /// <summary>
+        /// Gets a dictionary of entry points based on the CALLA instruction.
+        /// </summary>
+        /// <param name="nef">The NEF file.</param>
+        /// <returns>A dictionary containing entry points.</returns>
         public static Dictionary<int, EntryType> EntryPointsByCallA(NefFile nef)
         {
             Dictionary<int, EntryType> result = new();
@@ -64,6 +79,11 @@ namespace Neo.Optimizer
             return result;
         }
 
+        /// <summary>
+        /// Checks if the list of instructions contains the CALLA instruction.
+        /// </summary>
+        /// <param name="instructions">The list of instructions.</param>
+        /// <returns>True if the CALLA instruction exists; otherwise, false.</returns>
         public static bool HasCallA(List<(int, Instruction)> instructions)
         {
             bool hasCallA = false;
@@ -76,12 +96,24 @@ namespace Neo.Optimizer
             return hasCallA;
         }
 
+        /// <summary>
+        /// Checks if the NEF file contains the CALLA instruction.
+        /// </summary>
+        /// <param name="nef">The NEF file.</param>
+        /// <returns>True if the NEF file contains the CALLA instruction; otherwise, false.</returns>
         public static bool HasCallA(NefFile nef)
         {
             Script script = nef.Script;
             return HasCallA(script.EnumerateInstructions().ToList());
         }
 
+        /// <summary>
+        /// Gets a dictionary of all entry points, including those calculated based on the CALLA instruction and methods.
+        /// </summary>
+        /// <param name="nef">The NEF file.</param>
+        /// <param name="manifest">The contract manifest.</param>
+        /// <param name="debugInfo">The debug information.</param>
+        /// <returns>A dictionary containing all entry points.</returns>
         public static Dictionary<int, EntryType> AllEntryPoints(NefFile nef, ContractManifest manifest, JToken debugInfo)
             => EntryPointsByCallA(nef).Concat(EntryPointsByMethod(manifest, debugInfo)).ToDictionary(kv => kv.Key, kv => kv.Value);
     }

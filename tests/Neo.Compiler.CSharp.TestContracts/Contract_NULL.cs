@@ -1,7 +1,7 @@
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_NULL : SmartContract.Framework.SmartContract
     {
@@ -88,6 +88,20 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var context = Storage.CurrentContext;
             Storage.Put(context, code, "111");
             return Storage.Get(context, code) ?? (ByteString)new byte[] { 123 };
+        }
+
+        class TestClass
+        {
+            public void VoidMethod()
+            {
+            }
+            public int IntProperty => 42;
+        }
+
+        public static void NullType()
+        {
+            TestClass? obj1 = null;
+            obj1?.VoidMethod();
         }
     }
 }

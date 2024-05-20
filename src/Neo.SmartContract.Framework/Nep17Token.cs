@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.SmartContract.Framework is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -18,7 +18,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep17)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP17Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP17Payment)]
     public abstract class Nep17Token : TokenContract
     {
         public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount);

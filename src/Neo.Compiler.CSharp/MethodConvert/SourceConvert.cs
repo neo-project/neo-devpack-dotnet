@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -25,7 +25,7 @@ partial class MethodConvert
         {
             IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
             byte index = i;
-            if (!Symbol.IsStatic) index++;
+            if (IsInstanceMethod(Symbol)) index++;
             _parameters.Add(parameter, index);
         }
         switch (SyntaxNode)
@@ -59,10 +59,59 @@ partial class MethodConvert
                 else
                     ConvertStatement(model, syntax.Body);
                 break;
+
+            case SimpleLambdaExpressionSyntax syntax:
+                if (syntax.Block is null)
+                {
+                    ConvertExpression(model, syntax.ExpressionBody!);
+                }
+                else
+                {
+                    ConvertStatement(model, syntax.Block);
+                }
+                break;
+            case ParenthesizedLambdaExpressionSyntax syntax:
+                if (syntax.Block is null)
+                {
+                    ConvertExpression(model, syntax.ExpressionBody!);
+                }
+                else
+                {
+                    ConvertStatement(model, syntax.Block);
+                }
+                break;
+            case RecordDeclarationSyntax record:
+                ConvertDefaultRecordConstruct(record);
+                break;
+            case ParameterSyntax parameter:
+                ConvertRecordPropertyInitMethod(parameter);
+                break;
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
         _initslot = !_inline;
+    }
+
+    private void ConvertDefaultRecordConstruct(RecordDeclarationSyntax recordDeclarationSyntax)
+    {
+        if (Symbol.MethodKind == MethodKind.Constructor && Symbol.ContainingType.IsRecord)
+        {
+            _initslot = true;
+            IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
+            for (byte i = 1; i <= fields.Length; i++)
+            {
+                AddInstruction(OpCode.LDARG0);
+                Push(i - 1);
+                AccessSlot(OpCode.LDARG, i);
+                AddInstruction(OpCode.SETITEM);
+            }
+        }
+    }
+
+    private void ConvertRecordPropertyInitMethod(ParameterSyntax parameter)
+    {
+        IPropertySymbol property = (IPropertySymbol)Symbol.AssociatedSymbol!;
+        ConvertFieldBackedProperty(property);
     }
 
     private static bool IsExpressionReturningValue(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclaration)
@@ -83,4 +132,7 @@ partial class MethodConvert
         // For other types of BaseMethodDeclarationSyntax or cases without an expression body, default to no return value
         return false;
     }
+
+    private bool IsInstanceMethod(IMethodSymbol symbol) => !symbol.IsStatic && symbol.MethodKind != MethodKind.AnonymousFunction;
+
 }

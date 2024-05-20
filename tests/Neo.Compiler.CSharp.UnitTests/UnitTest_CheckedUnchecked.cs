@@ -1,51 +1,37 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_CheckedUnchecked
+    public class UnitTest_CheckedUnchecked : TestBase<Contract_CheckedUnchecked>
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine();
-            Assert.IsTrue(_engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_CheckedUnchecked.cs").Success);
-        }
+        public UnitTest_CheckedUnchecked() : base(Contract_CheckedUnchecked.Nef, Contract_CheckedUnchecked.Manifest) { }
 
         [TestMethod]
         public void TestAddChecked()
         {
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("addChecked", int.MaxValue, 1);
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.AddChecked(int.MaxValue, 1));
         }
 
         [TestMethod]
         public void TestAddUnchecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("addUnchecked", int.MaxValue, 1);
-            Assert.AreEqual(int.MinValue, result.Peek().GetInteger());
+            Assert.AreEqual(int.MinValue, Contract.AddUnchecked(int.MaxValue, 1));
         }
 
         [TestMethod]
         public void TestCastChecked()
         {
-            _engine.Reset();
-            _engine.ExecuteTestCaseStandard("castChecked", -1);
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.CastChecked(-1));
         }
 
         [TestMethod]
         public void TestCastUnchecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("castUnchecked", -1);
-            Assert.AreEqual(uint.MaxValue, result.Peek().GetInteger());
+            Assert.AreEqual(uint.MaxValue, Contract.CastUnchecked(-1));
         }
     }
 }

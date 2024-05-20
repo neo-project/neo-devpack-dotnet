@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -18,6 +18,7 @@ using System.Numerics;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Wallets;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -52,6 +53,7 @@ partial class MethodConvert
 
                 switch (fullName)
                 {
+                    //complex types like UInt160 at compile time to avoid runtime overhead.
                     case "Neo.SmartContract.Framework.UInt160":
                         var strValue = (string)value;
                         value = (UInt160.TryParse(strValue, out var hash)
@@ -68,6 +70,7 @@ partial class MethodConvert
                         strValue = (string)value;
                         value = ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
                         break;
+                    //This type no longer exists.
                     case "Neo.SmartContract.Framework.ByteArray":
                         strValue = (string)value;
                         value = strValue.HexToBytes(true);
@@ -91,7 +94,7 @@ partial class MethodConvert
             case ArrayCreationExpressionSyntax expression:
                 ConvertArrayCreationExpression(model, expression);
                 break;
-            //Convert an assignment expression. 
+            //Convert an assignment expression.
             //Example: new int[4] { 5, 6, 7, 8};
             case AssignmentExpressionSyntax expression:
                 ConvertAssignmentExpression(model, expression);
@@ -214,12 +217,93 @@ partial class MethodConvert
             case TupleExpressionSyntax expression:
                 ConvertTupleExpression(model, expression);
                 break;
+            case ParenthesizedLambdaExpressionSyntax expression:
+                ConvertParenthesizedLambdaExpression(model, expression);
+                break;
+            case SimpleLambdaExpressionSyntax expression:
+                ConvertSimpleLambdaExpression(model, expression);
+                break;
+            case CollectionExpressionSyntax expression:
+                ConvertCollectionExpression(model, expression);
+                break;
+            case WithExpressionSyntax expression:
+                ConvertWithExpressionSyntax(model, expression);
+                break;
             default:
                 //Example: typeof(Transaction);
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
         }
     }
 
+    /// <summary>
+    /// Convert record with expression: record with{...InitializerExpression}
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="expression"></param>
+    private void ConvertWithExpressionSyntax(SemanticModel model, WithExpressionSyntax expression)
+    {
+        //load record
+        ConvertExpression(model, expression.Expression);
+        //clone record struct
+        AddInstruction(new Instruction { OpCode = OpCode.UNPACK });
+        AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
+        //convert InitializerExpression
+        ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+    }
+
+    private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
+    {
+        var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        var mc = _context.ConvertMethod(model, symbol);
+        ConvertLocalToStaticFields(mc);
+        AddInstruction(new Instruction
+        {
+            OpCode = OpCode.PUSHA,
+            Target = mc._startTarget
+        });
+    }
+
+    private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
+    {
+        var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        var mc = _context.ConvertMethod(model, symbol);
+        ConvertLocalToStaticFields(mc);
+        AddInstruction(new Instruction
+        {
+            OpCode = OpCode.PUSHA,
+            Target = mc._startTarget
+        });
+    }
+
+    private void ConvertLocalToStaticFields(MethodConvert mc)
+    {
+        if (mc.CapturedLocalSymbols.Count > 0)
+        {
+            foreach (var local in mc.CapturedLocalSymbols)
+            {
+                //copy captured local variable/parameter value to related static fields
+                var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
+                switch (local)
+                {
+                    case ILocalSymbol localSymbol:
+                        var localIndex = _localVariables[localSymbol];
+                        AccessSlot(OpCode.LDLOC, localIndex);
+                        break;
+                    case IParameterSymbol parameterSymbol:
+                        var paraIndex = _parameters[parameterSymbol];
+                        AccessSlot(OpCode.LDARG, paraIndex);
+                        break;
+                }
+                AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Ensures that the value of the incoming integer type is within the specified range.
+    /// If the type is BigInteger, no range check is performed.
+    /// </summary>
+    /// <param name="type">The integer type to be checked.</param>
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
         if (type.Name == "BigInteger") return;
@@ -266,6 +350,16 @@ partial class MethodConvert
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
+    /// <summary>
+    /// Converts an object to a string. Different conversion methods are used based on the type of the object.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain type information of the expression.</param>
+    /// <param name="expression">The expression to be converted to a string.</param>
+    /// <remarks>
+    /// For integer types and BigInteger type, call the itoa method of NativeContract.StdLib.Hash for conversion.
+    /// For string type and specific types in Neo.SmartContract.Framework, directly perform expression conversion.
+    /// </remarks>
+    /// <exception cref="CompilationException">For unsupported types, throw a compilation exception.</exception>
     private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
     {
         ITypeSymbol? type = ModelExtensions.GetTypeInfo(model, expression).Type;

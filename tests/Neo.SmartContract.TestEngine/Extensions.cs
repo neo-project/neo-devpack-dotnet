@@ -16,13 +16,13 @@ namespace Neo.SmartContract.TestEngine
         {
             persistingBlock ??= new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
 
-            var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var method = typeof(SmartContract.Native.ContractManagement).GetMethod("OnPersistAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             engine.LoadScript(Array.Empty<byte>());
             method!.Invoke(SmartContract.Native.NativeContract.ContractManagement, new object[] { engine });
             engine.Snapshot.Commit();
 
-            method = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersist", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            method = typeof(SmartContract.Native.LedgerContract).GetMethod("PostPersistAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             engine = new TestEngine(TriggerType.OnPersist, null, snapshot, persistingBlock);
             engine.LoadScript(Array.Empty<byte>());
             method!.Invoke(SmartContract.Native.NativeContract.Ledger, new object[] { engine });

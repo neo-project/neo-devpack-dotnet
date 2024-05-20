@@ -1,11 +1,10 @@
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
-using Neo;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Types : SmartContract.Framework.SmartContract
     {
@@ -32,14 +31,14 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object checkNull() { return null; }
         public static bool checkBoolTrue() { return true; }
         public static bool checkBoolFalse() { return false; }
-        public static sbyte checkSbyte() { return (sbyte)5; }
-        public static byte checkByte() { return (byte)5; }
-        public static short checkShort() { return (short)5; }
-        public static ushort checkUshort() { return (ushort)5; }
-        public static int checkInt() { return (int)5; }
-        public static uint checkUint() { return (uint)5; }
-        public static long checkLong() { return (long)5; }
-        public static ulong checkUlong() { return (ulong)5; }
+        public static sbyte checkSbyte() { return 5; }
+        public static byte checkByte() { return 5; }
+        public static short checkShort() { return 5; }
+        public static ushort checkUshort() { return 5; }
+        public static int checkInt() { return 5; }
+        public static uint checkUint() { return 5; }
+        public static long checkLong() { return 5; }
+        public static ulong checkUlong() { return 5; }
         public static char checkChar() { return 'n'; }
         public static string checkString() { return "neo"; }
         public static char checkStringIndex(string input, int index) => input[index];
@@ -48,7 +47,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static byte[] checkByteArray() { return new byte[] { 1, 2, 3 }; }
         public static object checkEnum() { return EDummy.test; }
         private static EDummy icheckEnum() { return EDummy.test; }
-        public static void checkEnumArg(Neo.SmartContract.Framework.Native.OracleResponseCode arg) { }
+        public static void checkEnumArg(OracleResponseCode arg) { }
         public static string checkNameof() { return nameof(checkNull); }
         public static object checkDelegate()
         {
@@ -85,7 +84,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         }
         public static string concatByteString(ByteString a, ByteString b)
         {
-            return (a + b) + a.Concat(b);
+            return a + b + a.Concat(b);
         }
         public static string toAddress(UInt160 address, byte version)
         {

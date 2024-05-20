@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// InstructionCoverage.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -31,16 +42,19 @@ namespace Neo.Optimizer
         Script script;
         // Starting from the address, whether the call will surely throw or surely abort, or may be OK
         public Dictionary<int, BranchType> coveredMap { get; protected set; }
-        public Dictionary<int, Dictionary<int, Instruction>> basicBlocks { get; protected set; }
+        public Dictionary<int, Dictionary<int, Instruction>> basicBlocksInDict { get; protected set; }
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
-        public Dictionary<int, HashSet<int>> jumpTargetToSources { get; init; }
+        public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
+        public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
+        public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
         public InstructionCoverage(NefFile nef, ContractManifest manifest, JToken debugInfo)
         {
             this.script = nef.Script;
             coveredMap = new();
-            basicBlocks = new();
+            basicBlocksInDict = new();
             addressAndInstructions = script.EnumerateInstructions().ToList();
-            (_, _, jumpTargetToSources) = FindAllJumpAndTrySourceToTargets(addressAndInstructions);
+            (jumpInstructionSourceToTargets, tryInstructionSourceToTargets, jumpTargetToSources) =
+                FindAllJumpAndTrySourceToTargets(addressAndInstructions);
             foreach ((int addr, Instruction _) in addressAndInstructions)
                 coveredMap.Add(addr, BranchType.UNCOVERED);
 
@@ -156,18 +170,18 @@ namespace Neo.Optimizer
                 if (coveredMap[addr] != BranchType.UNCOVERED)
                     // We have visited the code. Skip it.
                     return coveredMap[addr];
-                if (jumpTargetToSources.ContainsKey(addr) && addr != entranceAddr)
+                Instruction instruction = script.GetInstruction(addr);
+                if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
                     return CoverInstruction(addr, stack, throwed);
-                Instruction instruction = script.GetInstruction(addr);
                 if (instruction.OpCode != OpCode.NOP)
                 {
                     coveredMap[addr] = BranchType.OK;
                     // Add a basic block starting from entranceAddr
-                    if (!basicBlocks.TryGetValue(entranceAddr, out Dictionary<int, Instruction>? instructions))
+                    if (!basicBlocksInDict.TryGetValue(entranceAddr, out Dictionary<int, Instruction>? instructions))
                     {
                         instructions = new Dictionary<int, Instruction>();
-                        basicBlocks.Add(entranceAddr, instructions);
+                        basicBlocksInDict.Add(entranceAddr, instructions);
                     }
                     // Add this instruction to the basic block starting from entranceAddr
                     instructions.Add(addr, instruction);

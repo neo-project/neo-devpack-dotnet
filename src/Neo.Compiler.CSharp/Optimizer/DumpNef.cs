@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// DumpNef.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
@@ -55,6 +66,13 @@ namespace Neo.Optimizer
             return result;
         }
 
+        /// <summary>
+        /// DO NOT use this very often. It builds new instruction objects,
+        /// while the optimizer compares instruction objects using ReferenceEquals
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="print">Console.WriteLine all instructions for debugging</param>
+        /// <returns></returns>
         public static IEnumerable<(int address, Instruction instruction)> EnumerateInstructions(this Script script, bool print = false)
         {
             int address = 0;

@@ -1,32 +1,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Initializer
+    public class UnitTest_Initializer : TestBase<Contract_Initializer>
     {
+        public UnitTest_Initializer() : base(Contract_Initializer.Nef, Contract_Initializer.Manifest) { }
+
         [TestMethod]
         public void Initializer_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Initializer.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("sum");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(3, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("sum1", 5, 7);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(12, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("sum2", 5, 7);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(12, value);
+            Assert.AreEqual(3, Contract.Sum());
+            Assert.AreEqual(12, Contract.Sum1(5, 7));
+            Assert.AreEqual(12, Contract.Sum2(5, 7));
         }
     }
 }

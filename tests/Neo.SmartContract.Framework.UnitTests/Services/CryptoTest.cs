@@ -52,18 +52,27 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_VerifySignatureWithMessage()
         {
-            // secp256r1
+            // secp256r1 with SHA256 hash
 
             var key = GenerateKey(32);
             var data = Engine.Transaction.GetSignData(ProtocolSettings.Default.Network);
-            var signature = Crypto.Sign(data, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+            var signature = Crypto.Sign(data, key.PrivateKey);
 
             // Check
 
             Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signature));
             Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, key.PublicKey, signature));
 
-            // secp256k1
+            // secp256r1 with Keccak hash
+
+            var signatureKeccak = Crypto.Sign(data, key.PrivateKey, hasher: Hasher.Keccak256);
+
+            // Check
+
+            Assert.IsFalse(Contract.Secp256r1VerifyKeccakSignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signatureKeccak));
+            Assert.IsTrue(Contract.Secp256r1VerifyKeccakSignatureWithMessage(data, key.PublicKey, signatureKeccak));
+
+            // secp256k1 with SHA256 hash
 
             var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
             var pubKeyData = pubkey.EncodePoint(false).Skip(1).ToArray();
@@ -83,6 +92,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
             Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pubkey, signature));
+
+            // secp256k1 with Keccak hash
+
+            signature = Crypto.Sign(data, key.PrivateKey, ecCurve: Cryptography.ECC.ECCurve.Secp256k1, hasher: Hasher.Keccak256);
+
+            // Check
+
+            Assert.IsFalse(Contract.Secp256k1VerifyKeccakSignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsTrue(Contract.Secp256k1VerifyKeccakSignatureWithMessage(data, pubkey, signature));
         }
 
         [TestMethod]

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Reachability.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -7,7 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static Neo.Optimizer.JumpTarget;
 using static Neo.Optimizer.OpCodeTypes;
 using static Neo.Optimizer.Optimizer;
 
@@ -23,9 +33,10 @@ namespace Neo.Optimizer
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JObject debugInfo)
         {
-            Dictionary<int, BranchType> coveredMap = FindCoveredInstructions(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = new InstructionCoverage(nef, manifest, debugInfo);
+            Dictionary<int, BranchType> coveredMap = oldContractCoverage.coveredMap;
             Script oldScript = nef.Script;
-            List<(int, Instruction)> oldAddressAndInstructionsList = oldScript.EnumerateInstructions().ToList();
+            List<(int, Instruction)> oldAddressAndInstructionsList = oldContractCoverage.addressAndInstructions;
             Dictionary<int, Instruction> oldAddressToInstruction = new();
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
                 oldAddressToInstruction.Add(a, i);
@@ -43,9 +54,6 @@ namespace Neo.Optimizer
                 else
                     continue;
             }
-            (Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets,
-            Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets, _)
-            = FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
 
             List<byte> simplifiedScript = new();
             foreach (DictionaryEntry item in simplifiedInstructionsToAddress)
@@ -54,7 +62,7 @@ namespace Neo.Optimizer
                 simplifiedScript.Add((byte)i.OpCode);
                 int operandSizeLength = OperandSizePrefixTable[(int)i.OpCode];
                 simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(i.Operand.Length)[0..operandSizeLength]).ToList();
-                if (jumpInstructionSourceToTargets.TryGetValue(i, out Instruction? dst))
+                if (oldContractCoverage.jumpInstructionSourceToTargets.TryGetValue(i, out Instruction? dst))
                 {
                     int delta;
                     if (simplifiedInstructionsToAddress.Contains(dst))  // target instruction not deleted
@@ -74,7 +82,7 @@ namespace Neo.Optimizer
                         simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(delta)).ToList();
                     continue;
                 }
-                if (tryInstructionSourceToTargets.TryGetValue(i, out (Instruction dst1, Instruction dst2) dsts))
+                if (oldContractCoverage.tryInstructionSourceToTargets.TryGetValue(i, out (Instruction dst1, Instruction dst2) dsts))
                 {
                     (Instruction dst1, Instruction dst2) = (dsts.dst1, dsts.dst2);
                     (int delta1, int delta2) = ((int)simplifiedInstructionsToAddress[dst1]! - a, (int)simplifiedInstructionsToAddress[dst2]! - a);

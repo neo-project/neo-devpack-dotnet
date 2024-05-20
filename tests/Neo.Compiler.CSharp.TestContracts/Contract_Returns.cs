@@ -1,6 +1,6 @@
 using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Returns : SmartContract.Framework.SmartContract
     {
@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// </summary>
         public static (int, int) Div(int a, int b)
         {
-            return ((a / b), (a % b));
+            return (a / b, a % b);
         }
 
         /// <summary>

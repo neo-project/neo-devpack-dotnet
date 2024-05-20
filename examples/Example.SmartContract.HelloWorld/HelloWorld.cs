@@ -18,10 +18,10 @@ namespace HelloWorld;
 
 [DisplayName("SampleHelloWorld")]
 [ContractDescription("A simple `hello world` contract")]
-[ContractEmail("core@neo.org")]
+[ContractEmail("dev@neo.org")]
 [ContractVersion("0.0.1")]
 [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-[ContractPermission(Permission.WildCard, Method.WildCard)]
+[ContractPermission(Permission.Any, Method.Any)]
 public class HelloWorldorld : SmartContract
 {
     /// <summary>

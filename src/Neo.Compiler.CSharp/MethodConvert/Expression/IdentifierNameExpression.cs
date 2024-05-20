@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -70,7 +70,7 @@ partial class MethodConvert
                 if (local.IsConst)
                     Push(local.ConstantValue);
                 else
-                    AccessSlot(OpCode.LDLOC, _localVariables[local]);
+                    LdLocSlot(local);
                 break;
             case IMethodSymbol method:
                 if (!method.IsStatic)
@@ -79,8 +79,7 @@ partial class MethodConvert
                 Jump(OpCode.PUSHA, convert._startTarget);
                 break;
             case IParameterSymbol parameter:
-                if (!_internalInline)
-                    AccessSlot(OpCode.LDARG, _parameters[parameter]);
+                if (!_internalInline) LdArgSlot(parameter);
                 break;
             case IPropertySymbol property:
                 if (property.IsStatic)

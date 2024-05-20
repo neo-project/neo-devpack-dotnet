@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// NEPStandard.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 namespace Neo.SmartContract.Framework
 {
     public enum NepStandard
@@ -20,27 +31,26 @@ namespace Neo.SmartContract.Framework
         Nep17_Z,
         // This is the nick name of NEP-17-Z.
         Nep17Payable,
+        // This NEP defines a global standard to get royalty payment information for Non-Fungible Tokens (NFTs)
+        // in order to enable support for royalty payments across all NFT marketplaces in the NEO Smart Economy.
+        // This NEP requires NEP-11.
+        // Defined at https://github.com/neo-project/proposals/blob/master/nep-24.mediawiki
+        Nep24
     }
 
     public static class NepStandardExtensions
     {
         public static string ToStandard(this NepStandard standard)
         {
-            switch (standard)
+            return standard switch
             {
-                case NepStandard.Nep11:
-                    return "NEP-11";
-                case NepStandard.Nep17:
-                    return "NEP-17";
-                case NepStandard.Nep11Payable:
-                case NepStandard.Nep11_Y:
-                    return "NEP-11-Y";
-                case NepStandard.Nep17Payable:
-                case NepStandard.Nep17_Z:
-                    return "NEP-17-Z";
-                default:
-                    return standard.ToString();
-            }
+                NepStandard.Nep11 => "NEP-11",
+                NepStandard.Nep17 => "NEP-17",
+                NepStandard.Nep11Payable or NepStandard.Nep11_Y => "NEP-11-Y",
+                NepStandard.Nep17Payable or NepStandard.Nep17_Z => "NEP-17-Z",
+                NepStandard.Nep24 => "NEP-24",
+                _ => standard.ToString()
+            };
         }
     }
 }

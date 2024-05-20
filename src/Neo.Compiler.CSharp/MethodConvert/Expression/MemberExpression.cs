@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -49,6 +49,8 @@ partial class MethodConvert
             case IFieldSymbol field:
                 if (field.IsConst)
                 {
+                    // This branch is not covered, is there any c# code that matches the conditions?
+                    // Const member field access is handled via ConvertMethodInvocationExpression
                     Push(field.ConstantValue);
                 }
                 else if (field.IsStatic)
@@ -65,6 +67,7 @@ partial class MethodConvert
                 }
                 break;
             case IMethodSymbol method:
+                //This branch is not covered, is there any c# code that matches the conditions?
                 if (!method.IsStatic)
                     throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
                 MethodConvert convert = _context.ConvertMethod(model, method);

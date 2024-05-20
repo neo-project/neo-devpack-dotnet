@@ -2,10 +2,10 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <Copyright>2024 The SharpNeo Examples Project</Copyright>
-        <VersionPrefix>3.6.2</VersionPrefix>
-        <TargetFramework>net7.0</TargetFramework>
-        <Authors>The SharpNeo Project</Authors>
+        <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
+        <VersionPrefix>3.7.4</VersionPrefix>
+        <TargetFramework>net8.0</TargetFramework>
+        <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
         <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet/examples</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,10 +21,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj"/>
+        <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" PrivateAssets="All"/>
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
-<!--    <Target Name="PostBuild" AfterTargets="PostBuildEvent">-->
-<!--        <Exec Command="dotnet nccs &quot;$(MSBuildProjectFile)&quot;" />-->
-<!--    </Target>-->
+    <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent">
+        <MSBuild Projects="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" Targets="Build" ContinueOnError="true"/>
+        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net8.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
+    </Target>
+
 </Project>

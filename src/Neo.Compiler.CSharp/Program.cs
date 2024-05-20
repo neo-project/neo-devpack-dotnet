@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
 // The Neo.Compiler.CSharp is free software distributed under the MIT
 // software license, see the accompanying file LICENSE in the main directory
@@ -30,9 +30,9 @@ using System.Reflection;
 
 namespace Neo.Compiler
 {
-    class Program
+    public class Program
     {
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
@@ -171,7 +171,18 @@ namespace Neo.Compiler
                 string path = outputFolder;
                 string baseName = options.BaseName ?? context.ContractName!;
 
-                (NefFile nef, ContractManifest manifest, JToken debugInfo) = context.CreateResults(folder);
+                NefFile nef;
+                ContractManifest manifest;
+                JToken debugInfo;
+                try
+                {
+                    (nef, manifest, debugInfo) = context.CreateResults(folder);
+                }
+                catch (CompilationException ex)
+                {
+                    Console.Error.WriteLine(ex.Diagnostic);
+                    return -1;
+                }
 
                 try
                 {

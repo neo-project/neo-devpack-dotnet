@@ -1,367 +1,164 @@
-using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_BigInteger
+    public class UnitTest_BigInteger : TestBase<Contract_BigInteger>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_BigInteger.cs");
-        }
+        public UnitTest_BigInteger() : base(Contract_BigInteger.Nef, Contract_BigInteger.Manifest) { }
 
         [TestMethod]
         public void Test_Pow()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testPow", 2, 3);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(8, value);
+            Assert.AreEqual(8, Contract.TestPow(2, 3));
         }
 
         [TestMethod]
         public void Test_Sqrt()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testSqrt", 4);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(2, value);
+            Assert.AreEqual(2, Contract.TestSqrt(4));
         }
 
         [TestMethod]
         public void Test_Sbyte()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testsbyte", 127);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(127, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testsbyte", -128);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(-128, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testsbyte", 128);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testsbyte", -129);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(127, Contract.Testsbyte(127));
+            Assert.AreEqual(-128, Contract.Testsbyte(-128));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testsbyte(128));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testsbyte(-129));
         }
 
         [TestMethod]
         public void Test_byte()
         {
-            var result = testengine.ExecuteTestCaseStandard("testbyte", 0);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testbyte", 255);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(255, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testbyte", -1);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testbyte", 256);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
+            Assert.AreEqual(0, Contract.Testbyte(0));
+            Assert.AreEqual(255, Contract.Testbyte(255));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testbyte(-1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testbyte(256));
         }
 
         [TestMethod]
         public void Test_short()
         {
-            var result = testengine.ExecuteTestCaseStandard("testshort", 32767);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(32767, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testshort", -32768);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(-32768, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testshort", 32768);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testshort", -32769);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(32767, Contract.Testshort(32767));
+            Assert.AreEqual(-32768, Contract.Testshort(-32768));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testshort(32768));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testshort(-32769));
         }
 
         [TestMethod]
         public void Test_ushort()
         {
-            var result = testengine.ExecuteTestCaseStandard("testushort", 0);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testushort", 65535);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(65535, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testushort", -1);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testushort", 65536);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(0, Contract.Testushort(0));
+            Assert.AreEqual(65535, Contract.Testushort(65535));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testushort(-1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testushort(65536));
         }
 
         [TestMethod]
         public void Test_int()
         {
-            var result = testengine.ExecuteTestCaseStandard("testint", -2147483648);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(-2147483648, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testint", 2147483647);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(2147483647, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testint", -2147483649);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testint", 2147483648);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(-2147483648, Contract.Testint(-2147483648));
+            Assert.AreEqual(2147483647, Contract.Testint(2147483647));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testint(-2147483649));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testint(2147483648));
         }
 
         [TestMethod]
         public void Test_uint()
         {
-            var result = testengine.ExecuteTestCaseStandard("testuint", 0);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testuint", 4294967295);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(4294967295, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testuint", -1);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testuint", 4294967296);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(0, Contract.Testuint(0));
+            Assert.AreEqual(4294967295, Contract.Testuint(4294967295));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testuint(-1));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testuint(4294967296));
         }
 
         [TestMethod]
         public void Test_long()
         {
-            var result = testengine.ExecuteTestCaseStandard("testlong", -9223372036854775808);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(-9223372036854775808, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testlong", 9223372036854775807);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(9223372036854775807, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testlong", 9223372036854775808);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(-9223372036854775808, Contract.Testlong(-9223372036854775808));
+            Assert.AreEqual(9223372036854775807, Contract.Testlong(9223372036854775807));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testlong(9223372036854775808));
         }
 
         [TestMethod]
         public void Test_ulong()
         {
-            var result = testengine.ExecuteTestCaseStandard("testulong", 0);
-
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(0, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testulong", 18446744073709551615);
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(18446744073709551615, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testulong", -1);
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.AreEqual(0, Contract.Testulong(0));
+            Assert.AreEqual(18446744073709551615, Contract.Testulong(18446744073709551615));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
+            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testulong(-1));
         }
         [TestMethod]
         public void Test_IsEven()
         {
             // Test 0
-            var result = testengine.ExecuteTestCaseStandard("testIsEven", 0);
-            var value = result.Pop().GetBoolean();
-            Assert.AreEqual(new BigInteger(0).IsEven, value);
-            testengine.Reset();
+            Assert.AreEqual(new BigInteger(0).IsEven, Contract.TestIsEven(0));
             // Test 1
-            result = testengine.ExecuteTestCaseStandard("testIsEven", 1);
-            value = result.Pop().GetBoolean();
-            Assert.AreEqual(new BigInteger(1).IsEven, value);
-            testengine.Reset();
+            Assert.AreEqual(new BigInteger(1).IsEven, Contract.TestIsEven(1));
             // Test 2
-            result = testengine.ExecuteTestCaseStandard("testIsEven", 2);
-            value = result.Pop().GetBoolean();
-            Assert.AreEqual(new BigInteger(2).IsEven, value);
-            testengine.Reset();
+            Assert.AreEqual(new BigInteger(2).IsEven, Contract.TestIsEven(2));
             // Test -1
-            result = testengine.ExecuteTestCaseStandard("testIsEven", -1);
-            value = result.Pop().GetBoolean();
-            Assert.AreEqual(new BigInteger(-1).IsEven, value);
-            testengine.Reset();
+            Assert.AreEqual(new BigInteger(-1).IsEven, Contract.TestIsEven(-1));
             // Test -2
-            result = testengine.ExecuteTestCaseStandard("testIsEven", -2);
-            value = result.Pop().GetBoolean();
-            Assert.AreEqual(new BigInteger(-2).IsEven, value);
-            testengine.Reset();
+            Assert.AreEqual(new BigInteger(-2).IsEven, Contract.TestIsEven(-2));
         }
 
         [TestMethod]
         public void Test_Add()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testAdd", 123456789, 987654321);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(new BigInteger(1111111110), value);
+            Assert.AreEqual(new BigInteger(1111111110), Contract.TestAdd(123456789, 987654321));
         }
 
         [TestMethod]
         public void Test_Subtract()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testSubtract", 123456789, 987654321);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(new BigInteger(-864197532), value);
+            Assert.AreEqual(new BigInteger(-864197532), Contract.TestSubtract(123456789, 987654321));
         }
 
         [TestMethod]
         public void Test_Multiply()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testMultiply", 123, 321);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(new BigInteger(39483), value);
+            Assert.AreEqual(new BigInteger(39483), Contract.TestMultiply(123, 321));
         }
 
         [TestMethod]
         public void Test_Divide()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testDivide", 123456, 123);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.Divide(123456, 123), value);
+            Assert.AreEqual(BigInteger.Divide(123456, 123), Contract.TestDivide(123456, 123));
         }
 
         [TestMethod]
         public void Test_Negate()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testNegate", 123456);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(new BigInteger(-123456), value);
+            Assert.AreEqual(new BigInteger(-123456), Contract.TestNegate(123456));
         }
 
         [TestMethod]
         public void Test_Remainder()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testRemainder", 123456, 123);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.Remainder(123456, 123), value);
+            Assert.AreEqual(BigInteger.Remainder(123456, 123), Contract.TestRemainder(123456, 123));
         }
 
         [TestMethod]
         public void Test_Compare()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testCompare", 123, 321);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.Compare(123, 321), value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testCompare", 123, 123);
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.Compare(123, 123), value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testCompare", 123, -321);
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.Compare(123, -321), value);
+            Assert.AreEqual(BigInteger.Compare(123, 321), Contract.TestCompare(123, 321));
+            Assert.AreEqual(BigInteger.Compare(123, 123), Contract.TestCompare(123, 123));
+            Assert.AreEqual(BigInteger.Compare(123, -321), Contract.TestCompare(123, -321));
         }
 
         [TestMethod]
         public void Test_GreatestCommonDivisor()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testGreatestCommonDivisor", 48, 18);
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.GreatestCommonDivisor(48, 18), value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testGreatestCommonDivisor", -48, -18);
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.GreatestCommonDivisor(-48, -18), value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testGreatestCommonDivisor", 24, 12);
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 12), value);
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(48, 18), Contract.TestGreatestCommonDivisor(48, 18));
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(-48, -18), Contract.TestGreatestCommonDivisor(-48, -18));
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 12), Contract.TestGreatestCommonDivisor(24, 12));
         }
     }
 }

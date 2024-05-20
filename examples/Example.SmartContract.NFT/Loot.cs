@@ -21,17 +21,17 @@ using System.Runtime.CompilerServices;
 namespace NFT
 {
     [DisplayName("SampleLootNFT")]
-    [ContractAuthor("core-dev", "core@neo.org")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractDescription("This is a text Example.SmartContract.NFT")]
     [SupportedStandards(NepStandard.Nep11)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP11Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     public partial class Loot : Nep11Token<TokenState>
     {
         public override string Symbol { [Safe] get => "sLoot"; }
 
-        private static readonly StorageMap TokenIndexMap = new(Storage.CurrentContext, (byte)StoragePrefix.Token);
-        private static readonly StorageMap TokenMap = new(Storage.CurrentContext, Prefix_Token);
+        private static readonly StorageMap TokenIndexMap = new((byte)StoragePrefix.Token);
+        private static readonly StorageMap TokenMap = new(Prefix_Token);
         public static event Action<string> EventMsg;
 
         [Safe]
@@ -153,7 +153,7 @@ namespace NFT
             // 222 reserved to the developer
             ExecutionEngine.Assert(!tokenId.IsZero && tokenId < 7778, "Token ID invalid");
             ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash, "Contract calls are not allowed");
-            Transaction tx = (Transaction)Runtime.ScriptContainer;
+            Transaction tx = Runtime.Transaction;
             MintToken(tokenId, tx.Sender);
             EventMsg("Player mints success");
         }
@@ -180,7 +180,6 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <param name="sender"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void MintToken(BigInteger tokenId, UInt160 sender)
         {
             var credential = CheckClaim(tokenId);
@@ -197,7 +196,6 @@ namespace NFT
         /// </summary>
         /// <param name="tokenId"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private BigInteger CheckClaim(BigInteger tokenId)
         {
             // <0> -- confirmed
