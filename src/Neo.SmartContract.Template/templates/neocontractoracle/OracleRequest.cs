@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Template
     [ContractDescription( "<Description Here>")]
     [ContractVersion("<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs")]
-    [ContractPermission("*", "*")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class OracleRequest : Neo.SmartContract.Framework.SmartContract
     {
         [Safe]

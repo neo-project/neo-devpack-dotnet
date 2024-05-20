@@ -22,7 +22,7 @@ namespace Inscription
     [ContractDescription("A sample inscription contract.")]
     [ContractVersion("0.0.1")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class SampleInscription : SmartContract
     {
         /// <summary>

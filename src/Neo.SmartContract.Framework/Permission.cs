@@ -9,12 +9,23 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+
 namespace Neo.SmartContract.Framework;
 
+/// <summary>
+/// Sets the permission for the developing contract to call a method of another contract.
+/// </summary>
 public static class Permission
 {
     /// <summary>
     /// Indicates that the contract is allowed to call <see cref="Method"/> of any contract.
     /// </summary>
+    [Obsolete("Use Any instead.")]
     public const string WildCard = "*";
+
+    /// <summary>
+    /// Indicates that the contract is allowed to call <see cref="Method"/> of any contract.
+    /// </summary>
+    public const string Any = "*";
 }
