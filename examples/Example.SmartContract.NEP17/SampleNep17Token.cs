@@ -25,7 +25,7 @@ namespace NEP17
     [ContractVersion("0.0.1")]
     [ContractDescription("A sample NEP-17 token")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     [SupportedStandards(NepStandard.Nep17)]
     public class SampleNep17Token : Nep17Token
     {

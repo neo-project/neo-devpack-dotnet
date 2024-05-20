@@ -4,7 +4,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Create : SmartContract
     {
         public static string OldContract()

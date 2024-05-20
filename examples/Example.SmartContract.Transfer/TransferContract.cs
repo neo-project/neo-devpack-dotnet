@@ -27,7 +27,7 @@ namespace Transfer;
 [ContractDescription("A sample contract to demonstrate how to transfer NEO and GAS")]
 [ContractVersion("1.0.0.0")]
 [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-[ContractPermission(Permission.WildCard, Method.WildCard)]
+[ContractPermission(Permission.Any, Method.Any)]
 public class TransferContract : SmartContract
 {
     private static readonly UInt160 Owner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
