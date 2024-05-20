@@ -17,7 +17,9 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
     public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string? Filter);
 
     [DisplayName("OracleRequest")]
+#pragma warning disable CS0067 // Event is never used
     public event delOracleRequest? OnOracleRequest;
+#pragma warning restore CS0067 // Event is never used
 
     public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
 

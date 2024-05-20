@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public class DummyClass
         {
-            public string Value;
+            public string Value = default!;
         }
 
         public struct DummyStruct

@@ -8,9 +8,11 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     struct State
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         public byte[] from;
         public byte[] to;
         public BigInteger amount;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     public class Contract_Array : SmartContract.Framework.SmartContract
