@@ -18,7 +18,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep11)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP11Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
     public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {

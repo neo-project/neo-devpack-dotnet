@@ -24,7 +24,7 @@ namespace Oracle
     [ContractDescription("A sample contract to demonstrate how to use Example.SmartContract.Oracle Service")]
     [ContractVersion("0.0.1")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class SampleOracle : SmartContract, IOracle
     {
         [Safe]

@@ -18,11 +18,11 @@ namespace Neo.SmartContract.Framework.Attributes
         /// <summary>
         /// Specify which contract and methods are allowed to call from this contract.
         /// </summary>
-        /// <param name="contract">Address of contract allowed to call</param>
+        /// <param name="contract">Address of contract allowed to call from this contract</param>
         /// <param name="methods">Name of method allowed to call.</param>
         /// <remarks>
-        /// If the contract is specified as Permission.WildCard, then all contracts are allowed to call the specified methods.
-        /// If the method is specified as Method.WildCard, then all methods are allowed to call from the specified contract.
+        /// If the contract is specified as <see cref="Permission.Any"/>, then this contract is allowed to call the specified methods <param name="methods"></param> of any other contract.
+        /// If the method is specified as <see cref="Method.Any"/>, then all methods of the specified contract <param name="contract"></param> can be called.
         /// </remarks>
         public ContractPermissionAttribute(string contract, params string[] methods)
         {

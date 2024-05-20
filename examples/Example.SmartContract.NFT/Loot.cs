@@ -24,7 +24,7 @@ namespace NFT
     [ContractAuthor("core-dev", "dev@neo.org")]
     [ContractDescription("This is a text Example.SmartContract.NFT")]
     [SupportedStandards(NepStandard.Nep11)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP11Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     public partial class Loot : Nep11Token<TokenState>
     {
