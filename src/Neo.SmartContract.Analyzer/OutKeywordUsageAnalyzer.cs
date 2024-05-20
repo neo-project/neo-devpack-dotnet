@@ -189,7 +189,7 @@ namespace Neo.SmartContract.Analyzer
                 SyntaxFactory.TupleElement(originalReturnType)
             };
 
-            returnTypes.AddRange(outParameters.Select(p => SyntaxFactory.TupleElement(p.Type)));
+            returnTypes.AddRange(outParameters.Select(p => SyntaxFactory.TupleElement(p.Type!)));
 
             return SyntaxFactory.TupleType(SyntaxFactory.SeparatedList(returnTypes));
         }

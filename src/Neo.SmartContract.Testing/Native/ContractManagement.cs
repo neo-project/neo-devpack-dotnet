@@ -19,7 +19,9 @@ public abstract class ContractManagement : SmartContract
     public delegate void delDeploy(UInt160 Hash);
 
     [DisplayName("Deploy")]
+#pragma warning disable CS0067 // Event is never used
     public event delDeploy? OnDeploy;
+#pragma warning restore CS0067 // Event is never used
 
     public delegate void delDestroy(UInt160 Hash);
 

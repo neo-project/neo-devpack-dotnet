@@ -142,7 +142,7 @@ namespace Neo.SmartContract.Analyzer
                 }
             }
 
-            var newRoot = root.ReplaceNode(attributeSyntax, newAttributeSyntax);
+            var newRoot = root!.ReplaceNode(attributeSyntax, newAttributeSyntax);
             return document.WithSyntaxRoot(newRoot);
         }
     }

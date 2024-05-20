@@ -75,7 +75,9 @@ namespace Neo.SmartContract.Analyzer
         private static async Task<Document> CastDoubleToLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var editor = new SyntaxEditor(root, document.Project.Solution.Workspace);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             foreach (var variable in declaration.Variables)
             {
