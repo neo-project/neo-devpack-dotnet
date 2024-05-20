@@ -99,7 +99,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return sarray;
         }
 
-        public static object TestStructArrayInit()
+        public static object? TestStructArrayInit()
         {
             var s = new State();
             State[] states = new State[] { s };

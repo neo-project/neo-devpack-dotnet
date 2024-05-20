@@ -22,7 +22,9 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
     public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
 
     [DisplayName("OracleResponse")]
+#pragma warning disable CS0067 // Event is never used
     public event delOracleResponse? OnOracleResponse;
+#pragma warning restore CS0067 // Event is never used
 
     #endregion
 
