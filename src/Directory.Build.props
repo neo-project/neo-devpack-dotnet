@@ -3,8 +3,8 @@
 
   <PropertyGroup>
     <Copyright>2015-2024 The Neo Project</Copyright>
+    <Company>The Neo Project</Company>
     <VersionPrefix>3.7.1</VersionPrefix>
-    <TargetFramework>net8.0</TargetFramework>
     <Authors>The Neo Project</Authors>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
