@@ -107,7 +107,9 @@ namespace Neo.SmartContract.Analyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             var attributeSyntax = root.FindNode(diagnosticSpan).AncestorsAndSelf().OfType<AttributeSyntax>().FirstOrDefault();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             if (attributeSyntax != null)
             {
