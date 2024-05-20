@@ -19,7 +19,9 @@ public abstract class RoleManagement : SmartContract
     public delegate void delDesignation(BigInteger Role, BigInteger BlockIndex);
 
     [DisplayName("Designation")]
+#pragma warning disable CS0067 // Event is never used
     public event delDesignation? OnDesignation;
+#pragma warning restore CS0067 // Event is never used
 
     #endregion
 

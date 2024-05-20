@@ -114,8 +114,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             {
                 v = 3;
             }
+#pragma warning disable CS0162 // Unreachable code detected
             v = 4;
             return v;
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         public static object tryFinally()
@@ -305,10 +307,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static (int, object) tryNULL2Ecpoint_1()
+        public static (int, object?) tryNULL2Ecpoint_1()
         {
             int v = 0;
-            ECPoint data = (ECPoint)(new byte[33]);
+            ECPoint? data = (ECPoint)(new byte[33]);
             try
             {
                 v = 2;
@@ -329,10 +331,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Uint160_1()
+        public static (int, object?) tryNULL2Uint160_1()
         {
             int v = 0;
-            UInt160 data = (UInt160)(new byte[20]);
+            UInt160? data = (UInt160)(new byte[20]);
             try
             {
                 v = 2;
@@ -353,10 +355,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Uint256_1()
+        public static (int, object?) tryNULL2Uint256_1()
         {
             int v = 0;
-            UInt256 data = (UInt256)(new byte[32]);
+            UInt256? data = (UInt256)(new byte[32]);
             try
             {
                 v = 2;
@@ -377,10 +379,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Bytestring_1()
+        public static (int, object?) tryNULL2Bytestring_1()
         {
             int v = 0;
-            ByteString data = "123";
+            ByteString? data = "123";
             try
             {
                 v = 2;
@@ -424,6 +426,5 @@ namespace Neo.Compiler.CSharp.TestContracts
             }
             return v;
         }
-
     }
 }

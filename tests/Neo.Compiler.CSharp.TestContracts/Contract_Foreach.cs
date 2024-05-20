@@ -109,7 +109,6 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             ECPoint[] test = new ECPoint[] { (ECPoint)rawECpoint, (ECPoint)rawECpoint };
             List<ECPoint> result = new List<ECPoint>();
-            int i = 0;
             foreach (var item in test)
             {
                 result.Add(item);
