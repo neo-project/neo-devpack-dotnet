@@ -60,6 +60,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Get all artifacts loaded in this assembly
 
+            compilationContexts = results.ToArray();
             var b = Assembly.GetExecutingAssembly().GetTypes();
             foreach (var type in b)
             {
@@ -89,7 +90,6 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.Fail("Error compiling templates");
             }
 
-            compilationContexts = results.ToArray();
             return compilationContexts;
         }
 
