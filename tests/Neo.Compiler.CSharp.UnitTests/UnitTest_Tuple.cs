@@ -1,21 +1,19 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
-using System.Linq;
-using Neo.SmartContract.TestEngine;
 
-namespace Neo.Compiler.CSharp.UnitTests.OldEngine
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Tuple
+    public class UnitTest_Tuple : TestBase<Contract_Tuple>
     {
+        public UnitTest_Tuple() : base(Contract_Tuple.Nef, Contract_Tuple.Manifest) { }
+
         [TestMethod]
         public void Test_Assign()
         {
-            var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Tuple.cs");
-            var result = testengine.ExecuteTestCaseStandard("t1");
-
-            var tuple = result.Pop<Struct>();
+            var tuple = Contract.T1() as Struct;
             Assert.AreEqual(5, tuple.Count);
             Assert.AreEqual(1, tuple[2].GetInteger());
             Assert.AreEqual(4, tuple[3].GetInteger());
