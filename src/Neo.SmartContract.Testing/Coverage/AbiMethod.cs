@@ -84,14 +84,14 @@ namespace Neo.SmartContract.Testing.Coverage
             return Array.Empty<AbiMethod>();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is not AbiMethod other) return false;
 
             return PCount == other.PCount && Name == other.Name;
         }
 
-        bool IEquatable<AbiMethod>.Equals(AbiMethod other) => PCount == other.PCount && Name == other.Name;
+        bool IEquatable<AbiMethod>.Equals(AbiMethod? other) => other != null && PCount == other.PCount && Name == other.Name;
         public override int GetHashCode() => HashCode.Combine(PCount, Name);
         public override string ToString() => _toString;
     }

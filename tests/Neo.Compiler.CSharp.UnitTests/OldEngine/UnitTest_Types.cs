@@ -412,7 +412,7 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
             var item = testengine.Notifications.Last();
 
             Assert.AreEqual(1, item.State.Count);
-            Assert.AreEqual("dummyEvent", item.EventName);
+            Assert.AreEqual("DummyEvent", item.EventName);
             Assert.AreEqual("neo", (item.State[0] as ByteString).GetString());
         }
 

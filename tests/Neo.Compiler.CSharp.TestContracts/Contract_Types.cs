@@ -14,12 +14,12 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         public delegate EDummy enumDel();
-        public delegate void del(string msg);
-        public static event del dummyEvent;
+        public delegate void Del(string msg);
+        public static event Del DummyEvent = null!;
 
         public class DummyClass
         {
-            public string Value;
+            public string Value = default!;
         }
 
         public struct DummyStruct
@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         public static string checkBoolString(bool value) { return value.ToString(); }
-        public static object checkNull() { return null; }
+        public static object? checkNull() { return null; }
         public static bool checkBoolTrue() { return true; }
         public static bool checkBoolFalse() { return false; }
         public static sbyte checkSbyte() { return 5; }
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
         public static void checkEvent()
         {
-            dummyEvent("neo");
+            DummyEvent("neo");
         }
         public static object checkClass()
         {
