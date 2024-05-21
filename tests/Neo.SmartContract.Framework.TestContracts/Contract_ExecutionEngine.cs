@@ -19,10 +19,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (byte[])Runtime.ExecutingScriptHash;
         }
 
+#pragma warning disable CS0618
         public static object ScriptContainer()
         {
             return Runtime.ScriptContainer;
         }
+#pragma warning restore CS0618
 
         public static object Transaction()
         {

@@ -75,7 +75,10 @@ namespace Neo.SmartContract.Analyzer
 
         private static async Task<Document> ChangeToLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
-            var editor = new SyntaxEditor(await document.GetSyntaxRootAsync(cancellationToken), document.Project.Solution.Workspace);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // Change the type to long
             var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));

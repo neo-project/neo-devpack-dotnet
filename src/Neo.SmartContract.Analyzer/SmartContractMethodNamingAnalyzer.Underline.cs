@@ -85,9 +85,11 @@ namespace Neo.SmartContract.Analyzer
         {
             var identifierToken = methodDecl.Identifier;
             var root = await document.GetSyntaxRootAsync(cancellationToken);
+#pragma warning disable CS8631 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match constraint type.
             var newRoot = root.ReplaceToken(identifierToken, SyntaxFactory.Identifier(newMethodName));
+#pragma warning restore CS8631 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match constraint type.
 
-            return document.WithSyntaxRoot(newRoot);
+            return document.WithSyntaxRoot(newRoot!);
         }
     }
 }

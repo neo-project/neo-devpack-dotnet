@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
     public class Person
     {
-        private string name;
+        private string name = string.Empty;
 
         public string Name
         {

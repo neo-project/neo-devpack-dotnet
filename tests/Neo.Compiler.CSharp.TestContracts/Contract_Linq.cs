@@ -7,7 +7,7 @@ namespace Neo.Compiler.CSharp.TestContracts
     {
         public class Person
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = default!;
             public int Age { get; set; }
         }
 

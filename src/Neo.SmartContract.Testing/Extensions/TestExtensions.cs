@@ -3,6 +3,7 @@ using Neo.SmartContract.Testing.Attributes;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -183,7 +184,7 @@ namespace Neo.SmartContract.Testing.Extensions
         private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType)
         {
             var arr = objects.ToArray();
-            var value = Activator.CreateInstance(valueType);
+            var value = Activator.CreateInstance(valueType) ?? new NoNullAllowedException("Impossible create value type");
 
             // Cache the object properties by offset
 

@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeUsingDirective(SyntaxNodeAnalysisContext context)
         {
             var usingDirective = (UsingDirectiveSyntax)context.Node;
-            if (usingDirective.Name.ToString() == "System.Linq")
+            if (usingDirective.Name!.ToString() == "System.Linq")
             {
                 var diagnostic = Diagnostic.Create(Rule, usingDirective.GetLocation(), usingDirective.Name);
                 context.ReportDiagnostic(diagnostic);
@@ -79,7 +79,7 @@ namespace Neo.SmartContract.Analyzer
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var newUsingDirective = usingDirective.WithName(SyntaxFactory.ParseName("Neo.SmartContract.Framework.Linq"));
-            var newRoot = root.ReplaceNode(usingDirective, newUsingDirective);
+            var newRoot = root!.ReplaceNode(usingDirective, newUsingDirective);
             return document.WithSyntaxRoot(newRoot);
         }
     }

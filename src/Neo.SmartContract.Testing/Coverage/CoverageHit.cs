@@ -176,7 +176,7 @@ namespace Neo.SmartContract.Testing.Coverage
                         }
                 }
 
-                if (instruction.Operand.Span.TryGetString(out var str) && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
                 {
                     return ret + $" '{str}'";
                 }

@@ -8,9 +8,11 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     struct State
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         public byte[] from;
         public byte[] to;
         public BigInteger amount;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     public class Contract_Array : SmartContract.Framework.SmartContract
@@ -102,13 +104,9 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static object TestStructArrayInit()
         {
             var s = new State();
-            State[] states = new State[] { s };
-            for (var i = 0; i < 1; i++)
-            {
-                State state = states[i];
-                return state;
-            }
-            return null;
+            State[] states = [s];
+            var state = states[0];
+            return state;
         }
 
         static readonly byte[] OwnerVar = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
