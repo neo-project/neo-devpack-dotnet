@@ -27,13 +27,13 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestStandardNEP11PayableAttribute()
         {
-            CollectionAssert.AreEqual(Contract_SupportedStandard11Payable.Manifest.SupportedStandards, new string[] { "NEP-11-Y" });
+            CollectionAssert.AreEqual(Contract_SupportedStandard11Payable.Manifest.SupportedStandards, new string[] { "NEP-25" });
         }
 
         [TestMethod]
         public void TestStandardNEP17PayableAttribute()
         {
-            CollectionAssert.AreEqual(Contract_SupportedStandard17Payable.Manifest.SupportedStandards, new string[] { "NEP-17-Z" });
+            CollectionAssert.AreEqual(Contract_SupportedStandard17Payable.Manifest.SupportedStandards, new string[] { "NEP-26" });
         }
     }
 }
