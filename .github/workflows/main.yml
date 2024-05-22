@@ -7,6 +7,7 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
+  EXCLUDE_COVERAGE: "[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*"
 
 jobs:
 
@@ -54,7 +55,7 @@ jobs:
         --no-build \
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
-        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+        /p:Exclude=${{ env.EXCLUDE_COVERAGE }}
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
@@ -64,7 +65,7 @@ jobs:
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+        /p:Exclude=${{ env.EXCLUDE_COVERAGE }}
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
@@ -74,7 +75,7 @@ jobs:
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+        /p:Exclude=${{ env.EXCLUDE_COVERAGE }}
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
@@ -84,7 +85,7 @@ jobs:
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\" \
+        /p:Exclude=${{ env.EXCLUDE_COVERAGE }} \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.0
