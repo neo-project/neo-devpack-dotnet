@@ -168,7 +168,7 @@ namespace Neo.Compiler
             try
             {
                 var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
-                var onNEP11PaymentValid = onNEP11PaymentMethod is { Safe: false, ReturnType: ContractParameterType.Void } &&
+                var onNEP11PaymentValid = onNEP11PaymentMethod is { ReturnType: ContractParameterType.Void } &&
                                           onNEP11PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                           onNEP11PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
                                           onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
@@ -188,7 +188,7 @@ namespace Neo.Compiler
             try
             {
                 var onNEP17PaymentMethod = manifest.Abi.GetMethod("onNEP17Payment", 3);
-                var onNEP17PaymentValid = onNEP17PaymentMethod is { Safe: false, ReturnType: ContractParameterType.Void } &&
+                var onNEP17PaymentValid = onNEP17PaymentMethod is { ReturnType: ContractParameterType.Void } &&
                                           onNEP17PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                           onNEP17PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
                                           onNEP17PaymentMethod.Parameters[2].Type == ContractParameterType.Any;
