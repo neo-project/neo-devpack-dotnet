@@ -8,7 +8,8 @@ on:
 env:
   DOTNET_VERSION: 8.0.x
   EXCLUDE_COVERAGE: "[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*"
-
+  COVERLET_OUTPUT: "/p:CoverletOutput=${{ github.workspace }}/coverage-join/"
+  COVERLET_MERGE_WITH: "/p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json"
 jobs:
 
   Test:
@@ -54,7 +55,7 @@ jobs:
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         --no-build \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        ${{ env.COVERLET_OUTPUT }} \
         /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
@@ -63,8 +64,8 @@ jobs:
         -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
-        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        ${{ env.COVERLET_OUTPUT }} \
+        ${{ env.COVERLET_MERGE_WITH }} \
         /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
@@ -73,8 +74,8 @@ jobs:
         -e "COVERAGE_MERGE_JOIN=${{ github.workspace }}/coverage-join/coverage.json" \
         -l "console;verbosity=detailed" \
         /p:CollectCoverage=true \
-        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
-        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        ${{ env.COVERLET_OUTPUT }} \
+        ${{ env.COVERLET_MERGE_WITH }} \
         /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
@@ -84,7 +85,7 @@ jobs:
         -l "console;verbosity=detailed" \
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
-        /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
+        ${{ env.COVERLET_MERGE_WITH }} \
         /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\" \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
