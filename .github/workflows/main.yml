@@ -8,7 +8,7 @@ on:
 env:
   DOTNET_VERSION: 8.0.x
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
-  COVERLET_EXCLUDE_COVERAGE: "/p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\""
+  COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
   COVERLET_OUTPUT: "/p:CoverletOutput=${{ github.workspace }}/coverage-join/"
   COVERLET_MERGE_WITH: "/p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json"
 
