@@ -5,7 +5,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Inline : SmartContract.Framework.SmartContract
     {
-        public static object TestInline(string method)
+        public static int TestInline(string method)
         {
             return method switch
             {
