@@ -75,18 +75,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // secp256k1 with SHA256 hash
 
             var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
-            var pubKeyData = pubkey.EncodePoint(false).Skip(1).ToArray();
-            var ecdsa = ECDsa.Create(new ECParameters
-            {
-                Curve = ECCurve.CreateFromFriendlyName("secP256k1"),
-                D = key.PrivateKey,
-                Q = new ECPoint
-                {
-                    X = pubKeyData[..32],
-                    Y = pubKeyData[32..]
-                }
-            });
-            signature = ecdsa.SignData(data, HashAlgorithmName.SHA256);
+
+            signature = Crypto.Sign(data, key.PrivateKey, ecCurve: Cryptography.ECC.ECCurve.Secp256k1,
+                hasher: Hasher.SHA256);
 
             // Check
 
