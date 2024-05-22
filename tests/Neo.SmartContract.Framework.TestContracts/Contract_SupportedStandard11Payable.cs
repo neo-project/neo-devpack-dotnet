@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Framework.TestContracts
     [ContractDescription("<Description Here>")]
     [ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
     [ContractVersion("<Version String Here>")]
-    [ContractPermission(Permission.WildCard, Method.WildCard)]
+    [ContractPermission(Permission.Any, Method.Any)]
     [SupportedStandards(NepStandard.Nep11Payable)]
     public class Contract_SupportedStandard11Payable : SmartContract, INep11Payable
     {
