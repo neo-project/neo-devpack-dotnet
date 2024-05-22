@@ -20,6 +20,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
 
@@ -63,7 +65,7 @@ namespace Neo.Compiler
         {
             return CompileSources(new CompilationSourceReferences()
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.6.2-CI00593")]
+                Packages = [new("Neo.SmartContract.Framework", "3.7.4-*")]
             },
             sourceFiles);
         }
