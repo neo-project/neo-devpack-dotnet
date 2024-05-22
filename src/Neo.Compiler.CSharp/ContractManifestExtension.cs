@@ -167,11 +167,12 @@ namespace Neo.Compiler
         {
             try
             {
-                var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 3);
+                var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
                 var onNEP11PaymentValid = onNEP11PaymentMethod is { Safe: false, ReturnType: ContractParameterType.Void } &&
                                           onNEP11PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                           onNEP11PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
-                                          onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.Any;
+                                          onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
+                                          onNEP11PaymentMethod.Parameters[3].Type == ContractParameterType.Any;
 
                 if (!onNEP11PaymentValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
                     $"Incomplete NEP standard {NepStandard.Nep11Payable.ToStandard()} implementation: onNEP11Payment");

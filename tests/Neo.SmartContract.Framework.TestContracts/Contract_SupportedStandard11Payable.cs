@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework.TestContracts
     [SupportedStandards(NepStandard.Nep11Payable)]
     public class Contract_SupportedStandard11Payable : SmartContract, INep11Payable
     {
-        public void OnNEP11Payment(UInt160 from, BigInteger amount, object? data = null)
+        public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null)
         {
         }
     }
