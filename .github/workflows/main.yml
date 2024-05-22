@@ -55,7 +55,7 @@ jobs:
         --no-build \
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
-        /p:Exclude=${{ env.EXCLUDE_COVERAGE }}
+        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
@@ -65,7 +65,7 @@ jobs:
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=${{ env.EXCLUDE_COVERAGE }}
+        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
@@ -75,7 +75,7 @@ jobs:
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=${{ env.EXCLUDE_COVERAGE }}
+        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
@@ -85,7 +85,7 @@ jobs:
         /p:CollectCoverage=true \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json \
-        /p:Exclude=${{ env.EXCLUDE_COVERAGE }} \
+        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\" \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.0
