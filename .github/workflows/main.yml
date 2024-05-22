@@ -8,7 +8,7 @@ on:
 env:
   DOTNET_VERSION: 8.0.x
   DOTNET_TEST_PARAMETERS: --no-build  /p:CollectCoverage=true -l "console;verbosity=detailed"
-  EXCLUDE_COVERAGE: "[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*"
+  COVERLET_EXCLUDE_COVERAGE: "/p:Exclude=[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*"
   COVERLET_OUTPUT: "/p:CoverletOutput=${{ github.workspace }}/coverage-join/"
   COVERLET_MERGE_WITH: "/p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json"
 
@@ -57,27 +57,27 @@ jobs:
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
-        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\"
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        /p:Exclude=\"${{ env.EXCLUDE_COVERAGE }}\" \
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
