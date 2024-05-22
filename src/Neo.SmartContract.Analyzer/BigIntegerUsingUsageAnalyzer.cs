@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
@@ -37,9 +38,9 @@ namespace Neo.SmartContract.Analyzer
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
-            var usingDirective = (Microsoft.CodeAnalysis.CSharp.Syntax.UsingDirectiveSyntax)context.Node;
+            var usingDirective = (UsingDirectiveSyntax)context.Node;
 
-            if (usingDirective.Alias != null && usingDirective.Alias.Name.ToString() == "BigInteger")
+            if (usingDirective is { Alias: not null, Name: not null } && usingDirective.Alias.Name.ToString() == "BigInteger")
             {
                 var symbolInfo = ModelExtensions.GetSymbolInfo(context.SemanticModel, usingDirective.Name);
                 var symbol = symbolInfo.Symbol;
@@ -66,7 +67,7 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<UsingDirectiveSyntax>().First();
+            var declaration = root!.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf().OfType<UsingDirectiveSyntax>().First();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -84,7 +85,7 @@ namespace Neo.SmartContract.Analyzer
                 SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BigInteger")),
                 SyntaxFactory.ParseName("System.Numerics.BigInteger"));
 
-            var newRoot = root.ReplaceNode(usingDirective, newUsingDirective);
+            var newRoot = root!.ReplaceNode(usingDirective, newUsingDirective);
 
             return document.WithSyntaxRoot(newRoot);
         }

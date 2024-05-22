@@ -97,7 +97,10 @@ namespace Neo.SmartContract.Analyzer
             var classDeclaration = anonymousFunction.FirstAncestorOrSelf<ClassDeclarationSyntax>();
             if (classDeclaration is null) return document;
 
-            var editor = new SyntaxEditor(await document.GetSyntaxRootAsync(cancellationToken), document.Project.Solution.Workspace);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
+#pragma warning restore CS0618 // Type or member is obsolete
             editor.InsertAfter(classDeclaration.Members.Last(), newMethod);
 
             // Replace the anonymous function with a call to the new method

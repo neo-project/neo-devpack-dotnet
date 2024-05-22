@@ -16,11 +16,11 @@ public class TestBase<T> where T : SmartContract
     public static Signer Alice { get; set; } = TestEngine.GetNewSigner();
     public static Signer Bob { get; set; } = TestEngine.GetNewSigner();
 
-    public NefFile NefFile { get; private set; }
-    public ContractManifest Manifest { get; private set; }
+    public NefFile NefFile { get; private set; } = default!;
+    public ContractManifest Manifest { get; private set; } = default!;
     public NeoDebugInfo? DebugInfo { get; set; }
-    public TestEngine Engine { get; private set; }
-    public T Contract { get; private set; }
+    public TestEngine Engine { get; private set; } = default!;
+    public T Contract { get; private set; } = default!;
     public UInt160 ContractHash => Contract.Hash;
 
     /// <summary>

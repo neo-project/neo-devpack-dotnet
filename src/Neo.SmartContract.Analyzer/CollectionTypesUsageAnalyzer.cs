@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Xunit.Sdk;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -79,7 +80,7 @@ namespace Neo.SmartContract.Analyzer
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
 
             var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            var originalType = variableType.OriginalDefinition.ToString();
+            var originalType = variableType.OriginalDefinition.ToString() ?? throw new NullException("originalType is null");
 
             if (_unsupportedCollectionTypes.Contains(originalType))
             {
@@ -97,12 +98,12 @@ namespace Neo.SmartContract.Analyzer
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            // var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeSyntax>().First();
+            // var diagnosticSpan = diagnostic.Location.SourceSpan;
+            // var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeSyntax>().First();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -110,6 +111,7 @@ namespace Neo.SmartContract.Analyzer
                     createChangedDocument: c => UseRecommendedCollectionTypeAsync(context.Document, c),
                     equivalenceKey: "Use recommended collection type"),
                 diagnostic);
+            return Task.CompletedTask;
         }
 
         private async Task<Document> UseRecommendedCollectionTypeAsync(Document document, CancellationToken cancellationToken)
@@ -119,7 +121,7 @@ namespace Neo.SmartContract.Analyzer
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken);
 
             // Traverse all variable declarations
-            var variableDeclarations = root.DescendantNodes().OfType<VariableDeclarationSyntax>();
+            var variableDeclarations = root!.DescendantNodes().OfType<VariableDeclarationSyntax>();
 
             foreach (var declaration in variableDeclarations)
             {
@@ -128,14 +130,14 @@ namespace Neo.SmartContract.Analyzer
                 // Check if it's a type we want to replace
                 if (typeSymbol != null && (ShouldReplaceWithList(typeSymbol) || ShouldReplaceWithMap(typeSymbol)))
                 {
-                    TypeSyntax newTypeSyntax = null;
+                    TypeSyntax? newTypeSyntax = null;
                     if (ShouldReplaceWithList(typeSymbol))
                     {
                         // Generate new List<T> type
                         var genericTypeArg = typeSymbol.TypeArguments[0];
                         newTypeSyntax = SyntaxFactory.GenericName(
                             SyntaxFactory.Identifier("List"),
-                            SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList<TypeSyntax>(SyntaxFactory.ParseTypeName(genericTypeArg.ToString()))));
+                            SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList<TypeSyntax>(SyntaxFactory.ParseTypeName(genericTypeArg.ToString()!))));
                     }
                     else if (ShouldReplaceWithMap(typeSymbol))
                     {
@@ -145,8 +147,8 @@ namespace Neo.SmartContract.Analyzer
                         newTypeSyntax = SyntaxFactory.GenericName(
                             SyntaxFactory.Identifier("Map"),
                             SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] {
-                        SyntaxFactory.ParseTypeName(keyType.ToString()),
-                        SyntaxFactory.ParseTypeName(valueType.ToString())
+                        SyntaxFactory.ParseTypeName(keyType.ToString()!),
+                        SyntaxFactory.ParseTypeName(valueType.ToString()!)
                             })));
                     }
 
@@ -203,7 +205,7 @@ namespace Neo.SmartContract.Analyzer
             };
 
             var originalDefinition = symbol.OriginalDefinition.ToString();
-            return singleElementListTypes.Contains(originalDefinition);
+            return singleElementListTypes.Contains(originalDefinition!);
         }
 
         private bool ShouldReplaceWithMap(ISymbol symbol)
@@ -224,7 +226,7 @@ namespace Neo.SmartContract.Analyzer
             };
 
             var originalDefinition = symbol.OriginalDefinition.ToString();
-            return mapElementListTypes.Contains(originalDefinition);
+            return mapElementListTypes.Contains(originalDefinition!);
         }
     }
 }

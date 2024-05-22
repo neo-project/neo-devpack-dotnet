@@ -107,7 +107,7 @@ namespace Neo.SmartContract.Analyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var attributeSyntax = root.FindNode(diagnosticSpan).AncestorsAndSelf().OfType<AttributeSyntax>().FirstOrDefault();
+            var attributeSyntax = root?.FindNode(diagnosticSpan)?.AncestorsAndSelf()?.OfType<AttributeSyntax>()?.FirstOrDefault();
 
             if (attributeSyntax != null)
             {
@@ -142,7 +142,7 @@ namespace Neo.SmartContract.Analyzer
                 }
             }
 
-            var newRoot = root.ReplaceNode(attributeSyntax, newAttributeSyntax);
+            var newRoot = root!.ReplaceNode(attributeSyntax, newAttributeSyntax);
             return document.WithSyntaxRoot(newRoot);
         }
     }

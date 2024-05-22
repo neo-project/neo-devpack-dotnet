@@ -55,24 +55,24 @@ partial class MethodConvert
                 {
                     //complex types like UInt160 at compile time to avoid runtime overhead.
                     case "Neo.SmartContract.Framework.UInt160":
-                        var strValue = (string)value;
+                        var strValue = (string)value!;
                         value = (UInt160.TryParse(strValue, out var hash)
                             ? hash
                             : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
                         break;
                     case "Neo.SmartContract.Framework.UInt256":
-                        strValue = (string)value;
+                        strValue = (string)value!;
                         value = strValue.HexToBytes(true);
                         if (((byte[])value).Length != 32)
                             throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid UInt256 literal");
                         break;
                     case "Neo.SmartContract.Framework.ECPoint":
-                        strValue = (string)value;
+                        strValue = (string)value!;
                         value = ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
                         break;
                     //This type no longer exists.
                     case "Neo.SmartContract.Framework.ByteArray":
-                        strValue = (string)value;
+                        strValue = (string)value!;
                         value = strValue.HexToBytes(true);
                         break;
                 }

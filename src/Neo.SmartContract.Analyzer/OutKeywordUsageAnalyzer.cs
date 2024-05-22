@@ -79,7 +79,9 @@ namespace Neo.SmartContract.Analyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            var declaration = root!.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -129,7 +131,9 @@ namespace Neo.SmartContract.Analyzer
             {
                 var localDeclaration = SyntaxFactory.LocalDeclarationStatement(
                     SyntaxFactory.VariableDeclaration(
+#pragma warning disable CS8604 // Possible null reference argument.
                         outParam.Type,
+#pragma warning restore CS8604 // Possible null reference argument.
                         SyntaxFactory.SingletonSeparatedList(
                             SyntaxFactory.VariableDeclarator(outParam.Identifier)
                         )));
@@ -175,7 +179,9 @@ namespace Neo.SmartContract.Analyzer
             }
             if (originalReturnType.ToString() == "void" && outParameters.Count > 1)
             {
+#pragma warning disable CS8604 // Possible null reference argument.
                 var tupleElements = outParameters.Select(p => SyntaxFactory.TupleElement(p.Type)).ToList();
+#pragma warning restore CS8604 // Possible null reference argument.
                 return SyntaxFactory.TupleType(SyntaxFactory.SeparatedList(tupleElements));
             }
             var returnTypes = new List<TupleElementSyntax>
@@ -183,7 +189,7 @@ namespace Neo.SmartContract.Analyzer
                 SyntaxFactory.TupleElement(originalReturnType)
             };
 
-            returnTypes.AddRange(outParameters.Select(p => SyntaxFactory.TupleElement(p.Type)));
+            returnTypes.AddRange(outParameters.Select(p => SyntaxFactory.TupleElement(p.Type!)));
 
             return SyntaxFactory.TupleType(SyntaxFactory.SeparatedList(returnTypes));
         }

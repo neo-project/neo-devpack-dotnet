@@ -6,11 +6,11 @@ namespace Neo.Compiler.CSharp.TestContracts
     public class Contract_TryCatch : SmartContract.Framework.SmartContract
     {
         [ByteArray("0a0b0c0d0E0F")]
-        private static readonly ByteString invalidECpoint = default;
+        private static readonly ByteString invalidECpoint = default!;
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
-        private static readonly ByteString byteString2Ecpoint = default;
+        private static readonly ByteString byteString2Ecpoint = default!;
         [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
-        private static readonly ByteString validUInt160 = default;
+        private static readonly ByteString validUInt160 = default!;
         // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
         public static object try01()
@@ -114,8 +114,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             {
                 v = 3;
             }
+#pragma warning disable CS0162 // Unreachable code detected
             v = 4;
             return v;
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         public static object tryFinally()
@@ -305,10 +307,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static (int, object) tryNULL2Ecpoint_1()
+        public static (int, object?) tryNULL2Ecpoint_1()
         {
             int v = 0;
-            ECPoint data = (ECPoint)(new byte[33]);
+            ECPoint? data = (ECPoint)(new byte[33]);
             try
             {
                 v = 2;
@@ -329,10 +331,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Uint160_1()
+        public static (int, object?) tryNULL2Uint160_1()
         {
             int v = 0;
-            UInt160 data = (UInt160)(new byte[20]);
+            UInt160? data = (UInt160)(new byte[20]);
             try
             {
                 v = 2;
@@ -353,10 +355,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Uint256_1()
+        public static (int, object?) tryNULL2Uint256_1()
         {
             int v = 0;
-            UInt256 data = (UInt256)(new byte[32]);
+            UInt256? data = (UInt256)(new byte[32]);
             try
             {
                 v = 2;
@@ -377,10 +379,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Bytestring_1()
+        public static (int, object?) tryNULL2Bytestring_1()
         {
             int v = 0;
-            ByteString data = "123";
+            ByteString? data = "123";
             try
             {
                 v = 2;
@@ -424,6 +426,5 @@ namespace Neo.Compiler.CSharp.TestContracts
             }
             return v;
         }
-
     }
 }

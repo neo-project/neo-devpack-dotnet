@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 return false;
             }
 
-            var basePath = Path.Combine(Path.GetDirectoryName(manifestPath), GetBaseName(manifestPath, MANIFEST_FILE_EXTENSION));
+            var basePath = Path.Combine(Path.GetDirectoryName(manifestPath)!, GetBaseName(manifestPath, MANIFEST_FILE_EXTENSION));
 
             var nefdbgnfoPath = Path.ChangeExtension(basePath, NEF_DBG_NFO_EXTENSION);
             if (TryLoadCompressed(nefdbgnfoPath, out debugInfo))

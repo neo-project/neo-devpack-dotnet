@@ -6,7 +6,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Initializer : SmartContract.Framework.SmartContract
     {
-        public class data
+        public class Data
         {
             public int A = 1;
             public int B = 2;
@@ -14,13 +14,13 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public int sum()
         {
-            var x = new data();
+            var x = new Data();
             return x.A + x.B;
         }
 
         public int sum1(int a, int b)
         {
-            var x = new data
+            var x = new Data
             {
                 A = a,
                 B = b
@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public int sum2(int a, int b)
         {
-            var x = new data();
+            var x = new Data();
             x.A = a;
             x.B = b;
             return x.A + x.B;

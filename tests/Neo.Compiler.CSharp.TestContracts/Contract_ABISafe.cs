@@ -4,8 +4,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_ABISafe : SmartContract.Framework.SmartContract
     {
-        static int s = 1;
-
         public static int UnitTest_001()
         {
             return 1;

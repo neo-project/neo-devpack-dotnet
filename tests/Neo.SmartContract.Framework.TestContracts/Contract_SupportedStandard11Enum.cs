@@ -12,7 +12,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return true;
         }
 
-        public override string Symbol { [Safe] get; }
+        public override string Symbol { [Safe] get; } = "EXAMPLE";
 
         public void OnNEP11Payment(UInt160 from, BigInteger amount, object? data = null)
         {
