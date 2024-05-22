@@ -63,7 +63,7 @@ namespace Neo.Compiler
         {
             return CompileSources(new CompilationSourceReferences()
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.6.2-CI00581")]
+                Packages = [new("Neo.SmartContract.Framework", "3.6.2-CI00593")]
             },
             sourceFiles);
         }
