@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.OldEngine
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_CompoundAssignments : TestBase<Contract_ComplexAssign>
