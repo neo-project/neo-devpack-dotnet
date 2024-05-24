@@ -3,7 +3,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using System.Text;
 
-namespace Neo.Compiler.CSharp.UnitTests.OldEngine
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_ConcatByteStringAddAssign : TestBase<Contract_ConcatByteStringAddAssign>
