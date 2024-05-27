@@ -125,6 +125,21 @@ namespace Neo.SmartContract.Testing
                         script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => onItem(e)));
                         continue;
                     }
+                    else if (arg is PrimitiveType)
+                    {
+                        if (arg is ByteString vmbs)
+                        {
+                            arg = vmbs.GetSpan().ToArray();
+                        }
+                        else if (arg is VM.Types.Boolean vmb)
+                        {
+                            arg = vmb.GetBoolean();
+                        }
+                        else if (arg is VM.Types.Integer vmi)
+                        {
+                            arg = vmi.GetInteger();
+                        }
+                    }
 
                     script.EmitPush(arg);
                 }

@@ -1,23 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.OldEngine
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Recursion
+    public class UnitTest_Recursion : TestBase<Contract_Recursion>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Recursion.cs");
-        }
+        public UnitTest_Recursion() : base(Contract_Recursion.Nef, Contract_Recursion.Manifest) { }
 
         [TestMethod]
         public void Test_Factorial()
@@ -26,8 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
             BigInteger result;
             for (int i = 0; i < 10; i++)
             {
-                testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("factorial", i).Pop().GetInteger();
+                result = Contract.Factorial(i)!.Value;
                 Assert.AreEqual(i > 0 ? prevResult * i : 1, result);
                 prevResult = result;
             }
@@ -37,9 +30,9 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
         public void Test_HanoiTower()
         {
             int src = 100, aux = 200, dst = 300;
-            Array result = testengine.ExecuteTestCaseStandard("hanoiTower", 1, src, aux, dst).Pop<Array>();
+            var result = Contract.HanoiTower(1, src, aux, dst)!;
             Assert.AreEqual(result.Count, 1);
-            List<(BigInteger rodId, BigInteger src, BigInteger dst)> expectedResult = new() { (1, src, dst) };
+            List<(BigInteger rodId, BigInteger src, BigInteger dst)> expectedResult = [(1, src, dst)];
             for (int i = 0; i < expectedResult.Count; ++i)
             {
                 StackItem[] step = ((Struct)result[i]).SubItems.ToArray();
@@ -48,8 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
                 Assert.AreEqual(step[2], expectedResult[i].dst);
             }
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("hanoiTower", 3, src, aux, dst).Pop<Array>();
+            result = Contract.HanoiTower(3, src, aux, dst)!;
             expectedResult = new() {
                 (1, src, dst),
                 (2, src, aux),
@@ -71,15 +63,11 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
         [TestMethod]
         public void Test_MutualRecursion()
         {
-            Assert.IsTrue(testengine.ExecuteTestCaseStandard("odd", 7).Pop<Boolean>().GetBoolean());
-            testengine.Reset();
-            Assert.IsFalse(testengine.ExecuteTestCaseStandard("even", 9).Pop<Boolean>().GetBoolean());
-            testengine.Reset();
-            Assert.IsTrue(testengine.ExecuteTestCaseStandard("odd", -11).Pop<Boolean>().GetBoolean());
-            testengine.Reset();
-            Assert.IsTrue(testengine.ExecuteTestCaseStandard("even", -10).Pop<Boolean>().GetBoolean());
-            testengine.Reset();
-            Assert.IsFalse(testengine.ExecuteTestCaseStandard("even", -9).Pop<Boolean>().GetBoolean());
+            Assert.IsTrue(Contract.Odd(7));
+            Assert.IsFalse(Contract.Even(9));
+            Assert.IsTrue(Contract.Odd(-11));
+            Assert.IsTrue(Contract.Even(-10));
+            Assert.IsFalse(Contract.Even(-9));
         }
     }
 }

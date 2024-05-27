@@ -5,27 +5,27 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_NULL : SmartContract.Framework.SmartContract
     {
-        public static bool IsNull(byte[]? value)
+        public static bool IsNull(object? value)
         {
             return value is null;
         }
 
-        public static bool EqualNullA(byte[]? value)
+        public static bool EqualNullA(object? value)
         {
             return null == value;
         }
 
-        public static bool EqualNullB(byte[]? value)
+        public static bool EqualNullB(object? value)
         {
             return value == null;
         }
 
-        public static bool EqualNotNullA(byte[]? value)
+        public static bool EqualNotNullA(object? value)
         {
             return null != value;
         }
 
-        public static bool EqualNotNullB(byte[]? value)
+        public static bool EqualNotNullB(object? value)
         {
             return value != null;
         }
