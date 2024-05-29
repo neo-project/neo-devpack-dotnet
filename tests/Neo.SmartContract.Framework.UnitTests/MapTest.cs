@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Reflection;
@@ -65,14 +66,16 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestInt()
         {
             // Int cannot be used as the key for serializing Map
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestInt(1));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestInt(1));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
         [TestMethod]
         public void TestBool()
         {
             // Bool cannot be used as the key for serializing Map
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestBool(true));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestBool(true));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
         [TestMethod]

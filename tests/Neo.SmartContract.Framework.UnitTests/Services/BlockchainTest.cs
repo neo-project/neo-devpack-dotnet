@@ -3,6 +3,7 @@ using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
@@ -24,8 +25,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var tx = new Transaction()
             {
                 Attributes = System.Array.Empty<TransactionAttribute>(),
-                Signers = new Signer[]
-                {
+                Signers =
+                [
                     new ()
                     {
                         Account = UInt160.Zero ,
@@ -34,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                         Rules = System.Array.Empty<WitnessRule>(),
                         Scopes =  WitnessScope.Global
                     }
-                },
+                ],
                 Witnesses = System.Array.Empty<Witness>(),
                 Script = System.Array.Empty<byte>()
             };
@@ -125,7 +126,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Uknown property
 
-            Assert.ThrowsException<VMUnhandledException>(() => method(foundArg, "¿...?"));
+            Assert.ThrowsException<TestException>(() => method(foundArg, "¿...?"));
         }
 
         [TestMethod]
@@ -165,7 +166,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             }
             else
             {
-                Assert.ThrowsException<VMUnhandledException>(() => found(""));
+                Assert.ThrowsException<TestException>(() => found(""));
             }
 
             var tx = _block.Transactions[0];
@@ -245,7 +246,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Found + Uknown property
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
+            Assert.ThrowsException<TestException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
         }
     }
 }

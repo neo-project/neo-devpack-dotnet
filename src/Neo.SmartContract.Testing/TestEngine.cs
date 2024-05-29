@@ -6,6 +6,7 @@ using Neo.Persistence;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
@@ -630,7 +631,7 @@ namespace Neo.SmartContract.Testing
 
             if (executionResult != VMState.HALT)
             {
-                throw engine.FaultException ?? new Exception($"Error while executing the script");
+                throw new TestException(engine);
             }
 
             snapshot.Commit();

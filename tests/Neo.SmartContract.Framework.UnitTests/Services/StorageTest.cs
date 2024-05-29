@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Linq;
@@ -127,7 +128,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
 
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestPutReadOnly(key, value));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestPutReadOnly(key, value));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
         [TestMethod]

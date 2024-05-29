@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -42,7 +42,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Contract.Teststoragemap_Putbyteprefix(127);
             Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(127));
 
-            Assert.ThrowsException<InvalidOperationException>(() => Contract.Teststoragemap_Putbyteprefix(256));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.Teststoragemap_Putbyteprefix(256));
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
         }
     }
 }
