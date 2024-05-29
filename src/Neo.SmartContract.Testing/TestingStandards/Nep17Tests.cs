@@ -211,7 +211,7 @@ public class Nep17Tests<T> : TestBase<T>
         ContractManifest manifest = ContractManifest.Parse(Manifest.ToJson().ToString());
         manifest.Abi.Methods =
         [
-            new ()
+            new()
             {
                 Name = "onNEP17Payment",
                 ReturnType = ContractParameterType.Void,

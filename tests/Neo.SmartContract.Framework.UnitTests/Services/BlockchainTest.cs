@@ -27,13 +27,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Attributes = System.Array.Empty<TransactionAttribute>(),
                 Signers =
                 [
-                    new ()
+                    new()
                     {
-                        Account = UInt160.Zero ,
+                        Account = UInt160.Zero,
                         AllowedContracts = System.Array.Empty<UInt160>(),
                         AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
                         Rules = System.Array.Empty<WitnessRule>(),
-                        Scopes =  WitnessScope.Global
+                        Scopes = WitnessScope.Global
                     }
                 ],
                 Witnesses = System.Array.Empty<Witness>(),
