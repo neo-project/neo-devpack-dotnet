@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using System;
 using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests
@@ -43,7 +43,8 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestBigIntegerParseandCast()
         {
             Assert.AreEqual(2000000000000000, Contract.TestBigIntegerCast(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
         [TestMethod]
@@ -53,14 +54,14 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(5, Contract.AssertCall(true));
             AssertNoLogs();
 
-            var ex = Assert.ThrowsException<Exception>(() => Contract.AssertCall(false));
+            var ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
 
             // Test without notification right
 
             Engine.CallFlags &= ~CallFlags.AllowNotify;
-            ex = Assert.ThrowsException<Exception>(() => Contract.AssertCall(false));
+            ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
             Engine.CallFlags = CallFlags.All;
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
@@ -70,7 +71,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Contract.VoidAssertCall(true);
             AssertNoLogs();
 
-            ex = Assert.ThrowsException<Exception>(() => Contract.VoidAssertCall(false));
+            ex = Assert.ThrowsException<TestException>(() => Contract.VoidAssertCall(false));
         }
 
         [TestMethod]

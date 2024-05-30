@@ -1,9 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 {
@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
             // Technically not possible, but raise 100% coverage
 
             Contract.Storage.Put(new byte[] { 0xff }, 123);
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner);
+            Assert.ThrowsException<TestException>(() => Contract.Owner);
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 
             Engine.SetTransactionSigners(Bob);
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
+            Assert.ThrowsException<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
 
             Engine.SetTransactionSigners(Alice);
 
@@ -65,9 +65,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 
             // Try with invalid owners
 
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, UInt160.Zero));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, InvalidUInt160.InvalidLength));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, InvalidUInt160.InvalidType));
+            Assert.ThrowsException<TestException>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, UInt160.Zero));
+            Assert.ThrowsException<TestException>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, InvalidUInt160.InvalidLength));
+            Assert.ThrowsException<TestException>(() => Engine.Deploy<OwnableTemplate>(NefFile, Manifest, InvalidUInt160.InvalidType));
 
             // Test SetOwner notification
 
@@ -103,7 +103,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
             // Try without being owner
 
             Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<VMUnhandledException>(Contract.Destroy);
+            Assert.ThrowsException<TestException>(Contract.Destroy);
 
             // Try with the owner
 
