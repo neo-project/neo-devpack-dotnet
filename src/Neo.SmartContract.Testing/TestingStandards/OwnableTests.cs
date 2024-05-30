@@ -2,8 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -115,17 +115,18 @@ public class OwnableTests<T> : TestBase<T>
 
         Assert.AreEqual(Alice.Account, Contract.Owner);
         Engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner = Bob.Account);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Alice);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = UInt160.Zero);
-        Assert.ThrowsException<InvalidOperationException>(() => Contract.Owner = InvalidUInt160.Null);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.InvalidLength);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.InvalidType);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = UInt160.Zero);
+        var exception = Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.Null);
+        Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidLength);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidType);
 
         Contract.Owner = Bob.Account;
         Assert.AreEqual(Bob.Account, Contract.Owner);
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner = Bob.Account);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Bob);
 

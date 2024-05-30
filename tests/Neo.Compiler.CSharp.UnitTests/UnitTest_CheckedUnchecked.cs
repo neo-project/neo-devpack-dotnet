@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestAddChecked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.AddChecked(int.MaxValue, 1));
+            Assert.ThrowsException<TestException>(() => Contract.AddChecked(int.MaxValue, 1));
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestCastChecked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.CastChecked(-1));
+            Assert.ThrowsException<TestException>(() => Contract.CastChecked(-1));
         }
 
         [TestMethod]

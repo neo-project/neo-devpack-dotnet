@@ -1,9 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System.Numerics;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test mint -1
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Mint(Alice.Account, -1));
+            Assert.ThrowsException<TestException>(() => Contract.Mint(Alice.Account, -1));
 
             // Test mint 0
 
@@ -95,7 +95,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test burn -1
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Alice.Account, -1));
+            Assert.ThrowsException<TestException>(() => Contract.Burn(Alice.Account, -1));
 
             // Test burn 0
 
@@ -115,14 +115,14 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Can't burn more than the BalanceOf
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Alice.Account, 1));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Bob.Account, 1));
+            Assert.ThrowsException<TestException>(() => Contract.Burn(Alice.Account, 1));
+            Assert.ThrowsException<TestException>(() => Contract.Burn(Bob.Account, 1));
 
             // Now check with Bob
 
             Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Mint(Alice.Account, 10));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Burn(Alice.Account, 10));
+            Assert.ThrowsException<TestException>(() => Contract.Mint(Alice.Account, 10));
+            Assert.ThrowsException<TestException>(() => Contract.Burn(Alice.Account, 10));
 
             // Clean
 
@@ -136,7 +136,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             Engine.SetTransactionSigners(Bob);
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
+            Assert.ThrowsException<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
 
             Engine.SetTransactionSigners(Alice);
 
@@ -158,9 +158,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Try with invalid owners
 
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, UInt160.Zero));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, InvalidUInt160.InvalidLength));
-            Assert.ThrowsException<Exception>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, InvalidUInt160.InvalidType));
+            Assert.ThrowsException<TestException>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, UInt160.Zero));
+            Assert.ThrowsException<TestException>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, InvalidUInt160.InvalidLength));
+            Assert.ThrowsException<TestException>(() => Engine.Deploy<Nep17ContractTemplate>(NefFile, Manifest, InvalidUInt160.InvalidType));
 
             // Test SetOwner notification
 

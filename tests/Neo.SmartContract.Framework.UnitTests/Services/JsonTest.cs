@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Reflection;
@@ -20,7 +21,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Empty Serialize
 
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.Deserialize(null));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.Deserialize(null));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
 
             // Serialize
 

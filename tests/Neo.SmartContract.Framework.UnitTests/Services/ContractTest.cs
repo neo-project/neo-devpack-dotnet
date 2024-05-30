@@ -3,6 +3,7 @@ using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
@@ -31,7 +32,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check again for failures
 
-            Assert.ThrowsException<TargetInvocationException>(() => created.GetCallFlags());
+            var exception = Assert.ThrowsException<TestException>(() => created.GetCallFlags());
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
             Engine.Storage.Rollback();
         }
 
@@ -109,9 +111,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Wrong pubKey
 
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.CreateStandardAccount(null));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(null));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
+            exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
+            Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
+            exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
+            Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
 
             // Good pubKey (compressed)
 
