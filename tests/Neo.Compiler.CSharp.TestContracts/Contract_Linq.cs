@@ -52,12 +52,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return array.Average(a => 2 * a);
         }
 
-        public static object Count(int[] array)
+        public static int Count(int[] array)
         {
             return array.Count();
         }
 
-        public static object CountGreaterThanZero(int[] array)
+        public static int CountGreaterThanZero(int[] array)
         {
             return array.Count(x => x > 0);
         }
@@ -146,12 +146,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return array.Skip(count);
         }
 
-        public static object Sum(int[] array)
+        public static int Sum(int[] array)
         {
             return array.Sum();
         }
 
-        public static object SumTwice(int[] array)
+        public static int SumTwice(int[] array)
         {
             return array.Sum(x => 2 * x);
         }
