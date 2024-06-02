@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {
@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // Technically not possible, but raise 100% coverage
 
             Contract.Storage.Put(new byte[] { 0xff }, 123);
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner);
+            Assert.ThrowsException<TestException>(() => Contract.Owner);
         }
     }
 }

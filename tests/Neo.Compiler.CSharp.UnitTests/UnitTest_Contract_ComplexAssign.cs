@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AddAssign_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(Contract.UnitTest_Add_Assign_Checked);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Add_Assign_Checked);
         }
 
         [TestMethod]
@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_SubAssign_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(Contract.UnitTest_Sub_Assign_Checked);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Sub_Assign_Checked);
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_MulAssign_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(Contract.UnitTest_Mul_Assign_Checked);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Mul_Assign_Checked);
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_LeftShiftAssign_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(Contract.UnitTest_Left_Shift_Assign_Checked);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Left_Shift_Assign_Checked);
         }
 
         [TestMethod]

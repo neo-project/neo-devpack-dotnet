@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System;
 
 namespace Neo.SmartContract.Framework.UnitTests
@@ -12,17 +12,17 @@ namespace Neo.SmartContract.Framework.UnitTests
         public AttributeTest() : base(Contract_Attribute.Nef, Contract_Attribute.Manifest) { }
 
         [TestMethod]
-        public void attribute_test()
+        public void TestAttribute()
         {
             Engine.SetTransactionSigners(UInt160.Zero);
             Assert.IsTrue(Contract.Test());
 
             Engine.SetTransactionSigners(Array.Empty<UInt160>());
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Test());
+            Assert.ThrowsException<TestException>(() => Contract.Test());
         }
 
         [TestMethod]
-        public void reentrant_test()
+        public void TestReentrant()
         {
             // return in the middle
 
@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Reentrant test
 
-            var ex = Assert.ThrowsException<Exception>(() => Contract.ReentrantTest(123));
+            var ex = Assert.ThrowsException<TestException>(() => Contract.ReentrantTest(123));
             Assert.IsTrue(ex.Message.Contains("Already entered"));
         }
     }

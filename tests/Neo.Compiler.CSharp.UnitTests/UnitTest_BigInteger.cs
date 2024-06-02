@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -28,8 +28,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(127, Contract.Testsbyte(127));
             Assert.AreEqual(-128, Contract.Testsbyte(-128));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testsbyte(128));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testsbyte(-129));
+            Assert.ThrowsException<TestException>(() => Contract.Testsbyte(128));
+            Assert.ThrowsException<TestException>(() => Contract.Testsbyte(-129));
         }
 
         [TestMethod]
@@ -37,8 +37,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(0, Contract.Testbyte(0));
             Assert.AreEqual(255, Contract.Testbyte(255));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testbyte(-1));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testbyte(256));
+            Assert.ThrowsException<TestException>(() => Contract.Testbyte(-1));
+            Assert.ThrowsException<TestException>(() => Contract.Testbyte(256));
         }
 
         [TestMethod]
@@ -46,8 +46,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(32767, Contract.Testshort(32767));
             Assert.AreEqual(-32768, Contract.Testshort(-32768));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testshort(32768));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testshort(-32769));
+            Assert.ThrowsException<TestException>(() => Contract.Testshort(32768));
+            Assert.ThrowsException<TestException>(() => Contract.Testshort(-32769));
         }
 
         [TestMethod]
@@ -55,8 +55,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(0, Contract.Testushort(0));
             Assert.AreEqual(65535, Contract.Testushort(65535));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testushort(-1));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testushort(65536));
+            Assert.ThrowsException<TestException>(() => Contract.Testushort(-1));
+            Assert.ThrowsException<TestException>(() => Contract.Testushort(65536));
         }
 
         [TestMethod]
@@ -64,8 +64,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(-2147483648, Contract.Testint(-2147483648));
             Assert.AreEqual(2147483647, Contract.Testint(2147483647));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testint(-2147483649));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testint(2147483648));
+            Assert.ThrowsException<TestException>(() => Contract.Testint(-2147483649));
+            Assert.ThrowsException<TestException>(() => Contract.Testint(2147483648));
         }
 
         [TestMethod]
@@ -73,8 +73,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(0, Contract.Testuint(0));
             Assert.AreEqual(4294967295, Contract.Testuint(4294967295));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testuint(-1));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testuint(4294967296));
+            Assert.ThrowsException<TestException>(() => Contract.Testuint(-1));
+            Assert.ThrowsException<TestException>(() => Contract.Testuint(4294967296));
         }
 
         [TestMethod]
@@ -82,8 +82,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(-9223372036854775808, Contract.Testlong(-9223372036854775808));
             Assert.AreEqual(9223372036854775807, Contract.Testlong(9223372036854775807));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testlong(9223372036854775808));
+            Assert.ThrowsException<TestException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
+            Assert.ThrowsException<TestException>(() => Contract.Testlong(9223372036854775808));
         }
 
         [TestMethod]
@@ -91,8 +91,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(0, Contract.Testulong(0));
             Assert.AreEqual(18446744073709551615, Contract.Testulong(18446744073709551615));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.Testulong(-1));
+            Assert.ThrowsException<TestException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
+            Assert.ThrowsException<TestException>(() => Contract.Testulong(-1));
         }
         [TestMethod]
         public void Test_IsEven()

@@ -2,8 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System.Text;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
         {
             // Check without being oracle
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.OnOracleResponse(null, null, null, null));
+            Assert.ThrowsException<TestException>(() => Contract.OnOracleResponse(null, null, null, null));
 
             // Check empty
 
@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
                      Result = Encoding.UTF8.GetBytes(response),
                 }
             };
-            Assert.ThrowsException<VMUnhandledException>(Engine.Native.Oracle.Finish);
+            Assert.ThrowsException<TestException>(Engine.Native.Oracle.Finish);
 
             // Execute finish
 

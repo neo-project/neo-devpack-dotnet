@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ByteArrayAssignmentOutOfBounds()
         {
-            Assert.ThrowsException<VMUnhandledException>(Contract.TestAssignmentOutOfBounds);
+            Assert.ThrowsException<TestException>(Contract.TestAssignmentOutOfBounds);
         }
 
         [TestMethod]
@@ -32,7 +32,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ByteArrayAssignmentWrongCasting()
         {
-            Assert.ThrowsException<InvalidOperationException>(Contract.TestAssignmentWrongCasting);
+            var exception = Assert.ThrowsException<TestException>(Contract.TestAssignmentWrongCasting);
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
         }
 
         [TestMethod]

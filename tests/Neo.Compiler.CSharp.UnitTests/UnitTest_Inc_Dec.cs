@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Property_Inc_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Property_Inc_Checked());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Inc_Checked());
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Property_Dec_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Property_Dec_Checked());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Dec_Checked());
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Inc_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Local_Inc_Checked());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Inc_Checked());
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Dec_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Local_Dec_Checked());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Dec_Checked());
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Param_Inc_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Param_Inc_Checked(0));
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Inc_Checked(0));
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Param_Dec_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Param_Dec_Checked(0));
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked(0));
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IntProperty_Inc_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Property_Inc_Checked_Int());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Inc_Checked_Int());
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IntProperty_Dec_Checked()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Property_Dec_Checked_Int());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Dec_Checked_Int());
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Inc_Checked_Int()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Local_Inc_Checked_Int());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Inc_Checked_Int());
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Dec_Checked_Int()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Local_Dec_Checked_Int());
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Dec_Checked_Int());
         }
 
         [TestMethod]
@@ -137,7 +137,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Param_Inc_Checked_Int()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Param_Inc_Checked_Int(0));
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Inc_Checked_Int(0));
         }
 
         [TestMethod]
@@ -149,7 +149,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Param_Dec_Checked_Int()
         {
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.UnitTest_Param_Dec_Checked_Int(0));
+            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked_Int(0));
         }
 
         [TestMethod]
