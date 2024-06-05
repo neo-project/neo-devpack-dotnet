@@ -26,6 +26,7 @@ public interface INep11Payable
     /// </summary>
     /// <param name="from">The address of the payer</param>
     /// <param name="amount">The amount of token to be transferred</param>
+    /// <param name="tokenId">The token id to be transferred</param>
     /// <param name="data">Additional payment description data</param>
     /// <remarks>
     /// This interface method is defined as non-static,
@@ -34,5 +35,5 @@ public interface INep11Payable
     /// Both static and non-static methods of smart contract interface works,
     /// they differs on how you process static field.
     /// </remarks>
-    public void OnNEP11Payment(UInt160 from, BigInteger amount, object? data = null);
+    public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null);
 }

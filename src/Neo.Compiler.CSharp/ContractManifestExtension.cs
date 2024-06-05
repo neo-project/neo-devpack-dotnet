@@ -163,6 +163,45 @@ namespace Neo.Compiler
             }
         }
 
+        private static void CheckNep11PayableCompliant(this ContractManifest manifest)
+        {
+            try
+            {
+                var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
+                var onNEP11PaymentValid = onNEP11PaymentMethod is { ReturnType: ContractParameterType.Void } &&
+                                          onNEP11PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
+                                          onNEP11PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
+                                          onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
+                                          onNEP11PaymentMethod.Parameters[3].Type == ContractParameterType.Any;
+
+                if (!onNEP11PaymentValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                    $"Incomplete NEP standard {NepStandard.Nep11Payable.ToStandard()} implementation: onNEP11Payment");
+            }
+            catch (Exception ex) when (ex is not CompilationException)
+            {
+                throw new CompilationException(DiagnosticId.IncorrectNEPStandard, $"Incomplete NEP standard {NepStandard.Nep11Payable.ToStandard()} implementation: Unidentified issue.");
+            }
+        }
+
+        private static void CheckNep17PayableCompliant(this ContractManifest manifest)
+        {
+            try
+            {
+                var onNEP17PaymentMethod = manifest.Abi.GetMethod("onNEP17Payment", 3);
+                var onNEP17PaymentValid = onNEP17PaymentMethod is { ReturnType: ContractParameterType.Void } &&
+                                          onNEP17PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
+                                          onNEP17PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
+                                          onNEP17PaymentMethod.Parameters[2].Type == ContractParameterType.Any;
+
+                if (!onNEP17PaymentValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                    $"Incomplete NEP standard {NepStandard.Nep17Payable.ToStandard()} implementation: onNEP17Payment");
+            }
+            catch (Exception ex) when (ex is not CompilationException)
+            {
+                throw new CompilationException(DiagnosticId.IncorrectNEPStandard, $"Incomplete NEP standard {NepStandard.Nep17Payable.ToStandard()} implementation: Unidentified issue.");
+            }
+        }
+
         internal static ContractManifest CheckStandards(this ContractManifest manifest)
         {
             if (manifest.SupportedStandards.Contains(NepStandard.Nep11.ToStandard()))
@@ -173,6 +212,16 @@ namespace Neo.Compiler
             if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
             {
                 manifest.CheckNep17Compliant();
+            }
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
+            {
+                manifest.CheckNep11PayableCompliant();
+            }
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep17Payable.ToStandard()))
+            {
+                manifest.CheckNep17PayableCompliant();
             }
 
             return manifest;
