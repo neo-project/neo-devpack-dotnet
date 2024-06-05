@@ -170,7 +170,7 @@ namespace NonDivisibleNEP11
             {
                 var royaltyInfo = new Map<string, object>();
                 royaltyInfo["royaltyRecipient"] = InitialRecipient;
-                royaltyInfo["royaltyAmount"] = InitialFactor;
+                royaltyInfo["royaltyAmount"] = salePrice / InitialFactor;
                 return new[] { royaltyInfo };
             }
             else
