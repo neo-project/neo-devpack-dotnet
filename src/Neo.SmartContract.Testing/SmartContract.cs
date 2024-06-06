@@ -68,14 +68,14 @@ namespace Neo.SmartContract.Testing
             return Engine.Execute(script.ToArray(), 0, dynArgument is null ? null : engine => ConfigureEngine(engine, dynArgument));
         }
 
-        private void ConfigureEngine(ApplicationEngine engine, TestingSyscall testingSyscall)
+        private static void ConfigureEngine(ApplicationEngine engine, TestingSyscall testingSyscall)
         {
             if (engine is not TestingApplicationEngine testEngine) throw new InvalidOperationException();
 
             testEngine.TestingSyscall = testingSyscall;
         }
 
-        private void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
+        private static void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
         {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
