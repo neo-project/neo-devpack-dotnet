@@ -122,6 +122,7 @@ namespace Neo.Compiler
 
                 var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe &&
                                   royaltyInfoMethod.ReturnType == ContractParameterType.Array &&
+                                  royaltyInfoMethod.Parameters.Length == 3 &&
                                   royaltyInfoMethod.Parameters[0].Type == ContractParameterType.ByteArray &&
                                   royaltyInfoMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
                                   royaltyInfoMethod.Parameters[2].Type == ContractParameterType.Integer;
