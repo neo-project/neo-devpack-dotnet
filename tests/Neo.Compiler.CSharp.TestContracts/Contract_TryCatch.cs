@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         private static readonly ByteString validUInt160 = default!;
         // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
-        public static object try01()
+        public static int try01()
         {
             int v = 0;
             try
@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object try02()
+        public static int try02()
         {
             int v = 0;
             try
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object try03()
+        public static int try03()
         {
             int v = 0;
             try
@@ -69,7 +69,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryNest()
+        public static int tryNest()
         {
             int v = 0;
             try
@@ -97,7 +97,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object throwInCatch()
+        public static int throwInCatch()
         {
             int v = 0;
             try
@@ -120,7 +120,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 #pragma warning restore CS0162 // Unreachable code detected
         }
 
-        public static object tryFinally()
+        public static int tryFinally()
         {
             int v = 0;
             try
@@ -134,7 +134,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryFinallyAndRethrow()
+        public static int tryFinallyAndRethrow()
         {
             int v = 0;
             try
@@ -149,7 +149,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryCatch()
+        public static int tryCatch()
         {
             int v = 0;
             try
@@ -164,7 +164,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryWithTwoFinally()
+        public static int tryWithTwoFinally()
         {
             int v = 0;
             try
@@ -193,7 +193,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryecpointCast()
+        public static int tryecpointCast()
         {
             int v = 0;
             try
@@ -212,7 +212,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryvalidByteString2Ecpoint()
+        public static int tryvalidByteString2Ecpoint()
         {
             int v = 0;
             try
@@ -231,7 +231,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryinvalidByteArray2UInt160()
+        public static int tryinvalidByteArray2UInt160()
         {
             int v = 0;
             try
@@ -250,7 +250,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryvalidByteArray2UInt160()
+        public static int tryvalidByteArray2UInt160()
         {
             int v = 0;
             try
@@ -269,7 +269,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryinvalidByteArray2UInt256()
+        public static int tryinvalidByteArray2UInt256()
         {
             int v = 0;
             try
@@ -288,7 +288,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static object tryvalidByteArray2UInt256()
+        public static int tryvalidByteArray2UInt256()
         {
             int v = 0;
             try
@@ -408,7 +408,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             throw new System.Exception();
         }
 
-        public static object tryUncatchableException()
+        public static int tryUncatchableException()
         {
             int v = 0;
             try
