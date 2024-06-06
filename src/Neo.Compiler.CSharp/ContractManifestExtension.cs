@@ -136,7 +136,7 @@ namespace Neo.Compiler
             catch
             {
                 throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NepStandard.Nep11.ToStandard()} implementation: Unidentified issue.");
+                    $"Incomplete NEP standard {NepStandard.Nep24.ToStandard()} implementation: Unidentified issue.");
             }
         }
 
