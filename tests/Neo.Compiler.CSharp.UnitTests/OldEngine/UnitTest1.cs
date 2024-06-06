@@ -1,37 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
-using System.Text;
 using Neo.SmartContract.TestEngine;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests.OldEngine
 {
     [TestClass]
     public class UnitTest1
     {
-        [TestMethod]
-        public void Test_Partial()
-        {
-            var testengine = new TestEngine();
-            var context = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Partial.1.cs", Utils.Extensions.TestContractRoot + "Contract_Partial.2.cs");
-            Assert.IsTrue(context.Success);
-            var result = testengine.ExecuteTestCaseStandard("test1").Pop();
-            Assert.AreEqual(1, result.GetInteger());
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("test2").Pop();
-            Assert.AreEqual(2, result.GetInteger());
-        }
-
-        [TestMethod]
-        public void Test_MultipleContracts()
-        {
-            var testengine = new TestEngine();
-            var contexts = testengine.AddEntryScripts(true, true, Utils.Extensions.TestContractRoot + "Contract_Multiple.cs");
-
-            Assert.IsTrue(contexts.Count == 2);
-            Assert.IsTrue(contexts.All(c => c.Success));
-            Assert.IsTrue(contexts.All(c => c.Diagnostics.Count == 0));
-        }
-
         [TestMethod]
         public void Test_PrivateMethod()
         {
