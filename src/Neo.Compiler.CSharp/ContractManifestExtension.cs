@@ -120,7 +120,7 @@ namespace Neo.Compiler
             {
                 var royaltyInfoMethod = manifest.Abi.GetMethod("royaltyInfo", 0);
 
-                var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe == true &&
+                var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe &&
                                   royaltyInfoMethod.ReturnType == ContractParameterType.Array &&
                                   royaltyInfoMethod.Parameters[0].Type == ContractParameterType.ByteArray &&
                                   royaltyInfoMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
