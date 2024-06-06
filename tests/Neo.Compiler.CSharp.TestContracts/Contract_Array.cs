@@ -35,7 +35,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return new byte[][] { array1, array2, array3, array4 };
         }
 
-        public static object TestIntArray()
+        public static int[] TestIntArray()
         {
             var arrobj = new int[3];
             arrobj[0] = 0;
@@ -44,14 +44,14 @@ namespace Neo.Compiler.CSharp.TestContracts
             return arrobj;
         }
 
-        public static object TestDefaultArray()
+        public static bool TestDefaultArray()
         {
             var arrobj = new int[3];
             if (arrobj[0] == 0) return true;
             return false;
         }
 
-        public static object TestIntArrayInit()
+        public static int[] TestIntArrayInit()
         {
             var arrobj = new int[] { 1, 2, 3 };
             arrobj[1] = 4;
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return arrobj;
         }
 
-        public static object testIntArrayInit2()
+        public static int[] testIntArrayInit2()
         {
             int[] arrobj = { 1, 2, 3 };
             arrobj[1] = 4;
@@ -67,7 +67,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return arrobj;
         }
 
-        public static object testIntArrayInit3()
+        public static int[] testIntArrayInit3()
         {
             int[] arrobj = new[] { 1, 2, 3 };
             arrobj[1] = 4;
@@ -115,18 +115,18 @@ namespace Neo.Compiler.CSharp.TestContracts
             var bs = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
             return bs;
         }
-        public static object TestByteArrayOwner()
+        public static byte[] TestByteArrayOwner()
         {
             return OwnerVar;
         }
-        public static object TestByteArrayOwnerCall()
+        public static byte[] TestByteArrayOwnerCall()
         {
             return Owner();
         }
 
         static readonly string[] SupportedStandards = new string[] { "NEP-5", "NEP-10" };
 
-        public static object TestSupportedStandards()
+        public static string[] TestSupportedStandards()
         {
             return SupportedStandards;
         }
