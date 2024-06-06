@@ -114,6 +114,32 @@ namespace Neo.Compiler
             }
         }
 
+        private static void CheckNep24Compliant(this ContractManifest manifest)
+        {
+            try
+            {
+                var royaltyInfoMethod = manifest.Abi.GetMethod("royaltyInfo", 0);
+
+                var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe == true &&
+                                  royaltyInfoMethod.ReturnType == ContractParameterType.Array &&
+                                  royaltyInfoMethod.Parameters[0].Type == ContractParameterType.ByteArray &&
+                                  royaltyInfoMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
+                                  royaltyInfoMethod.Parameters[2].Type == ContractParameterType.Integer;
+
+                if (!royaltyInfoValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                    $"Incomplete NEP standard {NepStandard.Nep24.ToStandard()} implementation: royaltyInfo");
+            }
+            catch (Exception ex) when (ex is not CompilationException)
+            {
+                throw;
+            }
+            catch
+            {
+                throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                    $"Incomplete NEP standard {NepStandard.Nep11.ToStandard()} implementation: Unidentified issue.");
+            }
+        }
+
         private static void CheckNep17Compliant(this ContractManifest manifest)
         {
             try
@@ -212,6 +238,11 @@ namespace Neo.Compiler
             if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
             {
                 manifest.CheckNep17Compliant();
+            }
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
+            {
+                manifest.CheckNep24Compliant();
             }
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
