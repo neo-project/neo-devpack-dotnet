@@ -38,26 +38,26 @@ namespace Neo.Compiler
                 var transferMethod1 = manifest.Abi.GetMethod("transfer", 3);
                 var transferMethod2 = manifest.Abi.GetMethod("transfer", 5);
 
-                var symbolValid = symbolMethod != null && symbolMethod.Safe == true &&
+                var symbolValid = symbolMethod != null && symbolMethod.Safe &&
                                   symbolMethod.ReturnType == ContractParameterType.String;
-                var decimalsValid = decimalsMethod != null && decimalsMethod.Safe == true &&
+                var decimalsValid = decimalsMethod != null && decimalsMethod.Safe &&
                                     decimalsMethod.ReturnType == ContractParameterType.Integer;
-                var totalSupplyValid = totalSupplyMethod != null && totalSupplyMethod.Safe == true &&
+                var totalSupplyValid = totalSupplyMethod != null && totalSupplyMethod.Safe &&
                                        totalSupplyMethod.ReturnType == ContractParameterType.Integer;
-                var balanceOfValid1 = balanceOfMethod1 != null && balanceOfMethod1.Safe == true &&
+                var balanceOfValid1 = balanceOfMethod1 != null && balanceOfMethod1.Safe &&
                                       balanceOfMethod1.ReturnType == ContractParameterType.Integer &&
                                       balanceOfMethod1.Parameters[0].Type == ContractParameterType.Hash160;
-                var balanceOfValid2 = balanceOfMethod2?.Safe == true &&
+                var balanceOfValid2 = balanceOfMethod2?.Safe &&
                                       balanceOfMethod2?.ReturnType == ContractParameterType.Integer &&
                                       balanceOfMethod2?.Parameters[0].Type == ContractParameterType.Hash160 &&
                                       balanceOfMethod2?.Parameters[0].Type == ContractParameterType.ByteArray;
-                var tokensOfValid = tokensOfMethod != null && tokensOfMethod.Safe == true &&
+                var tokensOfValid = tokensOfMethod != null && tokensOfMethod.Safe &&
                                     tokensOfMethod.ReturnType == ContractParameterType.InteropInterface &&
                                     tokensOfMethod.Parameters[0].Type == ContractParameterType.Hash160;
-                var ownerOfValid1 = ownerOfMethod != null && ownerOfMethod.Safe == true &&
+                var ownerOfValid1 = ownerOfMethod != null && ownerOfMethod.Safe &&
                                     ownerOfMethod.ReturnType == ContractParameterType.Hash160 &&
                                     ownerOfMethod.Parameters[0].Type == ContractParameterType.ByteArray;
-                var ownerOfValid2 = ownerOfMethod != null && ownerOfMethod.Safe == true &&
+                var ownerOfValid2 = ownerOfMethod != null && ownerOfMethod.Safe &&
                                     ownerOfMethod.ReturnType == ContractParameterType.InteropInterface &&
                                     ownerOfMethod.Parameters[0].Type == ContractParameterType.ByteArray;
                 var transferValid1 = transferMethod1 != null && transferMethod1.Safe == false &&
@@ -120,7 +120,7 @@ namespace Neo.Compiler
             {
                 var royaltyInfoMethod = manifest.Abi.GetMethod("royaltyInfo", 0);
 
-                var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe == true &&
+                var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe &&
                                   royaltyInfoMethod.ReturnType == ContractParameterType.Array &&
                                   royaltyInfoMethod.Parameters[0].Type == ContractParameterType.ByteArray &&
                                   royaltyInfoMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
