@@ -46,27 +46,34 @@ namespace Neo.Compiler
                                        totalSupplyMethod.ReturnType == ContractParameterType.Integer;
                 var balanceOfValid1 = balanceOfMethod1 != null && balanceOfMethod1.Safe &&
                                       balanceOfMethod1.ReturnType == ContractParameterType.Integer &&
+                                      balanceOfMethod1.Parameters.Length == 1 &&
                                       balanceOfMethod1.Parameters[0].Type == ContractParameterType.Hash160;
-                var balanceOfValid2 = balanceOfMethod2?.Safe &&
+                var balanceOfValid2 = balanceOfMethod2?.Safe == true &&
                                       balanceOfMethod2?.ReturnType == ContractParameterType.Integer &&
+                                      balanceOfMethod2?.Parameters.Length == 2 &&
                                       balanceOfMethod2?.Parameters[0].Type == ContractParameterType.Hash160 &&
                                       balanceOfMethod2?.Parameters[0].Type == ContractParameterType.ByteArray;
                 var tokensOfValid = tokensOfMethod != null && tokensOfMethod.Safe &&
                                     tokensOfMethod.ReturnType == ContractParameterType.InteropInterface &&
+                                    tokensOfMethod.Parameters.Length == 1 &&
                                     tokensOfMethod.Parameters[0].Type == ContractParameterType.Hash160;
                 var ownerOfValid1 = ownerOfMethod != null && ownerOfMethod.Safe &&
                                     ownerOfMethod.ReturnType == ContractParameterType.Hash160 &&
+                                    ownerOfMethod.Parameters.Length == 1 &&
                                     ownerOfMethod.Parameters[0].Type == ContractParameterType.ByteArray;
                 var ownerOfValid2 = ownerOfMethod != null && ownerOfMethod.Safe &&
                                     ownerOfMethod.ReturnType == ContractParameterType.InteropInterface &&
+                                    ownerOfMethod.Parameters.Length == 1 &&
                                     ownerOfMethod.Parameters[0].Type == ContractParameterType.ByteArray;
                 var transferValid1 = transferMethod1 != null && transferMethod1.Safe == false &&
                                      transferMethod1.ReturnType == ContractParameterType.Boolean &&
+                                    transferMethod1.Parameters.Length == 3 &&
                                      transferMethod1.Parameters[0].Type == ContractParameterType.Hash160 &&
                                      transferMethod1.Parameters[1].Type == ContractParameterType.ByteArray &&
                                      transferMethod1.Parameters[2].Type == ContractParameterType.Any;
                 var transferValid2 = transferMethod2?.Safe == false &&
                                      transferMethod2?.ReturnType == ContractParameterType.Boolean &&
+                                     transferMethod2.Parameters.Length == 5 &&
                                      transferMethod2?.Parameters[0].Type == ContractParameterType.Hash160 &&
                                      transferMethod2?.Parameters[1].Type == ContractParameterType.Hash160 &&
                                      transferMethod2?.Parameters[2].Type == ContractParameterType.Integer &&
@@ -159,9 +166,11 @@ namespace Neo.Compiler
                                        totalSupplyMethod.ReturnType == ContractParameterType.Integer;
                 var balanceOfValid = balanceOfMethod != null && balanceOfMethod.Safe &&
                                      balanceOfMethod.ReturnType == ContractParameterType.Integer &&
+                                     balanceOfMethod.Parameters.Length == 1 &&
                                      balanceOfMethod.Parameters[0].Type == ContractParameterType.Hash160;
                 var transferValid = transferMethod != null && transferMethod.Safe == false &&
                                     transferMethod.ReturnType == ContractParameterType.Boolean &&
+                                    transferMethod.Parameters.Length == 4 &&
                                     transferMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                     transferMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
                                     transferMethod.Parameters[2].Type == ContractParameterType.Integer &&
@@ -196,6 +205,7 @@ namespace Neo.Compiler
             {
                 var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
                 var onNEP11PaymentValid = onNEP11PaymentMethod is { ReturnType: ContractParameterType.Void } &&
+                                          onNEP11PaymentMethod.Parameters.Length == 4 &&
                                           onNEP11PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                           onNEP11PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
                                           onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
@@ -216,6 +226,7 @@ namespace Neo.Compiler
             {
                 var onNEP17PaymentMethod = manifest.Abi.GetMethod("onNEP17Payment", 3);
                 var onNEP17PaymentValid = onNEP17PaymentMethod is { ReturnType: ContractParameterType.Void } &&
+                                          onNEP17PaymentMethod.Parameters.Length == 3 &&
                                           onNEP17PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                           onNEP17PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
                                           onNEP17PaymentMethod.Parameters[2].Type == ContractParameterType.Any;
