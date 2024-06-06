@@ -45,7 +45,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         /// <returns>The value of the static field <c>a4</c>.</returns>
         public static string testinitalvalue() => a4;
 
-        public static object TestMain()
+        public static int TestMain()
         {
             testadd();
             testmulti();

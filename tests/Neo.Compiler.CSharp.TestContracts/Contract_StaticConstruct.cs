@@ -1,16 +1,16 @@
 namespace Neo.Compiler.CSharp.TestContracts
 {
-    public class Contract_staticconstruct : SmartContract.Framework.SmartContract
+    public class Contract_StaticConstruct : SmartContract.Framework.SmartContract
     {
         static int a;
         //define and staticvar and initit with a runtime code.
-        static Contract_staticconstruct()
+        static Contract_StaticConstruct()
         {
             int b = 3;
             a = b + 1;
         }
 
-        public static object TestStatic()
+        public static int TestStatic()
         {
             return a;
         }

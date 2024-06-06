@@ -55,28 +55,18 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(string) => Utility.StrictUTF8.GetString(stackItem.GetSpan()),
                 _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),
 
-                _ when type == typeof(bool) => stackItem.GetBoolean(),
-                _ when type == typeof(bool?) => stackItem.GetBoolean(),
-                _ when type == typeof(byte) => (byte)stackItem.GetInteger(),
-                _ when type == typeof(byte?) => (byte)stackItem.GetInteger(),
-                _ when type == typeof(sbyte) => (sbyte)stackItem.GetInteger(),
-                _ when type == typeof(sbyte?) => (sbyte)stackItem.GetInteger(),
-                _ when type == typeof(short) => (short)stackItem.GetInteger(),
-                _ when type == typeof(short?) => (short)stackItem.GetInteger(),
-                _ when type == typeof(ushort) => (ushort)stackItem.GetInteger(),
-                _ when type == typeof(ushort?) => (ushort)stackItem.GetInteger(),
-                _ when type == typeof(int) => (int)stackItem.GetInteger(),
-                _ when type == typeof(int?) => (int)stackItem.GetInteger(),
-                _ when type == typeof(uint) => (uint)stackItem.GetInteger(),
-                _ when type == typeof(uint?) => (uint)stackItem.GetInteger(),
-                _ when type == typeof(long) => (long)stackItem.GetInteger(),
-                _ when type == typeof(long?) => (long)stackItem.GetInteger(),
-                _ when type == typeof(ulong) => (ulong)stackItem.GetInteger(),
-                _ when type == typeof(ulong?) => (ulong)stackItem.GetInteger(),
+                _ when type == typeof(bool) || type == typeof(bool?) => stackItem.GetBoolean(),
+                _ when type == typeof(byte) || type == typeof(byte?) => (byte)stackItem.GetInteger(),
+                _ when type == typeof(sbyte) || type == typeof(sbyte?) => (sbyte)stackItem.GetInteger(),
+                _ when type == typeof(short) || type == typeof(short?) => (short)stackItem.GetInteger(),
+                _ when type == typeof(ushort) || type == typeof(ushort?) => (ushort)stackItem.GetInteger(),
+                _ when type == typeof(int) || type == typeof(int?) => (int)stackItem.GetInteger(),
+                _ when type == typeof(uint) || type == typeof(uint?) => (uint)stackItem.GetInteger(),
+                _ when type == typeof(long) || type == typeof(long?) => (long)stackItem.GetInteger(),
+                _ when type == typeof(ulong) || type == typeof(ulong?) => (ulong)stackItem.GetInteger(),
 
                 _ when type.IsEnum => Enum.ToObject(type, (int)stackItem.GetInteger()),
-                _ when type == typeof(BigInteger) => stackItem.GetInteger(),
-                _ when type == typeof(BigInteger?) => stackItem.GetInteger(),
+                _ when type == typeof(BigInteger) || type == typeof(BigInteger?) => stackItem.GetInteger(),
                 _ when type == typeof(UInt160) => new UInt160(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(ECPoint) => ECPoint.FromBytes(stackItem.GetSpan().ToArray(), ECCurve.Secp256r1),
@@ -85,8 +75,10 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 _ when stackItem is VM.Types.Array ar => type switch
                 {
-                    _ when type == typeof(IList<object>) => new List<object>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
-                    _ when type == typeof(List<object>) => new List<object>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
+                    _ when
+                        type == typeof(IList<object>) || type == typeof(IList<object?>) ||
+                        type == typeof(List<object>) || type == typeof(List<object?>)
+                        => new List<object?>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
                     _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!),
                     _ when type.IsClass => CreateObject(ar.SubItems, type),
                     _ when type.IsValueType => CreateValueType(ar.SubItems, type),
@@ -94,8 +86,10 @@ namespace Neo.SmartContract.Testing.Extensions
                 },
                 _ when stackItem is Map mp => type switch
                 {
-                    _ when type == typeof(IDictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type except bool, buffer and int
-                    _ when type == typeof(Dictionary<object, object>) => ToDictionary(mp), // SubItems in StackItem type except bool, buffer and int
+                    _ when
+                        type == typeof(IDictionary<object, object>) ||
+                        type == typeof(Dictionary<object, object>)
+                        => ToDictionary(mp), // SubItems in StackItem type except bool, buffer and int
                     _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
                 },
 
@@ -103,9 +97,9 @@ namespace Neo.SmartContract.Testing.Extensions
             };
         }
 
-        private static object ConvertToBaseValue(StackItem u)
+        private static object? ConvertToBaseValue(StackItem u)
         {
-            // if (u is Null) return null; // it require nullable return
+            if (u is Null) return null;
             if (u is Integer i) return i.GetInteger();
             if (u is VM.Types.Boolean b) return b.GetBoolean();
             if (u is VM.Types.Buffer bf) return bf.GetSpan().ToArray();
