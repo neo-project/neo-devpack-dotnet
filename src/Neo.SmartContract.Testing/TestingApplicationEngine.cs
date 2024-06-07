@@ -240,7 +240,7 @@ namespace Neo.SmartContract.Testing
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
-                    AddGas(descriptor.FixedPrice * ExecFeeFactor);
+                    AddFee(descriptor.FixedPrice * ExecFeeFactor);
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)
