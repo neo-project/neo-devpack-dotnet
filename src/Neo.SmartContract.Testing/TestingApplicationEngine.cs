@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Testing
         private Instruction? PreInstruction;
         private ExecutionContext? InstructionContext;
         private int? InstructionPointer;
-        private long PreExecuteInstructionGasConsumed;
+        private long PreExecuteInstructionFeeConsumed;
         private bool? BranchPath;
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Testing
         }
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
-            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Gas, null)
+            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Fee, null)
         {
             Engine = engine;
         }
@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Testing
             if (Engine.EnableCoverageCapture)
             {
                 PreInstruction = instruction;
-                PreExecuteInstructionGasConsumed = GasConsumed;
+                PreExecuteInstructionFeeConsumed = FeeConsumed;
                 InstructionContext = CurrentContext;
                 InstructionPointer = InstructionContext?.InstructionPointer;
             }
@@ -212,7 +212,7 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionGasConsumed, BranchPath);
+            coveredContract.Hit(InstructionPointer.Value, instruction, FeeConsumed - PreExecuteInstructionFeeConsumed, BranchPath);
 
             BranchPath = null;
             PreInstruction = null;
@@ -240,7 +240,7 @@ namespace Neo.SmartContract.Testing
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
-                    AddGas(descriptor.FixedPrice * ExecFeeFactor);
+                    AddFee(descriptor.FixedPrice * ExecFeeFactor);
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)

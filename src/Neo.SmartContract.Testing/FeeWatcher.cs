@@ -5,12 +5,12 @@ using System.Runtime.CompilerServices;
 namespace Neo.SmartContract.Testing
 {
     [DebuggerDisplay("Value={Value}")]
-    public class GasWatcher : IDisposable
+    public class FeeWatcher : IDisposable
     {
         private readonly TestEngine _testEngine;
 
         /// <summary>
-        /// Gas Consumed
+        /// Fee Consumed (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
         public long Value { get; set; } = 0;
 
@@ -26,10 +26,10 @@ namespace Neo.SmartContract.Testing
         /// Csontructor
         /// </summary>
         /// <param name="engine">Test engine</param>
-        public GasWatcher(TestEngine engine)
+        public FeeWatcher(TestEngine engine)
         {
             _testEngine = engine;
-            _testEngine._gasWatchers.Add(this);
+            _testEngine._feeWatchers.Add(this);
         }
 
         /// <summary>
@@ -37,16 +37,16 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         public void Dispose()
         {
-            _testEngine._gasWatchers.Remove(this);
+            _testEngine._feeWatchers.Remove(this);
         }
 
         #region Operators
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator long(GasWatcher value) => value.Value;
+        public static implicit operator long(FeeWatcher value) => value.Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GasWatcher operator +(GasWatcher a, long b)
+        public static FeeWatcher operator +(FeeWatcher a, long b)
         {
             a.Value += b;
             return a;
