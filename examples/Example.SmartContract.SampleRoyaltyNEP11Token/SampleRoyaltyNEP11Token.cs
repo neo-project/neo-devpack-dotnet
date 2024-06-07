@@ -27,6 +27,7 @@ namespace NonDivisibleNEP11
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.Any, Method.Any)]
     [SupportedStandards(NepStandard.Nep11)]
+    [SupportedStandards(NepStandard.Nep24)]
     public class SampleRoyaltyNEP11Token : Nep11Token<Nep11TokenState>, INep24
     {
         #region Owner
@@ -170,7 +171,7 @@ namespace NonDivisibleNEP11
             {
                 var royaltyInfo = new Map<string, object>();
                 royaltyInfo["royaltyRecipient"] = InitialRecipient;
-                royaltyInfo["royaltyAmount"] = InitialFactor;
+                royaltyInfo["royaltyAmount"] = salePrice / InitialFactor;
                 return new[] { royaltyInfo };
             }
             else
