@@ -48,7 +48,7 @@ namespace Neo.Compiler
                                       balanceOfMethod1.ReturnType == ContractParameterType.Integer &&
                                       balanceOfMethod1.Parameters.Length == 1 &&
                                       balanceOfMethod1.Parameters[0].Type == ContractParameterType.Hash160;
-                var balanceOfValid2 = balanceOfMethod2?.Safe &&
+                var balanceOfValid2 = balanceOfMethod2?.Safe == true &&
                                       balanceOfMethod2?.ReturnType == ContractParameterType.Integer &&
                                       balanceOfMethod2?.Parameters.Length == 2 &&
                                       balanceOfMethod2?.Parameters[0].Type == ContractParameterType.Hash160 &&
