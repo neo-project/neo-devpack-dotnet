@@ -86,6 +86,7 @@ And for read and write, we have:
 - **FeeConsumed**: Get or set the consumed execution fee.
 - **EnableCoverageCapture**: Enables or disables the coverage capture. 
 - **Trigger**: The trigger of the execution.
+- **StringEncoder**: Define the encoding used when a ByteString or Buffer is converted to `string` type.
 - **CallFlags**: Define the `CallFlags` for the mocked function, `All` by default.
 - **OnGetEntryScriptHash**: This feature makes it easy to change the EntryScriptHash.
 - **OnGetCallingScriptHash**: This feature makes it easy to change the CallingScriptHash.

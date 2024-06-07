@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 
 namespace Neo.SmartContract.Testing.Extensions
 {
@@ -23,13 +24,25 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Object</returns>
         public static object?[]? ConvertTo(this VM.Types.Array state, ParameterInfo[] parameters)
         {
+            return ConvertTo(state, parameters, Utility.StrictUTF8);
+        }
+
+        /// <summary>
+        /// Convert Array stack item to dotnet array
+        /// </summary>
+        /// <param name="state">Item</param>
+        /// <param name="parameters">Parameters</param>
+        /// <param name="stringEncoding">String encoding</param>
+        /// <returns>Object</returns>
+        public static object?[]? ConvertTo(this VM.Types.Array state, ParameterInfo[] parameters, Encoding stringEncoding)
+        {
             if (parameters.Length > 0)
             {
                 object?[] args = new object[parameters.Length];
 
                 for (int x = 0; x < parameters.Length; x++)
                 {
-                    args[x] = state[x].ConvertTo(parameters[x].ParameterType);
+                    args[x] = state[x].ConvertTo(parameters[x].ParameterType, stringEncoding);
                 }
 
                 return args;
@@ -46,13 +59,25 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Object</returns>
         public static object? ConvertTo(this StackItem stackItem, Type type)
         {
+            return ConvertTo(stackItem, type, Utility.StrictUTF8);
+        }
+
+        /// <summary>
+        /// Convert stack item to dotnet
+        /// </summary>
+        /// <param name="stackItem">Item</param>
+        /// <param name="type">Type</param>
+        /// <param name="stringEncoding">String encoding</param>
+        /// <returns>Object</returns>
+        public static object? ConvertTo(this StackItem stackItem, Type type, Encoding stringEncoding)
+        {
             if (stackItem is null || stackItem.IsNull) return null;
 
             return type switch
             {
                 _ when type == stackItem.GetType() => stackItem,
                 _ when type == typeof(object) => stackItem,
-                _ when type == typeof(string) => Utility.StrictUTF8.GetString(stackItem.GetSpan()),
+                _ when type == typeof(string) => stringEncoding.GetString(stackItem.GetSpan()),
                 _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),
 
                 _ when type == typeof(bool) || type == typeof(bool?) => stackItem.GetBoolean(),
@@ -79,9 +104,9 @@ namespace Neo.SmartContract.Testing.Extensions
                         type == typeof(IList<object>) || type == typeof(IList<object?>) ||
                         type == typeof(List<object>) || type == typeof(List<object?>)
                         => new List<object?>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
-                    _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!),
-                    _ when type.IsClass => CreateObject(ar.SubItems, type),
-                    _ when type.IsValueType => CreateValueType(ar.SubItems, type),
+                    _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!, stringEncoding),
+                    _ when type.IsClass => CreateObject(ar.SubItems, type, stringEncoding),
+                    _ when type.IsValueType => CreateValueType(ar.SubItems, type, stringEncoding),
                     _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
                 },
                 _ when stackItem is Map mp => type switch
@@ -108,7 +133,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return u;
         }
 
-        private static object CreateObject(IEnumerable<StackItem> subItems, Type type)
+        private static object CreateObject(IEnumerable<StackItem> subItems, Type type, Encoding stringEncoding)
         {
             var index = 0;
             var obj = Activator.CreateInstance(type) ?? throw new FormatException($"Impossible create {type}");
@@ -150,7 +175,7 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 if (cache.TryGetValue(index, out var property))
                 {
-                    property.SetValue(obj, ConvertTo(item, property.PropertyType));
+                    property.SetValue(obj, ConvertTo(item, property.PropertyType, stringEncoding));
                 }
                 else
                 {
@@ -175,7 +200,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return dictionary;
         }
 
-        private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType)
+        private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType, Encoding stringEncoding)
         {
             var arr = objects.ToArray();
             var value = Activator.CreateInstance(valueType) ?? new NoNullAllowedException("Impossible create value type");
@@ -195,13 +220,13 @@ namespace Neo.SmartContract.Testing.Extensions
 
             for (int x = 0; x < arr.Length; x++)
             {
-                cache[x].SetValue(value, ConvertTo(arr[x], cache[x].FieldType));
+                cache[x].SetValue(value, ConvertTo(arr[x], cache[x].FieldType, stringEncoding));
             }
 
             return value;
         }
 
-        private static System.Array CreateTypeArray(IEnumerable<StackItem> objects, Type elementType)
+        private static System.Array CreateTypeArray(IEnumerable<StackItem> objects, Type elementType, Encoding stringEncoding)
         {
             var obj = objects.ToArray();
 
@@ -211,7 +236,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 for (int x = 0; x < arr.Length; x++)
                 {
-                    arr.SetValue(ConvertTo(obj[x], elementType), x);
+                    arr.SetValue(ConvertTo(obj[x], elementType, stringEncoding), x);
                 }
 
                 return arr;

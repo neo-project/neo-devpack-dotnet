@@ -163,6 +163,11 @@ namespace Neo.SmartContract.Testing
         public OnGetScriptHash? OnGetCallingScriptHash { get; set; } = null;
 
         /// <summary>
+        /// Encoding used for string types
+        /// </summary>
+        public Encoding StringEncoder { get; set; } = Utility.StrictUTF8;
+
+        /// <summary>
         /// Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
         public long Fee
@@ -505,7 +510,7 @@ namespace Neo.SmartContract.Testing
 
                 if (method.ReturnType != typeof(void))
                 {
-                    mock.MockFunction(method.Name, args, method.ReturnType);
+                    mock.MockFunction(method.Name, args, method.ReturnType, this);
                 }
                 else
                 {
