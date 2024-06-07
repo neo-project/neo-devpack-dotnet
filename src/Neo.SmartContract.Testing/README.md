@@ -22,7 +22,7 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Custom mocks](#custom-mocks)
     - [Example of use](#example-of-use)
-- [Gas watcher](#gas-watcher)
+- [Fee watcher](#fee-watcher)
     - [Example of use](#example-of-use)
 - [Forging signatures](#forging-signatures)
     - [Example of use](#example-of-use)
@@ -82,8 +82,8 @@ The publicly exposed read-only properties are as follows:
 
 And for read and write, we have:
 
-- **Gas**: Sets the gas execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
-- **GasConsumed**: Get or set the consumed execution gas.
+- **Fee**: Sets the fee execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
+- **FeeConsumed**: Get or set the consumed execution fee.
 - **EnableCoverageCapture**: Enables or disables the coverage capture. 
 - **Trigger**: The trigger of the execution.
 - **CallFlags**: Define the `CallFlags` for the mocked function, `All` by default.
@@ -254,18 +254,18 @@ using (ScriptBuilder script = new())
 }
 ```
 
-### Gas watcher
+### Fee watcher
 
-It is possible to check the gas being used between multiple calls using the `GasWatcher` class. To do this you can call the `CreateGasWatcher` method of `TestEngine` or directly use the `GasConsumed` property.
+It is possible to check the fee being used between multiple calls using the `FeeWatcher` class. To do this you can call the `CreateFeeWatcher` method of `TestEngine` or directly use the `FeeConsumed` property.
 
 
 #### Example of use
 
 ```csharp
-using var gas = engine.CreateGasWatcher();
+using var fee = engine.CreateFeeWatcher();
 {
     Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
-    Assert.AreEqual(984060L, gas);
+    Assert.AreEqual(984060L, fee);
 }
 ```
 
