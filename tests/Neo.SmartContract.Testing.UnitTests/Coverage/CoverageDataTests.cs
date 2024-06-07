@@ -203,42 +203,42 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
 
             Assert.AreEqual(0, coverage.Hits);
             Assert.AreEqual("test", coverage.Description);
-            Assert.AreEqual(0, coverage.GasAvg);
-            Assert.AreEqual(0, coverage.GasMax);
-            Assert.AreEqual(0, coverage.GasMin);
-            Assert.AreEqual(0, coverage.GasTotal);
+            Assert.AreEqual(0, coverage.FeeAvg);
+            Assert.AreEqual(0, coverage.FeeMax);
+            Assert.AreEqual(0, coverage.FeeMin);
+            Assert.AreEqual(0, coverage.FeeTotal);
 
             coverage.Hit(123);
 
             Assert.AreEqual(1, coverage.Hits);
-            Assert.AreEqual(123, coverage.GasAvg);
-            Assert.AreEqual(123, coverage.GasMax);
-            Assert.AreEqual(123, coverage.GasMin);
-            Assert.AreEqual(123, coverage.GasTotal);
+            Assert.AreEqual(123, coverage.FeeAvg);
+            Assert.AreEqual(123, coverage.FeeMax);
+            Assert.AreEqual(123, coverage.FeeMin);
+            Assert.AreEqual(123, coverage.FeeTotal);
 
             coverage.Hit(377);
 
             Assert.AreEqual(2, coverage.Hits);
-            Assert.AreEqual(250, coverage.GasAvg);
-            Assert.AreEqual(377, coverage.GasMax);
-            Assert.AreEqual(123, coverage.GasMin);
-            Assert.AreEqual(500, coverage.GasTotal);
+            Assert.AreEqual(250, coverage.FeeAvg);
+            Assert.AreEqual(377, coverage.FeeMax);
+            Assert.AreEqual(123, coverage.FeeMin);
+            Assert.AreEqual(500, coverage.FeeTotal);
 
             coverage.Hit(500);
 
             Assert.AreEqual(3, coverage.Hits);
-            Assert.AreEqual(333, coverage.GasAvg);
-            Assert.AreEqual(500, coverage.GasMax);
-            Assert.AreEqual(123, coverage.GasMin);
-            Assert.AreEqual(1000, coverage.GasTotal);
+            Assert.AreEqual(333, coverage.FeeAvg);
+            Assert.AreEqual(500, coverage.FeeMax);
+            Assert.AreEqual(123, coverage.FeeMin);
+            Assert.AreEqual(1000, coverage.FeeTotal);
 
             coverage.Hit(0);
 
             Assert.AreEqual(4, coverage.Hits);
-            Assert.AreEqual(250, coverage.GasAvg);
-            Assert.AreEqual(500, coverage.GasMax);
-            Assert.AreEqual(0, coverage.GasMin);
-            Assert.AreEqual(1000, coverage.GasTotal);
+            Assert.AreEqual(250, coverage.FeeAvg);
+            Assert.AreEqual(500, coverage.FeeMax);
+            Assert.AreEqual(0, coverage.FeeMin);
+            Assert.AreEqual(1000, coverage.FeeTotal);
         }
     }
 }

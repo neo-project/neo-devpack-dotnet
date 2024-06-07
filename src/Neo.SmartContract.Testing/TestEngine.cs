@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Testing
     {
         public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
 
-        internal readonly List<GasWatcher> _gasWatchers = new();
+        internal readonly List<FeeWatcher> _feeWatchers = new();
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
@@ -163,18 +163,18 @@ namespace Neo.SmartContract.Testing
         public OnGetScriptHash? OnGetCallingScriptHash { get; set; } = null;
 
         /// <summary>
-        /// Gas
+        /// Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public long Gas
+        public long Fee
         {
             get => Transaction.NetworkFee;
             set { Transaction.NetworkFee = value; }
         }
 
         /// <summary>
-        /// Gas Consumed
+        /// Fee Consumed (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public GasWatcher GasConsumed { get; }
+        public FeeWatcher FeeConsumed { get; }
 
         /// <summary>
         /// Sender
@@ -234,7 +234,7 @@ namespace Neo.SmartContract.Testing
         {
             Storage = storage;
             ProtocolSettings = settings;
-            GasConsumed = new GasWatcher(this);
+            FeeConsumed = new FeeWatcher(this);
 
             var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
             var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
@@ -332,9 +332,9 @@ namespace Neo.SmartContract.Testing
         /// Create gas watcher
         /// </summary>
         /// <returns>Gas watcher</returns>
-        public GasWatcher CreateGasWatcher()
+        public FeeWatcher CreateGasWatcher()
         {
-            return new GasWatcher(this);
+            return new FeeWatcher(this);
         }
 
         /// <summary>
@@ -618,9 +618,9 @@ namespace Neo.SmartContract.Testing
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
 
-            // Increment gas
+            // Increment fee
 
-            foreach (var gasWatcher in _gasWatchers) gasWatcher.Value += engine.GasConsumed;
+            foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
 
             // Detach to static event
 
