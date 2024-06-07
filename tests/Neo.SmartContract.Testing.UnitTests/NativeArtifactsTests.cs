@@ -25,9 +25,9 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check symbols
 
-            engine.GasConsumed.Value = 0;
+            engine.FeeConsumed.Value = 0;
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
-            Assert.AreEqual(984060L, engine.GasConsumed);
+            Assert.AreEqual(984060L, engine.FeeConsumed);
 
             using var gas = engine.CreateGasWatcher();
             {
@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         [TestMethod]
         public void TestCandidate()
         {
-            var engine = new TestEngine(true) { Gas = 1001_0000_0000 };
+            var engine = new TestEngine(true) { Fee = 1001_0000_0000 };
 
             // Check initial value
 
