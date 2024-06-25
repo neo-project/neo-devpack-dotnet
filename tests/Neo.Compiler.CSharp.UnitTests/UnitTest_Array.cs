@@ -12,6 +12,23 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         public UnitTest_Array() : base(Contract_Array.Nef, Contract_Array.Manifest) { }
 
+
+        [TestMethod]
+        public void Test_GetTreeByteLengthPrefix()
+        {
+            var result = Contract.GetTreeByteLengthPrefix();
+
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x03 }, result);
+        }
+
+        [TestMethod]
+        public void Test_GetTreeByteLengthPrefix2()
+        {
+            var result = Contract.GetTreeByteLengthPrefix2();
+
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0x03 }, result);
+        }
+
         [TestMethod]
         public void Test_JaggedArray()
         {

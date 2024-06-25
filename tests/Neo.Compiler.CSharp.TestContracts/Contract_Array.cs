@@ -17,6 +17,23 @@ namespace Neo.Compiler.CSharp.TestContracts
 
     public class Contract_Array : SmartContract.Framework.SmartContract
     {
+        // Does NOT work:
+        private static readonly byte[] TreeByteLengthPrefix = [0x01, 0x03];
+
+        // Works:
+        private static readonly byte[] TreeByteLengthPrefix2 = new byte[] { 0x01, 0x03 };
+
+
+        public static byte[] GetTreeByteLengthPrefix()
+        {
+            return TreeByteLengthPrefix;
+        }
+
+        public static byte[] GetTreeByteLengthPrefix2()
+        {
+            return TreeByteLengthPrefix2;
+        }
+
         public static int[][] TestJaggedArray()
         {
             int[] array1 = new int[] { 1, 2, 3, 4 };
