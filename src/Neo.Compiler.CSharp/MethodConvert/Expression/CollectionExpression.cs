@@ -22,9 +22,9 @@ partial class MethodConvert
 {
     private void ConvertCollectionExpression(SemanticModel model, CollectionExpressionSyntax expression)
     {
-        IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+        var typeSymbol = model.GetTypeInfo(expression).ConvertedType;
 
-        if (type.ElementType.SpecialType == SpecialType.System_Byte)
+        if (typeSymbol is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Byte)
         {
             Optional<object?>[] values = expression.Elements
                 .Select(p => p is ExpressionElementSyntax exprElement ? model.GetConstantValue(exprElement.Expression) : default)
@@ -59,7 +59,6 @@ partial class MethodConvert
             return;
         }
 
-
         for (int i = expression.Elements.Count - 1; i >= 0; i--)
         {
             var element = expression.Elements[i];
@@ -67,7 +66,6 @@ partial class MethodConvert
             {
                 case ExpressionElementSyntax expressionElementSyntax:
                     ConvertExpression(model, expressionElementSyntax.Expression);
-
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported collection element type: {element.GetType()}");
