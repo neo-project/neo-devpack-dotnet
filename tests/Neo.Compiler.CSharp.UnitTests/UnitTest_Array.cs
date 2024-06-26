@@ -12,7 +12,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         public UnitTest_Array() : base(Contract_Array.Nef, Contract_Array.Manifest) { }
 
-
         [TestMethod]
         public void Test_GetTreeByteLengthPrefix()
         {

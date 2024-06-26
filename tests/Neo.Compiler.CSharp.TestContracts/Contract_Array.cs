@@ -23,7 +23,6 @@ namespace Neo.Compiler.CSharp.TestContracts
         // Works:
         private static readonly byte[] TreeByteLengthPrefix2 = new byte[] { 0x01, 0x03 };
 
-
         public static byte[] GetTreeByteLengthPrefix()
         {
             return TreeByteLengthPrefix;
