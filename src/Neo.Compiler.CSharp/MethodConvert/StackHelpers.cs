@@ -23,7 +23,6 @@ partial class MethodConvert
     private void Push(bool value)
     {
         AddInstruction(value ? OpCode.PUSHT : OpCode.PUSHF);
-        // ChangeType(VM.Types.StackItemType.Boolean);
     }
 
     private Instruction Push(BigInteger number)
