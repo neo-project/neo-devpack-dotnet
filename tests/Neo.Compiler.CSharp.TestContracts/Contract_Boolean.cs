@@ -1,4 +1,4 @@
-﻿namespace Neo.Compiler.CSharp.TestContracts
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Boolean : SmartContract.Framework.SmartContract
     {
