@@ -1,11 +1,13 @@
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Types : SmartContract.Framework.SmartContract
     {
         public enum EDummy : byte
