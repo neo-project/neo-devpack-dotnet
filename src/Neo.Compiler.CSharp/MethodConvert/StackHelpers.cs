@@ -22,8 +22,8 @@ partial class MethodConvert
 {
     private void Push(bool value)
     {
-        AddInstruction(value ? OpCode.PUSH1 : OpCode.PUSH0);
-        ChangeType(VM.Types.StackItemType.Boolean);
+        AddInstruction(value ? OpCode.PUSHT : OpCode.PUSHF);
+        // ChangeType(VM.Types.StackItemType.Boolean);
     }
 
     private Instruction Push(BigInteger number)
