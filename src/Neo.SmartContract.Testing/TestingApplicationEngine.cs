@@ -260,7 +260,7 @@ namespace Neo.SmartContract.Testing
                     var parameters = new object[args.Count];
                     for (int i = 0; i < args.Count; i++)
                     {
-                        parameters[i] = args[i].ConvertTo(methodParameters[i].ParameterType)!;
+                        parameters[i] = args[i].ConvertTo(methodParameters[i].ParameterType, Engine.StringInterpreter)!;
                     }
 
                     // Invoke

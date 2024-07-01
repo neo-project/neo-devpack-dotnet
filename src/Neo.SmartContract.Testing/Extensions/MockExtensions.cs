@@ -79,7 +79,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return Expression.Lambda(callExpression, parameterExpression);
         }
 
-        public static void MockFunction<T>(this Mock<T> mock, string name, Type[] args, Type returnType)
+        internal static void MockFunction<T>(this Mock<T> mock, string name, Type[] args, Type returnType, TestEngine engine)
             where T : SmartContract
         {
             Expression exp = BuildIsAnyExpressions(mock, name, args);
@@ -102,12 +102,12 @@ namespace Neo.SmartContract.Testing.Extensions
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    return mock.Object.Invoke(name, invocation.Arguments.ToArray()).ConvertTo(returnType)!;
+                    return mock.Object.Invoke(name, invocation.Arguments.ToArray()).ConvertTo(returnType, engine.StringInterpreter)!;
                 })
             });
         }
 
-        public static void MockAction<T>(this Mock<T> mock, string name, Type[] args)
+        internal static void MockAction<T>(this Mock<T> mock, string name, Type[] args)
             where T : SmartContract
         {
             Expression exp = BuildIsAnyExpressions(mock, name, args);
