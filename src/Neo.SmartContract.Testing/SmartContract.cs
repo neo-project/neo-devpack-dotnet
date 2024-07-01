@@ -193,7 +193,7 @@ namespace Neo.SmartContract.Testing
 
             // Invoke
 
-            var args = state.ConvertTo(del.Method.GetParameters(), Engine.StringEncoder);
+            var args = state.ConvertTo(del.Method.GetParameters(), Engine.StringInterpreter);
 
             foreach (var handler in invocations)
             {

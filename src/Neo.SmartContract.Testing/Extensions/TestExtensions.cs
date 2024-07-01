@@ -1,5 +1,6 @@
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing.Attributes;
+using Neo.SmartContract.Testing.Interpreters;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using System.Data;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 
 namespace Neo.SmartContract.Testing.Extensions
 {
@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Object</returns>
         public static object?[]? ConvertTo(this VM.Types.Array state, ParameterInfo[] parameters)
         {
-            return ConvertTo(state, parameters, Utility.StrictUTF8);
+            return ConvertTo(state, parameters, StringInterpreter.StrictUTF8);
         }
 
         /// <summary>
@@ -32,9 +32,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="state">Item</param>
         /// <param name="parameters">Parameters</param>
-        /// <param name="stringEncoding">String encoding</param>
+        /// <param name="stringInterpreter">String interpreter</param>
         /// <returns>Object</returns>
-        public static object?[]? ConvertTo(this VM.Types.Array state, ParameterInfo[] parameters, Encoding stringEncoding)
+        public static object?[]? ConvertTo(this VM.Types.Array state, ParameterInfo[] parameters, IStringInterpreter stringInterpreter)
         {
             if (parameters.Length > 0)
             {
@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 for (int x = 0; x < parameters.Length; x++)
                 {
-                    args[x] = state[x].ConvertTo(parameters[x].ParameterType, stringEncoding);
+                    args[x] = state[x].ConvertTo(parameters[x].ParameterType, stringInterpreter);
                 }
 
                 return args;
@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Object</returns>
         public static object? ConvertTo(this StackItem stackItem, Type type)
         {
-            return ConvertTo(stackItem, type, Utility.StrictUTF8);
+            return ConvertTo(stackItem, type, StringInterpreter.StrictUTF8);
         }
 
         /// <summary>
@@ -67,9 +67,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// </summary>
         /// <param name="stackItem">Item</param>
         /// <param name="type">Type</param>
-        /// <param name="stringEncoding">String encoding</param>
+        /// <param name="stringInterpreter">String interpreter</param>
         /// <returns>Object</returns>
-        public static object? ConvertTo(this StackItem stackItem, Type type, Encoding stringEncoding)
+        public static object? ConvertTo(this StackItem stackItem, Type type, IStringInterpreter stringInterpreter)
         {
             if (stackItem is null || stackItem.IsNull) return null;
 
@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 _ when type == stackItem.GetType() => stackItem,
                 _ when type == typeof(object) => stackItem,
-                _ when type == typeof(string) => stringEncoding.GetString(stackItem.GetSpan()),
+                _ when type == typeof(string) => stringInterpreter.GetString(stackItem.GetSpan()),
                 _ when type == typeof(byte[]) => stackItem.GetSpan().ToArray(),
 
                 _ when type == typeof(bool) || type == typeof(bool?) => stackItem.GetBoolean(),
@@ -104,9 +104,9 @@ namespace Neo.SmartContract.Testing.Extensions
                         type == typeof(IList<object>) || type == typeof(IList<object?>) ||
                         type == typeof(List<object>) || type == typeof(List<object?>)
                         => new List<object?>(ar.SubItems.Select(ConvertToBaseValue)), // SubItems in StackItem type except bool, buffer and int
-                    _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!, stringEncoding),
-                    _ when type.IsClass => CreateObject(ar.SubItems, type, stringEncoding),
-                    _ when type.IsValueType => CreateValueType(ar.SubItems, type, stringEncoding),
+                    _ when type.IsArray => CreateTypeArray(ar.SubItems, type.GetElementType()!, stringInterpreter),
+                    _ when type.IsClass => CreateObject(ar.SubItems, type, stringInterpreter),
+                    _ when type.IsValueType => CreateValueType(ar.SubItems, type, stringInterpreter),
                     _ => throw new FormatException($"Impossible to convert {stackItem} to {type}"),
                 },
                 _ when stackItem is Map mp => type switch
@@ -133,7 +133,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return u;
         }
 
-        private static object CreateObject(IEnumerable<StackItem> subItems, Type type, Encoding stringEncoding)
+        private static object CreateObject(IEnumerable<StackItem> subItems, Type type, IStringInterpreter stringInterpreter)
         {
             var index = 0;
             var obj = Activator.CreateInstance(type) ?? throw new FormatException($"Impossible create {type}");
@@ -175,7 +175,7 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 if (cache.TryGetValue(index, out var property))
                 {
-                    property.SetValue(obj, ConvertTo(item, property.PropertyType, stringEncoding));
+                    property.SetValue(obj, ConvertTo(item, property.PropertyType, stringInterpreter));
                 }
                 else
                 {
@@ -200,7 +200,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return dictionary;
         }
 
-        private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType, Encoding stringEncoding)
+        private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType, IStringInterpreter stringInterpreter)
         {
             var arr = objects.ToArray();
             var value = Activator.CreateInstance(valueType) ?? new NoNullAllowedException("Impossible create value type");
@@ -220,13 +220,13 @@ namespace Neo.SmartContract.Testing.Extensions
 
             for (int x = 0; x < arr.Length; x++)
             {
-                cache[x].SetValue(value, ConvertTo(arr[x], cache[x].FieldType, stringEncoding));
+                cache[x].SetValue(value, ConvertTo(arr[x], cache[x].FieldType, stringInterpreter));
             }
 
             return value;
         }
 
-        private static System.Array CreateTypeArray(IEnumerable<StackItem> objects, Type elementType, Encoding stringEncoding)
+        private static System.Array CreateTypeArray(IEnumerable<StackItem> objects, Type elementType, IStringInterpreter stringInterpreter)
         {
             var obj = objects.ToArray();
 
@@ -236,7 +236,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 for (int x = 0; x < arr.Length; x++)
                 {
-                    arr.SetValue(ConvertTo(obj[x], elementType, stringEncoding), x);
+                    arr.SetValue(ConvertTo(obj[x], elementType, stringInterpreter), x);
                 }
 
                 return arr;

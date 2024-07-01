@@ -8,6 +8,7 @@ using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Interpreters;
 using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
@@ -165,7 +166,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Encoding used for string types
         /// </summary>
-        public Encoding StringEncoder { get; set; } = Utility.StrictUTF8;
+        public IStringInterpreter StringInterpreter { get; set; } = Interpreters.StringInterpreter.StrictUTF8;
 
         /// <summary>
         /// Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)

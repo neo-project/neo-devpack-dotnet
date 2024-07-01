@@ -102,7 +102,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    return mock.Object.Invoke(name, invocation.Arguments.ToArray()).ConvertTo(returnType, engine.StringEncoder)!;
+                    return mock.Object.Invoke(name, invocation.Arguments.ToArray()).ConvertTo(returnType, engine.StringInterpreter)!;
                 })
             });
         }
