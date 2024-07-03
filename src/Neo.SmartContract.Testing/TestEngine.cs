@@ -8,6 +8,7 @@ using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Interpreters;
 using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
@@ -161,6 +162,11 @@ namespace Neo.SmartContract.Testing
         ///     The argument is the ExecutingScriptHash and the expected return, and it must return the new CallingScriptHash, or null if we don't want to make any change
         /// </summary>
         public OnGetScriptHash? OnGetCallingScriptHash { get; set; } = null;
+
+        /// <summary>
+        /// Encoding used for string types
+        /// </summary>
+        public IStringInterpreter StringInterpreter { get; set; } = Interpreters.StringInterpreter.StrictUTF8;
 
         /// <summary>
         /// Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
@@ -505,7 +511,7 @@ namespace Neo.SmartContract.Testing
 
                 if (method.ReturnType != typeof(void))
                 {
-                    mock.MockFunction(method.Name, args, method.ReturnType);
+                    mock.MockFunction(method.Name, args, method.ReturnType, this);
                 }
                 else
                 {
