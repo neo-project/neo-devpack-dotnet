@@ -164,11 +164,9 @@ namespace Neo.Compiler
 
             if (Options.Optimize != CompilationOptions.OptimizationType.None)
             {
-                var extra = new JObject();
-                extra["nef"] = new JObject();
-                extra["nef"]!["optimization"] = Options.Optimize.ToString();
-
-                manifest.Extra = extra;
+                manifest.Extra ??= new JObject();
+                manifest.Extra["nef"] = new JObject();
+                manifest.Extra["nef"]!["optimization"] = Options.Optimize.ToString();
             }
 
             return (nef, manifest, debugInfo);
