@@ -160,6 +160,17 @@ namespace Neo.Compiler
                 }
             }
 
+            // Define the optimization type inside the manifest
+
+            if (Options.Optimize != CompilationOptions.OptimizationType.None)
+            {
+                var extra = new JObject();
+                extra["nef"] = new JObject();
+                extra["nef"]!["optimization"] = Options.Optimize.ToString();
+
+                manifest.Extra = extra;
+            }
+
             return (nef, manifest, debugInfo);
         }
 
