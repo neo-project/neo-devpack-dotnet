@@ -78,6 +78,15 @@ namespace Neo.SmartContract.Testing.Extensions
             if (nef is not null)
             {
                 value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
+
+                var optimization = manifest.Extra?["nef"]?["optimization"]?.ToString();
+
+                if (optimization != null)
+                {
+                    sourceCode.WriteLine($"    /// <summary>");
+                    sourceCode.WriteLine($"    /// Optimization: {optimization}");
+                    sourceCode.WriteLine($"    /// </summary>");
+                }
                 sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
                 sourceCode.WriteLine();
             }
