@@ -33,6 +33,30 @@ namespace Neo.Compiler
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }
         public bool NoInline { get; set; }
+        protected bool _NoOptimize;
+        public bool NoOptimize
+        {
+            get => _NoOptimize; set
+            {
+                _NoOptimize = value;
+                if (value)
+                    Optimize = OptimizationType.None;
+            }
+        }
+        protected bool _ExOptimize;
+        public bool ExOptimize
+        {
+            get => _ExOptimize; set
+            {
+                if (value && NoOptimize)
+                    throw new ArgumentException("Cannot specify both --no-optimize and --ex-optimize from your command!");
+                _ExOptimize = value;
+                if (value)
+                    Optimize |= OptimizationType.Experimental;
+                else
+                    Optimize &= ~OptimizationType.Experimental;
+            }
+        }
         public byte AddressVersion { get; set; } = 0x35;
         public string? BaseName { get; set; }
         public string CompilerVersion { get; set; }
