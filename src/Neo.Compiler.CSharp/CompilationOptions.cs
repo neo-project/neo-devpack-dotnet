@@ -33,12 +33,10 @@ namespace Neo.Compiler
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }
         public bool NoInline { get; set; }
-        protected bool _NoOptimize;
         public bool NoOptimize
         {
-            get => _NoOptimize; set
+            get => Optimize == OptimizationType.None; set
             {
-                _NoOptimize = value;
                 if (value)
                     Optimize = OptimizationType.None;
             }
