@@ -44,8 +44,7 @@ namespace Neo.Compiler
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
-                new Option<bool>("--no-optimize", "Instruct the compiler not to optimize the code."),
-                new Option<bool>("--ex-optimize", "Instruct the compiler to optimize the code with aggressive experimental optimizers."),
+                new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
