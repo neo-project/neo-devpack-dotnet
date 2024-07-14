@@ -20,6 +20,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
 
@@ -129,7 +131,7 @@ namespace Neo.Compiler
         {
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-
+            var allClassSymbols = new List<INamedTypeSymbol>();
             foreach (var tree in compilation.SyntaxTrees)
             {
                 var semanticModel = compilation.GetSemanticModel(tree);
@@ -138,7 +140,9 @@ namespace Neo.Compiler
                 foreach (var classNode in classNodes)
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
-                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, "Neo.SmartContract.Framework.SmartContract", semanticModel))
+                    allClassSymbols.Add(classSymbol);
+                    var pattern = @"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$";
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, pattern, semanticModel))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = new List<INamedTypeSymbol>();
@@ -158,12 +162,17 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
-            sortedClasses.ForEach(c =>
+            Parallel.ForEach(sortedClasses, c =>
             {
-                var context = new CompilationContext(this, c);
+                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
+                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+                var context = new CompilationContext(this, c, classesNotInDependencies);
                 context.Compile();
                 // Process the target contract add this compilation context
-                Contexts.Add(c, context);
+                lock (Contexts)
+                {
+                    Contexts.Add(c, context);
+                }
             });
 
             return Contexts.Select(p => p.Value).ToList();
@@ -213,12 +222,12 @@ namespace Neo.Compiler
             return sorted;
         }
 
-        static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, string smartContractFullyQualifiedName, SemanticModel semanticModel)
+        static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, string pattern, SemanticModel semanticModel)
         {
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                if (baseType.ToDisplayString() == smartContractFullyQualifiedName)
+                if (Regex.IsMatch(baseType.ToString(), pattern))
                 {
                     return true;
                 }
