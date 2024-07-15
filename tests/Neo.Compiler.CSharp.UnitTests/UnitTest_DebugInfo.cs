@@ -1,10 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Testing;
+using System.IO;
 using System.Linq;
-using Neo.SmartContract.TestEngine;
 
-namespace Neo.Compiler.CSharp.UnitTests.OldEngine
+namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_DebugInfo
@@ -12,11 +13,23 @@ namespace Neo.Compiler.CSharp.UnitTests.OldEngine
         [TestMethod]
         public void Test_DebugInfo()
         {
-            var testEngine = new TestEngine();
-            testEngine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Event.cs");
+            var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Contract_Event.cs").FullName;
+            var results = new CompilationEngine(new CompilationOptions()
+            {
+                Debug = true,
+                CompilerVersion = "TestingEngine",
+                Optimize = CompilationOptions.OptimizationType.Basic,
+                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
+            })
+            .CompileSources(testContractsPath);
 
-            var debugInfo = testEngine.DebugInfo;
-            Assert.AreEqual(testEngine.Nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"].GetString());
+            Assert.AreEqual(1, results.Count);
+            Assert.IsTrue(results[0].Success);
+
+            var debugInfo = results[0].CreateDebugInformation()!;
+            var nef = results[0].CreateExecutable()!;
+
+            Assert.AreEqual(nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"].GetString());
             Assert.IsTrue(debugInfo.ContainsProperty("documents"));
             Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
             Assert.IsTrue((debugInfo["documents"] as JArray).Count > 0);
