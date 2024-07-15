@@ -55,17 +55,17 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             // Ensure Nep17
 
             var root = Path.GetPathRoot(templatePath) ?? "";
-            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root,
+            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result.FirstOrDefault(p => p.ContractName == "Nep17Contract") ?? throw new InvalidOperationException(), root,
                 Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
 
             // Ensure Oracle
 
-            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root,
+            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result.FirstOrDefault(p => p.ContractName == "OracleRequest") ?? throw new InvalidOperationException(), root,
                 Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
 
             // Ensure Ownable
 
-            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root,
+            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result.FirstOrDefault(p => p.ContractName == "Ownable") ?? throw new InvalidOperationException(), root,
                 Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
         }
 
