@@ -33,8 +33,8 @@ namespace Neo.Compiler
         internal CompilationOptions Options { get; private set; }
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = new();
+        private static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
         internal readonly Dictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
-        private static Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
 
         static CompilationEngine()
         {
