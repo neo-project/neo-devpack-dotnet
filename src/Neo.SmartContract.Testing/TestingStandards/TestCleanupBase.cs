@@ -10,14 +10,9 @@ namespace Neo.SmartContract.Testing.TestingStandards
 {
     public abstract class TestCleanupBase
     {
-        /// <summary>
-        /// Required coverage to be success
-        /// </summary>
-        public static decimal RequiredCoverage { get; set; } = 0.9M;
-
         public static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
 
-        protected static void EnsureCoverageInternal(Assembly assembly)
+        protected static void EnsureCoverageInternal(Assembly assembly, decimal requiredCoverage = 0.9M)
         {
             // Join here all of your coverage sources
 
@@ -80,7 +75,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
             // Ensure that the coverage is more than X% at the end of the tests
 
-            Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is {coverage.CoveredLinesPercentage:P2}, less than {RequiredCoverage:P2}");
+            Assert.IsTrue(coverage.CoveredLinesPercentage >= requiredCoverage, $"Coverage is {coverage.CoveredLinesPercentage:P2}, less than {requiredCoverage:P2}");
         }
     }
 }

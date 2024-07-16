@@ -16,14 +16,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         private static CompilationContext[]? compilationContexts;
 
-        static TestCleanup()
-        {
-            // TODO: Improve this coverage
-            RequiredCoverage = 0.75M;
-        }
-
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.75M);
 
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
