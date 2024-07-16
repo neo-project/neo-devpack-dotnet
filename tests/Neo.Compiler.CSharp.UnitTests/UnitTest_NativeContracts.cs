@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Native;
-using Neo.SmartContract.TestEngine;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
@@ -63,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Ledger()
         {
-            var genesisBlock = new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
+            var genesisBlock = NativeContract.Ledger.GetBlock(Engine.Storage.Snapshot, 0);
             Assert.AreEqual(NativeContract.Ledger.Hash, Contract.LedgerHash());
             Assert.AreEqual(0, Contract.LedgerCurrentIndex());
             Assert.AreEqual(genesisBlock.Hash, Contract.LedgerCurrentHash());
