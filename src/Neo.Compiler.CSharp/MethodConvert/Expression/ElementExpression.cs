@@ -50,7 +50,7 @@ partial class MethodConvert
             throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
         if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
         {
-            Call(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
+            CallMethodWithInstanceExpression(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
         }
         else
         {

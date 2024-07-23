@@ -254,7 +254,7 @@ namespace Neo.Compiler
             CreateObject(model, type, null);
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0)
                 ?? throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
-            Call(model, constructor, true, Array.Empty<ArgumentSyntax>());
+            CallInstanceMethod(model, constructor, true, Array.Empty<ArgumentSyntax>());
             _returnTarget.Instruction = Jump(OpCode.JMP_L, target._startTarget);
             _startTarget.Instruction = _instructions[0];
         }

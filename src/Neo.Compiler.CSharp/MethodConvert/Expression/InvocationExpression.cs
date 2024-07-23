@@ -62,7 +62,7 @@ partial class MethodConvert
             AddInstruction(OpCode.APPEND);
         }
         Push(symbol.GetDisplayName());
-        Call(ApplicationEngine.System_Runtime_Notify);
+        CallInteropMethod(ApplicationEngine.System_Runtime_Notify);
     }
 
     /// <summary>
@@ -80,16 +80,16 @@ partial class MethodConvert
         switch (expression)
         {
             case IdentifierNameSyntax:
-                Call(model, symbol, null, arguments);
+                CallMethodWithInstanceExpression(model, symbol, null, arguments);
                 break;
             case MemberAccessExpressionSyntax syntax:
                 if (symbol.IsStatic)
-                    Call(model, symbol, null, arguments);
+                    CallMethodWithInstanceExpression(model, symbol, null, arguments);
                 else
-                    Call(model, symbol, syntax.Expression, arguments);
+                    CallMethodWithInstanceExpression(model, symbol, syntax.Expression, arguments);
                 break;
             case MemberBindingExpressionSyntax:
-                Call(model, symbol, true, arguments);
+                CallInstanceMethod(model, symbol, true, arguments);
                 break;
             default:
                 throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported expression: {expression}");
