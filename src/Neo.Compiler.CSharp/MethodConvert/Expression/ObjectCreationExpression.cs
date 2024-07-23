@@ -39,7 +39,7 @@ partial class MethodConvert
         {
             CreateObject(model, type, null);
         }
-        Call(model, constructor, needCreateObject, arguments);
+        CallInstanceMethod(model, constructor, needCreateObject, arguments);
         if (expression.Initializer is not null)
         {
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
@@ -65,7 +65,7 @@ partial class MethodConvert
                 case IPropertySymbol property:
                     ConvertExpression(model, ae.Right);
                     AddInstruction(OpCode.OVER);
-                    Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                    CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                     break;
                 default:
                     throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");

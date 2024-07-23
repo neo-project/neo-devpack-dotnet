@@ -77,7 +77,7 @@ partial class MethodConvert
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
@@ -88,7 +88,7 @@ partial class MethodConvert
             ConvertExpression(model, right);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -225,19 +225,19 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (left.IsStatic)
         {
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIFNOT_L, endTarget);
             AddInstruction(OpCode.DROP);
             ConvertExpression(model, right);
             AddInstruction(OpCode.DUP);
-            Call(model, left.SetMethod!);
+            CallMethodWithConvention(model, left.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIFNOT_L, endTarget);
@@ -245,7 +245,7 @@ partial class MethodConvert
             AddInstruction(OpCode.LDARG0);
             ConvertExpression(model, right);
             AddInstruction(OpCode.TUCK);
-            Call(model, left.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, left.SetMethod!, CallingConvention.StdCall);
         }
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
@@ -294,21 +294,21 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (property.IsStatic)
         {
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIFNOT_L, endTarget);
             AddInstruction(OpCode.DROP);
             ConvertExpression(model, right);
             AddInstruction(OpCode.DUP);
-            Call(model, property.SetMethod!);
+            CallMethodWithConvention(model, property.SetMethod!);
         }
         else
         {
             JumpTarget assignmentTarget = new();
             ConvertExpression(model, left.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
@@ -317,7 +317,7 @@ partial class MethodConvert
             assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
             ConvertExpression(model, right);
             AddInstruction(OpCode.TUCK);
-            Call(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }

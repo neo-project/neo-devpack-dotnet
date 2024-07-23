@@ -78,12 +78,12 @@ partial class MethodConvert
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -188,21 +188,21 @@ partial class MethodConvert
     {
         if (left.IsStatic)
         {
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.DUP);
-            Call(model, left.SetMethod!);
+            CallMethodWithConvention(model, left.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.TUCK);
-            Call(model, left.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, left.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -237,21 +237,21 @@ partial class MethodConvert
     {
         if (property.IsStatic)
         {
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.DUP);
-            Call(model, property.SetMethod!);
+            CallMethodWithConvention(model, property.SetMethod!);
         }
         else
         {
             ConvertExpression(model, left.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.TUCK);
-            Call(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
     }
 

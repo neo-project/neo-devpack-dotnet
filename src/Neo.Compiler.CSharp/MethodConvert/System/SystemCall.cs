@@ -334,7 +334,7 @@ partial class MethodConvert
             case "System.Numerics.BigInteger.Parse(string)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
-                Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                 return true;
             case "System.Math.Abs(sbyte)":
             case "System.Math.Abs(short)":
@@ -395,7 +395,7 @@ partial class MethodConvert
             case "System.Numerics.BigInteger.ToString()":
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
-                Call(NativeContract.StdLib.Hash, "itoa", 1, true);
+                CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
                 return true;
             case "System.Numerics.BigInteger.Equals(long)":
             case "System.Numerics.BigInteger.Equals(ulong)":
@@ -424,7 +424,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(sbyte.MinValue);
                     Push(sbyte.MaxValue + 1);
@@ -440,7 +440,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(byte.MinValue);
                     Push(byte.MaxValue + 1);
@@ -456,7 +456,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(short.MinValue);
                     Push(short.MaxValue + 1);
@@ -472,7 +472,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(ushort.MinValue);
                     Push(ushort.MaxValue + 1);
@@ -488,7 +488,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(int.MinValue);
                     Push(new BigInteger(int.MaxValue) + 1);
@@ -504,7 +504,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(uint.MinValue);
                     Push(new BigInteger(uint.MaxValue) + 1);
@@ -520,7 +520,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(long.MinValue);
                     Push(new BigInteger(long.MaxValue) + 1);
@@ -536,7 +536,7 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    Call(NativeContract.StdLib.Hash, "atoi", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                     AddInstruction(OpCode.DUP);
                     Push(ulong.MinValue);
                     Push(new BigInteger(ulong.MaxValue) + 1);
