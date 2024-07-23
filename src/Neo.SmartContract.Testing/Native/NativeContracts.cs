@@ -107,7 +107,7 @@ namespace Neo.SmartContract.Testing.Native
 
                 var method = native.GetType().GetMethod("OnPersistAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
+                DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
