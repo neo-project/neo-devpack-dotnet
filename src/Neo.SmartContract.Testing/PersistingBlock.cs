@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Testing
 
             // Invoke OnPersist
 
-            DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
+            DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, persist, clonedSnapshot, persist))
             {
