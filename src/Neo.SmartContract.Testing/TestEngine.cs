@@ -601,7 +601,7 @@ namespace Neo.SmartContract.Testing
 
             // Execute in neo VM
 
-            var snapshot = Storage.Snapshot.CreateSnapshot();
+            var snapshot = Storage.Snapshot.CloneCache();
 
             // Create persisting block, required for GasRewards
 
