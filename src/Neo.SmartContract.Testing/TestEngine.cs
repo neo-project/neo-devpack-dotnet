@@ -240,7 +240,6 @@ namespace Neo.SmartContract.Testing
         {
             Storage = storage;
             ProtocolSettings = settings;
-            FeeConsumed = new FeeWatcher(this);
 
             var validatorsScript = Contract.CreateMultiSigRedeemScript(settings.StandbyValidators.Count - (settings.StandbyValidators.Count - 1) / 3, settings.StandbyValidators);
             var committeeScript = Contract.CreateMultiSigRedeemScript(settings.StandbyCommittee.Count - (settings.StandbyCommittee.Count - 1) / 2, settings.StandbyCommittee);
@@ -290,6 +289,8 @@ namespace Neo.SmartContract.Testing
                     PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
                 }
             }
+
+            FeeConsumed = new FeeWatcher(this);
         }
 
         #region Invoke events
