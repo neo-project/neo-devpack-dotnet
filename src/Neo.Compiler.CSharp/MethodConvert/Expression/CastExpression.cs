@@ -48,7 +48,7 @@ partial class MethodConvert
         IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
         if (method is not null)
         {
-            Call(model, method, null, expression.Expression);
+            CallMethodWithInstanceExpression(model, method, null, expression.Expression);
             return;
         }
         ConvertExpression(model, expression.Expression);

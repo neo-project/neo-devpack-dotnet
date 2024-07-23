@@ -136,8 +136,8 @@ partial class MethodConvert
                 Jump(OpCode.JMPIF_L, endTarget);
             }
             Push(key);
-            Call(ApplicationEngine.System_Storage_GetReadOnlyContext);
-            Call(ApplicationEngine.System_Storage_Get);
+            CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
+            CallInteropMethod(ApplicationEngine.System_Storage_Get);
             switch (property.Type.Name)
             {
                 case "byte":
@@ -178,7 +178,7 @@ partial class MethodConvert
                 case "ECPoint":
                     break;
                 default:
-                    Call(NativeContract.StdLib.Hash, "deserialize", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "deserialize", 1, true);
                     break;
             }
             AddInstruction(OpCode.DUP);
@@ -234,12 +234,12 @@ partial class MethodConvert
                 case "ECPoint":
                     break;
                 default:
-                    Call(NativeContract.StdLib.Hash, "serialize", 1, true);
+                    CallContractMethod(NativeContract.StdLib.Hash, "serialize", 1, true);
                     break;
             }
             Push(key);
-            Call(ApplicationEngine.System_Storage_GetContext);
-            Call(ApplicationEngine.System_Storage_Put);
+            CallInteropMethod(ApplicationEngine.System_Storage_GetContext);
+            CallInteropMethod(ApplicationEngine.System_Storage_Put);
         }
     }
 }

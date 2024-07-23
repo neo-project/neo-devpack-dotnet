@@ -375,7 +375,7 @@ partial class MethodConvert
             case "ulong":
             case "System.Numerics.BigInteger":
                 ConvertExpression(model, expression);
-                Call(NativeContract.StdLib.Hash, "itoa", 1, true);
+                CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
                 break;
             case "string":
             case "Neo.SmartContract.Framework.ECPoint":

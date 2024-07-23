@@ -35,7 +35,7 @@ partial class MethodConvert
 
                     if (propertySymbol is IPropertySymbol property)
                     {
-                        Call(model, property.GetMethod!);
+                        CallMethodWithConvention(model, property.GetMethod!);
                     }
                     else
                     {

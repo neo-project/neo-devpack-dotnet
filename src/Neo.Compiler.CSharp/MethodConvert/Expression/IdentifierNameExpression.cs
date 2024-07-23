@@ -84,12 +84,12 @@ partial class MethodConvert
             case IPropertySymbol property:
                 if (property.IsStatic)
                 {
-                    Call(model, property.GetMethod!);
+                    CallMethodWithConvention(model, property.GetMethod!);
                 }
                 else
                 {
                     AddInstruction(OpCode.LDARG0);
-                    Call(model, property.GetMethod!);
+                    CallMethodWithConvention(model, property.GetMethod!);
                 }
                 break;
             case ITypeSymbol type:

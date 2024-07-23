@@ -75,7 +75,7 @@ partial class MethodConvert
                 break;
             case IPropertySymbol property:
                 ExpressionSyntax? instanceExpression = property.IsStatic ? null : expression.Expression;
-                Call(model, property.GetMethod!, instanceExpression);
+                CallMethodWithInstanceExpression(model, property.GetMethod!, instanceExpression);
                 break;
             default:
                 throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
@@ -115,7 +115,7 @@ partial class MethodConvert
                 AddInstruction(OpCode.PICKITEM);
                 break;
             case IPropertySymbol property:
-                Call(model, property.GetMethod!);
+                CallMethodWithConvention(model, property.GetMethod!);
                 break;
             default:
                 throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
