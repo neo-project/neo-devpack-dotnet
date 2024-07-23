@@ -99,7 +99,7 @@ partial class MethodConvert
         {
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             ConvertExpression(model, left.Expression);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -162,7 +162,7 @@ partial class MethodConvert
                 else if (property.SetMethod != null)
                 {
                     if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
-                    Call(model, property.SetMethod, CallingConvention.Cdecl);
+                    CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
                 }
                 else
                 {
@@ -196,7 +196,7 @@ partial class MethodConvert
                 break;
             case IPropertySymbol property:
                 if (!property.IsStatic) ConvertExpression(model, left.Expression);
-                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                 break;
             default:
                 throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");

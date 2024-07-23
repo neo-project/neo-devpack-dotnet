@@ -82,12 +82,12 @@ partial class MethodConvert
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
             AddInstruction(OpCode.REVERSE3);
             EmitIncrementOrDecrement(operatorToken, property.Type);
-            Call(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
         else
         {
@@ -171,19 +171,19 @@ partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!);
+            CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.TUCK);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -232,19 +232,19 @@ partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!);
+            CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             ConvertExpression(model, operand.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.TUCK);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 }

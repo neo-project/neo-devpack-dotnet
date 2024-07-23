@@ -95,7 +95,7 @@ partial class MethodConvert
             string method = Symbol.GetDisplayName(true);
             ushort parametersCount = (ushort)Symbol.Parameters.Length;
             bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-            Call(hash, method, parametersCount, hasReturnValue);
+            CallContractMethod(hash, method, parametersCount, hasReturnValue);
         }
     }
 }
