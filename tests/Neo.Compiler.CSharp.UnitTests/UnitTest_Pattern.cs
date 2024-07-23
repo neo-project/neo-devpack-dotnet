@@ -15,9 +15,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Between_Test()
         {
             Assert.AreEqual(true, Contract.Between(50));
+            Assert.AreEqual(1002158890, Engine.FeeConsumed.Value);
             Assert.AreEqual(false, Contract.Between(1));
+            Assert.AreEqual(1003241740, Engine.FeeConsumed.Value);
             Assert.AreEqual(false, Contract.Between(100));
+            Assert.AreEqual(1004324830, Engine.FeeConsumed.Value);
             Assert.AreEqual(false, Contract.Between(200));
+            Assert.AreEqual(1005407920, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

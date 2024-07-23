@@ -14,6 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteStringAdd()
         {
             Assert.AreEqual("abc", Encoding.ASCII.GetString(Contract.ByteStringAddAssign(Encoding.ASCII.GetBytes("a"), Encoding.ASCII.GetBytes("b"), "c")!));
+            Assert.AreEqual(1003031260, Engine.FeeConsumed.Value);
         }
     }
 }

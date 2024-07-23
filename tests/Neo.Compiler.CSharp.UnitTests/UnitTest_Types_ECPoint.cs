@@ -16,15 +16,22 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ECPoint_test()
         {
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidLength));
+            Assert.AreEqual(1002109570, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidType));
+            Assert.AreEqual(1003158250, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.IsValid(InvalidECPoint.Null));
+            Assert.AreEqual(1004206360, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.IsValid(Cryptography.ECC.ECPoint.Parse("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Cryptography.ECC.ECCurve.Secp256r1)));
+            Assert.AreEqual(1005255250, Engine.FeeConsumed.Value);
 
             Engine.StringInterpreter = new HexStringInterpreter();
 
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Contract.Ecpoint2String());
+            Assert.AreEqual(1006240180, Engine.FeeConsumed.Value);
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Contract.EcpointReturn()?.ToString());
+            Assert.AreEqual(1007225110, Engine.FeeConsumed.Value);
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", (Contract.Ecpoint2ByteArray() as VM.Types.Buffer)!.GetSpan().ToHexString());
+            Assert.AreEqual(1008455800, Engine.FeeConsumed.Value);
         }
     }
 }

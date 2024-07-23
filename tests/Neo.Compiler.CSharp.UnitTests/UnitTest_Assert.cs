@@ -34,6 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertFalse()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertFalse());
+            Assert.AreEqual(1002097390, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
         }
 
@@ -41,6 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFunction()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFunction());
+            Assert.AreEqual(1002114820, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -49,6 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInTry()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInTry());
+            Assert.AreEqual(1002114940, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -57,6 +60,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInCatch()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInCatch());
+            Assert.AreEqual(1002130810, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }
@@ -65,6 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFinally()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFinally());
+            Assert.AreEqual(1002115270, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }

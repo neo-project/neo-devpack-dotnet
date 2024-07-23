@@ -23,13 +23,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.ValidateAddress(address));
+            Assert.AreEqual(1002110020, Engine.FeeConsumed.Value);
 
             // False
 
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
+            Assert.AreEqual(1003158790, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.ValidateAddress(InvalidUInt160.Null));
+            Assert.AreEqual(1004206900, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
+            Assert.AreEqual(1005255670, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidLength));
+            Assert.AreEqual(1006304650, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -39,7 +44,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckOwner(owner));
+            Assert.AreEqual(1002109780, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.CheckOwner(notOwner));
+            Assert.AreEqual(1003158880, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -49,7 +56,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckZeroStatic(zero));
+            Assert.AreEqual(1002109960, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.CheckZeroStatic(notZero));
+            Assert.AreEqual(1003159240, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -58,6 +67,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.AreEqual(notZero, Contract.ConstructUInt160(notZero.ToArray()));
+            Assert.AreEqual(1002354970, Engine.FeeConsumed.Value);
         }
     }
 }

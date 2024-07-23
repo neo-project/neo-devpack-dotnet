@@ -11,6 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_BooleanOr()
         {
             Assert.AreEqual(true, Contract.TestBooleanOr());
+            Assert.AreEqual(1002044800, Engine.FeeConsumed.Value);
         }
     }
 }

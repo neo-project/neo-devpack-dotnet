@@ -13,24 +13,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GetUInt160()
         {
             Assert.AreEqual(Contract.TestGetUInt160()?.ToString(), "0x71a87191aef3fcf5e4441d791ded67ebab1aee7e");
+            Assert.AreEqual(1002046510, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_GetECPoint()
         {
             Assert.AreEqual(Contract.TestGetECPoint()?.ToString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
+            Assert.AreEqual(1002046510, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_GetUInt256()
         {
             Assert.AreEqual(Contract.TestGetUInt256()?.ToString(), "0x25898c9489b9c7f07adab10f995b3e492a23dbd79ae24f1a91c24e107986cfed");
+            Assert.AreEqual(1002046510, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_GetString()
         {
-            Assert.AreEqual(Contract.TestGetString()?.ToString(), "hello world");
+            Assert.AreEqual(Contract.TestGetString(), "hello world");
+            Assert.AreEqual(1002046510, Engine.FeeConsumed.Value);
         }
     }
 }

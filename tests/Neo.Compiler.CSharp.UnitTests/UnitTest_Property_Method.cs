@@ -15,6 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod()
         {
             var arr = Contract.TestProperty();
+            Assert.AreEqual(1003114240, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(2, arr?.Count);
             Assert.AreEqual((arr[0] as StackItem).GetString(), "NEO3");
@@ -25,6 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod2()
         {
             Contract.TestProperty2();
+            Assert.AreEqual(1002618040, Engine.FeeConsumed.Value);
             // No errors
         }
     }

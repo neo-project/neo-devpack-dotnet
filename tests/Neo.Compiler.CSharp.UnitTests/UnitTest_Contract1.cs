@@ -40,18 +40,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArray_New()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.UnitTest_001());
+            Assert.AreEqual(1002307930, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_testArgs1()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.TestArgs1(4));
+            Assert.AreEqual(1002615040, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_testArgs2()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, Contract.TestArgs2([1, 2, 3]));
+            Assert.AreEqual(1002123100, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -59,12 +62,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // No errors
             Contract.TestArgs3(1, 2);
+            Assert.AreEqual(1002123610, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_testArgs4()
         {
             Assert.AreEqual(5, Contract.TestArgs4(1, 2));
+            Assert.AreEqual(1002124330, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -72,6 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // No errors
             Contract.TestVoid();
+            Assert.AreEqual(1002307810, Engine.FeeConsumed.Value);
         }
     }
 }
