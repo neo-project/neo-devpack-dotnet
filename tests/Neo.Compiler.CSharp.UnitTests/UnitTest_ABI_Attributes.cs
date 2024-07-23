@@ -1,12 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ABI_Attributes
+    public class UnitTest_ABI_Attributes() : TestBase<Contract_ABIAttributes>(Contract_ABIAttributes.Nef, Contract_ABIAttributes.Manifest)
     {
         [TestMethod]
         public void TestAbiAttributes()
@@ -15,6 +16,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(@"[{""contract"":""0x01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4"",""methods"":[""a"",""b""]},{""contract"":""*"",""methods"":[""c""]}]", permissions);
             var trust = Contract_ABIAttributes.Manifest.Trusts.ToJson(p => p.ToJson());
             Assert.AreEqual(@"[""0x0a0b00ff00ff00ff00ff00ff00ff00ff00ff00a4""]", trust.ToString(false));
+        }
+
+        [TestMethod]
+        public void MethodTest()
+        {
+            Assert.AreEqual(0, Contract.Test());
         }
     }
 }
