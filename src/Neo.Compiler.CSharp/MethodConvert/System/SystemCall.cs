@@ -397,6 +397,43 @@ partial class MethodConvert
                     ConvertExpression(model, instanceExpression);
                 CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
                 return true;
+            case "byte?.HasValue.get":
+            case "sbyte?.HasValue.get":
+            case "short?.HasValue.get":
+            case "ushort?.HasValue.get":
+            case "int?.HasValue.get":
+            case "uint?.HasValue.get":
+            case "long?.HasValue.get":
+            case "ulong?.HasValue.get":
+            case "bool?.HasValue.get":
+            case "char?.HasValue.get":
+            case "System.Numerics.BigInteger?.HasValue.get":
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                AddInstruction(OpCode.ISNULL);
+                return true;
+            case "byte?.Value.get":
+            case "sbyte?.Value.get":
+            case "short?.Value.get":
+            case "ushort?.Value.get":
+            case "int?.Value.get":
+            case "uint?.Value.get":
+            case "long?.Value.get":
+            case "ulong?.Value.get":
+            case "bool?.Value.get":
+            case "char?.Value.get":
+            case "System.Numerics.BigInteger?.Value.get":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    JumpTarget endTarget = new();
+                    Jump(OpCode.JMPIFNOT, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
             case "System.Numerics.BigInteger.Equals(long)":
             case "System.Numerics.BigInteger.Equals(ulong)":
             //Returns a value that indicates whether two numeric values are equal.
