@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // All the ABORT instruction addresses in "testAbort" method
             List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbort", OpCode.ABORT);
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbort());
-            Assert.AreEqual(1002097060, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1021260, Engine.FeeConsumed.Value);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
             Assert.AreEqual(exception.State, VMState.FAULT);
@@ -40,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // All the ABORTMSG instruction addresses in "testAbortMsg" method
             List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbortMsg", OpCode.ABORTMSG);
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbortMsg());
-            Assert.AreEqual(1002097300, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1021500, Engine.FeeConsumed.Value);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
             Assert.AreEqual(exception.State, VMState.FAULT);

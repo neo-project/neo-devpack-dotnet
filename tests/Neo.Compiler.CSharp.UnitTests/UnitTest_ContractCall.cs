@@ -21,14 +21,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ContractCall()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.TestContractCall());
-            Assert.AreEqual(2004597830, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2461350, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_ContractCall_Void()
         {
             Contract.TestContractCallVoid(); // No error
-            Assert.AreEqual(2004351530, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2215050, Engine.FeeConsumed.Value);
         }
     }
 }

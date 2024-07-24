@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Minimum Response Fee
 
             Assert.AreEqual(new BigInteger(0_10000000u), Contract.OracleMinimumResponseFee());
-            Assert.AreEqual(1002059920, Engine.FeeConsumed.Value);
+            Assert.AreEqual(984120, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // getOracleNodes
 
             Assert.AreEqual(0, Contract.GetOracleNodes()!.Count);
-            Assert.AreEqual(1004026060, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2950260, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -49,19 +49,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             // NeoSymbol
 
             Assert.AreEqual("NEO", Contract.NEOSymbol());
-            Assert.AreEqual(1003042960, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1967160, Engine.FeeConsumed.Value);
 
             // NeoHash
 
             Assert.AreEqual(NativeContract.NEO.Hash, Contract.NEOHash());
-            Assert.AreEqual(1004027290, Engine.FeeConsumed.Value);
+            Assert.AreEqual(984330, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_GAS()
         {
             Assert.AreEqual("GAS", Contract.GASSymbol());
-            Assert.AreEqual(1003042960, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1967160, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -69,11 +69,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var genesisBlock = NativeContract.Ledger.GetBlock(Engine.Storage.Snapshot, 0);
             Assert.AreEqual(NativeContract.Ledger.Hash, Contract.LedgerHash());
-            Assert.AreEqual(1002060130, Engine.FeeConsumed.Value);
+            Assert.AreEqual(984330, Engine.FeeConsumed.Value);
             Assert.AreEqual(0, Contract.LedgerCurrentIndex());
-            Assert.AreEqual(1005010330, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2950200, Engine.FeeConsumed.Value);
             Assert.AreEqual(genesisBlock.Hash, Contract.LedgerCurrentHash());
-            Assert.AreEqual(1007960530, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2950200, Engine.FeeConsumed.Value);
         }
     }
 }

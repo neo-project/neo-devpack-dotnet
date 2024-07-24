@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Params()
         {
             Assert.AreEqual(15, Contract.Test());
-            Assert.AreEqual(1002336070, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1260270, Engine.FeeConsumed.Value);
         }
     }
 }

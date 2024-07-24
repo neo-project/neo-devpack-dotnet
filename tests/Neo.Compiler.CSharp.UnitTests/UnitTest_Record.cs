@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_CreateRecord(name, age);
-            Assert.AreEqual(1003124680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2048880, Engine.FeeConsumed.Value);
             var arr = result as Struct;
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual(name, arr[0].GetString());
@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_CreateRecord2(name, age);
-            Assert.AreEqual(1003124830, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2049030, Engine.FeeConsumed.Value);
             var arr = result as Struct;
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual(name, arr[0].GetString());
@@ -42,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_UpdateRecord(name, age);
-            Assert.AreEqual(1003511560, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2435760, Engine.FeeConsumed.Value);
             var arr = result as Struct;
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual(name, arr[0].GetString());
@@ -55,7 +55,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 2;
             var result = Contract.Test_UpdateRecord2(name, age);
-            Assert.AreEqual(1004082310, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3006510, Engine.FeeConsumed.Value);
             var arr = result as Struct;
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual("0" + name, arr[0].GetString());
@@ -68,7 +68,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_DeconstructRecord(name, age);
-            Assert.AreEqual(1003186480, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2110680, Engine.FeeConsumed.Value);
             Assert.AreEqual(name, result);
         }
     }

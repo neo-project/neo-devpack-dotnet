@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestCount()
         {
             Assert.AreEqual(4, Contract.TestCount(4));
-            Assert.AreEqual(1003111960, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2036160, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestRemoveAt()
         {
             var item = Contract.TestRemoveAt(5, 2);
-            Assert.AreEqual(1004465800, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3390000, Engine.FeeConsumed.Value);
             var json = ParseJson(item);
 
             Assert.IsTrue(json is JArray);
@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestClear()
         {
             var item = Contract.TestClear(4);
-            Assert.AreEqual(1004218330, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3142530, Engine.FeeConsumed.Value);
             var json = ParseJson(item);
 
             Assert.IsTrue(json is JArray);
@@ -66,7 +66,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestArrayConvert()
         {
             var array = Contract.TestArrayConvert(4)!;
-            Assert.AreEqual(1003111840, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2036040, Engine.FeeConsumed.Value);
             Assert.AreEqual(4, array.Count);
             for (int i = 0; i < 4; i++)
             {

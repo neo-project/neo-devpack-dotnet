@@ -180,7 +180,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Fee Consumed (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public FeeWatcher FeeConsumed { get; }
+        public FeeWatcher FeeConsumed { get; set; }
 
         /// <summary>
         /// Sender
@@ -289,8 +289,6 @@ namespace Neo.SmartContract.Testing
                     PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
                 }
             }
-
-            FeeConsumed = new FeeWatcher(this);
         }
 
         #region Invoke events
@@ -623,6 +621,7 @@ namespace Neo.SmartContract.Testing
             // Execute
 
             beforeExecute?.Invoke(engine);
+            FeeConsumed = new FeeWatcher(this);
             var executionResult = engine.Execute();
 
             // Increment fee

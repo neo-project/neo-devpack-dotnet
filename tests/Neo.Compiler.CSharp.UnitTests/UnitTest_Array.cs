@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GetTreeByteLengthPrefix2()
         {
             var result = Contract.GetTreeByteLengthPrefix2();
-            Assert.AreEqual(1002860620, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1784820, Engine.FeeConsumed.Value);
 
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x03 }, result);
         }
@@ -35,7 +35,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedArray()
         {
             var arr = Contract.TestJaggedArray();
-            Assert.AreEqual(1003170790, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2094990, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(4, arr?.Count);
             var element0 = (Array?)arr?[0];
@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedByteArray()
         {
             var arr = Contract.TestJaggedByteArray();
-            Assert.AreEqual(1003908430, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2832630, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(4, arr?.Count);
             var element0 = (byte[]?)arr?[0];
@@ -57,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_EmptyArray()
         {
             var arr = Contract.TestEmptyArray();
-            Assert.AreEqual(1002863080, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1787280, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(0, arr?.Count);
         }
@@ -66,7 +66,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArray()
         {
             var arr = Contract.TestIntArray();
-            Assert.AreEqual(1003616170, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2540370, Engine.FeeConsumed.Value);
 
             //test 0,1,2
             CollectionAssert.AreEqual(new BigInteger[] { 0, 1, 2 }, arr?.ToArray());
@@ -77,18 +77,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             //test 1,4,5
             var arr = Contract.TestIntArrayInit();
-            Assert.AreEqual(1003416280, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2340480, Engine.FeeConsumed.Value);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
 
 
             //test 1,4,5
             arr = Contract.TestIntArrayInit2();
-            Assert.AreEqual(1005756760, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2340480, Engine.FeeConsumed.Value);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
 
             //test 1,4,5
             arr = Contract.TestIntArrayInit3();
-            Assert.AreEqual(1008097240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2340480, Engine.FeeConsumed.Value);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
         }
 
@@ -96,7 +96,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            Assert.AreEqual(1003881460, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2805660, Engine.FeeConsumed.Value);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            Assert.AreEqual(1003681630, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2605830, Engine.FeeConsumed.Value);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -118,7 +118,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayOwner()
         {
             var bts = Contract.TestByteArrayOwner();
-            Assert.AreEqual(1002860620, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1784820, Engine.FeeConsumed.Value);
 
             CollectionAssert.AreEqual(new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe }, bts);
         }
@@ -127,7 +127,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var arr = Contract.TestDynamicArrayInit(3);
-            Assert.AreEqual(1003681210, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2605410, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(3, arr?.Count);
             Assert.AreEqual(new BigInteger(0), arr?[0]);
@@ -139,7 +139,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayStringInit()
         {
             var arr = Contract.TestDynamicArrayStringInit("hello");
-            Assert.AreEqual(1002931570, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1855770, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(5, arr?.Length);
             Assert.IsTrue(arr?.All(a => a == 0));
@@ -149,7 +149,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayOwnerCall()
         {
             var bts = Contract.TestByteArrayOwnerCall();
-            Assert.AreEqual(1003124020, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2048220, Engine.FeeConsumed.Value);
 
             CollectionAssert.AreEqual(new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe }, bts);
         }
@@ -158,7 +158,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringArray()
         {
             var items = Contract.TestSupportedStandards();
-            Assert.AreEqual(1002860620, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1784820, Engine.FeeConsumed.Value);
 
             Assert.AreEqual((ByteString)"NEP-5", items?[0]);
             Assert.AreEqual((ByteString)"NEP-10", items?[1]);
@@ -168,7 +168,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Collectionexpressions()
         {
             var arr = Contract.TestCollectionexpressions();
-            Assert.AreEqual(1004463280, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3387480, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(4, arr?.Count);
 

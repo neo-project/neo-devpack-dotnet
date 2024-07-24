@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             int src = 100, aux = 200, dst = 300;
             var result = Contract.HanoiTower(1, src, aux, dst)!;
-            Assert.AreEqual(1003864240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2788440, Engine.FeeConsumed.Value);
             Assert.AreEqual(result.Count, 1);
             List<(BigInteger rodId, BigInteger src, BigInteger dst)> expectedResult = [(1, src, dst)];
             for (int i = 0; i < expectedResult.Count; ++i)
@@ -65,15 +65,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MutualRecursion()
         {
             Assert.IsTrue(Contract.Odd(7));
-            Assert.AreEqual(1002257740, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1181940, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.Even(9));
-            Assert.AreEqual(1003477900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1220160, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.Odd(-11));
-            Assert.AreEqual(1004736940, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1259040, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.Even(-10));
-            Assert.AreEqual(1005976810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1239870, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.Even(-9));
-            Assert.AreEqual(1007197510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1220700, Engine.FeeConsumed.Value);
         }
     }
 }

@@ -13,11 +13,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StaticVarInit()
         {
             var var1 = Contract.StaticInit();
-            Assert.AreEqual(1002061270, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1000590, Engine.FeeConsumed.Value);
             Assert.AreEqual(var1, Contract.Hash);
 
             var var2 = Contract.DirectGet();
-            Assert.AreEqual(1003046860, Engine.FeeConsumed.Value);
+            Assert.AreEqual(985590, Engine.FeeConsumed.Value);
             Assert.AreEqual(var1, var2);
         }
     }

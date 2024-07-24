@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // 0a0b0c0d0E0F
             Assert.AreEqual("0a0b0c0d0e0f", Contract.TestHexToBytes().ToHexString());
-            Assert.AreEqual(1002061030, Engine.FeeConsumed.Value);
+            Assert.AreEqual(985230, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -25,34 +25,34 @@ namespace Neo.SmartContract.Framework.UnitTests
             // 0
 
             Assert.IsNull(Contract.TestToBigInteger(null));
-            Assert.AreEqual(1002369730, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1293930, Engine.FeeConsumed.Value);
             Assert.AreEqual(0, Contract.TestToBigInteger(System.Array.Empty<byte>()));
-            Assert.AreEqual(1003663870, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1294140, Engine.FeeConsumed.Value);
 
             // Value
 
             Assert.AreEqual(123, Contract.TestToBigInteger(new byte[] { 123 }));
-            Assert.AreEqual(1004958010, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1294140, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void TestModPow()
         {
             Assert.AreEqual(4, Contract.ModMultiply(4, 7, 6));
-            Assert.AreEqual(1002125110, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049310, Engine.FeeConsumed.Value);
             Assert.AreEqual(9, Contract.ModInverse(3, 26));
-            Assert.AreEqual(1003252300, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1127190, Engine.FeeConsumed.Value);
             Assert.AreEqual(344, Contract.ModPow(23895, 15, 14189));
-            Assert.AreEqual(1004362090, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1109790, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void TestBigIntegerParseandCast()
         {
             Assert.AreEqual(2000000000000000, Contract.TestBigIntegerCast(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
-            Assert.AreEqual(1002615880, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1540080, Engine.FeeConsumed.Value);
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
-            Assert.AreEqual(1004649190, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2033310, Engine.FeeConsumed.Value);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
@@ -61,11 +61,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // With extension
             Assert.AreEqual(5, Contract.AssertCall(true));
-            Assert.AreEqual(1002125260, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             AssertNoLogs();
 
             var ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
-            Assert.AreEqual(1003174630, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
 
@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             Engine.CallFlags &= ~CallFlags.AllowNotify;
             ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
-            Assert.AreEqual(1004224000, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
             Engine.CallFlags = CallFlags.All;
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
@@ -81,74 +81,74 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Void With extension
 
             Contract.VoidAssertCall(true);
-            Assert.AreEqual(1005273130, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049130, Engine.FeeConsumed.Value);
             AssertNoLogs();
 
             ex = Assert.ThrowsException<TestException>(() => Contract.VoidAssertCall(false));
-            Assert.AreEqual(1006322260, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049130, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_ByteToByteArray()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01 }, Contract.TestByteToByteArray());
-            Assert.AreEqual(1002124630, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048830, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_Reverse()
         {
             CollectionAssert.AreEqual(new byte[] { 0x03, 0x02, 0x01 }, Contract.TestReverse());
-            Assert.AreEqual(1002554830, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1479030, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_SbyteToByteArray()
         {
             CollectionAssert.AreEqual(new byte[] { 255 }, Contract.TestSbyteToByteArray());
-            Assert.AreEqual(1002308920, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1233120, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_StringToByteArray()
         {
             CollectionAssert.AreEqual(new byte[] { 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100 }, Contract.TestStringToByteArray());
-            Assert.AreEqual(1002309130, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1233330, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_Concat()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }, Contract.TestConcat());
-            Assert.AreEqual(1002616690, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1540890, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_Range()
         {
             CollectionAssert.AreEqual(new byte[] { 0x02 }, Contract.TestRange());
-            Assert.AreEqual(1002370630, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1294830, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_Take()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02 }, Contract.TestTake());
-            Assert.AreEqual(1002370600, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1294800, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_Last()
         {
             CollectionAssert.AreEqual(new byte[] { 0x02, 0x03 }, Contract.TestLast());
-            Assert.AreEqual(1002370600, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1294800, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_ToScriptHash()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xaa, 0xbb, 0xcc, 0xdd, 0xee }, Contract.TestToScriptHash());
-            Assert.AreEqual(1002061030, Engine.FeeConsumed.Value);
+            Assert.AreEqual(985230, Engine.FeeConsumed.Value);
         }
     }
 }
