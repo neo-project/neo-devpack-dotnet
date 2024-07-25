@@ -74,17 +74,14 @@ partial class MethodConvert
 
             //Gets a value that represents the number one (1).
             case "System.Numerics.BigInteger.One.get":
-            case "System.Numerics.BigInteger?.One.get":
                 Push(1);
                 return true;
             //Gets a value that represents the number negative one (-1).
             case "System.Numerics.BigInteger.MinusOne.get":
-            case "System.Numerics.BigInteger?.MinusOne.get":
                 Push(-1);
                 return true;
             //Gets a value that represents the number 0 (zero).
             case "System.Numerics.BigInteger.Zero.get":
-            case "System.Numerics.BigInteger?.Zero.get":
                 Push(0);
                 return true;
             //Indicates whether the value of the current BigInteger object is Zero.
