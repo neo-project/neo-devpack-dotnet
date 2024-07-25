@@ -9,7 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -47,7 +46,7 @@ namespace Neo.Optimizer
         public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
         public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
         public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
-        public InstructionCoverage(NefFile nef, ContractManifest manifest, JToken debugInfo)
+        public InstructionCoverage(NefFile nef, ContractManifest manifest)
         {
             this.script = nef.Script;
             coveredMap = new();
@@ -62,7 +61,7 @@ namespace Neo.Optimizer
             //Parallel.ForEach(manifest.Abi.Methods, method =>
             //    CoverInstruction(method.Offset, script, coveredMap)
             //);
-            foreach ((int addr, _) in EntryPoint.EntryPointsByMethod(manifest, debugInfo))
+            foreach ((int addr, _) in EntryPoint.EntryPointsByMethod(manifest))
                 CoverInstruction(addr);
         }
 
@@ -165,11 +164,11 @@ namespace Neo.Optimizer
                 // For the analysis of basic blocks,
                 // we launched new recursion when exception is catched.
                 // Here we have the exception not catched
-                if (!coveredMap.ContainsKey(addr))
+                if (!coveredMap.TryGetValue(addr, out BranchType value))
                     throw new BadScriptException($"wrong address {addr}");
-                if (coveredMap[addr] != BranchType.UNCOVERED)
+                if (value != BranchType.UNCOVERED)
                     // We have visited the code. Skip it.
-                    return coveredMap[addr];
+                    return value;
                 Instruction instruction = script.GetInstruction(addr);
                 if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
