@@ -73,7 +73,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 
             // Each jump target starts a new basic block
             foreach (VM.Instruction target in jumpTargets.Keys)
-                Assert.IsTrue(basicBlocks.basicBlocksByStartingInstruction.ContainsKey(target));
+                Assert.IsTrue(basicBlocks.basicBlocksByStartInstruction.ContainsKey(target));
 
             // Each instruction is included in only 1 basic block
             HashSet<VM.Instruction> includedInstructions = new();

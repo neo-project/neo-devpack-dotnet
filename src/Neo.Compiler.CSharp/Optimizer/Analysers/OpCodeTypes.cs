@@ -11,8 +11,8 @@
 
 using Neo.VM;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using static Neo.VM.OpCode;
 
 namespace Neo.Optimizer

@@ -26,13 +26,15 @@ namespace Neo.Optimizer
     /// </summary>
     public class BasicBlock
     {
+        public readonly int startAddr;
         public List<Instruction> instructions { get; set; }  // instructions in this basic block
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
         public BasicBlock? jumpTargetBlock1 = null;  // jump target of the last instruction of this basic block
         public BasicBlock? jumpTargetBlock2 = null;
 
-        public BasicBlock(List<Instruction> instructions)
+        public BasicBlock(int startAddr, List<Instruction> instructions)
         {
+            this.startAddr = startAddr;
             this.instructions = instructions;
         }
 
@@ -55,54 +57,54 @@ namespace Neo.Optimizer
     /// </summary>
     public class ContractInBasicBlocks
     {
-        public static Dictionary<int, Dictionary<int, Instruction>> BasicBlocksInDict(NefFile nef, ContractManifest manifest, JToken debugInfo)
-            => new InstructionCoverage(nef, manifest, debugInfo).basicBlocksInDict;
+        public static Dictionary<int, Dictionary<int, Instruction>> BasicBlocksInDict(NefFile nef, ContractManifest manifest)
+            => new InstructionCoverage(nef, manifest).basicBlocksInDict;
 
         public List<BasicBlock> basicBlocks;
-        public Dictionary<Instruction, BasicBlock> basicBlocksByStartingInstruction;
+        public Dictionary<Instruction, BasicBlock> basicBlocksByStartInstruction;
         public ContractManifest manifest;
-        public JToken debugInfo;
-        public ContractInBasicBlocks(NefFile nef, ContractManifest manifest, JToken debugInfo)
+        public JToken? debugInfo;
+        public ContractInBasicBlocks(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             this.manifest = manifest;
             this.debugInfo = debugInfo;
-            InstructionCoverage coverage = new(nef, manifest, debugInfo);
-            IEnumerable<(int startingAddr, List<Instruction> block)> sortedBasicBlocks =
+            InstructionCoverage coverage = new(nef, manifest);
+            IEnumerable<(int startAddr, List<Instruction> block)> sortedBasicBlocks =
                 from kv in coverage.basicBlocksInDict
                 orderby kv.Key ascending
                 select (kv.Key,
                     // kv.Value sorted by address
                     (from singleBlockKv in kv.Value orderby singleBlockKv.Key ascending select singleBlockKv.Value).ToList()
                 );
-            basicBlocksByStartingInstruction = new();
+            basicBlocksByStartInstruction = new();
             BasicBlock? prevBlock = null;
             // build all blocks without handling jumps between blocks
-            foreach ((int startingAddr, List<Instruction> block) in sortedBasicBlocks)
+            foreach ((int startAddr, List<Instruction> block) in sortedBasicBlocks)
             {
-                BasicBlock thisBlock = new(block);
-                basicBlocksByStartingInstruction.Add(block.First(), thisBlock);
+                BasicBlock thisBlock = new(startAddr, block);
+                basicBlocksByStartInstruction.Add(block.First(), thisBlock);
                 if (prevBlock != null)
                     prevBlock.nextBlock = thisBlock;
                 prevBlock = thisBlock;
             }
             // handle jumps between blocks
-            foreach ((int startingAddr, List<Instruction> block) in sortedBasicBlocks)
+            foreach ((int startAddr, List<Instruction> block) in sortedBasicBlocks)
             {
                 Instruction lastInstruction = block.Last();
                 if (coverage.jumpInstructionSourceToTargets.TryGetValue(lastInstruction, out Instruction? target))
-                    basicBlocksByStartingInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartingInstruction[target];
+                    basicBlocksByStartInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartInstruction[target];
                 if (coverage.tryInstructionSourceToTargets.TryGetValue(lastInstruction, out (Instruction, Instruction) targets))
                 {
                     // The reachability optimizer may ask the jumping instruction to point to itself,
                     // because the original jump target may have been deleted.
                     // We do not consider a jump to self.
                     if (lastInstruction != targets.Item1)
-                        basicBlocksByStartingInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartingInstruction[targets.Item1];
+                        basicBlocksByStartInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartInstruction[targets.Item1];
                     if (lastInstruction != targets.Item2)
-                        basicBlocksByStartingInstruction[block.First()].jumpTargetBlock2 = basicBlocksByStartingInstruction[targets.Item2];
+                        basicBlocksByStartInstruction[block.First()].jumpTargetBlock2 = basicBlocksByStartInstruction[targets.Item2];
                 }
             }
-            this.basicBlocks = basicBlocksByStartingInstruction.Values.ToList();
+            this.basicBlocks = basicBlocksByStartInstruction.Values.ToList();
         }
 
         public IEnumerable<Instruction> GetScriptInstructions()
