@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -7,7 +8,7 @@ namespace Neo.SmartContract.Framework.UnitTests;
 [TestClass]
 public class NullableTest : TestBase<Contract_Nullable>
 {
-    public NullableTest() : base(Contract_Map.Nef, Contract_Map.Manifest)
+    public NullableTest() : base(Contract_Nullable.Nef, Contract_Nullable.Manifest)
     {
     }
 
@@ -48,6 +49,8 @@ public class NullableTest : TestBase<Contract_Nullable>
         Assert.IsTrue(Contract.BoolNullableEqual());
         Assert.IsTrue(Contract.BoolNullableNotEqual());
         Assert.IsTrue(Contract.BoolNullableEqualNull());
-        Contract.GetNullableValue();
+        Assert.IsTrue(Contract.GetNullableValue());
+        Assert.IsTrue(Contract.NullableEqual());
+        Assert.IsTrue(Contract.NullableToString());
     }
 }
