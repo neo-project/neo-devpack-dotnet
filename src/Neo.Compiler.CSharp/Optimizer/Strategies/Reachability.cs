@@ -33,7 +33,7 @@ namespace Neo.Optimizer
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JObject debugInfo)
         {
-            InstructionCoverage oldContractCoverage = new InstructionCoverage(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = new InstructionCoverage(nef, manifest);
             Dictionary<int, BranchType> coveredMap = oldContractCoverage.coveredMap;
             Script oldScript = nef.Script;
             List<(int, Instruction)> oldAddressAndInstructionsList = oldContractCoverage.addressAndInstructions;
@@ -129,13 +129,13 @@ namespace Neo.Optimizer
                 foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
                 {
                     GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
-                    int startingInstructionAddress = int.Parse(sequencePointGroups[1].ToString());
-                    Instruction oldInstruction = oldAddressToInstruction[startingInstructionAddress];
+                    int startInstructionAddress = int.Parse(sequencePointGroups[1].ToString());
+                    Instruction oldInstruction = oldAddressToInstruction[startInstructionAddress];
                     if (simplifiedInstructionsToAddress.Contains(oldInstruction))
                     {
-                        startingInstructionAddress = (int)simplifiedInstructionsToAddress[oldInstruction]!;
-                        newSequencePoints.Add(new JString($"{startingInstructionAddress}{sequencePointGroups[2]}"));
-                        previousSequencePoint = startingInstructionAddress;
+                        startInstructionAddress = (int)simplifiedInstructionsToAddress[oldInstruction]!;
+                        newSequencePoints.Add(new JString($"{startInstructionAddress}{sequencePointGroups[2]}"));
+                        previousSequencePoint = startInstructionAddress;
                     }
                     else
                         newSequencePoints.Add(new JString($"{previousSequencePoint}{sequencePointGroups[2]}"));
@@ -156,7 +156,7 @@ namespace Neo.Optimizer
         }
 
         public static Dictionary<int, BranchType>
-            FindCoveredInstructions(NefFile nef, ContractManifest manifest, JToken debugInfo)
-            => new InstructionCoverage(nef, manifest, debugInfo).coveredMap;
+            FindCoveredInstructions(NefFile nef, ContractManifest manifest)
+            => new InstructionCoverage(nef, manifest).coveredMap;
     }
 }
