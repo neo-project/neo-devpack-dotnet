@@ -90,130 +90,154 @@ partial class MethodConvert
             //Indicates whether the value of the current BigInteger object is Zero.
             case "System.Numerics.BigInteger.IsZero.get":
             case "System.Numerics.BigInteger?.IsZero.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Push(0);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             //Indicates whether the value of the current BigInteger object is One.
             case "System.Numerics.BigInteger.IsOne.get":
             case "System.Numerics.BigInteger?.IsOne.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Push(1);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(1);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             //Indicates whether the value of the current BigInteger object is an even number.
             case "System.Numerics.BigInteger.IsEven.get":
             case "System.Numerics.BigInteger?.IsEven.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Push(1);
-                AddInstruction(OpCode.AND);
-                Push(0);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(1);
+                    AddInstruction(OpCode.AND);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             //Gets a number that indicates the sign (negative, positive, or zero) of the current BigInteger object.
             case "System.Numerics.BigInteger.Sign.get":
             case "System.Numerics.BigInteger?.Sign.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                AddInstruction(OpCode.SIGN);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
+                }
             //Missing BigInteger.IsPowerOfTwo Property
-
             #endregion
 
             #region Method of System.Numerics.BigInteger
-
             //Raises a BigInteger value to the power of a specified value.
             case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.POW);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.POW);
+                    return true;
+                }
             //Performs modulus division on a number raised to the power of another number.
             case "System.Numerics.BigInteger.ModPow(System.Numerics.BigInteger, System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.MODPOW);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MODPOW);
+                    return true;
+                }
             //Adds two BigInteger values and returns the result.
             case "System.Numerics.BigInteger.Add(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.ADD);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.ADD);
+                    return true;
+                }
             //Subtracts one BigInteger value from another and returns the result.
             case "System.Numerics.BigInteger.Subtract(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.SUB);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.SUB);
+                    return true;
+                }
             //Negates a specified BigInteger value.
             case "System.Numerics.BigInteger.Negate(System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.NEGATE);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.NEGATE);
+                    return true;
+                }
             //Returns the product of two BigInteger values.
             case "System.Numerics.BigInteger.Multiply(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.MUL);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MUL);
+                    return true;
+                }
             //Divides one BigInteger value by another and returns the result.
             case "System.Numerics.BigInteger.Divide(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.DIV);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.DIV);
+                    return true;
+                }
             //Performs integer division on two BigInteger values and returns the remainder.
             case "System.Numerics.BigInteger.Remainder(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.MOD);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MOD);
+                    return true;
+                }
             //Compares two BigInteger values and returns an integer that indicates whether the first value is less than,
             //equal to, or greater than the second value.
             case "System.Numerics.BigInteger.Compare(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                // if left < right return -1;
-                // if left = right return 0;
-                // if left > right return 1;
-                AddInstruction(OpCode.SUB);
-                AddInstruction(OpCode.SIGN);
-                return true;
-            //Finds the greatest common divisor of two BigInteger values.
-            case
-                "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)"
-                :
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                JumpTarget gcdTarget = new()
                 {
-                    Instruction = AddInstruction(OpCode.DUP)
-                };
-                AddInstruction(OpCode.REVERSE3);
-                AddInstruction(OpCode.SWAP);
-                AddInstruction(OpCode.MOD);
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.PUSH0);
-                AddInstruction(OpCode.NUMEQUAL);
-                Jump(OpCode.JMPIFNOT, gcdTarget);
-                AddInstruction(OpCode.DROP);
-                AddInstruction(OpCode.ABS);
-                return true;
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    // if left < right return -1;
+                    // if left = right return 0;
+                    // if left > right return 1;
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
+                }
+            //Finds the greatest common divisor of two BigInteger values.
+            case "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    JumpTarget gcdTarget = new()
+                    {
+                        Instruction = AddInstruction(OpCode.DUP)
+                    };
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.MOD);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    Jump(OpCode.JMPIFNOT, gcdTarget);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.ABS);
+                    return true;
+                }
             //Converts a BigInteger value to a byte array.
             case "System.Numerics.BigInteger.ToByteArray()":
             case "System.Numerics.BigInteger?.ToByteArray()":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                ChangeType(VM.Types.StackItemType.Buffer);
-                return true;
-
-
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    ChangeType(VM.Types.StackItemType.Buffer);
+                    return true;
+                }
             //Converts the string representation of a number to its BigInteger equivalent.
             case "System.Numerics.BigInteger.Parse(string)":
                 if (arguments is not null)
@@ -470,7 +494,6 @@ partial class MethodConvert
                     endTarget2.Instruction = AddInstruction(OpCode.NOP);
                     return true;
                 }
-
             case "sbyte.ToString()":
             case "byte.ToString()":
             case "short.ToString()":
@@ -481,10 +504,12 @@ partial class MethodConvert
             case "ulong.ToString()":
             //Converts the numeric value of the current BigInteger object to its equivalent string representation.
             case "System.Numerics.BigInteger.ToString()":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+                    return true;
+                }
             // do it for every: byte, sbyte, short, ushort, int, uint, long, ulong, bool, char
             case "byte.Equals(object?)":
             case "sbyte.Equals(object?)":
@@ -518,21 +543,25 @@ partial class MethodConvert
             //Returns a value that indicates whether two numeric values are equal.
             case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
             case "System.Numerics.BigInteger?.Equals(System.Numerics.BigInteger)":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             #region Method of string
             //Gets the total number of elements in all the dimensions of the Array.
             case "System.Array.Length.get":
             //Gets the number of characters in the current String object.
             case "string.Length.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                AddInstruction(OpCode.SIZE);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.SIZE);
+                    return true;
+                }
             //Converts the string representation of a number to its 8-bit signed integer equivalent.
             case "sbyte.Parse(string)":
                 {
