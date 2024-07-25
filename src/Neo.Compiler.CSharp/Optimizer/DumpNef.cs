@@ -218,7 +218,7 @@ namespace Neo.Optimizer
                 ).Select(ai => ai.a).ToList();
         }
 
-        public static string GenerateDumpNef(NefFile nef, JToken debugInfo)
+        public static string GenerateDumpNef(NefFile nef, JToken? debugInfo)
         {
             Script script = nef.Script;
             List<(int, Instruction)> addressAndInstructionsList = script.EnumerateInstructions().ToList();
@@ -229,27 +229,30 @@ namespace Neo.Optimizer
             Dictionary<int, string> methodEndAddrToName = new();
             Dictionary<int, List<(int docId, int startLine, int startCol, int endLine, int endCol)>> newAddrToSequencePoint = new();
 
-            foreach (JToken? method in (JArray)debugInfo["methods"]!)
+            if (debugInfo != null)
             {
-                GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
-                (int methodStartAddr, int methodEndAddr) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
-                methodStartAddrToName.Add(methodStartAddr, method!["id"]!.AsString());  // TODO: same format of method name as dumpnef
-                methodEndAddrToName.Add(methodEndAddr, method["id"]!.AsString());
-
-                foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
+                foreach (JToken? method in (JArray)debugInfo["methods"]!)
                 {
-                    GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
-                    GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
-                    int addr = int.Parse(sequencePointGroups[1].Value);
-                    if (!newAddrToSequencePoint.ContainsKey(addr))
-                        newAddrToSequencePoint.Add(addr, new());
-                    newAddrToSequencePoint[addr].Add((
-                        int.Parse(documentGroups[1].ToString()),
-                        int.Parse(documentGroups[2].ToString()),
-                        int.Parse(documentGroups[3].ToString()),
-                        int.Parse(documentGroups[4].ToString()),
-                        int.Parse(documentGroups[5].ToString())
-                    ));
+                    GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
+                    (int methodStartAddr, int methodEndAddr) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
+                    methodStartAddrToName.Add(methodStartAddr, method!["id"]!.AsString());  // TODO: same format of method name as dumpnef
+                    methodEndAddrToName.Add(methodEndAddr, method["id"]!.AsString());
+
+                    foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
+                    {
+                        GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
+                        GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
+                        int addr = int.Parse(sequencePointGroups[1].Value);
+                        if (!newAddrToSequencePoint.ContainsKey(addr))
+                            newAddrToSequencePoint.Add(addr, new());
+                        newAddrToSequencePoint[addr].Add((
+                            int.Parse(documentGroups[1].ToString()),
+                            int.Parse(documentGroups[2].ToString()),
+                            int.Parse(documentGroups[3].ToString()),
+                            int.Parse(documentGroups[4].ToString()),
+                            int.Parse(documentGroups[5].ToString())
+                        ));
+                    }
                 }
             }
 

@@ -9,7 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -22,6 +21,7 @@ namespace Neo.Optimizer
     {
         PublicMethod,
         Initialize,
+        Deploy,
         PUSHA,
     }
 
@@ -33,26 +33,22 @@ namespace Neo.Optimizer
         /// <param name="manifest">The contract manifest.</param>
         /// <param name="debugInfo">The debug information.</param>
         /// <returns>A dictionary containing method entry points. (addr -> EntryType, hasCallA)</returns>
-        public static Dictionary<int, EntryType> EntryPointsByMethod(ContractManifest manifest, JToken debugInfo)
+        public static Dictionary<int, EntryType> EntryPointsByMethod(ContractManifest manifest)
         {
             Dictionary<int, EntryType> result = new();
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
             {
                 if (method.Name == "_initialize")
-                    result.Add(method.Offset, EntryType.Initialize);
-                else
-                    result.Add(method.Offset, EntryType.PublicMethod);
-            }
-            foreach (JToken? method in (JArray)debugInfo["methods"]!)
-            {
-                string name = method!["name"]!.AsString();  // NFTLoan.NFTLoan,RegisterRental
-                name = name[(name.LastIndexOf(',') + 1)..];  // RegisterRental
-                name = char.ToLower(name[0]) + name[1..];  // registerRental
-                if (name == "_deploy")
                 {
-                    int startAddr = int.Parse(method!["range"]!.AsString().Split("-")[0]);
-                    result[startAddr] = EntryType.Initialize;  // set instead of add; _deploy may be in the manifest
+                    result.Add(method.Offset, EntryType.Initialize);
+                    continue;
                 }
+                if (method.Name == "_deploy")
+                {
+                    result.Add(method.Offset, EntryType.Deploy);
+                    continue;
+                }
+                result.Add(method.Offset, EntryType.PublicMethod);
             }
             return result;
         }
@@ -114,7 +110,7 @@ namespace Neo.Optimizer
         /// <param name="manifest">The contract manifest.</param>
         /// <param name="debugInfo">The debug information.</param>
         /// <returns>A dictionary containing all entry points.</returns>
-        public static Dictionary<int, EntryType> AllEntryPoints(NefFile nef, ContractManifest manifest, JToken debugInfo)
-            => EntryPointsByCallA(nef).Concat(EntryPointsByMethod(manifest, debugInfo)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        public static Dictionary<int, EntryType> AllEntryPoints(NefFile nef, ContractManifest manifest)
+            => EntryPointsByCallA(nef).Concat(EntryPointsByMethod(manifest)).ToDictionary(kv => kv.Key, kv => kv.Value);
     }
 }
