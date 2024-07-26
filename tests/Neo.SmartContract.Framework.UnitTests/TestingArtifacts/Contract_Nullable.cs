@@ -10,12 +10,12 @@ public abstract class Contract_Nullable : Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static readonly Neo.SmartContract.Manifest.ContractManifest Manifest = Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Nullable"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""bigIntegerNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":0,""safe"":false},{""name"":""bigIntegerNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":37,""safe"":false},{""name"":""bigIntegerNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":76,""safe"":false},{""name"":""h160NullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":96,""safe"":false},{""name"":""h160NullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":191,""safe"":false},{""name"":""h256NullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":202,""safe"":false},{""name"":""h256NullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":339,""safe"":false},{""name"":""byteNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":506,""safe"":false},{""name"":""byteNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":543,""safe"":false},{""name"":""byteNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":582,""safe"":false},{""name"":""sByteNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":602,""safe"":false},{""name"":""sByteNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":639,""safe"":false},{""name"":""sByteNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":678,""safe"":false},{""name"":""shortNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":698,""safe"":false},{""name"":""shortNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":735,""safe"":false},{""name"":""shortNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":774,""safe"":false},{""name"":""uShortNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":794,""safe"":false},{""name"":""uShortNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":831,""safe"":false},{""name"":""uShortNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":870,""safe"":false},{""name"":""intNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":890,""safe"":false},{""name"":""intNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":927,""safe"":false},{""name"":""intNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":966,""safe"":false},{""name"":""uIntNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":986,""safe"":false},{""name"":""uIntNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1023,""safe"":false},{""name"":""uIntNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":1062,""safe"":false},{""name"":""longNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1082,""safe"":false},{""name"":""longNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1119,""safe"":false},{""name"":""longNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":1158,""safe"":false},{""name"":""uLongNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1178,""safe"":false},{""name"":""uLongNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1215,""safe"":false},{""name"":""uLongNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":1254,""safe"":false},{""name"":""boolNullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1274,""safe"":false},{""name"":""boolNullableNotEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1311,""safe"":false},{""name"":""boolNullableEqualNull"",""parameters"":[],""returntype"":""Boolean"",""offset"":1350,""safe"":false},{""name"":""getNullableValue"",""parameters"":[],""returntype"":""Boolean"",""offset"":1370,""safe"":false},{""name"":""nullableEqual"",""parameters"":[],""returntype"":""Boolean"",""offset"":1781,""safe"":false},{""name"":""nullableToString"",""parameters"":[],""returntype"":""Boolean"",""offset"":2156,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static readonly Neo.SmartContract.Manifest.ContractManifest Manifest = Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Nullable"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""bigIntegerNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":0,""safe"":false},{""name"":""bigIntegerNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":33,""safe"":false},{""name"":""bigIntegerNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":68,""safe"":false},{""name"":""h160NullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Hash160""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":86,""safe"":false},{""name"":""h160NullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":121,""safe"":false},{""name"":""h256NullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Hash256""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":130,""safe"":false},{""name"":""h256NullableEqual"",""parameters"":[{""name"":""a"",""type"":""Hash256""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":165,""safe"":false},{""name"":""byteNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":198,""safe"":false},{""name"":""byteNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":231,""safe"":false},{""name"":""byteNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":266,""safe"":false},{""name"":""sByteNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":284,""safe"":false},{""name"":""sByteNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":317,""safe"":false},{""name"":""sByteNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":352,""safe"":false},{""name"":""shortNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":370,""safe"":false},{""name"":""shortNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":403,""safe"":false},{""name"":""shortNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":438,""safe"":false},{""name"":""uShortNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":456,""safe"":false},{""name"":""uShortNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":489,""safe"":false},{""name"":""uShortNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":524,""safe"":false},{""name"":""intNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":542,""safe"":false},{""name"":""intNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":575,""safe"":false},{""name"":""intNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":610,""safe"":false},{""name"":""uIntNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":628,""safe"":false},{""name"":""uIntNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":661,""safe"":false},{""name"":""uIntNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":696,""safe"":false},{""name"":""longNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":714,""safe"":false},{""name"":""longNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":747,""safe"":false},{""name"":""longNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":782,""safe"":false},{""name"":""uLongNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":800,""safe"":false},{""name"":""uLongNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":833,""safe"":false},{""name"":""uLongNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":868,""safe"":false},{""name"":""boolNullableEqual"",""parameters"":[{""name"":""a"",""type"":""Boolean""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":886,""safe"":false},{""name"":""boolNullableNotEqual"",""parameters"":[{""name"":""a"",""type"":""Boolean""},{""name"":""b"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":919,""safe"":false},{""name"":""boolNullableEqualNull"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":954,""safe"":false},{""name"":""byteNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":972,""safe"":false},{""name"":""sByteNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":997,""safe"":false},{""name"":""shortNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1022,""safe"":false},{""name"":""uShortNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1047,""safe"":false},{""name"":""intNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1072,""safe"":false},{""name"":""uIntNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1097,""safe"":false},{""name"":""longNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1122,""safe"":false},{""name"":""uLongNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1147,""safe"":false},{""name"":""boolNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1172,""safe"":false},{""name"":""charNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1214,""safe"":false},{""name"":""bigIntegerNullableToString"",""parameters"":[{""name"":""a"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":1238,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static readonly Neo.SmartContract.NefFile Nef = Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"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"));
+    public static readonly Neo.SmartContract.NefFile Nef = Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/e8EVwACeHmXJAUJIgV4ebMkBQkiBXl4syQFCSIFeXiXIgJAVwACeHmYJAUJIgZ4ebOqJAUJIgZ5eLOqJAUJIgV5eJgiAkBXAAF4C5ckBQkiBnjYqqoiAkBXAAJ4eZgkBQkiBnh5l6okBQkiBnl4l6okBQkiBXl4mCICQFcAAXgLlyICQFcAAnh5mCQFCSIGeHmXqiQFCSIGeXiXqiQFCSIFeXiYIgJAVwACeHmXJAUJIgV4eZckBQkiBXl4lyQFCSIFeXiXIgJAVwACeHmXJAUJIgV4ebMkBQkiBXl4syQFCSIFeXiXIgJAVwACeHmYJAUJIgZ4ebOqJAUJIgZ5eLOqJAUJIgV5eJgiAkBXAAF4C5ckBQkiBnjYqqoiAkBXAAJ4eZckBQkiBXh5syQFCSIFeXizJAUJIgV5eJciAkBXAAJ4eZgkBQkiBnh5s6okBQkiBnl4s6okBQkiBXl4mCICQFcAAXgLlyQFCSIGeNiqqiICQFcAAnh5lyQFCSIFeHmzJAUJIgV5eLMkBQkiBXl4lyICQFcAAnh5mCQFCSIGeHmzqiQFCSIGeXizqiQFCSIFeXiYIgJAVwABeAuXJAUJIgZ42KqqIgJAVwACeHmXJAUJIgV4ebMkBQkiBXl4syQFCSIFeXiXIgJAVwACeHmYJAUJIgZ4ebOqJAUJIgZ5eLOqJAUJIgV5eJgiAkBXAAF4C5ckBQkiBnjYqqoiAkBXAAJ4eZckBQkiBXh5syQFCSIFeXizJAUJIgV5eJciAkBXAAJ4eZgkBQkiBnh5s6okBQkiBnl4s6okBQkiBXl4mCICQFcAAXgLlyQFCSIGeNiqqiICQFcAAnh5lyQFCSIFeHmzJAUJIgV5eLMkBQkiBXl4lyICQFcAAnh5mCQFCSIGeHmzqiQFCSIGeXizqiQFCSIFeXiYIgJAVwABeAuXJAUJIgZ42KqqIgJAVwACeHmXJAUJIgV4ebMkBQkiBXl4syQFCSIFeXiXIgJAVwACeHmYJAUJIgZ4ebOqJAUJIgZ5eLOqJAUJIgV5eJgiAkBXAAF4C5ckBQkiBnjYqqoiAkBXAAJ4eZckBQkiBXh5syQFCSIFeXizJAUJIgV5eJciAkBXAAJ4eZgkBQkiBnh5s6okBQkiBnl4s6okBQkiBXl4mCICQFcAAXgLlyQFCSIGeNiqqiICQFcAAnh5lyQFCSIFeHmzJAUJIgV5eLMkBQkiBXl4lyICQFcAAnh5mCQFCSIGeHmzqiQFCSIGeXizqiQFCSIFeXiYIgJAVwABeAuXJAUJIgZ42KqqIgJAVwABeErYJAU3AABK2CYFRQwADAExlyICQFcAAXhK2CQFNwAAStgmBUUMAAwBMZciAkBXAAF4StgkBTcAAErYJgVFDAAMATGXIgJAVwABeErYJAU3AABK2CYFRQwADAExlyICQFcAAXhK2CQFNwAAStgmBUUMAAwBMZciAkBXAAF4StgkBTcAAErYJgVFDAAMATGXIgJAVwABeErYJAU3AABK2CYFRQwADAExlyICQFcAAXhK2CQFNwAAStgmBUUMAAwBMZciAkBXAAF4StgkEyQLDAVGYWxzZSIIDARUcnVlStgmBUUMAAwEVHJ1ZZciAkBXAAF4StgkBNsoStgmBUUMAAwBYZciAkBXAAF4StgkBTcAAErYJgVFDAAMATGXIgJAK4KYmQ=="));
 
     #endregion
 
@@ -25,223 +25,271 @@ public abstract class Contract_Nullable : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("bigIntegerNullableEqual")]
-    public abstract bool? BigIntegerNullableEqual();
+    public abstract bool? BigIntegerNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bigIntegerNullableEqualNull")]
-    public abstract bool? BigIntegerNullableEqualNull();
+    public abstract bool? BigIntegerNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bigIntegerNullableNotEqual")]
-    public abstract bool? BigIntegerNullableNotEqual();
+    public abstract bool? BigIntegerNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("bigIntegerNullableToString")]
+    public abstract bool? BigIntegerNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("boolNullableEqual")]
-    public abstract bool? BoolNullableEqual();
+    public abstract bool? BoolNullableEqual(bool? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("boolNullableEqualNull")]
-    public abstract bool? BoolNullableEqualNull();
+    public abstract bool? BoolNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("boolNullableNotEqual")]
-    public abstract bool? BoolNullableNotEqual();
+    public abstract bool? BoolNullableNotEqual(bool? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("boolNullableToString")]
+    public abstract bool? BoolNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("byteNullableEqual")]
-    public abstract bool? ByteNullableEqual();
+    public abstract bool? ByteNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("byteNullableEqualNull")]
-    public abstract bool? ByteNullableEqualNull();
+    public abstract bool? ByteNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("byteNullableNotEqual")]
-    public abstract bool? ByteNullableNotEqual();
+    public abstract bool? ByteNullableNotEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    [DisplayName("getNullableValue")]
-    public abstract bool? GetNullableValue();
+    [DisplayName("byteNullableToString")]
+    public abstract bool? ByteNullableToString(object? a = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("charNullableToString")]
+    public abstract bool? CharNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("h160NullableEqualNull")]
-    public abstract bool? H160NullableEqualNull();
+    public abstract bool? H160NullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("h160NullableNotEqual")]
-    public abstract bool? H160NullableNotEqual();
+    public abstract bool? H160NullableNotEqual(UInt160? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("h256NullableEqual")]
-    public abstract bool? H256NullableEqual();
+    public abstract bool? H256NullableEqual(UInt256? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("h256NullableNotEqual")]
-    public abstract bool? H256NullableNotEqual();
+    public abstract bool? H256NullableNotEqual(UInt256? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("intNullableEqual")]
-    public abstract bool? IntNullableEqual();
+    public abstract bool? IntNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("intNullableEqualNull")]
-    public abstract bool? IntNullableEqualNull();
+    public abstract bool? IntNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("intNullableNotEqual")]
-    public abstract bool? IntNullableNotEqual();
+    public abstract bool? IntNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("intNullableToString")]
+    public abstract bool? IntNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("longNullableEqual")]
-    public abstract bool? LongNullableEqual();
+    public abstract bool? LongNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("longNullableEqualNull")]
-    public abstract bool? LongNullableEqualNull();
+    public abstract bool? LongNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("longNullableNotEqual")]
-    public abstract bool? LongNullableNotEqual();
+    public abstract bool? LongNullableNotEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    [DisplayName("nullableEqual")]
-    public abstract bool? NullableEqual();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    [DisplayName("nullableToString")]
-    public abstract bool? NullableToString();
+    [DisplayName("longNullableToString")]
+    public abstract bool? LongNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sByteNullableEqual")]
-    public abstract bool? SByteNullableEqual();
+    public abstract bool? SByteNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sByteNullableEqualNull")]
-    public abstract bool? SByteNullableEqualNull();
+    public abstract bool? SByteNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sByteNullableNotEqual")]
-    public abstract bool? SByteNullableNotEqual();
+    public abstract bool? SByteNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("sByteNullableToString")]
+    public abstract bool? SByteNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("shortNullableEqual")]
-    public abstract bool? ShortNullableEqual();
+    public abstract bool? ShortNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("shortNullableEqualNull")]
-    public abstract bool? ShortNullableEqualNull();
+    public abstract bool? ShortNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("shortNullableNotEqual")]
-    public abstract bool? ShortNullableNotEqual();
+    public abstract bool? ShortNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("shortNullableToString")]
+    public abstract bool? ShortNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uIntNullableEqual")]
-    public abstract bool? UIntNullableEqual();
+    public abstract bool? UIntNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uIntNullableEqualNull")]
-    public abstract bool? UIntNullableEqualNull();
+    public abstract bool? UIntNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uIntNullableNotEqual")]
-    public abstract bool? UIntNullableNotEqual();
+    public abstract bool? UIntNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("uIntNullableToString")]
+    public abstract bool? UIntNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uLongNullableEqual")]
-    public abstract bool? ULongNullableEqual();
+    public abstract bool? ULongNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uLongNullableEqualNull")]
-    public abstract bool? ULongNullableEqualNull();
+    public abstract bool? ULongNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uLongNullableNotEqual")]
-    public abstract bool? ULongNullableNotEqual();
+    public abstract bool? ULongNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("uLongNullableToString")]
+    public abstract bool? ULongNullableToString(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uShortNullableEqual")]
-    public abstract bool? UShortNullableEqual();
+    public abstract bool? UShortNullableEqual(BigInteger? a, object? b = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uShortNullableEqualNull")]
-    public abstract bool? UShortNullableEqualNull();
+    public abstract bool? UShortNullableEqualNull(object? a = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uShortNullableNotEqual")]
-    public abstract bool? UShortNullableNotEqual();
+    public abstract bool? UShortNullableNotEqual(BigInteger? a, object? b = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("uShortNullableToString")]
+    public abstract bool? UShortNullableToString(object? a = null);
 
     #endregion
 
