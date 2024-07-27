@@ -1,8 +1,10 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -94,6 +96,20 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.ThrowsException<TestException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
             Assert.ThrowsException<TestException>(() => Contract.Testulong(-1));
         }
+
+        [TestMethod]
+        public void Test_char()
+        {
+            Assert.AreEqual(0, Contract.Testchar(0));
+            Assert.AreEqual(65535, Contract.Testchar(char.MaxValue));
+            Assert.ThrowsException<TestException>(() => Contract.Testchar(-1));
+            Assert.ThrowsException<TestException>(() => Contract.Testchar(65536));
+
+            // char.MaxValue is not a UTF-8 character, thus can not convert to string in neo
+            Assert.ThrowsException<DecoderFallbackException>(() => Contract.Testchartostring(char.MaxValue));
+            Assert.AreEqual("A", Contract.Testchartostring('A'));
+        }
+
         [TestMethod]
         public void Test_IsEven()
         {
