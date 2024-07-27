@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Akka.Util;
+using Akka.Util.Internal;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -91,7 +92,11 @@ namespace Neo.Compiler.CSharp.UnitTests
                 }
             });
 
-            if (updatedArtifactNames.Count != 0) Assert.Fail("There are artifacts being updated, please rerun the tests.");
+            if (updatedArtifactNames.Count != 0)
+            {
+                updatedArtifactNames.ForEach(p => Console.WriteLine($"Artifact {p} was updated."));
+                Assert.Fail("There are artifacts being updated, please rerun the tests.");
+            }
             // Ensure that all match
 
             if (results.Count > 0)
