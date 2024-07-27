@@ -63,7 +63,11 @@ namespace Neo.Compiler
 
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
-            if (type.ToString()!.EndsWith('?')) return ContractParameterType.Any;
+            if (type is INamedTypeSymbol { IsValueType: true, NullableAnnotation: NullableAnnotation.Annotated })
+            {
+                return ContractParameterType.Any;
+            }
+
             switch (type.ToString())
             {
                 case "void": return ContractParameterType.Void;
