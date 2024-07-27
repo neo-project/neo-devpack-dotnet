@@ -3,7 +3,7 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.TestContracts;
 
-public class Contract_ErrorNullable : SmartContract.Framework.SmartContract
+public class Contract_NullableType : SmartContract.Framework.SmartContract
 {
 
 
@@ -52,11 +52,6 @@ public class Contract_ErrorNullable : SmartContract.Framework.SmartContract
 
     }
 
-    public static void TestChar(char? a)
-    {
-
-    }
-
     public static void TestBool(bool? a)
     {
 
@@ -93,12 +88,6 @@ public class Contract_ErrorNullable : SmartContract.Framework.SmartContract
     }
 
     public static void TestNullableString(string? a)
-    {
-
-    }
-
-
-    public static void TestObject(object a)
     {
 
     }
