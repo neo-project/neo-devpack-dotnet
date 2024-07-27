@@ -92,6 +92,12 @@ public class Contract_ErrorNullable : SmartContract.Framework.SmartContract
 
     }
 
+    public static void TestNullableString(string? a)
+    {
+
+    }
+
+
     public static void TestObject(object a)
     {
 
