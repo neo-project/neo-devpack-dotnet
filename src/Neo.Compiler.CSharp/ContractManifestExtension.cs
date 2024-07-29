@@ -22,7 +22,8 @@ namespace Neo.Compiler
 {
     internal static class ContractManifestExtensions
     {
-        private static void CheckNep11Compliant(this ContractManifest manifest)
+        private static System.Collections.Generic.List<CompilationException>
+            CheckNep11Compliant(this ContractManifest manifest)
         {
             var symbolMethod = manifest.Abi.GetMethod("symbol", 0);
             var decimalsMethod = manifest.Abi.GetMethod("decimals", 0);
@@ -108,11 +109,11 @@ namespace Neo.Compiler
             if (!transferEvent) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete NEP standard {NepStandard.Nep11.ToStandard()} implementation: {nameof(transferEvent)}"));
 
-            if (errors.Count > 0)
-                throw new AggregateException(errors);
+            return errors;
         }
 
-        private static void CheckNep24Compliant(this ContractManifest manifest)
+        private static System.Collections.Generic.List<CompilationException>
+            CheckNep24Compliant(this ContractManifest manifest)
         {
             var royaltyInfoMethod = manifest.Abi.GetMethod("royaltyInfo", 0);
 
@@ -123,11 +124,14 @@ namespace Neo.Compiler
                                 royaltyInfoMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
                                 royaltyInfoMethod.Parameters[2].Type == ContractParameterType.Integer;
 
-            if (!royaltyInfoValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep24.ToStandard()} implementation: royaltyInfo");
+            System.Collections.Generic.List<CompilationException> errors = [];
+            if (!royaltyInfoValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep24.ToStandard()} implementation: royaltyInfo"));
+            return errors;
         }
 
-        private static void CheckNep17Compliant(this ContractManifest manifest)
+        private static System.Collections.Generic.List<CompilationException>
+            CheckNep17Compliant(this ContractManifest manifest)
         {
             var symbolMethod = manifest.Abi.GetMethod("symbol", 0);
             var decimalsMethod = manifest.Abi.GetMethod("decimals", 0);
@@ -172,11 +176,11 @@ namespace Neo.Compiler
             if (!transferValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: transfer"));
 
-            if (errors.Count > 0)
-                throw new AggregateException(errors);
+            return errors;
         }
 
-        private static void CheckNep11PayableCompliant(this ContractManifest manifest)
+        private static System.Collections.Generic.List<CompilationException>
+            CheckNep11PayableCompliant(this ContractManifest manifest)
         {
             var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
             var onNEP11PaymentValid = onNEP11PaymentMethod is { ReturnType: ContractParameterType.Void } &&
@@ -186,11 +190,14 @@ namespace Neo.Compiler
                                         onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
                                         onNEP11PaymentMethod.Parameters[3].Type == ContractParameterType.Any;
 
-            if (!onNEP11PaymentValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete NEP standard {NepStandard.Nep11Payable.ToStandard()} implementation: onNEP11Payment");
+            System.Collections.Generic.List<CompilationException> errors = [];
+            if (!onNEP11PaymentValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete NEP standard {NepStandard.Nep11Payable.ToStandard()} implementation: onNEP11Payment"));
+            return errors;
         }
 
-        private static void CheckNep17PayableCompliant(this ContractManifest manifest)
+        private static System.Collections.Generic.List<CompilationException>
+            CheckNep17PayableCompliant(this ContractManifest manifest)
         {
             var onNEP17PaymentMethod = manifest.Abi.GetMethod("onNEP17Payment", 3);
             var onNEP17PaymentValid = onNEP17PaymentMethod is { ReturnType: ContractParameterType.Void } &&
@@ -199,37 +206,34 @@ namespace Neo.Compiler
                                         onNEP17PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
                                         onNEP17PaymentMethod.Parameters[2].Type == ContractParameterType.Any;
 
-            if (!onNEP17PaymentValid) throw new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete NEP standard {NepStandard.Nep17Payable.ToStandard()} implementation: onNEP17Payment");
+            System.Collections.Generic.List<CompilationException> errors = [];
+            if (!onNEP17PaymentValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete NEP standard {NepStandard.Nep17Payable.ToStandard()} implementation: onNEP17Payment"));
+            return errors;
         }
 
         internal static ContractManifest CheckStandards(this ContractManifest manifest)
         {
-            try
+            System.Collections.Generic.IEnumerable<CompilationException> errors = [];
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep11.ToStandard()))
+                errors = errors.Concat(manifest.CheckNep11Compliant());
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
+                errors = errors.Concat(manifest.CheckNep17Compliant());
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
+                errors = errors.Concat(manifest.CheckNep24Compliant());
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
+                errors = errors.Concat(manifest.CheckNep11PayableCompliant());
+
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep17Payable.ToStandard()))
+                errors = errors.Concat(manifest.CheckNep17PayableCompliant());
+
+            foreach (CompilationException ex in errors)
+                Console.WriteLine(ex.Diagnostic);
+            if (errors.Count() > 0)
             {
-                if (manifest.SupportedStandards.Contains(NepStandard.Nep11.ToStandard()))
-                    manifest.CheckNep11Compliant();
-
-                if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
-                    manifest.CheckNep17Compliant();
-
-                if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
-                    manifest.CheckNep24Compliant();
-
-                if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
-                    manifest.CheckNep11PayableCompliant();
-
-                if (manifest.SupportedStandards.Contains(NepStandard.Nep17Payable.ToStandard()))
-                    manifest.CheckNep17PayableCompliant();
-            }
-            catch (AggregateException agg)
-            {
-                agg.Handle(ex =>
-                {
-                    if (ex is CompilationException)
-                        Console.WriteLine(((CompilationException)ex).Diagnostic);
-                    return true;
-                });
                 Console.WriteLine("Examples:\n" +
                     "        public override string Symbol\n        {\n            [Safe]  // Do not drop `[Safe]`!\n            get => \"GAS\";\n        }\n        public override byte Decimals\n        {\n            [Safe]  // Do not drop `[Safe]`!\n            get => 8;\n        }");
                 Console.WriteLine("Do not write `[Safe]` for `Transfer` method! `[Safe]` forbids writing to storage and emitting events.");
