@@ -77,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // a123b->12
             {
-                var data = (VM.Types.Buffer)Contract.NullCoalescing("a123b")!;
+                var data = (VM.Types.ByteString)Contract.NullCoalescing("a123b")!;
                 Assert.AreEqual("12", System.Text.Encoding.ASCII.GetString(data.GetSpan()));
             }
             // null->null
