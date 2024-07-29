@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check symbols
 
-            var fee = engine.CreateGasWatcher();
+            using var fee = engine.CreateGasWatcher();
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
             Assert.AreEqual(984060L, fee.Value);
 
