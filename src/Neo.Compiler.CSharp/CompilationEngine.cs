@@ -139,7 +139,7 @@ namespace Neo.Compiler
         /// <returns>The current <see cref="CompilationEngine"/>.</returns>
         internal CompilationEngine SetDebugContract(string contractName)
         {
-            if(Options.Debug)
+            if (Options.Debug)
                 DebugContractName = contractName;
             return this;
         }
@@ -180,7 +180,7 @@ namespace Neo.Compiler
             var sortedClasses = TopologicalSort(classDependencies);
             Parallel.ForEach(sortedClasses, c =>
             {
-                if(DebugContractName != null && !c.Name.Equals(DebugContractName, StringComparison.CurrentCultureIgnoreCase)) return;
+                if (DebugContractName != null && !c.Name.Equals(DebugContractName, StringComparison.CurrentCultureIgnoreCase)) return;
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
                 var context = new CompilationContext(this, c, classesNotInDependencies);
