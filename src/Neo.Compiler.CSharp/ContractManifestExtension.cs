@@ -83,7 +83,7 @@ namespace Neo.Compiler
                 a.Parameters[2].Type == ContractParameterType.Integer &&
                 a.Parameters[3].Type == ContractParameterType.ByteArray);
 
-            System.Collections.Generic.List<Exception> errors = new();
+            System.Collections.Generic.List<CompilationException> errors = new();
 
             if (!symbolValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: symbol"));
@@ -159,7 +159,7 @@ namespace Neo.Compiler
                 s.Parameters[1].Type == ContractParameterType.Hash160 &&
                 s.Parameters[2].Type == ContractParameterType.Integer);
 
-            System.Collections.Generic.List<Exception> errors = new();
+            System.Collections.Generic.List<CompilationException> errors = new();
 
             if (!symbolValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: symbol"));
@@ -205,29 +205,35 @@ namespace Neo.Compiler
 
         internal static ContractManifest CheckStandards(this ContractManifest manifest)
         {
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep11.ToStandard()))
+            try
             {
-                manifest.CheckNep11Compliant();
-            }
+                if (manifest.SupportedStandards.Contains(NepStandard.Nep11.ToStandard()))
+                    manifest.CheckNep11Compliant();
 
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
-            {
-                manifest.CheckNep17Compliant();
-            }
+                if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
+                    manifest.CheckNep17Compliant();
 
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
-            {
-                manifest.CheckNep24Compliant();
-            }
+                if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
+                    manifest.CheckNep24Compliant();
 
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
-            {
-                manifest.CheckNep11PayableCompliant();
-            }
+                if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
+                    manifest.CheckNep11PayableCompliant();
 
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep17Payable.ToStandard()))
+                if (manifest.SupportedStandards.Contains(NepStandard.Nep17Payable.ToStandard()))
+                    manifest.CheckNep17PayableCompliant();
+            }
+            catch (AggregateException agg)
             {
-                manifest.CheckNep17PayableCompliant();
+                agg.Handle(ex =>
+                {
+                    if (ex is CompilationException)
+                        Console.WriteLine(((CompilationException)ex).Diagnostic);
+                    return true;
+                });
+                Console.WriteLine("Examples:\n" +
+                    "        public override string Symbol\n        {\n            [Safe]  // Do not drop `[Safe]`!\n            get => \"GAS\";\n        }\n        public override byte Decimals\n        {\n            [Safe]  // Do not drop `[Safe]`!\n            get => 8;\n        }");
+                Console.WriteLine("Do not write `[Safe]` for `Transfer` method! `[Safe]` forbids writing to storage and emitting events.");
+                Console.WriteLine();
             }
 
             return manifest;
