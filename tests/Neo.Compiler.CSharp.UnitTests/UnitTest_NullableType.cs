@@ -128,6 +128,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.TestNullableString("test");
             Contract.TestNullableString(null);
         }
-
     }
 }
