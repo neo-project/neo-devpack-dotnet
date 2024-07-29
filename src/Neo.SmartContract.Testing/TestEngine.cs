@@ -180,7 +180,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Fee Consumed (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public FeeWatcher FeeConsumed { get; set; }
+        public FeeWatcher? FeeConsumed { get; set; }
 
         /// <summary>
         /// Sender
@@ -621,7 +621,8 @@ namespace Neo.SmartContract.Testing
             // Execute
 
             beforeExecute?.Invoke(engine);
-            FeeConsumed = new FeeWatcher(this);
+            FeeConsumed ??= new FeeWatcher(this);
+            FeeConsumed.Reset();
             var executionResult = engine.Execute();
 
             // Increment fee
