@@ -185,7 +185,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Reset FeeConsumed on each Execution
         /// </summary>
-        public bool ResetFeeConsumed { get; set; }
+        public bool ResetFeeConsumed { get; set; } = true;
 
         /// <summary>
         /// Sender
