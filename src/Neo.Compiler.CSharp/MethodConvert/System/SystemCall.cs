@@ -17,6 +17,7 @@ using Neo.VM;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
@@ -244,6 +245,7 @@ partial class MethodConvert
                 return true;
             //Defines an explicit conversion of a BigInteger object to an unsigned 16-bit integer value.
             case "System.Numerics.BigInteger.explicit operator ushort(System.Numerics.BigInteger)":
+            case "System.Numerics.BigInteger.explicit operator char(System.Numerics.BigInteger)":
                 {
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
@@ -396,6 +398,11 @@ partial class MethodConvert
                 if (instanceExpression is not null)
                     ConvertExpression(model, instanceExpression);
                 CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+                return true;
+            case "char.ToString()":
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                ChangeType(StackItemType.ByteString);
                 return true;
             case "System.Numerics.BigInteger.Equals(long)":
             case "System.Numerics.BigInteger.Equals(ulong)":
