@@ -11,3 +11,4 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Neo.Compiler.CSharp.UnitTests")]
+[assembly: InternalsVisibleTo("Neo.SmartContract.Framework.UnitTests")]

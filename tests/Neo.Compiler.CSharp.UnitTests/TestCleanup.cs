@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -15,9 +16,16 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         private static CompilationContext[]? compilationContexts;
+        private static bool debugContract = false;
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.75M);
+        public static void EnsureCoverage()
+        {
+            if (!debugContract)
+            {
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.75M);
+            }
+        }
 
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
@@ -33,15 +41,20 @@ namespace Neo.Compiler.CSharp.UnitTests
             var root = new FileInfo(testContractsPath).Directory?.Root.FullName ?? "";
 
             // Compile
-
-            var results = new CompilationEngine(new CompilationOptions()
+            var compilationEngine = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-            })
-            .CompileProject(testContractsPath);
+            });
+
+            // If you want to debug the compilation of a contact,
+            // call the SetDebugContract to set the contract to be debugged, effect only under debug mode.
+            // For a better debugging experience, you can comment out the `EnsureCoverage` method.
+            // SetDebugContract(compilationEngine, nameof(Contract_IndexOrRange));
+
+            var results = compilationEngine.CompileProject(testContractsPath);
 
             // Ensure that all was well compiled
 
@@ -104,6 +117,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
 
             return debug;
+        }
+
+        private static void SetDebugContract(CompilationEngine engine, string contractName)
+        {
+            debugContract = true;
+            engine.SetDebugContract(contractName);
         }
     }
 }

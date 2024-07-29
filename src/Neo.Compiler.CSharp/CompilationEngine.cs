@@ -30,6 +30,7 @@ namespace Neo.Compiler
     public class CompilationEngine
     {
         internal Compilation? Compilation;
+        internal string? DebugContractName = null;
         internal CompilationOptions Options { get; private set; }
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = new();
@@ -128,6 +129,21 @@ namespace Neo.Compiler
             return CompileProjectContracts(Compilation);
         }
 
+        /// <summary>
+        /// Debug the compilation of a specific contract.
+        /// If this method is called, the compiler will
+        /// only compile the specified contract.
+        /// Effect only under debug mode.
+        /// </summary>
+        /// <param name="contractName">The name of the contract to be debugged.</param>
+        /// <returns>The current <see cref="CompilationEngine"/>.</returns>
+        internal CompilationEngine SetDebugContract(string contractName)
+        {
+            if(Options.Debug)
+                DebugContractName = contractName;
+            return this;
+        }
+
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
         {
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
@@ -164,6 +180,7 @@ namespace Neo.Compiler
             var sortedClasses = TopologicalSort(classDependencies);
             Parallel.ForEach(sortedClasses, c =>
             {
+                if(DebugContractName != null && !c.Name.Equals(DebugContractName, StringComparison.CurrentCultureIgnoreCase)) return;
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
                 var context = new CompilationContext(this, c, classesNotInDependencies);

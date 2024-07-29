@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Neo.SmartContract.Testing;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -15,9 +16,16 @@ namespace Neo.SmartContract.Framework.UnitTests
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        private static bool _debugContract = false;
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
+        public static void EnsureCoverage()
+        {
+            if (!_debugContract)
+            {
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.75M);
+            }
+        }
 
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
@@ -34,14 +42,21 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Compile
 
-            var results = new CompilationEngine(new CompilationOptions()
+            // Compile
+            var compilationEngine = new CompilationEngine(new CompilationOptions()
             {
                 Debug = true,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-            })
-            .CompileProject(testContractsPath);
+            });
+
+            // If you want to debug the compilation of a contact,
+            // call the SetDebugContract to set the contract to be debugged, effect only under debug mode.
+            // For a better debugging experience, you can comment out the `EnsureCoverage` method.
+            // SetDebugContract(compilationEngine, nameof(Contract_Attribute));
+
+            var results = compilationEngine.CompileProject(testContractsPath);
 
             // Ensure that all was well compiled
 
@@ -87,7 +102,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         private static NeoDebugInfo CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath, bool failIfWrong)
         {
-            (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
+            var (nef, manifest, debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
@@ -100,6 +115,12 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
 
             return debug;
+        }
+
+        private static void SetDebugContract(CompilationEngine engine, string contractName)
+        {
+            _debugContract = true;
+            engine.SetDebugContract(contractName);
         }
     }
 }
