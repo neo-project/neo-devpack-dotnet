@@ -93,7 +93,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                         updatedArtifactNames.TryAdd(res!);
                     }
                 }))
-            ).Wait();
+            ).GetAwaiter().GetResult();
 
             if (updatedArtifactNames.Count != 0)
             {
