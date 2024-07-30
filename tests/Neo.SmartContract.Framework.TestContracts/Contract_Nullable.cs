@@ -176,7 +176,6 @@ namespace Neo.SmartContract.Framework.TestContracts
             return a == null && !a.HasValue;
         }
 
-
         public static bool ByteNullableToString(byte? a)
         {
             return (a?.ToString() ?? "") == "1";

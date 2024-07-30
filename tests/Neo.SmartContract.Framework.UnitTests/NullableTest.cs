@@ -6,12 +6,8 @@ using Neo.SmartContract.Testing.TestingStandards;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class NullableTest : TestBase<Contract_Nullable>
+    public class NullableTest : TestBase<Contract_Nullable>(Contract_Nullable.Nef, Contract_Nullable.Manifest)
     {
-        public NullableTest() : base(Contract_Nullable.Nef, Contract_Nullable.Manifest)
-        {
-        }
-
         [TestMethod]
         public void TestBigIntegerNullableEqual()
         {
