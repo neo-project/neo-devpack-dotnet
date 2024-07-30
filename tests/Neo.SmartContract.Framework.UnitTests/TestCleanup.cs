@@ -4,11 +4,15 @@ using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Neo.SmartContract.Testing;
+using System.Threading.Tasks;
+using Akka.Util;
+using Akka.Util.Internal;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -17,6 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         private static bool _debugContract = false;
+        private static readonly object RootSync = new();
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
@@ -70,37 +75,57 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
 
             // Get all artifacts loaded in this assembly
-
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
-            {
-                if (typeof(Testing.SmartContract).IsAssignableFrom(type))
+            var updatedArtifactNames = new ConcurrentSet<string>();
+            Task.WhenAll(
+                Enumerable.Range(0, Assembly.GetExecutingAssembly().GetTypes().Length).Select(i => Task.Run(() =>
                 {
-                    // Find result
+                    var type = Assembly.GetExecutingAssembly().GetTypes()[i];
+                    if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type)) return;
 
-                    var result = results.Where(u => u.ContractName == type.Name).SingleOrDefault();
-                    if (result == null) continue;
+                    // Find result
+                    CompilationContext? result;
+                    lock (RootSync)
+                    {
+                        result = results.SingleOrDefault(u => u.ContractName == type.Name);
+                        if (result == null) return;
+                    }
 
                     // Ensure that it exists
+                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+                    if (debug != null)
+                    {
+                        DebugInfos[type] = debug!;
+                        lock (RootSync)
+                        {
+                            results = results.Where(r => r != result).ToList();
+                        }
+                    }
+                    else
+                    {
+                        updatedArtifactNames.TryAdd(res!);
+                    }
+                }))
+            ).GetAwaiter().GetResult();
 
-                    DebugInfos[type] = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), true);
-                    results.Remove(result);
-                }
+            if (updatedArtifactNames.Count != 0)
+            {
+                updatedArtifactNames.ForEach(p => Console.WriteLine($"Artifact {p} was updated"));
+                Assert.Fail("There are artifacts being updated, please rerun the tests.");
             }
-
             // Ensure that all match
 
-            if (results.Count() > 0)
+            if (results.Count > 0)
             {
                 foreach (var result in results.Where(u => u.Success))
                 {
-                    CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"), false);
+                    CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
                 }
 
                 Assert.Fail("Error compiling templates");
             }
         }
 
-        private static NeoDebugInfo CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath, bool failIfWrong)
+        private static (NeoDebugInfo?, string?) CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
         {
             var (nef, manifest, debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
@@ -111,10 +136,12 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);
-                if (failIfWrong) Assert.Fail($"{typeName} artifact was wrong");
+
+                Console.Error.WriteLine($"{typeName} artifact was wrong");
+                return (null, typeName);
             }
 
-            return debug;
+            return (debug, null);
         }
 
         private static void SetDebugContract(CompilationEngine engine, string contractName)
