@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestH160NullableNotEqual()
         {
-            Assert.IsTrue(Contract.H160NullableNotEqual(UInt160.Zero,  UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
+            Assert.IsTrue(Contract.H160NullableNotEqual(UInt160.Zero, UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
             Assert.IsFalse(Contract.H160NullableNotEqual(UInt160.Zero, UInt160.Zero));
         }
 
