@@ -222,11 +222,6 @@ namespace Neo.SmartContract.Framework.TestContracts
             return (a?.ToString() ?? "") == "True";
         }
 
-        public static bool CharNullableToString(char? a)
-        {
-            return (a?.ToString() ?? "") == "a";
-        }
-
         public static bool BigIntegerNullableToString(BigInteger? a)
         {
             return (a?.ToString() ?? "") == "1";
