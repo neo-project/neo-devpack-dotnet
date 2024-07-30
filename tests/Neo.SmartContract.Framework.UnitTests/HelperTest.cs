@@ -3,6 +3,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System.Reflection;
+using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
