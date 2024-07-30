@@ -64,39 +64,36 @@ namespace Neo.Compiler.CSharp.UnitTests
             compilationContexts = results.ToArray();
             var b = Assembly.GetExecutingAssembly().GetTypes();
             var updatedArtifactNames = new ConcurrentSet<string>();
-
-            var tasks = b
-                .Where(type => typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type))
-                .Select(type =>
+            Task.WhenAll(
+                Enumerable.Range(0, b.Length).Select(i => Task.Run(() =>
                 {
-                    return Task.Run(() =>
+                    var type = b[i];
+                    if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type)) return;
+
+                    // Find result
+                    CompilationContext? result;
+                    lock (RootSync)
                     {
-                        // Find result
-                        CompilationContext? result;
+                        result = results.SingleOrDefault(u => u.ContractName == type.Name);
+                        if (result == null) return;
+                    }
+
+                    // Ensure that it exists
+                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+                    if (debug != null)
+                    {
+                        DebugInfos[type] = debug!;
                         lock (RootSync)
                         {
-                            result = results.SingleOrDefault(u => u.ContractName == type.Name);
-                            if (result == null) return;
+                            results = results.Where(r => r != result).ToList();
                         }
-
-                        // Ensure that it exists
-                        var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
-                        if (debug != null)
-                        {
-                            DebugInfos[type] = debug!;
-                            lock (RootSync)
-                            {
-                                results = results.Where(r => r != result).ToList();
-                            }
-                        }
-                        else
-                        {
-                            updatedArtifactNames.TryAdd(res!);
-                        }
-                    });
-                }).ToArray();
-
-            Task.WhenAll(tasks).Wait();
+                    }
+                    else
+                    {
+                        updatedArtifactNames.TryAdd(res!);
+                    }
+                }))
+            ).Wait();
 
             if (updatedArtifactNames.Count != 0)
             {

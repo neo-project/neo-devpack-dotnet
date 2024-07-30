@@ -60,12 +60,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
 
             // Get all artifacts loaded in this assembly
-            // Get all artifacts loaded in this assembly
-            var updatedArtifactNames = new ConcurrentBag<string>();
-            var tasks = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(type => typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type))
-                .Select(type => Task.Run(() =>
+            var updatedArtifactNames = new ConcurrentSet<string>();
+            Task.WhenAll(
+                Enumerable.Range(0, Assembly.GetExecutingAssembly().GetTypes().Length).Select(i => Task.Run(() =>
                 {
+                    var type = Assembly.GetExecutingAssembly().GetTypes()[i];
+                    if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type)) return;
+
                     // Find result
                     CompilationContext? result;
                     lock (RootSync)
@@ -86,11 +87,10 @@ namespace Neo.SmartContract.Framework.UnitTests
                     }
                     else
                     {
-                        updatedArtifactNames.Add(res!);
+                        updatedArtifactNames.TryAdd(res!);
                     }
-                })).ToArray();
-
-            Task.WhenAll(tasks).Wait();
+                }))
+            ).Wait();
 
             if (updatedArtifactNames.Count != 0)
             {
