@@ -183,6 +183,11 @@ namespace Neo.SmartContract.Testing
         public FeeWatcher FeeConsumed { get; }
 
         /// <summary>
+        /// Reset FeeConsumed on each Execution
+        /// </summary>
+        public bool ResetFeeConsumed { get; set; } = true;
+
+        /// <summary>
         /// Sender
         /// </summary>
         public UInt160 Sender => Transaction.Sender;
@@ -622,6 +627,7 @@ namespace Neo.SmartContract.Testing
 
             // Execute
 
+            if (ResetFeeConsumed) FeeConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
 
