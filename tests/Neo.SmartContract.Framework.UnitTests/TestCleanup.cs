@@ -4,6 +4,7 @@ using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -59,35 +60,37 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
 
             // Get all artifacts loaded in this assembly
-            var updatedArtifactNames = new ConcurrentSet<string>();
-            Parallel.ForEach(Assembly.GetExecutingAssembly().GetTypes(), type =>
-                 {
-                     if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type)) return;
-                     // Find result
+            // Get all artifacts loaded in this assembly
+            var updatedArtifactNames = new ConcurrentBag<string>();
+            var tasks = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(type => typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type))
+                .Select(type => Task.Run(() =>
+                {
+                    // Find result
+                    CompilationContext? result;
+                    lock (RootSync)
+                    {
+                        result = results.SingleOrDefault(u => u.ContractName == type.Name);
+                        if (result == null) return;
+                    }
 
-                     CompilationContext? result;
-                     lock (RootSync)
-                     {
-                         result = results.SingleOrDefault(u => u.ContractName == type.Name);
-                         if (result == null) return;
-                     }
+                    // Ensure that it exists
+                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+                    if (debug != null)
+                    {
+                        DebugInfos[type] = debug!;
+                        lock (RootSync)
+                        {
+                            results = results.Where(r => r != result).ToList();
+                        }
+                    }
+                    else
+                    {
+                        updatedArtifactNames.Add(res!);
+                    }
+                })).ToArray();
 
-                     // Ensure that it exists
-                     var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
-                     if (debug != null)
-                     {
-                         DebugInfos[type] = debug!;
-                         lock (RootSync)
-                         {
-                             results.Remove(result);
-                         }
-                     }
-                     else
-                     {
-                         updatedArtifactNames.TryAdd(res!);
-                     }
-
-                 });
+            Task.WhenAll(tasks).Wait();
 
             if (updatedArtifactNames.Count != 0)
             {
