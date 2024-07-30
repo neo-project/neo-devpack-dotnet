@@ -1,16 +1,15 @@
+using Akka.Util;
+using Akka.Util.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Akka.Util;
-using Akka.Util.Internal;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -22,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static readonly object RootSync = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.75M);
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.76M);
 
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
