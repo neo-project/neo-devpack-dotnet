@@ -29,6 +29,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.ThrowsException<TestException>(() => Contract.CastChecked(-1));
             Assert.AreEqual(1062540, Engine.FeeConsumed.Value);
+
+            Assert.ThrowsException<TestException>(() => Contract.CastChecked(int.MinValue));
+            Assert.AreEqual(1062540, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(2147483647, Contract.CastChecked(int.MaxValue));
+            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(0, Contract.CastChecked(ulong.MinValue));
+            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+
+            Assert.ThrowsException<TestException>(() => Contract.CastChecked(ulong.MaxValue));
+            Assert.AreEqual(1062780, Engine.FeeConsumed.Value);
+
+            Assert.ThrowsException<TestException>(() => Contract.CastChecked(long.MinValue));
+            Assert.AreEqual(1062540, Engine.FeeConsumed.Value);
+
+            Assert.ThrowsException<TestException>(() => Contract.CastChecked(long.MaxValue));
+            Assert.AreEqual(1062690, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -36,6 +54,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(uint.MaxValue, Contract.CastUnchecked(-1));
             Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
+
+
+            Assert.AreEqual(2147483648, Contract.CastUnchecked(int.MinValue));
+            Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(2147483647, Contract.CastUnchecked(int.MaxValue));
+            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(0, Contract.CastUnchecked(ulong.MinValue));
+            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(4294967295, Contract.CastUnchecked(ulong.MaxValue));
+            Assert.AreEqual(1047750, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(0, Contract.CastUnchecked(long.MinValue));
+            Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(4294967295, Contract.CastUnchecked(long.MaxValue));
+            Assert.AreEqual(1047660, Engine.FeeConsumed.Value);
         }
     }
 }

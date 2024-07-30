@@ -52,6 +52,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var methods = Contract_Types.Manifest.Abi.Methods;
             var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").First();
             Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
+
+            Contract.CheckEnumArg(5);
+            Assert.AreEqual(1046970, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -252,10 +255,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Nameof_test()
+        public void Nameof_Test()
         {
             Assert.AreEqual("checkNull", Contract.CheckNameof());
             Assert.AreEqual(984330, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void CheckEvent_Test()
+        {
+            var notifications = new List<string>();
+            var delEvent = new Contract_Types.delDummyEvent(notifications.Add);
+
+            Contract.OnDummyEvent += delEvent;
+            Contract.CheckEvent();
+            Contract.OnDummyEvent -= delEvent;
+            Assert.AreEqual(1, notifications.Count);
+            Assert.AreEqual("neo", notifications.Last());
+            Assert.AreEqual(2213850, Engine.FeeConsumed.Value);
         }
     }
 }
