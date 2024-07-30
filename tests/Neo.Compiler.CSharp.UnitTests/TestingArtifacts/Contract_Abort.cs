@@ -15,7 +15,7 @@ public abstract class Contract_Abort : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static readonly Neo.SmartContract.NefFile Nef = Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAONXAQEQcDhXAAF4NANAVwABQFcBARBwDAlBQk9SVCBNU0fgVwECEHB5JgV4NOZ4NNJXAgIQcDsME3kmBXg01Xg0wXERSnBFPQASSnBFP1cCAhBwOxMjEUpwRQwJZXhjZXB0aW9uOnF5Jgh4Naf///94NZD///8SSnBFP1cCAhBwOwkQEUpwRT0AcRJKcEU9AHkmCHg1fv///3g1Z////8JKNWb///8jW////8JKNVr///8jYP///8JKNU7///8jZf///8JKNUL///8jZ////8JKNTb///8jeP///8JKNSr///8imadP1Ys="));
+    public static readonly Neo.SmartContract.NefFile Nef = Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAORXAQEQcDhXAAF4NANAVwABQFcBARBwDAlBQk9SVCBNU0fgVwECEHB5JgV4NOZ4NNJXAgIQcDsME3kmBXg01Xg0wXERSnBFPQASSnBFP1cCAhBwOxMjEUpwRQwJZXhjZXB0aW9uOnF5Jgh4Naf///94NZD///8SSnBFP1cCAhBwOwkQEUpwRT0AcRJKcEU9AHkmCHg1fv///3g1Z////8JKNWb///8jW////8JKNVr///8jYP///8JKNU7///8jZf///8JKNUL///8jZ////8JKNTb///8jeP///8JKNSr///8imUAxkOl3"));
 
     #endregion
 
