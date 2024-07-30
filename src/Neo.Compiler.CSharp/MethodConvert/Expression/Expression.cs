@@ -19,6 +19,7 @@ using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Wallets;
 using System.Linq;
+using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
@@ -311,6 +312,7 @@ partial class MethodConvert
         {
             "SByte" => ((BigInteger)sbyte.MinValue, (BigInteger)sbyte.MaxValue, (BigInteger)0xff),
             "Int16" => (short.MinValue, short.MaxValue, 0xffff),
+            "Char" => (ushort.MinValue, ushort.MaxValue, 0xffff),
             "Int32" => (int.MinValue, int.MaxValue, 0xffffffff),
             "Int64" => (long.MinValue, long.MaxValue, 0xffffffffffffffff),
             "Byte" => (byte.MinValue, byte.MaxValue, 0xff),
@@ -362,7 +364,7 @@ partial class MethodConvert
     /// <exception cref="CompilationException">For unsupported types, throw a compilation exception.</exception>
     private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
     {
-        ITypeSymbol? type = ModelExtensions.GetTypeInfo(model, expression).Type;
+        ITypeSymbol? type = model.GetTypeInfo(expression).Type;
         switch (type?.ToString())
         {
             case "sbyte":
@@ -376,6 +378,10 @@ partial class MethodConvert
             case "System.Numerics.BigInteger":
                 ConvertExpression(model, expression);
                 CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+                break;
+            case "char":
+                ConvertExpression(model, expression);
+                ChangeType(StackItemType.ByteString);
                 break;
             case "string":
             case "Neo.SmartContract.Framework.ECPoint":

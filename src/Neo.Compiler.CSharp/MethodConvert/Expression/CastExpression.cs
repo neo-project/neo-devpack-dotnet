@@ -134,6 +134,22 @@ partial class MethodConvert
             case ("UInt64", "Byte"):
             case ("UInt64", "UInt16"):
             case ("UInt64", "UInt32"):
+            case ("Char", "SByte"):
+            case ("Char", "Byte"):
+            case ("Char", "Int16"):
+            case ("Char", "UInt16"):
+            case ("Char", "Int32"):
+            case ("Char", "UInt32"):
+            case ("Char", "Int64"):
+            case ("Char", "UInt64"):
+            case ("SByte", "Char"):
+            case ("Byte", "Char"):
+            case ("Int16", "Char"):
+            case ("UInt16", "Char"):
+            case ("Int32", "Char"):
+            case ("UInt32", "Char"):
+            case ("Int64", "Char"):
+            case ("UInt64", "Char"):
                 {
                     EnsureIntegerInRange(tType);
                 }

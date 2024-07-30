@@ -102,7 +102,7 @@ partial class MethodConvert
                 Push(data);
                 break;
             case char data:
-                Push(data);
+                Push((ushort)data);
                 break;
             case sbyte data:
                 Push(data);
