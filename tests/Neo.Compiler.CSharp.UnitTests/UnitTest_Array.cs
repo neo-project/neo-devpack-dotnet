@@ -1,9 +1,12 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
+using Neo.SmartContract.Testing.Exceptions;
+using Array = Neo.VM.Types.Array;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -133,6 +136,20 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(0), arr?[0]);
             Assert.AreEqual(new BigInteger(1), arr?[1]);
             Assert.AreEqual(new BigInteger(2), arr?[2]);
+
+            arr = Contract.TestDynamicArrayInit(0);
+            Assert.AreEqual(1863810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(0, arr?.Count);
+            Assert.ThrowsException<TestException>(() => Contract.TestDynamicArrayInit(-1));
+            Assert.ThrowsException<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));
+        }
+
+        [TestMethod]
+        public void Test_DefaultArray()
+        {
+            var arr = Contract.TestDefaultArray();
+            Assert.AreEqual(1805220, Engine.FeeConsumed.Value);
+            Assert.IsTrue(arr.Value);
         }
 
         [TestMethod]
@@ -191,6 +208,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             var element3_0 = (Array?)element3?[0];
             CollectionAssert.AreEqual(new int[] { 1, 2, 3 },
                 element3_0?.Cast<PrimitiveType>().Select(u => (int)u.GetInteger()).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_ElementBinding()
+        {
+            Contract.TestElementBinding();
+            Assert.AreEqual(5907840, Engine.FeeConsumed.Value);
         }
     }
 }

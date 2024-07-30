@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -69,6 +70,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_testArgs4()
         {
             Assert.AreEqual(5, Contract.TestArgs4(1, 2));
+            Assert.AreEqual(1048530, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(3, Contract.TestArgs4(BigInteger.One, BigInteger.Zero));
+            Assert.AreEqual(1048530, Engine.FeeConsumed.Value);
+
+
+            Assert.AreEqual(0, Contract.TestArgs4(BigInteger.MinusOne, BigInteger.MinusOne));
+            Assert.AreEqual(1048530, Engine.FeeConsumed.Value);
+
+
+            Assert.AreEqual(0, Contract.TestArgs4(int.MaxValue, int.MaxValue));
+            Assert.AreEqual(1049220, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(1, Contract.TestArgs4(int.MinValue, int.MaxValue));
             Assert.AreEqual(1048530, Engine.FeeConsumed.Value);
         }
 

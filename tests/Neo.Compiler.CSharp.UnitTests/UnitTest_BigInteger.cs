@@ -230,5 +230,56 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 12), Contract.TestGreatestCommonDivisor(24, 12));
             Assert.AreEqual(1048170, Engine.FeeConsumed.Value);
         }
+
+        // New test methods
+        [TestMethod]
+        public void Test_CharToString()
+        {
+            Assert.AreEqual("A", Contract.Testchartostring(65)); // 'A' has ASCII value 65
+            Assert.ThrowsException<TestException>(() => Contract.Testchartostring(65536)); // Invalid char value
+        }
+
+        [TestMethod]
+        public void Test_Equals()
+        {
+            Assert.IsTrue(Contract.TestEquals(123, 123));
+            Assert.IsFalse(Contract.TestEquals(123, 321));
+            Assert.AreEqual(1047420, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_IsOne()
+        {
+            Assert.IsTrue(Contract.TestIsOne(1));
+            Assert.IsFalse(Contract.TestIsOne(0));
+            Assert.IsFalse(Contract.TestIsOne(-1));
+            Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_IsZero()
+        {
+            Assert.IsTrue(Contract.TestIsZero(0));
+            Assert.IsFalse(Contract.TestIsZero(1));
+            Assert.IsFalse(Contract.TestIsZero(-1));
+            Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_ModPow()
+        {
+            // Test with number = 10, exponent = 3, modulus = 30
+            Assert.AreEqual(BigInteger.ModPow(10, 3, 30), Contract.TestModPow());
+            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_Sign()
+        {
+            Assert.AreEqual(1, Contract.TestSign(10)); // Positive number
+            Assert.AreEqual(0, Contract.TestSign(0)); // Zero
+            Assert.AreEqual(-1, Contract.TestSign(-10)); // Negative number
+            Assert.AreEqual(1047210, Engine.FeeConsumed.Value);
+        }
     }
 }

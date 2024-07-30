@@ -21,6 +21,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1, Contract.UnitTest_001());
         }
 
+        // [TestMethod]
+        // public void Method2Test()
+        // {
+        //     Assert.AreEqual(2, Contract.UnitTest_002());
+        // }
+
         [TestMethod]
         public void Method3Test()
         {
