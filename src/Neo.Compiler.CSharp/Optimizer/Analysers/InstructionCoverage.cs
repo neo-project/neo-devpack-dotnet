@@ -45,6 +45,10 @@ namespace Neo.Optimizer
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
         public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
         public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
+        /// <summary>
+        /// key: target of all kinds of Instruction that has 1 or 2 jump targets
+        /// value: sources of that jump target
+        /// </summary>
         public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
         public InstructionCoverage(NefFile nef, ContractManifest manifest)
         {

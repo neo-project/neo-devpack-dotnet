@@ -156,6 +156,7 @@ namespace Neo.Compiler
                 try
                 {
                     (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+                    (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, (JObject)debugInfo.Clone());
                 }
                 catch (Exception ex)
                 {
