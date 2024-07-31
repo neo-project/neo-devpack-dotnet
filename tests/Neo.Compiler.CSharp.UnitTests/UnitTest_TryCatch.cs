@@ -56,6 +56,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_CodeAfterFinally()
+        {
+            Assert.AreEqual(new BigInteger(4), Contract.CodeAfterFinally());
+        }
+
+        [TestMethod]
         public void Test_TryFinally()
         {
             Assert.AreEqual(new BigInteger(3), Contract.TryFinally());

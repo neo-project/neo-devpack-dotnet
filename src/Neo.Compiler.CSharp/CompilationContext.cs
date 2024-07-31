@@ -155,7 +155,10 @@ namespace Neo.Compiler
             {
                 try
                 {
-                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone() as JObject);
+                    (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo!.Clone() as JObject);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
                 catch (Exception ex)
                 {
@@ -172,7 +175,7 @@ namespace Neo.Compiler
                 manifest.Extra["nef"]!["optimization"] = Options.Optimize.ToString();
             }
 
-            return (nef, manifest, debugInfo);
+            return (nef, manifest, debugInfo!);
         }
 
         public NefFile CreateExecutable()
