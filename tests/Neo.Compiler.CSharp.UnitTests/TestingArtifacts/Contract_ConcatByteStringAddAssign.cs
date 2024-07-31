@@ -15,7 +15,7 @@ public abstract class Contract_ConcatByteStringAddAssign : Neo.SmartContract.Tes
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static readonly Neo.SmartContract.NefFile Nef = Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACJXAQMMAHBoeIvbKEpwRWh5i9soSnBFaHqL2yhKcEVoIgJALdDWkQ=="));
+    public static readonly Neo.SmartContract.NefFile Nef = Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACBXAQMMAHBoeIvbKEpwRWh5i9soSnBFaHqL2yhKcEVoQL+rhFo="));
 
     #endregion
 
