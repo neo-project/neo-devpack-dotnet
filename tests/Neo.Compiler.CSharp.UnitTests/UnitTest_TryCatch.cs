@@ -52,6 +52,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ThrowInCatch()
         {
+            Console.WriteLine("===========");
             Assert.AreEqual(new BigInteger(4), Contract.ThrowInCatch(false, false));
             var exception = Assert.ThrowsException<TestException>(() => Contract.ThrowInCatch(true, false));
             Assert.AreEqual(new BigInteger(3), exception.CurrentContext?.LocalVariables?[0].GetInteger());
