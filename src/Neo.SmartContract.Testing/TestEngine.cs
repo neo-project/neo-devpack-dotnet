@@ -297,7 +297,6 @@ namespace Neo.SmartContract.Testing
                     PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
                 }
             }
-
             FeeConsumed = new FeeWatcher(this);
         }
 
@@ -631,7 +630,6 @@ namespace Neo.SmartContract.Testing
             ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
-
             if (ResetFeeConsumed) FeeConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();

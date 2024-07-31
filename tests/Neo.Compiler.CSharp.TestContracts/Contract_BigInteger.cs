@@ -204,12 +204,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return x.Equals(y);
         }
 
-        public static void TestModPow()
+        public static BigInteger TestModPow()
         {
             BigInteger number = 10;
             int exponent = 3;
             BigInteger modulus = 30;
-            Runtime.Log($"({number}^{exponent}) Mod {modulus} = {BigInteger.ModPow(number, exponent, modulus)}");
+            return BigInteger.ModPow(number, exponent, modulus);
         }
     }
 }
