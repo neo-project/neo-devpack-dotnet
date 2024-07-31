@@ -16,9 +16,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void SByteParse_Test()
         {
             Assert.AreEqual(new BigInteger(sbyte.MaxValue), Contract.TestSbyteparse("127"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(sbyte.MinValue), Contract.TestSbyteparse("-128"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("20 "));
@@ -41,9 +41,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteParse_Test()
         {
             Assert.AreEqual(new BigInteger(byte.MinValue), Contract.TestByteparse("0"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(byte.MaxValue), Contract.TestByteparse("255"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestByteparse("20 "));
@@ -66,9 +66,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UShortParse_Test()
         {
             Assert.AreEqual(new BigInteger(ushort.MinValue), Contract.TestUshortparse("0"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(ushort.MaxValue), Contract.TestUshortparse("65535"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("20 "));
@@ -91,9 +91,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ShortParse_Test()
         {
             Assert.AreEqual(new BigInteger(short.MinValue), Contract.TestShortparse("-32768"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(short.MaxValue), Contract.TestShortparse("32767"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestShortparse("20 "));
@@ -116,9 +116,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ULongParse_Test()
         {
             Assert.AreEqual(new BigInteger(ulong.MinValue), Contract.TestUlongparse("0"));
-            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032740, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(ulong.MaxValue), Contract.TestUlongparse("18446744073709551615"));
-            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032740, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("20 "));
@@ -141,9 +141,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void LongParse_Test()
         {
             Assert.AreEqual(new BigInteger(long.MinValue), Contract.TestLongparse("-9223372036854775808"));
-            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032740, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(long.MaxValue), Contract.TestLongparse("9223372036854775807"));
-            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032740, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestLongparse("20 "));
@@ -166,9 +166,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UIntParse_Test()
         {
             Assert.AreEqual(new BigInteger(uint.MinValue), Contract.TestUintparse("0"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(uint.MaxValue), Contract.TestUintparse("4294967295"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestUintparse("20 "));
@@ -191,9 +191,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void IntParse_Test()
         {
             Assert.AreEqual(new BigInteger(int.MinValue), Contract.TestIntparse("-2147483648"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(int.MaxValue), Contract.TestIntparse("2147483647"));
-            Assert.AreEqual(2032710, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032650, Engine.FeeConsumed.Value);
 
             //test backspace trip
             Assert.ThrowsException<TestException>(() => Contract.TestIntparse("20 "));

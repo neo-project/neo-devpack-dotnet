@@ -44,9 +44,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckOwner(owner));
-            Assert.AreEqual(1049100, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049040, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.CheckOwner(notOwner));
-            Assert.AreEqual(1049100, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049040, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -56,9 +56,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckZeroStatic(zero));
-            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049220, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.CheckZeroStatic(notZero));
-            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049220, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.AreEqual(notZero, Contract.ConstructUInt160(notZero.ToArray()));
-            Assert.AreEqual(1294290, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1294230, Engine.FeeConsumed.Value);
         }
     }
 }

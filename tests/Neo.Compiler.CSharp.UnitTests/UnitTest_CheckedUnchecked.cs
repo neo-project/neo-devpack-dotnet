@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAddUnchecked()
         {
             Assert.AreEqual(int.MinValue, Contract.AddUnchecked(int.MaxValue, 1));
-            Assert.AreEqual(1048410, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048350, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -34,10 +34,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1062540, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(2147483647, Contract.CastChecked(int.MaxValue));
-            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(0, Contract.CastChecked(ulong.MinValue));
-            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
 
             Assert.ThrowsException<TestException>(() => Contract.CastChecked(ulong.MaxValue));
             Assert.AreEqual(1062780, Engine.FeeConsumed.Value);
@@ -53,26 +53,26 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestCastUnchecked()
         {
             Assert.AreEqual(uint.MaxValue, Contract.CastUnchecked(-1));
-            Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
 
 
             Assert.AreEqual(2147483648, Contract.CastUnchecked(int.MinValue));
-            Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(2147483647, Contract.CastUnchecked(int.MaxValue));
-            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(0, Contract.CastUnchecked(ulong.MinValue));
-            Assert.AreEqual(1047390, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(4294967295, Contract.CastUnchecked(ulong.MaxValue));
-            Assert.AreEqual(1047750, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047690, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(0, Contract.CastUnchecked(long.MinValue));
-            Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(4294967295, Contract.CastUnchecked(long.MaxValue));
-            Assert.AreEqual(1047660, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047600, Engine.FeeConsumed.Value);
         }
     }
 }
