@@ -18,8 +18,7 @@ namespace Neo.SmartContract.Testing
         private readonly Type _contractType;
         private readonly Dictionary<string, FieldInfo?> _notifyCache = new();
 
-        public delegate void OnRuntimeLogDelegate(string message);
-        public event OnRuntimeLogDelegate? OnRuntimeLog;
+        public event TestEngine.OnRuntimeLogDelegate? OnRuntimeLog;
 
         /// <summary>
         /// Contract hash
@@ -151,10 +150,11 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Invoke OnRuntimeLog
         /// </summary>
+        /// <param name="sender">Sender</param>
         /// <param name="message">Message</param>
-        internal void InvokeOnRuntimeLog(string message)
+        internal void InvokeOnRuntimeLog(UInt160 sender, string message)
         {
-            OnRuntimeLog?.Invoke(message);
+            OnRuntimeLog?.Invoke(sender, message);
         }
 
         /// <summary>
