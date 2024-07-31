@@ -11,6 +11,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+using Neo.Compiler.SecurityAnalyzer;
 using Neo.IO;
 using Neo.Json;
 using Neo.Optimizer;
@@ -303,6 +304,11 @@ namespace Neo.Compiler
                     }
                 }
                 Console.WriteLine("Compilation completed successfully.");
+
+                Console.WriteLine("Performing security analysis...");
+                ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
+                Console.WriteLine("Finished security analysis");
+
                 return 0;
             }
             else
