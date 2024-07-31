@@ -34,6 +34,9 @@ namespace Neo.SmartContract.Testing
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
         private NativeContracts? _native;
 
+        public delegate void OnRuntimeLogDelegate(UInt160 sender, string message);
+        public event OnRuntimeLogDelegate? OnRuntimeLog;
+
         /// <summary>
         /// Default Protocol Settings
         /// </summary>
@@ -294,7 +297,6 @@ namespace Neo.SmartContract.Testing
                     PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
                 }
             }
-
             FeeConsumed = new FeeWatcher(this);
         }
 
@@ -313,11 +315,13 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineLog(object? sender, LogEventArgs e)
         {
+            OnRuntimeLog?.Invoke(e.ScriptHash, e.Message);
+
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
                 foreach (var contract in contracts)
                 {
-                    contract.InvokeOnRuntimeLog(e.Message);
+                    contract.InvokeOnRuntimeLog(e.ScriptHash, e.Message);
                 }
             }
         }
@@ -626,7 +630,6 @@ namespace Neo.SmartContract.Testing
             ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
-
             if (ResetFeeConsumed) FeeConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();

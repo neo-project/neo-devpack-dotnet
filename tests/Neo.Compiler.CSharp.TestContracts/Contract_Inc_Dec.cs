@@ -98,7 +98,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static uint UnitTest_Param_Dec_Checked(uint param)
         {
-            param = uint.MinValue;
             checked
             {
                 --param;
@@ -109,7 +108,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static uint UnitTest_Param_Dec_UnChecked(uint param)
         {
-            param = uint.MinValue;
             unchecked
             {
                 --param;
@@ -120,7 +118,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static uint UnitTest_Param_Inc_Checked(uint param)
         {
-            param = uint.MaxValue;
             checked
             {
                 ++param;
@@ -131,7 +128,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static uint UnitTest_Param_Inc_UnChecked(uint param)
         {
-            param = uint.MaxValue;
             unchecked
             {
                 ++param;
@@ -232,7 +228,6 @@ namespace Neo.Compiler.CSharp.TestContracts
         // Parameter Tests
         public static int UnitTest_Param_Inc_Checked_Int(int param)
         {
-            param = int.MaxValue;
             checked
             {
                 ++param;
@@ -243,7 +238,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static int UnitTest_Param_Inc_UnChecked_Int(int param)
         {
-            param = int.MaxValue;
             unchecked
             {
                 ++param;
@@ -254,7 +248,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static int UnitTest_Param_Dec_Checked_Int(int param)
         {
-            param = int.MinValue;
             checked
             {
                 --param;
@@ -265,7 +258,6 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static int UnitTest_Param_Dec_UnChecked_Int(int param)
         {
-            param = int.MinValue;
             unchecked
             {
                 --param;
