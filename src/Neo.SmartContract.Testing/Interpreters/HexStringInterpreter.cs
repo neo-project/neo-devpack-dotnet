@@ -1,4 +1,5 @@
 using System;
+using Neo.Extensions;
 
 namespace Neo.SmartContract.Testing.Interpreters
 {
