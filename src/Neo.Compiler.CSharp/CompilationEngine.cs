@@ -164,6 +164,7 @@ namespace Neo.Compiler
             var sortedClasses = TopologicalSort(classDependencies);
             Parallel.ForEach(sortedClasses, c =>
             {
+                // if (!c.Name.Contains("Contract_TryCatch")) return;
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
                 var context = new CompilationContext(this, c, classesNotInDependencies);

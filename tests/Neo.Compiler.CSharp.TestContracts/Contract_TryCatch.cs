@@ -11,14 +11,15 @@ namespace Neo.Compiler.CSharp.TestContracts
         private static readonly ByteString byteString2Ecpoint = default!;
         [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
         private static readonly ByteString validUInt160 = default!;
-        // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
-        public static int try01()
+
+        public static int try01(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
+                if (throwException) throw new System.Exception();
             }
             catch
             {
@@ -31,13 +32,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int try02()
+        public static int try02(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throw new System.Exception();
+                if (throwException) throw new System.Exception();
             }
             catch
             {
@@ -50,13 +51,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int try03()
+        public static int try03(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throwcall();
+                if (throwException) throwcall();
             }
             catch
             {
@@ -69,7 +70,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryNest()
+        public static int tryNest(bool throwInTry, bool throwInCatch, bool throwInFinally)
         {
             int v = 0;
             try
@@ -77,16 +78,16 @@ namespace Neo.Compiler.CSharp.TestContracts
                 try
                 {
                     v = 2;
-                    throwcall();
+                    if (throwInTry) throwcall();
                 }
                 catch
                 {
                     v = 3;
-                    throwcall();
+                    if (throwInCatch) throwcall();
                 }
                 finally
                 {
-                    throwcall();
+                    if (throwInFinally) throwcall();
                     v++;
                 }
             }
@@ -97,35 +98,34 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int throwInCatch()
+        public static int throwInCatch(bool throwInTry, bool throwInCatch)
         {
             int v = 0;
             try
             {
                 v = 1;
-                throw new System.Exception();
+                if (throwInTry) throw new System.Exception();
             }
             catch
             {
                 v = 2;
-                throw new System.Exception();
+                if (throwInCatch) throw new System.Exception();
             }
             finally
             {
                 v = 3;
             }
-#pragma warning disable CS0162 // Unreachable code detected
             v = 4;
             return v;
-#pragma warning restore CS0162 // Unreachable code detected
         }
 
-        public static int tryFinally()
+        public static int tryFinally(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
+                if (throwException) throw new System.Exception();
             }
             finally
             {
@@ -134,13 +134,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryFinallyAndRethrow()
+        public static int tryFinallyAndRethrow(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throwcall();
+                if (throwException) throwcall();
             }
             finally
             {
@@ -149,13 +149,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryCatch()
+        public static int tryCatch(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throwcall();
+                if (throwException) throwcall();
             }
             catch
             {
@@ -164,7 +164,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryWithTwoFinally()
+        public static int tryWithTwoFinally(bool throwInInner, bool throwInOuter)
         {
             int v = 0;
             try
@@ -172,6 +172,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                 try
                 {
                     v++;
+                    if (throwInInner) throw new System.Exception();
                 }
                 catch
                 {
@@ -181,6 +182,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                 {
                     v += 3;
                 }
+                if (throwInOuter) throw new System.Exception();
             }
             catch
             {
@@ -193,13 +195,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryecpointCast()
+        public static int tryecpointCast(bool useInvalidECpoint)
         {
             int v = 0;
             try
             {
                 v = 2;
-                ECPoint pubkey = (ECPoint)invalidECpoint;
+                ECPoint pubkey = (ECPoint)(useInvalidECpoint ? invalidECpoint : byteString2Ecpoint);
             }
             catch
             {
@@ -231,13 +233,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryinvalidByteArray2UInt160()
+        public static int tryinvalidByteArray2UInt160(bool useInvalidECpoint)
         {
             int v = 0;
             try
             {
                 v = 2;
-                UInt160 data = (UInt160)invalidECpoint;
+                UInt160 data = (UInt160)(useInvalidECpoint ? invalidECpoint : validUInt160);
             }
             catch
             {
@@ -269,13 +271,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static int tryinvalidByteArray2UInt256()
+        public static int tryinvalidByteArray2UInt256(bool useInvalidECpoint)
         {
             int v = 0;
             try
             {
                 v = 2;
-                UInt256 data = (UInt256)invalidECpoint;
+                UInt256 data = useInvalidECpoint ? (UInt256)invalidECpoint : validUInt256;
             }
             catch
             {
@@ -307,14 +309,14 @@ namespace Neo.Compiler.CSharp.TestContracts
             return v;
         }
 
-        public static (int, object?) tryNULL2Ecpoint_1()
+        public static (int, object?) tryNULL2Ecpoint_1(bool setToNull)
         {
             int v = 0;
             ECPoint? data = (ECPoint)(new byte[33]);
             try
             {
                 v = 2;
-                data = null;
+                if (setToNull) data = null;
             }
             catch
             {
@@ -331,14 +333,14 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object?) tryNULL2Uint160_1()
+        public static (int, object?) tryNULL2Uint160_1(bool setToNull)
         {
             int v = 0;
             UInt160? data = (UInt160)(new byte[20]);
             try
             {
                 v = 2;
-                data = null;
+                if (setToNull) data = null;
             }
             catch
             {
@@ -355,14 +357,14 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object?) tryNULL2Uint256_1()
+        public static (int, object?) tryNULL2Uint256_1(bool setToNull)
         {
             int v = 0;
             UInt256? data = (UInt256)(new byte[32]);
             try
             {
                 v = 2;
-                data = null;
+                if (setToNull) data = null;
             }
             catch
             {
@@ -379,14 +381,14 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (v, data);
         }
 
-        public static (int, object?) tryNULL2Bytestring_1()
+        public static (int, object?) tryNULL2Bytestring_1(bool setToNull)
         {
             int v = 0;
             ByteString? data = "123";
             try
             {
                 v = 2;
-                data = null;
+                if (setToNull) data = null;
             }
             catch
             {
@@ -408,13 +410,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             throw new System.Exception();
         }
 
-        public static int tryUncatchableException()
+        public static int tryUncatchableException(bool throwException)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throw new UncatchableException();
+                if (throwException) throw new UncatchableException();
             }
             catch
             {
