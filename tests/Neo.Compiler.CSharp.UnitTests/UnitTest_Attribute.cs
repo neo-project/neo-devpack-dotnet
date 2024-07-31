@@ -14,6 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(Contract_AttributeChanged.Manifest.Name, "Contract_AttributeChanged");
             Assert.IsTrue(Contract.Test());
+            Assert.AreEqual(984060, Engine.FeeConsumed.Value);
         }
     }
 }
