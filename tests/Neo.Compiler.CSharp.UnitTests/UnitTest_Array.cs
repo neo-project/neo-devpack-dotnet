@@ -149,7 +149,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var arr = Contract.TestDefaultArray();
             Assert.AreEqual(1805220, Engine.FeeConsumed.Value);
-            Assert.IsTrue(arr?.Value);
+            Assert.IsTrue(arr.Value);
         }
 
         [TestMethod]
