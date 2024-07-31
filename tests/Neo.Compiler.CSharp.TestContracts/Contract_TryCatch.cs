@@ -120,6 +120,25 @@ namespace Neo.Compiler.CSharp.TestContracts
 #pragma warning restore CS0162 // Unreachable code detected
         }
 
+        public static int codeAfterFinally()
+        {
+            int v = 0;
+            try
+            {
+                v = 1;
+            }
+            catch
+            {
+                v = 2;
+            }
+            finally
+            {
+                v = 3;
+            }
+            v = 4;
+            return v;
+        }
+
         public static int tryFinally()
         {
             int v = 0;
