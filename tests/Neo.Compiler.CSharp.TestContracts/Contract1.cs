@@ -30,9 +30,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             return a;
         }
 
-        public static void testArgs3(int a, int b)
+        public static int testArgs3(int a, int b)
         {
             a = a + 2;
+            return a;
         }
 
         public static int testArgs4(int a, int b)
