@@ -16,7 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestHexToBytes()
         {
             // 0a0b0c0d0E0F
-            Assert.AreEqual("0a0b0c0d0e0f", Contract.TestHexToBytes().ToHexString());
+            Assert.AreEqual("0a0b0c0d0e0f", Contract.TestHexToBytes()!.ToHexString());
             Assert.AreEqual(985170, Engine.FeeConsumed.Value);
         }
 

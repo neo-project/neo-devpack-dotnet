@@ -14,11 +14,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestPropertyMethod()
         {
-            var arr = Contract.TestProperty();
+            var arr = Contract.TestProperty()!;
             Assert.AreEqual(2053500, Engine.FeeConsumed.Value);
 
-            Assert.AreEqual(2, arr?.Count);
-            Assert.AreEqual((arr[0] as StackItem).GetString(), "NEO3");
+            Assert.AreEqual(2, arr.Count);
+            Assert.AreEqual((arr[0] as StackItem)!.GetString(), "NEO3");
             Assert.AreEqual(arr[1], new BigInteger(10));
         }
 
