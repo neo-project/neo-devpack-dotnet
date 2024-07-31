@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             for (int i = 0; i < 4; i++)
             {
                 Assert.IsTrue(jarray[i] is JNumber);
-                Assert.AreEqual(i, jarray[i].AsNumber());
+                Assert.AreEqual(i, jarray[i]!.AsNumber());
             }
         }
 
@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             for (int i = 0; i < 4; i++)
             {
                 Assert.IsTrue(jarray[i] is JNumber);
-                Assert.AreEqual(i < 2 ? i : i + 1, jarray[i].AsNumber());
+                Assert.AreEqual(i < 2 ? i : i + 1, jarray[i]!.AsNumber());
             }
         }
 
@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         static JToken ParseJson(string? json)
         {
-            return JToken.Parse(json);
+            return JToken.Parse(json!)!;
         }
     }
 }

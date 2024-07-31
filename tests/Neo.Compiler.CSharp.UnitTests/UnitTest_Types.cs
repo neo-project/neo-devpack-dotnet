@@ -50,8 +50,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void CheckEnumArg_Test()
         {
             var methods = Contract_Types.Manifest.Abi.Methods;
-            var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").First();
-            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
+            var checkEnumArg = methods.First(u => u.Name == "checkEnumArg");
+            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray<JToken?>()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
 
             Contract.CheckEnumArg(5);
             Assert.AreEqual(1046970, Engine.FeeConsumed.Value);
@@ -220,7 +220,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var hash = Engine.GetDeployHash(Contract_Types.Nef, Contract_Types.Manifest);
 
             var notifications = new List<string>();
-            var delEvent = new Contract_Types.delDummyEvent(notifications.Add);
+            var delEvent = new Contract_Types.delDummyEvent(notifications.Add!);
 
             // Deploy because notify require a contract
 
@@ -265,7 +265,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void CheckEvent_Test()
         {
             var notifications = new List<string>();
-            var delEvent = new Contract_Types.delDummyEvent(notifications.Add);
+            var delEvent = new Contract_Types.delDummyEvent(notifications.Add!);
 
             Contract.OnDummyEvent += delEvent;
             Contract.CheckEvent();

@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             var key = System.Text.Encoding.ASCII.GetBytes("a");
             // Except: {"a":"teststring2"}
-            Assert.AreEqual("7b2261223a2274657374737472696e6732227d", (Contract.TestByteArray(key) as ByteString).GetSpan().ToHexString());
+            Assert.AreEqual("7b2261223a2274657374737472696e6732227d", (Contract.TestByteArray(key) as ByteString)!.GetSpan().ToHexString());
             Assert.AreEqual(2645550, Engine.FeeConsumed.Value);
         }
 
