@@ -171,8 +171,17 @@ namespace Neo.Optimizer
                 if (!coveredMap.TryGetValue(addr, out BranchType value))
                     throw new BadScriptException($"wrong address {addr}");
                 if (value != BranchType.UNCOVERED)
-                    // We have visited the code. Skip it.
-                    return value;
+                {
+                    ((int _, int endPointer), TryStackType stackType) = stack.Pop();
+                    if (stackType != TryStackType.FINALLY)
+                        // We have visited the code. Skip it.
+                        return value;
+                    // if we are in FINALLY, we should visit the codes after ENDFINALLY
+                    // when previous codes did not throw
+                    if (throwed)
+                        return BranchType.THROW;
+                    return CoverInstruction(endPointer, stack);
+                }
                 Instruction instruction = script.GetInstruction(addr);
                 if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
@@ -227,13 +236,13 @@ namespace Neo.Optimizer
                             throw new BadScriptException("No try stack on ENDTRY");
 
                         // Terminate the try/catch context, but
-                        // prepare to visit catchAddr for current try, or finallyAddr for current catch
+                        // visit catchAddr for current try, or finallyAddr for current catch
                         // because there may still be exceptions at runtime
-                        ((int returnAddr, int finallyAddr), TryStackType stackType) endingContext = stack.Pop();
-                        int endTryAddr = addr;
+                        HandleThrow(entranceAddr, addr, stack);
 
                         coveredMap[entranceAddr] = BranchType.OK;
 
+                        stack.Pop();  // pop the ending TRY or CATCH
                         int endPointer = ComputeJumpTarget(addr, instruction);
                         if (finallyAddr != -1)
                         {
@@ -242,17 +251,11 @@ namespace Neo.Optimizer
                         }
                         else
                             addr = endPointer;
-                        BranchType normalReturn = CoverInstruction(addr, stack, throwed);
-
-                        // Visit catchAddr and finallyAddr because there may still be exceptions at runtime
-                        stack.Push(endingContext);
-                        HandleThrow(entranceAddr, endTryAddr, stack);
-
-                        return normalReturn;
+                        return CoverInstruction(addr, stack, throwed);
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
-                        ((int catchAddr, int finallyAddr), TryStackType stackType) = stack.Pop();
+                        ((int _, int endPointer), TryStackType stackType) = stack.Pop();
                         if (stackType != TryStackType.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
                         if (throwed)
@@ -262,7 +265,7 @@ namespace Neo.Optimizer
                             // The throw is caused by previous codes
                             return BranchType.THROW;
                         }
-                        return CoverInstruction(addr + instruction.Size, stack, false);
+                        return CoverInstruction(endPointer, stack, false);
                     }
                 }
                 if (unconditionalJump.Contains(instruction.OpCode))
