@@ -423,7 +423,6 @@ partial class MethodConvert
             case "System.Math.Min(object?, object?)":
             //Returns the smaller of two BigInteger values.
             case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                // case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MIN);
