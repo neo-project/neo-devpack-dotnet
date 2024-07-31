@@ -86,7 +86,7 @@ public class TestBase<T> where T : SmartContract
         return engine;
     }
 
-    private void Contract_OnRuntimeLog(string message)
+    private void Contract_OnRuntimeLog(UInt160 sender, string message)
     {
         _contractLogs.Add(message);
     }
