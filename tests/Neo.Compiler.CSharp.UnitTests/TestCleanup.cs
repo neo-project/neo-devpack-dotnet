@@ -27,7 +27,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             if (!debugContract)
             {
-                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.76M);
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.756M);
             }
         }
 

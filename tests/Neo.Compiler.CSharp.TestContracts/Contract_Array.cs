@@ -149,9 +149,8 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static void TestElementBinding()
         {
-            var a = Ledger.GetBlock(10000);
-            var b = Ledger.GetBlock(10001);
-            var array = new[] { a, b };
+            var a = Ledger.GetBlock(0);
+            var array = new[] { a };
             var firstItem = array?[0];
             Runtime.Log(firstItem?.Timestamp.ToString());
         }
