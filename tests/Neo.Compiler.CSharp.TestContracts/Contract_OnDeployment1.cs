@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework.Services;
 using System.ComponentModel;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -7,7 +8,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         [DisplayName("_deploy")]
         public static void MyDeployMethod(object data, bool update)
         {
-
+            Runtime.Log("Deployed");
         }
     }
 }
