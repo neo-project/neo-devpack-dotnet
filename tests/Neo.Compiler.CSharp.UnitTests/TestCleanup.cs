@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static readonly object RootSync = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.755M);
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.757M);
 
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
