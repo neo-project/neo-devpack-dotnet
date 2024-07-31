@@ -630,8 +630,8 @@ namespace Neo.SmartContract.Testing
             ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
-            beforeExecute?.Invoke(engine);
             if (ResetFeeConsumed) FeeConsumed.Reset();
+            beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
 
             // Increment fee
