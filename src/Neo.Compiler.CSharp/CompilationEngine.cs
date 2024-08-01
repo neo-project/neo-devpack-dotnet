@@ -174,7 +174,7 @@ namespace Neo.Compiler
                     context.Compile();
                     // Process the target contract add this compilation context
                     Contexts.TryAdd(c, context);
-                }))).GetAwaiter().GetResult(); ;
+                }))).GetAwaiter().GetResult();
 
             return Contexts.Select(p => p.Value).ToList();
         }
