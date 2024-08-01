@@ -64,5 +64,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1, log.Count);
             Assert.AreEqual("True", log[0]);
         }
+
+        [TestMethod]
+        public void Test_TestEmpty()
+        {
+            var result = Contract.TestEmpty();
+            Assert.AreEqual("", result);
+        }
     }
 }

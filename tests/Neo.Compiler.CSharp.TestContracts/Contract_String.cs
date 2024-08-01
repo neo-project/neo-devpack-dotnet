@@ -26,5 +26,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             Runtime.Log(str.Substring(1));
             Runtime.Log(str.Substring(1, 4));
         }
+
+        public static string TestEmpty()
+        {
+            return string.Empty;
+        }
+
     }
 }
