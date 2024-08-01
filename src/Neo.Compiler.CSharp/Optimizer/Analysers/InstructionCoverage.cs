@@ -95,7 +95,7 @@ namespace Neo.Optimizer
                 {
                     coveredMap[addr] = BranchType.THROW;
                     addr = finallyAddr;
-                    stack.Push(((-1, -1), TryStackType.FINALLY));
+                    stack.Push(((-1, finallyAddr), TryStackType.FINALLY));
                     coveredMap[entranceAddr] = CoverInstruction(addr, stack: stack, throwed: true);
                     return coveredMap[entranceAddr];
                 }
@@ -106,7 +106,7 @@ namespace Neo.Optimizer
                 if (finallyAddr != -1)
                 {
                     addr = finallyAddr;
-                    stack.Push(((-1, -1), TryStackType.FINALLY));
+                    stack.Push(((-1, finallyAddr), TryStackType.FINALLY));
                 }
                 return CoverInstruction(addr, stack: stack, throwed: true);
             }
