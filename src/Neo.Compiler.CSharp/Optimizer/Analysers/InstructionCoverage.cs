@@ -176,10 +176,15 @@ namespace Neo.Optimizer
                     if (stackType != TryStackType.FINALLY)
                         // We have visited the code. Skip it.
                         return value;
-                    // if we are in FINALLY, we should visit the codes after ENDFINALLY
+                    // if we are in FINALLY, we may visit the codes after ENDFINALLY
                     // when previous codes did not throw
+                    if (value != BranchType.OK)
+                        return value;
+                    // FINALLY is OK, but throwed in previous TRY or CATCH
                     if (throwed)
                         return BranchType.THROW;
+                    // No THROW or ABORT in TRY, CATCH or FINALLY
+                    // visit codes after ENDFINALLY
                     return CoverInstruction(endPointer, stack);
                 }
                 Instruction instruction = script.GetInstruction(addr);
