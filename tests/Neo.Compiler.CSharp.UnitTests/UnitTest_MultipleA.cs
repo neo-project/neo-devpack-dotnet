@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public UnitTest_MultipleA() : base(Contract_MultipleA.Nef, Contract_MultipleA.Manifest) { }
 
         [TestMethod]
-        public void Test_NotThrow()
+        public void Test()
         {
             Assert.IsTrue(Contract.Test());
             Assert.AreEqual(984060, Engine.FeeConsumed.Value);
