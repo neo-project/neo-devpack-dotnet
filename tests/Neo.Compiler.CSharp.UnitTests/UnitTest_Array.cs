@@ -99,11 +99,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            Assert.AreEqual(2805600, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3543240, Engine.FeeConsumed.Value);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
             Assert.IsTrue(bequal);
+        }
+
+        [TestMethod]
+        public void Test_DefaultState()
+        {
+            var result = Contract.TestDefaultState();
+            var state = result as Struct;
+            Assert.AreEqual(3, state.Count);
+            Assert.IsInstanceOfType(state[0], typeof(VM.Types.Null));
+            Assert.IsInstanceOfType(state[1], typeof(VM.Types.Null));
+            Assert.IsInstanceOfType(state[2], typeof(VM.Types.Integer));
+            Assert.AreEqual(0, state[2]);
+            Assert.AreEqual(3279750, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

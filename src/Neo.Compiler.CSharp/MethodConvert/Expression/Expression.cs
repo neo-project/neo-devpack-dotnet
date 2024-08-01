@@ -19,6 +19,7 @@ using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Wallets;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
 using Neo.VM.Types;
 
 namespace Neo.Compiler;
@@ -230,9 +231,74 @@ partial class MethodConvert
             case WithExpressionSyntax expression:
                 ConvertWithExpressionSyntax(model, expression);
                 break;
+            case LiteralExpressionSyntax expression:
+                if (expression.IsKind(SyntaxKind.DefaultLiteralExpression))
+                {
+                    ConvertDefaultLiteralExpression(model, expression);
+                }
+                else if (expression.IsKind(SyntaxKind.NullLiteralExpression))
+                {
+                    AddInstruction(OpCode.PUSHNULL);
+                }
+                else
+                {
+                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
+                }
+                break;
             default:
                 //Example: typeof(Transaction);
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
+        }
+    }
+
+    private void ConvertDefaultLiteralExpression(SemanticModel model, LiteralExpressionSyntax expression)
+    {
+        var type = model.GetTypeInfo(expression).Type;
+        if (type == null)
+        {
+            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, "Cannot determine type for default expression");
+        }
+
+        switch (type.SpecialType)
+        {
+            case SpecialType.System_Boolean:
+            case SpecialType.System_Byte:
+            case SpecialType.System_SByte:
+            case SpecialType.System_Int16:
+            case SpecialType.System_UInt16:
+            case SpecialType.System_Int32:
+            case SpecialType.System_UInt32:
+            case SpecialType.System_Int64:
+            case SpecialType.System_UInt64:
+            case SpecialType.System_Decimal:
+            case SpecialType.System_Single:
+            case SpecialType.System_Double:
+                AddInstruction(OpCode.PUSH0);
+                break;
+            case SpecialType.System_String:
+            case SpecialType.System_Object:
+                AddInstruction(OpCode.PUSHNULL);
+                break;
+            default:
+                if (type.ToString() == "System.Numerics.BigInteger")
+                {
+                    // BigInteger's default value is 0
+                    AddInstruction(OpCode.PUSH0);
+                }
+                else if (type.IsReferenceType)
+                {
+                    AddInstruction(OpCode.PUSHNULL);
+                }
+                else if (type.IsValueType)
+                {
+                    // For structs and other value types, we need to create a default instance
+                    AddInstruction(OpCode.NEWSTRUCT0);
+                }
+                else
+                {
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported type for default expression: {type}");
+                }
+                break;
         }
     }
 
@@ -254,7 +320,7 @@ partial class MethodConvert
 
     private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
     {
-        var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        var symbol = (IMethodSymbol)ModelExtensions.GetSymbolInfo(model, expression).Symbol!;
         var mc = _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         AddInstruction(new Instruction
@@ -266,7 +332,7 @@ partial class MethodConvert
 
     private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
     {
-        var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        var symbol = (IMethodSymbol)ModelExtensions.GetSymbolInfo(model, expression).Symbol!;
         var mc = _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         AddInstruction(new Instruction
@@ -364,7 +430,7 @@ partial class MethodConvert
     /// <exception cref="CompilationException">For unsupported types, throw a compilation exception.</exception>
     private void ConvertObjectToString(SemanticModel model, ExpressionSyntax expression)
     {
-        ITypeSymbol? type = model.GetTypeInfo(expression).Type;
+        ITypeSymbol? type = ModelExtensions.GetTypeInfo(model, expression).Type;
         switch (type?.ToString())
         {
             case "sbyte":

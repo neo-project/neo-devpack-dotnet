@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -34,7 +35,7 @@ namespace Neo.Compiler
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = new();
         private static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
-        internal readonly Dictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
+        internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
 
         static CompilationEngine()
         {
@@ -162,18 +163,19 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
-            Parallel.ForEach(sortedClasses, c =>
-            {
-                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
-                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies);
-                context.Compile();
-                // Process the target contract add this compilation context
-                lock (Contexts)
+
+            Task.WhenAll(
+                Enumerable.Range(0, sortedClasses.Count).Select(i => Task.Run(() =>
                 {
-                    Contexts.Add(c, context);
-                }
-            });
+                    var c = sortedClasses[i];
+                    // if (!c.Name.Contains("Contract_Array")) return;
+                    var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
+                    var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+                    var context = new CompilationContext(this, c, classesNotInDependencies);
+                    context.Compile();
+                    // Process the target contract add this compilation context
+                    Contexts.TryAdd(c, context);
+                }))).GetAwaiter().GetResult(); ;
 
             return Contexts.Select(p => p.Value).ToList();
         }
