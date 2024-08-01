@@ -262,6 +262,10 @@ partial class MethodConvert
         switch (type.SpecialType)
         {
             case SpecialType.System_Boolean:
+                {
+                    AddInstruction(OpCode.PUSHF);
+                    break;
+                }
             case SpecialType.System_Byte:
             case SpecialType.System_SByte:
             case SpecialType.System_Int16:
@@ -273,6 +277,7 @@ partial class MethodConvert
             case SpecialType.System_Decimal:
             case SpecialType.System_Single:
             case SpecialType.System_Double:
+            case SpecialType.System_Char:
                 AddInstruction(OpCode.PUSH0);
                 break;
             case SpecialType.System_String:

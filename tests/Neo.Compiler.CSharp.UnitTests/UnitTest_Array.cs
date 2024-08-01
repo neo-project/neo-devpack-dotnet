@@ -123,7 +123,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            Assert.AreEqual(2605770, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3343410, Engine.FeeConsumed.Value);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;

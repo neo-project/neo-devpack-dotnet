@@ -168,7 +168,6 @@ namespace Neo.Compiler
                 Enumerable.Range(0, sortedClasses.Count).Select(i => Task.Run(() =>
                 {
                     var c = sortedClasses[i];
-                    // if (!c.Name.Contains("Contract_Array")) return;
                     var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                     var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
                     var context = new CompilationContext(this, c, classesNotInDependencies);
