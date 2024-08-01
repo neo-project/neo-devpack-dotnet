@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -34,7 +35,7 @@ namespace Neo.Compiler
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = new();
         private static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
-        internal readonly Dictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
+        internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
 
         static CompilationEngine()
         {
@@ -166,13 +167,10 @@ namespace Neo.Compiler
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies);
+                var context = new CompilationContext(this, c, classesNotInDependencies!);
                 context.Compile();
                 // Process the target contract add this compilation context
-                lock (Contexts)
-                {
-                    Contexts.Add(c, context);
-                }
+                Contexts.TryAdd(c, context);
             });
 
             return Contexts.Select(p => p.Value).ToList();
