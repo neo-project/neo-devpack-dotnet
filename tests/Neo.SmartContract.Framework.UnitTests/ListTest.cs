@@ -16,6 +16,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestCount()
         {
             Assert.AreEqual(4, Contract.TestCount(4));
+            Assert.AreEqual(2036100, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -29,7 +30,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             for (int i = 0; i < 4; i++)
             {
                 Assert.IsTrue(jarray[i] is JNumber);
-                Assert.AreEqual(i, jarray[i].AsNumber());
+                Assert.AreEqual(i, jarray[i]!.AsNumber());
             }
         }
 
@@ -37,6 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestRemoveAt()
         {
             var item = Contract.TestRemoveAt(5, 2);
+            Assert.AreEqual(3389940, Engine.FeeConsumed.Value);
             var json = ParseJson(item);
 
             Assert.IsTrue(json is JArray);
@@ -44,7 +46,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             for (int i = 0; i < 4; i++)
             {
                 Assert.IsTrue(jarray[i] is JNumber);
-                Assert.AreEqual(i < 2 ? i : i + 1, jarray[i].AsNumber());
+                Assert.AreEqual(i < 2 ? i : i + 1, jarray[i]!.AsNumber());
             }
         }
 
@@ -52,6 +54,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestClear()
         {
             var item = Contract.TestClear(4);
+            Assert.AreEqual(3142470, Engine.FeeConsumed.Value);
             var json = ParseJson(item);
 
             Assert.IsTrue(json is JArray);
@@ -63,6 +66,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestArrayConvert()
         {
             var array = Contract.TestArrayConvert(4)!;
+            Assert.AreEqual(2035980, Engine.FeeConsumed.Value);
             Assert.AreEqual(4, array.Count);
             for (int i = 0; i < 4; i++)
             {
@@ -72,7 +76,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         static JToken ParseJson(string? json)
         {
-            return JToken.Parse(json);
+            return JToken.Parse(json!)!;
         }
     }
 }

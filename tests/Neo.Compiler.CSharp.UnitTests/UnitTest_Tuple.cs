@@ -13,8 +13,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Assign()
         {
-            var tuple = Contract.T1() as Struct;
-            Assert.AreEqual(5, tuple.Count);
+            var tuple = Contract.T1()! as Struct;
+            Assert.AreEqual(4789620, Engine.FeeConsumed.Value);
+            Assert.AreEqual(5, tuple!.Count);
             Assert.AreEqual(1, tuple[2].GetInteger());
             Assert.AreEqual(4, tuple[3].GetInteger());
             Assert.AreEqual(2, ((Struct)tuple[4])[1].GetInteger());
