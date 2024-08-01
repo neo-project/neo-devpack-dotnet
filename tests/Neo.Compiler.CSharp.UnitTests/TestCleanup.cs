@@ -19,9 +19,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         private static CompilationContext[]? compilationContexts;
         private static readonly object RootSync = new();
+        private static bool? isSingleTestRun = null;
+
+        public TestContext? TestContext { get; set; }
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            isSingleTestRun = TestContext?.FullyQualifiedTestClassName != null;
+        }
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.77M);
+        public static void EnsureCoverage()
+        {
+            if (isSingleTestRun != false) return;
+
+            EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.77M);
+        }
 
         [TestMethod]
         public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
