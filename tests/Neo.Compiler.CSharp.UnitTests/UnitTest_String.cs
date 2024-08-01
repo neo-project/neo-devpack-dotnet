@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestSubstring();
-            Assert.AreEqual(3075900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3076680, Engine.FeeConsumed.Value);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(2, log.Count);
@@ -40,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestMain();
-            Assert.AreEqual(7625310, Engine.FeeConsumed.Value);
+            Assert.AreEqual(7626090, Engine.FeeConsumed.Value);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(1, log.Count);
@@ -58,11 +58,19 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestEqual();
-            Assert.AreEqual(1970970, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1971750, Engine.FeeConsumed.Value);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(1, log.Count);
             Assert.AreEqual("True", log[0]);
+        }
+
+        [TestMethod]
+        public void Test_TestEmpty()
+        {
+            var result = Contract.TestEmpty();
+            Assert.AreEqual(984870, Engine.FeeConsumed.Value);
+            Assert.AreEqual("", result);
         }
     }
 }
