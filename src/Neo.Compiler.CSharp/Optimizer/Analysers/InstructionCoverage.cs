@@ -119,16 +119,18 @@ namespace Neo.Optimizer
                 // try without catch: execute finally but do not visit codes after finally
                 else if (finallyAddr != -1)
                 {
-                    coveredMap[addr] = BranchType.THROW;
                     stack.Push(new(-1, -1, TryStackType.FINALLY, false));
-                    CoverInstruction(finallyAddr, stack);
+                    if (CoverInstruction(finallyAddr, stack) == BranchType.ABORT)
+                    {
+                        coveredMap[entranceAddr] = BranchType.ABORT;
+                        return BranchType.ABORT;
+                    }
                     coveredMap[entranceAddr] = BranchType.THROW;
                     return BranchType.THROW;
                 }
                 throw new BadScriptException("Try without catch or finally");
             }
             // not throwed in try
-            coveredMap[entranceAddr] = BranchType.THROW;
             // throwed in catch with finally: execute finally,
             // and do not continue after ENDFINALLY
             if (stackType == TryStackType.CATCH)
@@ -136,10 +138,14 @@ namespace Neo.Optimizer
                 if (finallyAddr != -1)
                 {
                     stack.Push(new(-1, -1, TryStackType.FINALLY, false));
-                    CoverInstruction(finallyAddr, stack);
+                    if (CoverInstruction(finallyAddr, stack) == BranchType.ABORT)
+                    {
+                        coveredMap[entranceAddr] = BranchType.ABORT;
+                        return BranchType.ABORT;
+                    }
                 }
-                // continue to coveredMap[entranceAddr] = BranchType.THROW;
             }
+            coveredMap[entranceAddr] = BranchType.THROW;
             return BranchType.THROW;
         }
 
