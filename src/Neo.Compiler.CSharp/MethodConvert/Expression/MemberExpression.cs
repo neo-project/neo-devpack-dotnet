@@ -60,7 +60,6 @@ partial class MethodConvert
                     if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
                     {
                         Push(string.Empty);
-                        // postInitialize?.Invoke();
                         return;
                     }
 
