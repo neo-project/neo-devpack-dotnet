@@ -59,7 +59,6 @@ partial class MethodConvert
                     // thus will return directly without this if check.
                     if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
                     {
-                        // preInitialize?.Invoke();
                         Push(string.Empty);
                         // postInitialize?.Invoke();
                         return;
