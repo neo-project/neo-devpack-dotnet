@@ -9,8 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Shift : TestBase<Contract_shift>
     {
-        public UnitTest_Shift() : base(Contract_shift.Nef, Contract_shift.Manifest) { }
-
         [TestMethod]
         public void Test_Shift()
         {

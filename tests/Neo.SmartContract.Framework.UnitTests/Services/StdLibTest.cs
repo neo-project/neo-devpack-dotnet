@@ -10,8 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class StdLibTest : TestBase<Contract_StdLib>
     {
-        public StdLibTest() : base(Contract_StdLib.Nef, Contract_StdLib.Manifest) { }
-
         [TestMethod]
         public void AtoiTest()
         {

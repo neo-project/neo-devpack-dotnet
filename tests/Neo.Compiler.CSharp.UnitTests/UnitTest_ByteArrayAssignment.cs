@@ -9,8 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_ByteArrayAssignment : TestBase<Contract_ByteArrayAssignment>
     {
-        public UnitTest_ByteArrayAssignment() : base(Contract_ByteArrayAssignment.Nef, Contract_ByteArrayAssignment.Manifest) { }
-
         [TestMethod]
         public void Test_ByteArrayAssignment()
         {

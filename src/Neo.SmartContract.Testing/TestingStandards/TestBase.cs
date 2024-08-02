@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
@@ -5,6 +6,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
@@ -26,7 +28,24 @@ public class TestBase<T> where T : SmartContract
     /// <summary>
     /// Empty constructor
     /// </summary>
-    public TestBase() { }
+    public TestBase()
+    {
+        var nefField = typeof(T).GetField("Nef", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        if (nefField == null)
+        {
+            throw new InvalidOperationException($"The type {typeof(T).Name} does not have a static Nef field.");
+        }
+        var nef = (NefFile)nefField.GetValue(null)!;
+
+        var manifestField = typeof(T).GetField("Manifest", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        if (manifestField == null)
+        {
+            throw new InvalidOperationException($"The type {typeof(T).Name} does not have a static Manifest field.");
+        }
+        var manifest = (ContractManifest)manifestField.GetValue(null)!;
+
+        TestBaseSetup(nef, manifest);
+    }
 
     /// <summary>
     /// Constructor

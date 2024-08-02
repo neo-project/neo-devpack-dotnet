@@ -9,6 +9,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Neo.SmartContract.Manifest;
 
 namespace Neo.SmartContract.Testing
 {

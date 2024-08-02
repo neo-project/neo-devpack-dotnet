@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Params : TestBase<Contract_Params>
     {
-        public UnitTest_Params() : base(Contract_Params.Nef, Contract_Params.Manifest) { }
-
         [TestMethod]
         public void Test_Params()
         {

@@ -10,8 +10,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_IntegerParse : TestBase<Contract_IntegerParse>
     {
-        public UnitTest_IntegerParse() : base(Contract_IntegerParse.Nef, Contract_IntegerParse.Manifest) { }
-
         [TestMethod]
         public void SByteParse_Test()
         {

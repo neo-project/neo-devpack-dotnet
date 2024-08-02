@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StaticVarInit : TestBase<Contract_StaticVarInit>
     {
-        public UnitTest_StaticVarInit() : base(Contract_StaticVarInit.Nef, Contract_StaticVarInit.Manifest) { }
-
         [TestMethod]
         public void Test_StaticVarInit()
         {
