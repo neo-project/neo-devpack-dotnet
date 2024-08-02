@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
+using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -12,8 +13,33 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Main()
         {
+            var logs = new Queue<string>();
+            Contract.OnRuntimeLog += (sender, log) => logs.Enqueue(log);
+
             Contract.TestMain();
             Assert.AreEqual(1784760, Engine.FeeConsumed.Value);
+
+            // TODO: check logs
+            Assert.AreEqual(18, logs.Count);
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
+            Assert.AreEqual("", logs.Dequeue());
         }
     }
 }
