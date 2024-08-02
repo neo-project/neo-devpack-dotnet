@@ -164,17 +164,15 @@ namespace Neo.Compiler
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
 
-            Task.WhenAll(
-                Enumerable.Range(0, sortedClasses.Count).Select(i => Task.Run(() =>
-                {
-                    var c = sortedClasses[i];
-                    var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
-                    var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                    var context = new CompilationContext(this, c, classesNotInDependencies);
-                    context.Compile();
-                    // Process the target contract add this compilation context
-                    Contexts.TryAdd(c, context);
-                }))).GetAwaiter().GetResult();
+            Parallel.ForEach(sortedClasses, c =>
+            {
+                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
+                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                context.Compile();
+                // Process the target contract add this compilation context
+                Contexts.TryAdd(c, context);
+            });
 
             return Contexts.Select(p => p.Value).ToList();
         }
