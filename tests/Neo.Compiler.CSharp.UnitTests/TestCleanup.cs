@@ -81,9 +81,9 @@ namespace Neo.Compiler.CSharp.UnitTests
                     var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
                     if (debug != null)
                     {
-                        DebugInfos[type] = debug!;
                         lock (RootSync)
                         {
+                            DebugInfos[type] = debug!;
                             results = results.Where(r => r != result).ToList();
                         }
                     }
