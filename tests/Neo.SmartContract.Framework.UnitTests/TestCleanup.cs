@@ -30,12 +30,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             artifactsChecked = true;
         }
 
-        [TestMethod]
-        public void EnsureArtifactsUpToDate()
-        {
-            Assert.IsTrue(artifactsChecked, "Artifacts should have been checked in AssemblyInitialize");
-        }
-
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
