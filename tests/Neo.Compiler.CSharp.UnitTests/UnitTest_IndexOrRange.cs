@@ -18,7 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.TestMain();
             Assert.AreEqual(32096940, Engine.FeeConsumed.Value);
 
-            // TODO: check logs
+            // Check logs
             Assert.AreEqual(18, logs.Count);
             Assert.AreEqual("10", logs.Dequeue());
             Assert.AreEqual("3", logs.Dequeue());
