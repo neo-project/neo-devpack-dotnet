@@ -22,8 +22,8 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         private static bool artifactsChecked = false;
 
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        [AssemblyInitialize]
+        public static void AssemblyInitialize(TestContext context)
         {
             EnsureArtifactsUpToDateInternal();
             artifactsChecked = true;
@@ -32,7 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
-            Assert.IsTrue(artifactsChecked, "Artifacts should have been checked in ClassInitialize");
+            Assert.IsTrue(artifactsChecked, "Artifacts should have been checked in AssemblyInitialize");
         }
 
         [AssemblyCleanup]
