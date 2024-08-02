@@ -21,11 +21,33 @@ namespace Neo.SmartContract.Framework.UnitTests
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         private static readonly object RootSync = new();
 
-        [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
+        private static bool artifactsChecked = false;
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            EnsureArtifactsUpToDateInternal();
+            artifactsChecked = true;
+        }
 
         [TestMethod]
-        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
+        public void EnsureArtifactsUpToDate()
+        {
+            Assert.IsTrue(artifactsChecked, "Artifacts should have been checked in ClassInitialize");
+        }
+
+        [AssemblyCleanup]
+        public static void EnsureCoverage()
+        {
+            if (artifactsChecked)
+            {
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.77M);
+            }
+            else
+            {
+                Assert.Fail("EnsureArtifactsUpToDate was not executed before EnsureCoverage");
+            }
+        }
 
         internal static void EnsureArtifactsUpToDateInternal()
         {
