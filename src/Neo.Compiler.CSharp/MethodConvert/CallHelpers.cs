@@ -224,6 +224,8 @@ partial class MethodConvert
         IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
         IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
         int index = Array.IndexOf(virtualMethods, symbol);
+        if (index < 0)
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {symbol.OriginalDefinition}.");
         AddInstruction(OpCode.DUP);
         Push(fields.Length);
         AddInstruction(OpCode.PICKITEM);

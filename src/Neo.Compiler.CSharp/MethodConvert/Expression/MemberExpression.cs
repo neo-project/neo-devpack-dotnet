@@ -55,6 +55,14 @@ partial class MethodConvert
                 }
                 else if (field.IsStatic)
                 {
+                    // Have to process the string.Empty specially since it has no AssociatedSymbol
+                    // thus will return directly without this if check.
+                    if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
+                    {
+                        Push(string.Empty);
+                        return;
+                    }
+
                     byte index = _context.AddStaticField(field);
                     AccessSlot(OpCode.LDSFLD, index);
                 }
