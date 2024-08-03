@@ -31,6 +31,5 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return string.Empty;
         }
-
     }
 }

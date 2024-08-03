@@ -204,7 +204,7 @@ namespace Neo.SmartContract.Testing
                 // We need the contract state without pay gas, but the entry script does never exists
 
                 var state = ReferenceEquals(EntryContext, InstructionContext) ? null :
-                    NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
+                    NativeContract.ContractManagement.GetContract(SnapshotCache, contractHash);
 
                 coveredContract = new(Engine.MethodDetection, contractHash, state);
                 Engine.Coverage[contractHash] = coveredContract;
@@ -273,7 +273,7 @@ namespace Neo.SmartContract.Testing
                         // We need to switch the Engine's snapshot in case
                         // that a mock want to query the storage, it's not committed
 
-                        Engine.Storage = new EngineStorage(backup.Store, Snapshot);
+                        Engine.Storage = new EngineStorage(backup.Store, SnapshotCache);
 
                         // Invoke snapshot
 

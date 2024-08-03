@@ -781,6 +781,19 @@ partial class MethodConvert
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                     return true;
                 }
+            case "string.ToString()":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    return true;
+                }
+            case "object.ToString()":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    ChangeType(StackItemType.ByteString);
+                    return true;
+                }
             #endregion
             //Non-system methods, such as user-defined methods
             default:

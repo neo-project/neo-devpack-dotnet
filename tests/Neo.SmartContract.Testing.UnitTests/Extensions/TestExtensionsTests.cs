@@ -17,7 +17,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
         {
             StackItem stackItem = new Integer((int)VMState.FAULT);
 
-            Assert.AreEqual(VMState.FAULT, (VMState)stackItem.ConvertTo(typeof(VMState)));
+            Assert.AreEqual(VMState.FAULT, (VMState)stackItem.ConvertTo(typeof(VMState))!);
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
             var point = ECCurve.Secp256r1.G;
             StackItem stackItem = new Array(new StackItem[] { point.ToArray(), BigInteger.One });
 
-            var ret = (Candidate)stackItem.ConvertTo(typeof(Candidate));
+            var ret = (Candidate)stackItem.ConvertTo(typeof(Candidate))!;
 
             Assert.AreEqual(point, ret.PublicKey);
             Assert.AreEqual(1, ret.Votes);
@@ -38,7 +38,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
             StackItem stackItem = new Array(new StackItem[] { 1, 2 });
             var ret = stackItem.ConvertTo(typeof((int, int)));
 
-            Assert.IsTrue(ret.GetType().IsValueType);
+            Assert.IsTrue(ret!.GetType().IsValueType);
         }
     }
 }

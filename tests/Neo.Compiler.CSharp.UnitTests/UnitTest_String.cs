@@ -69,6 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestEmpty()
         {
             var result = Contract.TestEmpty();
+            Assert.AreEqual(984270, Engine.FeeConsumed.Value);
             Assert.AreEqual("", result);
         }
     }
