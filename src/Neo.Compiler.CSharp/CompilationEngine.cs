@@ -123,13 +123,13 @@ namespace Neo.Compiler
             finally { File.Delete(path); }
         }
 
-        public List<CompilationContext> CompileProject(string csproj)
+        public List<CompilationContext> CompileProject(string csproj, string? targetContractName = null)
         {
             Compilation = GetCompilation(csproj);
-            return CompileProjectContracts(Compilation);
+            return CompileProjectContracts(Compilation, targetContractName);
         }
 
-        private List<CompilationContext> CompileProjectContracts(Compilation compilation)
+        private List<CompilationContext> CompileProjectContracts(Compilation compilation, string? targetContractName = null)
         {
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -165,6 +165,8 @@ namespace Neo.Compiler
             var sortedClasses = TopologicalSort(classDependencies);
             Parallel.ForEach(sortedClasses, c =>
             {
+                if (targetContractName != null && !c.Name.Contains(targetContractName)) return;
+
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
                 var context = new CompilationContext(this, c, classesNotInDependencies!);

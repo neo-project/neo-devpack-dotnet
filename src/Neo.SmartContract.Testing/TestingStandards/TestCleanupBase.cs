@@ -11,6 +11,10 @@ namespace Neo.SmartContract.Testing.TestingStandards
     public abstract class TestCleanupBase
     {
         public static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
+        protected static bool _isSingleTestRun = false;
+        protected static string? _singleTestContractName = null;
+
+        protected static TestContext? TestContext { get; set; }
 
         protected static void EnsureCoverageInternal(Assembly assembly, decimal requiredCoverage = 0.9M)
         {

@@ -19,36 +19,58 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         private static CompilationContext[]? compilationContexts;
         private static readonly object RootSync = new();
-        private static bool? isSingleTestRun = null;
 
-        public TestContext? TestContext { get; set; }
+        private static readonly string ArtifactsPath = new FileInfo("../../../TestingArtifacts").FullName;
+        private static readonly string TestContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj").FullName;
 
-        [TestInitialize]
-        public void TestInitialize()
+
+        [AssemblyInitialize]
+        public static void TestInitialize(TestContext testContext)
         {
-            isSingleTestRun = TestContext?.FullyQualifiedTestClassName != null;
+            TestContext = testContext;
+            var fullTestClassName = TestContext.FullyQualifiedTestClassName;
+            _isSingleTestRun = fullTestClassName != null;
+            if (!_isSingleTestRun) return;
+            try
+            {
+                var testClassType = Type.GetType(fullTestClassName) ?? throw new InvalidOperationException($"Cannot find type for {fullTestClassName}");
+                var baseType = testClassType.BaseType;
+                if (baseType is not { IsGenericType: true })
+                {
+                    throw new InvalidOperationException($"The test class {fullTestClassName} does not inherit from TestBase<T>");
+                }
+                // Get the generic argument (T) which should be our contract type
+                var contractType = baseType.GetGenericArguments()[0];
+                _singleTestContractName = contractType.Name;
+                // try to compile the contract first.
+                EnsureArtifactsUpToDateInternal(_singleTestContractName);
+            }
+            catch
+            {
+            }
         }
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
-            if (isSingleTestRun != false) return;
-
+            if (_isSingleTestRun) return;
             EnsureCoverageInternal(Assembly.GetExecutingAssembly(), 0.77M);
         }
 
         [TestMethod]
-        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
+        public void EnsureArtifactsUpToDate()
+        {
+            if (_isSingleTestRun) return;
+            EnsureArtifactsUpToDateInternal();
+        }
 
-        internal static CompilationContext[] EnsureArtifactsUpToDateInternal()
+        internal static CompilationContext[] EnsureArtifactsUpToDateInternal(string? singleContractName = null)
         {
             if (DebugInfos.Count > 0) return compilationContexts!; // Maybe a UT call it
 
             // Define paths
 
-            var artifactsPath = new FileInfo("../../../TestingArtifacts").FullName;
-            var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj").FullName;
-            var root = new FileInfo(testContractsPath).Directory?.Root.FullName ?? "";
+            var root = new FileInfo(TestContractsPath).Directory?.Root.FullName ?? "";
 
             // Compile
 
@@ -59,7 +81,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileProject(testContractsPath);
+            .CompileProject(TestContractsPath, singleContractName);
 
             // Ensure that all was well compiled
 
@@ -92,7 +114,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     }
 
                     // Ensure that it exists
-                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs"));
                     if (debug != null)
                     {
                         lock (RootSync)
@@ -119,7 +141,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 foreach (var result in results.Where(u => u.Success))
                 {
-                    CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+                    CreateArtifact(result.ContractName!, result, root, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs"));
                 }
 
                 Assert.Fail("Error compiling templates");
