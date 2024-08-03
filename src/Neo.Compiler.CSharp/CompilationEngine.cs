@@ -78,12 +78,12 @@ namespace Neo.Compiler
 
             var packageGroup = references.Packages is null ? "" : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references!.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
+        {string.Join(Environment.NewLine, references.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
     </ItemGroup>";
 
             var projectsGroup = references.Projects is null ? "" : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references!.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
+        {string.Join(Environment.NewLine, references.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
     </ItemGroup>";
 
             var csproj = $@"
@@ -119,7 +119,6 @@ namespace Neo.Compiler
             {
                 return CompileProject(path);
             }
-            catch { throw; }
             finally { File.Delete(path); }
         }
 
@@ -226,7 +225,7 @@ namespace Neo.Compiler
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                if (pattern.IsMatch(baseType.ToString()))
+                if (pattern.IsMatch(baseType.ToString() ?? string.Empty))
                 {
                     return true;
                 }

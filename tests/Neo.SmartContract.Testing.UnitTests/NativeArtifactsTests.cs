@@ -42,9 +42,9 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check coverage
 
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol).CoveredLinesPercentage);
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply).CoveredLinesPercentage);
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>())).CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol)!.CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply)!.CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>()))!.CoveredLinesPercentage);
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Check
 
             Assert.AreEqual(1, engine.Native.NEO.Candidates?.Length);
-            Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates[0].PublicKey.ToString());
+            Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates![0].PublicKey!.ToString());
         }
 
         [TestMethod]
