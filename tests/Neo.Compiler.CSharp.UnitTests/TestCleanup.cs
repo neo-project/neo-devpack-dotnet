@@ -36,7 +36,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _classDependencies;
         private static List<INamedTypeSymbol?> _allClassSymbols;
         private static readonly ConcurrentSet<string> UpdatedArtifactNames = new();
-        private static readonly ConcurrentSet<string> TestedContracts = new();
 
         [AssemblyInitialize]
         public static void TestAssemblyInitializeAsync(TestContext testContext)
@@ -54,7 +53,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     throw new InvalidOperationException(
                         $"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
                 }
-                TestedContracts.TryAdd(contract.Name);
+                if (DebugInfos.ContainsKey(contract)) return;
                 EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
             }
             catch (Exception e)
@@ -77,7 +76,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             //     Contract_OnDeployment
             //     Contract_OnDeployment2
             // TODO: add tests for them
-            if (TestedContracts.Count == _sortedClasses.Count - 7)
+            if (DebugInfos.Count == _sortedClasses.Count - 7)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos, 0.77M);
         }
 

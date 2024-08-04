@@ -25,7 +25,6 @@ namespace Neo.SmartContract.Framework.UnitTests
         private static readonly string TestContractsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "..", "Neo.SmartContract.Framework.TestContracts", "Neo.SmartContract.Framework.TestContracts.csproj"));
         private static readonly string ArtifactsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "TestingArtifacts"));
         private static readonly string RootPath = Path.GetDirectoryName(TestContractsPath) ?? string.Empty;
-        private static readonly ConcurrentSet<string> TestedContracts = new();
 
         private static readonly Lazy<CompilationEngine> _compilationEngine = new(() => new CompilationEngine(new CompilationOptions
         {
@@ -52,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 throw new InvalidOperationException($"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
             }
-            TestedContracts.TryAdd(contract.Name);
+            if (DebugInfos.ContainsKey(contract)) return;
             EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
         }
 
@@ -72,7 +71,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             //     Contract_SupportedStandard17Payable
             //     Contract_SupportedStandards
             //     Contract_Update
-            if (TestedContracts.Count == _sortedClasses.Count - 9)
+            if (DebugInfos.Count == _sortedClasses.Count - 9)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos);
         }
 
