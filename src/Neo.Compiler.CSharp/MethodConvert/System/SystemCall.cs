@@ -717,6 +717,48 @@ partial class MethodConvert
                 AddInstruction(OpCode.SUB);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            // https://learn.microsoft.com/en-us/dotnet/api/system.string.compare?view=net-8.0
+            case "string.Compare(string?, string?)":
+            {
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                // if left < right return -1;
+                // if left = right return 0;
+                // if left > right return 1;
+                // Less than zero	  The first substring precedes the second substring in the sort order.
+                // Zero	              The substrings occur in the same position in the sort order, or length is zero.
+                // Greater than zero  The first substring follows the second substring in the sort order.
+                AddInstruction(OpCode.SUB);
+                AddInstruction(OpCode.SIGN);
+                return true;
+            }
+            case "string.IsNullOrEmpty(string?)":
+            {
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                JumpTarget endTarget = new();
+                JumpTarget emptyTarget = new();
+                AddInstruction(OpCode.DUP);
+                // this check will pop one item
+                AddInstruction(OpCode.ISNULL);
+                AddInstruction(OpCode.DUP);
+                // this jumpif will pop one isnull
+                Jump(OpCode.JMPIF, endTarget);
+                // drop the duped isnull
+                AddInstruction(OpCode.DROP);
+                AddInstruction(OpCode.SIZE);
+                Push(0);
+                AddInstruction(OpCode.NUMEQUAL);
+                // drop the dup
+                endTarget.Instruction = AddInstruction(OpCode.NOP);
+
+
+                return true;
+            }
             //Retrieves a substring from this instance.
             //The substring starts at a specified character position and has a specified length.
             case "string.Substring(int, int)":
