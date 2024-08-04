@@ -77,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             //     Contract_OnDeployment
             //     Contract_OnDeployment2
             // TODO: add tests for them
-            if (TestedContracts.Count == _sortedClasses.Count - 6)
+            if (TestedContracts.Count == _sortedClasses.Count - 7)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos, 0.77M);
         }
 
