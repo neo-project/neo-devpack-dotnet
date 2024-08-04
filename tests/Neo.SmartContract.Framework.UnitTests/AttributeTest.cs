@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class AttributeTest : TestBase<Contract_Attribute>
+    public class AttributeTest : TestBase2<Contract_Attribute>
     {
         public AttributeTest() : base(Contract_Attribute.Nef, Contract_Attribute.Manifest) { }
 

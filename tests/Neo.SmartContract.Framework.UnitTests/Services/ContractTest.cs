@@ -5,7 +5,6 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
@@ -15,10 +14,8 @@ using Array = Neo.VM.Types.Array;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ContractTest : TestBase<Contract_Contract>
+    public class ContractTest() : TestBase2<Contract_Contract>(Contract_Contract.Nef, Contract_Contract.Manifest)
     {
-        public ContractTest() : base(Contract_Contract.Nef, Contract_Contract.Manifest) { }
-
         [TestMethod]
         public void Test_CreateCallDestroy()
         {

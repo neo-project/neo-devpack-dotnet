@@ -1,9 +1,9 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +11,15 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Assert : TestBase<Contract_Assert>
+    public class UnitTest_Assert : TestBase2<Contract_Assert>
     {
         private readonly JObject _debugInfo;
 
         public UnitTest_Assert() : base(Contract_Assert.Nef, Contract_Assert.Manifest)
         {
-            var contract = TestCleanup.EnsureArtifactsUpToDateInternal().Where(u => u.ContractName == "Contract_Assert").First();
+            var contract = TestCleanup.EnsureArtifactUpToDateInternal(nameof(Contract_Assert)).FirstOrDefault();
             _debugInfo = contract.CreateDebugInformation();
+            Console.WriteLine("UnitTest_Assert: Constructor");
         }
 
         public void AssertsInFalse(TestException exception)

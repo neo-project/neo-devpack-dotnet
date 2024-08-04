@@ -4,14 +4,13 @@ using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.Wallets;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_UIntTypes : TestBase<Contract_UIntTypes>
+    public class UnitTest_UIntTypes : TestBase2<Contract_UIntTypes>
     {
         public UnitTest_UIntTypes() : base(Contract_UIntTypes.Nef, Contract_UIntTypes.Manifest) { }
 

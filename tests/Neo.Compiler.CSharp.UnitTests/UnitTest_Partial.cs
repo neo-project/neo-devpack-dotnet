@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Partial : TestBase<Contract_Partial>
+    public class UnitTest_Partial : TestBase2<Contract_Partial>
     {
         public UnitTest_Partial() : base(Contract_Partial.Nef, Contract_Partial.Manifest) { }
 

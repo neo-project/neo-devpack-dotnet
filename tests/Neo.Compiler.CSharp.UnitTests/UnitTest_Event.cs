@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Event() : TestBase<Contract_Event>(Contract_Event.Nef, Contract_Event.Manifest)
+    public class UnitTest_Event() : TestBase2<Contract_Event>(Contract_Event.Nef, Contract_Event.Manifest)
     {
         [TestMethod]
         public void Test_Good()

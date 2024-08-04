@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Switch : TestBase<Contract_Switch>
+    public class UnitTest_Switch : TestBase2<Contract_Switch>
     {
         public UnitTest_Switch() : base(Contract_Switch.Nef, Contract_Switch.Manifest) { }
 

@@ -4,13 +4,14 @@ using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Akka.Util;
-using Akka.Util.Internal;
+using Microsoft.CodeAnalysis;
+using CompilationOptions = Neo.Compiler.CompilationOptions;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -18,140 +19,116 @@ namespace Neo.SmartContract.Framework.UnitTests
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
-        private static readonly object RootSync = new();
 
-        private static readonly string TestContractsPath = new FileInfo("../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj").FullName;
+        private static readonly string TestContractsPath =
+            new FileInfo(
+                    "../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj")
+                .FullName;
+
         private static readonly string ArtifactsPath = new FileInfo("../../../TestingArtifacts").FullName;
 
+        private static bool _isAssemblyInitialized = false;
+        private static CompilationEngine? _compilationEngine = null;
+
+        private static List<INamedTypeSymbol> _sortedClasses;
+        private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _classDependencies;
+        private static List<INamedTypeSymbol?> _allClassSymbols;
+        private static readonly ConcurrentSet<string> UpdatedArtifactNames = [];
+        private static int TestCount = 0;
 
         [AssemblyInitialize]
-        public static void TestInitialize(TestContext testContext)
+        public static void TestAssemblyInitialize(TestContext testContext)
         {
-            TestContext = testContext;
-            var fullTestClassName = TestContext.FullyQualifiedTestClassName;
-            _isSingleTestRun = fullTestClassName != null;
-            if (!_isSingleTestRun) return;
+            if (_isAssemblyInitialized) return;
+            TestCount = 0;
+            // Compile
+            _compilationEngine = new CompilationEngine(new CompilationOptions
+            {
+                Debug = true,
+                CompilerVersion = "TestingEngine",
+                Optimize = CompilationOptions.OptimizationType.All,
+                Nullable = NullableContextOptions.Enable
+            });
+
+            (_sortedClasses, _classDependencies, _allClassSymbols) =
+                _compilationEngine.PrepareProjectContracts(TestContractsPath);
+            _isAssemblyInitialized = true;
+        }
+
+        public static void TestInitialize(Type contract)
+        {
             try
             {
-                var testClassType = Type.GetType(fullTestClassName) ?? throw new InvalidOperationException($"Cannot find type for {fullTestClassName}");
-                var baseType = testClassType.BaseType;
-                if (baseType is not { IsGenericType: true })
+                if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(contract))
                 {
-                    throw new InvalidOperationException($"The test class {fullTestClassName} does not inherit from TestBase<T>");
+                    throw new InvalidOperationException(
+                        $"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
                 }
-                // Get the generic argument (T) which should be our contract type
-                var contractType = baseType.GetGenericArguments()[0];
-                _singleTestContractName = contractType.Name;
+                TestCount++;
                 // try to compile the contract first.
-                EnsureArtifactsUpToDateInternal(_singleTestContractName);
+                EnsureArtifactUpToDateInternal(contract.Name);
             }
             catch
             {
+                Assert.Fail("Error compiling contract");
             }
         }
 
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
-            if (_isSingleTestRun) return;
-            EnsureCoverageInternal(Assembly.GetExecutingAssembly());
+            if (UpdatedArtifactNames.Count > 0)
+                Assert.Fail("Some artifacts were updated. Please rerun the tests.");
+
+            if (TestCount > 1)
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly());
         }
 
-        [TestMethod]
-        public void EnsureArtifactsUpToDate()
+        internal static void EnsureArtifactUpToDateInternal(string singleContractName)
         {
-            if (_isSingleTestRun) return;
-            EnsureArtifactsUpToDateInternal();
-        }
-
-        internal static void EnsureArtifactsUpToDateInternal(string? singleContractName = null)
-        {
-            if (DebugInfos.Count > 0) return; // Maybe a UT call it
-
             // Define paths
             var root = new FileInfo(TestContractsPath).FullName ?? "";
 
-            // Compile
-
-            var results = new CompilationEngine(new CompilationOptions()
-            {
-                Debug = true,
-                CompilerVersion = "TestingEngine",
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-            })
-            .CompileProject(TestContractsPath, singleContractName);
-
             // Ensure that all was well compiled
+            var result = _compilationEngine.CompileProject(TestContractsPath, _sortedClasses, _classDependencies,
+                _allClassSymbols, singleContractName).FirstOrDefault();
 
-            if (!results.All(u => u.Success))
+            if (!result.Success)
             {
-                results.SelectMany(u => u.Diagnostics)
-                    .Where(u => u.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error)
+
+                result.Diagnostics.Where(u => u.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error)
                     .ToList().ForEach(Console.Error.WriteLine);
-
-                Assert.Fail("Error compiling templates");
+                Assert.Fail($"Error compiling {result.ContractName}");
             }
 
-            // Get all artifacts loaded in this assembly
-            var updatedArtifactNames = new ConcurrentSet<string>();
-            Task.WhenAll(
-                Enumerable.Range(0, Assembly.GetExecutingAssembly().GetTypes().Length).Select(i => Task.Run(() =>
-                {
-                    var type = Assembly.GetExecutingAssembly().GetTypes()[i];
-                    if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type)) return;
+            var type = Assembly.GetExecutingAssembly().GetTypes()
+                .FirstOrDefault(t =>
+                    typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(t) && t.Name == result.ContractName);
 
-                    // Find result
-                    CompilationContext? result;
-                    lock (RootSync)
-                    {
-                        result = results.SingleOrDefault(u => u.ContractName == type.Name);
-                        if (result == null) return;
-                    }
-
-                    // Ensure that it exists
-                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs"));
-                    if (debug != null)
-                    {
-                        lock (RootSync)
-                        {
-                            DebugInfos[type] = debug!;
-                            results = results.Where(r => r != result).ToList();
-                        }
-                    }
-                    else
-                    {
-                        updatedArtifactNames.TryAdd(res!);
-                    }
-                }))
-            ).GetAwaiter().GetResult();
-
-            if (updatedArtifactNames.Count != 0)
+            // Ensure that it exists
+            var (debug, res) = CreateArtifact(result.ContractName!, result, root,
+                Path.Combine(ArtifactsPath, $"{result.ContractName}.cs"));
+            if (debug != null)
             {
-                updatedArtifactNames.ForEach(p => Console.WriteLine($"Artifact {p} was updated"));
-                Assert.Fail("There are artifacts being updated, please rerun the tests.");
+                DebugInfos[type] = debug;
             }
-            // Ensure that all match
-
-            if (results.Count > 0)
+            else
             {
-                foreach (var result in results.Where(u => u.Success))
-                {
-                    CreateArtifact(result.ContractName!, result, root, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs"));
-                }
-
-                Assert.Fail("Error compiling templates");
+                UpdatedArtifactNames.TryAdd(res!);
+                Console.Error.WriteLine($"Artifact {res} was updated. please rerun the tests.");
             }
         }
 
-        private static (NeoDebugInfo?, string?) CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
+        private static (NeoDebugInfo?, string?) CreateArtifact(string typeName, CompilationContext context,
+            string rootDebug, string artifactsPath)
         {
             var (nef, manifest, debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
             string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
-            if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
+            if (string.IsNullOrEmpty(writtenArtifact) ||
+                WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);

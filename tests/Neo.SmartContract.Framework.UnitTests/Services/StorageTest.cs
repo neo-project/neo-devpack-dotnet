@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +9,7 @@ using System.Text;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StorageTest : TestBase<Contract_Storage>
+    public class StorageTest : TestBase2<Contract_Storage>
     {
         public StorageTest() : base(Contract_Storage.Nef, Contract_Storage.Manifest) { }
 

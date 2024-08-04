@@ -6,9 +6,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Parameters
     {
-        readonly string csFileDir = Utils.Extensions.TestContractRoot;
-
-        [TestMethod]
+        readonly string csFileDir = Utils.Extensions.TestContractRoot; [TestMethod]
         public void TestNoParameter()
         {
             Assert.AreEqual(Program.Main([]), 2);

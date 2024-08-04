@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_String : TestBase<Contract_String>
+    public class UnitTest_String : TestBase2<Contract_String>
     {
         public UnitTest_String() : base(Contract_String.Nef, Contract_String.Manifest) { }
 

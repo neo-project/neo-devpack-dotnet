@@ -15,9 +15,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         private static readonly Regex WhiteSpaceRegex = new("\\s");
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
-
-        [TestMethod]
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly()); [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
             if (DebugInfos.Count > 0) return; // Maybe a UT call it

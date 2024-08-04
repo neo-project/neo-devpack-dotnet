@@ -1,7 +1,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
@@ -11,7 +10,7 @@ using Array = Neo.VM.Types.Array;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Array : TestBase<Contract_Array>
+    public class UnitTest_Array : TestBase2<Contract_Array>
     {
         public UnitTest_Array() : base(Contract_Array.Nef, Contract_Array.Manifest) { }
 

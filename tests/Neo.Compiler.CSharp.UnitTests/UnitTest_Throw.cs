@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Throw : TestBase<Contract_Throw>
+    public class UnitTest_Throw : TestBase2<Contract_Throw>
     {
         public UnitTest_Throw() : base(Contract_Throw.Nef, Contract_Throw.Manifest) { }
 

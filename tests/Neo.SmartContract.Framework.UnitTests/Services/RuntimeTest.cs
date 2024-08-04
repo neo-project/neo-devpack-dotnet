@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -10,7 +9,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class RuntimeTest : TestBase<Contract_Runtime>
+    public class RuntimeTest : TestBase2<Contract_Runtime>
     {
         static RuntimeTest()
         {

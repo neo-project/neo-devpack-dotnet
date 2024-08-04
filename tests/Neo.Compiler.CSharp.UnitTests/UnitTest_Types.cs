@@ -3,7 +3,6 @@ using Neo.IO;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Types : TestBase<Contract_Types>
+    public class UnitTest_Types : TestBase2<Contract_Types>
     {
         public UnitTest_Types() : base(Contract_Types.Nef, Contract_Types.Manifest) { }
 

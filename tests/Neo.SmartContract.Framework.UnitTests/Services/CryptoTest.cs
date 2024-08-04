@@ -1,24 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography;
-using Neo.IO;
 using Neo.Network.P2P;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.Wallets;
-using Org.BouncyCastle.Crypto;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class CryptoTest : TestBase<Contract_Crypto>
+    public class CryptoTest() : TestBase2<Contract_Crypto>(Contract_Crypto.Nef, Contract_Crypto.Manifest)
     {
-        public CryptoTest() : base(Contract_Crypto.Nef, Contract_Crypto.Manifest) { }
-
         public static KeyPair GenerateKey(int privateKeyLength = 32)
         {
             byte[] privateKey = new byte[privateKeyLength];

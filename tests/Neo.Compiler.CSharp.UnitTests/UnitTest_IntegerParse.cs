@@ -1,14 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_IntegerParse : TestBase<Contract_IntegerParse>
+    public class UnitTest_IntegerParse : TestBase2<Contract_IntegerParse>
     {
         public UnitTest_IntegerParse() : base(Contract_IntegerParse.Nef, Contract_IntegerParse.Manifest) { }
 

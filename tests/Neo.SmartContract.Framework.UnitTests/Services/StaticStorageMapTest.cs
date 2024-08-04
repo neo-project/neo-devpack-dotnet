@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StaticStorageMapTest : TestBase<Contract_StaticStorageMap>
+    public class StaticStorageMapTest : TestBase2<Contract_StaticStorageMap>
     {
         public StaticStorageMapTest() : base(Contract_StaticStorageMap.Nef, Contract_StaticStorageMap.Manifest) { }
 

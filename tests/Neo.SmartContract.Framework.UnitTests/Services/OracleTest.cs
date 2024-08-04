@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class OracleTest : TestBase<Contract_IOracle>
+    public class OracleTest : TestBase2<Contract_IOracle>
     {
         public OracleTest() : base(Contract_IOracle.Nef, Contract_IOracle.Manifest) { }
 

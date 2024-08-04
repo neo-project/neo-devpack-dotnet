@@ -1,14 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
 using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_BigInteger : TestBase<Contract_BigInteger>
+    public class UnitTest_BigInteger : TestBase2<Contract_BigInteger>
     {
         public UnitTest_BigInteger() : base(Contract_BigInteger.Nef, Contract_BigInteger.Manifest) { }
 

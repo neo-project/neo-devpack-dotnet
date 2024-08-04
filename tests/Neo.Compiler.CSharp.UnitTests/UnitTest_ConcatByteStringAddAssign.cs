@@ -6,7 +6,7 @@ using System.Text;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ConcatByteStringAddAssign : TestBase<Contract_ConcatByteStringAddAssign>
+    public class UnitTest_ConcatByteStringAddAssign : TestBase2<Contract_ConcatByteStringAddAssign>
     {
         public UnitTest_ConcatByteStringAddAssign() : base(Contract_ConcatByteStringAddAssign.Nef, Contract_ConcatByteStringAddAssign.Manifest) { }
 

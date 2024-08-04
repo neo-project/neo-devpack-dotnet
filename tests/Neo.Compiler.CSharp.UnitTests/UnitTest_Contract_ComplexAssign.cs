@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_CompoundAssignments : TestBase<Contract_ComplexAssign>
+    public class UnitTest_CompoundAssignments : TestBase2<Contract_ComplexAssign>
     {
         public UnitTest_CompoundAssignments() : base(Contract_ComplexAssign.Nef, Contract_ComplexAssign.Manifest) { }
 

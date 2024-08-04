@@ -2,13 +2,12 @@ using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class ListTest : TestBase<Contract_List>
+    public class ListTest : TestBase2<Contract_List>
     {
         public ListTest() : base(Contract_List.Nef, Contract_List.Manifest) { }
 

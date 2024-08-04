@@ -1,13 +1,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class RegexTest : TestBase<Contract_Regex>
+    public class RegexTest : TestBase2<Contract_Regex>
     {
-        public RegexTest() : base(Contract_Regex.Nef, Contract_Regex.Manifest) { }
+        public RegexTest() : base(Contract_Regex.Nef, Contract_Regex.Manifest)
+        {
+
+        }
 
         [TestMethod]
         public void TestStartWith()
@@ -29,6 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsTrue(Contract.TestEndWith());
             Assert.AreEqual(1988760, Engine.FeeConsumed.Value);
         }
+
         [TestMethod]
         public void TestContains()
         {

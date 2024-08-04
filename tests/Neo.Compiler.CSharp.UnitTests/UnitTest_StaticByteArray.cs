@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_StaticByteArray : TestBase<Contract_StaticByteArray>
+    public class UnitTest_StaticByteArray : TestBase2<Contract_StaticByteArray>
     {
         public UnitTest_StaticByteArray() : base(Contract_StaticByteArray.Nef, Contract_StaticByteArray.Manifest) { }
 

@@ -4,7 +4,6 @@ using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -13,11 +12,13 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BlockchainTest : TestBase<Contract_Blockchain>
+    public class BlockchainTest : TestBase2<Contract_Blockchain>
     {
         private Block _block;
 
         public BlockchainTest() : base(Contract_Blockchain.Nef, Contract_Blockchain.Manifest) { }
+
+
 
         [TestInitialize]
         public void Init()
