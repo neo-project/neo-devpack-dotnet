@@ -18,8 +18,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
         public BlockchainTest() : base(Contract_Blockchain.Nef, Contract_Blockchain.Manifest) { }
 
-
-
         [TestInitialize]
         public void Init()
         {
