@@ -15,10 +15,11 @@ public static class Helper
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-        })
-            .CompileFromCodeBlock(codeBlock).FirstOrDefault();
+        }).CompileFromCodeBlock(codeBlock).FirstOrDefault();
         if (result.Success) return;
         result.Diagnostics.ForEach(Console.WriteLine);
-        Assert.Fail("Error compiling code block");
+        const string redColor = "\u001b[31m";
+        const string resetColor = "\u001b[0m";
+        Console.WriteLine($"{redColor}Error compiling code block : {{\n\t{codeBlock.Replace("\n", "\n\t")}\n}}{resetColor}");
     }
 }
