@@ -27,7 +27,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
-public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract,IContractInfo, Neo.SmartContract.Testing.TestingStandards.INep17Standard, Neo.SmartContract.Testing.TestingStandards.IVerificable
+public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, Neo.SmartContract.Testing.TestingStandards.INep17Standard, Neo.SmartContract.Testing.TestingStandards.IVerificable, IContractInfo
 {
     #region Compiled data
 
