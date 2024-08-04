@@ -60,6 +60,7 @@ namespace Neo.Compiler
             var sourceCode = $"using Neo.SmartContract.Framework.Native;\n" +
                              $"using Neo.SmartContract.Framework.Services;\n" +
                              $"using System;\n" +
+                             $"using System.Text;\n" +
                              $"using System.Numerics;\n" +
                              $"using Neo.SmartContract.Framework;\n\n" +
                              $"namespace Neo.Compiler.CSharp.TestContracts;\n\n" +
