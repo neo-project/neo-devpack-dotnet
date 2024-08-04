@@ -122,11 +122,20 @@ namespace Neo.Compiler
             finally { File.Delete(path); }
         }
 
-        public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses = null, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies = null, List<INamedTypeSymbol?> allClassSymbols = null, string? targetContractName = null)
+        public List<CompilationContext> CompileProject(string csproj)
         {
             Compilation ??= GetCompilation(csproj);
-            if (sortedClasses == null) return CompileProjectContracts(Compilation);
-            return targetContractName == null ? CompileProjectContractsWithPrepare(Compilation, sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(Compilation, sortedClasses, classDependencies, allClassSymbols, targetContractName)];
+           return CompileProjectContracts(Compilation);
+        }
+
+        public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
+        {
+            if(sortedClasses == null || classDependencies == null || allClassSymbols == null)
+            {
+                throw new InvalidOperationException("Please call PrepareProjectContracts before calling CompileProject with sortedClasses, classDependencies and allClassSymbols parameters.");
+            }
+            Compilation ??= GetCompilation(csproj);
+            return targetContractName == null ? CompileProjectContractsWithPrepare(sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(sortedClasses, classDependencies, allClassSymbols, targetContractName)];
         }
 
         public (List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols) PrepareProjectContracts(string csproj)
@@ -168,8 +177,7 @@ namespace Neo.Compiler
             return (sortedClasses, classDependencies, allClassSymbols);
         }
 
-
-        private CompilationContext CompileProjectContractWithPrepare(Compilation compilation, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
+        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
         {
             var c = sortedClasses.FirstOrDefault(p => p.Name.Contains(targetContractName));
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
@@ -179,10 +187,8 @@ namespace Neo.Compiler
             return context;
         }
 
-
-        private List<CompilationContext> CompileProjectContractsWithPrepare(Compilation compilation, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
+        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
         {
-
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
@@ -196,7 +202,7 @@ namespace Neo.Compiler
             return Contexts.Select(p => p.Value).ToList();
         }
 
-        private List<CompilationContext> CompileProjectContracts(Compilation compilation, string? targetContractName = null)
+        private List<CompilationContext> CompileProjectContracts(Compilation compilation)
         {
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -226,8 +232,6 @@ namespace Neo.Compiler
                 }
             }
 
-
-
             // Verify if there is any valid smart contract class
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
@@ -235,8 +239,6 @@ namespace Neo.Compiler
 
             Parallel.ForEach(sortedClasses, c =>
             {
-                if (targetContractName != null && !c.Name.Contains(targetContractName)) return;
-
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
                 var context = new CompilationContext(this, c, classesNotInDependencies!);
