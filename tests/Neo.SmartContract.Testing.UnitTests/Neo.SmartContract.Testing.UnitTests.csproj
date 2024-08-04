@@ -4,6 +4,7 @@
 		<RootNamespace>Neo.SmartContract.TestEngine.UnitTests</RootNamespace>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>

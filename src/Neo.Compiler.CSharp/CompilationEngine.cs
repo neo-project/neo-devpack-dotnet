@@ -78,12 +78,12 @@ namespace Neo.Compiler
 
             var packageGroup = references.Packages is null ? "" : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references!.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
+        {string.Join(Environment.NewLine, references.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
     </ItemGroup>";
 
             var projectsGroup = references.Projects is null ? "" : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references!.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
+        {string.Join(Environment.NewLine, references.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
     </ItemGroup>";
 
             var csproj = $@"
@@ -119,7 +119,6 @@ namespace Neo.Compiler
             {
                 return CompileProject(path);
             }
-            catch { throw; }
             finally { File.Delete(path); }
         }
 
@@ -163,6 +162,7 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
+
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
@@ -225,7 +225,7 @@ namespace Neo.Compiler
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                if (pattern.IsMatch(baseType.ToString()))
+                if (pattern.IsMatch(baseType.ToString() ?? string.Empty))
                 {
                     return true;
                 }
