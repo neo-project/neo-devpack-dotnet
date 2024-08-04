@@ -125,12 +125,12 @@ namespace Neo.Compiler
         public List<CompilationContext> CompileProject(string csproj)
         {
             Compilation ??= GetCompilation(csproj);
-           return CompileProjectContracts(Compilation);
+            return CompileProjectContracts(Compilation);
         }
 
         public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
         {
-            if(sortedClasses == null || classDependencies == null || allClassSymbols == null)
+            if (sortedClasses == null || classDependencies == null || allClassSymbols == null)
             {
                 throw new InvalidOperationException("Please call PrepareProjectContracts before calling CompileProject with sortedClasses, classDependencies and allClassSymbols parameters.");
             }
