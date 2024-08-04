@@ -55,7 +55,7 @@ namespace Neo.Compiler
             Options = options;
         }
 
-        public List<CompilationContext> CompileFromCodeBlock(string codeBlock)
+        internal List<CompilationContext> CompileFromCodeBlock(string codeBlock)
         {
             var sourceCode = $"using Neo.SmartContract.Framework.Native;\n" +
                              $"using Neo.SmartContract.Framework.Services;\n" +
