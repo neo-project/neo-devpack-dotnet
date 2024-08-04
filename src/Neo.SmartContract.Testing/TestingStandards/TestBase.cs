@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public class TestBase<T> where T : SmartContract
+public class TestBase<T> where T : SmartContract, IContractInfo
 {
     private readonly List<string> _contractLogs = [];
 
@@ -30,21 +30,8 @@ public class TestBase<T> where T : SmartContract
     /// </summary>
     public TestBase()
     {
-        var nefField = typeof(T).GetField("Nef", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-        if (nefField == null)
-        {
-            throw new InvalidOperationException($"The type {typeof(T).Name} does not have a static Nef field.");
-        }
-        var nef = (NefFile)nefField.GetValue(null)!;
 
-        var manifestField = typeof(T).GetField("Manifest", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-        if (manifestField == null)
-        {
-            throw new InvalidOperationException($"The type {typeof(T).Name} does not have a static Manifest field.");
-        }
-        var manifest = (ContractManifest)manifestField.GetValue(null)!;
-
-        TestBaseSetup(nef, manifest);
+        TestBaseSetup(T.Nef, T.Manifest);
     }
 
     /// <summary>
