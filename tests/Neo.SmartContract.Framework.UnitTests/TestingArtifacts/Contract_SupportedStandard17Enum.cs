@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
-public abstract class Contract_SupportedStandard17Enum : Neo.SmartContract.Testing.SmartContract, IContractInfo, Neo.SmartContract.Testing.TestingStandards.INep17Standard
+public abstract class Contract_SupportedStandard17Enum : Neo.SmartContract.Testing.SmartContract, Neo.SmartContract.Testing.TestingStandards.INep17Standard, IContractInfo
 {
     #region Compiled data
 
