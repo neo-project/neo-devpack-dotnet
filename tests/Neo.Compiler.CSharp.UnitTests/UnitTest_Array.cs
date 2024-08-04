@@ -98,7 +98,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            Assert.AreEqual(2805600, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3543240, Engine.FeeConsumed.Value);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -106,10 +106,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_DefaultState()
+        {
+            var result = Contract.TestDefaultState();
+            var state = result as Struct;
+            Assert.AreEqual(3, state.Count);
+            Assert.IsInstanceOfType(state[0], typeof(VM.Types.Null));
+            Assert.IsInstanceOfType(state[1], typeof(VM.Types.Null));
+            Assert.IsInstanceOfType(state[2], typeof(VM.Types.Integer));
+            Assert.AreEqual(0, state[2]);
+            Assert.AreEqual(3279750, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            Assert.AreEqual(2605770, Engine.FeeConsumed.Value);
+            Assert.AreEqual(3343410, Engine.FeeConsumed.Value);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -148,7 +161,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var arr = Contract.TestDefaultArray();
             Assert.AreEqual(1805220, Engine.FeeConsumed.Value);
-            Assert.IsTrue(arr.Value);
+            Assert.IsTrue(arr!.Value);
         }
 
         [TestMethod]

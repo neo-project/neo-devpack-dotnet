@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Alter data
 
-            storage[storage.Properties.First().Key.ToString()][Convert.ToBase64String(_registerPricePrefix)] = Convert.ToBase64String(BigInteger.MinusOne.ToByteArray());
+            storage[storage.Properties.First().Key]![Convert.ToBase64String(_registerPricePrefix)] = Convert.ToBase64String(BigInteger.MinusOne.ToByteArray());
             engine.Native.NEO.Storage.Import(storage);
 
             // Check altered data
