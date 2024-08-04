@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Testing;
@@ -13,9 +14,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        public static readonly ConcurrentDictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly()); [TestMethod]
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos); [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
             if (DebugInfos.Count > 0) return; // Maybe a UT call it

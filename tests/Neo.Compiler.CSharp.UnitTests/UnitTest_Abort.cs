@@ -17,7 +17,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         public UnitTest_Abort() : base(Contract_Abort.Nef, Contract_Abort.Manifest)
         {
-            var contract = TestCleanup.EnsureArtifactUpToDateInternal(nameof(Contract_Abort)).FirstOrDefault();
+            var contract = TestCleanup.EnsureArtifactUpToDateInternalAsync(nameof(Contract_Abort)).GetAwaiter().GetResult().FirstOrDefault();
             _debugInfo = contract.CreateDebugInformation();
         }
 
