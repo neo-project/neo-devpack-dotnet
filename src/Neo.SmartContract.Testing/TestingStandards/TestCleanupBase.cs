@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -11,7 +10,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 {
     public abstract class TestCleanupBase
     {
-        protected static void EnsureCoverageInternal(Assembly assembly, ConcurrentDictionary<Type, NeoDebugInfo> debugInfos, decimal requiredCoverage = 0.9M)
+        protected static void EnsureCoverageInternal(Assembly assembly, IEnumerable<(Type type, NeoDebugInfo dbgInfo)> debugInfos, decimal requiredCoverage = 0.9M)
         {
             // Join here all of your coverage sources
             CoverageBase? coverage = null;
@@ -20,7 +19,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
             foreach (var infos in debugInfos)
             {
-                Type type = typeof(TestBase<>).MakeGenericType(infos.Key);
+                Type type = typeof(TestBase<>).MakeGenericType(infos.type);
                 CoveredContract? cov = null;
 
                 foreach (var aType in allTypes)
@@ -28,19 +27,19 @@ namespace Neo.SmartContract.Testing.TestingStandards
                     if (type.IsAssignableFrom(aType))
                     {
                         cov = type.GetProperty("Coverage")!.GetValue(null) as CoveredContract;
-                        Assert.IsNotNull(cov, $"{infos.Key} coverage can't be null");
+                        Assert.IsNotNull(cov, $"{infos.type} coverage can't be null");
 
                         // It doesn't require join, because we have only one UnitTest class per contract
 
                         coverage += cov;
-                        list.Add((cov, infos.Value));
+                        list.Add((cov, infos.dbgInfo));
                         break;
                     }
                 }
 
                 if (cov is null)
                 {
-                    Console.Error.WriteLine($"Coverage not found for {infos.Key}");
+                    Console.Error.WriteLine($"Coverage not found for {infos.type}");
                 }
             }
 

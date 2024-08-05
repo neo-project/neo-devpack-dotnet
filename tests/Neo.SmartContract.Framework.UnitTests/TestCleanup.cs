@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s", RegexOptions.Compiled);
-        public static readonly ConcurrentDictionary<Type, NeoDebugInfo> DebugInfos = new();
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
         private static readonly string TestContractsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "..", "Neo.SmartContract.Framework.TestContracts", "Neo.SmartContract.Framework.TestContracts.csproj"));
         private static readonly string ArtifactsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "TestingArtifacts"));
         private static readonly string RootPath = Path.GetDirectoryName(TestContractsPath) ?? string.Empty;
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 throw new InvalidOperationException($"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
             }
-            if (DebugInfos.ContainsKey(contract)) return;
+            if (CachedContracts.ContainsKey(contract)) return;
             EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
         }
 
@@ -61,18 +61,35 @@ namespace Neo.SmartContract.Framework.UnitTests
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            // this is because we still miss tests/not tested with Testbase for:
-            //     Contract_Create
-            //     Contract_ExtraAttribute
-            //     Contract_ManifestAttribute
-            //     Contract_SupportedStandard11Enum
-            //     Contract_SupportedStandard11Payable
-            //     Contract_SupportedStandard17Enum
-            //     Contract_SupportedStandard17Payable
-            //     Contract_SupportedStandards
-            //     Contract_Update
-            if (DebugInfos.Count == _sortedClasses.Count - 9)
-                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos);
+            var list = _sortedClasses.Select(u => u.Name).ToList();
+
+            foreach (var cl in CachedContracts)
+            {
+                list.Remove(cl.Key.Name);
+            }
+
+            // TODO: this is because we still miss tests/not tested with Testbase for:
+            // - Contract_Create
+            // - Contract_ExtraAttribute
+            // - Contract_ManifestAttribute
+            // - Contract_SupportedStandard11Enum
+            // - Contract_SupportedStandard11Payable
+            // - Contract_SupportedStandard17Enum
+            // - Contract_SupportedStandard17Payable
+            // - Contract_SupportedStandards
+            // - Contract_Update
+
+            if (list.Count - 9 == 0)
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
+            else
+            {
+                Console.Error.WriteLine("Coverage not found for:");
+
+                foreach (var line in list)
+                {
+                    Console.Error.WriteLine($"- {line}");
+                }
+            }
         }
 
         private static async Task EnsureArtifactUpToDateInternalAsync(string singleContractName)
@@ -96,11 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 return;
             }
             var debug = CreateArtifactAsync(result.ContractName!, result, RootPath, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs")).GetAwaiter().GetResult();
-
-            if (debug != null)
-            {
-                DebugInfos[type] = debug;
-            }
+            CachedContracts[type] = (result, debug);
         }
 
         private static async Task<NeoDebugInfo?> CreateArtifactAsync(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
