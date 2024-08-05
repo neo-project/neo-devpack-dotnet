@@ -73,8 +73,28 @@ namespace Neo.Compiler.CSharp.UnitTests
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            if (CachedContracts.Count == _sortedClasses.Count)
+            var list = _sortedClasses.Select(u => u.Name).ToList();
+
+            foreach (var cl in CachedContracts)
+            {
+                list.Remove(cl.Key.Name);
+            }
+
+            // TODO: this is because we still miss tests/not tested with Testbase for:
+            // - Contract_NEP17
+            // - Contract_Types
+
+            if (list.Count - 2 == 0)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.77M);
+            else
+            {
+                Console.Error.WriteLine("Coverage not found for:");
+
+                foreach (var line in list)
+                {
+                    Console.Error.WriteLine($"- {line}");
+                }
+            }
         }
 
         internal static async Task<CompilationContext> EnsureArtifactUpToDateInternalAsync(string singleContractName)

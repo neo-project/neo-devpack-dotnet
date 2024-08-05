@@ -61,8 +61,35 @@ namespace Neo.SmartContract.Framework.UnitTests
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            if (CachedContracts.Count == _sortedClasses.Count)
+            var list = _sortedClasses.Select(u => u.Name).ToList();
+
+            foreach (var cl in CachedContracts)
+            {
+                list.Remove(cl.Key.Name);
+            }
+
+            // TODO: this is because we still miss tests/not tested with Testbase for:
+            // - Contract_Create
+            // - Contract_ExtraAttribute
+            // - Contract_ManifestAttribute
+            // - Contract_SupportedStandard11Enum
+            // - Contract_SupportedStandard11Payable
+            // - Contract_SupportedStandard17Enum
+            // - Contract_SupportedStandard17Payable
+            // - Contract_SupportedStandards
+            // - Contract_Update
+
+            if (list.Count - 9 == 0)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
+            else
+            {
+                Console.Error.WriteLine("Coverage not found for:");
+
+                foreach (var line in list)
+                {
+                    Console.Error.WriteLine($"- {line}");
+                }
+            }
         }
 
         private static async Task EnsureArtifactUpToDateInternalAsync(string singleContractName)
