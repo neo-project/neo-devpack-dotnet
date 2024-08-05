@@ -1,4 +1,3 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -13,7 +12,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_TestConditionalLogicalAnd()
         {
-
             var result = Contract.TestConditionalLogicalAnd(true, true);
             Assert.AreEqual(true && true, result);
             Assert.AreEqual(1047180, Engine.FeeConsumed.Value);
