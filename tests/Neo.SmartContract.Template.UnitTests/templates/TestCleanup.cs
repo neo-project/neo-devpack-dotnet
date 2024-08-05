@@ -14,10 +14,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
-        public static readonly ConcurrentDictionary<Type, (CompilationContext, NeoDebugInfo?)> CachedContracts = new();
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.Item2)));
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()

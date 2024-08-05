@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
-        public static readonly ConcurrentDictionary<Type, (CompilationContext, NeoDebugInfo?)> CachedContracts = new();
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
         private static readonly string ArtifactsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "TestingArtifacts"));
         private static readonly string TestContractsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "..", "Neo.Compiler.CSharp.TestContracts", "Neo.Compiler.CSharp.TestContracts.csproj"));
         private static readonly string RootPath = Path.GetPathRoot(TestContractsPath) ?? string.Empty;
@@ -73,7 +73,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.Item2)), 0.77M);
+            EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.77M);
         }
 
         internal static async Task<CompilationContext> EnsureArtifactUpToDateInternalAsync(string singleContractName)
