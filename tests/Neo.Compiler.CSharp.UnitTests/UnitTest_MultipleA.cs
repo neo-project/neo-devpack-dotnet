@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_MultipleA : TestBase<Contract_MultipleA>
     {
-        public UnitTest_MultipleA() : base(Contract_MultipleA.Nef, Contract_MultipleA.Manifest) { }
-
         [TestMethod]
         public void Test()
         {

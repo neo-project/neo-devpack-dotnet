@@ -17,8 +17,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class CryptoTest : TestBase<Contract_Crypto>
     {
-        public CryptoTest() : base(Contract_Crypto.Nef, Contract_Crypto.Manifest) { }
-
         public static KeyPair GenerateKey(int privateKeyLength = 32)
         {
             byte[] privateKey = new byte[privateKeyLength];

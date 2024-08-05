@@ -9,8 +9,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class SequencePointInserterTest : TestBase<Contract_SequencePointInserter>
     {
-        public SequencePointInserterTest() : base(Contract_SequencePointInserter.Nef, Contract_SequencePointInserter.Manifest) { }
-
         [TestMethod]
         public void Test_SequencePointInserter()
         {

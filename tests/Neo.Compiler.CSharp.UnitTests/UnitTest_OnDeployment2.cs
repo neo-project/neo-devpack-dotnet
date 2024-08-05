@@ -13,8 +13,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         private readonly List<string> _logs = new();
 
-        public UnitTest_OnDeployment2() : base(Contract_OnDeployment2.Nef, Contract_OnDeployment2.Manifest) { }
-
         #region Ensure Deployed log
 
         protected override TestEngine CreateTestEngine()

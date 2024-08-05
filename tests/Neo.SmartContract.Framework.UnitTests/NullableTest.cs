@@ -8,8 +8,6 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class NullableTest : TestBase<Contract_Nullable>
     {
-        public NullableTest() : base(Contract_Nullable.Nef, Contract_Nullable.Manifest) { }
-
         [TestMethod]
         public void TestBigIntegerNullableEqual()
         {

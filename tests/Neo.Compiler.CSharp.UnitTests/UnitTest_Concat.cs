@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Concat : TestBase<Contract_Concat>
     {
-        public UnitTest_Concat() : base(Contract_Concat.Nef, Contract_Concat.Manifest) { }
-
         [TestMethod]
         public void TestStringAdd1()
         {

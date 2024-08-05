@@ -11,8 +11,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Recursion : TestBase<Contract_Recursion>
     {
-        public UnitTest_Recursion() : base(Contract_Recursion.Nef, Contract_Recursion.Manifest) { }
-
         [TestMethod]
         public void Test_Factorial()
         {

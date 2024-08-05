@@ -9,8 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_NullableType : TestBase<Contract_NullableType>
     {
-        public UnitTest_NullableType() : base(Contract_NullableType.Nef, Contract_NullableType.Manifest) { }
-
         [TestMethod]
         public void TestBigInteger()
         {

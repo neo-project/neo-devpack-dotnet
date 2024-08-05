@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Record : TestBase<Contract_Record>
     {
-        public UnitTest_Record() : base(Contract_Record.Nef, Contract_Record.Manifest) { }
-
         [TestMethod]
         public void Test_CreateRecord()
         {
