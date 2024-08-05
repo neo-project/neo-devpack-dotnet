@@ -55,7 +55,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 }
                 if (CachedContracts.TryGetValue(contract, out var data))
                 {
-                    return data.Item1;
+                    return data.Context;
                 }
 
                 return EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
