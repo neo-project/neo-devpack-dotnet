@@ -6,7 +6,7 @@ namespace Neo.SmartContract.Framework.UnitTests;
 public class DebugAndTestBase<T> : TestBase<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
-    public DebugAndTestBase()
+    static DebugAndTestBase()
     {
         TestCleanup.TestInitialize(typeof(T));
     }
