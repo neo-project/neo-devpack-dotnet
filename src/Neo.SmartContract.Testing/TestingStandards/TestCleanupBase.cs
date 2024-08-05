@@ -11,14 +11,14 @@ namespace Neo.SmartContract.Testing.TestingStandards
 {
     public abstract class TestCleanupBase
     {
-        protected static void EnsureCoverageInternal(Assembly assembly, ConcurrentDictionary<Type, NeoDebugInfo> DebugInfos, decimal requiredCoverage = 0.9M)
+        protected static void EnsureCoverageInternal(Assembly assembly, ConcurrentDictionary<Type, NeoDebugInfo> debugInfos, decimal requiredCoverage = 0.9M)
         {
             // Join here all of your coverage sources
             CoverageBase? coverage = null;
             var allTypes = assembly.GetTypes();
             var list = new List<(CoveredContract Contract, NeoDebugInfo DebugInfo)>();
 
-            foreach (var infos in DebugInfos)
+            foreach (var infos in debugInfos)
             {
                 Type type = typeof(TestBase<>).MakeGenericType(infos.Key);
                 CoveredContract? cov = null;
