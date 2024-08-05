@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Invoke : TestBase2<Contract_InvokeCsNef>
     {
-        public UnitTest_Invoke() : base(Contract_InvokeCsNef.Nef, Contract_InvokeCsNef.Manifest) { }
-
         [TestMethod]
         public void Test_Return_Integer()
         {

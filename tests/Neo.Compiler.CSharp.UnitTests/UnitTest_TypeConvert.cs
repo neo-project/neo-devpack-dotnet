@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_TypeConvert : TestBase2<Contract_TypeConvert>
     {
-        public UnitTest_TypeConvert() : base(Contract_TypeConvert.Nef, Contract_TypeConvert.Manifest) { }
-
         [TestMethod]
         public void UnitTest_TestTypeConvert()
         {

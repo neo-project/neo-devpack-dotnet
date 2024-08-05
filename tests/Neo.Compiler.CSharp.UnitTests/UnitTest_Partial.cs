@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Partial : TestBase2<Contract_Partial>
     {
-        public UnitTest_Partial() : base(Contract_Partial.Nef, Contract_Partial.Manifest) { }
-
         [TestMethod]
         public void Test_Partial()
         {

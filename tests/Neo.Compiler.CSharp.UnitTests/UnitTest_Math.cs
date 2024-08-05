@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Math : TestBase2<Contract_Math>
     {
-        public UnitTest_Math() : base(Contract_Math.Nef, Contract_Math.Manifest) { }
-
         [TestMethod]
         public void max_test()
         {

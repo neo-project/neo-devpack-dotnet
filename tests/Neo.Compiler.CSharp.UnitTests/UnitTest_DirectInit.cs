@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_DirectInit : TestBase2<Contract_DirectInit>
     {
-        public UnitTest_DirectInit() : base(Contract_DirectInit.Nef, Contract_DirectInit.Manifest) { }
-
         [TestMethod]
         public void Test_GetUInt160()
         {

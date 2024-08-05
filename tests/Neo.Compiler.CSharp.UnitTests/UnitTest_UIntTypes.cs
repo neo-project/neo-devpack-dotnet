@@ -12,8 +12,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_UIntTypes : TestBase2<Contract_UIntTypes>
     {
-        public UnitTest_UIntTypes() : base(Contract_UIntTypes.Nef, Contract_UIntTypes.Manifest) { }
-
         [TestMethod]
         public void UInt160_ValidateAddress()
         {

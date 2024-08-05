@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public class TestBase<T> where T : SmartContract
+public class TestBase<T> where T : SmartContract, IContractInfo
 {
     private readonly List<string> _contractLogs = [];
 
@@ -26,7 +26,7 @@ public class TestBase<T> where T : SmartContract
     /// <summary>
     /// Empty constructor
     /// </summary>
-    public TestBase() { }
+    public TestBase() => TestBaseSetup(T.Nef, T.Manifest);
 
     /// <summary>
     /// Constructor

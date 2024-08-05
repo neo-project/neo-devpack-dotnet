@@ -10,8 +10,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Foreach : TestBase2<Contract_Foreach>
     {
-        public UnitTest_Foreach() : base(Contract_Foreach.Nef, Contract_Foreach.Manifest) { }
-
         [TestMethod]
         public void IntForeachTest()
         {

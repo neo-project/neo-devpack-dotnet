@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Switch : TestBase2<Contract_Switch>
     {
-        public UnitTest_Switch() : base(Contract_Switch.Nef, Contract_Switch.Manifest) { }
-
         /// <summary>
         /// switch of more than 6 entries require a ComputeStringHash method
         /// </summary>

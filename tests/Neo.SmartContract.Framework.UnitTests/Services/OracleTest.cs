@@ -7,8 +7,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class OracleTest : TestBase2<Contract_IOracle>
     {
-        public OracleTest() : base(Contract_IOracle.Nef, Contract_IOracle.Manifest) { }
-
         [TestMethod]
         public void Test_OracleResponse()
         {

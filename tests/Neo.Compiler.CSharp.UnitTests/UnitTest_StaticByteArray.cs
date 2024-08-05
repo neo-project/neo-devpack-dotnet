@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StaticByteArray : TestBase2<Contract_StaticByteArray>
     {
-        public UnitTest_StaticByteArray() : base(Contract_StaticByteArray.Nef, Contract_StaticByteArray.Manifest) { }
-
         [TestMethod]
         public void TestStaticByteArray()
         {

@@ -9,8 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_TryCatch : TestBase2<Contract_TryCatch>
     {
-        public UnitTest_TryCatch() : base(Contract_TryCatch.Nef, Contract_TryCatch.Manifest) { }
-
         [TestMethod]
         public void Test_Try01_AllPaths()
         {

@@ -13,8 +13,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Types : TestBase2<Contract_Types>
     {
-        public UnitTest_Types() : base(Contract_Types.Nef, Contract_Types.Manifest) { }
-
         [TestMethod]
         public void Null_Test()
         {

@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Types_BigInteger : TestBase2<Contract_Types_BigInteger>
     {
-        public UnitTest_Types_BigInteger() : base(Contract_Types_BigInteger.Nef, Contract_Types_BigInteger.Manifest) { }
-
         [TestMethod]
         public void BigInteer_Test()
         {

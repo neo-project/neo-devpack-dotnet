@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Throw : TestBase2<Contract_Throw>
     {
-        public UnitTest_Throw() : base(Contract_Throw.Nef, Contract_Throw.Manifest) { }
-
         [TestMethod]
         public void Test_Throw()
         {

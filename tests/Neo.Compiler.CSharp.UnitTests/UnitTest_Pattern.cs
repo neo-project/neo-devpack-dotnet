@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Pattern : TestBase2<Contract_Pattern>
     {
-        public UnitTest_Pattern() : base(Contract_Pattern.Nef, Contract_Pattern.Manifest) { }
-
         [TestMethod]
         public void Between_Test()
         {

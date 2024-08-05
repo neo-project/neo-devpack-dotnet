@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Property : TestBase2<Contract_Property>
     {
-        public UnitTest_Property() : base(Contract_Property.Nef, Contract_Property.Manifest) { }
-
         [TestMethod]
         public void TestABIOffsetWithoutOptimizer()
         {

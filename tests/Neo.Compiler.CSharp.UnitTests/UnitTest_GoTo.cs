@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_GoTo : TestBase2<Contract_GoTo>
     {
-        public UnitTest_GoTo() : base(Contract_GoTo.Nef, Contract_GoTo.Manifest) { }
-
         [TestMethod]
         public void Test()
         {

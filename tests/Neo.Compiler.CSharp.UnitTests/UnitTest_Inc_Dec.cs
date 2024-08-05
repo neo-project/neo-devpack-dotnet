@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Inc_Dec : TestBase2<Contract_Inc_Dec>
     {
-        public UnitTest_Inc_Dec() : base(Contract_Inc_Dec.Nef, Contract_Inc_Dec.Manifest) { }
-
         [TestMethod]
         public void Test_Property_Inc_Checked()
         {

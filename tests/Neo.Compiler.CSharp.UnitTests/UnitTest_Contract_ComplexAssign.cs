@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_CompoundAssignments : TestBase2<Contract_ComplexAssign>
     {
-        public UnitTest_CompoundAssignments() : base(Contract_ComplexAssign.Nef, Contract_ComplexAssign.Manifest) { }
-
         [TestMethod]
         public void Test_AddAssign_Checked()
         {

@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Inline : TestBase2<Contract_Inline>
     {
-        public UnitTest_Inline() : base(Contract_Inline.Nef, Contract_Inline.Manifest) { }
-
         [TestMethod]
         public void Test_Inline()
         {

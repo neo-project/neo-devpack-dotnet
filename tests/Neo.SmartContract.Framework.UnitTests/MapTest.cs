@@ -10,8 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class MapTest : TestBase2<Contract_Map>
     {
-        public MapTest() : base(Contract_Map.Nef, Contract_Map.Manifest) { }
-
         [TestMethod]
         public void TestCount()
         {

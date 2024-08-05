@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Property_Method : TestBase2<Contract_PropertyMethod>
     {
-        public UnitTest_Property_Method() : base(Contract_PropertyMethod.Nef, Contract_PropertyMethod.Manifest) { }
-
         [TestMethod]
         public void TestPropertyMethod()
         {

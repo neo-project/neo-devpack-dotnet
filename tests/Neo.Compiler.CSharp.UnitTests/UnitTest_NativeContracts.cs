@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_NativeContracts : TestBase2<Contract_NativeContracts>
     {
-        public UnitTest_NativeContracts() : base(Contract_NativeContracts.Nef, Contract_NativeContracts.Manifest) { }
-
         [TestMethod]
         public void TestHashes()
         {

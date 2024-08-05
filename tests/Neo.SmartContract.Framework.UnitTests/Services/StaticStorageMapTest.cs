@@ -8,8 +8,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class StaticStorageMapTest : TestBase2<Contract_StaticStorageMap>
     {
-        public StaticStorageMapTest() : base(Contract_StaticStorageMap.Nef, Contract_StaticStorageMap.Manifest) { }
-
         [TestMethod]
         public void Test_Storage()
         {

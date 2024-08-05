@@ -11,8 +11,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class NativeTest : TestBase2<Contract_Native>
     {
-        public NativeTest() : base(Contract_Native.Nef, Contract_Native.Manifest) { }
-
         [TestMethod]
         public void Test_NEO()
         {

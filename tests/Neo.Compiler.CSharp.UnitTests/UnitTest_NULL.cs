@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_NULL : TestBase2<Contract_NULL>
     {
-        public UnitTest_NULL() : base(Contract_NULL.Nef, Contract_NULL.Manifest) { }
-
         [TestMethod]
         public void IsNull()
         {

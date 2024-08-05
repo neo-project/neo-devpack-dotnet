@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Debug : TestBase2<Contract_Debug>
     {
-        public UnitTest_Debug() : base(Contract_Debug.Nef, Contract_Debug.Manifest) { }
-
         [TestMethod]
         public void TestDebug()
         {

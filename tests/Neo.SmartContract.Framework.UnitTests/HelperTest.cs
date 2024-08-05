@@ -9,8 +9,6 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class HelperTest : TestBase2<Contract_Helper>
     {
-        public HelperTest() : base(Contract_Helper.Nef, Contract_Helper.Manifest) { }
-
         [TestMethod]
         public void TestHexToBytes()
         {

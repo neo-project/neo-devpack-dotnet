@@ -9,8 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Optimize : TestBase2<Contract_Optimize>
     {
-        public UnitTest_Optimize() : base(Contract_Optimize.Nef, Contract_Optimize.Manifest) { }
-
         [TestMethod]
         public void Test_Optimize()
         {

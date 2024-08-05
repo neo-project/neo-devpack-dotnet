@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Extensions : TestBase2<Contract_Extensions>
     {
-        public UnitTest_Extensions() : base(Contract_Extensions.Nef, Contract_Extensions.Manifest) { }
-
         [TestMethod]
         public void TestSum()
         {

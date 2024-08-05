@@ -6,8 +6,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Initializer : TestBase2<Contract_Initializer>
     {
-        public UnitTest_Initializer() : base(Contract_Initializer.Nef, Contract_Initializer.Manifest) { }
-
         [TestMethod]
         public void Initializer_Test()
         {

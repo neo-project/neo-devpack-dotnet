@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Lambda : TestBase2<Contract_Lambda>
     {
-        public UnitTest_Lambda() : base(Contract_Lambda.Nef, Contract_Lambda.Manifest) { }
-
         [TestMethod]
         public void Test_AnyGreatThanZero()
         {

@@ -9,8 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_BigInteger : TestBase2<Contract_BigInteger>
     {
-        public UnitTest_BigInteger() : base(Contract_BigInteger.Nef, Contract_BigInteger.Manifest) { }
-
         [TestMethod]
         public void Test_Pow()
         {
