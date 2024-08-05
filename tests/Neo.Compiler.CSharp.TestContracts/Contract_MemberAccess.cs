@@ -1,4 +1,3 @@
-using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.TestContracts
