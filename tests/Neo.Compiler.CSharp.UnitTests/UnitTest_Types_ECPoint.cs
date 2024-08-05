@@ -11,8 +11,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Types_ECPoint : TestBase<Contract_Types_ECPoint>
     {
-        public UnitTest_Types_ECPoint() : base(Contract_Types_ECPoint.Nef, Contract_Types_ECPoint.Manifest) { }
-
         [TestMethod]
         public void ECPoint_test()
         {

@@ -5,7 +5,7 @@ using Neo.SmartContract.Testing.TestingStandards;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_PostfixUnary() : TestBase<Contract_PostfixUnary>(Contract_PostfixUnary.Nef, Contract_PostfixUnary.Manifest)
+    public class UnitTest_PostfixUnary : TestBase<Contract_PostfixUnary>
     {
         [TestMethod]
         public void Test()

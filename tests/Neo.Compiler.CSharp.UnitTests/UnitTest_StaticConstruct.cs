@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StaticConstruct : TestBase<Contract_StaticConstruct>
     {
-        public UnitTest_StaticConstruct() : base(Contract_StaticConstruct.Nef, Contract_StaticConstruct.Manifest) { }
-
         [TestMethod]
         public void Test_StaticConsturct()
         {

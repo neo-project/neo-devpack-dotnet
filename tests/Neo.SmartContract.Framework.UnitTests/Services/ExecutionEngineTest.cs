@@ -9,8 +9,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ExecutionEngineTest : TestBase<Contract_ExecutionEngine>
     {
-        public ExecutionEngineTest() : base(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest) { }
-
         [TestMethod]
         public void CallingScriptHashTest()
         {

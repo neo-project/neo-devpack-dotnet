@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
-            sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance));
+            sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance) + ", IContractInfo");
             sourceCode.WriteLine("{");
 
             // Write compiled data
@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine();
 
             var value = manifest.ToJson().ToString(false).Replace("\"", "\"\"");
-            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} Manifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
+            sourceCode.WriteLine($"    public static {typeof(ContractManifest).FullName} Manifest => {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
             sourceCode.WriteLine();
 
             if (nef is not null)
@@ -87,7 +87,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Optimization: {optimization}");
                     sourceCode.WriteLine($"    /// </summary>");
                 }
-                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine($"    public static {typeof(NefFile).FullName} Nef => Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
                 sourceCode.WriteLine();
             }
 

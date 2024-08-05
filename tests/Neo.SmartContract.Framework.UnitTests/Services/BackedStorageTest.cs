@@ -10,8 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class BackedStorageTest : TestBase<Contract_Stored>
     {
-        public BackedStorageTest() : base(Contract_Stored.Nef, Contract_Stored.Manifest) { }
-
         [TestMethod]
         public void Test()
         {

@@ -10,8 +10,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Contract1 : TestBase<Contract1>
     {
-        public UnitTest_Contract1() : base(Contract1.Nef, Contract1.Manifest) { }
-
         [TestMethod]
         public void Test_PrivateMethod()
         {
