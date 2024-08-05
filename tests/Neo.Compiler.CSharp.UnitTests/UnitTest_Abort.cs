@@ -5,7 +5,6 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -17,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         public UnitTest_Abort()
         {
-            var contract = TestCleanup.EnsureArtifactUpToDateInternalAsync(nameof(Contract_Abort)).GetAwaiter().GetResult().FirstOrDefault();
+            var contract = TestCleanup.EnsureArtifactUpToDateInternalAsync(nameof(Contract_Abort)).GetAwaiter().GetResult();
             _debugInfo = contract.CreateDebugInformation();
         }
 

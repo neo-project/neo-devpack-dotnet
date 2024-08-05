@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
-        public static readonly ConcurrentDictionary<Type, NeoDebugInfo> DebugInfos = new();
+        public static readonly ConcurrentDictionary<Type, (CompilationContext, NeoDebugInfo?)> CachedContracts = new();
         private static readonly string ArtifactsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "TestingArtifacts"));
         private static readonly string TestContractsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "..", "Neo.Compiler.CSharp.TestContracts", "Neo.Compiler.CSharp.TestContracts.csproj"));
         private static readonly string RootPath = Path.GetPathRoot(TestContractsPath) ?? string.Empty;
@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 _compilationEngine.Value.PrepareProjectContracts(TestContractsPath);
         }
 
-        public static void TestInitialize(Type contract)
+        public static CompilationContext? TestInitialize(Type contract)
         {
             try
             {
@@ -53,12 +53,17 @@ namespace Neo.Compiler.CSharp.UnitTests
                     throw new InvalidOperationException(
                         $"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
                 }
-                if (DebugInfos.ContainsKey(contract)) return;
-                EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
+                if (CachedContracts.TryGetValue(contract, out var data))
+                {
+                    return data.Item1;
+                }
+
+                return EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
                 Assert.Fail($"Error compiling contract {contract.Name}: {e.Message}");
+                return null;
             }
         }
 
@@ -68,21 +73,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            // this is because we still miss tests for:
-            //     Contract_Logical
-            //     Contract_MemberAccess
-            //     Contract_NEP11
-            //     Contract_NEP17
-            //     Contract_OnDeployment
-            //     Contract_OnDeployment2
-            // TODO: add tests for them
-            if (DebugInfos.Count == _sortedClasses.Count - 7)
-                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos, 0.77M);
+            EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.Item2)), 0.77M);
         }
 
-        internal static async Task<IEnumerable<CompilationContext>> EnsureArtifactUpToDateInternalAsync(string singleContractName)
+        internal static async Task<CompilationContext> EnsureArtifactUpToDateInternalAsync(string singleContractName)
         {
-            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault() ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}"); ;
+            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
+                ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}"); ;
 
             if (result.ContractName != "Contract_DuplicateNames" && !result.Success)
             {
@@ -94,17 +91,13 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var type = Assembly.GetExecutingAssembly().GetTypes()
                 .FirstOrDefault(t => typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(t) &&
-                                     t.Name.Equals(result.ContractName, StringComparison.OrdinalIgnoreCase));
-            if (type == null)
-            {
-                throw new InvalidOperationException($"Could not find type for contract {result.ContractName}");
-            }
-            var debug = CreateArtifactAsync(result.ContractName!, result, RootPath, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs")).GetAwaiter().GetResult(); ;
-            if (debug != null)
-            {
-                DebugInfos[type] = debug;
-            }
-            return [result];
+                                     t.Name.Equals(result.ContractName, StringComparison.OrdinalIgnoreCase))
+                ?? throw new InvalidOperationException($"Could not find type for contract {result.ContractName}");
+
+            var debug = CreateArtifactAsync(result.ContractName!, result, RootPath, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs")).GetAwaiter().GetResult();
+            CachedContracts[type] = (result!, debug);
+
+            return result;
         }
 
         private static async Task<NeoDebugInfo?> CreateArtifactAsync(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
