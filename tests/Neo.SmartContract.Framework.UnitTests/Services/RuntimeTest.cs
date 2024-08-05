@@ -23,8 +23,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             };
         }
 
-        public RuntimeTest() : base(Contract_Runtime.Nef, Contract_Runtime.Manifest) { }
-
         [TestMethod]
         public void Test_InvocationCounter()
         {

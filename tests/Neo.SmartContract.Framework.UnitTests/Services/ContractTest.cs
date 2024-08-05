@@ -17,8 +17,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ContractTest : TestBase<Contract_Contract>
     {
-        public ContractTest() : base(Contract_Contract.Nef, Contract_Contract.Manifest) { }
-
         [TestMethod]
         public void Test_CreateCallDestroy()
         {

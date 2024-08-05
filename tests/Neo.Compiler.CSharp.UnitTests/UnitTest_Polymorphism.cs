@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Polymorphism : TestBase<Contract_Polymorphism>
     {
-        public UnitTest_Polymorphism() : base(Contract_Polymorphism.Nef, Contract_Polymorphism.Manifest) { }
-
         [TestMethod]
         public void Test()
         {

@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Attribute : TestBase<Contract_AttributeChanged>
     {
-        public UnitTest_Attribute() : base(Contract_AttributeChanged.Nef, Contract_AttributeChanged.Manifest) { }
-
         [TestMethod]
         public void AttributeTest()
         {
