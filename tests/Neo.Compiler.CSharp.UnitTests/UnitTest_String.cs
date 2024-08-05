@@ -72,5 +72,21 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(984270, Engine.FeeConsumed.Value);
             Assert.AreEqual("", result);
         }
+
+        [TestMethod]
+        public void Test_TestIsNullOrEmpty()
+        {
+            var result = Contract.TestIsNullOrEmpty("");
+            Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
+            Assert.IsTrue(result);
+
+            result = Contract.TestIsNullOrEmpty(null);
+            Assert.AreEqual(1047300, Engine.FeeConsumed.Value);
+            Assert.IsTrue(result);
+
+            result = Contract.TestIsNullOrEmpty("hello world");
+            Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
+            Assert.IsFalse(result);
+        }
     }
 }

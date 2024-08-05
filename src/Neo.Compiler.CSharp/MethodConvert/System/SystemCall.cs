@@ -741,22 +741,17 @@ partial class MethodConvert
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 JumpTarget endTarget = new();
-                JumpTarget emptyTarget = new();
+                JumpTarget nullOrEmptyTarget = new();
                 AddInstruction(OpCode.DUP);
-                // this check will pop one item
                 AddInstruction(OpCode.ISNULL);
-                AddInstruction(OpCode.DUP);
-                // this jumpif will pop one isnull
-                Jump(OpCode.JMPIF, endTarget);
-                // drop the duped isnull
-                AddInstruction(OpCode.DROP);
+                Jump(OpCode.JMPIF, nullOrEmptyTarget);
                 AddInstruction(OpCode.SIZE);
                 Push(0);
                 AddInstruction(OpCode.NUMEQUAL);
-                // drop the dup
+                Jump(OpCode.JMP, endTarget);
+                nullOrEmptyTarget.Instruction = AddInstruction(OpCode.DROP); // drop the duped item
+                AddInstruction(OpCode.PUSHT);
                 endTarget.Instruction = AddInstruction(OpCode.NOP);
-
-
                 return true;
             }
             //Retrieves a substring from this instance.
