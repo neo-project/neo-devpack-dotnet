@@ -12,8 +12,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class StorageTest : TestBase<Contract_Storage>
     {
-        public StorageTest() : base(Contract_Storage.Nef, Contract_Storage.Manifest) { }
-
         [TestMethod]
         public void Test_StorageMap()
         {

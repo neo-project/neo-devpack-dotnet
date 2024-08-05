@@ -10,8 +10,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class JsonTest : TestBase<Contract_Json>
     {
-        public JsonTest() : base(Contract_Json.Nef, Contract_Json.Manifest) { }
-
         [TestMethod]
         public void Test_SerializeDeserialize()
         {

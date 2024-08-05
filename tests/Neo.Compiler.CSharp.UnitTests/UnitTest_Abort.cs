@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         private readonly JObject _debugInfo;
         private readonly bool[] falseTrue = [false, true];
 
-        public UnitTest_Abort() : base(Contract_Abort.Nef, Contract_Abort.Manifest)
+        public UnitTest_Abort()
         {
             var contract = TestCleanup.EnsureArtifactsUpToDateInternal().Where(u => u.ContractName == "Contract_Abort").First();
             _debugInfo = contract.CreateDebugInformation();
