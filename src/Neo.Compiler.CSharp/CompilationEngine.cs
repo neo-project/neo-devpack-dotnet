@@ -55,6 +55,35 @@ namespace Neo.Compiler
             Options = options;
         }
 
+        internal List<CompilationContext> CompileFromCodeBlock(string codeBlock)
+        {
+            var sourceCode = $"using Neo.SmartContract.Framework.Native;\n" +
+                             $"using Neo.SmartContract.Framework.Services;\n" +
+                             $"using System;\n" +
+                             $"using System.Text;\n" +
+                             $"using System.Numerics;\n" +
+                             $"using Neo.SmartContract.Framework;\n\n" +
+                             $"namespace Neo.Compiler.CSharp.TestContracts;\n\n" +
+                             $"public class CodeBlockTest : SmartContract.Framework.SmartContract\n{{\n\n" +
+                             $"    public static void CodeBlock()\n" +
+                             $"    {{\n" +
+                                $"        {codeBlock}\n" +
+                             $"    }}\n" +
+                             $"}}\n";
+
+            string tempFilePath = Path.GetTempFileName();
+            string newTempFilePath = Path.ChangeExtension(tempFilePath, ".cs");
+            File.Move(tempFilePath, newTempFilePath);
+            tempFilePath = newTempFilePath;
+            File.WriteAllText(tempFilePath, sourceCode);
+
+            try
+            {
+                return CompileSources(tempFilePath);
+            }
+            finally { File.Delete(tempFilePath); }
+        }
+
         public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
