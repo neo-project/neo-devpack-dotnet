@@ -81,10 +81,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
 
             // TODO: this is because we still miss tests/not tested with Testbase for:
-            // - Contract_NEP17
             // - Contract_Types
 
-            if (list.Count - 2 == 0)
+            if (list.Count == 0)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.77M);
             else
             {

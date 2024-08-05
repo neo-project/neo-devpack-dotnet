@@ -19,7 +19,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         /// <summary>
         /// Initialize Test
         /// </summary>
-        public UnitTest_NEP17() : base(Contract_NEP17.Nef, Contract_NEP17.Manifest) { }
+        public UnitTest_NEP17() : base(Contract_NEP17.Nef, Contract_NEP17.Manifest)
+        {
+            _ = TestCleanup.TestInitialize(typeof(Contract_NEP17));
+        }
 
         [TestMethod]
         public override void TestTransfer()
