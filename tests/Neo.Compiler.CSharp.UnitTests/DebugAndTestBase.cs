@@ -84,5 +84,4 @@ public class DebugAndTestBase<T> : TestBase<T>
                 includedInstructions.Add(instruction);
             }
     }
-
 }
