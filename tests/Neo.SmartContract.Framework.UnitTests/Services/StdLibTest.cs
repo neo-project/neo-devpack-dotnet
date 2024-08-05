@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Linq;
 using System.Text;
@@ -8,7 +7,7 @@ using System.Text;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StdLibTest : TestBase<Contract_StdLib>
+    public class StdLibTest : DebugAndTestBase<Contract_StdLib>
     {
         [TestMethod]
         public void AtoiTest()

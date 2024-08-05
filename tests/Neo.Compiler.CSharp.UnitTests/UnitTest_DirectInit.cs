@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_DirectInit : TestBase<Contract_DirectInit>
+    public class UnitTest_DirectInit : DebugAndTestBase<Contract_DirectInit>
     {
         [TestMethod]
         public void Test_GetUInt160()

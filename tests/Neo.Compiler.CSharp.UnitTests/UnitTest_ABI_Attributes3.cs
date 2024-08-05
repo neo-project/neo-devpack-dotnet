@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ABI_Attributes3() : TestBase<Contract_ABIAttributes3>
+    public class UnitTest_ABI_Attributes3() : DebugAndTestBase<Contract_ABIAttributes3>
     {
         [TestMethod]
         public void TestAbiAttributes()

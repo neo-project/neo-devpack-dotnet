@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_StaticVarInit : TestBase<Contract_StaticVarInit>
+    public class UnitTest_StaticVarInit : DebugAndTestBase<Contract_StaticVarInit>
     {
         [TestMethod]
         public void Test_StaticVarInit()

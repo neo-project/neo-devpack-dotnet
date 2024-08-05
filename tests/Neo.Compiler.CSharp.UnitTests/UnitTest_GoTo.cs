@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_GoTo : TestBase<Contract_GoTo>
+    public class UnitTest_GoTo : DebugAndTestBase<Contract_GoTo>
     {
         [TestMethod]
         public void Test()

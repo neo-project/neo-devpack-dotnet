@@ -4,12 +4,11 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Interpreters;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Types_ECPoint : TestBase<Contract_Types_ECPoint>
+    public class UnitTest_Types_ECPoint : DebugAndTestBase<Contract_Types_ECPoint>
     {
         [TestMethod]
         public void ECPoint_test()

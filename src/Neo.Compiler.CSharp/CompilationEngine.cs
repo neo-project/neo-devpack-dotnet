@@ -153,8 +153,82 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileProject(string csproj)
         {
-            Compilation = GetCompilation(csproj);
+            Compilation ??= GetCompilation(csproj);
             return CompileProjectContracts(Compilation);
+        }
+
+        public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
+        {
+            if (sortedClasses == null || classDependencies == null || allClassSymbols == null)
+            {
+                throw new InvalidOperationException("Please call PrepareProjectContracts before calling CompileProject with sortedClasses, classDependencies and allClassSymbols parameters.");
+            }
+            Compilation ??= GetCompilation(csproj);
+            return targetContractName == null ? CompileProjectContractsWithPrepare(sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(sortedClasses, classDependencies, allClassSymbols, targetContractName)];
+        }
+
+        public (List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols) PrepareProjectContracts(string csproj)
+        {
+            Compilation ??= GetCompilation(csproj);
+            var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            var allClassSymbols = new List<INamedTypeSymbol?>();
+            foreach (var tree in Compilation.SyntaxTrees)
+            {
+                var semanticModel = Compilation.GetSemanticModel(tree);
+                var classNodes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
+
+                foreach (var classNode in classNodes)
+                {
+                    var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
+                    allClassSymbols.Add(classSymbol);
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, s_pattern))
+                    {
+                        allSmartContracts.Add(classSymbol);
+                        classDependencies[classSymbol] = new List<INamedTypeSymbol>();
+                        foreach (var member in classSymbol.GetMembers())
+                        {
+                            var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
+                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol) && !namedTypeSymbol.IsAbstract)
+                            {
+                                classDependencies[classSymbol].Add(namedTypeSymbol);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Verify if there is any valid smart contract class
+            if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
+            // Check contract dependencies, make sure there is no cycle in the dependency graph
+            var sortedClasses = TopologicalSort(classDependencies);
+
+            return (sortedClasses, classDependencies, allClassSymbols);
+        }
+
+        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
+        {
+            var c = sortedClasses.FirstOrDefault(p => p.Name.Contains(targetContractName));
+            var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
+            var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+            var context = new CompilationContext(this, c, classesNotInDependencies!);
+            context.Compile();
+            return context;
+        }
+
+        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
+        {
+            Parallel.ForEach(sortedClasses, c =>
+            {
+                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
+                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                context.Compile();
+                // Process the target contract add this compilation context
+                Contexts.TryAdd(c, context);
+            });
+
+            return Contexts.Select(p => p.Value).ToList();
         }
 
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)

@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class StringTest : TestBase<Contract_String>
+    public class StringTest : DebugAndTestBase<Contract_String>
     {
         [TestMethod]
         public void TestStringAdd()

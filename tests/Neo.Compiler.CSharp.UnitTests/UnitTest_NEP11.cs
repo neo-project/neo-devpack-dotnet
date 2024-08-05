@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_NEP11 : TestBase<Contract_NEP11>
+    public class UnitTest_NEP11 : DebugAndTestBase<Contract_NEP11>
     {
         [TestMethod]
         public void UnitTest_Symbol()

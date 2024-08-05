@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class PointerTest : TestBase<Contract_Pointers>
+    public class PointerTest : DebugAndTestBase<Contract_Pointers>
     {
         [TestMethod]
         public void Test_CreatePointer()

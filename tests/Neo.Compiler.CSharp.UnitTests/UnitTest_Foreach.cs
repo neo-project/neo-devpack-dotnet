@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Numerics;
 using System.Text;
@@ -9,7 +8,7 @@ using Neo.Extensions;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Foreach : TestBase<Contract_Foreach>
+    public class UnitTest_Foreach : DebugAndTestBase<Contract_Foreach>
     {
         [TestMethod]
         public void IntForeachTest()

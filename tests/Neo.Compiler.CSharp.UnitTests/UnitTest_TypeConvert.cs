@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_TypeConvert : TestBase<Contract_TypeConvert>
+    public class UnitTest_TypeConvert : DebugAndTestBase<Contract_TypeConvert>
     {
         [TestMethod]
         public void UnitTest_TestTypeConvert()

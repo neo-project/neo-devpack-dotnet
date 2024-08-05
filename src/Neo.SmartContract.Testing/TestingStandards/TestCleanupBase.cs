@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -10,17 +11,14 @@ namespace Neo.SmartContract.Testing.TestingStandards
 {
     public abstract class TestCleanupBase
     {
-        public static readonly Dictionary<Type, NeoDebugInfo> DebugInfos = new();
-
-        protected static void EnsureCoverageInternal(Assembly assembly, decimal requiredCoverage = 0.9M)
+        protected static void EnsureCoverageInternal(Assembly assembly, ConcurrentDictionary<Type, NeoDebugInfo> debugInfos, decimal requiredCoverage = 0.9M)
         {
             // Join here all of your coverage sources
-
             CoverageBase? coverage = null;
             var allTypes = assembly.GetTypes();
             var list = new List<(CoveredContract Contract, NeoDebugInfo DebugInfo)>();
 
-            foreach (var infos in DebugInfos)
+            foreach (var infos in debugInfos)
             {
                 Type type = typeof(TestBase<>).MakeGenericType(infos.Key);
                 CoveredContract? cov = null;

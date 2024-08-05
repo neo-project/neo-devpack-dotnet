@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Numerics;
@@ -9,7 +8,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Linq : TestBase<Contract_Linq>
+    public class UnitTest_Linq : DebugAndTestBase<Contract_Linq>
     {
         [TestMethod]
         public void Test_AggregateSum()

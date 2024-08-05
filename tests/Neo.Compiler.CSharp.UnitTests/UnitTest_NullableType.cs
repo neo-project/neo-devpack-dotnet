@@ -1,13 +1,11 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_NullableType : TestBase<Contract_NullableType>
+    public class UnitTest_NullableType : DebugAndTestBase<Contract_NullableType>
     {
         [TestMethod]
         public void TestBigInteger()

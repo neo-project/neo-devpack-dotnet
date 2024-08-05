@@ -1,14 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class JsonTest : TestBase<Contract_Json>
+    public class JsonTest : DebugAndTestBase<Contract_Json>
     {
         [TestMethod]
         public void Test_SerializeDeserialize()

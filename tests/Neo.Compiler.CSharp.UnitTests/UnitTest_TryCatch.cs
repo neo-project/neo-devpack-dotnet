@@ -2,13 +2,12 @@ extern alias scfx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_TryCatch : TestBase<Contract_TryCatch>
+    public class UnitTest_TryCatch : DebugAndTestBase<Contract_TryCatch>
     {
         [TestMethod]
         public void Test_Try01_AllPaths()
@@ -287,7 +286,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.ThrowsException<TestException>(() => Contract.TryUncatchableException(true, true, true));
             Assert.AreEqual(1049250, Engine.FeeConsumed.Value);
         }
-
 
         [TestMethod]
         public void Test_ThrowCall()

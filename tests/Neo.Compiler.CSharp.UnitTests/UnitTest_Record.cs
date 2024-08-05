@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Record : TestBase<Contract_Record>
+    public class UnitTest_Record : DebugAndTestBase<Contract_Record>
     {
         [TestMethod]
         public void Test_CreateRecord()
