@@ -36,7 +36,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("Deployed", _logs[0]);
         }
 
-        #endregion        [TestMethod]
+        #endregion
+
+        [TestMethod]
         public void Test_OnDeployment1()
         {
             Assert.AreEqual(1, Contract_OnDeployment1.Manifest.Abi.Methods.Length);

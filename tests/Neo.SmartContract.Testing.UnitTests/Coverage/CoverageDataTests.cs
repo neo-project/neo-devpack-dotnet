@@ -9,7 +9,9 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     [TestClass]
     public class CoverageDataTests
     {
-        private static readonly Regex WhiteSpaceRegex = new("\\s"); [TestMethod]
+        private static readonly Regex WhiteSpaceRegex = new("\\s");
+
+        [TestMethod]
         public void TestDump()
         {
             var engine = new TestEngine(true);

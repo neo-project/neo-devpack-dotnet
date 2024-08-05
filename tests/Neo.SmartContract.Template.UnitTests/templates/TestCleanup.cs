@@ -17,7 +17,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         public static readonly ConcurrentDictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos); [TestMethod]
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos);
+
+        [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
             if (DebugInfos.Count > 0) return; // Maybe a UT call it

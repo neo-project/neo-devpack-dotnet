@@ -19,7 +19,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var contract = TestCleanup.EnsureArtifactUpToDateInternalAsync(nameof(Contract_Assert)).GetAwaiter().GetResult().FirstOrDefault();
             _debugInfo = contract.CreateDebugInformation();
-            Console.WriteLine("UnitTest_Assert: Constructor");
         }
 
         public void AssertsInFalse(TestException exception)
