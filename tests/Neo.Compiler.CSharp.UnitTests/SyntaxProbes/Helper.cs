@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
-public static class Helper
+internal static class Helper
 {
     internal static void TestCodeBlock(string codeBlock)
     {
