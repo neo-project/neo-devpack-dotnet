@@ -1,7 +1,6 @@
+using Akka.Util.Internal;
 using System;
 using System.Linq;
-using Akka.Util.Internal;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
@@ -15,8 +14,9 @@ internal static class Helper
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-        }).CompileFromCodeBlock(codeBlock).FirstOrDefault();
+        }).CompileFromCodeBlock(codeBlock).First();
         if (result.Success) return;
+
         result.Diagnostics.ForEach(Console.WriteLine);
         const string redColor = "\u001b[31m";
         const string resetColor = "\u001b[0m";
