@@ -6,10 +6,8 @@ using System.Collections.Generic;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_MemberAccess : TestBase<Contract_MemberAccess>
+    public class UnitTest_MemberAccess() : TestBase<Contract_MemberAccess>(Contract_MemberAccess.Nef, Contract_MemberAccess.Manifest)
     {
-        public UnitTest_MemberAccess() : base(Contract_MemberAccess.Nef, Contract_MemberAccess.Manifest) { }
-
         [TestMethod]
         public void Test_Main()
         {

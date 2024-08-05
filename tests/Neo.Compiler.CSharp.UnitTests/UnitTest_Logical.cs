@@ -5,10 +5,8 @@ using Neo.SmartContract.Testing.TestingStandards;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Logical : TestBase<Contract_Logical>
+    public class UnitTest_Logical() : TestBase<Contract_Logical>(Contract_Logical.Nef, Contract_Logical.Manifest)
     {
-        public UnitTest_Logical() : base(Contract_Logical.Nef, Contract_Logical.Manifest) { }
-
         [TestMethod]
         public void Test_TestConditionalLogicalAnd()
         {
