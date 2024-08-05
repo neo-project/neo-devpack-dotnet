@@ -30,7 +30,6 @@ public class TestBase<T> where T : SmartContract, IContractInfo
     /// </summary>
     public TestBase()
     {
-
         TestBaseSetup(T.Nef, T.Manifest);
     }
 
