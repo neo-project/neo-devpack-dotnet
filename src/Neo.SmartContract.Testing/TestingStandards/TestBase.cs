@@ -1,4 +1,3 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
 using Neo.Network.P2P.Payloads;
@@ -6,7 +5,6 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
@@ -28,10 +26,7 @@ public class TestBase<T> where T : SmartContract, IContractInfo
     /// <summary>
     /// Empty constructor
     /// </summary>
-    public TestBase()
-    {
-        TestBaseSetup(T.Nef, T.Manifest);
-    }
+    public TestBase() => TestBaseSetup(T.Nef, T.Manifest);
 
     /// <summary>
     /// Constructor
