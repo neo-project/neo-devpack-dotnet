@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_CheckedUnchecked : TestBase<Contract_CheckedUnchecked>
     {
-        public UnitTest_CheckedUnchecked() : base(Contract_CheckedUnchecked.Nef, Contract_CheckedUnchecked.Manifest) { }
-
         [TestMethod]
         public void TestAddChecked()
         {

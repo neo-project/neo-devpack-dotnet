@@ -11,8 +11,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Linq : TestBase<Contract_Linq>
     {
-        public UnitTest_Linq() : base(Contract_Linq.Nef, Contract_Linq.Manifest) { }
-
         [TestMethod]
         public void Test_AggregateSum()
         {

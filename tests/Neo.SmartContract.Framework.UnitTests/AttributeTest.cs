@@ -9,8 +9,6 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class AttributeTest : TestBase<Contract_Attribute>
     {
-        public AttributeTest() : base(Contract_Attribute.Nef, Contract_Attribute.Manifest) { }
-
         [TestMethod]
         public void TestAttribute()
         {

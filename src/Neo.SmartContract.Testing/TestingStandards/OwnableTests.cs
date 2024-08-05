@@ -11,7 +11,7 @@ using System.IO;
 namespace Neo.SmartContract.Testing.TestingStandards;
 
 public class OwnableTests<T> : TestBase<T>
-    where T : SmartContract, IOwnable
+    where T : SmartContract, IOwnable, IContractInfo
 {
     #region Transfer event checks
 

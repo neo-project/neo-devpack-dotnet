@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StaticVar : TestBase<Contract_StaticVar>
     {
-        public UnitTest_StaticVar() : base(Contract_StaticVar.Nef, Contract_StaticVar.Manifest) { }
-
         [TestMethod]
         public void Test_InitialValue()
         {

@@ -7,7 +7,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ABI_Attributes() : TestBase<Contract_ABIAttributes>(Contract_ABIAttributes.Nef, Contract_ABIAttributes.Manifest)
+    public class UnitTest_ABI_Attributes : TestBase<Contract_ABIAttributes>
     {
         [TestMethod]
         public void TestAbiAttributes()

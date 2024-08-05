@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Tuple : TestBase<Contract_Tuple>
     {
-        public UnitTest_Tuple() : base(Contract_Tuple.Nef, Contract_Tuple.Manifest) { }
-
         [TestMethod]
         public void Test_Assign()
         {

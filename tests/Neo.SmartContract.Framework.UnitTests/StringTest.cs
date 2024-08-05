@@ -7,8 +7,6 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class StringTest : TestBase<Contract_String>
     {
-        public StringTest() : base(Contract_String.Nef, Contract_String.Manifest) { }
-
         [TestMethod]
         public void TestStringAdd()
         {
