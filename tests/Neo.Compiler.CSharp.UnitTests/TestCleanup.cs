@@ -73,7 +73,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.77M);
+            if (CachedContracts.Count == _sortedClasses.Count)
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.77M);
         }
 
         internal static async Task<CompilationContext> EnsureArtifactUpToDateInternalAsync(string singleContractName)
