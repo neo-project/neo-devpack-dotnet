@@ -119,7 +119,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
-                _ = Task.Run(() =>
+                await Task.Run(() =>
                 {
                     try
                     {
