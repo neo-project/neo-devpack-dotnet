@@ -268,6 +268,16 @@ namespace Neo.Compiler
                 SyntaxNode syntaxNode;
                 if (field.DeclaringSyntaxReferences.IsEmpty)
                 {
+                    // Have to process the string.Empty specially since it has no AssociatedSymbol
+                    // thus will return directly without this if check.
+                    if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
+                    {
+                        preInitialize?.Invoke();
+                        Push(string.Empty);
+                        postInitialize?.Invoke();
+                        return;
+                    }
+
                     if (field.AssociatedSymbol is not IPropertySymbol property) return;
                     syntaxNode = property.DeclaringSyntaxReferences[0].GetSyntax();
                     if (syntaxNode is PropertyDeclarationSyntax syntax)
