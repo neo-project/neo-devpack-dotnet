@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Contract2 : TestBase2<Contract2>
+    public class UnitTest_Contract2 : DebugAndTestBase<Contract2>
     {
         [TestMethod]
         public void Test_ByteArrayPick()

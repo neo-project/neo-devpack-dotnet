@@ -7,7 +7,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_TryCatch : TestBase2<Contract_TryCatch>
+    public class UnitTest_TryCatch : DebugAndTestBase<Contract_TryCatch>
     {
         [TestMethod]
         public void Test_Try01_AllPaths()

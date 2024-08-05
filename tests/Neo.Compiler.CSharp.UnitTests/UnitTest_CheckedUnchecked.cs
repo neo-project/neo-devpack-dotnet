@@ -5,7 +5,7 @@ using Neo.SmartContract.Testing.Exceptions;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_CheckedUnchecked : TestBase2<Contract_CheckedUnchecked>
+    public class UnitTest_CheckedUnchecked : DebugAndTestBase<Contract_CheckedUnchecked>
     {
         [TestMethod]
         public void TestAddChecked()

@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Math : TestBase2<Contract_Math>
+    public class UnitTest_Math : DebugAndTestBase<Contract_Math>
     {
         [TestMethod]
         public void max_test()

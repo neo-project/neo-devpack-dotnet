@@ -5,7 +5,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Inline : TestBase2<Contract_Inline>
+    public class UnitTest_Inline : DebugAndTestBase<Contract_Inline>
     {
         [TestMethod]
         public void Test_Inline()

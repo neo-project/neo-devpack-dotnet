@@ -1,4 +1,3 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Optimizer;
@@ -11,7 +10,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Assert : TestBase2<Contract_Assert>
+    public class UnitTest_Assert : DebugAndTestBase<Contract_Assert>
     {
         private readonly JObject _debugInfo;
 

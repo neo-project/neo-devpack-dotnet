@@ -5,7 +5,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Types_BigInteger : TestBase2<Contract_Types_BigInteger>
+    public class UnitTest_Types_BigInteger : DebugAndTestBase<Contract_Types_BigInteger>
     {
         [TestMethod]
         public void BigInteer_Test()

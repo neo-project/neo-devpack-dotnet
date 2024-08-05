@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Property_Method : TestBase2<Contract_PropertyMethod>
+    public class UnitTest_Property_Method : DebugAndTestBase<Contract_PropertyMethod>
     {
         [TestMethod]
         public void TestPropertyMethod()

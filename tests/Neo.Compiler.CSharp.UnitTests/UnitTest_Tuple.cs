@@ -5,7 +5,7 @@ using Neo.VM.Types;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Tuple : TestBase2<Contract_Tuple>
+    public class UnitTest_Tuple : DebugAndTestBase<Contract_Tuple>
     {
         [TestMethod]
         public void Test_Assign()

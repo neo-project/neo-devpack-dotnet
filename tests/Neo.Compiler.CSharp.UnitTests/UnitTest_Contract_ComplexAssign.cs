@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_CompoundAssignments : TestBase2<Contract_ComplexAssign>
+    public class UnitTest_CompoundAssignments : DebugAndTestBase<Contract_ComplexAssign>
     {
         [TestMethod]
         public void Test_AddAssign_Checked()

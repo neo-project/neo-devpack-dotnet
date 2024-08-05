@@ -6,7 +6,7 @@ using System;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ByteArrayAssignment : TestBase2<Contract_ByteArrayAssignment>
+    public class UnitTest_ByteArrayAssignment : DebugAndTestBase<Contract_ByteArrayAssignment>
     {
         [TestMethod]
         public void Test_ByteArrayAssignment()

@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Shift : TestBase2<Contract_shift>
+    public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     {
         [TestMethod]
         public void Test_Shift()

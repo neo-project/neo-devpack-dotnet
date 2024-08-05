@@ -6,9 +6,7 @@ using System.Linq;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class SequencePointInserterTest()
-        : TestBase2<Contract_SequencePointInserter>(Contract_SequencePointInserter.Nef,
-            Contract_SequencePointInserter.Manifest)
+    public class SequencePointInserterTest : DebugAndTestBase<Contract_SequencePointInserter>
     {
         [TestMethod]
         public void Test_SequencePointInserter()

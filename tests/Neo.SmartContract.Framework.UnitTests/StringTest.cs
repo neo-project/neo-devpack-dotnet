@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class StringTest : TestBase2<Contract_String>
+    public class StringTest : DebugAndTestBase<Contract_String>
     {
         [TestMethod]
         public void TestStringAdd()

@@ -8,7 +8,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Linq : TestBase2<Contract_Linq>
+    public class UnitTest_Linq : DebugAndTestBase<Contract_Linq>
     {
         [TestMethod]
         public void Test_AggregateSum()

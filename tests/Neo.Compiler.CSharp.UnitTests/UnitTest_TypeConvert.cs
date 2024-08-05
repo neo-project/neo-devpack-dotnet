@@ -5,7 +5,7 @@ using Neo.VM.Types;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_TypeConvert : TestBase2<Contract_TypeConvert>
+    public class UnitTest_TypeConvert : DebugAndTestBase<Contract_TypeConvert>
     {
         [TestMethod]
         public void UnitTest_TestTypeConvert()

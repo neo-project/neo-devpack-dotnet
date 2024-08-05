@@ -8,7 +8,7 @@ using Neo.Extensions;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Foreach : TestBase2<Contract_Foreach>
+    public class UnitTest_Foreach : DebugAndTestBase<Contract_Foreach>
     {
         [TestMethod]
         public void IntForeachTest()

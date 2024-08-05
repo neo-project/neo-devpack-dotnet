@@ -5,7 +5,7 @@ using Neo.VM.Types;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Record : TestBase2<Contract_Record>
+    public class UnitTest_Record : DebugAndTestBase<Contract_Record>
     {
         [TestMethod]
         public void Test_CreateRecord()

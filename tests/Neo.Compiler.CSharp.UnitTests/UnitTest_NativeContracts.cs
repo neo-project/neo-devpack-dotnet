@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_NativeContracts : TestBase2<Contract_NativeContracts>
+    public class UnitTest_NativeContracts : DebugAndTestBase<Contract_NativeContracts>
     {
         [TestMethod]
         public void TestHashes()

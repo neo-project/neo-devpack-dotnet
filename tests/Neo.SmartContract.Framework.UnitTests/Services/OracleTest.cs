@@ -5,7 +5,7 @@ using Neo.SmartContract.Testing.Exceptions;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class OracleTest : TestBase2<Contract_IOracle>
+    public class OracleTest : DebugAndTestBase<Contract_IOracle>
     {
         [TestMethod]
         public void Test_OracleResponse()

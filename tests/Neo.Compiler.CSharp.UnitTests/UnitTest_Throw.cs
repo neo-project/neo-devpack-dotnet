@@ -5,7 +5,7 @@ using Neo.SmartContract.Testing.Exceptions;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Throw : TestBase2<Contract_Throw>
+    public class UnitTest_Throw : DebugAndTestBase<Contract_Throw>
     {
         [TestMethod]
         public void Test_Throw()

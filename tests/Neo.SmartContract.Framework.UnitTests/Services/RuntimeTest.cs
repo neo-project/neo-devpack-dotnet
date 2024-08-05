@@ -3,13 +3,12 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
-using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class RuntimeTest : TestBase2<Contract_Runtime>
+    public class RuntimeTest : DebugAndTestBase<Contract_Runtime>
     {
         static RuntimeTest()
         {

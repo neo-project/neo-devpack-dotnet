@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Event() : TestBase<Contract_Event>
+    public class UnitTest_Event() : DebugAndTestBase<Contract_Event>
     {
         [TestMethod]
         public void Test_Good()

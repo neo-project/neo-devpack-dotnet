@@ -4,9 +4,9 @@ using Neo.Compiler;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {

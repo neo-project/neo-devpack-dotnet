@@ -7,7 +7,7 @@ using System.Text;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StdLibTest : TestBase2<Contract_StdLib>
+    public class StdLibTest : DebugAndTestBase<Contract_StdLib>
     {
         [TestMethod]
         public void AtoiTest()

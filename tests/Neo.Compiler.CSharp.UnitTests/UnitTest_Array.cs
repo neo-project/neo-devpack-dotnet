@@ -10,7 +10,7 @@ using Array = Neo.VM.Types.Array;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Array : TestBase2<Contract_Array>
+    public class UnitTest_Array : DebugAndTestBase<Contract_Array>
     {
         [TestMethod]
         public void Test_GetTreeByteLengthPrefix()

@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-
 using System.Numerics;
 using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Returns : TestBase2<Contract_Returns>
+    public class UnitTest_Returns : DebugAndTestBase<Contract_Returns>
     {
         [TestMethod]
         public void Test_OneReturn()

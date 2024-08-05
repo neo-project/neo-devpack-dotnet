@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class JsonTest() : TestBase2<Contract_Json>(Contract_Json.Nef, Contract_Json.Manifest)
+    public class JsonTest : DebugAndTestBase<Contract_Json>
     {
         [TestMethod]
         public void Test_SerializeDeserialize()

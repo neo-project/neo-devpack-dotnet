@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Akka.Util;
 using Microsoft.CodeAnalysis;
+using Neo.SmartContract.Testing.TestingStandards;
 using CompilationOptions = Neo.Compiler.CompilationOptions;
 
 namespace Neo.SmartContract.Framework.UnitTests

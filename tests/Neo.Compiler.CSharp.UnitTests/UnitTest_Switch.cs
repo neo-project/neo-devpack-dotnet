@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Switch : TestBase2<Contract_Switch>
+    public class UnitTest_Switch : DebugAndTestBase<Contract_Switch>
     {
         /// <summary>
         /// switch of more than 6 entries require a ComputeStringHash method

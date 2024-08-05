@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Initializer : TestBase2<Contract_Initializer>
+    public class UnitTest_Initializer : DebugAndTestBase<Contract_Initializer>
     {
         [TestMethod]
         public void Initializer_Test()

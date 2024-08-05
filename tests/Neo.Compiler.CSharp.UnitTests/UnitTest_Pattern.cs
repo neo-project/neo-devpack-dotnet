@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Pattern : TestBase2<Contract_Pattern>
+    public class UnitTest_Pattern : DebugAndTestBase<Contract_Pattern>
     {
         [TestMethod]
         public void Between_Test()

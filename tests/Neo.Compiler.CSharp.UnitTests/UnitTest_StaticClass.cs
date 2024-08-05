@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_StaticClass : TestBase2<Contract_StaticClass>
+    public class UnitTest_StaticClass : DebugAndTestBase<Contract_StaticClass>
     {
         [TestMethod]
         public void Test_StaticClass()

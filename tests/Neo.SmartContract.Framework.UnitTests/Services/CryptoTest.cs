@@ -10,7 +10,7 @@ using Neo.Extensions;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class CryptoTest() : TestBase2<Contract_Crypto>(Contract_Crypto.Nef, Contract_Crypto.Manifest)
+    public class CryptoTest : DebugAndTestBase<Contract_Crypto>
     {
         public static KeyPair GenerateKey(int privateKeyLength = 32)
         {

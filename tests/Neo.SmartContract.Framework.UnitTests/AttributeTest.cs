@@ -6,7 +6,7 @@ using System;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class AttributeTest : TestBase2<Contract_Attribute>
+    public class AttributeTest : DebugAndTestBase<Contract_Attribute>
     {
         [TestMethod]
         public void TestAttribute()

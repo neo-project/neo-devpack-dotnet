@@ -8,11 +8,9 @@ using System.Collections.Generic;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_OnDeployment1 : TestBase2<Contract_OnDeployment1>
+    public class UnitTest_OnDeployment1 : DebugAndTestBase<Contract_OnDeployment1>
     {
         private readonly List<string> _logs = new();
-
-        public UnitTest_OnDeployment1() : base(Contract_OnDeployment1.Nef, Contract_OnDeployment1.Manifest) { }
 
         #region Ensure Deployed log
 

@@ -5,10 +5,8 @@ using System.Collections.Generic;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_IndexOrRange : TestBase2<Contract_IndexOrRange>
+    public class UnitTest_IndexOrRange : DebugAndTestBase<Contract_IndexOrRange>
     {
-        public UnitTest_IndexOrRange() : base(Contract_IndexOrRange.Nef, Contract_IndexOrRange.Manifest) { }
-
         [TestMethod]
         public void Test_Main()
         {

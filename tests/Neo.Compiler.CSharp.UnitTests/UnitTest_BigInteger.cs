@@ -7,7 +7,7 @@ using System.Text;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_BigInteger : TestBase2<Contract_BigInteger>
+    public class UnitTest_BigInteger : DebugAndTestBase<Contract_BigInteger>
     {
         [TestMethod]
         public void Test_Pow()

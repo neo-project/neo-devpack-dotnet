@@ -14,7 +14,7 @@ using Array = Neo.VM.Types.Array;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ContractTest() : TestBase2<Contract_Contract>(Contract_Contract.Nef, Contract_Contract.Manifest)
+    public class ContractTest : DebugAndTestBase<Contract_Contract>
     {
         [TestMethod]
         public void Test_CreateCallDestroy()

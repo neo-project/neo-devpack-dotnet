@@ -6,7 +6,7 @@ using System;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StaticStorageMapTest : TestBase2<Contract_StaticStorageMap>
+    public class StaticStorageMapTest : DebugAndTestBase<Contract_StaticStorageMap>
     {
         [TestMethod]
         public void Test_Storage()

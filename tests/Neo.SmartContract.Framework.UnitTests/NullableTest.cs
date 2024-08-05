@@ -5,7 +5,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class NullableTest : TestBase2<Contract_Nullable>
+    public class NullableTest : DebugAndTestBase<Contract_Nullable>
     {
         [TestMethod]
         public void TestBigIntegerNullableEqual()

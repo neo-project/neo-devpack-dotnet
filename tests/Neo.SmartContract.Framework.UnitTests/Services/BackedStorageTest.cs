@@ -7,7 +7,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BackedStorageTest() : TestBase2<Contract_Stored>(Contract_Stored.Nef, Contract_Stored.Manifest)
+    public class BackedStorageTest : DebugAndTestBase<Contract_Stored>
     {
         [TestMethod]
         public void Test()

@@ -9,7 +9,7 @@ using System.Linq;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class NativeTest : TestBase2<Contract_Native>
+    public class NativeTest : DebugAndTestBase<Contract_Native>
     {
         [TestMethod]
         public void Test_NEO()

@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class RegexTest : TestBase2<Contract_Regex>
+    public class RegexTest : DebugAndTestBase<Contract_Regex>
     {
         [TestMethod]
         public void TestStartWith()

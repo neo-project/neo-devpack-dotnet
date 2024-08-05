@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Extensions : TestBase2<Contract_Extensions>
+    public class UnitTest_Extensions : DebugAndTestBase<Contract_Extensions>
     {
         [TestMethod]
         public void TestSum()

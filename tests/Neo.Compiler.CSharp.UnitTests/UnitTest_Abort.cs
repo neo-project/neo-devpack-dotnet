@@ -10,7 +10,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Abort : TestBase2<Contract_Abort>
+    public class UnitTest_Abort : DebugAndTestBase<Contract_Abort>
     {
         private readonly JObject _debugInfo;
         private readonly bool[] falseTrue = [false, true];

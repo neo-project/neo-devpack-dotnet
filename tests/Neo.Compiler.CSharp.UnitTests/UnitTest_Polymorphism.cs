@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Polymorphism : TestBase2<Contract_Polymorphism>
+    public class UnitTest_Polymorphism : DebugAndTestBase<Contract_Polymorphism>
     {
         [TestMethod]
         public void Test()

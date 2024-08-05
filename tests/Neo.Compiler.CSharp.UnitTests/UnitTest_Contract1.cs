@@ -7,7 +7,7 @@ using System.Text;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Contract1 : TestBase2<Contract1>
+    public class UnitTest_Contract1 : DebugAndTestBase<Contract1>
     {
         [TestMethod]
         public void Test_PrivateMethod()

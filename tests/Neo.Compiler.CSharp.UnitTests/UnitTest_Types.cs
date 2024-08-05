@@ -11,7 +11,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Types : TestBase2<Contract_Types>
+    public class UnitTest_Types : DebugAndTestBase<Contract_Types>
     {
         [TestMethod]
         public void Null_Test()

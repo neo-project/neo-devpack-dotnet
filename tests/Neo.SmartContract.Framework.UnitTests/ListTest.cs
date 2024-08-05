@@ -2,12 +2,11 @@ using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Testing;
-using Neo.VM.Types;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class ListTest : TestBase2<Contract_List>
+    public class ListTest : DebugAndTestBase<Contract_List>
     {
         [TestMethod]
         public void TestCount()

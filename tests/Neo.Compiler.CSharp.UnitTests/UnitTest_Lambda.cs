@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Lambda : TestBase2<Contract_Lambda>
+    public class UnitTest_Lambda : DebugAndTestBase<Contract_Lambda>
     {
         [TestMethod]
         public void Test_AnyGreatThanZero()

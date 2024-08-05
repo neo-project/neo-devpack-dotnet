@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_DirectInit : TestBase2<Contract_DirectInit>
+    public class UnitTest_DirectInit : DebugAndTestBase<Contract_DirectInit>
     {
         [TestMethod]
         public void Test_GetUInt160()

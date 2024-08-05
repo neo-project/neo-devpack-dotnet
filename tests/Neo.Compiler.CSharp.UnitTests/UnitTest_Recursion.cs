@@ -8,7 +8,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Recursion : TestBase2<Contract_Recursion>
+    public class UnitTest_Recursion : DebugAndTestBase<Contract_Recursion>
     {
         [TestMethod]
         public void Test_Factorial()

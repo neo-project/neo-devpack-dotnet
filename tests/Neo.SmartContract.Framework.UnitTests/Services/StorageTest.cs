@@ -9,7 +9,7 @@ using System.Text;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StorageTest : TestBase2<Contract_Storage>
+    public class StorageTest : DebugAndTestBase<Contract_Storage>
     {
         [TestMethod]
         public void Test_StorageMap()

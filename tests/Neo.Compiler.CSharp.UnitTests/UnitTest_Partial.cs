@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Partial : TestBase2<Contract_Partial>
+    public class UnitTest_Partial : DebugAndTestBase<Contract_Partial>
     {
         [TestMethod]
         public void Test_Partial()

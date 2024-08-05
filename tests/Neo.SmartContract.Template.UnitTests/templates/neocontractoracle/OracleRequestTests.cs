@@ -3,8 +3,8 @@ using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Text;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
 {
@@ -14,11 +14,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
     [TestClass]
     public class OracleRequestTests : TestBase<OracleRequestTemplate>
     {
-        /// <summary>
-        /// Initialize Test
-        /// </summary>
-        public OracleRequestTests() : base(OracleRequestTemplate.Nef, OracleRequestTemplate.Manifest) { }
-
         [TestMethod]
         public void TestGetResponse()
         {

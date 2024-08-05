@@ -5,7 +5,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Invoke : TestBase2<Contract_InvokeCsNef>
+    public class UnitTest_Invoke : DebugAndTestBase<Contract_InvokeCsNef>
     {
         [TestMethod]
         public void Test_Return_Integer()

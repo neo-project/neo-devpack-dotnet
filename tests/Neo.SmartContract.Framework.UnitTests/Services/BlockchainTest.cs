@@ -12,7 +12,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BlockchainTest : TestBase2<Contract_Blockchain>
+    public class BlockchainTest : DebugAndTestBase<Contract_Blockchain>
     {
         private Block _block;
 

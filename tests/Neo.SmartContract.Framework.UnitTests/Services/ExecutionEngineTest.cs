@@ -6,8 +6,8 @@ using Neo.VM.Types;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ExecutionEngineTest()
-        : TestBase2<Contract_ExecutionEngine>(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest)
+    public class ExecutionEngineTest
+         : DebugAndTestBase<Contract_ExecutionEngine>
     {
         [TestMethod]
         public void CallingScriptHashTest()

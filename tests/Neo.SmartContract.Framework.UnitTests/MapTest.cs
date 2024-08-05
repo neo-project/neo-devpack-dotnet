@@ -8,7 +8,7 @@ using Neo.Extensions;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class MapTest : TestBase2<Contract_Map>
+    public class MapTest : DebugAndTestBase<Contract_Map>
     {
         [TestMethod]
         public void TestCount()

@@ -6,7 +6,7 @@ using System.IO;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Debug : TestBase2<Contract_Debug>
+    public class UnitTest_Debug : DebugAndTestBase<Contract_Debug>
     {
         [TestMethod]
         public void TestDebug()

@@ -6,7 +6,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class PointerTest : TestBase2<Contract_Pointers>
+    public class PointerTest : DebugAndTestBase<Contract_Pointers>
     {
         [TestMethod]
         public void Test_CreatePointer()

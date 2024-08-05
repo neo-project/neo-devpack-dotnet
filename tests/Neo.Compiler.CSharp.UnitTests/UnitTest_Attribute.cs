@@ -4,7 +4,7 @@ using Neo.SmartContract.Testing;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Attribute : TestBase2<Contract_AttributeChanged>
+    public class UnitTest_Attribute : DebugAndTestBase<Contract_AttributeChanged>
     {
         [TestMethod]
         public void AttributeTest()

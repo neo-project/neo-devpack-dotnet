@@ -7,7 +7,7 @@ using Neo.Extensions;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class HelperTest : TestBase2<Contract_Helper>
+    public class HelperTest : DebugAndTestBase<Contract_Helper>
     {
         [TestMethod]
         public void TestHexToBytes()
