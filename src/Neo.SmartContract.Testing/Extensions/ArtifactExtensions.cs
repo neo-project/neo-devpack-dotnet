@@ -1,11 +1,11 @@
 using Neo.IO;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Testing.Extensions
 {

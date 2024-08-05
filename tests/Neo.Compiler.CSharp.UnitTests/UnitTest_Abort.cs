@@ -3,7 +3,6 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +10,14 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Abort : TestBase<Contract_Abort>
+    public class UnitTest_Abort : DebugAndTestBase<Contract_Abort>
     {
         private readonly JObject _debugInfo;
         private readonly bool[] falseTrue = [false, true];
 
         public UnitTest_Abort()
         {
-            var contract = TestCleanup.EnsureArtifactsUpToDateInternal().Where(u => u.ContractName == "Contract_Abort").First();
+            var contract = TestCleanup.EnsureArtifactUpToDateInternalAsync(nameof(Contract_Abort)).GetAwaiter().GetResult().FirstOrDefault();
             _debugInfo = contract.CreateDebugInformation();
         }
 

@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ using System.Numerics;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Recursion : TestBase<Contract_Recursion>
+    public class UnitTest_Recursion : DebugAndTestBase<Contract_Recursion>
     {
         [TestMethod]
         public void Test_Factorial()

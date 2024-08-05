@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_MultipleA : TestBase<Contract_MultipleA>
+    public class UnitTest_MultipleA : DebugAndTestBase<Contract_MultipleA>
     {
         [TestMethod]
         public void Test()

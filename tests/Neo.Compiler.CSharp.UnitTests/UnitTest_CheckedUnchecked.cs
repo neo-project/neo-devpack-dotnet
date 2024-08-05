@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_CheckedUnchecked : TestBase<Contract_CheckedUnchecked>
+    public class UnitTest_CheckedUnchecked : DebugAndTestBase<Contract_CheckedUnchecked>
     {
         [TestMethod]
         public void TestAddChecked()

@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Polymorphism : TestBase<Contract_Polymorphism>
+    public class UnitTest_Polymorphism : DebugAndTestBase<Contract_Polymorphism>
     {
         [TestMethod]
         public void Test()

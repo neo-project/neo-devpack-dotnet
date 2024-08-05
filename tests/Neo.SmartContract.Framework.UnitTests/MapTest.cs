@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Reflection;
 using Neo.Extensions;
@@ -9,7 +8,7 @@ using Neo.Extensions;
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class MapTest : TestBase<Contract_Map>
+    public class MapTest : DebugAndTestBase<Contract_Map>
     {
         [TestMethod]
         public void TestCount()

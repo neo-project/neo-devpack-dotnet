@@ -1,14 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Default : TestBase<Contract_Default>
+    public class UnitTest_Default : DebugAndTestBase<Contract_Default>
     {
-        public UnitTest_Default() : base(Contract_Default.Nef, Contract_Default.Manifest) { }
 
         [TestMethod]
         public void TestBooleanDefault()

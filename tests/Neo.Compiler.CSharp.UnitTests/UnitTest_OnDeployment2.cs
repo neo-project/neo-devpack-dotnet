@@ -3,13 +3,12 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_OnDeployment2 : TestBase<Contract_OnDeployment2>
+    public class UnitTest_OnDeployment2 : DebugAndTestBase<Contract_OnDeployment2>
     {
         private readonly List<string> _logs = new();
 

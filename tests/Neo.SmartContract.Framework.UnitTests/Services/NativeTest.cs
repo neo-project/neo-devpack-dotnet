@@ -3,14 +3,13 @@ using Neo.Cryptography.ECC;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class NativeTest : TestBase<Contract_Native>
+    public class NativeTest : DebugAndTestBase<Contract_Native>
     {
         [TestMethod]
         public void Test_NEO()

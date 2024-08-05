@@ -1,14 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Reflection;
 using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class HelperTest : TestBase<Contract_Helper>
+    public class HelperTest : DebugAndTestBase<Contract_Helper>
     {
         [TestMethod]
         public void TestHexToBytes()

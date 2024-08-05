@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_NativeContracts : TestBase<Contract_NativeContracts>
+    public class UnitTest_NativeContracts : DebugAndTestBase<Contract_NativeContracts>
     {
         [TestMethod]
         public void TestHashes()

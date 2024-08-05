@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Contract2 : TestBase<Contract2>
+    public class UnitTest_Contract2 : DebugAndTestBase<Contract2>
     {
         [TestMethod]
         public void Test_ByteArrayPick()

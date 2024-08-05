@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_MemberAccess : TestBase<Contract_MemberAccess>
+    public class UnitTest_MemberAccess : DebugAndTestBase<Contract_MemberAccess>
     {
         [TestMethod]
         public void Test_Main()

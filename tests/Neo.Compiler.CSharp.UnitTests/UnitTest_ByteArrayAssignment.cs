@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ByteArrayAssignment : TestBase<Contract_ByteArrayAssignment>
+    public class UnitTest_ByteArrayAssignment : DebugAndTestBase<Contract_ByteArrayAssignment>
     {
         [TestMethod]
         public void Test_ByteArrayAssignment()

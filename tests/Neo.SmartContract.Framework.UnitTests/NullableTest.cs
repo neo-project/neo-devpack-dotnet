@@ -1,12 +1,11 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
-    public class NullableTest : TestBase<Contract_Nullable>
+    public class NullableTest : DebugAndTestBase<Contract_Nullable>
     {
         [TestMethod]
         public void TestBigIntegerNullableEqual()
@@ -245,6 +244,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsTrue(Contract.BoolNullableEqualNull(null));
             Assert.IsFalse(Contract.BoolNullableEqualNull(true));
         }
+
         [TestMethod]
         public void TestByteNullableToString()
         {

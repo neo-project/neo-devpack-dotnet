@@ -1,13 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Shift : TestBase<Contract_shift>
+    public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     {
         [TestMethod]
         public void Test_Shift()

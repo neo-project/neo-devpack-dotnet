@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ConcatByteStringAddAssign : TestBase<Contract_ConcatByteStringAddAssign>
+    public class UnitTest_ConcatByteStringAddAssign : DebugAndTestBase<Contract_ConcatByteStringAddAssign>
     {
         [TestMethod]
         public void Test_ByteStringAdd()

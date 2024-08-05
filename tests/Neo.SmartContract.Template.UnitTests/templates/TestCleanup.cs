@@ -1,11 +1,12 @@
+using System.Collections.Concurrent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
@@ -13,9 +14,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        public static readonly ConcurrentDictionary<Type, NeoDebugInfo> DebugInfos = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), DebugInfos);
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()

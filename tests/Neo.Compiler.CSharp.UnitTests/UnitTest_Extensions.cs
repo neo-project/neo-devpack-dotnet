@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Extensions : TestBase<Contract_Extensions>
+    public class UnitTest_Extensions : DebugAndTestBase<Contract_Extensions>
     {
         [TestMethod]
         public void TestSum()

@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -8,7 +7,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BackedStorageTest : TestBase<Contract_Stored>
+    public class BackedStorageTest : DebugAndTestBase<Contract_Stored>
     {
         [TestMethod]
         public void Test()
