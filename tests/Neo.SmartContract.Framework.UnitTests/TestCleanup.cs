@@ -87,7 +87,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         private static void EnsureArtifactUpToDateInternal(string singleContractName)
         {
-            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault() ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}"); ;
+            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault() ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
             if (!result.Success)
             {
                 var errors = string.Join(Environment.NewLine, result.Diagnostics
