@@ -19,7 +19,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public ContractTest() : base()
         {
             // Ensure also Contract_Create
-
             TestCleanup.TestInitialize(typeof(Contract_Create));
             TestCleanup.TestInitialize(typeof(Contract_Update));
         }
