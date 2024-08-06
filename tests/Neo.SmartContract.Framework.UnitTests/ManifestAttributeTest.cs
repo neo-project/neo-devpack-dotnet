@@ -9,7 +9,6 @@ public class ManifestAttributeTest
     public ManifestAttributeTest()
     {
         // Ensure also Contract_ExtraAttribute
-
         TestCleanup.TestInitialize(typeof(Contract_ManifestAttribute));
     }
 
