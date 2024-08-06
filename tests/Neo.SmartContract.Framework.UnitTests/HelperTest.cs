@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Extensions;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using System.Reflection;
-using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -24,12 +24,12 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             Assert.IsNull(Contract.TestToBigInteger(null));
             Assert.AreEqual(1293870, Engine.FeeConsumed.Value);
-            Assert.AreEqual(0, Contract.TestToBigInteger(System.Array.Empty<byte>()));
+            Assert.AreEqual(0, Contract.TestToBigInteger([]));
             Assert.AreEqual(1294080, Engine.FeeConsumed.Value);
 
             // Value
 
-            Assert.AreEqual(123, Contract.TestToBigInteger(new byte[] { 123 }));
+            Assert.AreEqual(123, Contract.TestToBigInteger([123]));
             Assert.AreEqual(1294080, Engine.FeeConsumed.Value);
         }
 
@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestBigIntegerParseandCast()
         {
-            Assert.AreEqual(2000000000000000, Contract.TestBigIntegerCast(new byte[] { 0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07 }));
+            Assert.AreEqual(2000000000000000, Contract.TestBigIntegerCast([0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07]));
             Assert.AreEqual(1540020, Engine.FeeConsumed.Value);
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
             Assert.AreEqual(2033310, Engine.FeeConsumed.Value);
@@ -110,7 +110,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void Test_StringToByteArray()
         {
-            CollectionAssert.AreEqual(new byte[] { 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100 }, Contract.TestStringToByteArray());
+            CollectionAssert.AreEqual("hello world"u8.ToArray(), Contract.TestStringToByteArray());
             Assert.AreEqual(1233270, Engine.FeeConsumed.Value);
         }
 
