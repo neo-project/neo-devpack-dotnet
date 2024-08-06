@@ -16,6 +16,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class ContractTest : DebugAndTestBase<Contract_Contract>
     {
+        public ContractTest() : base()
+        {
+            // Ensure also Contract_Create
+
+            TestCleanup.TestInitialize(typeof(Contract_Create));
+            TestCleanup.TestInitialize(typeof(Contract_Update));
+        }
+
         [TestMethod]
         public void Test_CreateCallDestroy()
         {
