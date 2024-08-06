@@ -97,7 +97,7 @@ namespace Neo.SmartContract.Testing.Extensions
             var retMethod = setup.GetType()
                .GetMethod("Returns", [typeof(InvocationFunc)])!;
 
-            _ = retMethod.Invoke(setup, [ new InvocationFunc(invocation =>
+            _ = retMethod.Invoke(setup, [new InvocationFunc(invocation =>
                 {
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
@@ -124,7 +124,7 @@ namespace Neo.SmartContract.Testing.Extensions
             var retMethod = setup.GetType()
                .GetMethod("Callback", [typeof(InvocationAction)])!;
 
-            _ = retMethod.Invoke(setup, [ new InvocationAction(invocation =>
+            _ = retMethod.Invoke(setup, [new InvocationAction(invocation =>
                 {
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
