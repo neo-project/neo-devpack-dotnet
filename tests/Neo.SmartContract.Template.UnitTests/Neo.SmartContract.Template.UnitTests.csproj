@@ -3,9 +3,10 @@
 	<PropertyGroup>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
-		<Nullable>enable</Nullable>
+		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
+        <WarningsAsErrors>CS8632</WarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

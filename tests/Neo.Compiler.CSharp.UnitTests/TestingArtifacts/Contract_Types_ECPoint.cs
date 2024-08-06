@@ -25,25 +25,25 @@ public abstract class Contract_Types_ECPoint : Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     [DisplayName("ecpoint2ByteArray")]
-    public abstract object? Ecpoint2ByteArray();
+    public abstract object Ecpoint2ByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ecpoint2String")]
-    public abstract string? Ecpoint2String();
+    public abstract string Ecpoint2String();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ecpointReturn")]
-    public abstract ECPoint? EcpointReturn();
+    public abstract ECPoint EcpointReturn();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("isValid")]
-    public abstract bool? IsValid(ECPoint? point);
+    public abstract bool IsValid(ECPoint point);
 
     #endregion
 

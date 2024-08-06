@@ -25,43 +25,43 @@ public abstract class Contract_StaticVar : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerParse")]
-    public abstract BigInteger? TestBigIntegerParse();
+    public abstract BigInteger TestBigIntegerParse();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerParse2")]
-    public abstract BigInteger? TestBigIntegerParse2(string? text);
+    public abstract BigInteger TestBigIntegerParse2(string text);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetECPoint")]
-    public abstract ECPoint? TestGetECPoint();
+    public abstract ECPoint TestGetECPoint();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetString")]
-    public abstract string? TestGetString();
+    public abstract string TestGetString();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetUInt160")]
-    public abstract UInt160? TestGetUInt160();
+    public abstract UInt160 TestGetUInt160();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testinitalvalue")]
-    public abstract string? Testinitalvalue();
+    public abstract string Testinitalvalue();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testMain")]
-    public abstract BigInteger? TestMain();
+    public abstract BigInteger TestMain();
 
     #endregion
 

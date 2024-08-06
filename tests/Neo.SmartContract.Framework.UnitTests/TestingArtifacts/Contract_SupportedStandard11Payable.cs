@@ -25,7 +25,7 @@ public abstract class Contract_SupportedStandard11Payable : Neo.SmartContract.Te
     /// Unsafe method
     /// </summary>
     [DisplayName("onNEP11Payment")]
-    public abstract void OnNEP11Payment(UInt160? from, BigInteger? amount, string? tokenId, object? data = null);
+    public abstract void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object data = null);
 
     #endregion
 

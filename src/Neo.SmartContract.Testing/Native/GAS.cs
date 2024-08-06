@@ -25,17 +25,17 @@ public abstract class GAS : SmartContract, TestingStandards.INep17Standard
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? Decimals { [DisplayName("decimals")] get; }
+    public abstract BigInteger Decimals { [DisplayName("decimals")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string? Symbol { [DisplayName("symbol")] get; }
+    public abstract string Symbol { [DisplayName("symbol")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? TotalSupply { [DisplayName("totalSupply")] get; }
+    public abstract BigInteger TotalSupply { [DisplayName("totalSupply")] get; }
 
     #endregion
 
@@ -45,7 +45,7 @@ public abstract class GAS : SmartContract, TestingStandards.INep17Standard
     /// Safe method
     /// </summary>
     [DisplayName("balanceOf")]
-    public abstract BigInteger? BalanceOf(UInt160? account);
+    public abstract BigInteger BalanceOf(UInt160 account);
 
     #endregion
 
@@ -55,7 +55,7 @@ public abstract class GAS : SmartContract, TestingStandards.INep17Standard
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
 
     #endregion
 

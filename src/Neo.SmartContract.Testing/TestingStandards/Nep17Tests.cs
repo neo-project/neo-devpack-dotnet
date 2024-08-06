@@ -67,7 +67,7 @@ public class Nep17Tests<T> : TestBase<T>
         Contract.OnTransfer += onTransfer;
     }
 
-    void onTransfer(UInt160? from, UInt160? to, BigInteger? amount)
+    void onTransfer(UInt160 from, UInt160 to, BigInteger amount)
     {
         raisedTransfer.Add((from, to, amount));
     }
@@ -227,8 +227,8 @@ public class Nep17Tests<T> : TestBase<T>
 
         // Deploy dummy contract
 
-        UInt160? calledFrom = null;
-        BigInteger? calledAmount = null;
+        UInt160 calledFrom = null!;
+        BigInteger calledAmount = 0;
         UInt160? calledData = null;
 
         var mock = Engine.Deploy<onNEP17PaymentContract>(NefFile, manifest, null, m =>

@@ -31,31 +31,31 @@ public abstract class Contract_Create : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("getCallFlags")]
-    public abstract BigInteger? GetCallFlags();
+    public abstract BigInteger GetCallFlags();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getContractById")]
-    public abstract object? GetContractById(BigInteger? id);
+    public abstract object GetContractById(BigInteger id);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getContractHashes")]
-    public abstract object? GetContractHashes();
+    public abstract object GetContractHashes();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("oldContract")]
-    public abstract string? OldContract();
+    public abstract string OldContract();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[]? nef, string? manifest);
+    public abstract void Update(byte[] nef, string manifest);
 
     #endregion
 

@@ -25,55 +25,55 @@ public abstract class Contract_Array : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("getTreeByteLengthPrefix")]
-    public abstract byte[]? GetTreeByteLengthPrefix();
+    public abstract byte[] GetTreeByteLengthPrefix();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTreeByteLengthPrefix2")]
-    public abstract byte[]? GetTreeByteLengthPrefix2();
+    public abstract byte[] GetTreeByteLengthPrefix2();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArrayOwner")]
-    public abstract byte[]? TestByteArrayOwner();
+    public abstract byte[] TestByteArrayOwner();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArrayOwnerCall")]
-    public abstract byte[]? TestByteArrayOwnerCall();
+    public abstract byte[] TestByteArrayOwnerCall();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testCollectionexpressions")]
-    public abstract IList<object>? TestCollectionexpressions();
+    public abstract IList<object> TestCollectionexpressions();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDefaultArray")]
-    public abstract bool? TestDefaultArray();
+    public abstract bool TestDefaultArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDefaultState")]
-    public abstract object? TestDefaultState();
+    public abstract object TestDefaultState();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDynamicArrayInit")]
-    public abstract IList<object>? TestDynamicArrayInit(BigInteger? length);
+    public abstract IList<object> TestDynamicArrayInit(BigInteger length);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDynamicArrayStringInit")]
-    public abstract byte[]? TestDynamicArrayStringInit(string? input);
+    public abstract byte[] TestDynamicArrayStringInit(string input);
 
     /// <summary>
     /// Unsafe method
@@ -85,61 +85,61 @@ public abstract class Contract_Array : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("testEmptyArray")]
-    public abstract IList<object>? TestEmptyArray();
+    public abstract IList<object> TestEmptyArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntArray")]
-    public abstract IList<object>? TestIntArray();
+    public abstract IList<object> TestIntArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntArrayInit")]
-    public abstract IList<object>? TestIntArrayInit();
+    public abstract IList<object> TestIntArrayInit();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntArrayInit2")]
-    public abstract IList<object>? TestIntArrayInit2();
+    public abstract IList<object> TestIntArrayInit2();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntArrayInit3")]
-    public abstract IList<object>? TestIntArrayInit3();
+    public abstract IList<object> TestIntArrayInit3();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testJaggedArray")]
-    public abstract IList<object>? TestJaggedArray();
+    public abstract IList<object> TestJaggedArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testJaggedByteArray")]
-    public abstract IList<object>? TestJaggedByteArray();
+    public abstract IList<object> TestJaggedByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStructArray")]
-    public abstract object? TestStructArray();
+    public abstract object TestStructArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStructArrayInit")]
-    public abstract object? TestStructArrayInit();
+    public abstract object TestStructArrayInit();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSupportedStandards")]
-    public abstract IList<object>? TestSupportedStandards();
+    public abstract IList<object> TestSupportedStandards();
 
     #endregion
 

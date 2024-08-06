@@ -25,139 +25,139 @@ public abstract class Contract_Runtime : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("checkWitness")]
-    public abstract bool? CheckWitness(UInt160? hash);
+    public abstract bool CheckWitness(UInt160 hash);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("dynamicSum")]
-    public abstract BigInteger? DynamicSum(BigInteger? a, BigInteger? b);
+    public abstract BigInteger DynamicSum(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getAddressVersion")]
-    public abstract BigInteger? GetAddressVersion();
+    public abstract BigInteger GetAddressVersion();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getAllNotifications")]
-    public abstract BigInteger? GetAllNotifications();
+    public abstract BigInteger GetAllNotifications();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getGasLeft")]
-    public abstract BigInteger? GetGasLeft();
+    public abstract BigInteger GetGasLeft();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getInvocationCounter")]
-    public abstract BigInteger? GetInvocationCounter();
+    public abstract BigInteger GetInvocationCounter();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getNetwork")]
-    public abstract BigInteger? GetNetwork();
+    public abstract BigInteger GetNetwork();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getNotifications")]
-    public abstract BigInteger? GetNotifications(UInt160? hash);
+    public abstract BigInteger GetNotifications(UInt160 hash);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getNotificationsCount")]
-    public abstract BigInteger? GetNotificationsCount(UInt160? hash);
+    public abstract BigInteger GetNotificationsCount(UInt160 hash);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getPlatform")]
-    public abstract string? GetPlatform();
+    public abstract string GetPlatform();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getRandom")]
-    public abstract BigInteger? GetRandom();
+    public abstract BigInteger GetRandom();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTime")]
-    public abstract BigInteger? GetTime();
+    public abstract BigInteger GetTime();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransaction")]
-    public abstract object? GetTransaction();
+    public abstract object GetTransaction();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionHash")]
-    public abstract UInt256? GetTransactionHash();
+    public abstract UInt256 GetTransactionHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionNetworkFee")]
-    public abstract BigInteger? GetTransactionNetworkFee();
+    public abstract BigInteger GetTransactionNetworkFee();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionNonce")]
-    public abstract BigInteger? GetTransactionNonce();
+    public abstract BigInteger GetTransactionNonce();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionScript")]
-    public abstract byte[]? GetTransactionScript();
+    public abstract byte[] GetTransactionScript();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionSender")]
-    public abstract UInt160? GetTransactionSender();
+    public abstract UInt160 GetTransactionSender();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionSystemFee")]
-    public abstract BigInteger? GetTransactionSystemFee();
+    public abstract BigInteger GetTransactionSystemFee();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionValidUntilBlock")]
-    public abstract BigInteger? GetTransactionValidUntilBlock();
+    public abstract BigInteger GetTransactionValidUntilBlock();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionVersion")]
-    public abstract BigInteger? GetTransactionVersion();
+    public abstract BigInteger GetTransactionVersion();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTrigger")]
-    public abstract BigInteger? GetTrigger();
+    public abstract BigInteger GetTrigger();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("log")]
-    public abstract void Log(string? message);
+    public abstract void Log(string message);
 
     #endregion
 

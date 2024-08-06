@@ -25,91 +25,91 @@ public abstract class Contract_Default : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerDefault")]
-    public abstract BigInteger? TestBigIntegerDefault();
+    public abstract BigInteger TestBigIntegerDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBooleanDefault")]
-    public abstract bool? TestBooleanDefault();
+    public abstract bool TestBooleanDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteDefault")]
-    public abstract BigInteger? TestByteDefault();
+    public abstract BigInteger TestByteDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testCharDefault")]
-    public abstract BigInteger? TestCharDefault();
+    public abstract BigInteger TestCharDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testClassDefault")]
-    public abstract object? TestClassDefault();
+    public abstract object TestClassDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testInt16Default")]
-    public abstract BigInteger? TestInt16Default();
+    public abstract BigInteger TestInt16Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testInt32Default")]
-    public abstract BigInteger? TestInt32Default();
+    public abstract BigInteger TestInt32Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testInt64Default")]
-    public abstract BigInteger? TestInt64Default();
+    public abstract BigInteger TestInt64Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testObjectDefault")]
-    public abstract object? TestObjectDefault();
+    public abstract object TestObjectDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteDefault")]
-    public abstract BigInteger? TestSByteDefault();
+    public abstract BigInteger TestSByteDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringDefault")]
-    public abstract string? TestStringDefault();
+    public abstract string TestStringDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStructDefault")]
-    public abstract IList<object>? TestStructDefault();
+    public abstract IList<object> TestStructDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt16Default")]
-    public abstract BigInteger? TestUInt16Default();
+    public abstract BigInteger TestUInt16Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt32Default")]
-    public abstract BigInteger? TestUInt32Default();
+    public abstract BigInteger TestUInt32Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt64Default")]
-    public abstract BigInteger? TestUInt64Default();
+    public abstract BigInteger TestUInt64Default();
 
     #endregion
 

@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         public static string checkBoolString(bool value) { return value.ToString(); }
-        public static object? checkNull() { return null; }
+        public static object checkNull() { return null; }
         public static bool checkBoolTrue() { return true; }
         public static bool checkBoolFalse() { return false; }
         public static sbyte checkSbyte() { return 5; }

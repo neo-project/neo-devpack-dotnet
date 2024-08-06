@@ -25,25 +25,25 @@ public abstract class Contract_Contract : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("call")]
-    public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
+    public abstract object Call(UInt160 scriptHash, string method, BigInteger flag, IList<object> args);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("create")]
-    public abstract object? Create(byte[]? nef, string? manifest);
+    public abstract object Create(byte[] nef, string manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("createStandardAccount")]
-    public abstract UInt160? CreateStandardAccount(ECPoint? pubKey);
+    public abstract UInt160 CreateStandardAccount(ECPoint pubKey);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getCallFlags")]
-    public abstract BigInteger? GetCallFlags();
+    public abstract BigInteger GetCallFlags();
 
     #endregion
 

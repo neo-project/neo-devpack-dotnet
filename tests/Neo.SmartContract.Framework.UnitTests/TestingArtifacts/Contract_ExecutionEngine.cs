@@ -25,31 +25,31 @@ public abstract class Contract_ExecutionEngine : Neo.SmartContract.Testing.Smart
     /// Unsafe method
     /// </summary>
     [DisplayName("callingScriptHash")]
-    public abstract byte[]? CallingScriptHash();
+    public abstract byte[] CallingScriptHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("entryScriptHash")]
-    public abstract byte[]? EntryScriptHash();
+    public abstract byte[] EntryScriptHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("executingScriptHash")]
-    public abstract byte[]? ExecutingScriptHash();
+    public abstract byte[] ExecutingScriptHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("scriptContainer")]
-    public abstract object? ScriptContainer();
+    public abstract object ScriptContainer();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("transaction")]
-    public abstract object? Transaction();
+    public abstract object Transaction();
 
     #endregion
 

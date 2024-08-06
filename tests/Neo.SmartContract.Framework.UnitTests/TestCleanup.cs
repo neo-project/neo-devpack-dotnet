@@ -31,7 +31,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             Debug = true,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
-            Nullable = NullableContextOptions.Enable
         }));
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

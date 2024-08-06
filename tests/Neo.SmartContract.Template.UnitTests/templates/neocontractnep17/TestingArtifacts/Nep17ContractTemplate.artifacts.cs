@@ -22,10 +22,10 @@ public abstract class Nep17ContractTemplate : Neo.SmartContract.Testing.SmartCon
     #region Events
 
     [DisplayName("SetOwner")]
-    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner? OnSetOwner;
+    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner OnSetOwner;
 
     [DisplayName("Transfer")]
-    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;
+    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer OnTransfer;
 
     #endregion
 
@@ -34,27 +34,27 @@ public abstract class Nep17ContractTemplate : Neo.SmartContract.Testing.SmartCon
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? Decimals { [DisplayName("decimals")] get; }
+    public abstract BigInteger Decimals { [DisplayName("decimals")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract UInt160? Owner { [DisplayName("getOwner")] get; [DisplayName("setOwner")] set; }
+    public abstract UInt160 Owner { [DisplayName("getOwner")] get; [DisplayName("setOwner")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string? Symbol { [DisplayName("symbol")] get; }
+    public abstract string Symbol { [DisplayName("symbol")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? TotalSupply { [DisplayName("totalSupply")] get; }
+    public abstract BigInteger TotalSupply { [DisplayName("totalSupply")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract bool? Verify { [DisplayName("verify")] get; }
+    public abstract bool Verify { [DisplayName("verify")] get; }
 
     #endregion
 
@@ -64,7 +64,7 @@ public abstract class Nep17ContractTemplate : Neo.SmartContract.Testing.SmartCon
     /// Safe method
     /// </summary>
     [DisplayName("balanceOf")]
-    public abstract BigInteger? BalanceOf(UInt160? owner);
+    public abstract BigInteger BalanceOf(UInt160 owner);
 
     #endregion
 
@@ -74,31 +74,31 @@ public abstract class Nep17ContractTemplate : Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     [DisplayName("burn")]
-    public abstract void Burn(UInt160? account, BigInteger? amount);
+    public abstract void Burn(UInt160 account, BigInteger amount);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("mint")]
-    public abstract void Mint(UInt160? to, BigInteger? amount);
+    public abstract void Mint(UInt160 to, BigInteger amount);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethod")]
-    public abstract string? MyMethod();
+    public abstract string MyMethod();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);
+    public abstract void Update(byte[] nefFile, string manifest, object data = null);
 
     #endregion
 

@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public bool testRecursivePattern()
         {
-            UInt160? newOwner = UInt160.Zero;
+            UInt160 newOwner = UInt160.Zero;
 
             return newOwner switch
             {

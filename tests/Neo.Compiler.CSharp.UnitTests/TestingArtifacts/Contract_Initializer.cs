@@ -31,19 +31,19 @@ public abstract class Contract_Initializer : Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     [DisplayName("sum")]
-    public abstract BigInteger? Sum();
+    public abstract BigInteger Sum();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sum1")]
-    public abstract BigInteger? Sum1(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Sum1(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sum2")]
-    public abstract BigInteger? Sum2(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Sum2(BigInteger a, BigInteger b);
 
     #endregion
 

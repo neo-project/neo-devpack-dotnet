@@ -25,25 +25,25 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, ICont
     /// Unsafe method
     /// </summary>
     [DisplayName("testArgs1")]
-    public abstract byte[]? TestArgs1(BigInteger? a);
+    public abstract byte[] TestArgs1(BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testArgs2")]
-    public abstract byte[]? TestArgs2(byte[]? a);
+    public abstract byte[] TestArgs2(byte[] a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testArgs3")]
-    public abstract BigInteger? TestArgs3(BigInteger? a, BigInteger? b);
+    public abstract BigInteger TestArgs3(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testArgs4")]
-    public abstract BigInteger? TestArgs4(BigInteger? a, BigInteger? b);
+    public abstract BigInteger TestArgs4(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
@@ -55,7 +55,7 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, ICont
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_001")]
-    public abstract byte[]? UnitTest_001();
+    public abstract byte[] UnitTest_001();
 
     #endregion
 

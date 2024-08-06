@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
-        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo DbgInfo)> CachedContracts = new();
 
         [AssemblyCleanup]
         public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
@@ -37,7 +37,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 Debug = true,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
             .CompileSources(new CompilationSourceReferences() { Projects = [frameworkPath] },
                 [

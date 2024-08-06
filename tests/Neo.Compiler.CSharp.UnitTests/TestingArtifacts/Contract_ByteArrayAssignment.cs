@@ -25,31 +25,31 @@ public abstract class Contract_ByteArrayAssignment : Neo.SmartContract.Testing.S
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssignment")]
-    public abstract byte[]? TestAssignment();
+    public abstract byte[] TestAssignment();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssignmentDynamic")]
-    public abstract byte[]? TestAssignmentDynamic(BigInteger? x);
+    public abstract byte[] TestAssignmentDynamic(BigInteger x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssignmentOutOfBounds")]
-    public abstract byte[]? TestAssignmentOutOfBounds();
+    public abstract byte[] TestAssignmentOutOfBounds();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssignmentOverflow")]
-    public abstract byte[]? TestAssignmentOverflow();
+    public abstract byte[] TestAssignmentOverflow();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssignmentWrongCasting")]
-    public abstract byte[]? TestAssignmentWrongCasting();
+    public abstract byte[] TestAssignmentWrongCasting();
 
     #endregion
 

@@ -24,27 +24,27 @@ public abstract class Contract_Stored : Neo.SmartContract.Testing.SmartContract,
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? NonStaticPrivateGetterPublicSetter { [DisplayName("getNonStaticPrivateGetterPublicSetter")] get; [DisplayName("setNonStaticPrivateGetterPublicSetter")] set; }
+    public abstract BigInteger NonStaticPrivateGetterPublicSetter { [DisplayName("getNonStaticPrivateGetterPublicSetter")] get; [DisplayName("setNonStaticPrivateGetterPublicSetter")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? PrivateGetterPublicSetter { [DisplayName("getPrivateGetterPublicSetter")] get; [DisplayName("setPrivateGetterPublicSetter")] set; }
+    public abstract BigInteger PrivateGetterPublicSetter { [DisplayName("getPrivateGetterPublicSetter")] get; [DisplayName("setPrivateGetterPublicSetter")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? WithKey { [DisplayName("withKey")] get; }
+    public abstract BigInteger WithKey { [DisplayName("withKey")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? WithoutConstructor { [DisplayName("withoutConstructor")] get; }
+    public abstract BigInteger WithoutConstructor { [DisplayName("withoutConstructor")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? WithString { [DisplayName("withString")] get; }
+    public abstract BigInteger WithString { [DisplayName("withString")] get; }
 
     #endregion
 
@@ -54,19 +54,19 @@ public abstract class Contract_Stored : Neo.SmartContract.Testing.SmartContract,
     /// Safe method
     /// </summary>
     [DisplayName("getWithKey")]
-    public abstract BigInteger? GetWithKey();
+    public abstract BigInteger GetWithKey();
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getWithoutConstructor")]
-    public abstract BigInteger? GetWithoutConstructor();
+    public abstract BigInteger GetWithoutConstructor();
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getWithString")]
-    public abstract BigInteger? GetWithString();
+    public abstract BigInteger GetWithString();
 
     #endregion
 
@@ -76,19 +76,19 @@ public abstract class Contract_Stored : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("putWithKey")]
-    public abstract void PutWithKey(BigInteger? value);
+    public abstract void PutWithKey(BigInteger value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("putWithoutConstructor")]
-    public abstract void PutWithoutConstructor(BigInteger? value);
+    public abstract void PutWithoutConstructor(BigInteger value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("putWithString")]
-    public abstract void PutWithString(BigInteger? value);
+    public abstract void PutWithString(BigInteger value);
 
     #endregion
 

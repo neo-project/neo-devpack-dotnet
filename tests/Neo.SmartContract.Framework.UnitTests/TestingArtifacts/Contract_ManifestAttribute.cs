@@ -25,7 +25,7 @@ public abstract class Contract_ManifestAttribute : Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     [DisplayName("reentrantTest")]
-    public abstract void ReentrantTest(BigInteger? value);
+    public abstract void ReentrantTest(BigInteger value);
 
     #endregion
 

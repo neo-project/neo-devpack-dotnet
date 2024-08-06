@@ -47,7 +47,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static int Fibo(int c)
         {
-            Func<int, int>? fibonacci = null;
+            Func<int, int> fibonacci = null;
             fibonacci = n => n < 2 ? n : fibonacci!(n - 1) + fibonacci(n - 2);
             return fibonacci(c);
         }

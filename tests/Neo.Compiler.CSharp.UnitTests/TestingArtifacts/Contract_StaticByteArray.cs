@@ -21,10 +21,10 @@ public abstract class Contract_StaticByteArray : Neo.SmartContract.Testing.Smart
 
     #region Events
 
-    public delegate void delTestEvent(byte[]? obj);
+    public delegate void delTestEvent(byte[] obj);
 
     [DisplayName("TestEvent")]
-    public event delTestEvent? OnTestEvent;
+    public event delTestEvent OnTestEvent;
 
     #endregion
 
@@ -34,7 +34,7 @@ public abstract class Contract_StaticByteArray : Neo.SmartContract.Testing.Smart
     /// Unsafe method
     /// </summary>
     [DisplayName("testStaticByteArray")]
-    public abstract byte[]? TestStaticByteArray();
+    public abstract byte[] TestStaticByteArray();
 
     #endregion
 

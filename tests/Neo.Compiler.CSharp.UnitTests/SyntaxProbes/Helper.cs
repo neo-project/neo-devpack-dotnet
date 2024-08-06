@@ -13,7 +13,6 @@ internal static class Helper
             Debug = true,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
-            Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
         }).CompileFromCodeBlock(codeBlock).First();
         if (result.Success) return;
 

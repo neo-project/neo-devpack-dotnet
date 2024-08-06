@@ -25,7 +25,7 @@ public abstract class Contract_String : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("testEmpty")]
-    public abstract string? TestEmpty();
+    public abstract string TestEmpty();
 
     /// <summary>
     /// Unsafe method
@@ -37,7 +37,7 @@ public abstract class Contract_String : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("testIsNullOrEmpty")]
-    public abstract bool? TestIsNullOrEmpty(string? str);
+    public abstract bool TestIsNullOrEmpty(string str);
 
     /// <summary>
     /// Unsafe method

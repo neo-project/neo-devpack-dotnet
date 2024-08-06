@@ -25,7 +25,7 @@ public abstract class Contract_StaticConstruct : Neo.SmartContract.Testing.Smart
     /// Unsafe method
     /// </summary>
     [DisplayName("testStatic")]
-    public abstract BigInteger? TestStatic();
+    public abstract BigInteger TestStatic();
 
     #endregion
 

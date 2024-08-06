@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public override string Symbol { [Safe] get; } = "EXAMPLE";
         public override byte Decimals { [Safe] get; } = 0;
 
-        public void OnNEP17Payment(UInt160 from, BigInteger amount, object? data = null)
+        public void OnNEP17Payment(UInt160 from, BigInteger amount, object data = null)
         {
         }
     }

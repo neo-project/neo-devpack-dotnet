@@ -25,13 +25,13 @@ public abstract class Contract_Attribute : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("reentrantTest")]
-    public abstract void ReentrantTest(BigInteger? value);
+    public abstract void ReentrantTest(BigInteger value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract bool? Test();
+    public abstract bool Test();
 
     #endregion
 

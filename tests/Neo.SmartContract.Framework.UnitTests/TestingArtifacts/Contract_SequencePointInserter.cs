@@ -25,7 +25,7 @@ public abstract class Contract_SequencePointInserter : Neo.SmartContract.Testing
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract BigInteger? Test(BigInteger? a);
+    public abstract BigInteger Test(BigInteger a);
 
     #endregion
 

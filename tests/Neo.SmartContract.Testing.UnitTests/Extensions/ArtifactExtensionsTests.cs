@@ -37,13 +37,13 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, Neo.S
 
     #region Events
 
-    public delegate void delSetOwner(UInt160? newOwner);
+    public delegate void delSetOwner(UInt160 newOwner);
 
     [DisplayName(""SetOwner"")]
-    public event delSetOwner? OnSetOwner;
+    public event delSetOwner OnSetOwner;
 
     [DisplayName(""Transfer"")]
-    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;
+    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer OnTransfer;
 
     #endregion
 
@@ -52,27 +52,27 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, Neo.S
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? Decimals { [DisplayName(""decimals"")] get; }
+    public abstract BigInteger Decimals { [DisplayName(""decimals"")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract UInt160? Owner { [DisplayName(""getOwner"")] get; [DisplayName(""setOwner"")] set; }
+    public abstract UInt160 Owner { [DisplayName(""getOwner"")] get; [DisplayName(""setOwner"")] set; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string? Symbol { [DisplayName(""symbol"")] get; }
+    public abstract string Symbol { [DisplayName(""symbol"")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? TotalSupply { [DisplayName(""totalSupply"")] get; }
+    public abstract BigInteger TotalSupply { [DisplayName(""totalSupply"")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract bool? Verify { [DisplayName(""verify"")] get; }
+    public abstract bool Verify { [DisplayName(""verify"")] get; }
 
     #endregion
 
@@ -82,7 +82,7 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, Neo.S
     /// Safe method
     /// </summary>
     [DisplayName(""balanceOf"")]
-    public abstract BigInteger? BalanceOf(UInt160? owner);
+    public abstract BigInteger BalanceOf(UInt160 owner);
 
     #endregion
 
@@ -92,43 +92,43 @@ public abstract class Contract1 : Neo.SmartContract.Testing.SmartContract, Neo.S
     /// Unsafe method
     /// </summary>
     [DisplayName(""burn"")]
-    public abstract void Burn(UInt160? account, BigInteger? amount);
+    public abstract void Burn(UInt160 account, BigInteger amount);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""mint"")]
-    public abstract void Mint(UInt160? to, BigInteger? amount);
+    public abstract void Mint(UInt160 to, BigInteger amount);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""myMethod"")]
-    public abstract string? MyMethod();
+    public abstract string MyMethod();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""onNEP17Payment"")]
-    public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
+    public abstract void OnNEP17Payment(UInt160 from, BigInteger amount, object data = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""transfer"")]
-    public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""update"")]
-    public abstract void Update(byte[]? nefFile, string? manifest);
+    public abstract void Update(byte[] nefFile, string manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName(""withdraw"")]
-    public abstract bool? Withdraw(UInt160? token, UInt160? to, BigInteger? amount);
+    public abstract bool Withdraw(UInt160 token, UInt160 to, BigInteger amount);
 
     #endregion
 

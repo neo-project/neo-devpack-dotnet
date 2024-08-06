@@ -71,8 +71,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 
             // Test SetOwner notification
 
-            UInt160? previousOwnerRaised = null;
-            UInt160? newOwnerRaised = null;
+            UInt160 previousOwnerRaised = null;
+            UInt160 newOwnerRaised = null;
 
             var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
             var check = Engine.FromHash<OwnableTemplate>(expectedHash, false);

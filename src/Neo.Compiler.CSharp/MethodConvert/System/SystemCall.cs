@@ -86,7 +86,6 @@ partial class MethodConvert
                 return true;
             //Indicates whether the value of the current BigInteger object is Zero.
             case "System.Numerics.BigInteger.IsZero.get":
-            case "System.Numerics.BigInteger?.IsZero.get":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -96,7 +95,6 @@ partial class MethodConvert
                 }
             //Indicates whether the value of the current BigInteger object is One.
             case "System.Numerics.BigInteger.IsOne.get":
-            case "System.Numerics.BigInteger?.IsOne.get":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -106,7 +104,6 @@ partial class MethodConvert
                 }
             //Indicates whether the value of the current BigInteger object is an even number.
             case "System.Numerics.BigInteger.IsEven.get":
-            case "System.Numerics.BigInteger?.IsEven.get":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -118,7 +115,6 @@ partial class MethodConvert
                 }
             //Gets a number that indicates the sign (negative, positive, or zero) of the current BigInteger object.
             case "System.Numerics.BigInteger.Sign.get":
-            case "System.Numerics.BigInteger?.Sign.get":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -228,7 +224,6 @@ partial class MethodConvert
                 }
             //Converts a BigInteger value to a byte array.
             case "System.Numerics.BigInteger.ToByteArray()":
-            case "System.Numerics.BigInteger?.ToByteArray()":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -404,10 +399,9 @@ partial class MethodConvert
             case "System.Math.Max(uint, uint)":
             case "System.Math.Max(long, long)":
             case "System.Math.Max(ulong, ulong)":
-            case "System.Math.Max(object?, object?)":
+            case "System.Math.Max(object, object)":
             //Returns the larger of two BigInteger values.
             case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-            case "System.Numerics.BigInteger?.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MAX);
@@ -420,77 +414,13 @@ partial class MethodConvert
             case "System.Math.Min(uint, uint)":
             case "System.Math.Min(long, long)":
             case "System.Math.Min(ulong, ulong)":
-            case "System.Math.Min(object?, object?)":
+            case "System.Math.Min(object, object)":
             //Returns the smaller of two BigInteger values.
             case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MIN);
                 return true;
-            case "byte?.HasValue.get":
-            case "sbyte?.HasValue.get":
-            case "short?.HasValue.get":
-            case "ushort?.HasValue.get":
-            case "int?.HasValue.get":
-            case "uint?.HasValue.get":
-            case "long?.HasValue.get":
-            case "ulong?.HasValue.get":
-            case "bool?.HasValue.get":
-            case "char?.HasValue.get":
-            case "System.Numerics.BigInteger?.HasValue.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                AddInstruction(OpCode.ISNULL);
-                AddInstruction(OpCode.NOT);
-                return true;
-            case "byte?.Value.get":
-            case "sbyte?.Value.get":
-            case "short?.Value.get":
-            case "ushort?.Value.get":
-            case "int?.Value.get":
-            case "uint?.Value.get":
-            case "long?.Value.get":
-            case "ulong?.Value.get":
-            case "bool?.Value.get":
-            case "char?.Value.get":
-            case "System.Numerics.BigInteger?.Value.get":
-                {
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    JumpTarget endTarget = new();
-                    Jump(OpCode.JMPIFNOT, endTarget);
-                    AddInstruction(OpCode.THROW);
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
-                    return true;
-                }
-            case "sbyte?.ToString()":
-            case "byte?.ToString()":
-            case "short?.ToString()":
-            case "ushort?.ToString()":
-            case "int?.ToString()":
-            case "uint?.ToString()":
-            case "long?.ToString()":
-            case "ulong?.ToString()":
-            //Converts the numeric value of the current BigInteger object to its equivalent string representation.
-            case "System.Numerics.BigInteger?.ToString()":
-                {
-                    JumpTarget endTarget = new();
-                    JumpTarget endTarget2 = new();
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    Jump(OpCode.JMPIF, endTarget);
-                    CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
-                    Jump(OpCode.JMP_L, endTarget2);
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
-                    AddInstruction(OpCode.DROP);
-                    Push("");
-                    endTarget2.Instruction = AddInstruction(OpCode.NOP);
-                    return true;
-                }
             case "sbyte.ToString()":
             case "byte.ToString()":
             case "short.ToString()":
@@ -508,37 +438,23 @@ partial class MethodConvert
                     return true;
                 }
             // do it for every: byte, sbyte, short, ushort, int, uint, long, ulong, bool, char
-            case "byte.Equals(object?)":
-            case "sbyte.Equals(object?)":
-            case "short.Equals(object?)":
-            case "ushort.Equals(object?)":
-            case "int.Equals(object?)":
-            case "uint.Equals(object?)":
-            case "long.Equals(object?)":
-            case "ulong.Equals(object?)":
-            case "bool.Equals(object?)":
-            case "char.Equals(object?)":
+            case "byte.Equals(object)":
+            case "sbyte.Equals(object)":
+            case "short.Equals(object)":
+            case "ushort.Equals(object)":
+            case "int.Equals(object)":
+            case "uint.Equals(object)":
+            case "long.Equals(object)":
+            case "ulong.Equals(object)":
+            case "bool.Equals(object)":
+            case "char.Equals(object)":
 
             // also do for ? on every type
-            case "byte?.Equals(object?)":
-            case "sbyte?.Equals(object?)":
-            case "short?.Equals(object?)":
-            case "ushort?.Equals(object?)":
-            case "int?.Equals(object?)":
-            case "uint?.Equals(object?)":
-            case "long?.Equals(object?)":
-            case "ulong?.Equals(object?)":
-            case "bool?.Equals(object?)":
-            case "char?.Equals(object?)":
             case "System.Numerics.BigInteger.Equals(long)":
-            case "System.Numerics.BigInteger?.Equals(long)":
             case "System.Numerics.BigInteger.Equals(ulong)":
-            case "System.Numerics.BigInteger?.Equals(ulong)":
-            case "System.Numerics.BigInteger?.Equals(object?)":
-            case "System.Numerics.BigInteger.Equals(object?)":
+            case "System.Numerics.BigInteger.Equals(object)":
             //Returns a value that indicates whether two numeric values are equal.
             case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
-            case "System.Numerics.BigInteger?.Equals(System.Numerics.BigInteger)":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -718,7 +634,7 @@ partial class MethodConvert
                 AddInstruction(OpCode.SUBSTR);
                 return true;
             // https://learn.microsoft.com/en-us/dotnet/api/system.string.compare?view=net-8.0
-            case "string.Compare(string?, string?)":
+            case "string.Compare(string, string)":
                 {
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
@@ -763,26 +679,6 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
-            //Converts the value of this instance to its equivalent string representation (either "True" or "False").
-            case "bool?.ToString()":
-                {
-                    JumpTarget trueTarget = new(), nullTarget = new(), endTarget = new();
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    Jump(OpCode.JMPIF_L, nullTarget);
-                    Jump(OpCode.JMPIF_L, trueTarget);
-                    Push("False");
-                    Jump(OpCode.JMP_L, endTarget);
-                    trueTarget.Instruction = Push("True");
-                    Jump(OpCode.JMP_L, endTarget);
-                    nullTarget.Instruction = AddInstruction(OpCode.NOP);
-                    AddInstruction(OpCode.DROP);
-                    Push("");
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
-                    return true;
-                }
             case "bool.ToString()":
                 {
                     JumpTarget trueTarget = new(), endTarget = new();
@@ -800,22 +696,6 @@ partial class MethodConvert
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
                     ChangeType(StackItemType.ByteString);
-                    return true;
-                }
-            case "char?.ToString()":
-                {
-                    JumpTarget nullTarget = new(), endTarget = new();
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    Jump(OpCode.JMPIF_L, nullTarget);
-                    ChangeType(StackItemType.ByteString);
-                    Jump(OpCode.JMP_L, endTarget);
-                    nullTarget.Instruction = AddInstruction(OpCode.NOP);
-                    AddInstruction(OpCode.DROP);
-                    Push("");
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
                     return true;
                 }
             case "string.ToString()":

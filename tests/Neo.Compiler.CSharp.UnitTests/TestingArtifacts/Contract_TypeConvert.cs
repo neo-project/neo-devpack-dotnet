@@ -25,7 +25,7 @@ public abstract class Contract_TypeConvert : Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     [DisplayName("testType")]
-    public abstract object? TestType();
+    public abstract object TestType();
 
     #endregion
 

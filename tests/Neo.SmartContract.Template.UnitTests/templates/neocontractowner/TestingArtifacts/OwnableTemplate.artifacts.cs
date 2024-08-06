@@ -22,7 +22,7 @@ public abstract class OwnableTemplate : Neo.SmartContract.Testing.SmartContract,
     #region Events
 
     [DisplayName("SetOwner")]
-    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner? OnSetOwner;
+    public event Neo.SmartContract.Testing.TestingStandards.IOwnable.delSetOwner OnSetOwner;
 
     #endregion
 
@@ -31,7 +31,7 @@ public abstract class OwnableTemplate : Neo.SmartContract.Testing.SmartContract,
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract UInt160? Owner { [DisplayName("getOwner")] get; [DisplayName("setOwner")] set; }
+    public abstract UInt160 Owner { [DisplayName("getOwner")] get; [DisplayName("setOwner")] set; }
 
     #endregion
 
@@ -47,13 +47,13 @@ public abstract class OwnableTemplate : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethod")]
-    public abstract string? MyMethod();
+    public abstract string MyMethod();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);
+    public abstract void Update(byte[] nefFile, string manifest, object data = null);
 
     #endregion
 

@@ -25,7 +25,7 @@ public abstract class Contract_Property : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("symbol")]
-    public abstract string? Symbol();
+    public abstract string Symbol();
 
     #endregion
 

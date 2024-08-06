@@ -25,13 +25,13 @@ public abstract class Contract_Optimize : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("testArgs1")]
-    public abstract byte[]? TestArgs1(BigInteger? a);
+    public abstract byte[] TestArgs1(BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testArgs2")]
-    public abstract object? TestArgs2(byte[]? a);
+    public abstract object TestArgs2(byte[] a);
 
     /// <summary>
     /// Unsafe method
@@ -43,7 +43,7 @@ public abstract class Contract_Optimize : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_001")]
-    public abstract byte[]? UnitTest_001();
+    public abstract byte[] UnitTest_001();
 
     #endregion
 

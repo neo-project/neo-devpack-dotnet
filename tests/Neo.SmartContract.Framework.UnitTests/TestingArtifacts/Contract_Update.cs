@@ -25,7 +25,7 @@ public abstract class Contract_Update : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("imUpdated")]
-    public abstract string? ImUpdated();
+    public abstract string ImUpdated();
 
     #endregion
 

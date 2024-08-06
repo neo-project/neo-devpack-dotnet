@@ -1,7 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+      <TargetFramework>net8.0</TargetFramework>
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+      <Nullable>disable</Nullable>
+      <WarningsAsErrors>CS8632</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

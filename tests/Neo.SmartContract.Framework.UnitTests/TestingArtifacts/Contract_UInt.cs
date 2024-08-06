@@ -25,19 +25,19 @@ public abstract class Contract_UInt : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("isZeroUInt160")]
-    public abstract bool? IsZeroUInt160(UInt160? value);
+    public abstract bool IsZeroUInt160(UInt160 value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("isZeroUInt256")]
-    public abstract bool? IsZeroUInt256(UInt256? value);
+    public abstract bool IsZeroUInt256(UInt256 value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("toAddress")]
-    public abstract string? ToAddress(UInt160? value);
+    public abstract string ToAddress(UInt160 value);
 
     #endregion
 

@@ -25,25 +25,25 @@ public abstract class Contract_Recursion : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("even")]
-    public abstract bool? Even(BigInteger? n);
+    public abstract bool Even(BigInteger n);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("factorial")]
-    public abstract BigInteger? Factorial(BigInteger? a);
+    public abstract BigInteger Factorial(BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("hanoiTower")]
-    public abstract IList<object>? HanoiTower(BigInteger? n, BigInteger? src, BigInteger? aux, BigInteger? dst);
+    public abstract IList<object> HanoiTower(BigInteger n, BigInteger src, BigInteger aux, BigInteger dst);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("odd")]
-    public abstract bool? Odd(BigInteger? n);
+    public abstract bool Odd(BigInteger n);
 
     #endregion
 

@@ -25,7 +25,7 @@ public abstract class Contract_SupportedStandards : Neo.SmartContract.Testing.Sm
     /// Unsafe method
     /// </summary>
     [DisplayName("testStandard")]
-    public abstract bool? TestStandard();
+    public abstract bool TestStandard();
 
     #endregion
 

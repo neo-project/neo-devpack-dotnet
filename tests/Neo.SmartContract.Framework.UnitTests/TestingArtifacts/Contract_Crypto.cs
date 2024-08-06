@@ -25,77 +25,77 @@ public abstract class Contract_Crypto : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Add")]
-    public abstract object? Bls12381Add(object? x, object? y = null);
+    public abstract object Bls12381Add(object x, object y = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Deserialize")]
-    public abstract object? Bls12381Deserialize(byte[]? data);
+    public abstract object Bls12381Deserialize(byte[] data);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Equal")]
-    public abstract object? Bls12381Equal(object? x, object? y = null);
+    public abstract object Bls12381Equal(object x, object y = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Mul")]
-    public abstract object? Bls12381Mul(object? x, byte[]? mul, bool? neg);
+    public abstract object Bls12381Mul(object x, byte[] mul, bool neg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Pairing")]
-    public abstract object? Bls12381Pairing(object? g1, object? g2 = null);
+    public abstract object Bls12381Pairing(object g1, object g2 = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Serialize")]
-    public abstract byte[]? Bls12381Serialize(object? data = null);
+    public abstract byte[] Bls12381Serialize(object data = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("murmur32")]
-    public abstract byte[]? Murmur32(byte[]? value, BigInteger? seed);
+    public abstract byte[] Murmur32(byte[] value, BigInteger seed);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract byte[]? RIPEMD160(byte[]? value);
+    public abstract byte[] RIPEMD160(byte[] value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256k1VerifyKeccakSignatureWithMessage")]
-    public abstract bool? Secp256k1VerifyKeccakSignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    public abstract bool Secp256k1VerifyKeccakSignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256k1VerifySignatureWithMessage")]
-    public abstract bool? Secp256k1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    public abstract bool Secp256k1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256r1VerifyKeccakSignatureWithMessage")]
-    public abstract bool? Secp256r1VerifyKeccakSignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    public abstract bool Secp256r1VerifyKeccakSignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256r1VerifySignatureWithMessage")]
-    public abstract bool? Secp256r1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    public abstract bool Secp256r1VerifySignatureWithMessage(byte[] message, ECPoint pubkey, byte[] signature);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract byte[]? SHA256(byte[]? value);
+    public abstract byte[] SHA256(byte[] value);
 
     #endregion
 

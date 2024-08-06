@@ -21,22 +21,22 @@ namespace Neo.SmartContract.Framework.TestContracts
             return a == null && !a.HasValue;
         }
 
-        public static bool H160NullableNotEqual(UInt160 a, UInt160? b)
+        public static bool H160NullableNotEqual(UInt160 a, UInt160 b)
         {
             return a != b && !a.Equals(b) && !b.Equals(a) && b != a;
         }
 
-        public static bool H160NullableEqualNull(UInt160? a)
+        public static bool H160NullableEqualNull(UInt160 a)
         {
             return a == null;
         }
 
-        public static bool H256NullableNotEqual(UInt256 a, UInt256? b)
+        public static bool H256NullableNotEqual(UInt256 a, UInt256 b)
         {
             return a != b && !a.Equals(b) && !b.Equals(a) && b != a;
         }
 
-        public static bool H256NullableEqual(UInt256 a, UInt256? b)
+        public static bool H256NullableEqual(UInt256 a, UInt256 b)
         {
             return a == b && a.Equals(b) && b.Equals(a) && b == a;
         }

@@ -25,7 +25,7 @@ public abstract class Contract_PropertyMethod : Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     [DisplayName("testProperty")]
-    public abstract IList<object>? TestProperty();
+    public abstract IList<object> TestProperty();
 
     /// <summary>
     /// Unsafe method

@@ -32,7 +32,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return string.Empty;
         }
 
-        public static bool TestIsNullOrEmpty(string? str)
+        public static bool TestIsNullOrEmpty(string str)
         {
             return string.IsNullOrEmpty(str);
         }

@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Template
             Storage.Put(Storage.CurrentContext, "Hello", "World");
         }
 
-        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        public static void Update(ByteString nefFile, string manifest, object data = null)
         {
             if (IsOwner() == false)
                 throw new InvalidOperationException("No authorization.");

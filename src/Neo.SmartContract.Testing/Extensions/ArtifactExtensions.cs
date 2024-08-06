@@ -256,7 +256,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[2].Type == ContractParameterType.Integer)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine($"    public event {typeof(INep17Standard).FullName}.delTransfer? OnTransfer;");
+                            sourceCode.WriteLine($"    public event {typeof(INep17Standard).FullName}.delTransfer OnTransfer;");
                             return builder.ToString();
                         }
 
@@ -269,7 +269,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine($"    public event {typeof(IOwnable).FullName}.delSetOwner? OnSetOwner;");
+                            sourceCode.WriteLine($"    public event {typeof(IOwnable).FullName}.delSetOwner OnSetOwner;");
                             return builder.ToString();
                         }
 
@@ -304,7 +304,7 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
             }
-            sourceCode.WriteLine($"    public event del{ev.Name}? {evName};");
+            sourceCode.WriteLine($"    public event del{ev.Name} {evName};");
 
             return builder.ToString();
         }
@@ -422,18 +422,18 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             return type switch
             {
-                ContractParameterType.Boolean => "bool?",
-                ContractParameterType.Integer => "BigInteger?",
-                ContractParameterType.String => "string?",
-                ContractParameterType.Hash160 => "UInt160?",
-                ContractParameterType.Hash256 => "UInt256?",
-                ContractParameterType.PublicKey => "ECPoint?",
-                ContractParameterType.ByteArray => "byte[]?",
-                ContractParameterType.Signature => "byte[]?",
-                ContractParameterType.Array => "IList<object>?",
-                ContractParameterType.Map => "IDictionary<object, object>?",
+                ContractParameterType.Boolean => "bool",
+                ContractParameterType.Integer => "BigInteger",
+                ContractParameterType.String => "string",
+                ContractParameterType.Hash160 => "UInt160",
+                ContractParameterType.Hash256 => "UInt256",
+                ContractParameterType.PublicKey => "ECPoint",
+                ContractParameterType.ByteArray => "byte[]",
+                ContractParameterType.Signature => "byte[]",
+                ContractParameterType.Array => "IList<object>",
+                ContractParameterType.Map => "IDictionary<object, object>",
                 ContractParameterType.Void => "void",
-                _ => "object?",
+                _ => "object",
             };
         }
     }

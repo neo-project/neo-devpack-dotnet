@@ -25,13 +25,13 @@ public abstract class Contract_Instance : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("sum")]
-    public abstract BigInteger? Sum(BigInteger? a);
+    public abstract BigInteger Sum(BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sum2")]
-    public abstract BigInteger? Sum2(BigInteger? a);
+    public abstract BigInteger Sum2(BigInteger a);
 
     #endregion
 

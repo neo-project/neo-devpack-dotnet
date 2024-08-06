@@ -40,7 +40,7 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract bool? Verify { [DisplayName("verify")] get; }
+    public abstract bool Verify { [DisplayName("verify")] get; }
 
     #endregion
 
@@ -56,7 +56,7 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
     /// Unsafe method
     /// </summary>
     [DisplayName("request")]
-    public abstract void Request(string url, string? filter, string callback, object? userData, ulong gasForResponse);
+    public abstract void Request(string url, string filter, string callback, object userData, ulong gasForResponse);
 
     #endregion
 

@@ -25,7 +25,7 @@ public abstract class Contract_ExtraAttribute : Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     [DisplayName("main2")]
-    public abstract object? Main2(string? method, IList<object>? args);
+    public abstract object Main2(string method, IList<object> args);
 
     #endregion
 

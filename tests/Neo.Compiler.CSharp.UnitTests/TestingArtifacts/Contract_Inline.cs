@@ -25,7 +25,7 @@ public abstract class Contract_Inline : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("testInline")]
-    public abstract BigInteger? TestInline(string? method);
+    public abstract BigInteger TestInline(string method);
 
     #endregion
 

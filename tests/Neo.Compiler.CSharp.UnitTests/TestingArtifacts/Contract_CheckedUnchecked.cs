@@ -25,25 +25,25 @@ public abstract class Contract_CheckedUnchecked : Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     [DisplayName("addChecked")]
-    public abstract BigInteger? AddChecked(BigInteger? a, BigInteger? b);
+    public abstract BigInteger AddChecked(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("addUnchecked")]
-    public abstract BigInteger? AddUnchecked(BigInteger? a, BigInteger? b);
+    public abstract BigInteger AddUnchecked(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("castChecked")]
-    public abstract BigInteger? CastChecked(BigInteger? a);
+    public abstract BigInteger CastChecked(BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("castUnchecked")]
-    public abstract BigInteger? CastUnchecked(BigInteger? a);
+    public abstract BigInteger CastUnchecked(BigInteger a);
 
     #endregion
 

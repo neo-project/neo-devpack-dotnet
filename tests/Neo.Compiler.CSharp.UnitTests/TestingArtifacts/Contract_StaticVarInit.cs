@@ -25,13 +25,13 @@ public abstract class Contract_StaticVarInit : Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     [DisplayName("directGet")]
-    public abstract UInt160? DirectGet();
+    public abstract UInt160 DirectGet();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("staticInit")]
-    public abstract UInt160? StaticInit();
+    public abstract UInt160 StaticInit();
 
     #endregion
 

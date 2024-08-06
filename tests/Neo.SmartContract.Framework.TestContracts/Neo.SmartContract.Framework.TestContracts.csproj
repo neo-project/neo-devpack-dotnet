@@ -2,9 +2,11 @@
 
 	<PropertyGroup>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
+		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <WarningsAsErrors>CS8632</WarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

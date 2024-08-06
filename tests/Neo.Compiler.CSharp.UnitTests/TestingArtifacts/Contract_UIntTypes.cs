@@ -25,25 +25,25 @@ public abstract class Contract_UIntTypes : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("checkOwner")]
-    public abstract bool? CheckOwner(UInt160? owner);
+    public abstract bool CheckOwner(UInt160 owner);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZeroStatic")]
-    public abstract bool? CheckZeroStatic(UInt160? owner);
+    public abstract bool CheckZeroStatic(UInt160 owner);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("constructUInt160")]
-    public abstract UInt160? ConstructUInt160(byte[]? bytes);
+    public abstract UInt160 ConstructUInt160(byte[] bytes);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("validateAddress")]
-    public abstract bool? ValidateAddress(UInt160? address);
+    public abstract bool ValidateAddress(UInt160 address);
 
     #endregion
 

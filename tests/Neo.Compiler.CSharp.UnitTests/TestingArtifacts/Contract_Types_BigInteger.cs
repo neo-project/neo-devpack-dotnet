@@ -25,31 +25,31 @@ public abstract class Contract_Types_BigInteger : Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     [DisplayName("convertFromChar")]
-    public abstract BigInteger? ConvertFromChar();
+    public abstract BigInteger ConvertFromChar();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("minusOne")]
-    public abstract BigInteger? MinusOne();
+    public abstract BigInteger MinusOne();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("one")]
-    public abstract BigInteger? One();
+    public abstract BigInteger One();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("parse")]
-    public abstract BigInteger? Parse(string? value);
+    public abstract BigInteger Parse(string value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("zero")]
-    public abstract BigInteger? Zero();
+    public abstract BigInteger Zero();
 
     #endregion
 

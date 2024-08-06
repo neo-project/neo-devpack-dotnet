@@ -25,37 +25,37 @@ public abstract class Contract_Pointers : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("callFuncPointer")]
-    public abstract BigInteger? CallFuncPointer();
+    public abstract BigInteger CallFuncPointer();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("callFuncPointerWithArg")]
-    public abstract BigInteger? CallFuncPointerWithArg();
+    public abstract BigInteger CallFuncPointerWithArg();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("createFuncPointer")]
-    public abstract object? CreateFuncPointer();
+    public abstract object CreateFuncPointer();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("createFuncPointerWithArg")]
-    public abstract object? CreateFuncPointerWithArg();
+    public abstract object CreateFuncPointerWithArg();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethod")]
-    public abstract BigInteger? MyMethod();
+    public abstract BigInteger MyMethod();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethodWithArg")]
-    public abstract BigInteger? MyMethodWithArg(byte[]? num);
+    public abstract BigInteger MyMethodWithArg(byte[] num);
 
     #endregion
 

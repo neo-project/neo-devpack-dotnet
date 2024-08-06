@@ -24,7 +24,7 @@ public abstract class Contract_ABISafe : Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? UnitTest_002 { [DisplayName("unitTest_002")] get; }
+    public abstract BigInteger UnitTest_002 { [DisplayName("unitTest_002")] get; }
 
     #endregion
 
@@ -34,13 +34,13 @@ public abstract class Contract_ABISafe : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_001")]
-    public abstract BigInteger? UnitTest_001();
+    public abstract BigInteger UnitTest_001();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_003")]
-    public abstract BigInteger? UnitTest_003();
+    public abstract BigInteger UnitTest_003();
 
     #endregion
 

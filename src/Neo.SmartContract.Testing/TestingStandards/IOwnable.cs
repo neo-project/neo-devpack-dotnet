@@ -6,10 +6,10 @@ public interface IOwnable
 {
     #region Events
 
-    public delegate void delSetOwner(UInt160? previousOwner, UInt160? newOwner);
+    public delegate void delSetOwner(UInt160? previousOwner, UInt160 newOwner);
 
     [DisplayName("SetOwner")]
-    public event delSetOwner? OnSetOwner;
+    public event delSetOwner OnSetOwner;
 
     #endregion
 
@@ -18,7 +18,7 @@ public interface IOwnable
     /// <summary>
     /// Safe property
     /// </summary>
-    public UInt160? Owner { [DisplayName("getOwner")] get; [DisplayName("setOwner")] set; }
+    public UInt160 Owner { [DisplayName("getOwner")] get; [DisplayName("setOwner")] set; }
 
     #endregion
 }

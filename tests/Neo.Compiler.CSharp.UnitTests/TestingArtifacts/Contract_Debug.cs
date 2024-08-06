@@ -21,10 +21,10 @@ public abstract class Contract_Debug : Neo.SmartContract.Testing.SmartContract, 
 
     #region Events
 
-    public delegate void delDebug(string? message);
+    public delegate void delDebug(string message);
 
     [DisplayName("Debug")]
-    public event delDebug? OnDebug;
+    public event delDebug OnDebug;
 
     #endregion
 
@@ -34,13 +34,13 @@ public abstract class Contract_Debug : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("testElse")]
-    public abstract BigInteger? TestElse();
+    public abstract BigInteger TestElse();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIf")]
-    public abstract BigInteger? TestIf();
+    public abstract BigInteger TestIf();
 
     #endregion
 
