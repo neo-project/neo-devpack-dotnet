@@ -72,18 +72,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 list.Remove(cl.Key.Name);
             }
 
-            // TODO: this is because we still miss tests/not tested with Testbase for:
-            // - Contract_Create
-            // - Contract_ExtraAttribute
-            // - Contract_ManifestAttribute
-            // - Contract_SupportedStandard11Enum
-            // - Contract_SupportedStandard11Payable
-            // - Contract_SupportedStandard17Enum
-            // - Contract_SupportedStandard17Payable
-            // - Contract_SupportedStandards
-            // - Contract_Update
-
-            if (list.Count - 9 == 0)
+            if (list.Count == 0)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
             else
             {
