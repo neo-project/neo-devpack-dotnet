@@ -9,7 +9,6 @@ namespace Neo.SmartContract.Framework.UnitTests
         public SupportedStandardsTest()
         {
             // Ensure also Contract_ExtraAttribute
-
             TestCleanup.TestInitialize(typeof(Contract_SupportedStandards));
             TestCleanup.TestInitialize(typeof(Contract_SupportedStandard11Enum));
             TestCleanup.TestInitialize(typeof(Contract_SupportedStandard11Payable));
