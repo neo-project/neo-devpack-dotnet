@@ -80,9 +80,6 @@ namespace Neo.Compiler.CSharp.UnitTests
                 list.Remove(cl.Key.Name);
             }
 
-            // TODO: this is because we still miss tests/not tested with Testbase for:
-            // - Contract_Types
-
             if (list.Count == 0)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.77M);
             else
@@ -99,7 +96,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         internal static async Task<CompilationContext> EnsureArtifactUpToDateInternalAsync(string singleContractName)
         {
             var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
-                ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}"); ;
+                ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
 
             if (result.ContractName != "Contract_DuplicateNames" && !result.Success)
             {

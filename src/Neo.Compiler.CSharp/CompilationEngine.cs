@@ -208,7 +208,7 @@ namespace Neo.Compiler
 
         private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
         {
-            var c = sortedClasses.FirstOrDefault(p => p.Name.Contains(targetContractName));
+            var c = sortedClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture));
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : new List<INamedTypeSymbol>();
             var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
             var context = new CompilationContext(this, c, classesNotInDependencies!);
