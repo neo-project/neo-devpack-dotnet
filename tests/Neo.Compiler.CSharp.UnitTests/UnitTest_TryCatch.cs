@@ -1,4 +1,3 @@
-extern alias scfx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
@@ -204,18 +203,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TryNULL2Ecpoint_1_AllPaths()
         {
             var result = Contract.TryNULL2Ecpoint_1(false, false, false);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1797060, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(2), result![0]);
+            Assert.AreEqual(new BigInteger(2), result[0]);
             Assert.IsNotNull(result[1]);
 
             result = Contract.TryNULL2Ecpoint_1(true, false, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1798590, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(4), result![0]);
+            Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
             result = Contract.TryNULL2Ecpoint_1(false, true, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1797720, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(3), result![0]);
+            Assert.AreEqual(new BigInteger(3), result[0]);
             Assert.IsNotNull(result[1]);
         }
 
@@ -223,18 +225,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TryNULL2Uint160_1_AllPaths()
         {
             var result = Contract.TryNULL2Uint160_1(false, false, false);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1797060, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(2), result![0]);
+            Assert.AreEqual(new BigInteger(2), result[0]);
             Assert.IsNotNull(result[1]);
 
             result = Contract.TryNULL2Uint160_1(true, false, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1798590, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(4), result![0]);
+            Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
             result = Contract.TryNULL2Uint160_1(false, true, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1797720, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(3), result![0]);
+            Assert.AreEqual(new BigInteger(3), result[0]);
             Assert.IsNotNull(result[1]);
         }
 
@@ -242,18 +247,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TryNULL2Uint256_1_AllPaths()
         {
             var result = Contract.TryNULL2Uint256_1(false, false, false);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1797060, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(2), result[0]);
             Assert.IsNotNull(result[1]);
 
             result = Contract.TryNULL2Uint256_1(true, false, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1798590, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(4), result![0]);
+            Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
             result = Contract.TryNULL2Uint256_1(false, true, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1797720, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(3), result![0]);
+            Assert.AreEqual(new BigInteger(3), result[0]);
             Assert.IsNotNull(result[1]);
         }
 
@@ -261,16 +269,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TryNULL2Bytestring_1_AllPaths()
         {
             var result = Contract.TryNULL2Bytestring_1(false, false, false);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1543380, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(2), result![0]);
+            Assert.AreEqual(new BigInteger(2), result[0]);
             Assert.IsNotNull(result[1]);
 
             result = Contract.TryNULL2Bytestring_1(true, false, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1544910, Engine.FeeConsumed.Value);
-            Assert.AreEqual(new BigInteger(4), result![0]);
+            Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
             result = Contract.TryNULL2Bytestring_1(false, true, true);
+            Assert.IsNotNull(result);
             Assert.AreEqual(1544040, Engine.FeeConsumed.Value);
             Assert.AreEqual(new BigInteger(3), result[0]);
             Assert.IsNotNull(result[1]);
@@ -290,7 +301,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ThrowCall()
         {
-            Assert.ThrowsException<TestException>(() => Contract.ThrowCall());
+            Assert.ThrowsException<TestException>(Contract.ThrowCall);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 {
     public abstract class TestCleanupBase
     {
-        protected static void EnsureCoverageInternal(Assembly assembly, IEnumerable<(Type type, NeoDebugInfo dbgInfo)> debugInfos, decimal requiredCoverage = 0.9M)
+        protected static void EnsureCoverageInternal(Assembly assembly, IEnumerable<(Type type, NeoDebugInfo? dbgInfo)> debugInfos, decimal requiredCoverage = 0.9M)
         {
             // Join here all of your coverage sources
             CoverageBase? coverage = null;
@@ -22,18 +22,21 @@ namespace Neo.SmartContract.Testing.TestingStandards
                 Type type = typeof(TestBase<>).MakeGenericType(infos.type);
                 CoveredContract? cov = null;
 
-                foreach (var aType in allTypes)
+                if (infos.dbgInfo != null)
                 {
-                    if (type.IsAssignableFrom(aType))
+                    foreach (var aType in allTypes)
                     {
-                        cov = type.GetProperty("Coverage")!.GetValue(null) as CoveredContract;
-                        Assert.IsNotNull(cov, $"{infos.type} coverage can't be null");
+                        if (type.IsAssignableFrom(aType))
+                        {
+                            cov = type.GetProperty("Coverage")!.GetValue(null) as CoveredContract;
+                            Assert.IsNotNull(cov, $"{infos.type} coverage can't be null");
 
-                        // It doesn't require join, because we have only one UnitTest class per contract
+                            // It doesn't require join, because we have only one UnitTest class per contract
 
-                        coverage += cov;
-                        list.Add((cov, infos.dbgInfo));
-                        break;
+                            coverage += cov;
+                            list.Add((cov, infos.dbgInfo));
+                            break;
+                        }
                     }
                 }
 
@@ -54,7 +57,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
             // Write the cobertura format
 
-            File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(list.ToArray()).Dump());
+            File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat([.. list]).Dump());
 
             // Write the report to the specific path
 
@@ -65,7 +68,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
             if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
                 !string.IsNullOrEmpty(mergeWith))
             {
-                new CoverletJsonFormat(list.ToArray()).Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
+                new CoverletJsonFormat([.. list]).Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
 
                 Console.WriteLine($"Coverage merged with: {mergeWith}");
             }

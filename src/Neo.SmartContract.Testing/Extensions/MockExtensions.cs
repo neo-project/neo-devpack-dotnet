@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return Expression.Call(isAnyMethod.MakeGenericMethod(type));
         }
 
-        private static Expression BuildIsAnyExpressions<T>(Mock<T> mock, string name, Type[] args)
+        private static LambdaExpression BuildIsAnyExpressions<T>(Mock<T> mock, string name, Type[] args)
             where T : SmartContract
         {
             var mockType = mock.Object.GetType().BaseType!;
@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Testing.Extensions
         internal static void MockFunction<T>(this Mock<T> mock, string name, Type[] args, Type returnType, TestEngine engine)
             where T : SmartContract
         {
-            Expression exp = BuildIsAnyExpressions(mock, name, args);
+            var exp = BuildIsAnyExpressions(mock, name, args);
 
             var setupMethod = mock.GetType()
                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
@@ -95,16 +95,16 @@ namespace Neo.SmartContract.Testing.Extensions
             var setup = setupMethod.Invoke(mock, new[] { exp })!;
 
             var retMethod = setup.GetType()
-               .GetMethod("Returns", new Type[] { typeof(InvocationFunc) })!;
+               .GetMethod("Returns", [typeof(InvocationFunc)])!;
 
-            _ = retMethod.Invoke(setup, new object[] { new InvocationFunc(invocation =>
+            _ = retMethod.Invoke(setup, [new InvocationFunc(invocation =>
                 {
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    return mock.Object.Invoke(name, invocation.Arguments.ToArray()).ConvertTo(returnType, engine.StringInterpreter)!;
+                    return mock.Object.Invoke(name, [.. invocation.Arguments]).ConvertTo(returnType, engine.StringInterpreter)!;
                 })
-            });
+            ]);
         }
 
         internal static void MockAction<T>(this Mock<T> mock, string name, Type[] args)
@@ -122,16 +122,16 @@ namespace Neo.SmartContract.Testing.Extensions
             var setup = setupMethod.Invoke(mock, new[] { exp })!;
 
             var retMethod = setup.GetType()
-               .GetMethod("Callback", new Type[] { typeof(InvocationAction) })!;
+               .GetMethod("Callback", [typeof(InvocationAction)])!;
 
-            _ = retMethod.Invoke(setup, new object[] { new InvocationAction(invocation =>
+            _ = retMethod.Invoke(setup, [new InvocationAction(invocation =>
                 {
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    mock.Object.Invoke(name, invocation.Arguments.ToArray());
+                    mock.Object.Invoke(name, [.. invocation.Arguments]);
                 })
-            });
+            ]);
         }
     }
 }

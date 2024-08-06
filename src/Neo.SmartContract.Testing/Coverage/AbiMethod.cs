@@ -57,16 +57,16 @@ namespace Neo.SmartContract.Testing.Coverage
                             display = pInfo.GetSetMethod()?.GetCustomAttribute<DisplayNameAttribute>();
                             var nameWrite = display is not null ? display.DisplayName : memberExpression.Member.Name;
 
-                            return new AbiMethod[]
-                            {
-                                new AbiMethod(nameRead, Array.Empty<string>()),
-                                new AbiMethod(nameWrite, new string[]{ "value" })
-                            };
+                            return
+                            [
+                                new AbiMethod(nameRead, []),
+                                new AbiMethod(nameWrite, ["value"])
+                            ];
                         }
 
                         // Only read property
 
-                        return new AbiMethod[] { new AbiMethod(nameRead, Array.Empty<string>()) };
+                        return [new AbiMethod(nameRead, [])];
                     }
                 }
             }
@@ -77,11 +77,11 @@ namespace Neo.SmartContract.Testing.Coverage
                     var display = mInfo.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : mInfo.Name;
 
-                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Select(u => u.Name ?? "arg").ToArray()) };
+                    return [new AbiMethod(name, mInfo.GetParameters().Select(u => u.Name ?? "arg").ToArray())];
                 }
             }
 
-            return Array.Empty<AbiMethod>();
+            return [];
         }
 
         public override bool Equals(object? obj)

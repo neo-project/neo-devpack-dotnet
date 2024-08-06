@@ -2,23 +2,28 @@ using System.Diagnostics;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="offset">Offset</param>
+    /// <param name="outOfScript">Out of script</param>
     [DebuggerDisplay("Offset={Offset}, Count={Count}, Hits={Hits}")]
-    public class CoverageBranch
+    public class CoverageBranch(int offset, bool outOfScript = false)
     {
         /// <summary>
         /// Offset
         /// </summary>
-        public int Offset { get; }
+        public int Offset { get; } = offset;
 
         /// <summary>
         /// Count
         /// </summary>
-        public int Count { get; }
+        public int Count { get; } = 2;
 
         /// <summary>
         /// The branch is out of the script
         /// </summary>
-        public bool OutOfScript { get; }
+        public bool OutOfScript { get; } = outOfScript;
 
         /// <summary>
         /// Hits
@@ -34,18 +39,6 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Path 2 hits
         /// </summary>
         public int HitsPath2 { get; set; }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="offset">Offset</param>
-        /// <param name="outOfScript">Out of script</param>
-        public CoverageBranch(int offset, bool outOfScript = false)
-        {
-            Offset = offset;
-            Count = 2;
-            OutOfScript = outOfScript;
-        }
 
         /// <summary>
         /// Hit branch
