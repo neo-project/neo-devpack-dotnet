@@ -32,13 +32,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             Nullable = NullableContextOptions.Enable
         }));
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static List<INamedTypeSymbol> _sortedClasses;
         private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _classDependencies;
         private static List<INamedTypeSymbol?> _allClassSymbols;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static readonly ConcurrentSet<string> UpdatedArtifactNames = new();
 
         [AssemblyInitialize]
+#pragma warning disable IDE0060 // Remove unused parameter
         public static void TestAssemblyInitializeAsync(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             (_sortedClasses, _classDependencies, _allClassSymbols) =
                 _compilationEngine.Value.PrepareProjectContracts(TestContractsPath);
@@ -58,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     return data.Context;
                 }
 
-                return EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
+                return EnsureArtifactUpToDateInternal(contract.Name);
             }
             catch (Exception e)
             {
@@ -93,7 +97,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
         }
 
-        internal static async Task<CompilationContext> EnsureArtifactUpToDateInternalAsync(string singleContractName)
+        internal static CompilationContext EnsureArtifactUpToDateInternal(string singleContractName)
         {
             var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
                 ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");

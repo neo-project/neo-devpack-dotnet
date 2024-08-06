@@ -34,13 +34,17 @@ namespace Neo.SmartContract.Framework.UnitTests
             Nullable = NullableContextOptions.Enable
         }));
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static List<INamedTypeSymbol> _sortedClasses;
         private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _classDependencies;
         private static List<INamedTypeSymbol?> _allClassSymbols;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static readonly ConcurrentSet<string> UpdatedArtifactNames = new();
 
         [AssemblyInitialize]
+#pragma warning disable IDE0060 // Remove unused parameter
         public static void TestAssemblyInitialize(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             (_sortedClasses, _classDependencies, _allClassSymbols) = _compilationEngine.Value.PrepareProjectContracts(TestContractsPath);
         }
@@ -52,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 throw new InvalidOperationException($"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
             }
             if (CachedContracts.ContainsKey(contract)) return;
-            EnsureArtifactUpToDateInternalAsync(contract.Name).GetAwaiter().GetResult();
+            EnsureArtifactUpToDateInternal(contract.Name);
         }
 
         [AssemblyCleanup]
@@ -68,18 +72,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 list.Remove(cl.Key.Name);
             }
 
-            // TODO: this is because we still miss tests/not tested with Testbase for:
-            // - Contract_Create
-            // - Contract_ExtraAttribute
-            // - Contract_ManifestAttribute
-            // - Contract_SupportedStandard11Enum
-            // - Contract_SupportedStandard11Payable
-            // - Contract_SupportedStandard17Enum
-            // - Contract_SupportedStandard17Payable
-            // - Contract_SupportedStandards
-            // - Contract_Update
-
-            if (list.Count - 9 == 0)
+            if (list.Count == 0)
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
             else
             {
@@ -92,7 +85,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
         }
 
-        private static async Task EnsureArtifactUpToDateInternalAsync(string singleContractName)
+        private static void EnsureArtifactUpToDateInternal(string singleContractName)
         {
             var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault() ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
             if (!result.Success)
@@ -104,7 +97,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             }
 
             var type = Assembly.GetExecutingAssembly().GetTypes()
-                .FirstOrDefault(t => typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(t) &&
+                .FirstOrDefault(t => typeof(Testing.SmartContract).IsAssignableFrom(t) &&
                                      t.Name.Equals(result.ContractName, StringComparison.OrdinalIgnoreCase));
 
             if (type == null)

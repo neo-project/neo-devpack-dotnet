@@ -103,6 +103,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestStructDefault()
         {
             var result = Contract.TestStructDefault();
+            Assert.IsNotNull(result);
             Assert.AreEqual(0, result.Count);
         }
 
