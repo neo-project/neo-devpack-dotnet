@@ -108,6 +108,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var result = Contract.TestDefaultState();
             var state = result as Struct;
+            Assert.IsNotNull(state);
             Assert.AreEqual(3, state.Count);
             Assert.IsInstanceOfType(state[0], typeof(VM.Types.Null));
             Assert.IsInstanceOfType(state[1], typeof(VM.Types.Null));
