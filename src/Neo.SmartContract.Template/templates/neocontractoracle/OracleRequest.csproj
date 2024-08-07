@@ -14,7 +14,6 @@
   <PropertyGroup>
     <BaseNameArgument Condition="'$(AssemblyName)' != ''">--base-name $(AssemblyName)</BaseNameArgument>
     <BaseNameArgument Condition="'$(AssemblyName)' == ''">--base-name $(MSBuildProjectName)</BaseNameArgument>
-    <NullableArgument Condition="'$(Nullable)' != ''">--nullable $(Nullable)</NullableArgument>
     <CheckedArgument Condition="'$(CheckForOverflowUnderflow)' == 'true'">--checked</CheckedArgument>
     <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
   </PropertyGroup>
