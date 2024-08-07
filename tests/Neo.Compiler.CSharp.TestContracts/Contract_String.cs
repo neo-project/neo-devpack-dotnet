@@ -1,3 +1,4 @@
+using System.Numerics;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
@@ -35,6 +36,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static bool TestIsNullOrEmpty(string str)
         {
             return string.IsNullOrEmpty(str);
+        }
+
+        public static BigInteger TestStringNull(string str)
+        {
+            return str.Length;
         }
     }
 }

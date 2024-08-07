@@ -21,10 +21,10 @@ public abstract class Contract_Types : Neo.SmartContract.Testing.SmartContract, 
 
     #region Events
 
-    public delegate void delDummyEvent(string? msg);
+    public delegate void delDummyEvent(string msg);
 
     [DisplayName("DummyEvent")]
-    public event delDummyEvent? OnDummyEvent;
+    public event delDummyEvent OnDummyEvent;
 
     #endregion
 
@@ -34,79 +34,79 @@ public abstract class Contract_Types : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("call")]
-    public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
+    public abstract object Call(UInt160 scriptHash, string method, BigInteger flag, IList<object> args);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkArrayObj")]
-    public abstract IList<object>? CheckArrayObj();
+    public abstract IList<object> CheckArrayObj();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkBigInteger")]
-    public abstract BigInteger? CheckBigInteger();
+    public abstract BigInteger CheckBigInteger();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkBoolFalse")]
-    public abstract bool? CheckBoolFalse();
+    public abstract bool CheckBoolFalse();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkBoolString")]
-    public abstract string? CheckBoolString(bool? value);
+    public abstract string CheckBoolString(bool value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkBoolTrue")]
-    public abstract bool? CheckBoolTrue();
+    public abstract bool CheckBoolTrue();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkByte")]
-    public abstract BigInteger? CheckByte();
+    public abstract BigInteger CheckByte();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkByteArray")]
-    public abstract byte[]? CheckByteArray();
+    public abstract byte[] CheckByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkChar")]
-    public abstract BigInteger? CheckChar();
+    public abstract BigInteger CheckChar();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkClass")]
-    public abstract object? CheckClass();
+    public abstract object CheckClass();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkDelegate")]
-    public abstract object? CheckDelegate();
+    public abstract object CheckDelegate();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkEnum")]
-    public abstract object? CheckEnum();
+    public abstract object CheckEnum();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkEnumArg")]
-    public abstract void CheckEnumArg(BigInteger? arg);
+    public abstract void CheckEnumArg(BigInteger arg);
 
     /// <summary>
     /// Unsafe method
@@ -118,109 +118,109 @@ public abstract class Contract_Types : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("checkInt")]
-    public abstract BigInteger? CheckInt();
+    public abstract BigInteger CheckInt();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkLambda")]
-    public abstract object? CheckLambda();
+    public abstract object CheckLambda();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkLong")]
-    public abstract BigInteger? CheckLong();
+    public abstract BigInteger CheckLong();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkNameof")]
-    public abstract string? CheckNameof();
+    public abstract string CheckNameof();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkNull")]
-    public abstract object? CheckNull();
+    public abstract object CheckNull();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkSbyte")]
-    public abstract BigInteger? CheckSbyte();
+    public abstract BigInteger CheckSbyte();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkShort")]
-    public abstract BigInteger? CheckShort();
+    public abstract BigInteger CheckShort();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkString")]
-    public abstract string? CheckString();
+    public abstract string CheckString();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkStringIndex")]
-    public abstract BigInteger? CheckStringIndex(string? input, BigInteger? index);
+    public abstract BigInteger CheckStringIndex(string input, BigInteger index);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkStruct")]
-    public abstract object? CheckStruct();
+    public abstract object CheckStruct();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkTuple")]
-    public abstract IList<object>? CheckTuple();
+    public abstract IList<object> CheckTuple();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkTuple2")]
-    public abstract IList<object>? CheckTuple2();
+    public abstract IList<object> CheckTuple2();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkUint")]
-    public abstract BigInteger? CheckUint();
+    public abstract BigInteger CheckUint();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkUlong")]
-    public abstract BigInteger? CheckUlong();
+    public abstract BigInteger CheckUlong();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkUshort")]
-    public abstract BigInteger? CheckUshort();
+    public abstract BigInteger CheckUshort();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("concatByteString")]
-    public abstract string? ConcatByteString(byte[]? a, byte[]? b);
+    public abstract string ConcatByteString(byte[] a, byte[] b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("create")]
-    public abstract object? Create(byte[]? nef, string? manifest);
+    public abstract object Create(byte[] nef, string manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("toAddress")]
-    public abstract string? ToAddress(UInt160? address, BigInteger? version);
+    public abstract string ToAddress(UInt160 address, BigInteger version);
 
     #endregion
 

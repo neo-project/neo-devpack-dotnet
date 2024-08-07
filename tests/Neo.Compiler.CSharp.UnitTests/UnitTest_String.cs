@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.Collections.Generic;
+using Neo.SmartContract.Testing.Exceptions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -80,6 +81,16 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsFalse(Contract.TestIsNullOrEmpty("hello world"));
             Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_TestStringNull()
+        {
+            var res = Contract.TestStringNull("Hello world");
+            Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
+
+            Assert.ThrowsException<TestException>(() => Contract.TestStringNull(null));
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
         }
     }
 }
