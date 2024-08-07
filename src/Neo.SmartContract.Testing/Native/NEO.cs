@@ -97,7 +97,7 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
     /// Safe method
     /// </summary>
     [DisplayName("balanceOf")]
-    public abstract BigInteger BalanceOf(UInt160? account);
+    public abstract BigInteger BalanceOf(UInt160 account);
 
     /// <summary>
     /// Safe method
