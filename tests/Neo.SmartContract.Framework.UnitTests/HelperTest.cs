@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // 0
 
-            Assert.ThrowsException<TestException>(()=>Contract.TestToBigInteger(null));
+            Assert.ThrowsException<TestException>(() => Contract.TestToBigInteger(null));
             Assert.AreEqual(1293870, Engine.FeeConsumed.Value);
             Assert.AreEqual(0, Contract.TestToBigInteger([]));
             Assert.AreEqual(1294080, Engine.FeeConsumed.Value);
