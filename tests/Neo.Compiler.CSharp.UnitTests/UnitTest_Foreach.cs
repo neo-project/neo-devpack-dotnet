@@ -128,5 +128,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual((array[1] as ByteString)!.GetString(), "test");
             Assert.AreEqual(array[2], new BigInteger(123));
         }
+
+        [TestMethod]
+        public void ContinueTest()
+        {
+            Contract.TestContinue();
+            Assert.AreEqual(1133520, Engine.FeeConsumed.Value);
+        }
     }
 }
