@@ -13,10 +13,7 @@ using System;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class Hash160Attribute : InitialValueAttribute
+    public class Hash160Attribute(string value) : InitialValueAttribute(value, ContractParameterType.Hash160)
     {
-        public Hash160Attribute(string value) : base(value)
-        {
-        }
     }
 }

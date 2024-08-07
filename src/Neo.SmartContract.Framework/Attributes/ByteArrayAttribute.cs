@@ -13,10 +13,7 @@ using System;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class ByteArrayAttribute : InitialValueAttribute
+    public class ByteArrayAttribute(string value) : InitialValueAttribute(value, ContractParameterType.ByteArray)
     {
-        public ByteArrayAttribute(string value) : base(value)
-        {
-        }
     }
 }
