@@ -772,9 +772,8 @@ partial class MethodConvert
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     AddInstruction(OpCode.SWAP);
                     CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-                    AddInstruction(OpCode.PUSHM1);
-                    AddInstruction(OpCode.NUMEQUAL);
-                    AddInstruction(OpCode.NOT);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.GE);
                     return true;
                 }
             // Determines whether the end of this string instance matches the specified string.
