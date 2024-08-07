@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
-    public partial class NeoDebugInfo
+    public partial class NeoDebugInfo(UInt160 hash, string documentRoot, IReadOnlyList<string> documents, IReadOnlyList<NeoDebugInfo.Method> methods)
     {
         static readonly Regex spRegex = new(@"^(\d+)\[(-?\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)$");
 
@@ -17,18 +17,10 @@ namespace Neo.SmartContract.Testing.Coverage
         public const string NEF_DBG_NFO_EXTENSION = ".nefdbgnfo";
         public const string DEBUG_JSON_EXTENSION = ".debug.json";
 
-        public readonly UInt160 Hash;
-        public readonly string DocumentRoot;
-        public readonly IReadOnlyList<string> Documents;
-        public readonly IReadOnlyList<Method> Methods;
-
-        public NeoDebugInfo(UInt160 hash, string documentRoot, IReadOnlyList<string> documents, IReadOnlyList<Method> methods)
-        {
-            Hash = hash;
-            DocumentRoot = documentRoot;
-            Documents = documents;
-            Methods = methods;
-        }
+        public readonly UInt160 Hash = hash;
+        public readonly string DocumentRoot = documentRoot;
+        public readonly IReadOnlyList<string> Documents = documents;
+        public readonly IReadOnlyList<Method> Methods = methods;
 
         public static bool TryLoad(string path, [MaybeNullWhen(false)] out NeoDebugInfo debugInfo)
         {

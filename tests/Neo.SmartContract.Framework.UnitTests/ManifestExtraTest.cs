@@ -6,6 +6,13 @@ namespace Neo.SmartContract.Framework.UnitTests
     [TestClass]
     public class ManifestExtraTest
     {
+        public ManifestExtraTest()
+        {
+            // Ensure also Contract_ExtraAttribute
+
+            TestCleanup.TestInitialize(typeof(Contract_ExtraAttribute));
+        }
+
         [TestMethod]
         public void TestExtraAttribute()
         {
