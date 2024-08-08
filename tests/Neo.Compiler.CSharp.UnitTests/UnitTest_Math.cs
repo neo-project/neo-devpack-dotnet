@@ -326,7 +326,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1110330, Engine.FeeConsumed.Value);
         }
 
-
         [TestMethod]
         public void TestClampByte()
         {

@@ -436,8 +436,8 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     AddInstruction(OpCode.MUL);
                     AddInstruction(OpCode.DUP);
-                    Push(long.MinValue);
-                    Push(new BigInteger(long.MaxValue) + 1);
+                    Push(int.MinValue);
+                    Push(new BigInteger(int.MaxValue) + 1);
                     AddInstruction(OpCode.WITHIN);
                     Jump(OpCode.JMPIF, endTarget);
                     AddInstruction(OpCode.THROW);
