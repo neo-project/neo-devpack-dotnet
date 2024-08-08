@@ -28,7 +28,8 @@ namespace Neo.Compiler
             All = Basic | Experimental
         }
 
-        public static NullableContextOptions Nullable => NullableContextOptions.Disable;
+        // Nullable is currently not supported
+        public NullableContextOptions Nullable => NullableContextOptions.Disable;
         public bool Debug { get; set; }
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }
