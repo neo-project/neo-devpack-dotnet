@@ -208,10 +208,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_BothZero()
         {
-            var result = Contract.DivRemUlong((ulong)0, (ulong)0);
-            Assert.AreEqual(0UL, checked((ulong)(BigInteger)result[0])); // Remainder
-            Assert.AreEqual(0UL, checked((ulong)(BigInteger)result[1])); // Quotient
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Contract.DivRemUlong((ulong)0, (ulong)0);
         }
 
         [TestMethod]

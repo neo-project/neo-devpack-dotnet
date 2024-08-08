@@ -29,42 +29,42 @@ namespace Neo.Compiler.CSharp.TestContracts
             return Math.BigMul(a, b);
         }
 
-        public static (byte Quotient, byte Remainder) DivRemByte(byte left, byte right)
+        public static (byte quotient, byte remainder) DivRemByte(byte left, byte right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (short Quotient, short Remainder) DivRemShort(short left, short right)
+        public static (short quotient, short remainder) DivRemShort(short left, short right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (int Quotient, int Remainder) DivRemInt(int left, int right)
+        public static (int quotient, int remainder) DivRemInt(int left, int right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (long Quotient, long Remainder) DivRemLong(long left, long right)
+        public static (long quotient, long remainder) DivRemLong(long left, long right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (sbyte Quotient, sbyte Remainder) DivRemSbyte(sbyte left, sbyte right)
+        public static (sbyte quotient, sbyte remainder) DivRemSbyte(sbyte left, sbyte right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (ushort Quotient, ushort Remainder) DivRemUshort(ushort left, ushort right)
+        public static (ushort quotient, ushort remainder) DivRemUshort(ushort left, ushort right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (uint Quotient, uint Remainder) DivRemUint(uint left, uint right)
+        public static (uint quotient, uint remainder) DivRemUint(uint left, uint right)
         {
             return Math.DivRem(left, right);
         }
 
-        public static (ulong Quotient, ulong Remainder) DivRemUlong(ulong left, ulong right)
+        public static (ulong quotient, ulong remainder) DivRemUlong(ulong left, ulong right)
         {
             return Math.DivRem(left, right);
         }
