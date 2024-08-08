@@ -427,6 +427,322 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MIN);
                 return true;
+            case "System.Math.BigMul(int, int)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.DUP);
+                    Push(long.MinValue);
+                    Push(new BigInteger(long.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "System.Math.DivRem(sbyte, sbyte)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(sbyte.MinValue);
+                    Push(new BigInteger(sbyte.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(byte, byte)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(byte.MinValue);
+                    Push(new BigInteger(byte.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(short, short)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(short.MinValue);
+                    Push(new BigInteger(short.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(ushort, ushort)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(ushort.MinValue);
+                    Push(new BigInteger(ushort.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(int, int)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(int.MinValue);
+                    Push(new BigInteger(int.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(uint, uint)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(uint.MinValue);
+                    Push(new BigInteger(uint.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(long, long)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(long.MinValue);
+                    Push(new BigInteger(long.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(ulong, ulong)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(ulong.MinValue);
+                    Push(new BigInteger(ulong.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.Clamp(byte, byte, byte)":
+            case "System.Math.Clamp(sbyte, sbyte, sbyte)":
+            case "System.Math.Clamp(short, short, short)":
+            case "System.Math.Clamp(ushort, ushort, ushort)":
+            case "System.Math.Clamp(int, int, int)":
+            case "System.Math.Clamp(uint, uint, uint)":
+            case "System.Math.Clamp(long, long, long)":
+            case "System.Math.Clamp(ulong, ulong, ulong)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    var endTarget = new JumpTarget();
+                    var exceptionTarget = new JumpTarget();
+                    var minTarget = new JumpTarget();
+                    var maxTarget = new JumpTarget();
+                    AddInstruction(OpCode.REVERSE3);// 5 0 10
+                    AddInstruction(OpCode.DUP);// 5 0 10 10
+                    AddInstruction(OpCode.ROT);// 5 10 10 0
+                    AddInstruction(OpCode.DUP);// 5 10 10 0 0
+                    AddInstruction(OpCode.ROT);// 5 10 0 0 10
+                    Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
+                    AddInstruction(OpCode.THROW);
+                    exceptionTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.ROT);// 10 0 5
+                    AddInstruction(OpCode.DUP);// 10 0 5 5
+                    AddInstruction(OpCode.ROT);// 10 5 5 0
+                    AddInstruction(OpCode.DUP);// 10 5 5 0 0
+                    AddInstruction(OpCode.ROT);// 10 5 0 0 5
+                    Jump(OpCode.JMPGT, minTarget);// 10 5 0
+                    AddInstruction(OpCode.DROP);// 10 5
+                    AddInstruction(OpCode.DUP);// 10 5 5
+                    AddInstruction(OpCode.ROT);// 5 5 10
+                    AddInstruction(OpCode.DUP);// 5 5 10 10
+                    AddInstruction(OpCode.ROT);// 5 10 10 5
+                    Jump(OpCode.JMPLT, maxTarget);// 5 10
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    minTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    maxTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
             case "byte?.HasValue.get":
             case "sbyte?.HasValue.get":
             case "short?.HasValue.get":
