@@ -748,6 +748,23 @@ namespace Neo.Compiler
         }
 
         /// <summary>
+        /// Attach instruction set that checks the value is within the range of min and max.
+        /// </summary>
+        /// <param name="min">Minimum value.</param>
+        /// <param name="max">Maximum value.</param>
+        private void EnsureWithin(BigInteger min, BigInteger max)
+        {
+            JumpTarget endTarget = new();
+            AddInstruction(OpCode.DUP);
+            Push(min);
+            Push(max + 1);
+            AddInstruction(OpCode.WITHIN);
+            Jump(OpCode.JMPIF, endTarget);
+            AddInstruction(OpCode.THROW);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+
+        /// <summary>
         /// Convert a throw expression or throw statement to OpCodes.
         /// </summary>
         /// <param name="model">The semantic model providing context and information about the Throw.</param>
