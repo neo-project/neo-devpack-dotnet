@@ -13,7 +13,7 @@ using System;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class PublicKeyAttribute(string value) : InitialValueAttribute(value, ContractParameterType.PublicKey)
+    public class IntegerAttribute(string value) : InitialValueAttribute(value, ContractParameterType.Integer)
     {
     }
 }
