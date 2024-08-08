@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-        <Nullable>disable</Nullable>
-        <WarningsAsErrors>CS8632</WarningsAsErrors>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+		<Nullable>disable</Nullable>
+		<WarningsAsErrors>CS8632</WarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>
