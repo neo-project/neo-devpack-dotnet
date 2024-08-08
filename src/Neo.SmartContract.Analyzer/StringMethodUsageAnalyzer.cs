@@ -16,9 +16,8 @@ namespace Neo.SmartContract.Analyzer
         private readonly string[] _unsupportedStringMethods =
         {
             "Clone", "Compare", "CompareOrdinal", "CompareTo",
-            "Concat", "Contains", "Copy", "CopyTo",
-            "EndsWith", "Equals", "Format", "GetEnumerator",
-            "GetHashCode", "GetType", "GetTypeCode", "IndexOf",
+            "Concat", "Copy", "CopyTo", "Equals", "Format", "GetEnumerator",
+            "GetHashCode", "GetType", "GetTypeCode",
             "IndexOfAny", "Insert", "Intern", "IsInterned",
             "IsNormalized", "Join", "LastIndexOf", "LastIndexOfAny",
             "Normalize", "PadLeft", "PadRight", "Remove",

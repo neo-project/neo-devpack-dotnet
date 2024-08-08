@@ -92,5 +92,38 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.ThrowsException<TestException>(() => Contract.TestStringNull(null));
             Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
         }
+
+        [TestMethod]
+        public void Test_TestEndWith()
+        {
+            Assert.IsTrue(Contract.TestEndWith("hello world"));
+            Assert.AreEqual(1357710, Engine.FeeConsumed.Value);
+
+            Assert.IsFalse(Contract.TestEndWith("hel"));
+            Assert.AreEqual(1049310, Engine.FeeConsumed.Value);
+
+            Assert.IsFalse(Contract.TestEndWith("hello"));
+            Assert.AreEqual(1049310, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_TestContains()
+        {
+            Assert.IsTrue(Contract.TestContains("hello world"));
+            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
+
+            Assert.IsFalse(Contract.TestContains("hello"));
+            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void Test_TestIndexOf()
+        {
+            Assert.AreEqual(6, Contract.TestIndexOf("hello world"));
+            Assert.AreEqual(2032530, Engine.FeeConsumed.Value);
+
+            Assert.AreEqual(-1, Contract.TestIndexOf("hello"));
+            Assert.AreEqual(2032530, Engine.FeeConsumed.Value);
+        }
     }
 }

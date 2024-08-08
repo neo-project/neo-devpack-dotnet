@@ -679,6 +679,69 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            // Returns a value indicating whether a specified substring occurs within this string.
+            case "string.Contains(string)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.SWAP);
+                    CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.GE);
+                    return true;
+                }
+            // Determines whether the end of this string instance matches the specified string.
+            case "string.EndsWith(string)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    var endTarget = new JumpTarget();
+                    var validCountTarget = new JumpTarget();
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    AddInstruction(OpCode.DUP);
+                    Push(3);
+                    AddInstruction(OpCode.ROLL);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(0);
+                    Jump(OpCode.JMPGT, validCountTarget);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.PUSHF);
+                    Jump(OpCode.JMP, endTarget);
+                    validCountTarget.Instruction = AddInstruction(OpCode.NOP);
+                    Push(3);
+                    AddInstruction(OpCode.ROLL);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.SUBSTR);
+                    ChangeType(StackItemType.ByteString);
+                    AddInstruction(OpCode.EQUAL);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            // Reports the zero-based index of the first occurrence of the specified string in this instance.
+            case "string.IndexOf(string)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.SWAP);
+                    CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+                    return true;
+                }
             case "bool.ToString()":
                 {
                     JumpTarget trueTarget = new(), endTarget = new();
