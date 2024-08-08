@@ -25,7 +25,7 @@ public abstract class Contract_Types_BigInteger : Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     [DisplayName("attribute")]
-    public abstract BigInteger? Attribute();
+    public abstract BigInteger Attribute();
 
     /// <summary>
     /// Unsafe method
