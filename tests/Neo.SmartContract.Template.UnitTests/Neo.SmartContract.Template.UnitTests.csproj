@@ -6,7 +6,7 @@
 		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
-        <WarningsAsErrors>CS8632</WarningsAsErrors>
+		<WarningsAsErrors>CS8632</WarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>
