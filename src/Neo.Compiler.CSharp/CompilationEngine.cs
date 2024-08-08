@@ -371,7 +371,7 @@ namespace Neo.Compiler
             var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
             List<MetadataReference> references = new(CommonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: CompilationOptions.Nullable, allowUnsafe: false);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
             foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
             {
                 MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, compilationOptions);
