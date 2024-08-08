@@ -19,7 +19,7 @@ public class Nep17Tests<T> : TestBase<T>
     {
         protected onNEP17PaymentContract(SmartContractInitialize initialize) : base(initialize) { }
 
-        public abstract void onNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
+        public abstract void onNEP17Payment(UInt160 from, BigInteger amount, object data = null);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public class Nep17Tests<T> : TestBase<T>
 
     #region Transfer event checks
 
-    private List<(UInt160? from, UInt160? to, BigInteger? amount)> raisedTransfer = new();
+    private List<(UInt160 from, UInt160 to, BigInteger amount)> raisedTransfer = new();
 
     #endregion
 
@@ -80,7 +80,7 @@ public class Nep17Tests<T> : TestBase<T>
     /// <param name="from">From</param>
     /// <param name="to">To</param>
     /// <param name="amount">Amount</param>
-    public void AssertTransferEvent(UInt160? from, UInt160? to, BigInteger? amount)
+    public void AssertTransferEvent(UInt160 from, UInt160 to, BigInteger amount)
     {
         Assert.AreEqual(1, raisedTransfer.Count);
         Assert.AreEqual(raisedTransfer[0].from, from);
@@ -95,7 +95,7 @@ public class Nep17Tests<T> : TestBase<T>
     /// <param name="from">From</param>
     /// <param name="to">To</param>
     /// <param name="amount">Amount</param>
-    public void AssertTransferEvent(params (UInt160? from, UInt160? to, BigInteger? amount)[] events)
+    public void AssertTransferEvent(params (UInt160 from, UInt160 to, BigInteger amount)[] events)
     {
         Assert.AreEqual(events.Length, raisedTransfer.Count);
         CollectionAssert.AreEqual(raisedTransfer.Select(u => u.from).ToArray(), events.Select(u => u.from).ToArray());

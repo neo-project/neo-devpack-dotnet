@@ -20,7 +20,7 @@ public abstract class RoleManagement : SmartContract
 
     [DisplayName("Designation")]
 #pragma warning disable CS0067 // Event is never used
-    public event delDesignation? OnDesignation;
+    public event delDesignation OnDesignation;
 #pragma warning restore CS0067 // Event is never used
 
     #endregion

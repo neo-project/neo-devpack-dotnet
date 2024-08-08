@@ -14,18 +14,18 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
 
     #region Events
 
-    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string? Filter);
+    public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string Filter);
 
     [DisplayName("OracleRequest")]
 #pragma warning disable CS0067 // Event is never used
-    public event delOracleRequest? OnOracleRequest;
+    public event delOracleRequest OnOracleRequest;
 #pragma warning restore CS0067 // Event is never used
 
     public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
 
     [DisplayName("OracleResponse")]
 #pragma warning disable CS0067 // Event is never used
-    public event delOracleResponse? OnOracleResponse;
+    public event delOracleResponse OnOracleResponse;
 #pragma warning restore CS0067 // Event is never used
 
     #endregion

@@ -21,19 +21,19 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
 
     [DisplayName("CandidateStateChanged")]
 #pragma warning disable CS0067 // Event is never used
-    public event delCandidateStateChanged? OnCandidateStateChanged;
+    public event delCandidateStateChanged OnCandidateStateChanged;
 
     [DisplayName("Transfer")]
-    public event TestingStandards.INep17Standard.delTransfer? OnTransfer;
+    public event TestingStandards.INep17Standard.delTransfer OnTransfer;
 
     public delegate void delCommitteeChanged(ECPoint[] old, ECPoint[] @new);
 
     [DisplayName("CommitteeChanged")]
-    public event delCommitteeChanged? OnCommitteeChanged;
-    public delegate void delVote(UInt160 account, ECPoint? from, ECPoint? to, BigInteger amount);
+    public event delCommitteeChanged OnCommitteeChanged;
+    public delegate void delVote(UInt160 account, ECPoint from, ECPoint to, BigInteger amount);
 
     [DisplayName("Vote")]
-    public event delVote? OnVote;
+    public event delVote OnVote;
 #pragma warning restore CS0067 // Event is never used
     #endregion
 
@@ -62,7 +62,7 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract UInt160? CommitteeAddress { [DisplayName("getCommitteeAddress")] get; }
+    public abstract UInt160 CommitteeAddress { [DisplayName("getCommitteeAddress")] get; }
 
     /// <summary>
     /// Safe property
@@ -143,7 +143,7 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
     /// Unsafe method
     /// </summary>
     [DisplayName("vote")]
-    public abstract bool Vote(UInt160 account, ECPoint? voteTo);
+    public abstract bool Vote(UInt160 account, ECPoint voteTo);
 
     #endregion
 

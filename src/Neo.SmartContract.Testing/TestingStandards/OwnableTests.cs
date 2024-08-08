@@ -15,7 +15,7 @@ public class OwnableTests<T> : TestBase<T>
 {
     #region Transfer event checks
 
-    private List<(UInt160? from, UInt160? to)> raisedOnChangeOwner = new();
+    private List<(UInt160 from, UInt160 to)> raisedOnChangeOwner = new();
 
     #endregion
 
@@ -45,7 +45,7 @@ public class OwnableTests<T> : TestBase<T>
         Contract.OnSetOwner += onSetOwner;
     }
 
-    void onSetOwner(UInt160? from, UInt160? to)
+    void onSetOwner(UInt160 from, UInt160 to)
     {
         raisedOnChangeOwner.Add((from, to));
     }

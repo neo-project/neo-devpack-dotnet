@@ -28,7 +28,7 @@ namespace Neo.Compiler
             All = Basic | Experimental
         }
 
-        internal NullableContextOptions Nullable { get; set; } = NullableContextOptions.Disable;
+        public static NullableContextOptions Nullable => NullableContextOptions.Disable;
         public bool Debug { get; set; }
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }

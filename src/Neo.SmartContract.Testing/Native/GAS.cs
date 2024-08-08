@@ -16,7 +16,7 @@ public abstract class GAS : SmartContract, TestingStandards.INep17Standard
     #region Events
 #pragma warning disable CS0067 // Event is never used
     [DisplayName("Transfer")]
-    public event TestingStandards.INep17Standard.delTransfer? OnTransfer;
+    public event TestingStandards.INep17Standard.delTransfer OnTransfer;
 #pragma warning restore CS0067 // Event is never used
     #endregion
 

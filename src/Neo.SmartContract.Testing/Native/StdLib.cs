@@ -67,7 +67,7 @@ public abstract class StdLib : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("deserialize")]
-    public abstract object? Deserialize(byte[]? data);
+    public abstract object Deserialize(byte[] data);
 
     /// <summary>
     /// Safe method
@@ -85,13 +85,13 @@ public abstract class StdLib : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("jsonDeserialize")]
-    public abstract object? JsonDeserialize(byte[]? json);
+    public abstract object JsonDeserialize(byte[] json);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("jsonSerialize")]
-    public abstract byte[]? JsonSerialize(object? item = null);
+    public abstract byte[] JsonSerialize(object item = null);
 
     /// <summary>
     /// Safe method
@@ -121,7 +121,7 @@ public abstract class StdLib : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("serialize")]
-    public abstract byte[] Serialize(object? item = null);
+    public abstract byte[] Serialize(object item = null);
 
     /// <summary>
     /// Safe method

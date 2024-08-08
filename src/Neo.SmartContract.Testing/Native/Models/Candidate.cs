@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Testing.Native.Models
         /// Public key
         /// </summary>
         [FieldOrder(0)]
-        public ECPoint? PublicKey { get; set; }
+        public ECPoint PublicKey { get; set; }
 
         /// <summary>
         /// Votes

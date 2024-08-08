@@ -5,7 +5,7 @@ namespace Neo.SmartContract.Testing.Native.Models
     public class Transaction
     {
         [FieldOrder(0)]
-        public UInt256? Hash { get; set; }
+        public UInt256 Hash { get; set; }
 
         [FieldOrder(1)]
         public byte Version { get; set; }
@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Testing.Native.Models
         public uint Nonce { get; set; }
 
         [FieldOrder(3)]
-        public UInt160? Sender { get; set; }
+        public UInt160 Sender { get; set; }
 
         [FieldOrder(4)]
         public long SystemFee { get; set; }
@@ -26,6 +26,6 @@ namespace Neo.SmartContract.Testing.Native.Models
         public uint ValidUntilBlock { get; set; }
 
         [FieldOrder(7)]
-        public byte[]? Script { get; set; }
+        public byte[] Script { get; set; }
     }
 }

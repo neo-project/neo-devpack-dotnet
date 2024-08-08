@@ -20,21 +20,21 @@ public abstract class ContractManagement : SmartContract
 
     [DisplayName("Deploy")]
 #pragma warning disable CS0067 // Event is never used
-    public event delDeploy? OnDeploy;
+    public event delDeploy OnDeploy;
 #pragma warning restore CS0067 // Event is never used
 
     public delegate void delDestroy(UInt160 Hash);
 
     [DisplayName("Destroy")]
 #pragma warning disable CS0067 // Event is never used
-    public event delDestroy? OnDestroy;
+    public event delDestroy OnDestroy;
 #pragma warning restore CS0067 // Event is never used
 
     public delegate void delUpdate(UInt160 Hash);
 
     [DisplayName("Update")]
 #pragma warning disable CS0067 // Event is never used
-    public event delUpdate? OnUpdate;
+    public event delUpdate OnUpdate;
 #pragma warning restore CS0067 // Event is never used
 
     #endregion
@@ -59,13 +59,13 @@ public abstract class ContractManagement : SmartContract
     /// Safe method
     /// </summary>
     [DisplayName("getContract")]
-    public abstract ContractState? GetContract(UInt160 hash);
+    public abstract ContractState GetContract(UInt160 hash);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("getContractById")]
-    public abstract ContractState? GetContractById(int id);
+    public abstract ContractState GetContractById(int id);
 
     /// <summary>
     /// Safe method
@@ -87,7 +87,7 @@ public abstract class ContractManagement : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("deploy")]
-    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest, object? data = null);
+    public abstract ContractState Deploy(byte[] nefFile, byte[] manifest, object data = null);
 
     /// <summary>
     /// Unsafe method
@@ -99,13 +99,13 @@ public abstract class ContractManagement : SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[]? nefFile, byte[]? manifest);
+    public abstract void Update(byte[] nefFile, byte[] manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
-    public abstract void Update(byte[]? nefFile, byte[]? manifest, object? data = null);
+    public abstract void Update(byte[] nefFile, byte[] manifest, object data = null);
 
     #endregion
 

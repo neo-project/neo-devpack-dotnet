@@ -19,7 +19,7 @@ public interface INep17Standard
     /// <summary>
     /// Safe method
     /// </summary>
-    public string? Symbol { [DisplayName("symbol")] get; }
+    public string Symbol { [DisplayName("symbol")] get; }
 
     /// <summary>
     /// Safe method

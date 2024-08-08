@@ -6,7 +6,7 @@ public interface IOwnable
 {
     #region Events
 
-    public delegate void delSetOwner(UInt160? previousOwner, UInt160 newOwner);
+    public delegate void delSetOwner(UInt160 previousOwner, UInt160 newOwner);
 
     [DisplayName("SetOwner")]
     public event delSetOwner OnSetOwner;
