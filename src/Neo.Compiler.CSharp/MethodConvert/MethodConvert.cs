@@ -667,11 +667,97 @@ namespace Neo.Compiler
 
         private Instruction Jump(OpCode opcode, JumpTarget target)
         {
+            if (!Neo.Optimizer.JumpTarget.SingleJumpInOperand(opcode))
+                throw new Exception($"Invalid opcode {opcode} for {nameof(Jump)}");
+
             return AddInstruction(new Instruction
             {
                 OpCode = opcode,
                 Target = target
             });
+        }
+
+        /// <summary>
+        /// Duplicate an item in the stack without change anything else
+        ///  For example, dup(2)
+        ///     a - b - c => a - b - b - c.
+        /// </summary>
+        /// <param name="index">Index of items to be duped.</param>
+        private void DupAt(int index)
+        {
+            if (index <= 0) throw new Exception("Invalid index for Dup");
+            if (index == 1)
+            {
+                AddInstruction(OpCode.DUP);
+                return;
+            }
+            if (index == 2)
+            {
+                // a b -> a a b
+                AddInstruction(OpCode.SWAP);
+                AddInstruction(OpCode.ROT);
+                return;
+            }
+            if (index == 3)
+            {
+                // a b c -> a a b c
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+            }
+        }
+
+        /// <summary>
+        /// Drop the top n items from the stack
+        /// </summary>
+        /// <param name="count">Number of items to be dropped.</param>
+        /// <exception cref="Exception">When count is invalid.</exception>
+        private void Drop(int count)
+        {
+            if (count <= 0) throw new Exception("Invalid count for Drop");
+            for (int i = 0; i < count; i++)
+            {
+                AddInstruction(OpCode.DROP);
+            }
+        }
+
+        /// <summary>
+        /// Drop items at index n from the stack.
+        /// </summary>
+        /// <param name="index">Index of the items to be dropped.</param>
+        /// <exception cref="Exception">When index is invalid.</exception>
+        private void DropAt(int index)
+        {
+            if (index <= 0) throw new Exception("Invalid index for DropAt");
+            if (index == 1)
+            {
+                AddInstruction(OpCode.DROP);
+                return;
+            }
+            if (index == 2)
+            {
+                AddInstruction(OpCode.NIP);
+                return;
+            }
+            Push(index);
+            AddInstruction(OpCode.XDROP);
+        }
+
+        /// <summary>
+        /// Attach instruction set that checks the value is within the range of min and max.
+        /// </summary>
+        /// <param name="min">Minimum value.</param>
+        /// <param name="max">Maximum value.</param>
+        private void EnsureWithin(BigInteger min, BigInteger max)
+        {
+            JumpTarget endTarget = new();
+            AddInstruction(OpCode.DUP);
+            Push(min);
+            Push(max + 1);
+            AddInstruction(OpCode.WITHIN);
+            Jump(OpCode.JMPIF, endTarget);
+            AddInstruction(OpCode.THROW);
+            endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
         /// <summary>

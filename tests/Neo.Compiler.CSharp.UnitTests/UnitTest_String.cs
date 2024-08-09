@@ -100,10 +100,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestContains()
         {
             Assert.IsTrue(Contract.TestContains("hello world"));
-            Assert.AreEqual(2032920, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
 
             Assert.IsFalse(Contract.TestContains("hello"));
-            Assert.AreEqual(2032920, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2032800, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
