@@ -27,7 +27,6 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Neo.Optimizer;
 
 namespace Neo.Compiler
 {
@@ -668,11 +667,8 @@ namespace Neo.Compiler
 
         private Instruction Jump(OpCode opcode, JumpTarget target)
         {
-            if (!OpCodeTypes.conditionalJump.Contains(opcode) && !OpCodeTypes.unconditionalJump.Contains(opcode) &&
-                !OpCodeTypes.conditionalJump_L.Contains(opcode))
-            {
-                throw new Exception("Invalid opcode for Jump");
-            }
+            if (!Neo.Optimizer.JumpTarget.SingleJumpInOperand(opcode))
+                throw new Exception($"Invalid opcode {opcode} for {nameof(Jump)}");
 
             return AddInstruction(new Instruction
             {
