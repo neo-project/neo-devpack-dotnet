@@ -25,11 +25,9 @@ namespace Neo.Optimizer
 {
     static class DumpNef
     {
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
         private static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
         private static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
         private static readonly Regex SequencePointRegex = new(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
-#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
         static readonly Lazy<IReadOnlyDictionary<uint, string>> sysCallNames = new(
             () => ApplicationEngine.Services.ToImmutableDictionary(kvp => kvp.Value.Hash, kvp => kvp.Value.Name));
@@ -201,7 +199,7 @@ namespace Neo.Optimizer
                 string methodName = method!["name"]!.AsString().Split(",")[1];
                 if (methodName == name)
                 {
-                    GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
+                    GroupCollection rangeGroups = RangeRegex.Match(method["range"]!.AsString()).Groups;
                     (start, end) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
                 }
             }
@@ -211,14 +209,14 @@ namespace Neo.Optimizer
         public static List<int> OpCodeAddressesInMethod(NefFile nef, JToken DebugInfo, string method, OpCode opcode)
         {
             (int start, int end) = GetMethodStartEndAddress(method, DebugInfo);
-            List<(int a, VM.Instruction i)> instructions = EnumerateInstructions(nef.Script).ToList();
+            List<(int a, Instruction i)> instructions = EnumerateInstructions(nef.Script).ToList();
             return instructions.Where(
                 ai => ai.i.OpCode == opcode &&
                 ai.a >= start && ai.a <= end
                 ).Select(ai => ai.a).ToList();
         }
 
-        public static string GenerateDumpNef(NefFile nef, JToken debugInfo)
+        public static string GenerateDumpNef(NefFile nef, JToken? debugInfo)
         {
             Script script = nef.Script;
             List<(int, Instruction)> addressAndInstructionsList = script.EnumerateInstructions().ToList();
@@ -229,27 +227,30 @@ namespace Neo.Optimizer
             Dictionary<int, string> methodEndAddrToName = new();
             Dictionary<int, List<(int docId, int startLine, int startCol, int endLine, int endCol)>> newAddrToSequencePoint = new();
 
-            foreach (JToken? method in (JArray)debugInfo["methods"]!)
+            if (debugInfo != null)
             {
-                GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
-                (int methodStartAddr, int methodEndAddr) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
-                methodStartAddrToName.Add(methodStartAddr, method!["id"]!.AsString());  // TODO: same format of method name as dumpnef
-                methodEndAddrToName.Add(methodEndAddr, method["id"]!.AsString());
-
-                foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
+                foreach (JToken? method in (JArray)debugInfo["methods"]!)
                 {
-                    GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
-                    GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
-                    int addr = int.Parse(sequencePointGroups[1].Value);
-                    if (!newAddrToSequencePoint.ContainsKey(addr))
-                        newAddrToSequencePoint.Add(addr, new());
-                    newAddrToSequencePoint[addr].Add((
-                        int.Parse(documentGroups[1].ToString()),
-                        int.Parse(documentGroups[2].ToString()),
-                        int.Parse(documentGroups[3].ToString()),
-                        int.Parse(documentGroups[4].ToString()),
-                        int.Parse(documentGroups[5].ToString())
-                    ));
+                    GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
+                    (int methodStartAddr, int methodEndAddr) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
+                    methodStartAddrToName.Add(methodStartAddr, method!["id"]!.AsString());  // TODO: same format of method name as dumpnef
+                    methodEndAddrToName.Add(methodEndAddr, method["id"]!.AsString());
+
+                    foreach (JToken? sequencePoint in (JArray)method["sequence-points"]!)
+                    {
+                        GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
+                        GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
+                        int addr = int.Parse(sequencePointGroups[1].Value);
+                        if (!newAddrToSequencePoint.ContainsKey(addr))
+                            newAddrToSequencePoint.Add(addr, new());
+                        newAddrToSequencePoint[addr].Add((
+                            int.Parse(documentGroups[1].ToString()),
+                            int.Parse(documentGroups[2].ToString()),
+                            int.Parse(documentGroups[3].ToString()),
+                            int.Parse(documentGroups[4].ToString()),
+                            int.Parse(documentGroups[5].ToString())
+                        ));
+                    }
                 }
             }
 
@@ -265,7 +266,7 @@ namespace Neo.Optimizer
                 {
                     foreach ((int docId, int startLine, int startCol, int endLine, int endCol) in newAddrToSequencePoint[a])
                     {
-                        string docPath = debugInfo["documents"]![docId]!.AsString();
+                        string docPath = debugInfo!["documents"]![docId]!.AsString();
                         if (debugInfo["document-root"] != null)
                             docPath = Path.Combine(debugInfo["document-root"]!.AsString(), docPath);
                         if (!docPathToContent.ContainsKey(docPath))

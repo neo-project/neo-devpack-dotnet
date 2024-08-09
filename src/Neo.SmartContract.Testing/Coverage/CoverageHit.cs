@@ -2,26 +2,34 @@ using Neo.VM;
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Neo.Extensions;
+using Neo.SmartContract.Testing.Interpreters;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="offset">Offset</param>
+    /// <param name="description">Decription</param>
+    /// <param name="outOfScript">Out of script</param>
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
-    public class CoverageHit
+    public class CoverageHit(int offset, string description, bool outOfScript = false)
     {
         /// <summary>
         /// The instruction offset
         /// </summary>
-        public int Offset { get; }
+        public int Offset { get; } = offset;
 
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description { get; }
+        public string Description { get; } = description;
 
         /// <summary>
         /// The instruction is out of the script
         /// </summary>
-        public bool OutOfScript { get; }
+        public bool OutOfScript { get; } = outOfScript;
 
         /// <summary>
         /// Hits
@@ -47,19 +55,6 @@ namespace Neo.SmartContract.Testing.Coverage
         /// Average used fee
         /// </summary>
         public long FeeAvg => Hits == 0 ? 0 : FeeTotal / Hits;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="offset">Offset</param>
-        /// <param name="description">Decription</param>
-        /// <param name="outOfScript">Out of script</param>
-        public CoverageHit(int offset, string description, bool outOfScript = false)
-        {
-            Offset = offset;
-            Description = description;
-            OutOfScript = outOfScript;
-        }
 
         /// <summary>
         /// Hits
@@ -176,7 +171,7 @@ namespace Neo.SmartContract.Testing.Coverage
                         }
                 }
 
-                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
                 {
                     return ret + $" '{str}'";
                 }

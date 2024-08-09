@@ -25,14 +25,15 @@ namespace Neo.Compiler.CSharp.TestContracts
             return nb;
         }
 
-        public static object testArgs2(byte[] a)
+        public static byte[] testArgs2(byte[] a)
         {
             return a;
         }
 
-        public static void testArgs3(int a, int b)
+        public static int testArgs3(int a, int b)
         {
             a = a + 2;
+            return a;
         }
 
         public static int testArgs4(int a, int b)

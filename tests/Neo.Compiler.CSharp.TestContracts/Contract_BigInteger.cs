@@ -120,6 +120,25 @@ namespace Neo.Compiler.CSharp.TestContracts
             }
         }
 
+        public static char testchar(BigInteger input)
+        {
+            try
+            {
+                char x = (char)input;
+                return x;
+            }
+            catch
+            {
+                throw new System.Exception();
+            }
+        }
+
+        public static string testchartostring(BigInteger input)
+        {
+            char x = (char)input;
+            return x.ToString();
+        }
+
         public static bool testIsEven(BigInteger input)
         {
             return input.IsEven;
@@ -185,12 +204,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return x.Equals(y);
         }
 
-        public static void TestModPow()
+        public static BigInteger TestModPow()
         {
             BigInteger number = 10;
             int exponent = 3;
             BigInteger modulus = 30;
-            Runtime.Log($"({number}^{exponent}) Mod {modulus} = {BigInteger.ModPow(number, exponent, modulus)}");
+            return BigInteger.ModPow(number, exponent, modulus);
         }
     }
 }

@@ -82,14 +82,14 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Identifier))
             {
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Value);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Value);
                 AccessSlot(OpCode.STLOC, elementIndex);
             }
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
             {
                 continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Next);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Next);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -160,7 +160,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Variable))
             {
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Value);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Value);
                 AddInstruction(OpCode.UNPACK);
                 AddInstruction(OpCode.DROP);
                 for (int i = 0; i < symbols.Length; i++)
@@ -180,7 +180,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Expression))
             {
                 continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Next);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Next);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);

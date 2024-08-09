@@ -49,13 +49,13 @@ partial class MethodConvert
             IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
             if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                 return;
-            Call(model, baseConstructor, null);
+            CallMethodWithInstanceExpression(model, baseConstructor, null);
         }
         else
         {
             IMethodSymbol baseConstructor = (IMethodSymbol)model.GetSymbolInfo(initializer).Symbol!;
             using (InsertSequencePoint(initializer))
-                Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
+                CallMethodWithInstanceExpression(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
         }
     }
 

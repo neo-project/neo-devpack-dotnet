@@ -62,7 +62,7 @@ namespace Neo.SmartContract.Testing
             UnderlyingBlock = new Block()
             {
                 Header = CreateNextHeader(currentBlock.Header, TimeSpan.FromSeconds(15), currentBlock.Nonce),
-                Transactions = Array.Empty<Transaction>(),
+                Transactions = [],
             };
         }
 
@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Testing
         /// <returns>Persisted block</returns>
         public Block Persist(Transaction tx, VMState state = VMState.HALT)
         {
-            return Persist(new[] { tx }, new[] { state });
+            return Persist([tx], [state]);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Testing
 
             // Invoke OnPersist
 
-            DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
+            DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
 
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, persist, clonedSnapshot, persist))
             {

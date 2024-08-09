@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2024 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -63,6 +63,12 @@ namespace Neo.Compiler
 
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
+            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
+            {
+                // use the original type for nullable types, depend on the script to deal with null for value types
+                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
+            }
+
             switch (type.ToString())
             {
                 case "void": return ContractParameterType.Void;

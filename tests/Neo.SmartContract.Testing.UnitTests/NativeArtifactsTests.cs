@@ -25,9 +25,9 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check symbols
 
-            engine.FeeConsumed.Value = 0;
+            using var fee = engine.CreateGasWatcher();
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
-            Assert.AreEqual(984060L, engine.FeeConsumed);
+            Assert.AreEqual(984060L, fee.Value);
 
             using var gas = engine.CreateGasWatcher();
             {
@@ -42,9 +42,9 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check coverage
 
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol).CoveredLinesPercentage);
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply).CoveredLinesPercentage);
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>())).CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol)!.CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply)!.CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>()))!.CoveredLinesPercentage);
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Check
 
             Assert.AreEqual(1, engine.Native.NEO.Candidates?.Length);
-            Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates[0].PublicKey.ToString());
+            Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates![0].PublicKey!.ToString());
         }
 
         [TestMethod]

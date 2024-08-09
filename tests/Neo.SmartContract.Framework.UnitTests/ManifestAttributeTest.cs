@@ -6,12 +6,19 @@ namespace Neo.SmartContract.Framework.UnitTests;
 [TestClass]
 public class ManifestAttributeTest
 {
+    public ManifestAttributeTest()
+    {
+        // Ensure also Contract_ExtraAttribute
+        TestCleanup.TestInitialize(typeof(Contract_ManifestAttribute));
+    }
+
     [TestMethod]
     public void TestManifestAttribute()
     {
         var extra = Contract_ManifestAttribute.Manifest!.Extra;
 
-        Assert.AreEqual(5, extra.Count);
+        Assert.AreEqual(6, extra.Count);
+        // ["nef"]["optimizations"]
         // [Author("core-dev")]
         // [Email("dev@neo.org")]
         // [Version("v3.6.3")]

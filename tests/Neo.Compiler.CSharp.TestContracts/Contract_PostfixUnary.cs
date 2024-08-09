@@ -18,15 +18,18 @@ namespace Neo.Compiler.CSharp.TestContracts
             public Person(string name) { Name = name; }
         }
 
-        public static void Test()
+        public static string? Test()
         {
             Person? p = new("John");
             if (IsValid(p))
             {
                 p.Age++;
                 p.BWH[1]++;
-                Runtime.Log($"Found {p!.Name}");
+
+                return p!.Name;
             }
+
+            return null;
         }
 
         public static bool IsValid(Person? person) => person is not null && person.Name is not null;

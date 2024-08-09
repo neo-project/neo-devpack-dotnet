@@ -36,7 +36,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
         }
 
-
         [TestMethod]
         public async Task DoubleUsageAnalyzer_ReplaceWithVar()
         {
@@ -63,7 +62,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
         }
-
 
         [TestMethod]
         public async Task DoubleUsageAnalyzer_ReplaceWithDouble()

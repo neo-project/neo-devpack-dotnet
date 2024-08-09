@@ -1,23 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography;
-using Neo.IO;
 using Neo.Network.P2P;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.Wallets;
-using Org.BouncyCastle.Crypto;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class CryptoTest : TestBase<Contract_Crypto>
+    public class CryptoTest : DebugAndTestBase<Contract_Crypto>
     {
-        public CryptoTest() : base(Contract_Crypto.Nef, Contract_Crypto.Manifest) { }
-
         public static KeyPair GenerateKey(int privateKeyLength = 32)
         {
             byte[] privateKey = new byte[privateKeyLength];
@@ -32,21 +26,21 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_SHA256()
         {
             Assert.AreEqual("688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6",
-                Contract.SHA256(Encoding.UTF8.GetBytes("asd")).ToHexString());
+                Contract.SHA256(Encoding.UTF8.GetBytes("asd"))!.ToHexString());
         }
 
         [TestMethod]
         public void Test_Murmur32()
         {
             Assert.AreEqual("2ad58504",
-               Contract.Murmur32(Encoding.UTF8.GetBytes("asd"), 2).ToHexString());
+               Contract.Murmur32(Encoding.UTF8.GetBytes("asd"), 2)!.ToHexString());
         }
 
         [TestMethod]
         public void Test_RIPEMD160()
         {
             Assert.AreEqual("98c615784ccb5fe5936fbc0cbe9dfdb408d92f0f",
-              Contract.RIPEMD160(Encoding.UTF8.GetBytes("hello world")).ToHexString());
+              Contract.RIPEMD160(Encoding.UTF8.GetBytes("hello world"))!.ToHexString());
         }
 
         [TestMethod]

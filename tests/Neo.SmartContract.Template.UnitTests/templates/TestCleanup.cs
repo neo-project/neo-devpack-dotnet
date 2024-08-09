@@ -1,33 +1,29 @@
+using System.Collections.Concurrent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
-using Neo.SmartContract.Template.UnitTests.templates.neocontractnep17;
-using Neo.SmartContract.Template.UnitTests.templates.neocontractoracle;
-using Neo.SmartContract.Template.UnitTests.templates.neocontractowner;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
-using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.SmartContract.Testing.Extensions;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
     [TestClass]
-    public class TestCleanup
+    public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
 
-        private static NeoDebugInfo? DebugInfo_NEP17;
-        private static NeoDebugInfo? DebugInfo_Oracle;
-        private static NeoDebugInfo? DebugInfo_Ownable;
-
-        /// <summary>
-        /// Required coverage to be success
-        /// </summary>
-        public static decimal RequiredCoverage { get; set; } = 0.85M;
+        [AssemblyCleanup]
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
+            if (CachedContracts.Count > 0) return; // Maybe a UT call it
+
             // Define paths
 
             string frameworkPath = Path.GetFullPath("../../../../../src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj");
@@ -43,30 +39,39 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
-            .CompileSources(new CompilationSourceReferences() { Projects = new[] { frameworkPath } },
-            new[] {
+            .CompileSources(new CompilationSourceReferences() { Projects = [frameworkPath] },
+                [
                     Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
                     Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
                     Path.Combine(templatePath, "neocontractowner/Ownable.cs")
-                });
+                ]);
 
             Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
 
             // Ensure Nep17
 
             var root = Path.GetPathRoot(templatePath) ?? "";
-            (var artifact, DebugInfo_NEP17) = CreateArtifact<Nep17ContractTemplate>(result[0], root,
+            var context = result.FirstOrDefault(p => p.ContractName == "Nep17Contract") ?? throw new InvalidOperationException();
+            (var artifact, var dbg) = CreateArtifact<Nep17ContractTemplate>(context, root,
                 Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
+
+            CachedContracts[typeof(Nep17ContractTemplate)] = (context, dbg);
 
             // Ensure Oracle
 
-            (artifact, DebugInfo_Oracle) = CreateArtifact<OracleRequestTemplate>(result[1], root,
+            context = result.FirstOrDefault(p => p.ContractName == "OracleRequest") ?? throw new InvalidOperationException();
+            (artifact, dbg) = CreateArtifact<OracleRequestTemplate>(context, root,
                 Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
+
+            CachedContracts[typeof(OracleRequestTemplate)] = (context, dbg);
 
             // Ensure Ownable
 
-            (artifact, DebugInfo_Ownable) = CreateArtifact<OwnableTemplate>(result[2], root,
+            context = result.FirstOrDefault(p => p.ContractName == "Ownable") ?? throw new InvalidOperationException();
+            (artifact, dbg) = CreateArtifact<OwnableTemplate>(context, root,
                 Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
+
+            CachedContracts[typeof(OwnableTemplate)] = (context, dbg);
         }
 
         private static (string artifact, NeoDebugInfo debugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug, string artifactsPath)
@@ -84,68 +89,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             }
 
             return (artifact, debug);
-        }
-
-        [AssemblyCleanup]
-        public static void EnsureCoverage()
-        {
-            // Join here all of your coverage sources
-
-            var coverageNep17 = Nep17ContractTests.Coverage;
-            coverageNep17?.Join(OwnerContractTests.Coverage);
-            var coverageOwnable = OwnableContractTests.Coverage;
-            var coverageOracle = OracleRequestTests.Coverage;
-
-            // Dump coverage to console
-
-            Assert.IsNotNull(coverageNep17, "NEP17 coverage can't be null");
-            Assert.IsNotNull(coverageOwnable, "Ownable coverage can't be null");
-            Assert.IsNotNull(coverageOracle, "Oracle coverage can't be null");
-
-            var coverage = coverageNep17 + coverageOwnable + coverageOracle;
-
-            Assert.IsNotNull(coverage, "Coverage can't be null");
-
-            // Dump current coverage
-
-            Console.WriteLine(coverage.Dump(DumpFormat.Console));
-            File.WriteAllText("coverage.instruction.html", coverage.Dump(DumpFormat.Html));
-
-            if (DebugInfo_NEP17 is not null &&
-                DebugInfo_Ownable is not null &&
-                DebugInfo_Oracle is not null)
-            {
-                // Write the cobertura format
-
-                File.WriteAllText("coverage.cobertura.xml", new CoberturaFormat(
-                    (coverageNep17, DebugInfo_NEP17),
-                    (coverageOwnable, DebugInfo_Ownable),
-                    (coverageOracle, DebugInfo_Oracle)
-                    ).Dump());
-
-                // Write the report to the specific path
-
-                CoverageReporting.CreateReport("coverage.cobertura.xml", "./coverageReport/");
-
-                // Merge coverlet json
-
-                if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
-                    !string.IsNullOrEmpty(mergeWith))
-                {
-                    new CoverletJsonFormat(
-                       (coverageNep17, DebugInfo_NEP17),
-                       (coverageOwnable, DebugInfo_Ownable),
-                       (coverageOracle, DebugInfo_Oracle)
-                       ).
-                       Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
-
-                    Console.WriteLine($"Coverage merged with: {mergeWith}");
-                }
-            }
-
-            // Ensure that the coverage is more than X% at the end of the tests
-
-            Assert.IsTrue(coverage.CoveredLinesPercentage >= RequiredCoverage, $"Coverage is less than {RequiredCoverage:P2}");
         }
     }
 }

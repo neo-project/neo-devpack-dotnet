@@ -15,46 +15,74 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
 
 namespace Neo.Compiler
 {
-    public class CompilationEngine
+    public class CompilationEngine(CompilationOptions options)
     {
         internal Compilation? Compilation;
-        internal CompilationOptions Options { get; private set; }
+        internal CompilationOptions Options { get; private set; } = options;
         private static readonly MetadataReference[] CommonReferences;
-        private static readonly Dictionary<string, MetadataReference> MetaReferences = new();
-        internal readonly Dictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
+        private static readonly Dictionary<string, MetadataReference> MetaReferences = [];
+        private static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
+        internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
 
         static CompilationEngine()
         {
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            CommonReferences = new MetadataReference[]
-            {
+            CommonReferences =
+            [
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
                 MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
-            };
+            ];
         }
 
-        public CompilationEngine(CompilationOptions options)
+        internal List<CompilationContext> CompileFromCodeBlock(string codeBlock)
         {
-            Options = options;
+            var sourceCode = $"using Neo.SmartContract.Framework.Native;\n" +
+                             $"using Neo.SmartContract.Framework.Services;\n" +
+                             $"using System;\n" +
+                             $"using System.Text;\n" +
+                             $"using System.Numerics;\n" +
+                             $"using Neo.SmartContract.Framework;\n\n" +
+                             $"namespace Neo.Compiler.CSharp.TestContracts;\n\n" +
+                             $"public class CodeBlockTest : SmartContract.Framework.SmartContract\n{{\n\n" +
+                             $"    public static void CodeBlock()\n" +
+                             $"    {{\n" +
+                                $"        {codeBlock}\n" +
+                             $"    }}\n" +
+                             $"}}\n";
+
+            string tempFilePath = Path.GetTempFileName();
+            string newTempFilePath = Path.ChangeExtension(tempFilePath, ".cs");
+            File.Move(tempFilePath, newTempFilePath);
+            tempFilePath = newTempFilePath;
+            File.WriteAllText(tempFilePath, sourceCode);
+
+            try
+            {
+                return CompileSources(tempFilePath);
+            }
+            finally { File.Delete(tempFilePath); }
         }
 
         public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             return CompileProjectContracts(Compilation);
         }
@@ -74,12 +102,12 @@ namespace Neo.Compiler
 
             var packageGroup = references.Packages is null ? "" : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references!.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
+        {string.Join(Environment.NewLine, references.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
     </ItemGroup>";
 
             var projectsGroup = references.Projects is null ? "" : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references!.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
+        {string.Join(Environment.NewLine, references.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
     </ItemGroup>";
 
             var csproj = $@"
@@ -115,33 +143,44 @@ namespace Neo.Compiler
             {
                 return CompileProject(path);
             }
-            catch { throw; }
             finally { File.Delete(path); }
         }
 
         public List<CompilationContext> CompileProject(string csproj)
         {
-            Compilation = GetCompilation(csproj);
+            Compilation ??= GetCompilation(csproj);
             return CompileProjectContracts(Compilation);
         }
 
-        private List<CompilationContext> CompileProjectContracts(Compilation compilation)
+        public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
         {
+            if (sortedClasses == null || classDependencies == null || allClassSymbols == null)
+            {
+                throw new InvalidOperationException("Please call PrepareProjectContracts before calling CompileProject with sortedClasses, classDependencies and allClassSymbols parameters.");
+            }
+            Compilation ??= GetCompilation(csproj);
+            return targetContractName == null ? CompileProjectContractsWithPrepare(sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(sortedClasses, classDependencies, allClassSymbols, targetContractName)];
+        }
+
+        public (List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols) PrepareProjectContracts(string csproj)
+        {
+            Compilation ??= GetCompilation(csproj);
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-
-            foreach (var tree in compilation.SyntaxTrees)
+            var allClassSymbols = new List<INamedTypeSymbol?>();
+            foreach (var tree in Compilation.SyntaxTrees)
             {
-                var semanticModel = compilation.GetSemanticModel(tree);
+                var semanticModel = Compilation.GetSemanticModel(tree);
                 var classNodes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
 
                 foreach (var classNode in classNodes)
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
-                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, "Neo.SmartContract.Framework.SmartContract", semanticModel))
+                    allClassSymbols.Add(classSymbol);
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, s_pattern))
                     {
                         allSmartContracts.Add(classSymbol);
-                        classDependencies[classSymbol] = new List<INamedTypeSymbol>();
+                        classDependencies[classSymbol] = [];
                         foreach (var member in classSymbol.GetMembers())
                         {
                             var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
@@ -158,12 +197,79 @@ namespace Neo.Compiler
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
-            sortedClasses.ForEach(c =>
+
+            return (sortedClasses, classDependencies, allClassSymbols);
+        }
+
+        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
+        {
+            var c = sortedClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture))
+                ?? throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
+            var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
+            var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+            var context = new CompilationContext(this, c, classesNotInDependencies!);
+            context.Compile();
+            return context;
+        }
+
+        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
+        {
+            Parallel.ForEach(sortedClasses, c =>
             {
-                var context = new CompilationContext(this, c);
+                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
+                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+                var context = new CompilationContext(this, c, classesNotInDependencies!);
                 context.Compile();
                 // Process the target contract add this compilation context
-                Contexts.Add(c, context);
+                Contexts.TryAdd(c, context);
+            });
+
+            return Contexts.Select(p => p.Value).ToList();
+        }
+
+        private List<CompilationContext> CompileProjectContracts(Compilation compilation)
+        {
+            var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            var allClassSymbols = new List<INamedTypeSymbol?>();
+            foreach (var tree in compilation.SyntaxTrees)
+            {
+                var semanticModel = compilation.GetSemanticModel(tree);
+                var classNodes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
+
+                foreach (var classNode in classNodes)
+                {
+                    var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
+                    allClassSymbols.Add(classSymbol);
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, s_pattern))
+                    {
+                        allSmartContracts.Add(classSymbol);
+                        classDependencies[classSymbol] = [];
+                        foreach (var member in classSymbol.GetMembers())
+                        {
+                            var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
+                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol) && !namedTypeSymbol.IsAbstract)
+                            {
+                                classDependencies[classSymbol].Add(namedTypeSymbol);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Verify if there is any valid smart contract class
+            if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
+            // Check contract dependencies, make sure there is no cycle in the dependency graph
+            var sortedClasses = TopologicalSort(classDependencies);
+
+            Parallel.ForEach(sortedClasses, c =>
+            {
+                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
+                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
+                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                context.Compile();
+                // Process the target contract add this compilation context
+                Contexts.TryAdd(c, context);
             });
 
             return Contexts.Select(p => p.Value).ToList();
@@ -213,12 +319,12 @@ namespace Neo.Compiler
             return sorted;
         }
 
-        static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, string smartContractFullyQualifiedName, SemanticModel semanticModel)
+        static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, Regex pattern)
         {
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                if (baseType.ToDisplayString() == smartContractFullyQualifiedName)
+                if (pattern.IsMatch(baseType.ToString() ?? string.Empty))
                 {
                     return true;
                 }
@@ -243,7 +349,7 @@ namespace Neo.Compiler
 
             XDocument document = XDocument.Load(csproj);
             var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove")
-                .Select(p => p.Value.Contains("*") ? p.Value : Path.GetFullPath(p.Value)).ToArray();
+                .Select(p => p.Value.Contains('*') ? p.Value : Path.GetFullPath(p.Value)).ToArray();
             var sourceFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             if (!remove.Contains("*.cs"))
@@ -264,7 +370,7 @@ namespace Neo.Compiler
             var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
             List<MetadataReference> references = new(CommonReferences);
-            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable);
+            CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
             foreach (var (name, package) in ((JObject)assets["targets"]![0]!).Properties)
             {
                 MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, compilationOptions);

@@ -3,7 +3,6 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +10,13 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Assert : TestBase<Contract_Assert>
+    public class UnitTest_Assert : DebugAndTestBase<Contract_Assert>
     {
         private readonly JObject _debugInfo;
 
-        public UnitTest_Assert() : base(Contract_Assert.Nef, Contract_Assert.Manifest)
+        public UnitTest_Assert()
         {
-            var contract = TestCleanup.EnsureArtifactsUpToDateInternal().Where(u => u.ContractName == "Contract_Assert").First();
+            var contract = TestCleanup.EnsureArtifactUpToDateInternal(nameof(Contract_Assert));
             _debugInfo = contract.CreateDebugInformation();
         }
 
@@ -34,6 +33,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertFalse()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertFalse());
+            Assert.AreEqual(1021590, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
         }
 
@@ -41,6 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFunction()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFunction());
+            Assert.AreEqual(1039020, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -49,6 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInTry()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInTry());
+            Assert.AreEqual(1039140, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -57,6 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInCatch()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInCatch());
+            Assert.AreEqual(1055010, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }
@@ -65,6 +68,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFinally()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFinally());
+            Assert.AreEqual(1039470, Engine.FeeConsumed.Value);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }

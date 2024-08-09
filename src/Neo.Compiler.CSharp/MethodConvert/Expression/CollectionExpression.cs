@@ -10,6 +10,7 @@
 
 extern alias scfx;
 using System;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,7 +22,43 @@ partial class MethodConvert
 {
     private void ConvertCollectionExpression(SemanticModel model, CollectionExpressionSyntax expression)
     {
-        // IArrayTypeSymbol type = (IArrayTypeSymbol) model.GetTypeInfo(expression).ConvertedType!;
+        var typeSymbol = model.GetTypeInfo(expression).ConvertedType;
+
+        if (typeSymbol is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Byte)
+        {
+            Optional<object?>[] values = expression.Elements
+                .Select(p => p is ExpressionElementSyntax exprElement ? model.GetConstantValue(exprElement.Expression) : default)
+                .ToArray();
+
+            if (values.Any(p => !p.HasValue))
+            {
+                Push(values.Length);
+                AddInstruction(OpCode.NEWBUFFER);
+                for (int i = 0; i < expression.Elements.Count; i++)
+                {
+                    AddInstruction(OpCode.DUP);
+                    Push(i);
+                    if (expression.Elements[i] is ExpressionElementSyntax exprElement)
+                    {
+                        ConvertExpression(model, exprElement.Expression);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"Unsupported collection element type: {expression.Elements[i].GetType()}");
+                    }
+                    AddInstruction(OpCode.SETITEM);
+                }
+            }
+            else
+            {
+                byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
+                Push(data);
+                ChangeType(VM.Types.StackItemType.Buffer);
+            }
+
+            return;
+        }
+
         for (int i = expression.Elements.Count - 1; i >= 0; i--)
         {
             var element = expression.Elements[i];

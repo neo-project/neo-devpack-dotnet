@@ -46,7 +46,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
 │ unregisterCandidate(pubkey)     │   0.00 % │ 100.00 % │
 │ vote(account,voteTo)            │   0.00 % │ 100.00 % │
 └-───────────────────────────────-┴-────────-┴-────────-┘
-", ""), WhiteSpaceRegex.Replace(engine.GetCoverage(engine.Native.NEO)?.Dump(), ""));
+", ""), WhiteSpaceRegex.Replace(engine.GetCoverage(engine.Native.NEO)?.Dump()!, ""));
 
             Assert.AreEqual(WhiteSpaceRegex.Replace(@"
 NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
@@ -55,7 +55,7 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
 ├-─────────────-┼-────────-┼-────────-┤
 │ totalSupply() │ 100.00 % │ 100.00 % │
 └-─────────────-┴-────────-┴-────────-┘
-", ""), WhiteSpaceRegex.Replace((engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump(), ""));
+", ""), WhiteSpaceRegex.Replace((engine.Native.NEO.GetCoverage(o => o.TotalSupply) as CoveredMethod)?.Dump()!, ""));
         }
 
         [TestMethod]

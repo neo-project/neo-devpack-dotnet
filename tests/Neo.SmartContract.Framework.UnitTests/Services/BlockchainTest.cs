@@ -4,7 +4,6 @@ using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -13,30 +12,30 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BlockchainTest : TestBase<Contract_Blockchain>
+    public class BlockchainTest : DebugAndTestBase<Contract_Blockchain>
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private Block _block;
-
-        public BlockchainTest() : base(Contract_Blockchain.Nef, Contract_Blockchain.Manifest) { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [TestInitialize]
         public void Init()
         {
             var tx = new Transaction()
             {
-                Attributes = System.Array.Empty<TransactionAttribute>(),
+                Attributes = [],
                 Signers =
                 [
                     new()
                     {
                         Account = UInt160.Zero,
-                        AllowedContracts = System.Array.Empty<UInt160>(),
-                        AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
-                        Rules = System.Array.Empty<WitnessRule>(),
+                        AllowedContracts = [],
+                        AllowedGroups = [],
+                        Rules = [],
                         Scopes = WitnessScope.Global
                     }
                 ],
-                Witnesses = System.Array.Empty<Witness>(),
+                Witnesses = [],
                 Script = System.Array.Empty<byte>()
             };
 

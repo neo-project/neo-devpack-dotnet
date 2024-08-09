@@ -9,12 +9,12 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using static Neo.Optimizer.JumpTarget;
 using static Neo.Optimizer.OpCodeTypes;
@@ -27,6 +27,32 @@ namespace Neo.Optimizer
         TRY,
         CATCH,
         FINALLY,
+    }
+
+    [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryStackType}, {continueAfterFinally}")]
+    public struct TryStack
+    {
+        int catchAddr;
+        int finallyAddr;
+        TryStackType tryStackType;
+        bool continueAfterFinally;
+
+        public TryStack(int catchAddr, int finallyAddr, TryStackType tryStackType, bool continueAfterFinally)
+        {
+            this.catchAddr = catchAddr;
+            this.finallyAddr = finallyAddr;
+            this.tryStackType = tryStackType;
+            this.continueAfterFinally = continueAfterFinally;
+        }
+
+        internal void Deconstruct(out int catchAddr, out int finallyAddr,
+            out TryStackType tryStackType, out bool continueAfterFinally)
+        {
+            catchAddr = this.catchAddr;
+            finallyAddr = this.finallyAddr;
+            tryStackType = this.tryStackType;
+            continueAfterFinally = this.continueAfterFinally;
+        }
     }
 
     public enum BranchType
@@ -46,8 +72,12 @@ namespace Neo.Optimizer
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
         public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
         public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
+        /// <summary>
+        /// key: target of all kinds of Instruction that has 1 or 2 jump targets
+        /// value: sources of that jump target
+        /// </summary>
         public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
-        public InstructionCoverage(NefFile nef, ContractManifest manifest, JToken debugInfo)
+        public InstructionCoverage(NefFile nef, ContractManifest manifest)
         {
             this.script = nef.Script;
             coveredMap = new();
@@ -62,20 +92,19 @@ namespace Neo.Optimizer
             //Parallel.ForEach(manifest.Abi.Methods, method =>
             //    CoverInstruction(method.Offset, script, coveredMap)
             //);
-            foreach ((int addr, _) in EntryPoint.EntryPointsByMethod(manifest, debugInfo))
+            foreach ((int addr, _) in EntryPoint.EntryPointsByMethod(manifest))
                 CoverInstruction(addr);
         }
 
-        public static Stack<((int returnAddr, int finallyAddr), TryStackType stackType)> CopyStack
-            (Stack<((int returnAddr, int finallyAddr), TryStackType stackType)> stack) => new(stack.Reverse());
+        public static Stack<TryStack> CopyStack(Stack<TryStack> stack) => new(stack.Reverse());
 
-        public BranchType HandleThrow(int entranceAddr, int addr, Stack<((int catchAddr, int finallyAddr), TryStackType stackType)> stack)
+        public BranchType HandleThrow(int entranceAddr, int addr, Stack<TryStack> stack)
         {
             stack = CopyStack(stack);
             TryStackType stackType;
             int catchAddr; int finallyAddr;
             do
-                ((catchAddr, finallyAddr), stackType) = stack.Pop();
+                (catchAddr, finallyAddr, stackType, _) = stack.Pop();
             while (stackType != TryStackType.TRY && stackType != TryStackType.CATCH && stack.Count > 0);
             if (stackType == TryStackType.TRY)  // goto CATCH or FINALLY
             {
@@ -83,39 +112,47 @@ namespace Neo.Optimizer
                 if (catchAddr != -1)
                 {
                     addr = catchAddr;
-                    stack.Push(((-1, finallyAddr), TryStackType.CATCH));
-                    coveredMap[entranceAddr] = CoverInstruction(addr, stack: stack, throwed: false);
+                    stack.Push(new TryStack(-1, finallyAddr, TryStackType.CATCH, true));
+                    coveredMap[entranceAddr] = CoverInstruction(addr, stack: stack);
                     return coveredMap[entranceAddr];
                 }
-                // try without catch: execute finally but keep throwing
+                // try without catch: execute finally but do not visit codes after finally
                 else if (finallyAddr != -1)
                 {
-                    coveredMap[addr] = BranchType.THROW;
-                    addr = finallyAddr;
-                    stack.Push(((-1, -1), TryStackType.FINALLY));
-                    coveredMap[entranceAddr] = CoverInstruction(addr, stack: stack, throwed: true);
-                    return coveredMap[entranceAddr];
+                    stack.Push(new(-1, -1, TryStackType.FINALLY, false));
+                    if (CoverInstruction(finallyAddr, stack) == BranchType.ABORT)
+                    {
+                        coveredMap[entranceAddr] = BranchType.ABORT;
+                        return BranchType.ABORT;
+                    }
+                    coveredMap[entranceAddr] = BranchType.THROW;
+                    return BranchType.THROW;
                 }
+                throw new BadScriptException("Try without catch or finally");
             }
-            // throwed in catch with finally: execute finally but keep throwing
+            // not throwed in try
+            // throwed in catch with finally: execute finally,
+            // and do not continue after ENDFINALLY
             if (stackType == TryStackType.CATCH)
             {
                 if (finallyAddr != -1)
                 {
-                    addr = finallyAddr;
-                    stack.Push(((-1, -1), TryStackType.FINALLY));
+                    stack.Push(new(-1, -1, TryStackType.FINALLY, false));
+                    if (CoverInstruction(finallyAddr, stack) == BranchType.ABORT)
+                    {
+                        coveredMap[entranceAddr] = BranchType.ABORT;
+                        return BranchType.ABORT;
+                    }
                 }
-                return CoverInstruction(addr, stack: stack, throwed: true);
             }
-            // not in try and not in catch
             coveredMap[entranceAddr] = BranchType.THROW;
             return BranchType.THROW;
         }
 
-        public BranchType HandleAbort(int entranceAddr, int addr, Stack<((int returnAddr, int finallyAddr), TryStackType stackType)> stack)
+        public BranchType HandleAbort(int entranceAddr, int addr, Stack<TryStack> stack)
         {
             // See if we are in a try or catch. There may still be runtime exceptions
-            ((int catchAddr, int finallyAddr), TryStackType stackType) = stack.Peek();
+            (int catchAddr, int finallyAddr, TryStackType stackType, _) = stack.Peek();
             if (stackType == TryStackType.TRY && catchAddr != -1 ||
                 stackType == TryStackType.CATCH && finallyAddr != -1)
             {
@@ -139,41 +176,50 @@ namespace Neo.Optimizer
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>
-        public BranchType CoverInstruction(int addr,
-            Stack<((int returnAddr, int finallyAddr), TryStackType stackType)>? stack = null,
-            bool throwed = false)
+        public BranchType CoverInstruction(int addr, Stack<TryStack>? stack = null)
         {
             int entranceAddr = addr;
             if (stack == null)
             {
                 stack = new();
-                stack.Push(((-1, -1), TryStackType.ENTRY));
+                stack.Push(new(-1, -1, TryStackType.ENTRY, false));
             }
             else
                 stack = CopyStack(stack);
-            if (throwed)
-            {
-                ((int catchAddr, int finallyAddr), TryStackType stackType) = stack.Peek();
-                if (stackType != TryStackType.FINALLY)
-                {
-                    coveredMap[entranceAddr] = BranchType.THROW;
-                    return BranchType.THROW;
-                }
-            }
+
+            (int catchAddr, int finallyAddr, TryStackType stackType, bool continueAfterFinally) = stack.Peek();
+
             while (true)
             {
                 // For the analysis of basic blocks,
                 // we launched new recursion when exception is catched.
                 // Here we have the exception not catched
-                if (!coveredMap.ContainsKey(addr))
+                if (!coveredMap.TryGetValue(addr, out BranchType value))
                     throw new BadScriptException($"wrong address {addr}");
-                if (coveredMap[addr] != BranchType.UNCOVERED)
-                    // We have visited the code. Skip it.
-                    return coveredMap[addr];
+                if (value != BranchType.UNCOVERED)
+                {
+                    if (stackType != TryStackType.FINALLY)
+                        // We have visited the code. Skip it.
+                        return value;
+                    // if we are in finally, we may visit the codes after ENDFINALLY
+                    // when previous codes did not throw
+                    if (value != BranchType.OK)
+                        return value;
+                    // No THROW or ABORT in try, catch or finally
+                    // visit codes after ENDFINALLY
+                    if (continueAfterFinally)
+                    {
+                        int endPointer = finallyAddr;
+                        stack.Pop();  // end current finally
+                        return CoverInstruction(endPointer, stack);
+                    }
+                    // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
+                    return BranchType.THROW;
+                }
                 Instruction instruction = script.GetInstruction(addr);
                 if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
-                    return CoverInstruction(addr, stack, throwed);
+                    return CoverInstruction(addr, stack);
                 if (instruction.OpCode != OpCode.NOP)
                 {
                     coveredMap[addr] = BranchType.OK;
@@ -193,7 +239,7 @@ namespace Neo.Optimizer
                 if (callWithJump.Contains(instruction.OpCode))
                 {
                     int callTarget = ComputeJumpTarget(addr, instruction);
-                    BranchType returnedType = CoverInstruction(callTarget);
+                    BranchType returnedType = CoverInstruction(callTarget, stack);
                     if (returnedType == BranchType.OK)
                         return CoverInstruction(addr + instruction.Size, stack);
                     if (returnedType == BranchType.ABORT)
@@ -204,6 +250,9 @@ namespace Neo.Optimizer
                 if (instruction.OpCode == OpCode.RET)
                 {
                     // See if we are in a try. There may still be runtime exceptions
+                    // Do not judge with current stack.Peek(),
+                    // because the try can hide deep in the stack.
+                    // Just throw!
                     HandleThrow(entranceAddr, addr, stack);
                     coveredMap[entranceAddr] = BranchType.OK;
                     return coveredMap[entranceAddr];
@@ -212,52 +261,55 @@ namespace Neo.Optimizer
                 {
                     if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
                     {
-                        stack.Push((ComputeTryTarget(addr, instruction), TryStackType.TRY));
+                        (int catchTarget, int finallyTarget) = ComputeTryTarget(addr, instruction);
+                        stack.Push(new(catchTarget, finallyTarget, TryStackType.TRY, true));
                         return CoverInstruction(addr + instruction.Size, stack);
                     }
                     if (instruction.OpCode == OpCode.THROW)
                         return HandleThrow(entranceAddr, addr, stack);
                     if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
                     {
-                        ((int catchAddr, int finallyAddr), TryStackType stackType) = stack.Peek();
                         if (stackType != TryStackType.TRY && stackType != TryStackType.CATCH)
                             throw new BadScriptException("No try stack on ENDTRY");
 
-                        // Visit catchAddr and finallyAddr because there may still be exceptions at runtime
+                        // Terminate the try/catch context, but
+                        // visit catchAddr for current try, or finallyAddr for current catch
+                        // because there may still be exceptions at runtime
                         HandleThrow(entranceAddr, addr, stack);
-                        coveredMap[entranceAddr] = BranchType.OK;
 
-                        stack.Pop();
+                        stack.Pop();  // pop the ending TRY or CATCH
                         int endPointer = ComputeJumpTarget(addr, instruction);
                         if (finallyAddr != -1)
                         {
-                            stack.Push(((-1, endPointer), TryStackType.FINALLY));
+                            stack.Push(new(-1, endPointer, TryStackType.FINALLY, true));
                             addr = finallyAddr;
                         }
                         else
                             addr = endPointer;
-                        return CoverInstruction(addr, stack, throwed);
+                        coveredMap[entranceAddr] = CoverInstruction(addr, stack);
+                        return coveredMap[entranceAddr];
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
-                        ((int catchAddr, int finallyAddr), TryStackType stackType) = stack.Pop();
+                        int endPointer = finallyAddr;
                         if (stackType != TryStackType.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
-                        if (throwed)
+                        if (continueAfterFinally)
                         {
-                            // For this basic block in finally, the branch type is OK
-                            coveredMap[entranceAddr] = BranchType.OK;
-                            // The throw is caused by previous codes
-                            return BranchType.THROW;
+                            coveredMap[entranceAddr] = CoverInstruction(endPointer, stack);
+                            return coveredMap[entranceAddr];
                         }
-                        return CoverInstruction(addr + instruction.Size, stack, false);
+                        // For this basic block in finally, the branch type is OK
+                        // The throw is caused by previous codes
+                        coveredMap[entranceAddr] = BranchType.OK;
+                        return BranchType.OK;
                     }
                 }
                 if (unconditionalJump.Contains(instruction.OpCode))
                     //addr = ComputeJumpTarget(addr, instruction);
                     //continue;
                     // For the analysis of basic blocks, we launch a new recursion
-                    return CoverInstruction(ComputeJumpTarget(addr, instruction), stack, throwed);
+                    return CoverInstruction(ComputeJumpTarget(addr, instruction), stack);
                 if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                 {
                     BranchType noJump = CoverInstruction(addr + instruction.Size, stack);

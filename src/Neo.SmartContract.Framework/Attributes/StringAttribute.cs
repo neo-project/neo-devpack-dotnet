@@ -13,10 +13,7 @@ using System;
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class StringAttribute : InitialValueAttribute
+    public class StringAttribute(string value) : InitialValueAttribute(value, ContractParameterType.String)
     {
-        public StringAttribute(string value) : base(value)
-        {
-        }
     }
 }

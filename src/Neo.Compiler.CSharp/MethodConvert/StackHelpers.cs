@@ -22,8 +22,7 @@ partial class MethodConvert
 {
     private void Push(bool value)
     {
-        AddInstruction(value ? OpCode.PUSH1 : OpCode.PUSH0);
-        ChangeType(VM.Types.StackItemType.Boolean);
+        AddInstruction(value ? OpCode.PUSHT : OpCode.PUSHF);
     }
 
     private Instruction Push(BigInteger number)
@@ -103,7 +102,7 @@ partial class MethodConvert
                 Push(data);
                 break;
             case char data:
-                Push(data);
+                Push((ushort)data);
                 break;
             case sbyte data:
                 Push(data);

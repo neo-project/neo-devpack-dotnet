@@ -3,8 +3,8 @@ using Neo.IO;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Numerics;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 {

@@ -1,19 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_TypeConvert : TestBase<Contract_TypeConvert>
+    public class UnitTest_TypeConvert : DebugAndTestBase<Contract_TypeConvert>
     {
-        public UnitTest_TypeConvert() : base(Contract_TypeConvert.Nef, Contract_TypeConvert.Manifest) { }
-
         [TestMethod]
         public void UnitTest_TestTypeConvert()
         {
             var arr = (Array)Contract.TestType()!;
+            Assert.AreEqual(4207710, Engine.FeeConsumed.Value);
 
             //test 0,1,2
             Assert.IsTrue(arr[0].Type == StackItemType.Integer);

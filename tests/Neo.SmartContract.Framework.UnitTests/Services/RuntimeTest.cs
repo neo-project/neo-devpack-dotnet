@@ -1,16 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
-using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class RuntimeTest : TestBase<Contract_Runtime>
+    public class RuntimeTest : DebugAndTestBase<Contract_Runtime>
     {
         static RuntimeTest()
         {
@@ -22,8 +20,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Scopes = Network.P2P.Payloads.WitnessScope.CalledByEntry
             };
         }
-
-        public RuntimeTest() : base(Contract_Runtime.Nef, Contract_Runtime.Manifest) { }
 
         [TestMethod]
         public void Test_InvocationCounter()
@@ -79,7 +75,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Engine.SetTransactionSigners(Alice);
             Engine.Transaction.Nonce = 0x01020304;
             Engine.PersistingBlock.Nonce = 0x01020304;
-            Assert.AreEqual(BigInteger.Parse("205214629647252551804410215848131909835"), Contract.GetRandom());
+            Assert.AreEqual(BigInteger.Parse("170860635854782763966488234028122619308"), Contract.GetRandom());
         }
 
         [TestMethod]

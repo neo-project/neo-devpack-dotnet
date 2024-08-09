@@ -37,7 +37,8 @@ namespace Neo.Compiler
     public class CompilationContext
     {
         private readonly CompilationEngine _engine;
-        readonly INamedTypeSymbol _targetContract;
+        private readonly INamedTypeSymbol _targetContract;
+        private readonly System.Collections.Generic.List<INamedTypeSymbol>? _nonDependencies;
         internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
         private readonly System.Collections.Generic.List<Diagnostic> _diagnostics = new();
@@ -74,10 +75,12 @@ namespace Neo.Compiler
         /// </summary>
         /// <param name="engine"> CompilationEngine that contains the compilation syntax tree and compiled methods</param>
         /// <param name="targetContract">Contract to be compiled</param>
-        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract)
+        /// <param name="nonDependencies">Classes that is not supposed to be compiled into current target contract.</param>
+        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null)
         {
             _engine = engine;
             _targetContract = targetContract;
+            _nonDependencies = nonDependencies;
         }
 
         private void RemoveEmptyInitialize()
@@ -152,7 +155,10 @@ namespace Neo.Compiler
             {
                 try
                 {
-                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, (JObject)debugInfo.Clone());
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo.Clone() as JObject);
+                    (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo!.Clone() as JObject);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
                 catch (Exception ex)
                 {
@@ -160,7 +166,16 @@ namespace Neo.Compiler
                 }
             }
 
-            return (nef, manifest, debugInfo);
+            // Define the optimization type inside the manifest
+
+            if (Options.Optimize != CompilationOptions.OptimizationType.None)
+            {
+                manifest.Extra ??= new JObject();
+                manifest.Extra["nef"] = new JObject();
+                manifest.Extra["nef"]!["optimization"] = Options.Optimize.ToString();
+            }
+
+            return (nef, manifest, debugInfo!);
         }
 
         public NefFile CreateExecutable()
@@ -325,6 +340,8 @@ namespace Neo.Compiler
                     break;
                 case ClassDeclarationSyntax @class:
                     INamedTypeSymbol symbol = model.GetDeclaredSymbol(@class)!;
+                    if (symbol.Name != _targetContract.Name && _nonDependencies != null && _nonDependencies.Contains(symbol))
+                        return;
                     if (processed.Add(symbol)) ProcessClass(model, symbol);
                     break;
             }
