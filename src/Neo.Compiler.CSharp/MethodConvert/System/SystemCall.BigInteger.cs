@@ -144,6 +144,9 @@ partial class MethodConvert
     {
         if (arguments is not null)
             PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        // if left < right return -1;
+        // if left = right return 0;
+        // if left > right return 1;
         AddInstruction(OpCode.SUB);
         AddInstruction(OpCode.SIGN);
         return true;

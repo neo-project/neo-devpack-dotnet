@@ -135,27 +135,26 @@ partial class MethodConvert
         RegisterHandler((string x, string? y) => x.Equals(y), HandleObjectEquals);
         RegisterHandler((object? x, object? y) => x.Equals(y), HandleObjectEquals);
 
-
         // Register array and string method handlers
         // RegisterHandler((Array a) => a.Length, HandleLength);
         // RegisterHandler((string s) => s.Length, HandleLength);
         // RegisterHandler((string s) => s.ToString(), HandleStringToString);
 
-        // RegisterHandler((string s) => string.IsNullOrEmpty(s), HandleStringIsNullOrEmpty);
-        // RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
-        // RegisterHandler((string s, string value) => s.Contains(value), HandleStringContains);
-        // RegisterHandler((string s, string value) => s.EndsWith(value), HandleStringEndsWith);
-        // RegisterHandler((string s, string value) => s.IndexOf(value), HandleStringIndexOf);
+        RegisterHandler((string? s) => string.IsNullOrEmpty(s), HandleStringIsNullOrEmpty);
+        RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
+        RegisterHandler((string s, string value) => s.Contains(value), HandleStringContains);
+        RegisterHandler((string s, string value) => s.EndsWith(value), HandleStringEndsWith);
+        RegisterHandler((string s, string value) => s.IndexOf(value), HandleStringIndexOf);
         // RegisterHandler((string s, string value) => s.StartsWith(value), HandleStringStartsWith);
-        // RegisterHandler((string s, int index) => s[index], HandleStringPickItem);
+        RegisterHandler((string s, int index) => s[index], HandleStringPickItem);
         // RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
-        // RegisterHandler((string s, int startIndex) => s.Substring(startIndex), HandleStringSubStringToEnd);
+        RegisterHandler((string s, int startIndex) => s.Substring(startIndex), HandleStringSubStringToEnd);
         // RegisterHandler((string s, int startIndex, int length) => s.Remove(startIndex, length), HandleStringRemove);
         // RegisterHandler((string s, int startIndex) => s.Remove(startIndex), HandleStringRemoveToEnd);
         // RegisterHandler((string s) => s.Trim(), HandleStringTrim);
         // RegisterHandler((string s) => s.TrimStart(), HandleStringTrimStart);
         // RegisterHandler((string s) => s.TrimEnd(), HandleStringTrimEnd);
-        // RegisterHandler((string s1, string s2) => string.Concat(s1, s2), HandleStringConcat);
+        RegisterHandler((string? s1, string? s2) => string.Concat(s1, s2), HandleStringConcat);
         // RegisterHandler((string s, string oldValue, string newValue) => s.Replace(oldValue, newValue), HandleStringReplace);
 
         // Register additional Math method handlers
