@@ -25,13 +25,13 @@ public abstract class Contract_Tuple : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("getResult")]
-    public abstract IList<object>? GetResult();
+    public abstract IList<object> GetResult();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("t1")]
-    public abstract object? T1();
+    public abstract object T1();
 
     #endregion
 

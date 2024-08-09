@@ -7,5 +7,5 @@ public interface IVerificable
     /// <summary>
     /// Safe property
     /// </summary>
-    public bool? Verify { [DisplayName("verify")] get; }
+    public bool Verify { [DisplayName("verify")] get; }
 }

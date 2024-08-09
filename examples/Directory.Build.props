@@ -16,8 +16,9 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <Company>The Neo N3 Contract Examples Project</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <WarningsAsErrors>CS8632</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

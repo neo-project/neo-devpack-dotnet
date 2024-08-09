@@ -1,3 +1,4 @@
+extern alias scfx;
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
@@ -5,6 +6,7 @@ using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
 using Neo.SmartContract.Testing.Exceptions;
+using scfx::Neo.SmartContract.Framework.Native;
 using Array = Neo.VM.Types.Array;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -160,7 +162,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var arr = Contract.TestDefaultArray();
             Assert.AreEqual(1805220, Engine.FeeConsumed.Value);
-            Assert.IsTrue(arr!.Value);
+            Assert.IsTrue(arr);
         }
 
         [TestMethod]
@@ -225,7 +227,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ElementBinding()
         {
             Contract.TestElementBinding();
-            Assert.AreEqual(5907840, Engine.FeeConsumed.Value);
+            Assert.AreEqual(5907480, Engine.FeeConsumed.Value);
         }
     }
 }

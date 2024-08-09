@@ -25,7 +25,7 @@ public abstract class Contract_Throw : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("testMain")]
-    public abstract void TestMain(IList<object>? args);
+    public abstract void TestMain(IList<object> args);
 
     #endregion
 

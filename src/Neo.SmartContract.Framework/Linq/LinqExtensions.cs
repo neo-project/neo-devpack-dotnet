@@ -99,7 +99,7 @@ namespace Neo.SmartContract.Framework.Linq
         ///  Determines whether any element of a sequence satisfies a condition.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="source"> An collections that contains the elements to apply the predicate to.</param>
+        /// <param name="source"> A collections that contains the elements to apply the predicate to.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns>true if the source sequence is not empty and at least one of its elements passes the test in the specified predicate; otherwise, false.</returns>
         /// <exception cref="ArgumentNullException">source or predicate is null.</exception>

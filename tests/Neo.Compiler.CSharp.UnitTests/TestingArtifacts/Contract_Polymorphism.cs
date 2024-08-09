@@ -25,25 +25,25 @@ public abstract class Contract_Polymorphism : Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     [DisplayName("mul")]
-    public abstract BigInteger? Mul(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Mul(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sum")]
-    public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Sum(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract string? Test();
+    public abstract string Test();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test2")]
-    public abstract string? Test2();
+    public abstract string Test2();
 
     #endregion
 

@@ -25,73 +25,73 @@ public abstract class Contract_Foreach : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("bigIntegerForeach")]
-    public abstract IList<object>? BigIntegerForeach();
+    public abstract IList<object> BigIntegerForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("byteArrayForeach")]
-    public abstract IList<object>? ByteArrayForeach();
+    public abstract IList<object> ByteArrayForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("byteStringEmpty")]
-    public abstract BigInteger? ByteStringEmpty();
+    public abstract BigInteger ByteStringEmpty();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("byteStringForeach")]
-    public abstract byte[]? ByteStringForeach();
+    public abstract byte[] ByteStringForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("eCPointForeach")]
-    public abstract IList<object>? ECPointForeach();
+    public abstract IList<object> ECPointForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("intForeach")]
-    public abstract BigInteger? IntForeach();
+    public abstract BigInteger IntForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("intForeachBreak")]
-    public abstract BigInteger? IntForeachBreak(BigInteger? breakIndex);
+    public abstract BigInteger IntForeachBreak(BigInteger breakIndex);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("intForloop")]
-    public abstract BigInteger? IntForloop();
+    public abstract BigInteger IntForloop();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("objectArrayForeach")]
-    public abstract IList<object>? ObjectArrayForeach();
+    public abstract IList<object> ObjectArrayForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("stringForeach")]
-    public abstract string? StringForeach();
+    public abstract string StringForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("structForeach")]
-    public abstract IDictionary<object, object>? StructForeach();
+    public abstract IDictionary<object, object> StructForeach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testContinue")]
-    public abstract BigInteger? TestContinue();
+    public abstract BigInteger TestContinue();
 
     /// <summary>
     /// Unsafe method
@@ -121,13 +121,13 @@ public abstract class Contract_Foreach : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("uInt160Foreach")]
-    public abstract IList<object>? UInt160Foreach();
+    public abstract IList<object> UInt160Foreach();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("uInt256Foreach")]
-    public abstract IList<object>? UInt256Foreach();
+    public abstract IList<object> UInt256Foreach();
 
     #endregion
 

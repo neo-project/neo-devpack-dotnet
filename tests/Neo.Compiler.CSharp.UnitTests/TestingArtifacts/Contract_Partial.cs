@@ -25,13 +25,13 @@ public abstract class Contract_Partial : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("test1")]
-    public abstract BigInteger? Test1();
+    public abstract BigInteger Test1();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test2")]
-    public abstract BigInteger? Test2();
+    public abstract BigInteger Test2();
 
     #endregion
 

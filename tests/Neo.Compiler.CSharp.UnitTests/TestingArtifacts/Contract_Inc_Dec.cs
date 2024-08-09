@@ -25,49 +25,49 @@ public abstract class Contract_Inc_Dec : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Dec_Checked")]
-    public abstract BigInteger? UnitTest_Local_Dec_Checked();
+    public abstract BigInteger UnitTest_Local_Dec_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Dec_Checked_Int")]
-    public abstract BigInteger? UnitTest_Local_Dec_Checked_Int();
+    public abstract BigInteger UnitTest_Local_Dec_Checked_Int();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Dec_UnChecked")]
-    public abstract BigInteger? UnitTest_Local_Dec_UnChecked();
+    public abstract BigInteger UnitTest_Local_Dec_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Dec_UnChecked_Int")]
-    public abstract BigInteger? UnitTest_Local_Dec_UnChecked_Int();
+    public abstract BigInteger UnitTest_Local_Dec_UnChecked_Int();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Inc_Checked")]
-    public abstract BigInteger? UnitTest_Local_Inc_Checked();
+    public abstract BigInteger UnitTest_Local_Inc_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Inc_Checked_Int")]
-    public abstract BigInteger? UnitTest_Local_Inc_Checked_Int();
+    public abstract BigInteger UnitTest_Local_Inc_Checked_Int();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Inc_UnChecked")]
-    public abstract BigInteger? UnitTest_Local_Inc_UnChecked();
+    public abstract BigInteger UnitTest_Local_Inc_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Local_Inc_UnChecked_Int")]
-    public abstract BigInteger? UnitTest_Local_Inc_UnChecked_Int();
+    public abstract BigInteger UnitTest_Local_Inc_UnChecked_Int();
 
     /// <summary>
     /// Unsafe method
@@ -79,97 +79,97 @@ public abstract class Contract_Inc_Dec : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Dec_Checked")]
-    public abstract BigInteger? UnitTest_Param_Dec_Checked(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Dec_Checked(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Dec_Checked_Int")]
-    public abstract BigInteger? UnitTest_Param_Dec_Checked_Int(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Dec_Checked_Int(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Dec_UnChecked")]
-    public abstract BigInteger? UnitTest_Param_Dec_UnChecked(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Dec_UnChecked(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Dec_UnChecked_Int")]
-    public abstract BigInteger? UnitTest_Param_Dec_UnChecked_Int(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Dec_UnChecked_Int(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Inc_Checked")]
-    public abstract BigInteger? UnitTest_Param_Inc_Checked(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Inc_Checked(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Inc_Checked_Int")]
-    public abstract BigInteger? UnitTest_Param_Inc_Checked_Int(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Inc_Checked_Int(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Inc_UnChecked")]
-    public abstract BigInteger? UnitTest_Param_Inc_UnChecked(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Inc_UnChecked(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Param_Inc_UnChecked_Int")]
-    public abstract BigInteger? UnitTest_Param_Inc_UnChecked_Int(BigInteger? param);
+    public abstract BigInteger UnitTest_Param_Inc_UnChecked_Int(BigInteger param);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Dec_Checked")]
-    public abstract BigInteger? UnitTest_Property_Dec_Checked();
+    public abstract BigInteger UnitTest_Property_Dec_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Dec_Checked_Int")]
-    public abstract BigInteger? UnitTest_Property_Dec_Checked_Int();
+    public abstract BigInteger UnitTest_Property_Dec_Checked_Int();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Dec_UnChecked")]
-    public abstract BigInteger? UnitTest_Property_Dec_UnChecked();
+    public abstract BigInteger UnitTest_Property_Dec_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Dec_UnChecked_Int")]
-    public abstract BigInteger? UnitTest_Property_Dec_UnChecked_Int();
+    public abstract BigInteger UnitTest_Property_Dec_UnChecked_Int();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Inc_Checked")]
-    public abstract BigInteger? UnitTest_Property_Inc_Checked();
+    public abstract BigInteger UnitTest_Property_Inc_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Inc_Checked_Int")]
-    public abstract BigInteger? UnitTest_Property_Inc_Checked_Int();
+    public abstract BigInteger UnitTest_Property_Inc_Checked_Int();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Inc_UnChecked")]
-    public abstract BigInteger? UnitTest_Property_Inc_UnChecked();
+    public abstract BigInteger UnitTest_Property_Inc_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Property_Inc_UnChecked_Int")]
-    public abstract BigInteger? UnitTest_Property_Inc_UnChecked_Int();
+    public abstract BigInteger UnitTest_Property_Inc_UnChecked_Int();
 
     #endregion
 

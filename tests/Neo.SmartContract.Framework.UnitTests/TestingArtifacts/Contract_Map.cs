@@ -25,67 +25,67 @@ public abstract class Contract_Map : Neo.SmartContract.Testing.SmartContract, IC
     /// Unsafe method
     /// </summary>
     [DisplayName("testBool")]
-    public abstract string? TestBool(bool? key);
+    public abstract string TestBool(bool key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArray")]
-    public abstract object? TestByteArray(byte[]? key);
+    public abstract object TestByteArray(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArray2")]
-    public abstract string? TestByteArray2();
+    public abstract string TestByteArray2();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testClear")]
-    public abstract object? TestClear(byte[]? key);
+    public abstract object TestClear(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testCount")]
-    public abstract BigInteger? TestCount(BigInteger? count);
+    public abstract BigInteger TestCount(BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDeserialize")]
-    public abstract object? TestDeserialize(string? key);
+    public abstract object TestDeserialize(string key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testInt")]
-    public abstract string? TestInt(BigInteger? key);
+    public abstract string TestInt(BigInteger key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testuint160Key")]
-    public abstract object? Testuint160Key();
+    public abstract object Testuint160Key();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUnicode")]
-    public abstract string? TestUnicode(string? key);
+    public abstract string TestUnicode(string key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUnicodeKeyValue")]
-    public abstract string? TestUnicodeKeyValue(string? key, string? value);
+    public abstract string TestUnicodeKeyValue(string key, string value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUnicodeValue")]
-    public abstract string? TestUnicodeValue(string? value);
+    public abstract string TestUnicodeValue(string value);
 
     #endregion
 

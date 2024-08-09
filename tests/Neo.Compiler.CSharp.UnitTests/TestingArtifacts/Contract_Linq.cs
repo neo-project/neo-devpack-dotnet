@@ -25,139 +25,139 @@ public abstract class Contract_Linq : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("aggregateSum")]
-    public abstract BigInteger? AggregateSum(IList<object>? array);
+    public abstract BigInteger AggregateSum(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("allGreaterThanZero")]
-    public abstract bool? AllGreaterThanZero(IList<object>? array);
+    public abstract bool AllGreaterThanZero(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("anyGreaterThan")]
-    public abstract bool? AnyGreaterThan(IList<object>? array, BigInteger? target);
+    public abstract bool AnyGreaterThan(IList<object> array, BigInteger target);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("anyGreaterThanZero")]
-    public abstract bool? AnyGreaterThanZero(IList<object>? array);
+    public abstract bool AnyGreaterThanZero(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("average")]
-    public abstract BigInteger? Average(IList<object>? array);
+    public abstract BigInteger Average(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("averageTwice")]
-    public abstract BigInteger? AverageTwice(IList<object>? array);
+    public abstract BigInteger AverageTwice(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("contains")]
-    public abstract bool? Contains(IList<object>? array, BigInteger? target);
+    public abstract bool Contains(IList<object> array, BigInteger target);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("containsPerson")]
-    public abstract bool? ContainsPerson(IList<object>? array, BigInteger? target);
+    public abstract bool ContainsPerson(IList<object> array, BigInteger target);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("containsPersonIndex")]
-    public abstract bool? ContainsPersonIndex(IList<object>? array, BigInteger? targetIndex);
+    public abstract bool ContainsPersonIndex(IList<object> array, BigInteger targetIndex);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("containsPersonS")]
-    public abstract bool? ContainsPersonS(IList<object>? array, BigInteger? target);
+    public abstract bool ContainsPersonS(IList<object> array, BigInteger target);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("containsText")]
-    public abstract bool? ContainsText(IList<object>? array, string? target);
+    public abstract bool ContainsText(IList<object> array, string target);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("count")]
-    public abstract BigInteger? Count(IList<object>? array);
+    public abstract BigInteger Count(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("countGreaterThanZero")]
-    public abstract BigInteger? CountGreaterThanZero(IList<object>? array);
+    public abstract BigInteger CountGreaterThanZero(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("firstGreaterThanZero")]
-    public abstract BigInteger? FirstGreaterThanZero(IList<object>? array);
+    public abstract BigInteger FirstGreaterThanZero(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("isEmpty")]
-    public abstract bool? IsEmpty(IList<object>? array);
+    public abstract bool IsEmpty(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("selectPersonS")]
-    public abstract object? SelectPersonS(IList<object>? array);
+    public abstract object SelectPersonS(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("selectTwice")]
-    public abstract object? SelectTwice(IList<object>? array);
+    public abstract object SelectTwice(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("skip")]
-    public abstract object? Skip(IList<object>? array, BigInteger? count);
+    public abstract object Skip(IList<object> array, BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sum")]
-    public abstract BigInteger? Sum(IList<object>? array);
+    public abstract BigInteger Sum(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sumTwice")]
-    public abstract BigInteger? SumTwice(IList<object>? array);
+    public abstract BigInteger SumTwice(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("take")]
-    public abstract object? Take(IList<object>? array, BigInteger? count);
+    public abstract object Take(IList<object> array, BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("toMap")]
-    public abstract object? ToMap(IList<object>? array);
+    public abstract object ToMap(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("whereGreaterThanZero")]
-    public abstract object? WhereGreaterThanZero(IList<object>? array);
+    public abstract object WhereGreaterThanZero(IList<object> array);
 
     #endregion
 

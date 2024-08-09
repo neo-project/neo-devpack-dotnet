@@ -25,7 +25,7 @@ public abstract class Contract_AttributeChanged : Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract bool? Test();
+    public abstract bool Test();
 
     #endregion
 

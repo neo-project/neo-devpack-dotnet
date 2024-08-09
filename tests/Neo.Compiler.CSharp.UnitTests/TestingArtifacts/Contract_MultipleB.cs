@@ -25,7 +25,7 @@ public abstract class Contract_MultipleB : Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract bool? Test();
+    public abstract bool Test();
 
     #endregion
 

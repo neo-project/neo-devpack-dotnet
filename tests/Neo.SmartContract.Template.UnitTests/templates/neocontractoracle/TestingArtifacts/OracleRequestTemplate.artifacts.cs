@@ -24,7 +24,7 @@ public abstract class OracleRequestTemplate : Neo.SmartContract.Testing.SmartCon
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string? Response { [DisplayName("getResponse")] get; }
+    public abstract string Response { [DisplayName("getResponse")] get; }
 
     #endregion
 
@@ -40,7 +40,7 @@ public abstract class OracleRequestTemplate : Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     [DisplayName("onOracleResponse")]
-    public abstract void OnOracleResponse(string? requestedUrl, object? userData, BigInteger? oracleResponse, string? jsonString);
+    public abstract void OnOracleResponse(string requestedUrl, object userData, BigInteger oracleResponse, string jsonString);
 
     #endregion
 

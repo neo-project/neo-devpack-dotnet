@@ -25,13 +25,13 @@ public abstract class Contract_PostfixUnary : Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     [DisplayName("isValid")]
-    public abstract bool? IsValid(object? person = null);
+    public abstract bool IsValid(object person = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract string? Test();
+    public abstract string Test();
 
     #endregion
 

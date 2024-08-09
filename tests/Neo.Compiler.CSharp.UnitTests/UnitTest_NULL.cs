@@ -1,6 +1,8 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.Numerics;
+using Neo.SmartContract.Testing.Exceptions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -31,56 +33,56 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void NullProperty()
         {
-            Assert.IsTrue(Contract.NullProperty(null));
-            Assert.AreEqual(1048200, Engine.FeeConsumed.Value);
+            Assert.ThrowsException<TestException>(() => Contract.NullProperty(null));
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.NullProperty(""));
-            Assert.AreEqual(1048530, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048350, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.NullProperty("123"));
-            Assert.AreEqual(1048530, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048350, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void NullPropertyGT()
         {
-            Assert.IsFalse(Contract.NullPropertyGT(null));
-            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
+            Assert.ThrowsException<TestException>(() => Contract.NullPropertyGT(null));
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.NullPropertyGT(""));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.NullPropertyGT("123"));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void NullPropertyLT()
         {
-            Assert.IsFalse(Contract.NullPropertyLT(null));
-            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
+            Assert.ThrowsException<TestException>(() => Contract.NullPropertyLT(null));
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.NullPropertyLT(""));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.NullPropertyLT("123"));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void NullPropertyGE()
         {
-            Assert.IsFalse(Contract.NullPropertyGE(null));
-            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
+            Assert.ThrowsException<TestException>(() => Contract.NullPropertyGE(null));
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.NullPropertyGE(""));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.NullPropertyGE("123"));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void NullPropertyLE()
         {
-            Assert.IsFalse(Contract.NullPropertyLE(null));
-            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
+            Assert.ThrowsException<TestException>(() => Contract.NullPropertyLE(null));
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.NullPropertyLE(""));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.NullPropertyLE("123"));
-            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047630, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -92,13 +94,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             // a123b->12
             {
                 var data = (VM.Types.ByteString)Contract.NullCoalescing("a123b")!;
-                Assert.AreEqual(1109040, Engine.FeeConsumed.Value);
+                Assert.AreEqual(1108860, Engine.FeeConsumed.Value);
                 Assert.AreEqual("12", System.Text.Encoding.ASCII.GetString(data.GetSpan()));
             }
             // null->null
             {
-                Assert.IsNull(Contract.NullCoalescing(null));
-                Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
+                Assert.ThrowsException<TestException>(() => Contract.NullCoalescing(null));
+                Assert.AreEqual(1108530, Engine.FeeConsumed.Value);
             }
         }
 
@@ -187,7 +189,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void NullTypeTest()
         {
             Contract.NullType(); // no error
-            Assert.AreEqual(986340, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1003380, Engine.FeeConsumed.Value);
         }
     }
 }

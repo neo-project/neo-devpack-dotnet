@@ -25,19 +25,19 @@ public abstract class Contract_InvokeCsNef : Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     [DisplayName("returnInteger")]
-    public abstract BigInteger? ReturnInteger();
+    public abstract BigInteger ReturnInteger();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("returnString")]
-    public abstract string? ReturnString();
+    public abstract string ReturnString();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testMain")]
-    public abstract BigInteger? TestMain();
+    public abstract BigInteger TestMain();
 
     #endregion
 

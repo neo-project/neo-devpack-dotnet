@@ -25,31 +25,31 @@ public abstract class Contract_Returns : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("byteStringAdd")]
-    public abstract byte[]? ByteStringAdd(byte[]? a, byte[]? b);
+    public abstract byte[] ByteStringAdd(byte[] a, byte[] b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("div")]
-    public abstract IList<object>? Div(BigInteger? a, BigInteger? b);
+    public abstract IList<object> Div(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("mix")]
-    public abstract BigInteger? Mix(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Mix(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("subtract")]
-    public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Subtract(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sum")]
-    public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Sum(BigInteger a, BigInteger b);
 
     #endregion
 

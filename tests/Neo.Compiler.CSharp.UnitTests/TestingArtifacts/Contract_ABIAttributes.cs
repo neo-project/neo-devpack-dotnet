@@ -25,7 +25,7 @@ public abstract class Contract_ABIAttributes : Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     [DisplayName("test")]
-    public abstract BigInteger? Test();
+    public abstract BigInteger Test();
 
     #endregion
 

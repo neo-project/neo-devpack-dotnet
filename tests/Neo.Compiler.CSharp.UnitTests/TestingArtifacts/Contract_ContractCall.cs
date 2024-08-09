@@ -25,7 +25,7 @@ public abstract class Contract_ContractCall : Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     [DisplayName("testContractCall")]
-    public abstract byte[]? TestContractCall();
+    public abstract byte[] TestContractCall();
 
     /// <summary>
     /// Unsafe method

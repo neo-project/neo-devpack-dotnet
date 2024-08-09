@@ -25,49 +25,49 @@ public abstract class Contract_IntegerParse : Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteparse")]
-    public abstract BigInteger? TestByteparse(string? s);
+    public abstract BigInteger TestByteparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntparse")]
-    public abstract BigInteger? TestIntparse(string? s);
+    public abstract BigInteger TestIntparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongparse")]
-    public abstract BigInteger? TestLongparse(string? s);
+    public abstract BigInteger TestLongparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSbyteparse")]
-    public abstract BigInteger? TestSbyteparse(string? s);
+    public abstract BigInteger TestSbyteparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortparse")]
-    public abstract BigInteger? TestShortparse(string? s);
+    public abstract BigInteger TestShortparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUintparse")]
-    public abstract BigInteger? TestUintparse(string? s);
+    public abstract BigInteger TestUintparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUlongparse")]
-    public abstract BigInteger? TestUlongparse(string? s);
+    public abstract BigInteger TestUlongparse(string s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUshortparse")]
-    public abstract BigInteger? TestUshortparse(string? s);
+    public abstract BigInteger TestUshortparse(string s);
 
     #endregion
 

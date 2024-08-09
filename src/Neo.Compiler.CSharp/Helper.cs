@@ -63,12 +63,6 @@ namespace Neo.Compiler
 
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
-            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
-            {
-                // use the original type for nullable types, depend on the script to deal with null for value types
-                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
-            }
-
             switch (type.ToString())
             {
                 case "void": return ContractParameterType.Void;

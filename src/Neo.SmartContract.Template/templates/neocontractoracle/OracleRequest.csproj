@@ -1,7 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+      <TargetFramework>net8.0</TargetFramework>
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+      <Nullable>disable</Nullable>
+      <WarningsAsErrors>CS8632</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +14,6 @@
   <PropertyGroup>
     <BaseNameArgument Condition="'$(AssemblyName)' != ''">--base-name $(AssemblyName)</BaseNameArgument>
     <BaseNameArgument Condition="'$(AssemblyName)' == ''">--base-name $(MSBuildProjectName)</BaseNameArgument>
-    <NullableArgument Condition="'$(Nullable)' != ''">--nullable $(Nullable)</NullableArgument>
     <CheckedArgument Condition="'$(CheckForOverflowUnderflow)' == 'true'">--checked</CheckedArgument>
     <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
   </PropertyGroup>

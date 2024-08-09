@@ -25,55 +25,55 @@ public abstract class Contract_Blockchain : Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     [DisplayName("getBlockByHash")]
-    public abstract object? GetBlockByHash(UInt256? hash, string? whatReturn);
+    public abstract object GetBlockByHash(UInt256 hash, string whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getBlockByIndex")]
-    public abstract object? GetBlockByIndex(BigInteger? index, string? whatReturn);
+    public abstract object GetBlockByIndex(BigInteger index, string whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getContract")]
-    public abstract object? GetContract(UInt160? hash, string? whatReturn);
+    public abstract object GetContract(UInt160 hash, string whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getHeight")]
-    public abstract BigInteger? GetHeight();
+    public abstract BigInteger GetHeight();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionHeight")]
-    public abstract BigInteger? GetTransactionHeight(UInt256? hash);
+    public abstract BigInteger GetTransactionHeight(UInt256 hash);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxByBlockHash")]
-    public abstract object? GetTxByBlockHash(UInt256? blockHash, BigInteger? txIndex, string? whatReturn);
+    public abstract object GetTxByBlockHash(UInt256 blockHash, BigInteger txIndex, string whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxByBlockIndex")]
-    public abstract object? GetTxByBlockIndex(BigInteger? blockIndex, BigInteger? txIndex, string? whatReturn);
+    public abstract object GetTxByBlockIndex(BigInteger blockIndex, BigInteger txIndex, string whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxByHash")]
-    public abstract object? GetTxByHash(UInt256? hash, string? whatReturn);
+    public abstract object GetTxByHash(UInt256 hash, string whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxVMState")]
-    public abstract BigInteger? GetTxVMState(UInt256? hash);
+    public abstract BigInteger GetTxVMState(UInt256 hash);
 
     #endregion
 

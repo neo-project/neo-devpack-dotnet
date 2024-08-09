@@ -158,8 +158,8 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             var a = Ledger.GetBlock(0);
             var array = new[] { a };
-            var firstItem = array?[0];
-            Runtime.Log(firstItem?.Timestamp.ToString());
+            var firstItem = array[0];
+            Runtime.Log(firstItem.Timestamp.ToString());
         }
 
         // This is new language feature introduced in C# 12

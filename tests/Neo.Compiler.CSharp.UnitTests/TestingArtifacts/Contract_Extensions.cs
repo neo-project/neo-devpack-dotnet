@@ -25,7 +25,7 @@ public abstract class Contract_Extensions : Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     [DisplayName("testSum")]
-    public abstract BigInteger? TestSum(BigInteger? a, BigInteger? b);
+    public abstract BigInteger TestSum(BigInteger a, BigInteger b);
 
     #endregion
 

@@ -25,49 +25,49 @@ public abstract class Contract_StaticStorageMap : Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     [DisplayName("get")]
-    public abstract BigInteger? Get(string? msg);
+    public abstract BigInteger Get(string msg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("get2")]
-    public abstract BigInteger? Get2(string? msg);
+    public abstract BigInteger Get2(string msg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getReadonly")]
-    public abstract BigInteger? GetReadonly(string? msg);
+    public abstract BigInteger GetReadonly(string msg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("put")]
-    public abstract void Put(string? message);
+    public abstract void Put(string message);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("put2")]
-    public abstract void Put2(string? message);
+    public abstract void Put2(string message);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("putReadonly")]
-    public abstract void PutReadonly(string? message);
+    public abstract void PutReadonly(string message);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("teststoragemap_Getbyteprefix")]
-    public abstract BigInteger? Teststoragemap_Getbyteprefix(BigInteger? x);
+    public abstract BigInteger Teststoragemap_Getbyteprefix(BigInteger x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("teststoragemap_Putbyteprefix")]
-    public abstract void Teststoragemap_Putbyteprefix(BigInteger? x);
+    public abstract void Teststoragemap_Putbyteprefix(BigInteger x);
 
     #endregion
 

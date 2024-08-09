@@ -25,49 +25,49 @@ public abstract class Contract_Regex : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("testAlphabetOnly")]
-    public abstract bool? TestAlphabetOnly();
+    public abstract bool TestAlphabetOnly();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testContains")]
-    public abstract bool? TestContains();
+    public abstract bool TestContains();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testEndWith")]
-    public abstract bool? TestEndWith();
+    public abstract bool TestEndWith();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIndexOf")]
-    public abstract BigInteger? TestIndexOf();
+    public abstract BigInteger TestIndexOf();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLowerAlphabetOnly")]
-    public abstract bool? TestLowerAlphabetOnly();
+    public abstract bool TestLowerAlphabetOnly();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testNumberOnly")]
-    public abstract bool? TestNumberOnly();
+    public abstract bool TestNumberOnly();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStartWith")]
-    public abstract bool? TestStartWith();
+    public abstract bool TestStartWith();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUpperAlphabetOnly")]
-    public abstract bool? TestUpperAlphabetOnly();
+    public abstract bool TestUpperAlphabetOnly();
 
     #endregion
 

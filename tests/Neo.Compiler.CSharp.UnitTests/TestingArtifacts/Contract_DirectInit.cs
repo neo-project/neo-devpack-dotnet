@@ -25,25 +25,25 @@ public abstract class Contract_DirectInit : Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetECPoint")]
-    public abstract ECPoint? TestGetECPoint();
+    public abstract ECPoint TestGetECPoint();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetString")]
-    public abstract string? TestGetString();
+    public abstract string TestGetString();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetUInt160")]
-    public abstract UInt160? TestGetUInt160();
+    public abstract UInt160 TestGetUInt160();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetUInt256")]
-    public abstract UInt256? TestGetUInt256();
+    public abstract UInt256 TestGetUInt256();
 
     #endregion
 

@@ -25,7 +25,7 @@ public abstract class Contract_Math : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("abs")]
-    public abstract BigInteger? Abs(BigInteger? a);
+    public abstract BigInteger Abs(BigInteger a);
 
     /// <summary>
     /// Unsafe method
@@ -133,19 +133,19 @@ public abstract class Contract_Math : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("max")]
-    public abstract BigInteger? Max(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Max(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("min")]
-    public abstract BigInteger? Min(BigInteger? a, BigInteger? b);
+    public abstract BigInteger Min(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("sign")]
-    public abstract BigInteger? Sign(BigInteger? a);
+    public abstract BigInteger Sign(BigInteger a);
 
     #endregion
 

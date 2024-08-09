@@ -51,13 +51,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void TestNullAble()
-        {
-            var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            Assert.AreEqual(Program.Main([path, "--nullable", "Enable"]), 0);
-        }
-
-        [TestMethod]
         public void TestDebug()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");

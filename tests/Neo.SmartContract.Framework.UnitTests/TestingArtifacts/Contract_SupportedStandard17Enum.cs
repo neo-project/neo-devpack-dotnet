@@ -22,7 +22,7 @@ public abstract class Contract_SupportedStandard17Enum : Neo.SmartContract.Testi
     #region Events
 
     [DisplayName("Transfer")]
-    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer? OnTransfer;
+    public event Neo.SmartContract.Testing.TestingStandards.INep17Standard.delTransfer OnTransfer;
 
     #endregion
 
@@ -31,17 +31,17 @@ public abstract class Contract_SupportedStandard17Enum : Neo.SmartContract.Testi
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? Decimals { [DisplayName("decimals")] get; }
+    public abstract BigInteger Decimals { [DisplayName("decimals")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string? Symbol { [DisplayName("symbol")] get; }
+    public abstract string Symbol { [DisplayName("symbol")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? TotalSupply { [DisplayName("totalSupply")] get; }
+    public abstract BigInteger TotalSupply { [DisplayName("totalSupply")] get; }
 
     #endregion
 
@@ -51,7 +51,7 @@ public abstract class Contract_SupportedStandard17Enum : Neo.SmartContract.Testi
     /// Safe method
     /// </summary>
     [DisplayName("balanceOf")]
-    public abstract BigInteger? BalanceOf(UInt160? owner);
+    public abstract BigInteger BalanceOf(UInt160 owner);
 
     #endregion
 
@@ -61,13 +61,13 @@ public abstract class Contract_SupportedStandard17Enum : Neo.SmartContract.Testi
     /// Unsafe method
     /// </summary>
     [DisplayName("onNEP17Payment")]
-    public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
+    public abstract void OnNEP17Payment(UInt160 from, BigInteger amount, object data = null);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
+    public abstract bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
 
     #endregion
 

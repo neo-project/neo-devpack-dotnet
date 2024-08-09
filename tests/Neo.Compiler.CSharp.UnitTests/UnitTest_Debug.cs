@@ -29,7 +29,6 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Debug = false,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
             })
             .CompileSources(testContractsPath);
 

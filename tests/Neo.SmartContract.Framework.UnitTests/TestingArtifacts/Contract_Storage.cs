@@ -25,103 +25,103 @@ public abstract class Contract_Storage : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("serializeTest")]
-    public abstract BigInteger? SerializeTest(byte[]? key, BigInteger? value);
+    public abstract BigInteger SerializeTest(byte[] key, BigInteger value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDeleteByte")]
-    public abstract void TestDeleteByte(byte[]? key);
+    public abstract void TestDeleteByte(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDeleteByteArray")]
-    public abstract void TestDeleteByteArray(byte[]? key);
+    public abstract void TestDeleteByteArray(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDeleteString")]
-    public abstract void TestDeleteString(byte[]? key);
+    public abstract void TestDeleteString(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testFind")]
-    public abstract byte[]? TestFind();
+    public abstract byte[] TestFind();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetByte")]
-    public abstract byte[]? TestGetByte(byte[]? key);
+    public abstract byte[] TestGetByte(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetByteArray")]
-    public abstract byte[]? TestGetByteArray(byte[]? key);
+    public abstract byte[] TestGetByteArray(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGetString")]
-    public abstract byte[]? TestGetString(byte[]? key);
+    public abstract byte[] TestGetString(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIndexGet")]
-    public abstract byte[]? TestIndexGet(byte[]? key);
+    public abstract byte[] TestIndexGet(byte[] key);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIndexPut")]
-    public abstract bool? TestIndexPut(byte[]? key, byte[]? value);
+    public abstract bool TestIndexPut(byte[] key, byte[] value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testNewGetByteArray")]
-    public abstract byte[]? TestNewGetByteArray();
+    public abstract byte[] TestNewGetByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testNewGetMethods")]
-    public abstract bool? TestNewGetMethods();
+    public abstract bool TestNewGetMethods();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testOver16Bytes")]
-    public abstract byte[]? TestOver16Bytes();
+    public abstract byte[] TestOver16Bytes();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testPutByte")]
-    public abstract bool? TestPutByte(byte[]? key, byte[]? value);
+    public abstract bool TestPutByte(byte[] key, byte[] value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testPutByteArray")]
-    public abstract bool? TestPutByteArray(byte[]? key, byte[]? value);
+    public abstract bool TestPutByteArray(byte[] key, byte[] value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testPutReadOnly")]
-    public abstract bool? TestPutReadOnly(byte[]? key, byte[]? value);
+    public abstract bool TestPutReadOnly(byte[] key, byte[] value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testPutString")]
-    public abstract bool? TestPutString(byte[]? key, byte[]? value);
+    public abstract bool TestPutString(byte[] key, byte[] value);
 
     #endregion
 

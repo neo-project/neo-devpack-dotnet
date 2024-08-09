@@ -25,31 +25,31 @@ public abstract class Contract_Record : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("test_CreateRecord")]
-    public abstract object? Test_CreateRecord(string? n, BigInteger? a);
+    public abstract object Test_CreateRecord(string n, BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test_CreateRecord2")]
-    public abstract object? Test_CreateRecord2(string? n, BigInteger? a);
+    public abstract object Test_CreateRecord2(string n, BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test_DeconstructRecord")]
-    public abstract string? Test_DeconstructRecord(string? n, BigInteger? a);
+    public abstract string Test_DeconstructRecord(string n, BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test_UpdateRecord")]
-    public abstract object? Test_UpdateRecord(string? n, BigInteger? a);
+    public abstract object Test_UpdateRecord(string n, BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("test_UpdateRecord2")]
-    public abstract object? Test_UpdateRecord2(string? n, BigInteger? a);
+    public abstract object Test_UpdateRecord2(string n, BigInteger a);
 
     #endregion
 

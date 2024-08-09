@@ -25,7 +25,7 @@ public abstract class Contract_IOracle : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("onOracleResponse")]
-    public abstract void OnOracleResponse(string? url, object? userData, BigInteger? code, string? result);
+    public abstract void OnOracleResponse(string url, object userData, BigInteger code, string result);
 
     #endregion
 

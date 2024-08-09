@@ -17,7 +17,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             BigInteger result;
             for (int i = 0; i < 10; i++)
             {
-                result = Contract.Factorial(i)!.Value;
+                result = Contract.Factorial(i);
                 Assert.AreEqual(i > 0 ? prevResult * i : 1, result);
                 prevResult = result;
             }

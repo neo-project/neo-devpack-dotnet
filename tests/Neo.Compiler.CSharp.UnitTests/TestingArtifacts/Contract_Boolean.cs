@@ -25,7 +25,7 @@ public abstract class Contract_Boolean : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("testBooleanOr")]
-    public abstract bool? TestBooleanOr();
+    public abstract bool TestBooleanOr();
 
     #endregion
 

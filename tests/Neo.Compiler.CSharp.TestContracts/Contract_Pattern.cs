@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public bool testRecursivePattern()
         {
-            UInt160? newOwner = UInt160.Zero;
+            UInt160 newOwner = UInt160.Zero;
 
             return newOwner switch
             {
@@ -43,7 +43,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return value is <= 0;
         }
 
-        public static bool TestNotPattern(bool? x) => x is not null;
+        public static bool TestNotPattern(bool x) => x;
 
         public static string Classify(int measurement) => measurement switch
         {

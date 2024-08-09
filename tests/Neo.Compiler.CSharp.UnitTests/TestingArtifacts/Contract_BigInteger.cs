@@ -25,157 +25,157 @@ public abstract class Contract_BigInteger : Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     [DisplayName("testAdd")]
-    public abstract BigInteger? TestAdd(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestAdd(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testbyte")]
-    public abstract BigInteger? Testbyte(BigInteger? input);
+    public abstract BigInteger Testbyte(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testchar")]
-    public abstract BigInteger? Testchar(BigInteger? input);
+    public abstract BigInteger Testchar(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testchartostring")]
-    public abstract string? Testchartostring(BigInteger? input);
+    public abstract string Testchartostring(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testCompare")]
-    public abstract BigInteger? TestCompare(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestCompare(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDivide")]
-    public abstract BigInteger? TestDivide(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestDivide(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testEquals")]
-    public abstract bool? TestEquals(BigInteger? x, BigInteger? y);
+    public abstract bool TestEquals(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testGreatestCommonDivisor")]
-    public abstract BigInteger? TestGreatestCommonDivisor(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestGreatestCommonDivisor(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testint")]
-    public abstract BigInteger? Testint(BigInteger? input);
+    public abstract BigInteger Testint(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIsEven")]
-    public abstract bool? TestIsEven(BigInteger? input);
+    public abstract bool TestIsEven(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIsOne")]
-    public abstract bool? TestIsOne(BigInteger? input);
+    public abstract bool TestIsOne(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIsZero")]
-    public abstract bool? TestIsZero(BigInteger? input);
+    public abstract bool TestIsZero(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testlong")]
-    public abstract BigInteger? Testlong(BigInteger? input);
+    public abstract BigInteger Testlong(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testModPow")]
-    public abstract BigInteger? TestModPow();
+    public abstract BigInteger TestModPow();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testMultiply")]
-    public abstract BigInteger? TestMultiply(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestMultiply(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testNegate")]
-    public abstract BigInteger? TestNegate(BigInteger? x);
+    public abstract BigInteger TestNegate(BigInteger x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testPow")]
-    public abstract BigInteger? TestPow(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestPow(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testRemainder")]
-    public abstract BigInteger? TestRemainder(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestRemainder(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testsbyte")]
-    public abstract BigInteger? Testsbyte(BigInteger? input);
+    public abstract BigInteger Testsbyte(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testshort")]
-    public abstract BigInteger? Testshort(BigInteger? input);
+    public abstract BigInteger Testshort(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSign")]
-    public abstract BigInteger? TestSign(BigInteger? input);
+    public abstract BigInteger TestSign(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSqrt")]
-    public abstract BigInteger? TestSqrt(BigInteger? x);
+    public abstract BigInteger TestSqrt(BigInteger x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSubtract")]
-    public abstract BigInteger? TestSubtract(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestSubtract(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testuint")]
-    public abstract BigInteger? Testuint(BigInteger? input);
+    public abstract BigInteger Testuint(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testulong")]
-    public abstract BigInteger? Testulong(BigInteger? input);
+    public abstract BigInteger Testulong(BigInteger input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testushort")]
-    public abstract BigInteger? Testushort(BigInteger? input);
+    public abstract BigInteger Testushort(BigInteger input);
 
     #endregion
 

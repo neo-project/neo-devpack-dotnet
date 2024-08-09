@@ -18,9 +18,9 @@ namespace Neo.Compiler.CSharp.TestContracts
             public Person(string name) { Name = name; }
         }
 
-        public static string? Test()
+        public static string Test()
         {
-            Person? p = new("John");
+            Person p = new("John");
             if (IsValid(p))
             {
                 p.Age++;
@@ -32,6 +32,6 @@ namespace Neo.Compiler.CSharp.TestContracts
             return null;
         }
 
-        public static bool IsValid(Person? person) => person is not null && person.Name is not null;
+        public static bool IsValid(Person person) => person is not null && person.Name is not null;
     }
 }

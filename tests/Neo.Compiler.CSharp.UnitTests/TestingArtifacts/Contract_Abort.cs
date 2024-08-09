@@ -25,37 +25,37 @@ public abstract class Contract_Abort : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbort")]
-    public abstract BigInteger? TestAbort();
+    public abstract BigInteger TestAbort();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInCatch")]
-    public abstract BigInteger? TestAbortInCatch(bool? abortMsg);
+    public abstract BigInteger TestAbortInCatch(bool abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInFinally")]
-    public abstract BigInteger? TestAbortInFinally(bool? abortMsg);
+    public abstract BigInteger TestAbortInFinally(bool abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInFunction")]
-    public abstract BigInteger? TestAbortInFunction(bool? abortMsg);
+    public abstract BigInteger TestAbortInFunction(bool abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInTry")]
-    public abstract BigInteger? TestAbortInTry(bool? abortMsg);
+    public abstract BigInteger TestAbortInTry(bool abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortMsg")]
-    public abstract BigInteger? TestAbortMsg();
+    public abstract BigInteger TestAbortMsg();
 
     #endregion
 

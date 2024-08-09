@@ -25,7 +25,7 @@ public abstract class Contract_Delegate : Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     [DisplayName("sumFunc")]
-    public abstract BigInteger? SumFunc(BigInteger? a, BigInteger? b);
+    public abstract BigInteger SumFunc(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method

@@ -116,7 +116,8 @@ namespace Neo.Compiler
     <PropertyGroup>
         <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <!-- Remove all Compile items from compilation -->

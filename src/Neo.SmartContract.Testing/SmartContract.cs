@@ -16,9 +16,9 @@ namespace Neo.SmartContract.Testing
     {
         internal readonly TestEngine Engine;
         private readonly Type _contractType;
-        private readonly Dictionary<string, FieldInfo?> _notifyCache = new();
+        private readonly Dictionary<string, FieldInfo> _notifyCache = new();
 
-        public event TestEngine.OnRuntimeLogDelegate? OnRuntimeLog;
+        public event TestEngine.OnRuntimeLogDelegate OnRuntimeLog;
 
         /// <summary>
         /// Contract hash

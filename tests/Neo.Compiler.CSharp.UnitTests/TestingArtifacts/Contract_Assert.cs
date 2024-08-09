@@ -25,31 +25,31 @@ public abstract class Contract_Assert : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssertFalse")]
-    public abstract BigInteger? TestAssertFalse();
+    public abstract BigInteger TestAssertFalse();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssertInCatch")]
-    public abstract BigInteger? TestAssertInCatch();
+    public abstract BigInteger TestAssertInCatch();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssertInFinally")]
-    public abstract BigInteger? TestAssertInFinally();
+    public abstract BigInteger TestAssertInFinally();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssertInFunction")]
-    public abstract BigInteger? TestAssertInFunction();
+    public abstract BigInteger TestAssertInFunction();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAssertInTry")]
-    public abstract BigInteger? TestAssertInTry();
+    public abstract BigInteger TestAssertInTry();
 
     #endregion
 

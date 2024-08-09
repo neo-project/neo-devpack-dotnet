@@ -25,7 +25,7 @@ public abstract class Contract_ConcatByteStringAddAssign : Neo.SmartContract.Tes
     /// Unsafe method
     /// </summary>
     [DisplayName("byteStringAddAssign")]
-    public abstract byte[]? ByteStringAddAssign(byte[]? a, byte[]? b, string? c);
+    public abstract byte[] ByteStringAddAssign(byte[] a, byte[] b, string c);
 
     #endregion
 

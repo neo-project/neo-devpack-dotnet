@@ -25,97 +25,97 @@ public abstract class Contract_Lambda : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("anyGreatThan")]
-    public abstract bool? AnyGreatThan(IList<object>? array, BigInteger? target);
+    public abstract bool AnyGreatThan(IList<object> array, BigInteger target);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("anyGreatThanZero")]
-    public abstract bool? AnyGreatThanZero(IList<object>? array);
+    public abstract bool AnyGreatThanZero(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("changeName")]
-    public abstract string? ChangeName(string? name);
+    public abstract string ChangeName(string name);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("changeName2")]
-    public abstract string? ChangeName2(string? name);
+    public abstract string ChangeName2(string name);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkPositiveOdd")]
-    public abstract bool? CheckPositiveOdd(BigInteger? i);
+    public abstract bool CheckPositiveOdd(BigInteger i);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZero")]
-    public abstract bool? CheckZero(BigInteger? i);
+    public abstract bool CheckZero(BigInteger i);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZero2")]
-    public abstract bool? CheckZero2(BigInteger? num);
+    public abstract bool CheckZero2(BigInteger num);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZero3")]
-    public abstract bool? CheckZero3(BigInteger? num);
+    public abstract bool CheckZero3(BigInteger num);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("fibo")]
-    public abstract BigInteger? Fibo(BigInteger? c);
+    public abstract BigInteger Fibo(BigInteger c);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("forEachVar")]
-    public abstract IList<object>? ForEachVar(IList<object>? array);
+    public abstract IList<object> ForEachVar(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("forVar")]
-    public abstract IList<object>? ForVar(IList<object>? array);
+    public abstract IList<object> ForVar(IList<object> array);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("invokeSum")]
-    public abstract BigInteger? InvokeSum(BigInteger? a, BigInteger? b);
+    public abstract BigInteger InvokeSum(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("invokeSum2")]
-    public abstract BigInteger? InvokeSum2(BigInteger? a, BigInteger? b);
+    public abstract BigInteger InvokeSum2(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLambdaDefault")]
-    public abstract BigInteger? TestLambdaDefault(BigInteger? a);
+    public abstract BigInteger TestLambdaDefault(BigInteger a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLambdaNotDefault")]
-    public abstract BigInteger? TestLambdaNotDefault(BigInteger? a, BigInteger? b);
+    public abstract BigInteger TestLambdaNotDefault(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("whereGreaterThanZero")]
-    public abstract IList<object>? WhereGreaterThanZero(IList<object>? array);
+    public abstract IList<object> WhereGreaterThanZero(IList<object> array);
 
     #endregion
 

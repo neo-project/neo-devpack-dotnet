@@ -1,10 +1,10 @@
 // Copyright (C) 2015-2024 The Neo Project.
-// 
-// The Neo.Compiler.CSharp is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -28,7 +28,8 @@ namespace Neo.Compiler
             All = Basic | Experimental
         }
 
-        public NullableContextOptions Nullable { get; set; }
+        // Nullable is currently not supported
+        public NullableContextOptions Nullable => NullableContextOptions.Disable;
         public bool Debug { get; set; }
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }

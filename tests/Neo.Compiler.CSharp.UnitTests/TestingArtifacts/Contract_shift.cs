@@ -25,13 +25,13 @@ public abstract class Contract_shift : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("testShift")]
-    public abstract IList<object>? TestShift();
+    public abstract IList<object> TestShift();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShiftBigInt")]
-    public abstract IList<object>? TestShiftBigInt();
+    public abstract IList<object> TestShiftBigInt();
 
     #endregion
 

@@ -21,10 +21,10 @@ public abstract class Contract_NEP11 : Neo.SmartContract.Testing.SmartContract, 
 
     #region Events
 
-    public delegate void delTransfer(UInt160? from, UInt160? to, BigInteger? amount, byte[]? tokenId);
+    public delegate void delTransfer(UInt160 from, UInt160 to, BigInteger amount, byte[] tokenId);
 
     [DisplayName("Transfer")]
-    public event delTransfer? OnTransfer;
+    public event delTransfer OnTransfer;
 
     #endregion
 
@@ -33,22 +33,22 @@ public abstract class Contract_NEP11 : Neo.SmartContract.Testing.SmartContract, 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? Decimals { [DisplayName("decimals")] get; }
+    public abstract BigInteger Decimals { [DisplayName("decimals")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract string? Symbol { [DisplayName("symbol")] get; }
+    public abstract string Symbol { [DisplayName("symbol")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract object? Tokens { [DisplayName("tokens")] get; }
+    public abstract object Tokens { [DisplayName("tokens")] get; }
 
     /// <summary>
     /// Safe property
     /// </summary>
-    public abstract BigInteger? TotalSupply { [DisplayName("totalSupply")] get; }
+    public abstract BigInteger TotalSupply { [DisplayName("totalSupply")] get; }
 
     #endregion
 
@@ -58,25 +58,25 @@ public abstract class Contract_NEP11 : Neo.SmartContract.Testing.SmartContract, 
     /// Safe method
     /// </summary>
     [DisplayName("balanceOf")]
-    public abstract BigInteger? BalanceOf(UInt160? owner);
+    public abstract BigInteger BalanceOf(UInt160 owner);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("ownerOf")]
-    public abstract UInt160? OwnerOf(byte[]? tokenId);
+    public abstract UInt160 OwnerOf(byte[] tokenId);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("properties")]
-    public abstract IDictionary<object, object>? Properties(byte[]? tokenId);
+    public abstract IDictionary<object, object> Properties(byte[] tokenId);
 
     /// <summary>
     /// Safe method
     /// </summary>
     [DisplayName("tokensOf")]
-    public abstract object? TokensOf(UInt160? owner);
+    public abstract object TokensOf(UInt160 owner);
 
     #endregion
 
@@ -86,7 +86,7 @@ public abstract class Contract_NEP11 : Neo.SmartContract.Testing.SmartContract, 
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
-    public abstract bool? Transfer(UInt160? to, byte[]? tokenId, object? data = null);
+    public abstract bool Transfer(UInt160 to, byte[] tokenId, object data = null);
 
     #endregion
 

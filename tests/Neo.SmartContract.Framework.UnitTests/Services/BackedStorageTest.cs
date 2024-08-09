@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(123, Contract.NonStaticPrivateGetterPublicSetter);
         }
 
-        public void Test_Kind(Func<BigInteger?> getter, Func<BigInteger?> publicGetter, Action<BigInteger> put)
+        public void Test_Kind(Func<BigInteger> getter, Func<BigInteger> publicGetter, Action<BigInteger> put)
         {
             // Read initial value
 

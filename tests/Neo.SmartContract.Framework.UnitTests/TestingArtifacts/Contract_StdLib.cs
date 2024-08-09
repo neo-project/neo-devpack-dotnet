@@ -25,85 +25,85 @@ public abstract class Contract_StdLib : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("atoi")]
-    public abstract BigInteger? Atoi(string? value, BigInteger? @base);
+    public abstract BigInteger Atoi(string value, BigInteger @base);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("base58CheckDecode")]
-    public abstract byte[]? Base58CheckDecode(string? input);
+    public abstract byte[] Base58CheckDecode(string input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("base58CheckEncode")]
-    public abstract string? Base58CheckEncode(byte[]? input);
+    public abstract string Base58CheckEncode(byte[] input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("base58Decode")]
-    public abstract byte[]? Base58Decode(string? input);
+    public abstract byte[] Base58Decode(string input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("base58Encode")]
-    public abstract string? Base58Encode(byte[]? input);
+    public abstract string Base58Encode(byte[] input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("base64Decode")]
-    public abstract byte[]? Base64Decode(string? input);
+    public abstract byte[] Base64Decode(string input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("base64Encode")]
-    public abstract string? Base64Encode(byte[]? input);
+    public abstract string Base64Encode(byte[] input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("itoa")]
-    public abstract string? Itoa(BigInteger? value, BigInteger? @base);
+    public abstract string Itoa(BigInteger value, BigInteger @base);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("memoryCompare")]
-    public abstract BigInteger? MemoryCompare(byte[]? str1, byte[]? str2);
+    public abstract BigInteger MemoryCompare(byte[] str1, byte[] str2);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("memorySearch1")]
-    public abstract BigInteger? MemorySearch1(byte[]? mem, byte[]? value);
+    public abstract BigInteger MemorySearch1(byte[] mem, byte[] value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("memorySearch2")]
-    public abstract BigInteger? MemorySearch2(byte[]? mem, byte[]? value, BigInteger? start);
+    public abstract BigInteger MemorySearch2(byte[] mem, byte[] value, BigInteger start);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("memorySearch3")]
-    public abstract BigInteger? MemorySearch3(byte[]? mem, byte[]? value, BigInteger? start, bool? backward);
+    public abstract BigInteger MemorySearch3(byte[] mem, byte[] value, BigInteger start, bool backward);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("stringSplit1")]
-    public abstract IList<object>? StringSplit1(string? str, string? separator);
+    public abstract IList<object> StringSplit1(string str, string separator);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("stringSplit2")]
-    public abstract IList<object>? StringSplit2(string? str, string? separator, bool? removeEmptyEntries);
+    public abstract IList<object> StringSplit2(string str, string separator, bool removeEmptyEntries);
 
     #endregion
 

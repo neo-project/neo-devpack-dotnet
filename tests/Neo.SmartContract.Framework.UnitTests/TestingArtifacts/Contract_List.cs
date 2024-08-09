@@ -25,31 +25,31 @@ public abstract class Contract_List : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("testAdd")]
-    public abstract string? TestAdd(BigInteger? count);
+    public abstract string TestAdd(BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testArrayConvert")]
-    public abstract IList<object>? TestArrayConvert(BigInteger? count);
+    public abstract IList<object> TestArrayConvert(BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testClear")]
-    public abstract string? TestClear(BigInteger? count);
+    public abstract string TestClear(BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testCount")]
-    public abstract BigInteger? TestCount(BigInteger? count);
+    public abstract BigInteger TestCount(BigInteger count);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testRemoveAt")]
-    public abstract string? TestRemoveAt(BigInteger? count, BigInteger? removeAt);
+    public abstract string TestRemoveAt(BigInteger count, BigInteger removeAt);
 
     #endregion
 

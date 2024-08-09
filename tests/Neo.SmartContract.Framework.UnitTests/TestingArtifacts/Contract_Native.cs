@@ -24,57 +24,57 @@ public abstract class Contract_Native : Neo.SmartContract.Testing.SmartContract,
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract BigInteger? GAS_Decimals();
+    public abstract BigInteger GAS_Decimals();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract BigInteger? NEO_BalanceOf(UInt160? account);
+    public abstract BigInteger NEO_BalanceOf(UInt160 account);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract BigInteger? NEO_Decimals();
+    public abstract BigInteger NEO_Decimals();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract object? NEO_GetAccountState(UInt160? account);
+    public abstract object NEO_GetAccountState(UInt160 account);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract IList<object>? NEO_GetCandidates();
+    public abstract IList<object> NEO_GetCandidates();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract BigInteger? NEO_GetGasPerBlock();
+    public abstract BigInteger NEO_GetGasPerBlock();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool? NEO_RegisterCandidate(ECPoint? pubkey);
+    public abstract bool NEO_RegisterCandidate(ECPoint pubkey);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool? NEO_Transfer(UInt160? from, UInt160? to, BigInteger? amount);
+    public abstract bool NEO_Transfer(UInt160 from, UInt160 to, BigInteger amount);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract BigInteger? NEO_UnclaimedGas(UInt160? account, BigInteger? end);
+    public abstract BigInteger NEO_UnclaimedGas(UInt160 account, BigInteger end);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract BigInteger? Policy_GetFeePerByte();
+    public abstract BigInteger Policy_GetFeePerByte();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    public abstract bool? Policy_IsBlocked(UInt160? account);
+    public abstract bool Policy_IsBlocked(UInt160 account);
 
     #endregion
 

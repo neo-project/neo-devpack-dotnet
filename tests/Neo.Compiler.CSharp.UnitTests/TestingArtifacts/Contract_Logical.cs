@@ -25,37 +25,37 @@ public abstract class Contract_Logical : Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     [DisplayName("testConditionalLogicalAnd")]
-    public abstract bool? TestConditionalLogicalAnd(bool? x, bool? y);
+    public abstract bool TestConditionalLogicalAnd(bool x, bool y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testConditionalLogicalOr")]
-    public abstract bool? TestConditionalLogicalOr(bool? x, bool? y);
+    public abstract bool TestConditionalLogicalOr(bool x, bool y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalAnd")]
-    public abstract BigInteger? TestLogicalAnd(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestLogicalAnd(BigInteger x, BigInteger y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalExclusiveOr")]
-    public abstract bool? TestLogicalExclusiveOr(bool? x, bool? y);
+    public abstract bool TestLogicalExclusiveOr(bool x, bool y);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalNegation")]
-    public abstract bool? TestLogicalNegation(bool? x);
+    public abstract bool TestLogicalNegation(bool x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalOr")]
-    public abstract BigInteger? TestLogicalOr(BigInteger? x, BigInteger? y);
+    public abstract BigInteger TestLogicalOr(BigInteger x, BigInteger y);
 
     #endregion
 

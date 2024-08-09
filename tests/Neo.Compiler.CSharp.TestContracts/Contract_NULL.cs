@@ -5,34 +5,34 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_NULL : SmartContract.Framework.SmartContract
     {
-        public static bool IsNull(object? value)
+        public static bool IsNull(object value)
         {
             return value is null;
         }
 
-        public static bool EqualNullA(object? value)
+        public static bool EqualNullA(object value)
         {
             return null == value;
         }
 
-        public static bool EqualNullB(object? value)
+        public static bool EqualNullB(object value)
         {
             return value == null;
         }
 
-        public static bool EqualNotNullA(object? value)
+        public static bool EqualNotNullA(object value)
         {
             return null != value;
         }
 
-        public static bool EqualNotNullB(object? value)
+        public static bool EqualNotNullB(object value)
         {
             return value != null;
         }
 
-        public static string? NullCoalescing(string code)
+        public static string NullCoalescing(string code)
         {
-            string? myname = code?.Substring(1, 2);
+            string myname = code.Substring(1, 2);
             return myname;
         }
 
@@ -44,27 +44,27 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static bool NullPropertyGT(string a)
         {
-            return a?.Length > 0;
+            return a.Length > 0;
         }
 
         public static bool NullPropertyLT(string a)
         {
-            return a?.Length < 0;
+            return a.Length < 0;
         }
 
         public static bool NullPropertyGE(string a)
         {
-            return a?.Length >= 0;
+            return a.Length >= 0;
         }
 
         public static bool NullPropertyLE(string a)
         {
-            return a?.Length <= 0;
+            return a.Length <= 0;
         }
 
         public static bool NullProperty(string a)
         {
-            return a?.Length != 0;
+            return a.Length != 0;
         }
 
         public static bool IfNull(object obj)
@@ -100,8 +100,8 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static void NullType()
         {
-            TestClass? obj1 = null;
-            obj1?.VoidMethod();
+            TestClass obj1 = null;
+            obj1.VoidMethod();
         }
     }
 }

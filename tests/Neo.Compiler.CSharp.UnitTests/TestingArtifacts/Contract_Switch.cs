@@ -25,31 +25,31 @@ public abstract class Contract_Switch : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("switch6")]
-    public abstract object? Switch6(string? method);
+    public abstract object Switch6(string method);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("switch6Inline")]
-    public abstract object? Switch6Inline(string? method);
+    public abstract object Switch6Inline(string method);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("switchInteger")]
-    public abstract object? SwitchInteger(BigInteger? b);
+    public abstract object SwitchInteger(BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("switchLong")]
-    public abstract object? SwitchLong(string? method);
+    public abstract object SwitchLong(string method);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("switchLongLong")]
-    public abstract object? SwitchLongLong(string? test);
+    public abstract object SwitchLongLong(string test);
 
     #endregion
 

@@ -25,25 +25,25 @@ public abstract class Contract_Concat : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd1")]
-    public abstract string? TestStringAdd1(string? a);
+    public abstract string TestStringAdd1(string a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd2")]
-    public abstract string? TestStringAdd2(string? a, string? b);
+    public abstract string TestStringAdd2(string a, string b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd3")]
-    public abstract string? TestStringAdd3(string? a, string? b, string? c);
+    public abstract string TestStringAdd3(string a, string b, string c);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd4")]
-    public abstract string? TestStringAdd4(string? a, string? b, string? c, string? d);
+    public abstract string TestStringAdd4(string a, string b, string c, string d);
 
     #endregion
 

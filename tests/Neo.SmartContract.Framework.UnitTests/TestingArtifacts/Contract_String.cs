@@ -25,13 +25,13 @@ public abstract class Contract_String : Neo.SmartContract.Testing.SmartContract,
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd")]
-    public abstract BigInteger? TestStringAdd(string? s1, string? s2);
+    public abstract BigInteger TestStringAdd(string s1, string s2);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAddInt")]
-    public abstract string? TestStringAddInt(string? s, BigInteger? i);
+    public abstract string TestStringAddInt(string s, BigInteger i);
 
     #endregion
 

@@ -25,61 +25,61 @@ public abstract class Contract_ComplexAssign : Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Add_Assign_Checked")]
-    public abstract IList<object>? UnitTest_Add_Assign_Checked();
+    public abstract IList<object> UnitTest_Add_Assign_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Add_Assign_UnChecked")]
-    public abstract IList<object>? UnitTest_Add_Assign_UnChecked();
+    public abstract IList<object> UnitTest_Add_Assign_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Left_Shift_Assign_Checked")]
-    public abstract IList<object>? UnitTest_Left_Shift_Assign_Checked();
+    public abstract IList<object> UnitTest_Left_Shift_Assign_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Left_Shift_Assign_UnChecked")]
-    public abstract IList<object>? UnitTest_Left_Shift_Assign_UnChecked();
+    public abstract IList<object> UnitTest_Left_Shift_Assign_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Mul_Assign_Checked")]
-    public abstract IList<object>? UnitTest_Mul_Assign_Checked();
+    public abstract IList<object> UnitTest_Mul_Assign_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Mul_Assign_UnChecked")]
-    public abstract IList<object>? UnitTest_Mul_Assign_UnChecked();
+    public abstract IList<object> UnitTest_Mul_Assign_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Right_Shift_Assign_Checked")]
-    public abstract IList<object>? UnitTest_Right_Shift_Assign_Checked();
+    public abstract IList<object> UnitTest_Right_Shift_Assign_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Right_Shift_Assign_UnChecked")]
-    public abstract IList<object>? UnitTest_Right_Shift_Assign_UnChecked();
+    public abstract IList<object> UnitTest_Right_Shift_Assign_UnChecked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Sub_Assign_Checked")]
-    public abstract IList<object>? UnitTest_Sub_Assign_Checked();
+    public abstract IList<object> UnitTest_Sub_Assign_Checked();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("unitTest_Sub_Assign_UnChecked")]
-    public abstract IList<object>? UnitTest_Sub_Assign_UnChecked();
+    public abstract IList<object> UnitTest_Sub_Assign_UnChecked();
 
     #endregion
 

@@ -25,49 +25,49 @@ public abstract class Contract_NativeContracts : Neo.SmartContract.Testing.Smart
     /// Unsafe method
     /// </summary>
     [DisplayName("gASSymbol")]
-    public abstract string? GASSymbol();
+    public abstract string GASSymbol();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getOracleNodes")]
-    public abstract IList<object>? GetOracleNodes();
+    public abstract IList<object> GetOracleNodes();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ledgerCurrentHash")]
-    public abstract UInt256? LedgerCurrentHash();
+    public abstract UInt256 LedgerCurrentHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ledgerCurrentIndex")]
-    public abstract BigInteger? LedgerCurrentIndex();
+    public abstract BigInteger LedgerCurrentIndex();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ledgerHash")]
-    public abstract UInt160? LedgerHash();
+    public abstract UInt160 LedgerHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("nEOHash")]
-    public abstract UInt160? NEOHash();
+    public abstract UInt160 NEOHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("nEOSymbol")]
-    public abstract string? NEOSymbol();
+    public abstract string NEOSymbol();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("oracleMinimumResponseFee")]
-    public abstract BigInteger? OracleMinimumResponseFee();
+    public abstract BigInteger OracleMinimumResponseFee();
 
     #endregion
 

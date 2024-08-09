@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
         {
             // Check without being oracle
 
-            Assert.ThrowsException<TestException>(() => Contract.OnOracleResponse(null, null, null, null));
+            Assert.ThrowsException<TestException>(() => Contract.OnOracleResponse(null, null, 0, null));
 
             // Check empty
 

@@ -25,13 +25,13 @@ public abstract class Contract_Json : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("deserialize")]
-    public abstract object? Deserialize(string? json);
+    public abstract object Deserialize(string json);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("serialize")]
-    public abstract string? Serialize(object? obj = null);
+    public abstract string Serialize(object obj = null);
 
     #endregion
 
