@@ -38,6 +38,8 @@ partial class MethodConvert
     // Handler for equality methods (Equals)
     private bool HandleEquals(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null)
+            ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             PrepareArgumentsForMethod(model, symbol, arguments);
         AddInstruction(OpCode.NUMEQUAL);

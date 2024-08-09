@@ -118,22 +118,23 @@ partial class MethodConvert
         // RegisterHandler((object x) => x.ToString(), HandleObjectToString);
 
         // Register equality method handlers
-        // RegisterHandler((byte x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((sbyte x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((short x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((ushort x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((int x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((uint x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((long x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((ulong x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((bool x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((char x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((BigInteger x, object y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((BigInteger x, BigInteger y) => x.Equals(y), HandleEquals);
-        // RegisterHandler((string x, string y) => x.Equals(y), HandleObjectEquals);
-        // RegisterHandler((string x, string? y) => x.Equals(y), HandleObjectEquals);
-        // RegisterHandler((string x, object y) => x.Equals(y), HandleObjectEquals);
-        // RegisterHandler((object x, object? y) => x.Equals(y), HandleObjectEquals);
+        RegisterHandler((byte x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((sbyte x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((short x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((ushort x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((int x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((uint x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((long x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((ulong x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((bool x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((char x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((BigInteger x, object? y) => x.Equals(y), HandleEquals);
+        RegisterHandler((BigInteger x, long y) => x.Equals(y), HandleEquals);
+        RegisterHandler((BigInteger x, ulong y) => x.Equals(y), HandleEquals);
+        RegisterHandler((BigInteger x, BigInteger y) => x.Equals(y), HandleEquals);
+        RegisterHandler((string x, string? y) => x.Equals(y), HandleObjectEquals);
+        RegisterHandler((object? x, object? y) => x.Equals(y), HandleObjectEquals);
+
 
         // Register array and string method handlers
         // RegisterHandler((Array a) => a.Length, HandleLength);

@@ -148,6 +148,8 @@ partial class MethodConvert
 
     private bool HandleObjectEquals(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null)
+            ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             PrepareArgumentsForMethod(model, symbol, arguments);
         AddInstruction(OpCode.EQUAL);
