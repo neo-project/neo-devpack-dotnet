@@ -94,6 +94,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ForVar()
         {
+
             var array = new List<object>
             {
                 0,

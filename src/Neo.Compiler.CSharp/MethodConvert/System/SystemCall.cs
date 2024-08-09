@@ -9,20 +9,146 @@
 // modifications are permitted.
 
 extern alias scfx;
-
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.SmartContract.Native;
 using Neo.VM;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Numerics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Neo.SmartContract.Native;
 using Neo.VM.Types;
+using Array = System.Array;
 
 namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+    private delegate bool SystemCallHandler(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments);
+
+    private static readonly Dictionary<string, SystemCallHandler> SystemCallHandlers = new();
+
+    private static void RegisterHandler<TResult>(Expression<Func<TResult>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression);
+        SystemCallHandlers[key] = handler;
+    }
+
+    private static void RegisterHandler<T, TResult>(Expression<Func<T, TResult>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression);
+        SystemCallHandlers[key] = handler;
+    }
+
+    private static void RegisterHandler<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression);
+        SystemCallHandlers[key] = handler;
+    }
+
+    private static void RegisterHandler<T1, T2, T3, TResult>(Expression<Func<T1, T2, T3, TResult>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression);
+        SystemCallHandlers[key] = handler;
+    }
+
+    private static string GetKeyFromExpression(LambdaExpression expression)
+    {
+        switch (expression.Body)
+        {
+            case MethodCallExpression methodCall:
+                return GetMethodKey(methodCall.Method);
+
+            case MemberExpression { Member: PropertyInfo property }:
+                return $"{GetShortTypeName(property.DeclaringType)}.{property.Name}.get";
+
+            case MemberExpression { Member: FieldInfo field }:
+                return $"{GetShortTypeName(field.DeclaringType)}.{field.Name}";
+
+            case UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression:
+                var operandType = GetShortTypeName(unaryExpression.Operand.Type);
+                var targetType = GetShortTypeName(unaryExpression.Type);
+                return unaryExpression.Method.Name == "op_Implicit" ? $"{targetType}.implicit operator {targetType}({operandType})" : $"{operandType}.explicit operator {targetType}({operandType})";
+
+            case IndexExpression indexExpression:
+                var indexParams = string.Join(", ", indexExpression.Arguments.Select(arg => GetShortTypeName(arg.Type)));
+                return $"{GetShortTypeName(indexExpression.Object.Type)}.this[{indexParams}].get";
+
+            default:
+                throw new ArgumentException("Expression must be a method call, property, field access, or special member.", nameof(expression));
+        }
+    }
+
+    private static string GetMethodKey(MethodInfo method)
+    {
+        var containingType = GetShortTypeName(method.DeclaringType);
+        var parameters = string.Join(", ", method.GetParameters().Select(p => GetShortTypeName(p.ParameterType)));
+
+        if (method.IsSpecialName && (method.Name.StartsWith("get_Char") || method.Name.StartsWith("set_Char")))
+        {
+            var accessorType = method.Name.StartsWith("get_Char") ? "get" : "set";
+            return $"{GetShortTypeName(method.DeclaringType)}.this[{parameters}].{accessorType}";
+        }
+
+        if (method.IsSpecialName && method.Name.StartsWith("op_"))
+        {
+            var operatorName = GetOperatorName(method.Name);
+            if (operatorName is "implicit operator" or "explicit operator")
+            {
+                var returnType = GetShortTypeName(method.ReturnType);
+                return $"{containingType}.{operatorName} {returnType}({parameters})";
+            }
+            return $"{containingType}.{operatorName}({parameters})";
+        }
+
+        return $"{containingType}.{method.Name}({parameters})";
+    }
+
+    private static string GetShortTypeName(Type type)
+    {
+        if (type.IsArray)
+        {
+            return GetShortTypeName(type.GetElementType()) + "[]";
+        }
+
+        return type switch
+        {
+            _ when type == typeof(int) => "int",
+            _ when type == typeof(long) => "long",
+            _ when type == typeof(short) => "short",
+            _ when type == typeof(byte) => "byte",
+            _ when type == typeof(bool) => "bool",
+            _ when type == typeof(string) => "string",
+            _ when type == typeof(char) => "char",
+            _ when type == typeof(void) => "void",
+            _ when type == typeof(object) => "object",
+            _ when type == typeof(sbyte) => "sbyte",
+            _ when type == typeof(uint) => "uint",
+            _ when type == typeof(ulong) => "ulong",
+            _ when type == typeof(ushort) => "ushort",
+            // _ when type == typeof(byte[]) => "byte[]",
+            _ when type == typeof(BigInteger) => "System.Numerics.BigInteger",
+            _ when type == typeof(Array) => "System.Array",
+            _ when type == typeof(Math) => "System.Math",
+            _ when type.IsGenericType => $"{type.Name.Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(GetShortTypeName))}>",
+            _ => type.Name,
+        };
+    }
+
+    private static string GetOperatorName(string methodName)
+    {
+        return methodName switch
+        {
+            "op_Implicit" => "implicit operator",
+            "op_Explicit" => "explicit operator",
+            _ => methodName.StartsWith("op_") ? methodName[3..] : methodName
+        };
+    }
+
     /// <summary>
     /// Attempts to process system constructors. Performs different processing operations based on the method symbol.
     /// </summary>
@@ -66,6 +192,13 @@ partial class MethodConvert
             ConvertExpression(model, instanceExpression!);
             AddInstruction(OpCode.CALLA);
             return true;
+        }
+
+        var key = symbol.ToString().Replace("?", "");
+
+        if (SystemCallHandlers.TryGetValue(key, out var handler))
+        {
+            return handler(model, symbol, instanceExpression, arguments);
         }
 
         switch (symbol.ToString())
@@ -427,6 +560,322 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MIN);
                 return true;
+            case "System.Math.BigMul(int, int)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.DUP);
+                    Push(int.MinValue);
+                    Push(new BigInteger(int.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "System.Math.DivRem(sbyte, sbyte)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(sbyte.MinValue);
+                    Push(new BigInteger(sbyte.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(byte, byte)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(byte.MinValue);
+                    Push(new BigInteger(byte.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(short, short)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(short.MinValue);
+                    Push(new BigInteger(short.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(ushort, ushort)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(ushort.MinValue);
+                    Push(new BigInteger(ushort.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(int, int)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(int.MinValue);
+                    Push(new BigInteger(int.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(uint, uint)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(uint.MinValue);
+                    Push(new BigInteger(uint.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(long, long)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(long.MinValue);
+                    Push(new BigInteger(long.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(ulong, ulong)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(ulong.MinValue);
+                    Push(new BigInteger(ulong.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.Clamp(byte, byte, byte)":
+            case "System.Math.Clamp(sbyte, sbyte, sbyte)":
+            case "System.Math.Clamp(short, short, short)":
+            case "System.Math.Clamp(ushort, ushort, ushort)":
+            case "System.Math.Clamp(int, int, int)":
+            case "System.Math.Clamp(uint, uint, uint)":
+            case "System.Math.Clamp(long, long, long)":
+            case "System.Math.Clamp(ulong, ulong, ulong)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    var endTarget = new JumpTarget();
+                    var exceptionTarget = new JumpTarget();
+                    var minTarget = new JumpTarget();
+                    var maxTarget = new JumpTarget();
+                    AddInstruction(OpCode.REVERSE3);// 5 0 10
+                    AddInstruction(OpCode.DUP);// 5 0 10 10
+                    AddInstruction(OpCode.ROT);// 5 10 10 0
+                    AddInstruction(OpCode.DUP);// 5 10 10 0 0
+                    AddInstruction(OpCode.ROT);// 5 10 0 0 10
+                    Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
+                    AddInstruction(OpCode.THROW);
+                    exceptionTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.ROT);// 10 0 5
+                    AddInstruction(OpCode.DUP);// 10 0 5 5
+                    AddInstruction(OpCode.ROT);// 10 5 5 0
+                    AddInstruction(OpCode.DUP);// 10 5 5 0 0
+                    AddInstruction(OpCode.ROT);// 10 5 0 0 5
+                    Jump(OpCode.JMPGT, minTarget);// 10 5 0
+                    AddInstruction(OpCode.DROP);// 10 5
+                    AddInstruction(OpCode.DUP);// 10 5 5
+                    AddInstruction(OpCode.ROT);// 5 5 10
+                    AddInstruction(OpCode.DUP);// 5 5 10 10
+                    AddInstruction(OpCode.ROT);// 5 10 10 5
+                    Jump(OpCode.JMPLT, maxTarget);// 5 10
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    minTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    maxTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
             case "byte?.HasValue.get":
             case "sbyte?.HasValue.get":
             case "short?.HasValue.get":
@@ -899,5 +1348,7 @@ partial class MethodConvert
             default:
                 return false;
         }
+
+        return false;
     }
 }

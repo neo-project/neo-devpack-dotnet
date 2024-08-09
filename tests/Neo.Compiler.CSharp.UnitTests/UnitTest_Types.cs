@@ -108,6 +108,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Long_Test()
         {
+
             Assert.AreEqual(new BigInteger(5), Contract.CheckLong());
             Assert.AreEqual(984060, Engine.FeeConsumed.Value);
         }

@@ -1,3 +1,4 @@
+using System.Numerics;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
@@ -214,6 +215,15 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var storage = new StorageMap(context, prefix);
             var value = storage[(ByteString)key];
             return (byte[])value;
+        }
+
+        public static BigInteger TestIndexGetInteger(byte[] key)
+        {
+            var prefix = "ii";
+            var context = Storage.CurrentReadOnlyContext;
+            var storage = new StorageMap(context, prefix);
+            var value = (BigInteger)storage[(ByteString)key];
+            return value;
         }
 
         #endregion

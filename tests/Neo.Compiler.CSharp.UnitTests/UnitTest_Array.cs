@@ -224,6 +224,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ElementBinding()
         {
+            Console.WriteLine("==================================");
+            Console.WriteLine("==================================");
+            Console.WriteLine("==================================");
+
             Contract.TestElementBinding();
             Assert.AreEqual(5907840, Engine.FeeConsumed.Value);
         }
