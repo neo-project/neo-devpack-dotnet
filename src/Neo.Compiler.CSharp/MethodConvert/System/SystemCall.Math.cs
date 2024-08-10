@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
@@ -316,13 +317,12 @@ partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
         var endTarget = new JumpTarget();
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        methodConvert.AddInstruction(OpCode.REVERSE3);// 5 0 10
         methodConvert.AddInstruction(OpCode.DUP);// 5 0 10 10
         methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 0
         methodConvert.AddInstruction(OpCode.DUP);// 5 10 10 0 0
