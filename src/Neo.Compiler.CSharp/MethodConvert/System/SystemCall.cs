@@ -436,8 +436,8 @@ partial class MethodConvert
                     JumpTarget endTarget = new();
                     AddInstruction(OpCode.MUL);
                     AddInstruction(OpCode.DUP);
-                    Push(int.MinValue);
-                    Push(new BigInteger(int.MaxValue) + 1);
+                    Push(long.MinValue);
+                    Push(new BigInteger(long.MaxValue) + 1);
                     AddInstruction(OpCode.WITHIN);
                     Jump(OpCode.JMPIF, endTarget);
                     AddInstruction(OpCode.THROW);
@@ -704,12 +704,11 @@ partial class MethodConvert
                     if (instanceExpression is not null)
                         ConvertExpression(model, instanceExpression);
                     if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                     var endTarget = new JumpTarget();
                     var exceptionTarget = new JumpTarget();
                     var minTarget = new JumpTarget();
                     var maxTarget = new JumpTarget();
-                    AddInstruction(OpCode.REVERSE3);// 5 0 10
                     AddInstruction(OpCode.DUP);// 5 0 10 10
                     AddInstruction(OpCode.ROT);// 5 10 10 0
                     AddInstruction(OpCode.DUP);// 5 10 10 0 0
@@ -1082,11 +1081,10 @@ partial class MethodConvert
             // Returns a value indicating whether a specified substring occurs within this string.
             case "string.Contains(string)":
                 {
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    AddInstruction(OpCode.SWAP);
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
                     CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
                     AddInstruction(OpCode.PUSH0);
                     AddInstruction(OpCode.GE);
@@ -1095,13 +1093,12 @@ partial class MethodConvert
             // Determines whether the end of this string instance matches the specified string.
             case "string.EndsWith(string)":
                 {
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
                     var endTarget = new JumpTarget();
                     var validCountTarget = new JumpTarget();
-                    AddInstruction(OpCode.SWAP);
                     AddInstruction(OpCode.DUP);
                     AddInstruction(OpCode.SIZE);
                     AddInstruction(OpCode.ROT);
@@ -1134,11 +1131,10 @@ partial class MethodConvert
             // Reports the zero-based index of the first occurrence of the specified string in this instance.
             case "string.IndexOf(string)":
                 {
-                    if (instanceExpression is not null)
-                        ConvertExpression(model, instanceExpression);
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
-                    AddInstruction(OpCode.SWAP);
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
                     CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
                     return true;
                 }
