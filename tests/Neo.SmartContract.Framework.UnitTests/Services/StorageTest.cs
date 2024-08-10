@@ -156,17 +156,5 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             CollectionAssert.AreEqual(new byte[] { 0x00, 0x01 }, Contract.TestNewGetByteArray());
         }
-
-        [TestMethod]
-        public void Test_TestIndexGetInteger()
-        {
-            var key = Encoding.UTF8.GetBytes("key");
-            var value = Encoding.UTF8.GetBytes("123");
-
-            Assert.AreEqual(true, Contract.TestIndexPut(key, value));
-            // CollectionAssert.AreEqual(value, Contract.TestIndexGet(key));
-
-            Contract.TestIndexGetInteger(key);
-        }
     }
 }

@@ -183,17 +183,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             Assert.AreEqual(123 + 1234, Engine.Execute(script).GetInteger());
 
-            // using (ScriptBuilder sb = new())
-            // {
-            //     // One notification to UInt160
-            //     sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, UInt160.Zero, 123, null);
-            //     // One notification to Contract
-            //     sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, Alice.Account, 1234, null);
-                 // Consume all
-                 sb.EmitDynamicCall(Contract.Hash, "getAllNotifications");
-                 script = sb.ToArray();
+            using (ScriptBuilder sb = new())
+            {
+                // One notification to UInt160
+                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, UInt160.Zero, 123, null);
+                // One notification to Contract
+                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, Alice.Account, 1234, null);
+                // Consume all
+                sb.EmitDynamicCall(Contract.Hash, "getAllNotifications");
+                script = sb.ToArray();
             }
-            
+
             Assert.AreEqual(123 + 1234, Engine.Execute(script).GetInteger());
         }
 

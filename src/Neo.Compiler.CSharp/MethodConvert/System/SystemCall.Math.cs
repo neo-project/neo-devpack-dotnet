@@ -366,8 +366,8 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.MUL);
         methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(int.MinValue);
-        methodConvert.Push(new BigInteger(int.MaxValue) + 1);
+        methodConvert.Push(long.MinValue);
+        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
