@@ -28,7 +28,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             .CompileSources(testContractsPath);
 
             Assert.AreEqual(1, results.Count);
-
             Assert.IsTrue(results[0].Success);
 
             var nef = results[0].CreateExecutable();
