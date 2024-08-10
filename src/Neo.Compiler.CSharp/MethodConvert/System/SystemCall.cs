@@ -709,7 +709,6 @@ partial class MethodConvert
                     var exceptionTarget = new JumpTarget();
                     var minTarget = new JumpTarget();
                     var maxTarget = new JumpTarget();
-                    // AddInstruction(OpCode.REVERSE3);// 5 0 10
                     AddInstruction(OpCode.DUP);// 5 0 10 10
                     AddInstruction(OpCode.ROT);// 5 10 10 0
                     AddInstruction(OpCode.DUP);// 5 10 10 0 0
