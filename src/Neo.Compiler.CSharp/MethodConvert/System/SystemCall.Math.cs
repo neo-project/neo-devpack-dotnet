@@ -20,358 +20,358 @@ partial class MethodConvert
 {
 
     // Handler for Math.Abs methods
-    private bool HandleMathAbs(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathAbs(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.ABS);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.ABS);
         return true;
     }
 
     // Handler for Math.Sign methods
-    private bool HandleMathSign(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathSign(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.SIGN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SIGN);
         return true;
     }
 
     // Handler for Math.Max methods
-    private bool HandleMathMax(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathMax(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.MAX);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.MAX);
         return true;
     }
 
     // Handler for Math.Min methods
-    private bool HandleMathMin(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathMin(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.MIN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.MIN);
         return true;
     }
 
-    private bool HandleMathByteDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(byte.MinValue);
-        Push(new BigInteger(byte.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(byte.MinValue);
+        methodConvert.Push(new BigInteger(byte.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathSByteDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathSByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(sbyte.MinValue);
-        Push(new BigInteger(sbyte.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(sbyte.MinValue);
+        methodConvert.Push(new BigInteger(sbyte.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathShortDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(short.MinValue);
-        Push(new BigInteger(short.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(short.MinValue);
+        methodConvert.Push(new BigInteger(short.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathUShortDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathUShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(ushort.MinValue);
-        Push(new BigInteger(ushort.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(ushort.MinValue);
+        methodConvert.Push(new BigInteger(ushort.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathIntDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(int.MinValue);
-        Push(new BigInteger(int.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(int.MinValue);
+        methodConvert.Push(new BigInteger(int.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathUIntDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathUIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(uint.MinValue);
-        Push(new BigInteger(uint.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(uint.MinValue);
+        methodConvert.Push(new BigInteger(uint.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathLongDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathLongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(long.MinValue);
-        Push(new BigInteger(long.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(long.MinValue);
+        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathULongDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathULongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(ulong.MinValue);
-        Push(new BigInteger(ulong.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(ulong.MinValue);
+        methodConvert.Push(new BigInteger(ulong.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 
-    private bool HandleMathClamp(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathClamp(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         var endTarget = new JumpTarget();
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        AddInstruction(OpCode.REVERSE3);// 5 0 10
-        AddInstruction(OpCode.DUP);// 5 0 10 10
-        AddInstruction(OpCode.ROT);// 5 10 10 0
-        AddInstruction(OpCode.DUP);// 5 10 10 0 0
-        AddInstruction(OpCode.ROT);// 5 10 0 0 10
-        Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
-        AddInstruction(OpCode.THROW);
-        exceptionTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.ROT);// 10 0 5
-        AddInstruction(OpCode.DUP);// 10 0 5 5
-        AddInstruction(OpCode.ROT);// 10 5 5 0
-        AddInstruction(OpCode.DUP);// 10 5 5 0 0
-        AddInstruction(OpCode.ROT);// 10 5 0 0 5
-        Jump(OpCode.JMPGT, minTarget);// 10 5 0
-        AddInstruction(OpCode.DROP);// 10 5
-        AddInstruction(OpCode.DUP);// 10 5 5
-        AddInstruction(OpCode.ROT);// 5 5 10
-        AddInstruction(OpCode.DUP);// 5 5 10 10
-        AddInstruction(OpCode.ROT);// 5 10 10 5
-        Jump(OpCode.JMPLT, maxTarget);// 5 10
-        AddInstruction(OpCode.DROP);
-        Jump(OpCode.JMP, endTarget);
-        minTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.REVERSE3);
-        AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.DROP);
-        Jump(OpCode.JMP, endTarget);
-        maxTarget.Instruction = AddInstruction(OpCode.NOP);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.DROP);
-        Jump(OpCode.JMP, endTarget);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.REVERSE3);// 5 0 10
+        methodConvert.AddInstruction(OpCode.DUP);// 5 0 10 10
+        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 0
+        methodConvert.AddInstruction(OpCode.DUP);// 5 10 10 0 0
+        methodConvert.AddInstruction(OpCode.ROT);// 5 10 0 0 10
+        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
+        methodConvert.AddInstruction(OpCode.THROW);
+        exceptionTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.ROT);// 10 0 5
+        methodConvert.AddInstruction(OpCode.DUP);// 10 0 5 5
+        methodConvert.AddInstruction(OpCode.ROT);// 10 5 5 0
+        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5 0 0
+        methodConvert.AddInstruction(OpCode.ROT);// 10 5 0 0 5
+        methodConvert.Jump(OpCode.JMPGT, minTarget);// 10 5 0
+        methodConvert.AddInstruction(OpCode.DROP);// 10 5
+        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5
+        methodConvert.AddInstruction(OpCode.ROT);// 5 5 10
+        methodConvert.AddInstruction(OpCode.DUP);// 5 5 10 10
+        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 5
+        methodConvert.Jump(OpCode.JMPLT, maxTarget);// 5 10
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        minTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.REVERSE3);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        maxTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
-    private bool HandleMathBigMul(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleMathBigMul(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.DUP);
-        Push(int.MinValue);
-        Push(new BigInteger(int.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(int.MinValue);
+        methodConvert.Push(new BigInteger(int.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 }

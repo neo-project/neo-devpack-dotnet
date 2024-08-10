@@ -5,7 +5,7 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private void RegisterSystemCallHandlers()
+    private static void RegisterSystemCallHandlers()
     {
         // Register BigInteger property handlers
         RegisterHandler(() => BigInteger.One, HandleBigIntegerOne);
@@ -104,18 +104,18 @@ partial class MethodConvert
         RegisterHandler((BigInteger value, BigInteger min, BigInteger max) => BigInteger.Clamp(value, min, max), HandleMathClamp);
 
         // Register ToString handlers
-        // RegisterHandler((sbyte x) => x.ToString(), HandleToString);
-        // RegisterHandler((byte x) => x.ToString(), HandleToString);
-        // RegisterHandler((short x) => x.ToString(), HandleToString);
-        // RegisterHandler((ushort x) => x.ToString(), HandleToString);
-        // RegisterHandler((int x) => x.ToString(), HandleToString);
-        // RegisterHandler((uint x) => x.ToString(), HandleToString);
-        // RegisterHandler((long x) => x.ToString(), HandleToString);
-        // RegisterHandler((ulong x) => x.ToString(), HandleToString);
-        // RegisterHandler((BigInteger x) => x.ToString(), HandleToString);
-        // RegisterHandler((bool x) => x.ToString(), HandleBoolToString);
-        // RegisterHandler((char x) => x.ToString(), HandleCharToString);
-        // RegisterHandler((object x) => x.ToString(), HandleObjectToString);
+        RegisterHandler((sbyte x) => x.ToString(), HandleToString);
+        RegisterHandler((byte x) => x.ToString(), HandleToString);
+        RegisterHandler((short x) => x.ToString(), HandleToString);
+        RegisterHandler((ushort x) => x.ToString(), HandleToString);
+        RegisterHandler((int x) => x.ToString(), HandleToString);
+        RegisterHandler((uint x) => x.ToString(), HandleToString);
+        RegisterHandler((long x) => x.ToString(), HandleToString);
+        RegisterHandler((ulong x) => x.ToString(), HandleToString);
+        RegisterHandler((BigInteger x) => x.ToString(), HandleToString);
+        RegisterHandler((bool x) => x.ToString(), HandleBoolToString);
+        RegisterHandler((char x) => x.ToString(), HandleCharToString);
+        RegisterHandler((object x) => x.ToString(), HandleObjectToString);
 
         // Register equality method handlers
         RegisterHandler((byte x, object? y) => x.Equals(y), HandleEquals);
@@ -147,7 +147,7 @@ partial class MethodConvert
         RegisterHandler((string s, string value) => s.IndexOf(value), HandleStringIndexOf);
         // RegisterHandler((string s, string value) => s.StartsWith(value), HandleStringStartsWith);
         RegisterHandler((string s, int index) => s[index], HandleStringPickItem);
-        // RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
+        RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
         RegisterHandler((string s, int startIndex) => s.Substring(startIndex), HandleStringSubStringToEnd);
         // RegisterHandler((string s, int startIndex, int length) => s.Remove(startIndex, length), HandleStringRemove);
         // RegisterHandler((string s, int startIndex) => s.Remove(startIndex), HandleStringRemoveToEnd);

@@ -20,360 +20,360 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private bool HandleBigIntegerOne(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        Push(1);
+        methodConvert.Push(1);
         return true;
     }
 
-    private bool HandleBigIntegerMinusOne(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerMinusOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        Push(-1);
+        methodConvert.Push(-1);
         return true;
     }
 
-    private bool HandleBigIntegerZero(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerZero(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        Push(0);
+        methodConvert.Push(0);
         return true;
     }
 
-    private bool HandleBigIntegerIsZero(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerIsZero(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        Push(0);
-        AddInstruction(OpCode.NUMEQUAL);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
         return true;
     }
 
-    private bool HandleBigIntegerIsOne(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerIsOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        Push(1);
-        AddInstruction(OpCode.NUMEQUAL);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(1);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
         return true;
     }
 
-    private bool HandleBigIntegerIsEven(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerIsEven(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        Push(1);
-        AddInstruction(OpCode.AND);
-        Push(0);
-        AddInstruction(OpCode.NUMEQUAL);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(1);
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
         return true;
     }
 
-    private bool HandleBigIntegerSign(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerSign(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        AddInstruction(OpCode.SIGN);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.AddInstruction(OpCode.SIGN);
         return true;
     }
 
 
-    private bool HandleBigIntegerPow(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerPow(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.POW);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.POW);
         return true;
     }
 
-    private bool HandleBigIntegerModPow(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerModPow(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.MODPOW);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.MODPOW);
         return true;
     }
 
-    private bool HandleBigIntegerAdd(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerAdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.ADD);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.ADD);
         return true;
     }
 
-    private bool HandleBigIntegerSubtract(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerSubtract(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.SUB);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.SUB);
         return true;
     }
 
-    private bool HandleBigIntegerNegate(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerNegate(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.NEGATE);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.NEGATE);
         return true;
     }
 
-    private bool HandleBigIntegerMultiply(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerMultiply(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.MUL);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.MUL);
         return true;
     }
 
-    private bool HandleBigIntegerDivide(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerDivide(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.DIV);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.DIV);
         return true;
     }
 
-    private bool HandleBigIntegerRemainder(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerRemainder(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.MOD);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.MOD);
         return true;
     }
 
-    private bool HandleBigIntegerCompare(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // if left < right return -1;
         // if left = right return 0;
         // if left > right return 1;
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.SIGN);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.SIGN);
         return true;
     }
 
-    private bool HandleBigIntegerGreatestCommonDivisor(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerGreatestCommonDivisor(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         JumpTarget gcdTarget = new()
         {
-            Instruction = AddInstruction(OpCode.DUP)
+            Instruction = methodConvert.AddInstruction(OpCode.DUP)
         };
-        AddInstruction(OpCode.REVERSE3);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.MOD);
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.PUSH0);
-        AddInstruction(OpCode.NUMEQUAL);
-        Jump(OpCode.JMPIFNOT, gcdTarget);
-        AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.ABS);
+        methodConvert.AddInstruction(OpCode.REVERSE3);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.PUSH0);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.Jump(OpCode.JMPIFNOT, gcdTarget);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.ABS);
         return true;
     }
 
-    private bool HandleBigIntegerToByteArray(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToByteArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        ChangeType(VM.Types.StackItemType.Buffer);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.ChangeType(VM.Types.StackItemType.Buffer);
         return true;
     }
 
-    private bool HandleBigIntegerParse(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
         return true;
     }
 
-    private bool HandleBigIntegerExplicitConversion(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerExplicitConversion(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(sbyte.MinValue);
-        Push(sbyte.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(sbyte.MinValue);
+        methodConvert.Push(sbyte.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to sbyte
-    private bool HandleBigIntegerToSByte(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToSByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(sbyte.MinValue);
-        Push(sbyte.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(sbyte.MinValue);
+        methodConvert.Push(sbyte.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to byte
-    private bool HandleBigIntegerToByte(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(byte.MinValue);
-        Push(byte.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(byte.MinValue);
+        methodConvert.Push(byte.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to short
-    private bool HandleBigIntegerToShort(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(short.MinValue);
-        Push(short.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(short.MinValue);
+        methodConvert.Push(short.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to ushort
-    private bool HandleBigIntegerToUShort(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToUShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(ushort.MinValue);
-        Push(ushort.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(ushort.MinValue);
+        methodConvert.Push(ushort.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to int
-    private bool HandleBigIntegerToInt(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(int.MinValue);
-        Push(new BigInteger(int.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(int.MinValue);
+        methodConvert.Push(new BigInteger(int.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to uint
-    private bool HandleBigIntegerToUInt(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToUInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(uint.MinValue);
-        Push(new BigInteger(uint.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(uint.MinValue);
+        methodConvert.Push(new BigInteger(uint.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to long
-    private bool HandleBigIntegerToLong(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToLong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(long.MinValue);
-        Push(new BigInteger(long.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(long.MinValue);
+        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for explicit conversion of BigInteger to ulong
-    private bool HandleBigIntegerToULong(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerToULong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(ulong.MinValue);
-        Push(new BigInteger(ulong.MaxValue) + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(ulong.MinValue);
+        methodConvert.Push(new BigInteger(ulong.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for implicit conversion of various types to BigInteger
-    private bool HandleToBigInteger(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleToBigInteger(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         return true;
     }
 
-    private bool HandleBigIntegerMax(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerMax(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.MAX);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.MAX);
         return true;
     }
 
-    private bool HandleBigIntegerMin(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerMin(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.MIN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.MIN);
         return true;
     }
 
-    private bool HandleBigIntegerDivRem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBigIntegerDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         // Perform division
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.TUCK);
-        AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
 
         // Calculate remainder
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.MUL);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.PUSH2);
-        AddInstruction(OpCode.PACK);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
         return true;
     }
 

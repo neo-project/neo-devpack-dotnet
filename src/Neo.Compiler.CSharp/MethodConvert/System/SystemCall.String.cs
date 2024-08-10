@@ -21,203 +21,203 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
 
-    private bool HandleStringPickItem(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+    private static bool HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.PICKITEM);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.PICKITEM);
         return true;
     }
 
-    private bool HandleStringLength(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.SIZE);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SIZE);
         return true;
     }
 
-    private bool HandleStringContains(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.SWAP);
-        CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        AddInstruction(OpCode.PUSH0);
-        AddInstruction(OpCode.GE);
-        return true;
-    }
-
-    private bool HandleStringIndexOf(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringContains(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.SWAP);
-        CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+        methodConvert.AddInstruction(OpCode.PUSH0);
+        methodConvert.AddInstruction(OpCode.GE);
         return true;
     }
 
-    private bool HandleStringEndsWith(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+        return true;
+    }
+
+    private static bool HandleStringEndsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         var endTarget = new JumpTarget();
         var validCountTarget = new JumpTarget();
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.SIZE);
-        AddInstruction(OpCode.ROT);
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.SIZE);
-        AddInstruction(OpCode.DUP);
-        Push(3);
-        AddInstruction(OpCode.ROLL);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.DUP);
-        Push(0);
-        Jump(OpCode.JMPGT, validCountTarget);
-        AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.PUSHF);
-        Jump(OpCode.JMP, endTarget);
-        validCountTarget.Instruction = AddInstruction(OpCode.NOP);
-        Push(3);
-        AddInstruction(OpCode.ROLL);
-        AddInstruction(OpCode.REVERSE3);
-        AddInstruction(OpCode.SUBSTR);
-        ChangeType(StackItemType.ByteString);
-        AddInstruction(OpCode.EQUAL);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.SIZE);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.SIZE);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(3);
+        methodConvert.AddInstruction(OpCode.ROLL);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(0);
+        methodConvert.Jump(OpCode.JMPGT, validCountTarget);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.PUSHF);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        validCountTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(3);
+        methodConvert.AddInstruction(OpCode.ROLL);
+        methodConvert.AddInstruction(OpCode.REVERSE3);
+        methodConvert.AddInstruction(OpCode.SUBSTR);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AddInstruction(OpCode.EQUAL);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
-    private bool HandleStringSubstring(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringSubstring(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        AddInstruction(OpCode.SUBSTR);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.AddInstruction(OpCode.SUBSTR);
         return true;
     }
 
-    private bool HandleStringSubStringToEnd(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringSubStringToEnd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.OVER);
-        AddInstruction(OpCode.SIZE);
-        AddInstruction(OpCode.OVER);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.SUBSTR);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.OVER);
+        methodConvert.AddInstruction(OpCode.SIZE);
+        methodConvert.AddInstruction(OpCode.OVER);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.SUBSTR);
         return true;
     }
 
-    private bool HandleStringIsNullOrEmpty(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringIsNullOrEmpty(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         JumpTarget endTarget = new();
         JumpTarget nullOrEmptyTarget = new();
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ISNULL);
-        Jump(OpCode.JMPIF, nullOrEmptyTarget);
-        AddInstruction(OpCode.SIZE);
-        Push(0);
-        AddInstruction(OpCode.NUMEQUAL);
-        Jump(OpCode.JMP, endTarget);
-        nullOrEmptyTarget.Instruction = AddInstruction(OpCode.DROP); // drop the duped item
-        AddInstruction(OpCode.PUSHT);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ISNULL);
+        methodConvert.Jump(OpCode.JMPIF, nullOrEmptyTarget);
+        methodConvert.AddInstruction(OpCode.SIZE);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        nullOrEmptyTarget.Instruction = methodConvert.AddInstruction(OpCode.DROP); // drop the duped item
+        methodConvert.AddInstruction(OpCode.PUSHT);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
-    private bool HandleObjectEquals(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleObjectEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.EQUAL);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.EQUAL);
         return true;
     }
 
-    private bool HandleStringCompare(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.SUB);
-        AddInstruction(OpCode.SIGN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.SIGN);
         return true;
     }
 
-    private bool HandleBoolToString(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleBoolToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         JumpTarget trueTarget = new(), endTarget = new();
-        Jump(OpCode.JMPIF_L, trueTarget);
-        Push("False");
-        Jump(OpCode.JMP_L, endTarget);
-        trueTarget.Instruction = Push("True");
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.Push("False");
+        methodConvert.Jump(OpCode.JMP_L, endTarget);
+        trueTarget.Instruction = methodConvert.Push("True");
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
-    private bool HandleCharToString(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        ChangeType(StackItemType.ByteString);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.ChangeType(StackItemType.ByteString);
         return true;
     }
 
     // Handler for object.ToString()
-    private bool HandleObjectToString(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleObjectToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        ChangeType(StackItemType.ByteString);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.ChangeType(StackItemType.ByteString);
         return true;
     }
 
     // Handler for numeric types' ToString() methods
-    private bool HandleToString(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
         return true;
     }
 
-    private bool HandleStringToString(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         return true;
     }
 
-    private bool HandleStringConcat(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleStringConcat(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.CAT);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.CAT);
         return true;
     }
 }

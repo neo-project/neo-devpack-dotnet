@@ -19,104 +19,104 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
 
-    private bool HandleCharParse(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        AddInstruction(OpCode.DUP);
-        Push(char.MinValue);
-        Push(char.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(char.MinValue);
+        methodConvert.Push(char.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 
     // Handler for equality methods (Equals)
-    private bool HandleEquals(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.NUMEQUAL);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
         return true;
     }
 
     // Handler for Array.Length and string.Length properties
-    private bool HandleLength(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
-            ConvertExpression(model, instanceExpression);
-        AddInstruction(OpCode.SIZE);
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.AddInstruction(OpCode.SIZE);
         return true;
     }
 
-    private bool HandleCharIsDigit(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharIsDigit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.DUP);
-        Push((ushort)'0');
-        Push((ushort)'9' + 1);
-        AddInstruction(OpCode.WITHIN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'0');
+        methodConvert.Push((ushort)'9' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
         return true;
     }
 
-    private bool HandleCharIsLetter(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharIsLetter(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.DUP);
-        Push((ushort)'A');
-        Push((ushort)'Z' + 1);
-        AddInstruction(OpCode.WITHIN);
-        AddInstruction(OpCode.SWAP);
-        Push((ushort)'a');
-        Push((ushort)'z' + 1);
-        AddInstruction(OpCode.WITHIN);
-        AddInstruction(OpCode.BOOLOR);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'A');
+        methodConvert.Push((ushort)'Z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.Push((ushort)'a');
+        methodConvert.Push((ushort)'z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.AddInstruction(OpCode.BOOLOR);
         return true;
     }
 
-    private bool HandleCharIsWhiteSpace(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharIsWhiteSpace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.DUP);
-        Push((ushort)'\t');
-        Push((ushort)'\r' + 1);
-        AddInstruction(OpCode.WITHIN);
-        AddInstruction(OpCode.SWAP);
-        Push((ushort)'\n');
-        Push((ushort)' ' + 1);
-        AddInstruction(OpCode.WITHIN);
-        AddInstruction(OpCode.BOOLOR);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'\t');
+        methodConvert.Push((ushort)'\r' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.Push((ushort)'\n');
+        methodConvert.Push((ushort)' ' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.AddInstruction(OpCode.BOOLOR);
         return true;
     }
 
-    private bool HandleCharIsLower(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharIsLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.DUP);
-        Push((ushort)'a');
-        Push((ushort)'z' + 1);
-        AddInstruction(OpCode.WITHIN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'a');
+        methodConvert.Push((ushort)'z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
         return true;
     }
 
-    private bool HandleCharIsUpper(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleCharIsUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
-        AddInstruction(OpCode.DUP);
-        Push((ushort)'A');
-        Push((ushort)'Z' + 1);
-        AddInstruction(OpCode.WITHIN);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'A');
+        methodConvert.Push((ushort)'Z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
         return true;
     }
 }

@@ -18,19 +18,19 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private bool HandleUShortParse(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static bool HandleUShortParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        AddInstruction(OpCode.DUP);
-        Push(ushort.MinValue);
-        Push(ushort.MaxValue + 1);
-        AddInstruction(OpCode.WITHIN);
-        Jump(OpCode.JMPIF, endTarget);
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(ushort.MinValue);
+        methodConvert.Push(ushort.MaxValue + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
 }

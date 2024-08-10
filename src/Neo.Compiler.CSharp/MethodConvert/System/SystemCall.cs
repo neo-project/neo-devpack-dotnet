@@ -28,9 +28,14 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private delegate bool SystemCallHandler(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments);
+    private delegate bool SystemCallHandler(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments);
 
     private static readonly Dictionary<string, SystemCallHandler> SystemCallHandlers = new();
+
+    static MethodConvert()
+    {
+        RegisterSystemCallHandlers();
+    }
 
     private static void RegisterHandler<TResult>(Expression<Func<TResult>> expression, SystemCallHandler handler)
     {
@@ -195,10 +200,9 @@ partial class MethodConvert
         }
 
         var key = symbol.ToString().Replace("?", "");
-
         if (SystemCallHandlers.TryGetValue(key, out var handler))
         {
-            return handler(model, symbol, instanceExpression, arguments);
+            return handler(this, model, symbol, instanceExpression, arguments);
         }
 
         switch (symbol.ToString())
