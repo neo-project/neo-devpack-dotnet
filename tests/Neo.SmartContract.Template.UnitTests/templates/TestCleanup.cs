@@ -16,8 +16,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         private static readonly Regex WhiteSpaceRegex = new("\\s");
         public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
 
-        // [AssemblyCleanup]
-        // public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
+        [AssemblyCleanup]
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()
