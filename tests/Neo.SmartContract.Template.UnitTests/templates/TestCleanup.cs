@@ -85,7 +85,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             {
                 // Uncomment to overwrite the artifact file
                 File.WriteAllText(artifactsPath, artifact);
-                // Assert.Fail($"{typeof(T).Name} artifact was wrong");
+                Assert.Fail($"{typeof(T).Name} artifact was wrong");
             }
 
             return (artifact, debug);
