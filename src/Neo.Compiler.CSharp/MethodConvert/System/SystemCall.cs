@@ -200,6 +200,7 @@ partial class MethodConvert
         }
 
         var key = symbol.ToString()!.Replace("?", "");
+        if (key == "string.ToString()") key = "object.ToString()";
         if (SystemCallHandlers.TryGetValue(key, out var handler))
         {
             return handler(this, model, symbol, instanceExpression, arguments);

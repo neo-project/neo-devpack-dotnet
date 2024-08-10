@@ -208,8 +208,8 @@ partial class MethodConvert
 
     private static bool HandleStringToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         return true;
     }
 
