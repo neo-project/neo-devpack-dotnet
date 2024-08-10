@@ -116,6 +116,7 @@ partial class MethodConvert
         RegisterHandler((bool x) => x.ToString(), HandleBoolToString);
         RegisterHandler((char x) => x.ToString(), HandleCharToString);
         RegisterHandler((object x) => x.ToString(), HandleObjectToString);
+        RegisterHandler((string s) => s.ToString(), HandleStringToString);
 
         // Register equality method handlers
         RegisterHandler((byte x, object? y) => x.Equals(y), HandleEquals);
@@ -136,9 +137,8 @@ partial class MethodConvert
         RegisterHandler((object? x, object? y) => x.Equals(y), HandleObjectEquals);
 
         // Register array and string method handlers
-        // RegisterHandler((Array a) => a.Length, HandleLength);
-        // RegisterHandler((string s) => s.Length, HandleLength);
-        // RegisterHandler((string s) => s.ToString(), HandleStringToString);
+        RegisterHandler((Array a) => a.Length, HandleLength);
+        RegisterHandler((string s) => s.Length, HandleLength);
 
         RegisterHandler((string? s) => string.IsNullOrEmpty(s), HandleStringIsNullOrEmpty);
         RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);

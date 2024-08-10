@@ -82,8 +82,6 @@ namespace Neo.Compiler
             this.Symbol = symbol;
             this._context = context;
             this._checkedStack.Push(context.Options.Checked);
-
-            RegisterSystemCallHandlers();
         }
 
         #endregion
