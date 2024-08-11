@@ -31,103 +31,103 @@ public abstract class Contract_Math : Neo.SmartContract.Testing.SmartContract, I
     /// Unsafe method
     /// </summary>
     [DisplayName("bigMul")]
-    public abstract BigInteger? BigMul(BigInteger? a, BigInteger? b);
+    public abstract BigInteger BigMul(BigInteger a, BigInteger b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampByte")]
-    public abstract BigInteger? ClampByte(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampByte(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampInt")]
-    public abstract BigInteger? ClampInt(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampInt(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampLong")]
-    public abstract BigInteger? ClampLong(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampLong(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampSByte")]
-    public abstract BigInteger? ClampSByte(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampSByte(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampShort")]
-    public abstract BigInteger? ClampShort(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampShort(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampUInt")]
-    public abstract BigInteger? ClampUInt(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampUInt(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampULong")]
-    public abstract BigInteger? ClampULong(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampULong(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampUShort")]
-    public abstract BigInteger? ClampUShort(BigInteger? value, BigInteger? min, BigInteger? max);
+    public abstract BigInteger ClampUShort(BigInteger value, BigInteger min, BigInteger max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemByte")]
-    public abstract IList<object>? DivRemByte(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemByte(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemInt")]
-    public abstract IList<object>? DivRemInt(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemInt(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemLong")]
-    public abstract IList<object>? DivRemLong(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemLong(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemSbyte")]
-    public abstract IList<object>? DivRemSbyte(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemSbyte(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemShort")]
-    public abstract IList<object>? DivRemShort(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemShort(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemUint")]
-    public abstract IList<object>? DivRemUint(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemUint(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemUlong")]
-    public abstract IList<object>? DivRemUlong(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemUlong(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemUshort")]
-    public abstract IList<object>? DivRemUshort(BigInteger? left, BigInteger? right);
+    public abstract IList<object> DivRemUshort(BigInteger left, BigInteger right);
 
     /// <summary>
     /// Unsafe method
