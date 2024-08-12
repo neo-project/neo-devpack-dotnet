@@ -28,6 +28,11 @@ partial class MethodConvert
         RegisterHandler((BigInteger x, BigInteger y) => BigInteger.Compare(x, y), HandleBigIntegerCompare);
         RegisterHandler((BigInteger x, BigInteger y) => BigInteger.GreatestCommonDivisor(x, y), HandleBigIntegerGreatestCommonDivisor);
         RegisterHandler((BigInteger x) => x.ToByteArray(), HandleBigIntegerToByteArray);
+        // RegisterHandler((BigInteger x) => x.ToString("X"), HandleBigIntegerToHexString);
+        // RegisterHandler((BigInteger x) => x.IsPowerOfTwo, HandleBigIntegerIsPowerOfTwo);
+        // RegisterHandler((BigInteger x) => x.GetBitLength(), HandleBigIntegerGetBitLength);
+        // RegisterHandler((BigInteger x) => x.GetByteCount(), HandleBigIntegerGetByteCount);
+
 
         // Register explicit conversion handlers
         RegisterHandler((BigInteger b) => (sbyte)b, HandleBigIntegerToSByte);
@@ -140,6 +145,11 @@ partial class MethodConvert
         RegisterHandler((Array a) => a.Length, HandleLength);
         RegisterHandler((string s) => s.Length, HandleLength);
 
+
+        // RegisterHandler((Array a, int index, object? value) => a.SetValue(value, index), HandleArraySetValue);
+        // RegisterHandler((Array a, int index) => a.GetValue(index), HandleArrayGetValue);
+        // RegisterHandler((Array a) => a.Clone(), HandleArrayClone);
+
         RegisterHandler((string? s) => string.IsNullOrEmpty(s), HandleStringIsNullOrEmpty);
         RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
         RegisterHandler((string s, string value) => s.Contains(value), HandleStringContains);
@@ -168,6 +178,13 @@ partial class MethodConvert
         RegisterHandler((char c) => char.IsWhiteSpace(c), HandleCharIsWhiteSpace);
         RegisterHandler((char c) => char.IsLower(c), HandleCharIsLower);
         RegisterHandler((char c) => char.IsUpper(c), HandleCharIsUpper);
+        // RegisterHandler((char c) => char.GetNumericValue(c), HandleCharGetNumericValue);
+        // RegisterHandler((char c) => char.IsPunctuation(c), HandleCharIsPunctuation);
+        // RegisterHandler((char c) => char.IsSymbol(c), HandleCharIsSymbol);
+        // RegisterHandler((char c) => char.IsControl(c), HandleCharIsControl);
+        // RegisterHandler((char c) => char.IsSurrogate(c), HandleCharIsSurrogate);
+        // RegisterHandler((char c) => char.IsHighSurrogate(c), HandleCharIsHighSurrogate);
+        // RegisterHandler((char c) => char.IsLowSurrogate(c), HandleCharIsLowSurrogate);
 
         // Register additional methods for basic types
         RegisterHandler((byte x, byte y) => x.CompareTo(y), HandleBigIntegerCompare);
@@ -188,6 +205,7 @@ partial class MethodConvert
         RegisterHandler((string s) => uint.Parse(s), HandleUIntParse);
         RegisterHandler((string s) => long.Parse(s), HandleLongParse);
         RegisterHandler((string s) => ulong.Parse(s), HandleULongParse);
+        // RegisterHandler((string s) => bool.Parse(s), HandleBoolParse);
         RegisterHandler((string s) => BigInteger.Parse(s), HandleBigIntegerParse);
     }
 }
