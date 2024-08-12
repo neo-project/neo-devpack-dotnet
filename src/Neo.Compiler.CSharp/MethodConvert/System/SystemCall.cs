@@ -211,18 +211,24 @@ partial class MethodConvert
                     return true;
                 }
             case "int.LeadingZeroCount(int)":
-            case "byte.LeadingZeroCount(byte)":
-            case "sbyte.LeadingZeroCount(sbyte)":
-            case "short.LeadingZeroCount(short)":
-            case "ushort.LeadingZeroCount(ushort)":
             case "uint.LeadingZeroCount(uint)":
-            case "long.LeadingZeroCount(long)":
-            case "ulong.LeadingZeroCount(ulong)":
                 {
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     JumpTarget endLoop = new();
                     JumpTarget loopStart = new();
+                    JumpTarget endTarget = new();
+                    if (symbol.ToString() == "int.LeadingZeroCount(int)")
+                    {
+                        AddInstruction(OpCode.DUP); // a a
+                        AddInstruction(OpCode.PUSH0);// a a 0
+                        JumpTarget notNegative = new();
+                        Jump(OpCode.JMPGE, notNegative); //a
+                        AddInstruction(OpCode.DROP);
+                        AddInstruction(OpCode.PUSH0);
+                        Jump(OpCode.JMP, endTarget);
+                        notNegative.Instruction = AddInstruction(OpCode.NOP);
+                    }
                     Push(0); // count 5 0
                     loopStart.Instruction = AddInstruction(OpCode.SWAP); //0 5
                     AddInstruction(OpCode.DUP);//  0 5 5
@@ -237,34 +243,115 @@ partial class MethodConvert
                     Push(32);
                     AddInstruction(OpCode.SWAP);
                     AddInstruction(OpCode.SUB);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
                     return true;
                 }
-            case "int.PopCount(int)":
-            case "byte.PopCount(byte)":
-            case "sbyte.PopCount(sbyte)":
-            case "short.PopCount(short)":
-            case "ushort.PopCount(ushort)":
-            case "uint.PopCount(uint)":
-            case "long.PopCount(long)":
-            case "ulong.PopCount(ulong)":
+            case "byte.LeadingZeroCount(byte)":
+            case "sbyte.LeadingZeroCount(sbyte)":
                 {
                     if (arguments is not null)
                         PrepareArgumentsForMethod(model, symbol, arguments);
                     JumpTarget endLoop = new();
                     JumpTarget loopStart = new();
-                    AddInstruction(OpCode.PUSH0); //5 0
-                    loopStart.Instruction = AddInstruction(OpCode.SWAP); // 0 5
-                    AddInstruction(OpCode.DUP); // 0 5 5
-                    AddInstruction(OpCode.PUSH0);
-                    Jump(OpCode.JMPEQ, endLoop); // 0 5
-                    AddInstruction(OpCode.DUP); // 0 5 5
-                    AddInstruction(OpCode.DEC); // 0 5 5-1
-                    AddInstruction(OpCode.AND); // 0 5&(5-1)
-                    AddInstruction(OpCode.SWAP);
-                    AddInstruction(OpCode.INC); // 5&(5-1) 0+1
+                    JumpTarget endTarget = new();
+                    JumpTarget notNegative = new();
+                    if (symbol.ToString() == "sbyte.LeadingZeroCount(sbyte)")
+                    {
+                        AddInstruction(OpCode.DUP); // a a
+                        AddInstruction(OpCode.PUSH0);// a a 0
+                        Jump(OpCode.JMPGE, notNegative); //a
+                        AddInstruction(OpCode.DROP);
+                        AddInstruction(OpCode.PUSH0);
+                        Jump(OpCode.JMP, endTarget);
+                        notNegative.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    Push(0); // count 5 0
+                    loopStart.Instruction = AddInstruction(OpCode.SWAP); //0 5
+                    AddInstruction(OpCode.DUP);//  0 5 5
+                    AddInstruction(OpCode.PUSH0);// 0 5 5 0
+                    Jump(OpCode.JMPEQ, endLoop); //0 5
+                    AddInstruction(OpCode.PUSH1);//0 5 1
+                    AddInstruction(OpCode.SHR); //0  5>>1
+                    AddInstruction(OpCode.SWAP);//5>>1 0
+                    AddInstruction(OpCode.INC);// 5>>1 1
                     Jump(OpCode.JMP, loopStart);
                     endLoop.Instruction = AddInstruction(OpCode.DROP);
-
+                    Push(8);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "short.LeadingZeroCount(short)":
+            case "ushort.LeadingZeroCount(ushort)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endLoop = new();
+                    JumpTarget loopStart = new();
+                    JumpTarget endTarget = new();
+                    if (symbol.ToString() == "short.LeadingZeroCount(short)")
+                    {
+                        AddInstruction(OpCode.DUP); // a a
+                        AddInstruction(OpCode.PUSH0);// a a 0
+                        JumpTarget notNegative = new();
+                        Jump(OpCode.JMPGE, notNegative); //a
+                        AddInstruction(OpCode.DROP);
+                        AddInstruction(OpCode.PUSH0);
+                        Jump(OpCode.JMP, endTarget);
+                        notNegative.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    Push(0); // count 5 0
+                    loopStart.Instruction = AddInstruction(OpCode.SWAP); //0 5
+                    AddInstruction(OpCode.DUP);//  0 5 5
+                    AddInstruction(OpCode.PUSH0);// 0 5 5 0
+                    Jump(OpCode.JMPEQ, endLoop); //0 5
+                    AddInstruction(OpCode.PUSH1);//0 5 1
+                    AddInstruction(OpCode.SHR); //0  5>>1
+                    AddInstruction(OpCode.SWAP);//5>>1 0
+                    AddInstruction(OpCode.INC);// 5>>1 1
+                    Jump(OpCode.JMP, loopStart);
+                    endLoop.Instruction = AddInstruction(OpCode.DROP);
+                    Push(16);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "long.LeadingZeroCount(long)":
+            case "ulong.LeadingZeroCount(ulong)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endLoop = new();
+                    JumpTarget loopStart = new();
+                    JumpTarget endTarget = new();
+                    if (symbol.ToString() == "long.LeadingZeroCount(long)")
+                    {
+                        AddInstruction(OpCode.DUP); // a a
+                        AddInstruction(OpCode.PUSH0);// a a 0
+                        JumpTarget notNegative = new();
+                        Jump(OpCode.JMPGE, notNegative); //a
+                        AddInstruction(OpCode.DROP);
+                        AddInstruction(OpCode.PUSH0);
+                        Jump(OpCode.JMP, endTarget);
+                        notNegative.Instruction = AddInstruction(OpCode.NOP);
+                    }
+                    Push(0); // count 5 0
+                    loopStart.Instruction = AddInstruction(OpCode.SWAP); //0 5
+                    AddInstruction(OpCode.DUP);//  0 5 5
+                    AddInstruction(OpCode.PUSH0);// 0 5 5 0
+                    Jump(OpCode.JMPEQ, endLoop); //0 5
+                    AddInstruction(OpCode.PUSH1);//0 5 1
+                    AddInstruction(OpCode.SHR); //0  5>>1
+                    AddInstruction(OpCode.SWAP);//5>>1 0
+                    AddInstruction(OpCode.INC);// 5>>1 1
+                    Jump(OpCode.JMP, loopStart);
+                    endLoop.Instruction = AddInstruction(OpCode.DROP);
+                    Push(64);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
                     return true;
                 }
             case "int.Log2(int)":
@@ -280,10 +367,14 @@ partial class MethodConvert
                         PrepareArgumentsForMethod(model, symbol, arguments);
 
                     JumpTarget endLoop = new();
-                    JumpTarget invalidInput = new();
+                    JumpTarget negativeInput = new();
+                    JumpTarget zeroTarget = new();
                     AddInstruction(OpCode.DUP);// 5 5
                     AddInstruction(OpCode.PUSH0); // 5 5 0
-                    Jump(OpCode.JMPLT, invalidInput); // 5
+                    Jump(OpCode.JMPEQ, zeroTarget); // 5
+                    AddInstruction(OpCode.DUP);// 5 5
+                    AddInstruction(OpCode.PUSH0); // 5 5 0
+                    Jump(OpCode.JMPLT, negativeInput); // 5
                     AddInstruction(OpCode.PUSHM1);// 5 -1
                     JumpTarget loopStart = new();
                     loopStart.Instruction = AddInstruction(OpCode.SWAP); // -1 5
@@ -299,9 +390,12 @@ partial class MethodConvert
                     AddInstruction(OpCode.DROP); // -1
                     JumpTarget endMethod = new();
                     Jump(OpCode.JMP, endMethod);
-                    invalidInput.Instruction = AddInstruction(OpCode.DROP);
-                    AddInstruction(OpCode.PUSHM1);
-
+                    zeroTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DROP);
+                    Push(0);
+                    Jump(OpCode.JMP, endMethod);
+                    negativeInput.Instruction = AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.THROW);
                     endMethod.Instruction = AddInstruction(OpCode.NOP);
 
                     return true;
@@ -1126,11 +1220,6 @@ partial class MethodConvert
             case "int.CreateChecked<short>(short)":
             case "int.CreateChecked<ushort>(ushort)":
             case "int.CreateChecked<int>(int)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "int.CreateChecked<uint>(uint)":
             case "int.CreateChecked<long>(long)":
             case "int.CreateChecked<ulong>(ulong)":
@@ -1153,11 +1242,6 @@ partial class MethodConvert
             case "uint.CreateChecked<short>(short)":
             case "uint.CreateChecked<ushort>(ushort)":
             case "uint.CreateChecked<uint>(uint)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "uint.CreateChecked<int>(int)":
             case "uint.CreateChecked<long>(long)":
             case "uint.CreateChecked<ulong>(ulong)":
@@ -1176,11 +1260,6 @@ partial class MethodConvert
                     return true;
                 }
             case "byte.CreateChecked<byte>(byte)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "byte.CreateChecked<sbyte>(sbyte)":
             case "byte.CreateChecked<short>(short)":
             case "byte.CreateChecked<ushort>(ushort)":
@@ -1203,11 +1282,6 @@ partial class MethodConvert
                     return true;
                 }
             case "sbyte.CreateChecked<sbyte>(sbyte)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "sbyte.CreateChecked<byte>(byte)":
             case "sbyte.CreateChecked<short>(short)":
             case "sbyte.CreateChecked<ushort>(ushort)":
@@ -1232,11 +1306,6 @@ partial class MethodConvert
             case "short.CreateChecked<byte>(byte)":
             case "short.CreateChecked<sbyte>(sbyte)":
             case "short.CreateChecked<short>(short)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "short.CreateChecked<ushort>(ushort)":
             case "short.CreateChecked<int>(int)":
             case "short.CreateChecked<uint>(uint)":
@@ -1259,11 +1328,6 @@ partial class MethodConvert
             case "ushort.CreateChecked<byte>(byte)":
             case "ushort.CreateChecked<sbyte>(sbyte)":
             case "ushort.CreateChecked<ushort>(ushort)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "ushort.CreateChecked<short>(short)":
             case "ushort.CreateChecked<int>(int)":
             case "ushort.CreateChecked<uint>(uint)":
@@ -1289,11 +1353,6 @@ partial class MethodConvert
             case "long.CreateChecked<sbyte>(sbyte)":
             case "long.CreateChecked<short>(short)":
             case "long.CreateChecked<long>(long)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "long.CreateChecked<ushort>(ushort)":
             case "long.CreateChecked<ulong>(ulong)":
             case "long.CreateChecked<char>(char)":
@@ -1315,11 +1374,6 @@ partial class MethodConvert
             case "ulong.CreateChecked<byte>(byte)":
             case "ulong.CreateChecked<sbyte>(sbyte)":
             case "ulong.CreateChecked<ushort>(ushort)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "ulong.CreateChecked<short>(short)":
             case "ulong.CreateChecked<long>(long)":
             case "ulong.CreateChecked<ulong>(ulong)":
@@ -1342,11 +1396,6 @@ partial class MethodConvert
             case "int.CreateSaturating<short>(short)":
             case "int.CreateSaturating<ushort>(ushort)":
             case "int.CreateSaturating<int>(int)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "int.CreateSaturating<uint>(uint)":
             case "int.CreateSaturating<long>(long)":
             case "int.CreateSaturating<ulong>(ulong)":
@@ -1400,11 +1449,6 @@ partial class MethodConvert
             case "uint.CreateSaturating<short>(short)":
             case "uint.CreateSaturating<ushort>(ushort)":
             case "uint.CreateSaturating<uint>(uint)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "uint.CreateSaturating<int>(int)":
             case "uint.CreateSaturating<long>(long)":
             case "uint.CreateSaturating<ulong>(ulong)":
@@ -1454,11 +1498,6 @@ partial class MethodConvert
                     return true;
                 }
             case "byte.CreateSaturating<byte>(byte)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "byte.CreateSaturating<sbyte>(sbyte)":
             case "byte.CreateSaturating<short>(short)":
             case "byte.CreateSaturating<ushort>(ushort)":
@@ -1512,11 +1551,6 @@ partial class MethodConvert
                     return true;
                 }
             case "sbyte.CreateSaturating<sbyte>(sbyte)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "sbyte.CreateSaturating<byte>(byte)":
             case "sbyte.CreateSaturating<short>(short)":
             case "sbyte.CreateSaturating<ushort>(ushort)":
@@ -1572,11 +1606,6 @@ partial class MethodConvert
             case "short.CreateSaturating<byte>(byte)":
             case "short.CreateSaturating<sbyte>(sbyte)":
             case "short.CreateSaturating<short>(short)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "short.CreateSaturating<ushort>(ushort)":
             case "short.CreateSaturating<int>(int)":
             case "short.CreateSaturating<uint>(uint)":
@@ -1630,11 +1659,6 @@ partial class MethodConvert
             case "ushort.CreateSaturating<byte>(byte)":
             case "ushort.CreateSaturating<sbyte>(sbyte)":
             case "ushort.CreateSaturating<ushort>(ushort)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "ushort.CreateSaturating<short>(short)":
             case "ushort.CreateSaturating<int>(int)":
             case "ushort.CreateSaturating<uint>(uint)":
@@ -1691,11 +1715,6 @@ partial class MethodConvert
             case "long.CreateSaturating<sbyte>(sbyte)":
             case "long.CreateSaturating<short>(short)":
             case "long.CreateSaturating<long>(long)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "long.CreateSaturating<ushort>(ushort)":
             case "long.CreateSaturating<ulong>(ulong)":
             case "long.CreateSaturating<char>(char)":
@@ -1748,11 +1767,6 @@ partial class MethodConvert
             case "ulong.CreateSaturating<byte>(byte)":
             case "ulong.CreateSaturating<sbyte>(sbyte)":
             case "ulong.CreateSaturating<ushort>(ushort)":
-                {
-                    if (arguments is not null)
-                        PrepareArgumentsForMethod(model, symbol, arguments);
-                    return true;
-                }
             case "ulong.CreateSaturating<short>(short)":
             case "ulong.CreateSaturating<long>(long)":
             case "ulong.CreateSaturating<ulong>(ulong)":

@@ -89,7 +89,6 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return BigInteger.Clamp(value, min, max);
     }
 
-
     public static int CopySignInt(int value, int sign)
     {
         return int.CopySign(value, sign);
@@ -115,34 +114,34 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return int.CreateChecked(value);
     }
 
-    public static int CreateCheckedByte(byte value)
+    public static byte CreateCheckedByte(byte value)
     {
-        return int.CreateChecked(value);
+        return byte.CreateChecked(value);
     }
 
-    public static int CreateCheckedLong(long value)
+    public static long CreateCheckedLong(long value)
     {
-        return int.CreateChecked(value);
+        return long.CreateChecked(value);
     }
 
-    public static int CreateCheckedUlong(ulong value)
+    public static ulong CreateCheckedUlong(ulong value)
     {
-        return int.CreateChecked(value);
+        return ulong.CreateChecked(value);
     }
 
-    public static int CreateCheckedChar(char value)
+    public static ushort CreateCheckedChar(char value)
     {
-        return int.CreateChecked(value);
+        return ushort.CreateChecked(value);
     }
 
     public static int CreateCheckedShort(short value)
     {
-        return int.CreateChecked(value);
+        return short.CreateChecked(value);
     }
 
-    public static int CreateCheckedSbyte(sbyte value)
+    public static sbyte CreateCheckedSbyte(sbyte value)
     {
-        return int.CreateChecked(value);
+        return sbyte.CreateChecked(value);
     }
 
     public static int CreateSaturatingInt(int value)
@@ -150,29 +149,29 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return int.CreateSaturating(value);
     }
 
-    public static int CreateSaturatingByte(byte value)
+    public static byte CreateSaturatingByte(byte value)
     {
-        return int.CreateSaturating(value);
+        return byte.CreateSaturating(value);
     }
 
-    public static int CreateSaturatingLong(long value)
+    public static long CreateSaturatingLong(long value)
     {
-        return int.CreateSaturating(value);
+        return long.CreateSaturating(value);
     }
 
-    public static int CreateSaturatingUlong(ulong value)
+    public static ulong CreateSaturatingUlong(ulong value)
     {
-        return int.CreateSaturating(value);
+        return ulong.CreateSaturating(value);
     }
 
-    public static int CreateSaturatingChar(char value)
+    public static ushort CreateSaturatingChar(char value)
     {
-        return int.CreateSaturating(value);
+        return ushort.CreateSaturating(value);
     }
 
-    public static int CreateSaturatingSbyte(sbyte value)
+    public static sbyte CreateSaturatingSbyte(sbyte value)
     {
-        return int.CreateSaturating(value);
+        return sbyte.CreateSaturating(value);
     }
 
     public static bool IsEvenIntegerInt(int value)
@@ -404,41 +403,5 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
     public static int Log2Sbyte(sbyte value)
     {
         return sbyte.Log2(value);
-    }
-
-
-    public static int PopCountInt(int value)
-    {
-        return int.PopCount(value);
-    }
-
-    public static uint PopCountUInt(uint value)
-    {
-        return uint.PopCount(value);
-    }
-
-    public static long PopCountLong(long value)
-    {
-        return long.PopCount(value);
-    }
-
-    public static int PopCountShort(short value)
-    {
-        return short.PopCount(value);
-    }
-
-    public static int PopCountUshort(ushort value)
-    {
-        return ushort.PopCount(value);
-    }
-
-    public static int PopCountByte(byte value)
-    {
-        return byte.PopCount(value);
-    }
-
-    public static int PopCountSbyte(sbyte value)
-    {
-        return sbyte.PopCount(value);
     }
 }
