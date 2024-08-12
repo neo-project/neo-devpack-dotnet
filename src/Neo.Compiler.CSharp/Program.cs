@@ -45,6 +45,7 @@ namespace Neo.Compiler
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
+                new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"),
                 new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -305,9 +306,17 @@ namespace Neo.Compiler
                 }
                 Console.WriteLine("Compilation completed successfully.");
 
-                Console.WriteLine("Performing security analysis...");
-                ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
-                Console.WriteLine("Finished security analysis");
+                if (options.SecurityAnalysis)
+                {
+                    Console.WriteLine("Performing security analysis...");
+                    try
+                    {
+                        ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
+                    }
+                    catch (Exception e) { Console.WriteLine(e); }
+                    Console.WriteLine("Finished security analysis.");
+                    Console.WriteLine("There can be many false positives in the security analysis. Take it easy.");
+                }
 
                 return 0;
             }
